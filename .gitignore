@@ -4,6 +4,7 @@ __pycache__/
 # Dati raccolti localmente dalla dashboard
 data/*.sqlite3
 data/*.sqlite3-*
+data/*.log
 
 # File temporanei del sistema operativo
 .DS_Store

@@ -27,8 +27,8 @@ There is no username to configure and no token to paste into the app.
 
 | Area | What it shows |
 | --- | --- |
-| **Overview** | Reach, interest, validation, community trends and important signals |
-| **Repositories** | Portfolio ranking, unique visitors, clones, referrers and popular pages |
+| **Overview** | Page views, clone activity, net star changes, community trends and important signals |
+| **Repositories** | Portfolio ranking, page views, clone events, GitHub-native 14-day uniques, referrers and popular pages |
 | **Insights** | Prioritized opportunities, repository comparison, weekly digest and local alerts |
 | **Stars** | Timestamped stargazer timeline for repositories you can access |
 | **Network** | Followers, following, mutual relationships and changes over time |
@@ -122,9 +122,27 @@ GitHub Pulse opens at [http://127.0.0.1:8765](http://127.0.0.1:8765). Press
 
 ## How collection works
 
-GitHub exposes repository views and clones for the latest 14 days. GitHub Pulse
-persists every available day in SQLite, building a history that can extend
-beyond GitHub's window.
+GitHub exposes repository views and clones for a rolling 14-day window. GitHub
+Pulse stores both the native 14-day totals and every available daily value in
+SQLite, building an event history that can extend beyond GitHub's window.
+
+The dashboard keeps the meanings separate:
+
+- **Page views** and **clone events** are additive and can be compared across
+  repositories.
+- **Unique visitors · GitHub 14d** and **unique cloners · GitHub 14d** are the
+  native per-repository aggregates returned by GitHub.
+- Sums of daily unique values are stored as **visitor-days** and
+  **cloner-days** for historical analysis; they are never presented as unique
+  people.
+- **Clone/View ratio** compares aggregate events. It is not a conversion rate
+  and does not identify human intent.
+- **Net stars** and **net forks** are differences between repository snapshots,
+  not counts of newly acquired stars or forks. Their actual observation window
+  is shown next to the value.
+
+If one GitHub traffic endpoint fails, GitHub Pulse preserves the last valid
+values for that channel instead of replacing them with zero.
 
 While the server is running, a complete collection starts when the previous one
 is more than 20 hours old. You can also start it manually with **Collect now**.
@@ -135,9 +153,13 @@ Follower and following lists do not include timestamps. GitHub Pulse therefore
 creates a baseline on first run and records additions or removals from subsequent
 snapshots.
 
-The **Opportunity Center** combines these historical signals with repository
-readiness checks. Recommendations are heuristics: they highlight likely next
-actions, while leaving the final decision to you.
+The **Opportunity Center** combines page views, clone events, snapshot changes
+and repository readiness checks. Recommendations are heuristics: they highlight
+likely next actions without claiming a visitor-to-star or clone conversion.
+
+The **Pulse Score** ranks repositories using page-view events, clone events and
+positive net star/fork changes. It does not use summed unique counts or inferred
+conversion rates.
 
 The **Weekly Digest** can be copied or downloaded as Markdown. Desktop alerts
 use the browser's local notification permission and are disabled by default.
@@ -159,9 +181,11 @@ GitHub does not expose:
 - a direct visitor-to-clone conversion path;
 - an official API for every achievement already displayed on a profile.
 
-Clone-to-visitor percentages in the interface are aggregate indicators, not
-individual conversions. Achievement cards are eligibility estimates and not an
-authoritative badge record.
+GitHub's native unique totals apply to one repository and one rolling 14-day
+window. They cannot be added across repositories or days to produce
+account-level unique reach. The Clone/View ratio compares aggregate events and
+is not an individual conversion. Achievement cards are eligibility estimates
+and not an authoritative badge record.
 
 ## Architecture
 
