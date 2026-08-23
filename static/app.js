@@ -522,10 +522,12 @@ async function loadTraffic(repo, refresh = false) {
 function renderTraffic(data) {
   $("#trafficEmpty").classList.add("hidden");
   $("#trafficContent").classList.remove("hidden");
-  $("#viewsCount").textContent = number.format(data.views.count || 0);
-  $("#uniqueViewsCount").textContent = number.format(data.views.uniques || 0);
-  $("#clonesCount").textContent = number.format(data.clones.count || 0);
-  $("#uniqueClonesCount").textContent = number.format(data.clones.uniques || 0);
+  const viewsAvailable = data.views.available !== false;
+  const clonesAvailable = data.clones.available !== false;
+  $("#viewsCount").textContent = viewsAvailable ? number.format(data.views.count || 0) : "—";
+  $("#uniqueViewsCount").textContent = viewsAvailable ? number.format(data.views.uniques || 0) : "—";
+  $("#clonesCount").textContent = clonesAvailable ? number.format(data.clones.count || 0) : "—";
+  $("#uniqueClonesCount").textContent = clonesAvailable ? number.format(data.clones.uniques || 0) : "—";
   $("#chartSubtitle").textContent = `${data.history.length} days stored locally`;
   renderChart(data.history);
   renderDataList("#referrerList", data.referrers, (item) => ({

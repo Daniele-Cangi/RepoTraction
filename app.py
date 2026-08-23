@@ -601,33 +601,35 @@ def _safe_traffic_call(endpoint: str, default: Any) -> Any:
         return default
 
 
-def save_traffic(repo: str, views: dict[str, Any], clones: dict[str, Any]) -> None:
-    collected_at = utc_now()
+def save_traffic(
+    repo: str,
+    views: dict[str, Any] | None,
+    clones: dict[str, Any] | None,
+    *,
+    collected_at: str | None = None,
+) -> None:
+    timestamp = collected_at or utc_now()
     view_days = {
         str(item.get("timestamp", ""))[:10]: item
-        for item in views.get("views", [])
+        for item in (views or {}).get("views", [])
         if item.get("timestamp")
     }
     clone_days = {
         str(item.get("timestamp", ""))[:10]: item
-        for item in clones.get("clones", [])
+        for item in (clones or {}).get("clones", [])
         if item.get("timestamp")
     }
 
     with database_connection() as connection:
-        for day in sorted(set(view_days) | set(clone_days)):
-            view = view_days.get(day, {})
-            clone = clone_days.get(day, {})
+        for day, view in sorted(view_days.items()):
             connection.execute(
                 """
                 INSERT INTO traffic_daily (
-                    repo, day, views, unique_views, clones, unique_clones, collected_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                    repo, day, views, unique_views, collected_at
+                ) VALUES (?, ?, ?, ?, ?)
                 ON CONFLICT(repo, day) DO UPDATE SET
                     views = excluded.views,
                     unique_views = excluded.unique_views,
-                    clones = excluded.clones,
-                    unique_clones = excluded.unique_clones,
                     collected_at = excluded.collected_at
                 """,
                 (
@@ -635,9 +637,26 @@ def save_traffic(repo: str, views: dict[str, Any], clones: dict[str, Any]) -> No
                     day,
                     int(view.get("count", 0)),
                     int(view.get("uniques", 0)),
+                    timestamp,
+                ),
+            )
+        for day, clone in sorted(clone_days.items()):
+            connection.execute(
+                """
+                INSERT INTO traffic_daily (
+                    repo, day, clones, unique_clones, collected_at
+                ) VALUES (?, ?, ?, ?, ?)
+                ON CONFLICT(repo, day) DO UPDATE SET
+                    clones = excluded.clones,
+                    unique_clones = excluded.unique_clones,
+                    collected_at = excluded.collected_at
+                """,
+                (
+                    repo,
+                    day,
                     int(clone.get("count", 0)),
                     int(clone.get("uniques", 0)),
-                    collected_at,
+                    timestamp,
                 ),
             )
 
@@ -1315,14 +1334,15 @@ def build_traffic(repo: str, *, force: bool = False) -> dict[str, Any]:
         "paths": f"repos/{repo}/traffic/popular/paths",
     }
     defaults: dict[str, Any] = {
-        "views": {"count": 0, "uniques": 0, "views": []},
-        "clones": {"count": 0, "uniques": 0, "clones": []},
+        "views": {"count": None, "uniques": None, "views": [], "available": False},
+        "clones": {"count": None, "uniques": None, "clones": [], "available": False},
         "referrers": [],
         "paths": [],
     }
 
     data: dict[str, Any] = {}
     errors: list[str] = []
+    failed_endpoints: set[str] = set()
     with ThreadPoolExecutor(max_workers=4) as executor:
         future_map = {
             executor.submit(run_gh_json, endpoint): name
@@ -1332,8 +1352,11 @@ def build_traffic(repo: str, *, force: bool = False) -> dict[str, Any]:
             name = future_map[future]
             try:
                 data[name] = future.result()
+                if name in {"views", "clones"} and isinstance(data[name], dict):
+                    data[name]["available"] = True
             except GitHubCLIError as exc:
                 data[name] = defaults[name]
+                failed_endpoints.add(name)
                 errors.append(f"{name}: {exc}")
 
     if len(errors) == len(endpoints):
@@ -1342,7 +1365,11 @@ def build_traffic(repo: str, *, force: bool = False) -> dict[str, Any]:
             "that the GitHub CLI token can access the repository."
         )
 
-    save_traffic(repo, data["views"], data["clones"])
+    save_traffic(
+        repo,
+        None if "views" in failed_endpoints else data["views"],
+        None if "clones" in failed_endpoints else data["clones"],
+    )
     payload = {
         "repo": repo,
         "collected_at": utc_now(),

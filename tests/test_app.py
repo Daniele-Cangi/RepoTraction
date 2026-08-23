@@ -177,6 +177,75 @@ class PersistenceTests(unittest.TestCase):
             {("Alice", "lost_follower"), ("Carol", "new_follower")},
         )
 
+    def test_partial_traffic_updates_preserve_previous_valid_metrics(self) -> None:
+        timestamp = "2026-08-21T10:00:00+00:00"
+        views = {
+            "views": [
+                {
+                    "timestamp": timestamp,
+                    "count": 20,
+                    "uniques": 8,
+                }
+            ]
+        }
+        clones = {
+            "clones": [
+                {
+                    "timestamp": timestamp,
+                    "count": 6,
+                    "uniques": 3,
+                }
+            ]
+        }
+        app.save_traffic(
+            "octocat/hello-world",
+            views,
+            clones,
+            collected_at=timestamp,
+        )
+
+        updated_views = {
+            "views": [
+                {
+                    "timestamp": timestamp,
+                    "count": 25,
+                    "uniques": 10,
+                }
+            ]
+        }
+        app.save_traffic(
+            "octocat/hello-world",
+            updated_views,
+            None,
+            collected_at="2026-08-21T11:00:00+00:00",
+        )
+        row = app.get_traffic_history("octocat/hello-world")[0]
+        self.assertEqual(
+            (row["views"], row["unique_views"], row["clones"], row["unique_clones"]),
+            (25, 10, 6, 3),
+        )
+
+        updated_clones = {
+            "clones": [
+                {
+                    "timestamp": timestamp,
+                    "count": 9,
+                    "uniques": 4,
+                }
+            ]
+        }
+        app.save_traffic(
+            "octocat/hello-world",
+            None,
+            updated_clones,
+            collected_at="2026-08-21T12:00:00+00:00",
+        )
+        row = app.get_traffic_history("octocat/hello-world")[0]
+        self.assertEqual(
+            (row["views"], row["unique_views"], row["clones"], row["unique_clones"]),
+            (25, 10, 9, 4),
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
