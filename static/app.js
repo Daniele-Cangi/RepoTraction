@@ -194,9 +194,10 @@ function renderSignals(data) {
   renderNotifications(data.notifications);
 
   const followerDelta = data.relationship_delta?.followers || 0;
+  const relationshipPeriod = data.relationship_period?.label || "no comparison yet";
   $("#followersDelta").innerHTML = followerDelta
-    ? `${formatDelta(followerDelta)} since the available baseline`
-    : "stable since the available baseline";
+    ? `${formatDelta(followerDelta)} · ${escapeHtml(relationshipPeriod)}`
+    : `stable · ${escapeHtml(relationshipPeriod)}`;
   renderCollection(data.collection || {});
   maybeNotifyImportantSignals(data);
 }
@@ -229,7 +230,7 @@ function renderRepositoryRadar(rows) {
       <span class="repo-name"><i class="${repo.private ? "private" : ""}"></i><span><strong>${escapeHtml(repo.name)}</strong><small>${escapeHtml(repo.language || (repo.private ? "Private" : "Public"))}</small></span></span>
       <span><strong>${number.format(repo.views_7d)}</strong>${formatDelta(percentage(repo.views_7d, repo.previous_views), "%")}</span>
       <span><strong>${number.format(repo.clones_7d)}</strong><small>${repo.clone_view_ratio === null ? "—" : `${repo.clone_view_ratio}% clone/view`}</small></span>
-      <span><strong>${number.format(repo.stars)}</strong>${repo.net_stars ? formatDelta(repo.net_stars) : "<small>stable</small>"}</span>
+      <span><strong>${number.format(repo.stars)}</strong>${repo.net_stars ? formatDelta(repo.net_stars) : "<small>stable</small>"}<small>${escapeHtml(repo.snapshot_period?.label || "no comparison yet")}</small></span>
       <span class="pulse-score">${repo.signal_score}</span>
     </button>`).join("");
 }
@@ -352,7 +353,7 @@ function renderComparison(data) {
       ["Unique visitors · GitHub 14d", comparisonValue(repo.unique_visitors_14d)],
       ["Unique cloners · GitHub 14d", comparisonValue(repo.unique_cloners_14d)],
       ["Clone/View ratio", comparisonValue(repo.clone_view_ratio, "%")],
-      ["Net stars", `${Number(repo.net_stars || 0) > 0 ? "+" : ""}${number.format(repo.net_stars || 0)}`],
+      [`Net stars · ${repo.snapshot_period?.label || "no comparison yet"}`, `${Number(repo.net_stars || 0) > 0 ? "+" : ""}${number.format(repo.net_stars || 0)}`],
     ];
     return `<article class="comparison-repo">
       <header><a href="https://github.com/${escapeHtml(repo.repo)}" target="_blank" rel="noreferrer">${escapeHtml(repo.name)}</a><strong>${number.format(repo.signal_score || 0)}</strong></header>
@@ -389,8 +390,8 @@ function renderDigest(data) {
   const cards = [
     ["Page views", totals.views_7d || 0, "repository views · 7d"],
     ["Clones", totals.clones_7d || 0, "full events · 7d"],
-    ["Stars", `${Number(totals.net_stars || 0) > 0 ? "+" : ""}${number.format(totals.net_stars || 0)}`, "net change"],
-    ["Followers", `${followerDelta > 0 ? "+" : ""}${number.format(followerDelta)}`, "net change"],
+    ["Stars", `${Number(totals.net_stars || 0) > 0 ? "+" : ""}${number.format(totals.net_stars || 0)}`, "net · per-repo baselines"],
+    ["Followers", `${followerDelta > 0 ? "+" : ""}${number.format(followerDelta)}`, data.relationship_period?.label || "no comparison yet"],
   ];
   const repositories = data.top_repositories || [];
   const opportunities = data.opportunities || [];

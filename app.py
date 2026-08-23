@@ -719,6 +719,72 @@ def percentage_change(current: int, previous: int) -> float | None:
     return round(((current - previous) / previous) * 100, 1)
 
 
+def parse_utc_timestamp(value: Any) -> datetime | None:
+    if not value:
+        return None
+    try:
+        parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=timezone.utc)
+    return parsed.astimezone(timezone.utc)
+
+
+def select_comparison_window(
+    rows: list[Any],
+    *,
+    first_label: str,
+    target_days: int = 7,
+) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
+    parsed_rows: list[tuple[datetime, dict[str, Any]]] = []
+    for row in rows:
+        item = dict(row)
+        collected_at = parse_utc_timestamp(item.get("collected_at"))
+        if collected_at is not None:
+            parsed_rows.append((collected_at, item))
+    parsed_rows.sort(key=lambda item: item[0])
+
+    if not parsed_rows:
+        return {}, {}, {
+            "from": None,
+            "to": None,
+            "days_observed": 0.0,
+            "is_full_window": False,
+            "label": "no comparison yet",
+        }
+
+    latest_time, latest = parsed_rows[-1]
+    cutoff = latest_time - timedelta(days=target_days)
+    eligible = [item for item in parsed_rows if item[0] <= cutoff]
+    baseline_time, baseline = eligible[-1] if eligible else parsed_rows[0]
+    days_observed = max(
+        0.0, (latest_time - baseline_time).total_seconds() / (24 * 60 * 60)
+    )
+    is_full_window = days_observed >= target_days
+    rounded_days = round(days_observed, 1)
+
+    if rounded_days == target_days:
+        label = f"last {target_days} days"
+    elif is_full_window:
+        label = f"over {rounded_days:g} days"
+    elif days_observed >= 1:
+        label = f"{first_label} · {rounded_days:g}d"
+    elif days_observed > 0:
+        hours = max(1, round(days_observed * 24))
+        label = f"{first_label} · {hours}h"
+    else:
+        label = first_label
+
+    return latest, baseline, {
+        "from": baseline_time.isoformat(),
+        "to": latest_time.isoformat(),
+        "days_observed": rounded_days,
+        "is_full_window": is_full_window,
+        "label": label,
+    }
+
+
 def get_repository_signal_rows() -> list[dict[str, Any]]:
     with database_connection() as connection:
         connection.row_factory = sqlite3.Row
@@ -797,9 +863,14 @@ def get_repository_signal_rows() -> list[dict[str, Any]]:
             SELECT repo, collected_at, stars, forks, watchers, open_issues,
                    private, archived, language, pushed_at
             FROM repo_snapshots
-            WHERE collected_at >= datetime('now', '-8 days')
+            WHERE collected_at >= datetime('now', '-15 days')
                OR collected_at = (
                    SELECT MAX(inner_snapshot.collected_at)
+                   FROM repo_snapshots AS inner_snapshot
+                   WHERE inner_snapshot.repo = repo_snapshots.repo
+               )
+               OR collected_at = (
+                   SELECT MIN(inner_snapshot.collected_at)
                    FROM repo_snapshots AS inner_snapshot
                    WHERE inner_snapshot.repo = repo_snapshots.repo
                )
@@ -818,8 +889,10 @@ def get_repository_signal_rows() -> list[dict[str, Any]]:
         repo_traffic = traffic.get(repo, {})
         repo_native = native.get(repo, {})
         repo_snapshots = snapshots.get(repo, [])
-        latest = repo_snapshots[-1] if repo_snapshots else {}
-        baseline = repo_snapshots[0] if repo_snapshots else {}
+        latest, baseline, snapshot_period = select_comparison_window(
+            repo_snapshots,
+            first_label="since first snapshot",
+        )
         views = int(repo_traffic.get("views_7d") or 0)
         clones = int(repo_traffic.get("clones_7d") or 0)
         visitor_days = int(repo_traffic.get("visitor_days_7d") or 0)
@@ -868,6 +941,7 @@ def get_repository_signal_rows() -> list[dict[str, Any]]:
                 "archived": bool(latest.get("archived", 0)),
                 "language": latest.get("language") or "",
                 "pushed_at": latest.get("pushed_at") or "",
+                "snapshot_period": snapshot_period,
                 "clone_view_ratio": round((clones / views) * 100, 1)
                 if views
                 else None,
@@ -1145,6 +1219,9 @@ def build_digest_markdown(
     period_start = period_end - timedelta(days=6)
     totals = signals["totals"]
     relationship_delta = signals.get("relationship_delta") or {}
+    relationship_period = signals.get("relationship_period") or {
+        "label": "no comparison yet"
+    }
     lines = [
         "# GitHub Pulse Weekly Digest",
         "",
@@ -1158,8 +1235,8 @@ def build_digest_markdown(
         "",
         "## Snapshot changes",
         "",
-        f"- {totals['net_stars']:+d} net stars and {totals['net_forks']:+d} net forks",
-        f"- {int(relationship_delta.get('followers', 0)):+d} followers",
+        f"- {totals['net_stars']:+d} net stars and {totals['net_forks']:+d} net forks across per-repository snapshot windows",
+        f"- {int(relationship_delta.get('followers', 0)):+d} followers · {relationship_period['label']}",
         "",
         "## Top repositories",
         "",
@@ -1211,6 +1288,7 @@ def build_weekly_digest(*, force: bool = False) -> dict[str, Any]:
         },
         "totals": signals["totals"],
         "relationship_delta": signals["relationship_delta"],
+        "relationship_period": signals["relationship_period"],
         "top_repositories": signals["repository_ranking"][:5],
         "opportunities": opportunity_center["opportunities"][:5],
         "alerts": signals["notifications"][:5],
@@ -1218,7 +1296,9 @@ def build_weekly_digest(*, force: bool = False) -> dict[str, Any]:
     }
 
 
-def get_latest_relation_counts() -> tuple[dict[str, int], dict[str, int]]:
+def get_latest_relation_counts() -> tuple[
+    dict[str, int], dict[str, int], dict[str, Any]
+]:
     with database_connection() as connection:
         connection.row_factory = sqlite3.Row
         rows = connection.execute(
@@ -1238,19 +1318,18 @@ def get_latest_relation_counts() -> tuple[dict[str, int], dict[str, int]]:
             "not_following_back": 0,
             "followers_not_followed": 0,
         }
-        return empty, empty
+        return empty, empty, {
+            "from": None,
+            "to": None,
+            "days_observed": 0.0,
+            "is_full_window": False,
+            "label": "no comparison yet",
+        }
 
-    latest = dict(rows[0])
-    cutoff = datetime.now(timezone.utc) - timedelta(days=7)
-    baseline = dict(rows[-1])
-    for row in rows:
-        try:
-            row_time = datetime.fromisoformat(str(row["collected_at"]))
-        except ValueError:
-            continue
-        if row_time <= cutoff:
-            baseline = dict(row)
-            break
+    latest, baseline, period = select_comparison_window(
+        list(rows),
+        first_label="since first collection",
+    )
     keys = (
         "followers",
         "following",
@@ -1261,6 +1340,7 @@ def get_latest_relation_counts() -> tuple[dict[str, int], dict[str, int]]:
     return (
         {key: int(latest[key]) for key in keys},
         {key: int(baseline[key]) for key in keys},
+        period,
     )
 
 
@@ -1294,7 +1374,9 @@ def collection_status() -> dict[str, Any]:
 
 def build_signals() -> dict[str, Any]:
     repositories = get_repository_signal_rows()
-    latest_counts, baseline_counts = get_latest_relation_counts()
+    latest_counts, baseline_counts, relationship_period = (
+        get_latest_relation_counts()
+    )
     movements = get_relation_movements(30)
 
     totals = {
@@ -1343,7 +1425,7 @@ def build_signals() -> dict[str, Any]:
             "key": "community",
             "label": "Community",
             "value": latest_counts["followers"],
-            "unit": "follower",
+            "unit": f"followers · {relationship_period['label']}",
             "delta_absolute": follower_delta,
         },
     ]
@@ -1394,7 +1476,7 @@ def build_signals() -> dict[str, Any]:
                     "type": "net_star_growth",
                     "tone": "positive",
                     "title": f'Net star growth on {repo["name"]}',
-                    "detail": f'+{repo["net_stars"]} since the available snapshot baseline',
+                    "detail": f'+{repo["net_stars"]} · {repo["snapshot_period"]["label"]}',
                     "occurred_at": repo["traffic_collected_at"],
                     "url": f'https://github.com/{repo["repo"]}/stargazers',
                 }
@@ -1422,6 +1504,7 @@ def build_signals() -> dict[str, Any]:
         "relationship_delta": {
             key: latest_counts[key] - baseline_counts[key] for key in latest_counts
         },
+        "relationship_period": relationship_period,
         "collection": collection_status(),
     }
 

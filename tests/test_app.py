@@ -186,6 +186,56 @@ class PersistenceTests(unittest.TestCase):
             {("Alice", "lost_follower"), ("Carol", "new_follower")},
         )
 
+    def test_relationship_window_reports_available_history(self) -> None:
+        first = app.classify_relationships([user("Alice")], [])
+        second = app.classify_relationships([user("Alice"), user("Bob")], [])
+        third = app.classify_relationships(
+            [user("Alice"), user("Bob"), user("Carol")], []
+        )
+        app.save_relation_snapshot(first, "2026-08-20T08:00:00+00:00")
+        app.save_relation_snapshot(second, "2026-08-22T08:00:00+00:00")
+
+        latest, baseline, period = app.get_latest_relation_counts()
+
+        self.assertEqual(latest["followers"] - baseline["followers"], 1)
+        self.assertEqual(period["days_observed"], 2.0)
+        self.assertFalse(period["is_full_window"])
+        self.assertEqual(period["label"], "since first collection · 2d")
+
+        app.save_relation_snapshot(third, "2026-08-29T08:00:00+00:00")
+        latest, baseline, period = app.get_latest_relation_counts()
+
+        self.assertEqual(latest["followers"] - baseline["followers"], 1)
+        self.assertTrue(period["is_full_window"])
+        self.assertEqual(period["label"], "last 7 days")
+
+    def test_repository_net_changes_include_snapshot_period(self) -> None:
+        now = app.datetime.now(app.timezone.utc)
+        repository = {
+            "full_name": "octocat/hello-world",
+            "stars": 3,
+            "forks": 1,
+            "watchers": 2,
+            "open_issues": 0,
+            "private": False,
+            "archived": False,
+            "language": "Python",
+            "pushed_at": now.isoformat(),
+        }
+        app.save_repo_snapshots(
+            [repository], (now - app.timedelta(days=2)).isoformat()
+        )
+        repository["stars"] = 5
+        app.save_repo_snapshots([repository], now.isoformat())
+
+        row = app.get_repository_signal_rows()[0]
+
+        self.assertEqual(row["net_stars"], 2)
+        self.assertEqual(row["snapshot_period"]["days_observed"], 2.0)
+        self.assertEqual(
+            row["snapshot_period"]["label"], "since first snapshot · 2d"
+        )
+
     def test_partial_traffic_updates_preserve_previous_valid_metrics(self) -> None:
         timestamp = "2026-08-21T10:00:00+00:00"
         views = {
