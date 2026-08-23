@@ -16,6 +16,9 @@ Turn repository traffic, stars, clones, activity and community changes into sign
 
 ![GitHub Pulse overview](docs/screenshots/overview.png)
 
+> The screenshots use GitHub Pulse's built-in synthetic demo profile. They do
+> not contain data from a real GitHub account.
+
 GitHub Pulse is a self-hosted control center for the account currently active in
 [GitHub CLI](https://cli.github.com/). It runs on your computer, reads GitHub
 through the authenticated <code>gh</code> session and stores historical data in
@@ -119,6 +122,19 @@ On Windows you can also double-click <code>start.cmd</code> or run:
 
 GitHub Pulse opens at [http://127.0.0.1:8765](http://127.0.0.1:8765). Press
 <code>Ctrl+C</code> in the terminal to stop it.
+
+### Synthetic demo
+
+To explore or capture the interface without displaying the authenticated
+account, open:
+
+~~~text
+http://127.0.0.1:8765/?demo=1#overview
+~~~
+
+Demo mode uses a deterministic fictional profile, repositories and metrics. It
+does not call the account data endpoints, and collection and exports are
+disabled in the interface.
 
 ## How collection works
 
