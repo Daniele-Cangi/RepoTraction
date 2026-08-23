@@ -206,6 +206,16 @@ def ensure_database() -> None:
                 PRIMARY KEY (repo, day)
             );
 
+            CREATE TABLE IF NOT EXISTS traffic_snapshots (
+                repo TEXT NOT NULL,
+                collected_at TEXT NOT NULL,
+                views_count INTEGER,
+                views_uniques INTEGER,
+                clones_count INTEGER,
+                clones_uniques INTEGER,
+                PRIMARY KEY (repo, collected_at)
+            );
+
             CREATE TABLE IF NOT EXISTS relation_memberships (
                 login TEXT NOT NULL,
                 kind TEXT NOT NULL,
@@ -254,6 +264,8 @@ def ensure_database() -> None:
                 ON relation_events (collected_at DESC);
             CREATE INDEX IF NOT EXISTS idx_repo_snapshots_repo_time
                 ON repo_snapshots (repo, collected_at DESC);
+            CREATE INDEX IF NOT EXISTS idx_traffic_snapshots_repo_time
+                ON traffic_snapshots (repo, collected_at DESC);
             """
         )
 
@@ -607,7 +619,7 @@ def save_traffic(
     clones: dict[str, Any] | None,
     *,
     collected_at: str | None = None,
-) -> None:
+) -> str:
     timestamp = collected_at or utc_now()
     view_days = {
         str(item.get("timestamp", ""))[:10]: item
@@ -659,6 +671,31 @@ def save_traffic(
                     timestamp,
                 ),
             )
+        connection.execute(
+            """
+            INSERT OR REPLACE INTO traffic_snapshots (
+                repo, collected_at, views_count, views_uniques,
+                clones_count, clones_uniques
+            ) VALUES (?, ?, ?, ?, ?, ?)
+            """,
+            (
+                repo,
+                timestamp,
+                int(views["count"])
+                if views is not None and views.get("count") is not None
+                else None,
+                int(views["uniques"])
+                if views is not None and views.get("uniques") is not None
+                else None,
+                int(clones["count"])
+                if clones is not None and clones.get("count") is not None
+                else None,
+                int(clones["uniques"])
+                if clones is not None and clones.get("uniques") is not None
+                else None,
+            ),
+        )
+    return timestamp
 
 
 def get_traffic_history(repo: str) -> list[dict[str, Any]]:
@@ -689,18 +726,70 @@ def get_repository_signal_rows() -> list[dict[str, Any]]:
             """
             SELECT repo,
                 SUM(CASE WHEN day >= date('now', '-6 days') THEN views ELSE 0 END) AS views_7d,
-                SUM(CASE WHEN day >= date('now', '-6 days') THEN unique_views ELSE 0 END) AS unique_views_7d,
+                SUM(CASE WHEN day >= date('now', '-6 days') THEN unique_views ELSE 0 END) AS visitor_days_7d,
                 SUM(CASE WHEN day >= date('now', '-6 days') THEN clones ELSE 0 END) AS clones_7d,
-                SUM(CASE WHEN day >= date('now', '-6 days') THEN unique_clones ELSE 0 END) AS unique_clones_7d,
-                SUM(CASE WHEN day BETWEEN date('now', '-13 days') AND date('now', '-7 days') THEN unique_views ELSE 0 END) AS previous_unique_views,
-                SUM(CASE WHEN day BETWEEN date('now', '-13 days') AND date('now', '-7 days') THEN unique_clones ELSE 0 END) AS previous_unique_clones,
+                SUM(CASE WHEN day >= date('now', '-6 days') THEN unique_clones ELSE 0 END) AS cloner_days_7d,
+                SUM(CASE WHEN day BETWEEN date('now', '-13 days') AND date('now', '-7 days') THEN views ELSE 0 END) AS previous_views,
+                SUM(CASE WHEN day BETWEEN date('now', '-13 days') AND date('now', '-7 days') THEN unique_views ELSE 0 END) AS previous_visitor_days,
+                SUM(CASE WHEN day BETWEEN date('now', '-13 days') AND date('now', '-7 days') THEN clones ELSE 0 END) AS previous_clones,
+                SUM(CASE WHEN day BETWEEN date('now', '-13 days') AND date('now', '-7 days') THEN unique_clones ELSE 0 END) AS previous_cloner_days,
                 SUM(CASE WHEN day >= date('now', '-13 days') THEN views ELSE 0 END) AS views_14d,
-                SUM(CASE WHEN day >= date('now', '-13 days') THEN unique_views ELSE 0 END) AS unique_views_14d,
+                SUM(CASE WHEN day >= date('now', '-13 days') THEN unique_views ELSE 0 END) AS visitor_days_14d,
                 SUM(CASE WHEN day >= date('now', '-13 days') THEN clones ELSE 0 END) AS clones_14d,
-                SUM(CASE WHEN day >= date('now', '-13 days') THEN unique_clones ELSE 0 END) AS unique_clones_14d,
+                SUM(CASE WHEN day >= date('now', '-13 days') THEN unique_clones ELSE 0 END) AS cloner_days_14d,
                 MAX(collected_at) AS traffic_collected_at
             FROM traffic_daily
             GROUP BY repo
+            """
+        ).fetchall()
+        native_rows = connection.execute(
+            """
+            SELECT repositories.repo,
+                (
+                    SELECT views_count
+                    FROM traffic_snapshots AS snapshot
+                    WHERE snapshot.repo = repositories.repo
+                      AND snapshot.views_count IS NOT NULL
+                    ORDER BY snapshot.collected_at DESC
+                    LIMIT 1
+                ) AS views_count,
+                (
+                    SELECT views_uniques
+                    FROM traffic_snapshots AS snapshot
+                    WHERE snapshot.repo = repositories.repo
+                      AND snapshot.views_uniques IS NOT NULL
+                    ORDER BY snapshot.collected_at DESC
+                    LIMIT 1
+                ) AS views_uniques,
+                (
+                    SELECT MAX(collected_at)
+                    FROM traffic_snapshots AS snapshot
+                    WHERE snapshot.repo = repositories.repo
+                      AND snapshot.views_count IS NOT NULL
+                ) AS views_collected_at,
+                (
+                    SELECT clones_count
+                    FROM traffic_snapshots AS snapshot
+                    WHERE snapshot.repo = repositories.repo
+                      AND snapshot.clones_count IS NOT NULL
+                    ORDER BY snapshot.collected_at DESC
+                    LIMIT 1
+                ) AS clones_count,
+                (
+                    SELECT clones_uniques
+                    FROM traffic_snapshots AS snapshot
+                    WHERE snapshot.repo = repositories.repo
+                      AND snapshot.clones_uniques IS NOT NULL
+                    ORDER BY snapshot.collected_at DESC
+                    LIMIT 1
+                ) AS clones_uniques,
+                (
+                    SELECT MAX(collected_at)
+                    FROM traffic_snapshots AS snapshot
+                    WHERE snapshot.repo = repositories.repo
+                      AND snapshot.clones_count IS NOT NULL
+                ) AS clones_collected_at
+            FROM (SELECT DISTINCT repo FROM traffic_snapshots) AS repositories
             """
         ).fetchall()
         snapshot_rows = connection.execute(
@@ -719,43 +808,55 @@ def get_repository_signal_rows() -> list[dict[str, Any]]:
         ).fetchall()
 
     traffic = {row["repo"]: dict(row) for row in traffic_rows}
+    native = {row["repo"]: dict(row) for row in native_rows}
     snapshots: dict[str, list[dict[str, Any]]] = {}
     for row in snapshot_rows:
         snapshots.setdefault(row["repo"], []).append(dict(row))
 
     rows: list[dict[str, Any]] = []
-    for repo in sorted(set(traffic) | set(snapshots), key=str.casefold):
+    for repo in sorted(set(traffic) | set(native) | set(snapshots), key=str.casefold):
         repo_traffic = traffic.get(repo, {})
+        repo_native = native.get(repo, {})
         repo_snapshots = snapshots.get(repo, [])
         latest = repo_snapshots[-1] if repo_snapshots else {}
         baseline = repo_snapshots[0] if repo_snapshots else {}
-        unique_views = int(repo_traffic.get("unique_views_7d") or 0)
-        unique_clones = int(repo_traffic.get("unique_clones_7d") or 0)
+        views = int(repo_traffic.get("views_7d") or 0)
+        clones = int(repo_traffic.get("clones_7d") or 0)
+        visitor_days = int(repo_traffic.get("visitor_days_7d") or 0)
+        cloner_days = int(repo_traffic.get("cloner_days_7d") or 0)
         star_delta = int(latest.get("stars", 0)) - int(baseline.get("stars", 0))
         fork_delta = int(latest.get("forks", 0)) - int(baseline.get("forks", 0))
         score = round(
             min(
                 100,
-                math.log1p(unique_views) * 10
-                + math.log1p(unique_clones) * 17
-                + max(0, star_delta) * 12
-                + max(0, fork_delta) * 16,
+                math.log1p(views) * 7
+                + math.log1p(clones) * 9
+                + max(0, star_delta) * 10
+                + max(0, fork_delta) * 12,
             )
         )
         rows.append(
             {
                 "repo": repo,
                 "name": repo.split("/", 1)[-1],
-                "views_7d": int(repo_traffic.get("views_7d") or 0),
-                "unique_views_7d": unique_views,
-                "clones_7d": int(repo_traffic.get("clones_7d") or 0),
-                "unique_clones_7d": unique_clones,
-                "previous_unique_views": int(repo_traffic.get("previous_unique_views") or 0),
-                "previous_unique_clones": int(repo_traffic.get("previous_unique_clones") or 0),
+                "views_7d": views,
+                "visitor_days_7d": visitor_days,
+                "clones_7d": clones,
+                "cloner_days_7d": cloner_days,
+                "previous_views": int(repo_traffic.get("previous_views") or 0),
+                "previous_visitor_days": int(repo_traffic.get("previous_visitor_days") or 0),
+                "previous_clones": int(repo_traffic.get("previous_clones") or 0),
+                "previous_cloner_days": int(repo_traffic.get("previous_cloner_days") or 0),
                 "views_14d": int(repo_traffic.get("views_14d") or 0),
-                "unique_views_14d": int(repo_traffic.get("unique_views_14d") or 0),
+                "visitor_days_14d": int(repo_traffic.get("visitor_days_14d") or 0),
                 "clones_14d": int(repo_traffic.get("clones_14d") or 0),
-                "unique_clones_14d": int(repo_traffic.get("unique_clones_14d") or 0),
+                "cloner_days_14d": int(repo_traffic.get("cloner_days_14d") or 0),
+                "unique_visitors_14d": repo_native.get("views_uniques"),
+                "unique_cloners_14d": repo_native.get("clones_uniques"),
+                "native_views_14d": repo_native.get("views_count"),
+                "native_clones_14d": repo_native.get("clones_count"),
+                "native_views_collected_at": repo_native.get("views_collected_at"),
+                "native_clones_collected_at": repo_native.get("clones_collected_at"),
                 "traffic_collected_at": repo_traffic.get("traffic_collected_at"),
                 "stars": int(latest.get("stars", 0)),
                 "stars_delta": star_delta,
@@ -767,16 +868,24 @@ def get_repository_signal_rows() -> list[dict[str, Any]]:
                 "archived": bool(latest.get("archived", 0)),
                 "language": latest.get("language") or "",
                 "pushed_at": latest.get("pushed_at") or "",
-                "intent_rate": round((unique_clones / unique_views) * 100, 1)
-                if unique_views
+                "clone_view_ratio": round((clones / views) * 100, 1)
+                if views
                 else None,
+                # Temporary compatibility aliases; the UI migrates in the next commit.
+                "unique_views_7d": visitor_days,
+                "unique_clones_7d": cloner_days,
+                "previous_unique_views": int(repo_traffic.get("previous_visitor_days") or 0),
+                "previous_unique_clones": int(repo_traffic.get("previous_cloner_days") or 0),
+                "unique_views_14d": int(repo_traffic.get("visitor_days_14d") or 0),
+                "unique_clones_14d": int(repo_traffic.get("cloner_days_14d") or 0),
+                "intent_rate": round((clones / views) * 100, 1) if views else None,
                 "signal_score": score,
             }
         )
     rows.sort(
         key=lambda item: (
             item["signal_score"],
-            item["unique_views_7d"],
+            item["views_7d"],
             item["stars"],
         ),
         reverse=True,

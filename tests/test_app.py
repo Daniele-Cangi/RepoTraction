@@ -246,6 +246,44 @@ class PersistenceTests(unittest.TestCase):
             (25, 10, 9, 4),
         )
 
+    def test_signal_rows_separate_visitor_days_from_native_uniques(self) -> None:
+        now = app.datetime.now(app.timezone.utc)
+        views = {
+            "count": 70,
+            "uniques": 12,
+            "views": [
+                {
+                    "timestamp": (now - app.timedelta(days=offset)).isoformat(),
+                    "count": 10,
+                    "uniques": 5,
+                }
+                for offset in range(7)
+            ],
+        }
+        clones = {
+            "count": 14,
+            "uniques": 4,
+            "clones": [
+                {
+                    "timestamp": (now - app.timedelta(days=offset)).isoformat(),
+                    "count": 2,
+                    "uniques": 1,
+                }
+                for offset in range(7)
+            ],
+        }
+        app.save_traffic("octocat/hello-world", views, clones)
+
+        row = app.get_repository_signal_rows()[0]
+
+        self.assertEqual(row["views_7d"], 70)
+        self.assertEqual(row["visitor_days_7d"], 35)
+        self.assertEqual(row["clones_7d"], 14)
+        self.assertEqual(row["cloner_days_7d"], 7)
+        self.assertEqual(row["unique_visitors_14d"], 12)
+        self.assertEqual(row["unique_cloners_14d"], 4)
+        self.assertEqual(row["clone_view_ratio"], 20.0)
+
 
 if __name__ == "__main__":
     unittest.main()
