@@ -83,10 +83,10 @@
 
             <div class="section-heading">
               <div>
-                <p class="eyebrow">Last 7 days</p>
+                <p class="eyebrow">Current pulse</p>
                 <h2>Signals that matter</h2>
               </div>
-              <p>Reach, intent, validation and community at a glance.</p>
+              <p>Repository traffic, clone activity, stars and community at a glance.</p>
             </div>
             <section id="signalGrid" class="signal-grid" aria-label="Primary signals">
               <article class="signal-card loading-card"></article>
@@ -121,12 +121,12 @@
           <section id="repositoriesView" class="view-panel">
             <div class="section-heading">
               <div><p class="eyebrow">Portfolio radar</p><h2>All repositories</h2></div>
-              <p id="repositoryMeta">Performance, intent and growth signals.</p>
+              <p id="repositoryMeta">Traffic, repository changes and activity signals.</p>
             </div>
 
             <article class="panel-card repo-radar-card">
               <div class="table-head repo-row">
-                <span>Repository</span><span>Unique visitors</span><span>Unique cloners</span><span>Stars</span><span>Pulse</span>
+                <span>Repository</span><span>Page views</span><span>Clones</span><span>Stars</span><span>Pulse</span>
               </div>
               <div id="repositoryRadar" class="repo-table">
                 <div class="data-empty">Loading repositories…</div>
@@ -216,7 +216,7 @@
 
             <div class="section-heading">
               <div><p class="eyebrow">Side by side</p><h2>Repository comparison</h2></div>
-              <p>Compare reach, clone intent, validation and momentum using the same local history.</p>
+              <p>Compare traffic, GitHub's native 14-day uniques and net repository changes.</p>
             </div>
 
             <article class="panel-card comparison-card">
@@ -348,7 +348,7 @@
             <div class="about-grid">
               <article class="about-card"><span class="about-number">01</span><h3>No tokens in the app</h3><p>Requests flow through GitHub CLI and the OS keyring. The browser never sees your credentials.</p></article>
               <article class="about-card"><span class="about-number">02</span><h3>History beyond 14 days</h3><p>GitHub Pulse stores daily snapshots in SQLite and refreshes them automatically while the server is running.</p></article>
-              <article class="about-card warning-card"><span class="about-number">!</span><h3>GitHub limitations</h3><p>Profile unique visitors and clone identities are not available. The rates shown are directional signals, not individual conversions.</p></article>
+              <article class="about-card warning-card"><span class="about-number">!</span><h3>GitHub limitations</h3><p>GitHub exposes repository traffic for a rolling 14-day window. Account-level unique people and clone identities are unavailable, so repository uniques are never added together or treated as conversions.</p></article>
             </div>
           </section>
         </main>

@@ -69,7 +69,7 @@ class SignalTests(unittest.TestCase):
 
 
 class OpportunityTests(unittest.TestCase):
-    def test_finds_foundation_conversion_and_developer_experience_opportunities(
+    def test_finds_foundation_discoverability_and_setup_opportunities(
         self,
     ) -> None:
         repositories = [
@@ -90,11 +90,11 @@ class OpportunityTests(unittest.TestCase):
         signals = [
             {
                 "repo": "octocat/hello-world",
-                "unique_views_7d": 24,
-                "previous_unique_views": 12,
-                "unique_clones_7d": 10,
-                "stars_delta": 0,
-                "intent_rate": 90.0,
+                "views_7d": 24,
+                "previous_views": 12,
+                "clones_7d": 10,
+                "net_stars": 0,
+                "clone_view_ratio": 41.7,
             }
         ]
 
@@ -103,30 +103,37 @@ class OpportunityTests(unittest.TestCase):
         self.assertEqual(health[0]["repo"], "octocat/hello-world")
         self.assertLess(health[0]["score"], 100)
         self.assertTrue(
-            {"foundation", "conversion", "developer_experience"}.issubset(
+            {"foundation", "discoverability", "developer_experience"}.issubset(
                 {item["kind"] for item in opportunities}
             )
         )
+        copy = " ".join(
+            str(item[field])
+            for item in opportunities
+            for field in ("title", "detail", "metric")
+        ).casefold()
+        self.assertNotIn("intent", copy)
+        self.assertNotIn("conversion", copy)
 
     def test_builds_markdown_digest(self) -> None:
         signals = {
             "totals": {
-                "unique_views_7d": 42,
-                "unique_clones_7d": 12,
-                "stars_delta": 3,
-                "forks_delta": 1,
+                "views_7d": 42,
+                "clones_7d": 12,
+                "net_stars": 3,
+                "net_forks": 1,
             },
             "relationship_delta": {"followers": 2},
             "repository_ranking": [
                 {
                     "name": "hello-world",
-                    "unique_views_7d": 24,
-                    "unique_clones_7d": 10,
+                    "views_7d": 24,
+                    "clones_7d": 10,
                     "signal_score": 88,
                 }
             ],
             "notifications": [
-                {"title": "Traffic spike", "detail": "24 unique visitors"}
+                {"title": "Traffic spike", "detail": "24 page views"}
             ],
         }
         center = {
@@ -150,6 +157,8 @@ class OpportunityTests(unittest.TestCase):
         self.assertIn("@octocat", digest)
         self.assertIn("Improve the README", digest)
         self.assertIn("Traffic spike", digest)
+        self.assertIn("42 repository page views", digest)
+        self.assertNotIn("unique visitors across", digest)
 
 
 class PersistenceTests(unittest.TestCase):

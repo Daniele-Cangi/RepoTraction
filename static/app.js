@@ -172,7 +172,7 @@ function renderRepositories(repositories) {
 
 function renderSignals(data) {
   state.signals = data;
-  const icons = { reach: "↗", intent: "↓", validation: "★", community: "◎" };
+  const icons = { reach: "↗", clone_activity: "↓", stars: "★", community: "◎" };
   $("#signalGrid").innerHTML = data.cards.map((card) => {
     const delta = Object.hasOwn(card, "delta")
       ? formatDelta(card.delta, "%")
@@ -195,8 +195,8 @@ function renderSignals(data) {
 
   const followerDelta = data.relationship_delta?.followers || 0;
   $("#followersDelta").innerHTML = followerDelta
-    ? `${formatDelta(followerDelta)} in the last 7 days`
-    : "stable over the last 7 days";
+    ? `${formatDelta(followerDelta)} since the available baseline`
+    : "stable since the available baseline";
   renderCollection(data.collection || {});
   maybeNotifyImportantSignals(data);
 }
@@ -212,7 +212,7 @@ function renderOverviewRanking(rows) {
   target.innerHTML = visible.map((repo, index) => `
     <button class="ranking-row" data-repo="${escapeHtml(repo.repo)}" type="button">
       <span class="rank-index">${String(index + 1).padStart(2, "0")}</span>
-      <span class="rank-copy"><strong>${escapeHtml(repo.name)}</strong><small>${number.format(repo.unique_views_7d)} visitors · ${number.format(repo.unique_clones_7d)} cloners</small></span>
+      <span class="rank-copy"><strong>${escapeHtml(repo.name)}</strong><small>${number.format(repo.views_7d)} page views · ${number.format(repo.clones_7d)} clones</small></span>
       <span class="rank-bar"><i style="width:${Math.max(4, (repo.signal_score / maxScore) * 100)}%"></i></span>
       <span class="rank-score">${repo.signal_score}</span>
     </button>`).join("");
@@ -227,9 +227,9 @@ function renderRepositoryRadar(rows) {
   target.innerHTML = rows.map((repo) => `
     <button class="repo-row repo-data-row" data-repo="${escapeHtml(repo.repo)}" type="button">
       <span class="repo-name"><i class="${repo.private ? "private" : ""}"></i><span><strong>${escapeHtml(repo.name)}</strong><small>${escapeHtml(repo.language || (repo.private ? "Private" : "Public"))}</small></span></span>
-      <span><strong>${number.format(repo.unique_views_7d)}</strong>${formatDelta(percentage(repo.unique_views_7d, repo.previous_unique_views), "%")}</span>
-      <span><strong>${number.format(repo.unique_clones_7d)}</strong><small>${repo.intent_rate === null ? "—" : `${repo.intent_rate}% intent`}</small></span>
-      <span><strong>${number.format(repo.stars)}</strong>${repo.stars_delta ? formatDelta(repo.stars_delta) : "<small>stable</small>"}</span>
+      <span><strong>${number.format(repo.views_7d)}</strong>${formatDelta(percentage(repo.views_7d, repo.previous_views), "%")}</span>
+      <span><strong>${number.format(repo.clones_7d)}</strong><small>${repo.clone_view_ratio === null ? "—" : `${repo.clone_view_ratio}% clone/view`}</small></span>
+      <span><strong>${number.format(repo.stars)}</strong>${repo.net_stars ? formatDelta(repo.net_stars) : "<small>stable</small>"}</span>
       <span class="pulse-score">${repo.signal_score}</span>
     </button>`).join("");
 }
@@ -346,12 +346,13 @@ function renderComparison(data) {
   }
   target.innerHTML = `<div class="comparison-grid">${repositories.map((repo) => {
     const metrics = [
-      ["Unique visitors · 7d", comparisonValue(repo.unique_views_7d)],
-      ["Unique cloners · 7d", comparisonValue(repo.unique_clones_7d)],
-      ["Visitor growth", repo.visitor_growth === null ? (repo.unique_views_7d ? "New" : "0%") : comparisonValue(repo.visitor_growth, "%")],
-      ["Clone intent", comparisonValue(repo.intent_rate, "%")],
-      ["Stars gained · 7d", `${Number(repo.stars_delta || 0) > 0 ? "+" : ""}${number.format(repo.stars_delta || 0)}`],
-      ["Validation rate", comparisonValue(repo.validation_rate, "%")],
+      ["Page views · 7d", comparisonValue(repo.views_7d)],
+      ["Clone events · 7d", comparisonValue(repo.clones_7d)],
+      ["View change", repo.view_change === null ? (repo.views_7d ? "New" : "0%") : comparisonValue(repo.view_change, "%")],
+      ["Unique visitors · GitHub 14d", comparisonValue(repo.unique_visitors_14d)],
+      ["Unique cloners · GitHub 14d", comparisonValue(repo.unique_cloners_14d)],
+      ["Clone/View ratio", comparisonValue(repo.clone_view_ratio, "%")],
+      ["Net stars", `${Number(repo.net_stars || 0) > 0 ? "+" : ""}${number.format(repo.net_stars || 0)}`],
     ];
     return `<article class="comparison-repo">
       <header><a href="https://github.com/${escapeHtml(repo.repo)}" target="_blank" rel="noreferrer">${escapeHtml(repo.name)}</a><strong>${number.format(repo.signal_score || 0)}</strong></header>
@@ -386,9 +387,9 @@ function renderDigest(data) {
   const totals = data.totals || {};
   const followerDelta = Number(data.relationship_delta?.followers || 0);
   const cards = [
-    ["Visitors", totals.unique_views_7d || 0, "unique · 7d"],
-    ["Cloners", totals.unique_clones_7d || 0, "unique · 7d"],
-    ["Stars", `${Number(totals.stars_delta || 0) > 0 ? "+" : ""}${number.format(totals.stars_delta || 0)}`, "net change"],
+    ["Page views", totals.views_7d || 0, "repository views · 7d"],
+    ["Clones", totals.clones_7d || 0, "full events · 7d"],
+    ["Stars", `${Number(totals.net_stars || 0) > 0 ? "+" : ""}${number.format(totals.net_stars || 0)}`, "net change"],
     ["Followers", `${followerDelta > 0 ? "+" : ""}${number.format(followerDelta)}`, "net change"],
   ];
   const repositories = data.top_repositories || [];
@@ -397,7 +398,7 @@ function renderDigest(data) {
   $("#digestPreview").innerHTML = `
     <div class="digest-summary">${cards.map(([label, value, note]) => `<article><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong><small>${escapeHtml(note)}</small></article>`).join("")}</div>
     <div class="digest-block"><h4>Top repositories</h4>
-      ${repositories.length ? repositories.slice(0, 3).map((repo) => `<div class="digest-line"><span><strong>${escapeHtml(repo.name)}</strong><small>${number.format(repo.unique_views_7d)} visitors · ${number.format(repo.unique_clones_7d)} cloners</small></span><b>${number.format(repo.signal_score)}</b></div>`).join("") : '<div class="data-empty">No traffic collected yet.</div>'}
+      ${repositories.length ? repositories.slice(0, 3).map((repo) => `<div class="digest-line"><span><strong>${escapeHtml(repo.name)}</strong><small>${number.format(repo.views_7d)} page views · ${number.format(repo.clones_7d)} clones</small></span><b>${number.format(repo.signal_score)}</b></div>`).join("") : '<div class="data-empty">No traffic collected yet.</div>'}
     </div>
     <div class="digest-block"><h4>Priority actions &amp; alerts</h4>
       ${opportunities.length ? opportunities.slice(0, 3).map((item) => `<div class="digest-line"><span><strong>${escapeHtml(item.title)}</strong><small>${escapeHtml(item.action)}</small></span><b>${escapeHtml(item.priority)}</b></div>`).join("") : '<div class="data-empty">No urgent opportunities.</div>'}
@@ -484,7 +485,7 @@ function maybeNotifyImportantSignals(data) {
   const signalId = data.generated_at || "";
   try {
     if (!signalId || localStorage.getItem(DESKTOP_ALERTS_SEEN_KEY) === signalId) return;
-    const important = (data.notifications || []).filter((item) => ["traffic_spike", "new_stars", "new_follower"].includes(item.type));
+    const important = (data.notifications || []).filter((item) => ["traffic_spike", "net_star_growth", "new_follower"].includes(item.type));
     const detail = important.slice(0, 2).map((item) => item.title).join(" · ");
     new Notification(`GitHub Pulse · ${data.important_signals} important signal${data.important_signals === 1 ? "" : "s"}`, {
       body: detail || "Open the dashboard to review the latest changes.",

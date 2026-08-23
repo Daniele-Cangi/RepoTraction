@@ -824,15 +824,15 @@ def get_repository_signal_rows() -> list[dict[str, Any]]:
         clones = int(repo_traffic.get("clones_7d") or 0)
         visitor_days = int(repo_traffic.get("visitor_days_7d") or 0)
         cloner_days = int(repo_traffic.get("cloner_days_7d") or 0)
-        star_delta = int(latest.get("stars", 0)) - int(baseline.get("stars", 0))
-        fork_delta = int(latest.get("forks", 0)) - int(baseline.get("forks", 0))
+        net_stars = int(latest.get("stars", 0)) - int(baseline.get("stars", 0))
+        net_forks = int(latest.get("forks", 0)) - int(baseline.get("forks", 0))
         score = round(
             min(
                 100,
                 math.log1p(views) * 7
                 + math.log1p(clones) * 9
-                + max(0, star_delta) * 10
-                + max(0, fork_delta) * 12,
+                + max(0, net_stars) * 10
+                + max(0, net_forks) * 12,
             )
         )
         rows.append(
@@ -859,9 +859,9 @@ def get_repository_signal_rows() -> list[dict[str, Any]]:
                 "native_clones_collected_at": repo_native.get("clones_collected_at"),
                 "traffic_collected_at": repo_traffic.get("traffic_collected_at"),
                 "stars": int(latest.get("stars", 0)),
-                "stars_delta": star_delta,
+                "net_stars": net_stars,
                 "forks": int(latest.get("forks", 0)),
-                "forks_delta": fork_delta,
+                "net_forks": net_forks,
                 "watchers": int(latest.get("watchers", 0)),
                 "open_issues": int(latest.get("open_issues", 0)),
                 "private": bool(latest.get("private", 0)),
@@ -871,14 +871,6 @@ def get_repository_signal_rows() -> list[dict[str, Any]]:
                 "clone_view_ratio": round((clones / views) * 100, 1)
                 if views
                 else None,
-                # Temporary compatibility aliases; the UI migrates in the next commit.
-                "unique_views_7d": visitor_days,
-                "unique_clones_7d": cloner_days,
-                "previous_unique_views": int(repo_traffic.get("previous_visitor_days") or 0),
-                "previous_unique_clones": int(repo_traffic.get("previous_cloner_days") or 0),
-                "unique_views_14d": int(repo_traffic.get("visitor_days_14d") or 0),
-                "unique_clones_14d": int(repo_traffic.get("cloner_days_14d") or 0),
-                "intent_rate": round((clones / views) * 100, 1) if views else None,
                 "signal_score": score,
             }
         )
@@ -969,12 +961,12 @@ def analyze_opportunities(
 
         repo_name = str(repo.get("name") or full_name.split("/", 1)[-1])
         repo_url = str(repo.get("html_url") or f"https://github.com/{full_name}")
-        unique_views = int(signal.get("unique_views_7d") or 0)
-        unique_clones = int(signal.get("unique_clones_7d") or 0)
-        star_delta = int(signal.get("stars_delta") or 0)
-        previous_views = int(signal.get("previous_unique_views") or 0)
-        intent_rate = signal.get("intent_rate")
-        growth = percentage_change(unique_views, previous_views)
+        views = int(signal.get("views_7d") or 0)
+        clones = int(signal.get("clones_7d") or 0)
+        net_stars = int(signal.get("net_stars") or 0)
+        previous_views = int(signal.get("previous_views") or 0)
+        clone_view_ratio = signal.get("clone_view_ratio")
+        growth = percentage_change(views, previous_views)
 
         essential_gaps = [
             gap for gap in health["gaps"] if gap in {"description", "topics", "license"}
@@ -995,38 +987,43 @@ def analyze_opportunities(
                 }
             )
 
-        if unique_views >= 10 and star_delta <= 0:
+        if views >= 10 and net_stars <= 0:
             opportunities.append(
                 {
-                    "kind": "conversion",
-                    "priority": "high" if unique_views >= 20 else "medium",
+                    "kind": "discoverability",
+                    "priority": "high" if views >= 20 else "medium",
                     "repo": full_name,
-                    "title": f"Turn {repo_name}'s attention into validation",
-                    "detail": f"{unique_views} unique visitors arrived this week without a new star.",
+                    "title": f"Review {repo_name}'s repository landing page",
+                    "detail": f"{views} page views this week with no net star growth.",
                     "action": "Sharpen the README opening, demo and primary call to action.",
-                    "metric": f"{unique_views} visitors · {star_delta:+d} stars",
-                    "score": 70 + min(unique_views, 30),
+                    "metric": f"{views} views · {net_stars:+d} net stars",
+                    "score": 70 + min(views, 30),
                     "url": repo_url,
                 }
             )
 
-        if unique_clones >= 5 and (intent_rate or 0) >= 80:
+        if clones >= 5:
+            ratio_label = (
+                f" · {clone_view_ratio:g}% clone/view"
+                if clone_view_ratio is not None
+                else ""
+            )
             opportunities.append(
                 {
                     "kind": "developer_experience",
                     "priority": "medium",
                     "repo": full_name,
-                    "title": f"Make {repo_name} easier to evaluate",
-                    "detail": f"{unique_clones} unique cloners show strong hands-on intent.",
+                    "title": f"Improve {repo_name}'s setup path",
+                    "detail": f"{clones} full clone events were recorded this week.",
                     "action": "Add a quick start, expected output and a minimal runnable example.",
-                    "metric": f"{intent_rate:g}% clone intent",
-                    "score": 55 + min(unique_clones, 30),
+                    "metric": f"{clones} clones{ratio_label}",
+                    "score": 55 + min(clones, 30),
                     "url": repo_url,
                 }
             )
 
-        is_new_traffic = growth is None and unique_views >= 5
-        if is_new_traffic or (growth is not None and growth >= 50 and unique_views >= 5):
+        is_new_traffic = growth is None and views >= 5
+        if is_new_traffic or (growth is not None and growth >= 50 and views >= 5):
             growth_label = "new traffic" if growth is None else f"+{growth:g}% traffic"
             opportunities.append(
                 {
@@ -1036,14 +1033,14 @@ def analyze_opportunities(
                     "title": f"Capture {repo_name}'s momentum",
                     "detail": f"{growth_label} is creating a short window for discovery.",
                     "action": "Publish a small release or update while attention is elevated.",
-                    "metric": f"{unique_views} visitors · {growth_label}",
-                    "score": 40 + min(unique_views, 30),
+                    "metric": f"{views} page views · {growth_label}",
+                    "score": 40 + min(views, 30),
                     "url": repo_url,
                 }
             )
 
         pushed_days_ago = health["pushed_days_ago"]
-        if pushed_days_ago is not None and pushed_days_ago > 120 and unique_views >= 3:
+        if pushed_days_ago is not None and pushed_days_ago > 120 and views >= 3:
             opportunities.append(
                 {
                     "kind": "freshness",
@@ -1052,8 +1049,8 @@ def analyze_opportunities(
                     "title": f"Refresh {repo_name} while people still visit",
                     "detail": f"The repository still attracts traffic but was last pushed {pushed_days_ago} days ago.",
                     "action": "Confirm compatibility, refresh examples and publish maintenance notes.",
-                    "metric": f"{unique_views} visitors · {pushed_days_ago}d since push",
-                    "score": 60 + min(unique_views, 20),
+                    "metric": f"{views} page views · {pushed_days_ago}d since push",
+                    "score": 60 + min(views, 20),
                     "url": repo_url,
                 }
             )
@@ -1123,17 +1120,12 @@ def build_repository_comparison(selected_repos: list[str]) -> dict[str, Any]:
         row = available.get(requested.casefold())
         if row is None:
             raise ValueError(f"Repository is not available for comparison: {requested}")
-        unique_views = int(row["unique_views_7d"])
-        star_delta = int(row["stars_delta"])
         item = dict(row)
         item.update(
             {
-                "visitor_growth": percentage_change(
-                    unique_views, int(row["previous_unique_views"])
+                "view_change": percentage_change(
+                    int(row["views_7d"]), int(row["previous_views"])
                 ),
-                "validation_rate": round((star_delta / unique_views) * 100, 1)
-                if unique_views
-                else None,
                 "history": get_traffic_history(str(row["repo"]))[-30:],
             }
         )
@@ -1159,11 +1151,14 @@ def build_digest_markdown(
         f"**Account:** @{account}",
         f"**Period:** {period_start.isoformat()} to {period_end.isoformat()}",
         "",
-        "## This week",
+        "## Traffic · last 7 days",
         "",
-        f"- {totals['unique_views_7d']} unique visitors across tracked repositories",
-        f"- {totals['unique_clones_7d']} unique cloners",
-        f"- {totals['stars_delta']:+d} stars and {totals['forks_delta']:+d} forks",
+        f"- {totals['views_7d']} repository page views",
+        f"- {totals['clones_7d']} full clone events",
+        "",
+        "## Snapshot changes",
+        "",
+        f"- {totals['net_stars']:+d} net stars and {totals['net_forks']:+d} net forks",
         f"- {int(relationship_delta.get('followers', 0)):+d} followers",
         "",
         "## Top repositories",
@@ -1171,8 +1166,8 @@ def build_digest_markdown(
     ]
     for row in signals["repository_ranking"][:5]:
         lines.append(
-            f"- **{row['name']}** — {row['unique_views_7d']} visitors, "
-            f"{row['unique_clones_7d']} cloners, pulse {row['signal_score']}"
+            f"- **{row['name']}** — {row['views_7d']} page views, "
+            f"{row['clones_7d']} clone events, pulse {row['signal_score']}"
         )
     if not signals["repository_ranking"]:
         lines.append("- No repository traffic collected yet.")
@@ -1306,43 +1301,43 @@ def build_signals() -> dict[str, Any]:
         key: sum(int(repo[key]) for repo in repositories)
         for key in (
             "views_7d",
-            "unique_views_7d",
+            "visitor_days_7d",
             "clones_7d",
-            "unique_clones_7d",
-            "previous_unique_views",
-            "previous_unique_clones",
+            "cloner_days_7d",
+            "previous_views",
+            "previous_clones",
             "stars",
-            "stars_delta",
+            "net_stars",
             "forks",
-            "forks_delta",
+            "net_forks",
         )
     }
     follower_delta = latest_counts["followers"] - baseline_counts["followers"]
     cards = [
         {
             "key": "reach",
-            "label": "Reach",
-            "value": totals["unique_views_7d"],
-            "unit": "unique visitors · 7d",
+            "label": "Page views",
+            "value": totals["views_7d"],
+            "unit": "repository views · 7d",
             "delta": percentage_change(
-                totals["unique_views_7d"], totals["previous_unique_views"]
+                totals["views_7d"], totals["previous_views"]
             ),
         },
         {
-            "key": "intent",
-            "label": "Intent",
-            "value": totals["unique_clones_7d"],
-            "unit": "unique cloners · 7d",
+            "key": "clone_activity",
+            "label": "Clone activity",
+            "value": totals["clones_7d"],
+            "unit": "full clone events · 7d",
             "delta": percentage_change(
-                totals["unique_clones_7d"], totals["previous_unique_clones"]
+                totals["clones_7d"], totals["previous_clones"]
             ),
         },
         {
-            "key": "validation",
-            "label": "Validation",
+            "key": "stars",
+            "label": "Stars",
             "value": totals["stars"],
-            "unit": "total stars",
-            "delta_absolute": totals["stars_delta"],
+            "unit": "total · net change",
+            "delta_absolute": totals["net_stars"],
         },
         {
             "key": "community",
@@ -1374,14 +1369,14 @@ def build_signals() -> dict[str, Any]:
         )
 
     for repo in repositories:
-        current = repo["unique_views_7d"]
-        previous = repo["previous_unique_views"]
+        current = repo["views_7d"]
+        previous = repo["previous_views"]
         if current >= 5 and current >= max(3, previous * 1.5):
             change = percentage_change(current, previous)
             detail = (
-                f"{current} unique visitors · +{change:g}%"
+                f"{current} page views · +{change:g}%"
                 if change is not None
-                else f"{current} unique visitors · new traffic"
+                else f"{current} page views · new traffic"
             )
             notifications.append(
                 {
@@ -1393,13 +1388,13 @@ def build_signals() -> dict[str, Any]:
                     "url": f'https://github.com/{repo["repo"]}',
                 }
             )
-        if repo["stars_delta"] > 0:
+        if repo["net_stars"] > 0:
             notifications.append(
                 {
-                    "type": "new_stars",
+                    "type": "net_star_growth",
                     "tone": "positive",
-                    "title": f'New stars on {repo["name"]}',
-                    "detail": f'+{repo["stars_delta"]} in the last 7 days',
+                    "title": f'Net star growth on {repo["name"]}',
+                    "detail": f'+{repo["net_stars"]} since the available snapshot baseline',
                     "occurred_at": repo["traffic_collected_at"],
                     "url": f'https://github.com/{repo["repo"]}/stargazers',
                 }
@@ -1408,7 +1403,9 @@ def build_signals() -> dict[str, Any]:
     notifications.sort(
         key=lambda item: str(item.get("occurred_at") or ""), reverse=True
     )
-    active_repositories = [repo for repo in repositories if repo["unique_views_14d"] or repo["unique_clones_14d"]]
+    active_repositories = [
+        repo for repo in repositories if repo["views_14d"] or repo["clones_14d"]
+    ]
     return {
         "generated_at": utc_now(),
         "cards": cards,
@@ -1418,7 +1415,7 @@ def build_signals() -> dict[str, Any]:
         "important_signals": sum(
             1
             for item in notifications
-            if item["type"] in {"traffic_spike", "new_stars", "new_follower"}
+            if item["type"] in {"traffic_spike", "net_star_growth", "new_follower"}
         ),
         "tracked_repositories": len(active_repositories),
         "relationship_counts": latest_counts,

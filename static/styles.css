@@ -169,7 +169,7 @@ main { width: min(1380px, 100%); margin: 0 auto; padding: 36px clamp(24px, 4vw, 
 .signal-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
 .signal-card { position: relative; min-height: 176px; padding: 20px; overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
 .signal-card::after { content: ""; position: absolute; width: 95px; height: 95px; right: -30px; top: -32px; border-radius: 50%; background: currentColor; filter: blur(38px); opacity: .1; }
-.signal-card.reach { color: var(--blue); }.signal-card.intent { color: var(--violet); }.signal-card.validation { color: var(--amber); }.signal-card.community { color: var(--lime); }
+.signal-card.reach { color: var(--blue); }.signal-card.clone_activity { color: var(--violet); }.signal-card.stars { color: var(--amber); }.signal-card.community { color: var(--lime); }
 .signal-top { display: flex; align-items: center; justify-content: space-between; }
 .signal-icon { display: grid; place-items: center; width: 31px; height: 31px; border-radius: 9px; background: color-mix(in srgb, currentColor 11%, transparent); font-size: 15px; }
 .signal-card > strong { display: block; margin-top: 24px; color: var(--text); font-size: 35px; line-height: 1; letter-spacing: -.055em; }
