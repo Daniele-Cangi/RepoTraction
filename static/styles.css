@@ -125,6 +125,9 @@ body::before {
   font-size: 9px;
 }
 .signal-badge.active { color: #152000; border-color: var(--lime); background: var(--lime); font-weight: 760; }
+.demo-badge { display: inline-flex; align-items: center; min-height: 28px; padding: 0 10px; border: 1px solid rgba(176,132,255,.34); border-radius: 999px; color: #d8c1ff; background: rgba(176,132,255,.1); font-size: 9px; font-weight: 760; text-transform: uppercase; letter-spacing: .08em; }
+.demo-mode #refreshButton { display: none; }
+.demo-mode a[aria-disabled="true"] { opacity: .55; pointer-events: none; }
 .button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 0; border-radius: 10px; padding: 10px 14px; color: var(--text); text-decoration: none; cursor: pointer; font-size: 11px; transition: .18s ease; }
 .button svg { width: 15px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .button:hover { transform: translateY(-1px); }

@@ -10,6 +10,9 @@ const state = {
   collectionWasRunning: false,
 };
 
+const DEMO_MODE = new URLSearchParams(window.location.search).get("demo") === "1";
+const demoModule = DEMO_MODE ? import("/demo-data.js") : null;
+
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
 const number = new Intl.NumberFormat("en-US");
@@ -25,6 +28,10 @@ function escapeHtml(value) {
 }
 
 async function api(path, options = {}) {
+  if (DEMO_MODE) {
+    const demo = await demoModule;
+    return demo.getDemoResponse(path, options);
+  }
   const response = await fetch(path, {
     ...options,
     headers: { Accept: "application/json", ...(options.headers || {}) },
@@ -641,6 +648,17 @@ function renderActivity(data) {
 }
 
 function renderCollection(collection) {
+  if (DEMO_MODE) {
+    $("#sidebarCollectorText").textContent = "Synthetic dataset";
+    $("#sidebarCollectorProgress").style.width = "100%";
+    $("#collectionDescription").textContent = "Demo mode uses a deterministic synthetic dataset.";
+    $("#collectionProgress").style.width = "100%";
+    $("#collectionProgressText").textContent = "Demo";
+    $("#collectionStatusPill").textContent = "Demo";
+    $("#collectDataButton").disabled = true;
+    $("#refreshButton").disabled = true;
+    return;
+  }
   const running = Boolean(collection.running);
   const total = Number(collection.repos_total || 0);
   const completed = Number(collection.repos_completed || 0);
@@ -709,7 +727,7 @@ function switchView(view) {
   $$(".nav-item").forEach((item) => item.classList.toggle("active", item.dataset.view === view));
   $$(".view-panel").forEach((panel) => panel.classList.toggle("active", panel.id === `${view}View`));
   $("#pageTitle").textContent = pageTitles[view];
-  history.replaceState(null, "", `#${view}`);
+  history.replaceState(null, "", location.pathname + location.search + "#" + view);
   window.scrollTo({ top: 0, behavior: "smooth" });
   if (view === "activity") loadActivity();
   if (view === "insights") loadInsights();
@@ -747,6 +765,16 @@ window.addEventListener("hashchange", () => {
   const view = location.hash.slice(1) || "overview";
   if (view !== state.currentView) switchView(view);
 });
+
+document.documentElement.classList.toggle("demo-mode", DEMO_MODE);
+$("#demoBadge").classList.toggle("hidden", !DEMO_MODE);
+if (DEMO_MODE) {
+  $$('a[href^="/api/export"]').forEach((link) => {
+    link.removeAttribute("href");
+    link.setAttribute("aria-disabled", "true");
+    link.title = "Exports are disabled for synthetic demo data.";
+  });
+}
 
 switchView(location.hash.slice(1) || "overview");
 updateDesktopAlertUI();
