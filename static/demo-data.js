@@ -7,6 +7,7 @@ const snapshotPeriod = {
   to: generatedAt,
   days_observed: 7,
   is_full_window: true,
+  has_baseline: true,
   label: "last 7 days",
 };
 const trafficPeriod = {

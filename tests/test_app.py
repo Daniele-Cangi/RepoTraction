@@ -96,6 +96,8 @@ class OpportunityTests(unittest.TestCase):
                 "clones_7d": 10,
                 "net_stars": 0,
                 "clone_view_ratio": 41.7,
+                "traffic_comparison_ready": True,
+                "snapshot_period": {"is_full_window": True},
             }
         ]
 
@@ -115,6 +117,43 @@ class OpportunityTests(unittest.TestCase):
         ).casefold()
         self.assertNotIn("intent", copy)
         self.assertNotIn("conversion", copy)
+
+    def test_readiness_distinguishes_unrecognized_and_missing_licenses(self) -> None:
+        base = {
+            "full_name": "octocat/hello-world",
+            "private": False,
+            "description": "A useful project",
+            "homepage": "https://example.test",
+            "topics": ["demo", "tooling"],
+            "pushed_at": app.utc_now(),
+        }
+        unrecognized = app.repository_health(
+            {
+                **base,
+                "license": "NOASSERTION",
+                "license_status": "present_unrecognized",
+            }
+        )
+        missing = app.repository_health(
+            {**base, "license": "", "license_status": "missing"}
+        )
+
+        self.assertEqual(unrecognized["score"], 100)
+        self.assertNotIn("license", unrecognized["gaps"])
+        self.assertTrue(unrecognized["notes"])
+        self.assertEqual(missing["score"], 80)
+        self.assertIn("license", missing["gaps"])
+
+    def test_profile_repository_is_not_scored_as_a_project(self) -> None:
+        health = app.repository_health(
+            {
+                "full_name": "octocat/octocat",
+                "pushed_at": app.utc_now(),
+            }
+        )
+
+        self.assertFalse(health["applicable"])
+        self.assertIsNone(health["score"])
 
     def test_builds_markdown_digest(self) -> None:
         signals = {
@@ -236,6 +275,26 @@ class PersistenceTests(unittest.TestCase):
         self.assertEqual(
             row["snapshot_period"]["label"], "since first snapshot · 2d"
         )
+
+    def test_single_repository_snapshot_does_not_claim_stability(self) -> None:
+        now = app.datetime.now(app.timezone.utc)
+        app.save_repo_snapshots(
+            [
+                {
+                    "full_name": "octocat/hello-world",
+                    "stars": 3,
+                    "forks": 1,
+                }
+            ],
+            now.isoformat(),
+        )
+
+        row = app.get_repository_signal_rows()[0]
+
+        self.assertIsNone(row["net_stars"])
+        self.assertIsNone(row["net_forks"])
+        self.assertFalse(row["snapshot_period"]["has_baseline"])
+        self.assertEqual(row["snapshot_period"]["label"], "no comparison yet")
 
     def test_repository_registry_merges_a_renamed_repository(self) -> None:
         collected_at = "2026-08-21T10:00:00+00:00"

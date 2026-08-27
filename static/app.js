@@ -237,14 +237,19 @@ function renderRepositoryRadar(rows) {
     target.innerHTML = '<div class="data-empty">No repositories available.</div>';
     return;
   }
-  target.innerHTML = rows.map((repo) => `
+  target.innerHTML = rows.map((repo) => {
+    const starChange = repo.snapshot_period?.has_baseline
+      ? (Number(repo.net_stars || 0) ? formatDelta(repo.net_stars) : "<small>stable</small>")
+      : "<small>no comparison yet</small>";
+    return `
     <button class="repo-row repo-data-row" data-repo="${escapeHtml(repo.repo)}" type="button">
       <span class="repo-name"><i class="${repo.private ? "private" : ""}"></i><span><strong>${escapeHtml(repo.name)}</strong><small>${escapeHtml(repo.language || (repo.private ? "Private" : "Public"))}</small></span></span>
       <span><strong>${number.format(repo.views_7d)}</strong>${repo.traffic_comparison_ready ? formatDelta(percentage(repo.views_7d, repo.previous_views), "%") : '<small>baseline incomplete</small>'}<small>${escapeHtml(repo.traffic_period?.label || "no traffic window yet")}</small></span>
       <span><strong>${number.format(repo.clones_7d)}</strong><small>${repo.clone_view_ratio === null ? "—" : `${repo.clone_view_ratio}% clone/view`}</small></span>
-      <span><strong>${number.format(repo.stars)}</strong>${repo.net_stars ? formatDelta(repo.net_stars) : "<small>stable</small>"}<small>${escapeHtml(repo.snapshot_period?.label || "no comparison yet")}</small></span>
+      <span><strong>${number.format(repo.stars)}</strong>${starChange}<small>${escapeHtml(repo.snapshot_period?.label || "no comparison yet")}</small></span>
       <span class="pulse-score">${repo.signal_score}</span>
-    </button>`).join("");
+    </button>`;
+  }).join("");
 }
 
 function percentage(current, previous) {
@@ -365,7 +370,7 @@ function renderComparison(data) {
       ["Unique visitors · GitHub 14d", comparisonValue(repo.unique_visitors_14d)],
       ["Unique cloners · GitHub 14d", comparisonValue(repo.unique_cloners_14d)],
       ["Clone/View ratio", comparisonValue(repo.clone_view_ratio, "%")],
-      [`Net stars · ${repo.snapshot_period?.label || "no comparison yet"}`, `${Number(repo.net_stars || 0) > 0 ? "+" : ""}${number.format(repo.net_stars || 0)}`],
+      [`Net stars · ${repo.snapshot_period?.label || "no comparison yet"}`, repo.snapshot_period?.has_baseline ? `${Number(repo.net_stars || 0) > 0 ? "+" : ""}${number.format(repo.net_stars || 0)}` : "—"],
     ];
     return `<article class="comparison-repo">
       <header><a href="https://github.com/${escapeHtml(repo.repo)}" target="_blank" rel="noreferrer">${escapeHtml(repo.name)}</a><strong>${number.format(repo.signal_score || 0)}</strong></header>

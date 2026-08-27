@@ -707,6 +707,22 @@ def get_relation_history(days: int = 30) -> list[dict[str, Any]]:
     return [dict(row) for row in rows]
 
 
+def repository_license_metadata(repo: dict[str, Any]) -> dict[str, str]:
+    license_value = repo.get("license")
+    if not isinstance(license_value, dict):
+        return {"spdx_id": "", "name": "", "status": "missing"}
+    spdx_id = str(license_value.get("spdx_id") or "")
+    return {
+        "spdx_id": spdx_id,
+        "name": str(license_value.get("name") or ""),
+        "status": (
+            "recognized"
+            if spdx_id and spdx_id != "NOASSERTION"
+            else "present_unrecognized"
+        ),
+    }
+
+
 def build_dashboard(*, force: bool = False) -> dict[str, Any]:
     cached = None if force else CACHE.get("dashboard", 60)
     if cached is not None:
@@ -761,12 +777,9 @@ def build_dashboard(*, force: bool = False) -> dict[str, Any]:
                 for topic in (repo.get("topics") or [])
                 if isinstance(topic, str)
             ],
-            "license": (
-                (repo.get("license") or {}).get("spdx_id")
-                if isinstance(repo.get("license"), dict)
-                else ""
-            )
-            or "",
+            "license": repository_license_metadata(repo)["spdx_id"],
+            "license_name": repository_license_metadata(repo)["name"],
+            "license_status": repository_license_metadata(repo)["status"],
             "default_branch": repo.get("default_branch") or "main",
             "updated_at": repo.get("updated_at", ""),
             "pushed_at": repo.get("pushed_at", ""),
@@ -1008,10 +1021,21 @@ def select_comparison_window(
             "to": None,
             "days_observed": 0.0,
             "is_full_window": False,
+            "has_baseline": False,
             "label": "no comparison yet",
         }
 
     latest_time, latest = parsed_rows[-1]
+    if len(parsed_rows) == 1:
+        return latest, {}, {
+            "from": None,
+            "to": latest_time.isoformat(),
+            "days_observed": 0.0,
+            "is_full_window": False,
+            "has_baseline": False,
+            "label": "no comparison yet",
+        }
+
     cutoff = latest_time - timedelta(days=target_days)
     eligible = [item for item in parsed_rows if item[0] <= cutoff]
     baseline_time, baseline = eligible[-1] if eligible else parsed_rows[0]
@@ -1038,6 +1062,7 @@ def select_comparison_window(
         "to": latest_time.isoformat(),
         "days_observed": rounded_days,
         "is_full_window": is_full_window,
+        "has_baseline": days_observed > 0,
         "label": label,
     }
 
@@ -1188,15 +1213,24 @@ def get_repository_signal_rows() -> list[dict[str, Any]]:
         traffic_comparison_ready = (
             traffic_days_available == 7 and previous_days_available == 7
         )
-        net_stars = int(latest.get("stars", 0)) - int(baseline.get("stars", 0))
-        net_forks = int(latest.get("forks", 0)) - int(baseline.get("forks", 0))
+        has_snapshot_baseline = bool(snapshot_period.get("has_baseline"))
+        net_stars = (
+            int(latest.get("stars", 0)) - int(baseline.get("stars", 0))
+            if has_snapshot_baseline
+            else None
+        )
+        net_forks = (
+            int(latest.get("forks", 0)) - int(baseline.get("forks", 0))
+            if has_snapshot_baseline
+            else None
+        )
         score = round(
             min(
                 100,
                 math.log1p(views) * 7
                 + math.log1p(clones) * 9
-                + max(0, net_stars) * 10
-                + max(0, net_forks) * 12,
+                + max(0, net_stars or 0) * 10
+                + max(0, net_forks or 0) * 12,
             )
         )
         rows.append(
@@ -1265,9 +1299,27 @@ def days_since_timestamp(value: str, *, now: datetime | None = None) -> int | No
     return max(0, (reference - parsed.astimezone(timezone.utc)).days)
 
 
+def is_profile_repository(repo: dict[str, Any]) -> bool:
+    full_name = str(repo.get("full_name") or "")
+    if "/" not in full_name:
+        return False
+    owner, name = full_name.split("/", 1)
+    return owner.casefold() == name.casefold()
+
+
 def repository_health(repo: dict[str, Any]) -> dict[str, Any]:
     score = 100
     gaps: list[str] = []
+    notes: list[str] = []
+
+    if is_profile_repository(repo):
+        return {
+            "score": None,
+            "gaps": [],
+            "notes": ["profile repository · project readiness does not apply"],
+            "pushed_days_ago": days_since_timestamp(str(repo.get("pushed_at") or "")),
+            "applicable": False,
+        }
 
     if not str(repo.get("description") or "").strip():
         score -= 20
@@ -1276,9 +1328,20 @@ def repository_health(repo: dict[str, Any]) -> dict[str, Any]:
         score -= 15
         gaps.append("topics")
     license_id = str(repo.get("license") or "")
-    if not repo.get("private") and license_id in {"", "NOASSERTION"}:
+    license_status = str(repo.get("license_status") or "")
+    if not license_status:
+        license_status = (
+            "present_unrecognized"
+            if license_id == "NOASSERTION"
+            else "recognized"
+            if license_id
+            else "missing"
+        )
+    if not repo.get("private") and license_status == "missing":
         score -= 20
         gaps.append("license")
+    elif license_status == "present_unrecognized":
+        notes.append("license present · GitHub does not recognize its SPDX type")
     if not str(repo.get("homepage") or "").strip():
         score -= 5
         gaps.append("homepage")
@@ -1297,7 +1360,9 @@ def repository_health(repo: dict[str, Any]) -> dict[str, Any]:
     return {
         "score": max(0, score),
         "gaps": gaps,
+        "notes": notes,
         "pushed_days_ago": pushed_days_ago,
+        "applicable": True,
     }
 
 
@@ -1316,29 +1381,39 @@ def analyze_opportunities(
             continue
         signal = signals.get(full_name.casefold(), {})
         health = repository_health(repo)
-        health_rows.append(
-            {
-                "repo": full_name,
-                "name": repo.get("name") or full_name.split("/", 1)[-1],
-                "score": health["score"],
-                "gaps": health["gaps"],
-                "url": repo.get("html_url") or f"https://github.com/{full_name}",
-            }
-        )
+        if health["applicable"]:
+            health_rows.append(
+                {
+                    "repo": full_name,
+                    "name": repo.get("name") or full_name.split("/", 1)[-1],
+                    "score": health["score"],
+                    "gaps": health["gaps"],
+                    "notes": health["notes"],
+                    "url": repo.get("html_url") or f"https://github.com/{full_name}",
+                }
+            )
 
         repo_name = str(repo.get("name") or full_name.split("/", 1)[-1])
         repo_url = str(repo.get("html_url") or f"https://github.com/{full_name}")
         views = int(signal.get("views_7d") or 0)
         clones = int(signal.get("clones_7d") or 0)
-        net_stars = int(signal.get("net_stars") or 0)
+        net_stars = signal.get("net_stars")
         previous_views = int(signal.get("previous_views") or 0)
         clone_view_ratio = signal.get("clone_view_ratio")
-        growth = percentage_change(views, previous_views)
+        traffic_comparison_ready = bool(signal.get("traffic_comparison_ready"))
+        star_comparison_ready = bool(
+            (signal.get("snapshot_period") or {}).get("is_full_window")
+        )
+        growth = (
+            percentage_change(views, previous_views)
+            if traffic_comparison_ready
+            else None
+        )
 
         essential_gaps = [
             gap for gap in health["gaps"] if gap in {"description", "topics", "license"}
         ]
-        if essential_gaps:
+        if health["applicable"] and essential_gaps:
             missing = ", ".join(essential_gaps)
             opportunities.append(
                 {
@@ -1354,7 +1429,13 @@ def analyze_opportunities(
                 }
             )
 
-        if views >= 10 and net_stars <= 0:
+        if (
+            views >= 10
+            and traffic_comparison_ready
+            and star_comparison_ready
+            and net_stars is not None
+            and int(net_stars) <= 0
+        ):
             opportunities.append(
                 {
                     "kind": "discoverability",
@@ -1363,7 +1444,7 @@ def analyze_opportunities(
                     "title": f"Review {repo_name}'s repository landing page",
                     "detail": f"{views} page views this week with no net star growth.",
                     "action": "Sharpen the README opening, demo and primary call to action.",
-                    "metric": f"{views} views · {net_stars:+d} net stars",
+                    "metric": f"{views} views · {int(net_stars):+d} net stars",
                     "score": 70 + min(views, 30),
                     "url": repo_url,
                 }
@@ -1389,7 +1470,7 @@ def analyze_opportunities(
                 }
             )
 
-        is_new_traffic = growth is None and views >= 5
+        is_new_traffic = traffic_comparison_ready and growth is None and views >= 5
         if is_new_traffic or (growth is not None and growth >= 50 and views >= 5):
             growth_label = "new traffic" if growth is None else f"+{growth:g}% traffic"
             opportunities.append(
@@ -1407,7 +1488,12 @@ def analyze_opportunities(
             )
 
         pushed_days_ago = health["pushed_days_ago"]
-        if pushed_days_ago is not None and pushed_days_ago > 120 and views >= 3:
+        if (
+            traffic_comparison_ready
+            and pushed_days_ago is not None
+            and pushed_days_ago > 120
+            and views >= 3
+        ):
             opportunities.append(
                 {
                     "kind": "freshness",
@@ -1641,9 +1727,10 @@ def get_latest_relation_counts() -> tuple[
         "not_following_back",
         "followers_not_followed",
     )
+    baseline_values = baseline if period.get("has_baseline") else latest
     return (
         {key: int(latest[key]) for key in keys},
-        {key: int(baseline[key]) for key in keys},
+        {key: int(baseline_values[key]) for key in keys},
         period,
     )
 
@@ -1685,13 +1772,16 @@ def build_signals() -> dict[str, Any]:
     traffic_comparison_ready = bool(traffic_rows) and all(
         bool(repo.get("traffic_comparison_ready")) for repo in traffic_rows
     )
+    star_comparisons = [
+        repo for repo in repositories if repo.get("net_stars") is not None
+    ]
     latest_counts, baseline_counts, relationship_period = (
         get_latest_relation_counts()
     )
     movements = get_relation_movements(30)
 
     totals = {
-        key: sum(int(repo[key]) for repo in repositories)
+        key: sum(int(repo.get(key) or 0) for repo in repositories)
         for key in (
             "views_7d",
             "visitor_days_7d",
@@ -1735,8 +1825,13 @@ def build_signals() -> dict[str, Any]:
             "key": "stars",
             "label": "Stars",
             "value": totals["stars"],
-            "unit": "total · net change",
+            "unit": (
+                f"total · net across {len(star_comparisons)} observed baselines"
+                if star_comparisons
+                else "total · waiting for a second snapshot"
+            ),
             "delta_absolute": totals["net_stars"],
+            "delta_available": bool(star_comparisons),
         },
         {
             "key": "community",
@@ -1791,7 +1886,7 @@ def build_signals() -> dict[str, Any]:
                     "url": f'https://github.com/{repo["repo"]}',
                 }
             )
-        if repo["net_stars"] > 0:
+        if int(repo.get("net_stars") or 0) > 0:
             notifications.append(
                 {
                     "type": "net_star_growth",
