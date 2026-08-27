@@ -2,6 +2,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -235,6 +236,60 @@ class PersistenceTests(unittest.TestCase):
         self.assertEqual(
             row["snapshot_period"]["label"], "since first snapshot · 2d"
         )
+
+    def test_repository_registry_merges_a_renamed_repository(self) -> None:
+        collected_at = "2026-08-21T10:00:00+00:00"
+        app.save_traffic(
+            "octocat/old-name",
+            {
+                "count": 5,
+                "uniques": 2,
+                "views": [
+                    {
+                        "timestamp": collected_at,
+                        "count": 5,
+                        "uniques": 2,
+                    }
+                ],
+            },
+            None,
+            collected_at=collected_at,
+        )
+        app.save_repo_snapshots(
+            [
+                {
+                    "full_name": "octocat/old-name",
+                    "stars": 3,
+                    "forks": 1,
+                }
+            ],
+            collected_at,
+        )
+
+        with mock.patch.object(
+            app,
+            "run_gh_json",
+            return_value={"id": 7, "full_name": "octocat/new-name"},
+        ):
+            app.reconcile_repository_registry(
+                [{"id": 7, "full_name": "octocat/new-name"}],
+                "2026-08-22T10:00:00+00:00",
+            )
+
+        self.assertEqual(
+            app.get_traffic_history("octocat/new-name")[0]["views"],
+            5,
+        )
+        self.assertEqual(app.get_traffic_history("octocat/old-name"), [])
+        rows = app.get_repository_signal_rows()
+        self.assertEqual([row["repo"] for row in rows], ["octocat/new-name"])
+
+        with app.database_connection() as connection:
+            alias = connection.execute(
+                "SELECT canonical_name, status FROM repository_aliases WHERE alias = ?",
+                ("octocat/old-name",),
+            ).fetchone()
+        self.assertEqual(alias, ("octocat/new-name", "renamed"))
 
     def test_partial_traffic_updates_preserve_previous_valid_metrics(self) -> None:
         timestamp = "2026-08-21T10:00:00+00:00"

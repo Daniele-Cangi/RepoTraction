@@ -251,6 +251,22 @@ def ensure_database() -> None:
                 PRIMARY KEY (repo, collected_at)
             );
 
+            CREATE TABLE IF NOT EXISTS repository_registry (
+                repo_id INTEGER PRIMARY KEY,
+                full_name TEXT NOT NULL UNIQUE,
+                active INTEGER NOT NULL DEFAULT 1,
+                first_seen_at TEXT NOT NULL,
+                last_seen_at TEXT NOT NULL
+            );
+
+            CREATE TABLE IF NOT EXISTS repository_aliases (
+                alias TEXT PRIMARY KEY,
+                repo_id INTEGER,
+                canonical_name TEXT NOT NULL,
+                status TEXT NOT NULL,
+                resolved_at TEXT NOT NULL
+            );
+
             CREATE TABLE IF NOT EXISTS collection_runs (
                 started_at TEXT PRIMARY KEY,
                 completed_at TEXT,
@@ -266,8 +282,199 @@ def ensure_database() -> None:
                 ON repo_snapshots (repo, collected_at DESC);
             CREATE INDEX IF NOT EXISTS idx_traffic_snapshots_repo_time
                 ON traffic_snapshots (repo, collected_at DESC);
+            CREATE INDEX IF NOT EXISTS idx_repository_registry_active
+                ON repository_registry (active, full_name);
             """
         )
+
+
+def merge_repository_history(
+    connection: sqlite3.Connection,
+    old_name: str,
+    canonical_name: str,
+) -> None:
+    """Move an old repository name onto its current canonical GitHub name."""
+    if old_name.casefold() == canonical_name.casefold():
+        return
+
+    connection.row_factory = sqlite3.Row
+    traffic_rows = connection.execute(
+        """
+        SELECT day, views, unique_views, clones, unique_clones, collected_at
+        FROM traffic_daily
+        WHERE repo = ?
+        """,
+        (old_name,),
+    ).fetchall()
+    for row in traffic_rows:
+        current = connection.execute(
+            """
+            SELECT collected_at
+            FROM traffic_daily
+            WHERE repo = ? AND day = ?
+            """,
+            (canonical_name, row["day"]),
+        ).fetchone()
+        if current is None:
+            connection.execute(
+                "UPDATE traffic_daily SET repo = ? WHERE repo = ? AND day = ?",
+                (canonical_name, old_name, row["day"]),
+            )
+        else:
+            if str(row["collected_at"]) > str(current["collected_at"]):
+                connection.execute(
+                    """
+                    UPDATE traffic_daily
+                    SET views = ?, unique_views = ?, clones = ?, unique_clones = ?,
+                        collected_at = ?
+                    WHERE repo = ? AND day = ?
+                    """,
+                    (
+                        row["views"],
+                        row["unique_views"],
+                        row["clones"],
+                        row["unique_clones"],
+                        row["collected_at"],
+                        canonical_name,
+                        row["day"],
+                    ),
+                )
+            connection.execute(
+                "DELETE FROM traffic_daily WHERE repo = ? AND day = ?",
+                (old_name, row["day"]),
+            )
+
+    for table, fields in (
+        (
+            "traffic_snapshots",
+            "collected_at, views_count, views_uniques, clones_count, clones_uniques",
+        ),
+        (
+            "repo_snapshots",
+            "collected_at, stars, forks, watchers, open_issues, private, archived, language, pushed_at",
+        ),
+    ):
+        rows = connection.execute(
+            f"SELECT {fields} FROM {table} WHERE repo = ?",  # noqa: S608 - fixed table names
+            (old_name,),
+        ).fetchall()
+        field_names = [field.strip() for field in fields.split(",")]
+        placeholders = ", ".join("?" for _ in range(len(field_names) + 1))
+        columns = ", ".join(["repo", *field_names])
+        for row in rows:
+            values = [canonical_name, *(row[field] for field in field_names)]
+            connection.execute(
+                f"INSERT OR IGNORE INTO {table} ({columns}) VALUES ({placeholders})",  # noqa: S608 - fixed table names
+                values,
+            )
+        connection.execute(
+            f"DELETE FROM {table} WHERE repo = ?",  # noqa: S608 - fixed table names
+            (old_name,),
+        )
+
+
+def reconcile_repository_registry(
+    repositories: list[dict[str, Any]],
+    collected_at: str,
+) -> None:
+    """Track immutable GitHub IDs, merge renames, and mark stale repositories."""
+    current_by_id = {
+        int(repo["id"]): str(repo["full_name"])
+        for repo in repositories
+        if repo.get("id") and repo.get("full_name")
+    }
+    current_names = {name.casefold() for name in current_by_id.values()}
+
+    with database_connection() as connection:
+        connection.row_factory = sqlite3.Row
+        connection.execute("UPDATE repository_registry SET active = 0")
+        for repo_id, full_name in current_by_id.items():
+            previous = connection.execute(
+                "SELECT full_name FROM repository_registry WHERE repo_id = ?",
+                (repo_id,),
+            ).fetchone()
+            if previous and str(previous["full_name"]).casefold() != full_name.casefold():
+                old_name = str(previous["full_name"])
+                merge_repository_history(connection, old_name, full_name)
+                connection.execute(
+                    """
+                    INSERT OR REPLACE INTO repository_aliases (
+                        alias, repo_id, canonical_name, status, resolved_at
+                    ) VALUES (?, ?, ?, 'renamed', ?)
+                    """,
+                    (old_name, repo_id, full_name, collected_at),
+                )
+            connection.execute(
+                """
+                INSERT INTO repository_registry (
+                    repo_id, full_name, active, first_seen_at, last_seen_at
+                ) VALUES (?, ?, 1, ?, ?)
+                ON CONFLICT(repo_id) DO UPDATE SET
+                    full_name = excluded.full_name,
+                    active = 1,
+                    last_seen_at = excluded.last_seen_at
+                """,
+                (repo_id, full_name, collected_at, collected_at),
+            )
+
+        historical_names = {
+            str(row[0])
+            for row in connection.execute(
+                """
+                SELECT repo FROM traffic_daily
+                UNION SELECT repo FROM traffic_snapshots
+                UNION SELECT repo FROM repo_snapshots
+                """
+            ).fetchall()
+        }
+        known_aliases = {
+            str(row[0]).casefold()
+            for row in connection.execute("SELECT alias FROM repository_aliases")
+        }
+
+    unresolved = [
+        name
+        for name in sorted(historical_names, key=str.casefold)
+        if name.casefold() not in current_names
+        and name.casefold() not in known_aliases
+    ]
+    for old_name in unresolved:
+        try:
+            resolved = run_gh_json(f"repos/{old_name}")
+        except GitHubCLIError:
+            resolved = {}
+        repo_id = int(resolved.get("id") or 0)
+        canonical_name = str(resolved.get("full_name") or old_name)
+        status = "inactive"
+        if repo_id in current_by_id:
+            canonical_name = current_by_id[repo_id]
+            status = "renamed"
+
+        with database_connection() as connection:
+            if status == "renamed":
+                merge_repository_history(connection, old_name, canonical_name)
+            connection.execute(
+                """
+                INSERT OR REPLACE INTO repository_aliases (
+                    alias, repo_id, canonical_name, status, resolved_at
+                ) VALUES (?, ?, ?, ?, ?)
+                """,
+                (
+                    old_name,
+                    repo_id or None,
+                    canonical_name,
+                    status,
+                    collected_at,
+                ),
+            )
+
+
+def get_active_repository_names() -> set[str]:
+    with database_connection() as connection:
+        rows = connection.execute(
+            "SELECT full_name FROM repository_registry WHERE active = 1"
+        ).fetchall()
+    return {str(row[0]).casefold() for row in rows}
 
 
 def compact_user(user: dict[str, Any]) -> dict[str, Any]:
@@ -540,6 +747,7 @@ def build_dashboard(*, force: bool = False) -> dict[str, Any]:
     categories = classify_relationships(result["followers"], result["following"])
     repositories = [
         {
+            "id": int(repo.get("id") or 0),
             "full_name": repo.get("full_name", ""),
             "name": repo.get("name", ""),
             "private": bool(repo.get("private")),
@@ -574,6 +782,7 @@ def build_dashboard(*, force: bool = False) -> dict[str, Any]:
     ]
 
     collected_at = utc_now()
+    reconcile_repository_registry(repositories, collected_at)
     save_relation_snapshot(categories, collected_at)
     save_repo_snapshots(repositories, collected_at)
     payload = {
@@ -884,8 +1093,15 @@ def get_repository_signal_rows() -> list[dict[str, Any]]:
     for row in snapshot_rows:
         snapshots.setdefault(row["repo"], []).append(dict(row))
 
+    active_repositories = get_active_repository_names()
+    repository_names = set(traffic) | set(native) | set(snapshots)
+    if active_repositories:
+        repository_names = {
+            repo for repo in repository_names if repo.casefold() in active_repositories
+        }
+
     rows: list[dict[str, Any]] = []
-    for repo in sorted(set(traffic) | set(native) | set(snapshots), key=str.casefold):
+    for repo in sorted(repository_names, key=str.casefold):
         repo_traffic = traffic.get(repo, {})
         repo_native = native.get(repo, {})
         repo_snapshots = snapshots.get(repo, [])
