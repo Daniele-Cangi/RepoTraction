@@ -398,6 +398,32 @@ class PersistenceTests(unittest.TestCase):
         self.assertEqual(row["unique_cloners_14d"], 4)
         self.assertEqual(row["clone_view_ratio"], 20.0)
 
+    def test_traffic_windows_end_on_the_latest_available_github_day(self) -> None:
+        latest = app.datetime(2026, 8, 25, tzinfo=app.timezone.utc)
+        daily = [
+            {
+                "timestamp": (latest - app.timedelta(days=offset)).isoformat(),
+                "count": offset + 1,
+                "uniques": 1,
+            }
+            for offset in range(14)
+        ]
+        app.save_traffic(
+            "octocat/hello-world",
+            {"count": 105, "uniques": 14, "views": daily},
+            None,
+            collected_at="2026-08-27T00:00:00+00:00",
+        )
+
+        row = app.get_repository_signal_rows()[0]
+
+        self.assertEqual(row["traffic_period"]["from"], "2026-08-19")
+        self.assertEqual(row["traffic_period"]["to"], "2026-08-25")
+        self.assertEqual(row["views_7d"], sum(range(1, 8)))
+        self.assertEqual(row["previous_views"], sum(range(8, 15)))
+        self.assertTrue(row["traffic_period"]["is_complete"])
+        self.assertTrue(row["traffic_comparison_ready"])
+
 
 if __name__ == "__main__":
     unittest.main()

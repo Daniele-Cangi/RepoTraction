@@ -181,7 +181,9 @@ function renderSignals(data) {
   state.signals = data;
   const icons = { reach: "↗", clone_activity: "↓", stars: "★", community: "◎" };
   $("#signalGrid").innerHTML = data.cards.map((card) => {
-    const delta = Object.hasOwn(card, "delta")
+    const delta = card.delta_available === false
+      ? '<span class="delta flat">waiting</span>'
+      : Object.hasOwn(card, "delta")
       ? formatDelta(card.delta, "%")
       : formatDelta(card.delta_absolute);
     return `<article class="signal-card ${card.key}">
@@ -196,6 +198,9 @@ function renderSignals(data) {
   badge.textContent = `${number.format(data.important_signals)} signals`;
   badge.classList.toggle("active", data.important_signals > 0);
   $("#notificationCount").textContent = number.format(data.notifications.length);
+  if (data.traffic_period?.label) {
+    $("#repositoryMeta").textContent = `${number.format(data.repository_ranking.length)} active repositories · ${data.traffic_period.label}`;
+  }
   renderOverviewRanking(data.repository_ranking);
   renderRepositoryRadar(data.repository_ranking);
   renderNotifications(data.notifications);
@@ -235,7 +240,7 @@ function renderRepositoryRadar(rows) {
   target.innerHTML = rows.map((repo) => `
     <button class="repo-row repo-data-row" data-repo="${escapeHtml(repo.repo)}" type="button">
       <span class="repo-name"><i class="${repo.private ? "private" : ""}"></i><span><strong>${escapeHtml(repo.name)}</strong><small>${escapeHtml(repo.language || (repo.private ? "Private" : "Public"))}</small></span></span>
-      <span><strong>${number.format(repo.views_7d)}</strong>${formatDelta(percentage(repo.views_7d, repo.previous_views), "%")}</span>
+      <span><strong>${number.format(repo.views_7d)}</strong>${repo.traffic_comparison_ready ? formatDelta(percentage(repo.views_7d, repo.previous_views), "%") : '<small>baseline incomplete</small>'}<small>${escapeHtml(repo.traffic_period?.label || "no traffic window yet")}</small></span>
       <span><strong>${number.format(repo.clones_7d)}</strong><small>${repo.clone_view_ratio === null ? "—" : `${repo.clone_view_ratio}% clone/view`}</small></span>
       <span><strong>${number.format(repo.stars)}</strong>${repo.net_stars ? formatDelta(repo.net_stars) : "<small>stable</small>"}<small>${escapeHtml(repo.snapshot_period?.label || "no comparison yet")}</small></span>
       <span class="pulse-score">${repo.signal_score}</span>
@@ -354,9 +359,9 @@ function renderComparison(data) {
   }
   target.innerHTML = `<div class="comparison-grid">${repositories.map((repo) => {
     const metrics = [
-      ["Page views · 7d", comparisonValue(repo.views_7d)],
-      ["Clone events · 7d", comparisonValue(repo.clones_7d)],
-      ["View change", repo.view_change === null ? (repo.views_7d ? "New" : "0%") : comparisonValue(repo.view_change, "%")],
+      [`Page views · ${repo.traffic_period?.label || "rolling window"}`, comparisonValue(repo.views_7d)],
+      [`Clone events · ${repo.traffic_period?.label || "rolling window"}`, comparisonValue(repo.clones_7d)],
+      ["View change", repo.traffic_comparison_ready ? (repo.view_change === null ? (repo.views_7d ? "New" : "0%") : comparisonValue(repo.view_change, "%")) : "Waiting for 14 days"],
       ["Unique visitors · GitHub 14d", comparisonValue(repo.unique_visitors_14d)],
       ["Unique cloners · GitHub 14d", comparisonValue(repo.unique_cloners_14d)],
       ["Clone/View ratio", comparisonValue(repo.clone_view_ratio, "%")],
@@ -395,8 +400,8 @@ function renderDigest(data) {
   const totals = data.totals || {};
   const followerDelta = Number(data.relationship_delta?.followers || 0);
   const cards = [
-    ["Page views", totals.views_7d || 0, "repository views · 7d"],
-    ["Clones", totals.clones_7d || 0, "full events · 7d"],
+    ["Page views", totals.views_7d || 0, `repository views · ${data.period?.label || "rolling 7d"}`],
+    ["Clones", totals.clones_7d || 0, `full events · ${data.period?.label || "rolling 7d"}`],
     ["Stars", `${Number(totals.net_stars || 0) > 0 ? "+" : ""}${number.format(totals.net_stars || 0)}`, "net · per-repo baselines"],
     ["Followers", `${followerDelta > 0 ? "+" : ""}${number.format(followerDelta)}`, data.relationship_period?.label || "no comparison yet"],
   ];

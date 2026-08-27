@@ -928,6 +928,54 @@ def percentage_change(current: int, previous: int) -> float | None:
     return round(((current - previous) / previous) * 100, 1)
 
 
+def traffic_period_label(window_to: Any, days_available: int) -> str:
+    if not window_to:
+        return "no traffic window yet"
+    try:
+        parsed = datetime.strptime(str(window_to), "%Y-%m-%d")
+        through = f"{parsed.strftime('%b')} {parsed.day} UTC"
+    except ValueError:
+        through = f"{window_to} UTC"
+    if days_available == 7:
+        return f"7d ending {through}"
+    return f"{days_available}/7 days through {through}"
+
+
+def summarize_traffic_period(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    periods = [
+        row.get("traffic_period") or {}
+        for row in rows
+        if (row.get("traffic_period") or {}).get("to")
+    ]
+    if not periods:
+        return {
+            "from": None,
+            "to": None,
+            "days_available": 0,
+            "is_complete": False,
+            "label": "no traffic window yet",
+        }
+    boundaries = {(period.get("from"), period.get("to")) for period in periods}
+    complete = all(bool(period.get("is_complete")) for period in periods)
+    if len(boundaries) == 1:
+        start, end = next(iter(boundaries))
+        days_available = min(int(period.get("days_available") or 0) for period in periods)
+        return {
+            "from": start,
+            "to": end,
+            "days_available": days_available,
+            "is_complete": complete,
+            "label": traffic_period_label(end, days_available),
+        }
+    return {
+        "from": None,
+        "to": None,
+        "days_available": min(int(period.get("days_available") or 0) for period in periods),
+        "is_complete": complete,
+        "label": "per-repository rolling 7d",
+    }
+
+
 def parse_utc_timestamp(value: Any) -> datetime | None:
     if not value:
         return None
@@ -999,22 +1047,34 @@ def get_repository_signal_rows() -> list[dict[str, Any]]:
         connection.row_factory = sqlite3.Row
         traffic_rows = connection.execute(
             """
-            SELECT repo,
-                SUM(CASE WHEN day >= date('now', '-6 days') THEN views ELSE 0 END) AS views_7d,
-                SUM(CASE WHEN day >= date('now', '-6 days') THEN unique_views ELSE 0 END) AS visitor_days_7d,
-                SUM(CASE WHEN day >= date('now', '-6 days') THEN clones ELSE 0 END) AS clones_7d,
-                SUM(CASE WHEN day >= date('now', '-6 days') THEN unique_clones ELSE 0 END) AS cloner_days_7d,
-                SUM(CASE WHEN day BETWEEN date('now', '-13 days') AND date('now', '-7 days') THEN views ELSE 0 END) AS previous_views,
-                SUM(CASE WHEN day BETWEEN date('now', '-13 days') AND date('now', '-7 days') THEN unique_views ELSE 0 END) AS previous_visitor_days,
-                SUM(CASE WHEN day BETWEEN date('now', '-13 days') AND date('now', '-7 days') THEN clones ELSE 0 END) AS previous_clones,
-                SUM(CASE WHEN day BETWEEN date('now', '-13 days') AND date('now', '-7 days') THEN unique_clones ELSE 0 END) AS previous_cloner_days,
-                SUM(CASE WHEN day >= date('now', '-13 days') THEN views ELSE 0 END) AS views_14d,
-                SUM(CASE WHEN day >= date('now', '-13 days') THEN unique_views ELSE 0 END) AS visitor_days_14d,
-                SUM(CASE WHEN day >= date('now', '-13 days') THEN clones ELSE 0 END) AS clones_14d,
-                SUM(CASE WHEN day >= date('now', '-13 days') THEN unique_clones ELSE 0 END) AS cloner_days_14d,
-                MAX(collected_at) AS traffic_collected_at
-            FROM traffic_daily
-            GROUP BY repo
+            WITH bounds AS (
+                SELECT repo, MAX(day) AS latest_day
+                FROM traffic_daily
+                GROUP BY repo
+            )
+            SELECT traffic.repo,
+                bounds.latest_day AS traffic_window_to,
+                date(bounds.latest_day, '-6 days') AS traffic_window_from,
+                date(bounds.latest_day, '-7 days') AS previous_window_to,
+                date(bounds.latest_day, '-13 days') AS previous_window_from,
+                COUNT(CASE WHEN traffic.day BETWEEN date(bounds.latest_day, '-6 days') AND bounds.latest_day THEN 1 END) AS traffic_days_available,
+                COUNT(CASE WHEN traffic.day BETWEEN date(bounds.latest_day, '-13 days') AND date(bounds.latest_day, '-7 days') THEN 1 END) AS previous_days_available,
+                SUM(CASE WHEN traffic.day BETWEEN date(bounds.latest_day, '-6 days') AND bounds.latest_day THEN views ELSE 0 END) AS views_7d,
+                SUM(CASE WHEN traffic.day BETWEEN date(bounds.latest_day, '-6 days') AND bounds.latest_day THEN unique_views ELSE 0 END) AS visitor_days_7d,
+                SUM(CASE WHEN traffic.day BETWEEN date(bounds.latest_day, '-6 days') AND bounds.latest_day THEN clones ELSE 0 END) AS clones_7d,
+                SUM(CASE WHEN traffic.day BETWEEN date(bounds.latest_day, '-6 days') AND bounds.latest_day THEN unique_clones ELSE 0 END) AS cloner_days_7d,
+                SUM(CASE WHEN traffic.day BETWEEN date(bounds.latest_day, '-13 days') AND date(bounds.latest_day, '-7 days') THEN views ELSE 0 END) AS previous_views,
+                SUM(CASE WHEN traffic.day BETWEEN date(bounds.latest_day, '-13 days') AND date(bounds.latest_day, '-7 days') THEN unique_views ELSE 0 END) AS previous_visitor_days,
+                SUM(CASE WHEN traffic.day BETWEEN date(bounds.latest_day, '-13 days') AND date(bounds.latest_day, '-7 days') THEN clones ELSE 0 END) AS previous_clones,
+                SUM(CASE WHEN traffic.day BETWEEN date(bounds.latest_day, '-13 days') AND date(bounds.latest_day, '-7 days') THEN unique_clones ELSE 0 END) AS previous_cloner_days,
+                SUM(CASE WHEN traffic.day BETWEEN date(bounds.latest_day, '-13 days') AND bounds.latest_day THEN views ELSE 0 END) AS views_14d,
+                SUM(CASE WHEN traffic.day BETWEEN date(bounds.latest_day, '-13 days') AND bounds.latest_day THEN unique_views ELSE 0 END) AS visitor_days_14d,
+                SUM(CASE WHEN traffic.day BETWEEN date(bounds.latest_day, '-13 days') AND bounds.latest_day THEN clones ELSE 0 END) AS clones_14d,
+                SUM(CASE WHEN traffic.day BETWEEN date(bounds.latest_day, '-13 days') AND bounds.latest_day THEN unique_clones ELSE 0 END) AS cloner_days_14d,
+                MAX(traffic.collected_at) AS traffic_collected_at
+            FROM traffic_daily AS traffic
+            JOIN bounds ON bounds.repo = traffic.repo
+            GROUP BY traffic.repo, bounds.latest_day
             """
         ).fetchall()
         native_rows = connection.execute(
@@ -1113,6 +1173,21 @@ def get_repository_signal_rows() -> list[dict[str, Any]]:
         clones = int(repo_traffic.get("clones_7d") or 0)
         visitor_days = int(repo_traffic.get("visitor_days_7d") or 0)
         cloner_days = int(repo_traffic.get("cloner_days_7d") or 0)
+        traffic_days_available = int(repo_traffic.get("traffic_days_available") or 0)
+        previous_days_available = int(repo_traffic.get("previous_days_available") or 0)
+        traffic_period = {
+            "from": repo_traffic.get("traffic_window_from"),
+            "to": repo_traffic.get("traffic_window_to"),
+            "days_available": traffic_days_available,
+            "is_complete": traffic_days_available == 7,
+            "label": traffic_period_label(
+                repo_traffic.get("traffic_window_to"),
+                traffic_days_available,
+            ),
+        }
+        traffic_comparison_ready = (
+            traffic_days_available == 7 and previous_days_available == 7
+        )
         net_stars = int(latest.get("stars", 0)) - int(baseline.get("stars", 0))
         net_forks = int(latest.get("forks", 0)) - int(baseline.get("forks", 0))
         score = round(
@@ -1136,6 +1211,8 @@ def get_repository_signal_rows() -> list[dict[str, Any]]:
                 "previous_visitor_days": int(repo_traffic.get("previous_visitor_days") or 0),
                 "previous_clones": int(repo_traffic.get("previous_clones") or 0),
                 "previous_cloner_days": int(repo_traffic.get("previous_cloner_days") or 0),
+                "traffic_period": traffic_period,
+                "traffic_comparison_ready": traffic_comparison_ready,
                 "views_14d": int(repo_traffic.get("views_14d") or 0),
                 "visitor_days_14d": int(repo_traffic.get("visitor_days_14d") or 0),
                 "clones_14d": int(repo_traffic.get("clones_14d") or 0),
@@ -1413,8 +1490,12 @@ def build_repository_comparison(selected_repos: list[str]) -> dict[str, Any]:
         item = dict(row)
         item.update(
             {
-                "view_change": percentage_change(
-                    int(row["views_7d"]), int(row["previous_views"])
+                "view_change": (
+                    percentage_change(
+                        int(row["views_7d"]), int(row["previous_views"])
+                    )
+                    if row.get("traffic_comparison_ready")
+                    else None
                 ),
                 "history": get_traffic_history(str(row["repo"]))[-30:],
             }
@@ -1431,9 +1512,13 @@ def build_digest_markdown(
     generated_at: str | None = None,
 ) -> str:
     reference = datetime.fromisoformat((generated_at or utc_now()).replace("Z", "+00:00"))
-    period_end = reference.date()
-    period_start = period_end - timedelta(days=6)
     totals = signals["totals"]
+    traffic_period = signals.get("traffic_period") or {}
+    period_start = traffic_period.get("from") or (
+        reference.date() - timedelta(days=6)
+    ).isoformat()
+    period_end = traffic_period.get("to") or reference.date().isoformat()
+    traffic_label = traffic_period.get("label") or "rolling 7 days"
     relationship_delta = signals.get("relationship_delta") or {}
     relationship_period = signals.get("relationship_period") or {
         "label": "no comparison yet"
@@ -1442,9 +1527,9 @@ def build_digest_markdown(
         "# GitHub Pulse Weekly Digest",
         "",
         f"**Account:** @{account}",
-        f"**Period:** {period_start.isoformat()} to {period_end.isoformat()}",
+        f"**Traffic period:** {period_start} to {period_end} UTC",
         "",
-        "## Traffic · last 7 days",
+        f"## Traffic · {traffic_label}",
         "",
         f"- {totals['views_7d']} repository page views",
         f"- {totals['clones_7d']} full clone events",
@@ -1495,12 +1580,15 @@ def build_weekly_digest(*, force: bool = False) -> dict[str, Any]:
         opportunity_center,
         generated_at=generated_at,
     )
+    traffic_period = signals.get("traffic_period") or {}
     reference = datetime.fromisoformat(generated_at)
     return {
         "generated_at": generated_at,
         "period": {
-            "from": (reference.date() - timedelta(days=6)).isoformat(),
-            "to": reference.date().isoformat(),
+            "from": traffic_period.get("from")
+            or (reference.date() - timedelta(days=6)).isoformat(),
+            "to": traffic_period.get("to") or reference.date().isoformat(),
+            "label": traffic_period.get("label") or "rolling 7 days",
         },
         "totals": signals["totals"],
         "relationship_delta": signals["relationship_delta"],
@@ -1590,6 +1678,13 @@ def collection_status() -> dict[str, Any]:
 
 def build_signals() -> dict[str, Any]:
     repositories = get_repository_signal_rows()
+    traffic_period = summarize_traffic_period(repositories)
+    traffic_rows = [
+        repo for repo in repositories if (repo.get("traffic_period") or {}).get("to")
+    ]
+    traffic_comparison_ready = bool(traffic_rows) and all(
+        bool(repo.get("traffic_comparison_ready")) for repo in traffic_rows
+    )
     latest_counts, baseline_counts, relationship_period = (
         get_latest_relation_counts()
     )
@@ -1616,19 +1711,25 @@ def build_signals() -> dict[str, Any]:
             "key": "reach",
             "label": "Page views",
             "value": totals["views_7d"],
-            "unit": "repository views · 7d",
-            "delta": percentage_change(
-                totals["views_7d"], totals["previous_views"]
+            "unit": f"repository views · {traffic_period['label']}",
+            "delta": (
+                percentage_change(totals["views_7d"], totals["previous_views"])
+                if traffic_comparison_ready
+                else None
             ),
+            "delta_available": traffic_comparison_ready,
         },
         {
             "key": "clone_activity",
             "label": "Clone activity",
             "value": totals["clones_7d"],
-            "unit": "full clone events · 7d",
-            "delta": percentage_change(
-                totals["clones_7d"], totals["previous_clones"]
+            "unit": f"full clone events · {traffic_period['label']}",
+            "delta": (
+                percentage_change(totals["clones_7d"], totals["previous_clones"])
+                if traffic_comparison_ready
+                else None
             ),
+            "delta_available": traffic_comparison_ready,
         },
         {
             "key": "stars",
@@ -1669,7 +1770,11 @@ def build_signals() -> dict[str, Any]:
     for repo in repositories:
         current = repo["views_7d"]
         previous = repo["previous_views"]
-        if current >= 5 and current >= max(3, previous * 1.5):
+        if (
+            repo.get("traffic_comparison_ready")
+            and current >= 5
+            and current >= max(3, previous * 1.5)
+        ):
             change = percentage_change(current, previous)
             detail = (
                 f"{current} page views · +{change:g}%"
@@ -1706,6 +1811,8 @@ def build_signals() -> dict[str, Any]:
     ]
     return {
         "generated_at": utc_now(),
+        "traffic_period": traffic_period,
+        "traffic_comparison_ready": traffic_comparison_ready,
         "cards": cards,
         "totals": totals,
         "repository_ranking": repositories,

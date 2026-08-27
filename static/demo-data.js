@@ -9,6 +9,13 @@ const snapshotPeriod = {
   is_full_window: true,
   label: "last 7 days",
 };
+const trafficPeriod = {
+  from: "2026-08-17",
+  to: "2026-08-23",
+  days_available: 7,
+  is_complete: true,
+  label: "7d ending Aug 23 UTC",
+};
 
 function repositorySignal(
   name,
@@ -48,6 +55,8 @@ function repositorySignal(
     open_issues: Math.max(1, Math.round(stars * 0.025)),
     clone_view_ratio: Math.round((clones / views) * 1000) / 10,
     snapshot_period: snapshotPeriod,
+    traffic_period: trafficPeriod,
+    traffic_comparison_ready: true,
     traffic_collected_at: generatedAt,
     signal_score: score,
   };
@@ -225,15 +234,17 @@ const signals = {
       key: "reach",
       label: "Page views",
       value: totals.views_7d,
-      unit: "repository views · 7d",
+      unit: `repository views · ${trafficPeriod.label}`,
       delta: 24.1,
+      delta_available: true,
     },
     {
       key: "clone_activity",
       label: "Clone activity",
       value: totals.clones_7d,
-      unit: "full clone events · 7d",
+      unit: `full clone events · ${trafficPeriod.label}`,
       delta: 14.8,
+      delta_available: true,
     },
     {
       key: "stars",
@@ -251,6 +262,8 @@ const signals = {
     },
   ],
   totals,
+  traffic_period: trafficPeriod,
+  traffic_comparison_ready: true,
   repository_ranking: repositorySignals,
   notifications,
   important_signals: notifications.length,
@@ -344,6 +357,7 @@ const digest = {
   period: {
     from: "2026-08-17",
     to: "2026-08-23",
+    label: trafficPeriod.label,
   },
   totals,
   relationship_delta: signals.relationship_delta,
