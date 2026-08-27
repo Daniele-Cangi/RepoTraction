@@ -97,6 +97,7 @@ class OpportunityTests(unittest.TestCase):
                 "net_stars": 0,
                 "clone_view_ratio": 41.7,
                 "traffic_comparison_ready": True,
+                "traffic_period": {"is_complete": True},
                 "snapshot_period": {"is_full_window": True},
             }
         ]
@@ -117,6 +118,12 @@ class OpportunityTests(unittest.TestCase):
         ).casefold()
         self.assertNotIn("intent", copy)
         self.assertNotIn("conversion", copy)
+        self.assertTrue(all(item.get("confidence") for item in opportunities))
+        clone_opportunity = next(
+            item for item in opportunities if item["kind"] == "developer_experience"
+        )
+        self.assertEqual(clone_opportunity["confidence"], "low")
+        self.assertIn("automation", clone_opportunity["detail"])
 
     def test_readiness_distinguishes_unrecognized_and_missing_licenses(self) -> None:
         base = {

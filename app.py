@@ -1401,6 +1401,9 @@ def analyze_opportunities(
         previous_views = int(signal.get("previous_views") or 0)
         clone_view_ratio = signal.get("clone_view_ratio")
         traffic_comparison_ready = bool(signal.get("traffic_comparison_ready"))
+        traffic_window_complete = bool(
+            (signal.get("traffic_period") or {}).get("is_complete")
+        )
         star_comparison_ready = bool(
             (signal.get("snapshot_period") or {}).get("is_full_window")
         )
@@ -1423,7 +1426,8 @@ def analyze_opportunities(
                     "title": f"Complete {repo_name}'s essentials",
                     "detail": f"Missing or weak repository metadata: {missing}.",
                     "action": "Add the missing metadata so visitors understand and trust the project faster.",
-                    "metric": f"Health {health['score']}/100",
+                    "metric": f"Readiness {health['score']}/100",
+                    "confidence": "high",
                     "score": 95 - health["score"],
                     "url": repo_url,
                 }
@@ -1442,15 +1446,20 @@ def analyze_opportunities(
                     "priority": "high" if views >= 20 else "medium",
                     "repo": full_name,
                     "title": f"Review {repo_name}'s repository landing page",
-                    "detail": f"{views} page views this week with no net star growth.",
+                    "detail": (
+                        f"{views} page views in "
+                        f"{(signal.get('traffic_period') or {}).get('label', 'the current window')} "
+                        "with no net star growth over a complete snapshot window."
+                    ),
                     "action": "Sharpen the README opening, demo and primary call to action.",
                     "metric": f"{views} views · {int(net_stars):+d} net stars",
+                    "confidence": "medium",
                     "score": 70 + min(views, 30),
                     "url": repo_url,
                 }
             )
 
-        if clones >= 5:
+        if traffic_window_complete and clones >= 5:
             ratio_label = (
                 f" · {clone_view_ratio:g}% clone/view"
                 if clone_view_ratio is not None
@@ -1459,12 +1468,16 @@ def analyze_opportunities(
             opportunities.append(
                 {
                     "kind": "developer_experience",
-                    "priority": "medium",
+                    "priority": "low",
                     "repo": full_name,
-                    "title": f"Improve {repo_name}'s setup path",
-                    "detail": f"{clones} full clone events were recorded this week.",
-                    "action": "Add a quick start, expected output and a minimal runnable example.",
+                    "title": f"Review {repo_name}'s clone activity",
+                    "detail": (
+                        f"{clones} clone events were recorded in the current window; "
+                        "GitHub cannot identify people, bots or automation."
+                    ),
+                    "action": "Check automation patterns first, then improve the quick start if human setup friction is plausible.",
                     "metric": f"{clones} clones{ratio_label}",
+                    "confidence": "low",
                     "score": 55 + min(clones, 30),
                     "url": repo_url,
                 }
@@ -1482,6 +1495,7 @@ def analyze_opportunities(
                     "detail": f"{growth_label} is creating a short window for discovery.",
                     "action": "Publish a small release or update while attention is elevated.",
                     "metric": f"{views} page views · {growth_label}",
+                    "confidence": "medium",
                     "score": 40 + min(views, 30),
                     "url": repo_url,
                 }
@@ -1503,6 +1517,7 @@ def analyze_opportunities(
                     "detail": f"The repository still attracts traffic but was last pushed {pushed_days_ago} days ago.",
                     "action": "Confirm compatibility, refresh examples and publish maintenance notes.",
                     "metric": f"{views} page views · {pushed_days_ago}d since push",
+                    "confidence": "medium",
                     "score": 60 + min(views, 20),
                     "url": repo_url,
                 }
@@ -1532,6 +1547,12 @@ def build_opportunity_center(*, force: bool = False) -> dict[str, Any]:
     )
     payload = {
         "generated_at": utc_now(),
+        "readiness_score": {
+            "name": "Project Readiness",
+            "kind": "local checklist",
+            "formula": "100 − 20 missing description − 15 fewer than 2 topics − 20 missing public license − 5 missing homepage − 10/20 stale activity",
+            "description": "Custom or unrecognized licenses count as present; profile repositories are not scored.",
+        },
         "summary": {
             "total": len(opportunities),
             "high": sum(1 for item in opportunities if item["priority"] == "high"),
@@ -1539,10 +1560,12 @@ def build_opportunity_center(*, force: bool = False) -> dict[str, Any]:
                 1 for item in opportunities if item["priority"] == "medium"
             ),
             "health_average": average_health,
+            "readiness_average": average_health,
             "repositories_analyzed": len(health),
         },
         "opportunities": opportunities[:40],
         "health": health,
+        "readiness": health,
         "repositories": [
             {"repo": row["repo"], "name": row["name"]}
             for row in repositories
@@ -1631,7 +1654,7 @@ def build_digest_markdown(
     for row in signals["repository_ranking"][:5]:
         lines.append(
             f"- **{row['name']}** — {row['views_7d']} page views, "
-            f"{row['clones_7d']} clone events, pulse {row['signal_score']}"
+            f"{row['clones_7d']} clone events, activity score {row['signal_score']}"
         )
     if not signals["repository_ranking"]:
         lines.append("- No repository traffic collected yet.")
@@ -1650,7 +1673,7 @@ def build_digest_markdown(
     for item in notifications:
         lines.append(f"- **{item['title']}** — {item['detail']}")
     if not notifications:
-        lines.append("- No important alerts this week.")
+        lines.append("- No important alerts in this digest.")
 
     lines.extend(["", "---", "Generated locally by GitHub Pulse.", ""])
     return "\n".join(lines)
@@ -1908,6 +1931,12 @@ def build_signals() -> dict[str, Any]:
         "generated_at": utc_now(),
         "traffic_period": traffic_period,
         "traffic_comparison_ready": traffic_comparison_ready,
+        "activity_score": {
+            "name": "Activity Score",
+            "kind": "local heuristic",
+            "formula": "min(100, 7×ln(1+views) + 9×ln(1+clones) + 10×positive net stars + 12×positive net forks)",
+            "description": "Ranks observed repository activity; it is not a GitHub health or quality score.",
+        },
         "cards": cards,
         "totals": totals,
         "repository_ranking": repositories,

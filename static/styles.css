@@ -305,6 +305,10 @@ main { width: min(1380px, 100%); margin: 0 auto; padding: 36px clamp(24px, 4vw, 
 .priority-pill { display: inline-flex; align-items: center; justify-content: center; min-width: 48px; padding: 5px 7px; border-radius: 999px; color: var(--blue); background: rgba(88,166,255,.09); font-size: 7px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
 .priority-pill.high { color: var(--coral); background: rgba(255,123,114,.1); }
 .priority-pill.medium { color: var(--amber); background: rgba(255,190,92,.1); }
+.signal-pills { display: grid; justify-items: start; gap: 5px; }
+.confidence-pill { color: var(--muted); font-size: 10px; white-space: nowrap; }
+.confidence-pill.high { color: var(--lime); }
+.confidence-pill.low { color: var(--muted-2); }
 .opportunity-copy { min-width: 0; }
 .opportunity-copy strong, .opportunity-copy small { display: block; }
 .opportunity-copy strong { font-size: 10px; }
@@ -317,6 +321,7 @@ main { width: min(1380px, 100%); margin: 0 auto; padding: 36px clamp(24px, 4vw, 
 .health-head strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; font-size: 10px; white-space: nowrap; }
 .health-score { color: var(--lime); font-size: 10px; }
 .health-row small { display: block; min-height: 12px; margin: 5px 0 8px; color: var(--muted); font-size: 7px; line-height: 1.45; }
+.health-row .readiness-note { color: var(--blue); }
 .health-track { height: 4px; overflow: hidden; border-radius: 99px; background: rgba(255,255,255,.06); }
 .health-track i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--coral), var(--amber) 48%, var(--lime)); }
 .comparison-controls { display: grid; grid-template-columns: minmax(160px, 1fr) auto minmax(160px, 1fr) auto; align-items: end; gap: 12px; }
@@ -362,7 +367,7 @@ footer { display: flex; justify-content: space-between; margin: 0 clamp(24px, 4v
 body { font-size: 14px; line-height: 1.45; }
 .nav-item, .button, .hero-link, .error-banner { font-size: 14px; }
 .collector-title, .eyebrow, .signal-badge, .count-pill, .status-pill,
-.table-head, .data-card-title span, .list-meta, .priority-pill,
+.table-head, .data-card-title span, .list-meta, .priority-pill, .confidence-pill,
 .comparison-controls label span, .compare-versus, .digest-block h4,
 .about-number, footer { font-size: 11px; }
 .sidebar-collector p, .secure-pill, .sidebar-foot small,

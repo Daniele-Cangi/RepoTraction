@@ -227,7 +227,7 @@ function renderOverviewRanking(rows) {
       <span class="rank-index">${String(index + 1).padStart(2, "0")}</span>
       <span class="rank-copy"><strong>${escapeHtml(repo.name)}</strong><small>${number.format(repo.views_7d)} page views · ${number.format(repo.clones_7d)} clones</small></span>
       <span class="rank-bar"><i style="width:${Math.max(4, (repo.signal_score / maxScore) * 100)}%"></i></span>
-      <span class="rank-score">${repo.signal_score}</span>
+      <span class="rank-score" title="${escapeHtml(state.signals?.activity_score?.description || "Local activity heuristic")}">${repo.signal_score}</span>
     </button>`).join("");
 }
 
@@ -247,7 +247,7 @@ function renderRepositoryRadar(rows) {
       <span><strong>${number.format(repo.views_7d)}</strong>${repo.traffic_comparison_ready ? formatDelta(percentage(repo.views_7d, repo.previous_views), "%") : '<small>baseline incomplete</small>'}<small>${escapeHtml(repo.traffic_period?.label || "no traffic window yet")}</small></span>
       <span><strong>${number.format(repo.clones_7d)}</strong><small>${repo.clone_view_ratio === null ? "—" : `${repo.clone_view_ratio}% clone/view`}</small></span>
       <span><strong>${number.format(repo.stars)}</strong>${starChange}<small>${escapeHtml(repo.snapshot_period?.label || "no comparison yet")}</small></span>
-      <span class="pulse-score">${repo.signal_score}</span>
+      <span class="pulse-score" title="${escapeHtml(state.signals?.activity_score?.formula || "Local activity heuristic")}">${repo.signal_score}</span>
     </button>`;
   }).join("");
 }
@@ -299,7 +299,7 @@ function renderOpportunityCenter(data) {
   const values = [
     number.format(summary.total || 0),
     number.format(summary.high || 0),
-    `${number.format(summary.health_average || 0)}/100`,
+    `${number.format(summary.readiness_average ?? summary.health_average ?? 0)}/100`,
     number.format(summary.repositories_analyzed || 0),
   ];
   $$("#opportunitySummary strong").forEach((target, index) => {
@@ -311,7 +311,10 @@ function renderOpportunityCenter(data) {
   $("#opportunityList").innerHTML = opportunities.length
     ? opportunities.slice(0, 16).map((item) => `
       <a class="opportunity-row" href="${escapeHtml(item.url)}" target="_blank" rel="noreferrer">
-        <span class="priority-pill ${escapeHtml(item.priority)}">${escapeHtml(item.priority)}</span>
+        <span class="signal-pills">
+          <span class="priority-pill ${escapeHtml(item.priority)}">${escapeHtml(item.priority)}</span>
+          <span class="confidence-pill ${escapeHtml(item.confidence || "medium")}">${escapeHtml(item.confidence || "medium")} confidence</span>
+        </span>
         <span class="opportunity-copy">
           <strong>${escapeHtml(item.title)}</strong>
           <small>${escapeHtml(item.detail)}</small>
@@ -321,12 +324,13 @@ function renderOpportunityCenter(data) {
       </a>`).join("")
     : '<div class="quiet-state"><span>✓</span><strong>Portfolio in good shape</strong><p>No urgent opportunities detected.</p></div>';
 
-  const health = data.health || [];
-  $("#healthList").innerHTML = health.length
-    ? health.slice(0, 10).map((item) => `
+  const readiness = data.readiness || data.health || [];
+  $("#healthList").innerHTML = readiness.length
+    ? readiness.slice(0, 10).map((item) => `
       <div class="health-row">
         <div class="health-head"><strong title="${escapeHtml(item.repo)}">${escapeHtml(item.name)}</strong><span class="health-score">${number.format(item.score)}/100</span></div>
         <small>${item.gaps?.length ? `Improve ${escapeHtml(item.gaps.join(", "))}` : "Core project information is complete"}</small>
+        ${item.notes?.length ? `<small class="readiness-note">${escapeHtml(item.notes.join(" · "))}</small>` : ""}
         <div class="health-track"><i style="width:${Math.max(2, Math.min(100, Number(item.score) || 0))}%"></i></div>
       </div>`).join("")
     : '<div class="data-empty">No repository health data available.</div>';
@@ -373,7 +377,7 @@ function renderComparison(data) {
       [`Net stars · ${repo.snapshot_period?.label || "no comparison yet"}`, repo.snapshot_period?.has_baseline ? `${Number(repo.net_stars || 0) > 0 ? "+" : ""}${number.format(repo.net_stars || 0)}` : "—"],
     ];
     return `<article class="comparison-repo">
-      <header><a href="https://github.com/${escapeHtml(repo.repo)}" target="_blank" rel="noreferrer">${escapeHtml(repo.name)}</a><strong>${number.format(repo.signal_score || 0)}</strong></header>
+      <header><a href="https://github.com/${escapeHtml(repo.repo)}" target="_blank" rel="noreferrer">${escapeHtml(repo.name)}</a><strong title="${escapeHtml(state.signals?.activity_score?.formula || "Local activity heuristic")}">${number.format(repo.signal_score || 0)}</strong></header>
       ${metrics.map(([label, value]) => `<div class="comparison-metric"><span>${escapeHtml(label)}</span><b>${escapeHtml(value)}</b></div>`).join("")}
     </article>`;
   }).join("")}</div>`;

@@ -230,6 +230,12 @@ const dashboard = {
 
 const signals = {
   generated_at: generatedAt,
+  activity_score: {
+    name: "Activity Score",
+    kind: "local heuristic",
+    formula: "min(100, 7×ln(1+views) + 9×ln(1+clones) + 10×positive net stars + 12×positive net forks)",
+    description: "Ranks observed repository activity; it is not a GitHub health or quality score.",
+  },
   cards: [
     {
       key: "reach",
@@ -290,17 +296,19 @@ const opportunities = [
     detail: "318 page views make this the portfolio's busiest landing page.",
     action: "Put the live demo and three-step quick start above the fold.",
     metric: "318 views · +28.2%",
+    confidence: "medium",
     score: 98,
     url: "https://example.com/octoforge-demo/nebula-notes",
   },
   {
     kind: "developer_experience",
-    priority: "medium",
+    priority: "low",
     repo: account + "/atlas-api",
-    title: "Shorten atlas-api's setup path",
-    detail: "38 full clone events were recorded this week.",
-    action: "Add a copy-ready local setup and expected response example.",
+    title: "Review atlas-api's clone activity",
+    detail: "38 clone events were recorded; GitHub cannot identify people, bots or automation.",
+    action: "Check automation patterns first, then improve the quick start if human setup friction is plausible.",
     metric: "38 clones · 13.9% clone/view",
+    confidence: "low",
     score: 84,
     url: "https://example.com/octoforge-demo/atlas-api",
   },
@@ -312,6 +320,7 @@ const opportunities = [
     detail: "+54.5% page-view growth creates a useful release window.",
     action: "Publish the benchmark update while attention is elevated.",
     metric: "187 views · +54.5%",
+    confidence: "medium",
     score: 79,
     url: "https://example.com/octoforge-demo/signal-lab",
   },
@@ -322,7 +331,8 @@ const opportunities = [
     title: "Polish tiny-search's metadata",
     detail: "The repository would benefit from one more discovery topic.",
     action: "Add a search-related topic and a compact social preview.",
-    metric: "Health 82/100",
+    metric: "Readiness 82/100",
+    confidence: "high",
     score: 64,
     url: "https://example.com/octoforge-demo/tiny-search",
   },
@@ -333,6 +343,7 @@ const health = repositorySignals.map((row, index) => ({
   name: row.name,
   score: [96, 94, 91, 88, 86, 82][index],
   gaps: index === 5 ? ["topics"] : [],
+  notes: [],
   url: "https://example.com/" + row.repo,
 }));
 
@@ -341,12 +352,14 @@ const opportunityCenter = {
   summary: {
     total: opportunities.length,
     high: 1,
-    medium: 2,
+    medium: 1,
     health_average: 90,
+    readiness_average: 90,
     repositories_analyzed: repositorySignals.length,
   },
   opportunities,
   health,
+  readiness: health,
   repositories: repositorySignals.map((row) => ({
     repo: row.repo,
     name: row.name,

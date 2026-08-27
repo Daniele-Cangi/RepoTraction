@@ -127,7 +127,7 @@
 
             <article class="panel-card repo-radar-card">
               <div class="table-head repo-row">
-                <span>Repository</span><span>Page views</span><span>Clones</span><span>Stars</span><span>Pulse</span>
+                <span>Repository</span><span>Page views</span><span>Clones</span><span>Stars</span><span title="Local heuristic based on views, clones and positive snapshot changes">Activity</span>
               </div>
               <div id="repositoryRadar" class="repo-table">
                 <div class="data-empty">Loading repositories…</div>
@@ -190,7 +190,7 @@
             <section id="opportunitySummary" class="insight-summary" aria-label="Opportunity summary">
               <article><span>Opportunities</span><strong>—</strong><small>actionable signals</small></article>
               <article><span>High priority</span><strong>—</strong><small>review first</small></article>
-              <article><span>Portfolio health</span><strong>—</strong><small>average score</small></article>
+              <article><span>Portfolio readiness</span><strong>—</strong><small>local checklist average</small></article>
               <article><span>Repositories</span><strong>—</strong><small>analyzed locally</small></article>
             </section>
 
@@ -207,11 +207,12 @@
 
               <article class="panel-card health-card">
                 <div class="card-heading">
-                  <div><p class="eyebrow">Repository health</p><h3>Needs attention</h3></div>
+                  <div><p class="eyebrow">Project readiness</p><h3>Needs attention</h3></div>
                 </div>
                 <div id="healthList" class="health-list">
-                  <div class="data-empty">Calculating health scores…</div>
+                  <div class="data-empty">Calculating readiness scores…</div>
                 </div>
+                <p class="fine-print">Readiness starts at 100: −20 missing description, −15 fewer than two topics, −20 missing public license, −5 missing homepage, and −10/−20 for stale activity. Custom licenses count as present. Activity Score is a separate capped heuristic; neither score is an official GitHub metric.</p>
               </article>
             </div>
 

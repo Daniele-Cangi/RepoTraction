@@ -142,6 +142,16 @@ GitHub exposes repository views and clones for a rolling 14-day window. GitHub
 Pulse stores both the native 14-day totals and every available daily value in
 SQLite, building an event history that can extend beyond GitHub's window.
 
+Rolling 7-day metrics end on the latest UTC day actually returned by GitHub,
+not on the computer's current date. Growth and spike comparisons are enabled
+only when both adjacent 7-day windows contain all seven daily observations.
+Every label includes the effective data-through date.
+
+Repositories are tracked by GitHub's immutable numeric repository ID. If a
+repository is renamed, its old records are merged into the current name instead
+of appearing as a second project. Deleted or no-longer-owned repositories remain
+available in exports but are excluded from current totals and rankings.
+
 The dashboard keeps the meanings separate:
 
 - **Page views** and **clone events** are additive and can be compared across
@@ -155,7 +165,12 @@ The dashboard keeps the meanings separate:
   and does not identify human intent.
 - **Net stars** and **net forks** are differences between repository snapshots,
   not counts of newly acquired stars or forks. Their actual observation window
-  is shown next to the value.
+  is shown next to the value. A single snapshot is reported as **no comparison
+  yet**, never as stable activity.
+- License metadata distinguishes **recognized**, **present but unrecognized**
+  (`NOASSERTION`) and **missing**. A custom or proprietary license is not treated
+  as absent, and the special profile repository is excluded from project
+  readiness scoring.
 
 If one GitHub traffic endpoint fails, GitHub Pulse preserves the last valid
 values for that channel instead of replacing them with zero.
@@ -172,10 +187,25 @@ snapshots.
 The **Opportunity Center** combines page views, clone events, snapshot changes
 and repository readiness checks. Recommendations are heuristics: they highlight
 likely next actions without claiming a visitor-to-star or clone conversion.
+Each recommendation includes a confidence level. Clone-based recommendations
+are deliberately low-confidence because GitHub cannot distinguish people from
+bots, CI jobs or other automation.
 
-The **Pulse Score** ranks repositories using page-view events, clone events and
-positive net star/fork changes. It does not use summed unique counts or inferred
-conversion rates.
+The **Activity Score** ranks repositories with this capped local heuristic:
+
+~~~text
+min(100,
+  7 × ln(1 + page views)
+  + 9 × ln(1 + clone events)
+  + 10 × positive net stars
+  + 12 × positive net forks
+)
+~~~
+
+It does not use summed unique counts or inferred conversion rates and it is not
+an official GitHub quality or health score. **Project Readiness** is a separate,
+local checklist based on description, topics, license presence, homepage and
+recent activity.
 
 The **Weekly Digest** can be copied or downloaded as Markdown. Desktop alerts
 use the browser's local notification permission and are disabled by default.
