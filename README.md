@@ -151,6 +151,11 @@ Repositories are tracked by GitHub's immutable numeric repository ID. If a
 repository is renamed, its old records are merged into the current name instead
 of appearing as a second project. Deleted or no-longer-owned repositories remain
 available in exports but are excluded from current totals and rankings.
+The special profile README repository (`owner/owner`) remains available in the
+repository explorer but is excluded from activity totals, Activity Score
+rankings, comparisons, digests and recommendations. Its current stars still
+count toward the account's overall star total, while its expected lack of star
+growth is never presented as a project problem.
 
 The dashboard keeps the meanings separate:
 
@@ -169,8 +174,7 @@ The dashboard keeps the meanings separate:
   yet**, never as stable activity.
 - License metadata distinguishes **recognized**, **present but unrecognized**
   (`NOASSERTION`) and **missing**. A custom or proprietary license is not treated
-  as absent, and the special profile repository is excluded from project
-  readiness scoring.
+  as absent.
 
 If one GitHub traffic endpoint fails, GitHub Pulse preserves the last valid
 values for that channel instead of replacing them with zero.

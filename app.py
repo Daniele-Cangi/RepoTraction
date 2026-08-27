@@ -798,6 +798,7 @@ def build_dashboard(*, force: bool = False) -> dict[str, Any]:
     reconcile_repository_registry(repositories, collected_at)
     save_relation_snapshot(categories, collected_at)
     save_repo_snapshots(repositories, collected_at)
+    portfolio_repositories = portfolio_repository_rows(repositories)
     payload = {
         "collected_at": collected_at,
         "profile": {
@@ -814,6 +815,16 @@ def build_dashboard(*, force: bool = False) -> dict[str, Any]:
         "relationship_movements": get_relation_movements(),
         "relationship_history": get_relation_history(),
         "repositories": repositories,
+        "portfolio": {
+            "repositories": len(portfolio_repositories),
+            "stars": sum(int(repo.get("stars") or 0) for repo in repositories),
+            "stars_include_profile_repositories": True,
+            "excluded_profile_repositories": [
+                str(repo["full_name"])
+                for repo in repositories
+                if is_profile_repository(repo)
+            ],
+        },
     }
     CACHE.set("dashboard", payload)
     return payload
@@ -1299,12 +1310,23 @@ def days_since_timestamp(value: str, *, now: datetime | None = None) -> int | No
     return max(0, (reference - parsed.astimezone(timezone.utc)).days)
 
 
-def is_profile_repository(repo: dict[str, Any]) -> bool:
-    full_name = str(repo.get("full_name") or "")
+def is_profile_repository_name(full_name: str) -> bool:
     if "/" not in full_name:
         return False
     owner, name = full_name.split("/", 1)
     return owner.casefold() == name.casefold()
+
+
+def is_profile_repository(repo: dict[str, Any]) -> bool:
+    return is_profile_repository_name(
+        str(repo.get("full_name") or repo.get("repo") or "")
+    )
+
+
+def portfolio_repository_rows(
+    repositories: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    return [repo for repo in repositories if not is_profile_repository(repo)]
 
 
 def repository_health(repo: dict[str, Any]) -> dict[str, Any]:
@@ -1378,6 +1400,8 @@ def analyze_opportunities(
     for repo in repositories:
         full_name = str(repo.get("full_name") or "")
         if not full_name or repo.get("archived") or repo.get("fork"):
+            continue
+        if is_profile_repository(repo):
             continue
         signal = signals.get(full_name.casefold(), {})
         health = repository_health(repo)
@@ -1536,7 +1560,7 @@ def build_opportunity_center(*, force: bool = False) -> dict[str, Any]:
     if cached is not None:
         return cached
     dashboard = build_dashboard()
-    repositories = get_repository_signal_rows()
+    repositories = portfolio_repository_rows(get_repository_signal_rows())
     opportunities, health = analyze_opportunities(
         dashboard["repositories"], repositories
     )
@@ -1589,7 +1613,8 @@ def build_repository_comparison(selected_repos: list[str]) -> dict[str, Any]:
         raise ValueError("Choose between 2 and 4 different repositories.")
 
     available = {
-        str(row["repo"]).casefold(): row for row in get_repository_signal_rows()
+        str(row["repo"]).casefold(): row
+        for row in portfolio_repository_rows(get_repository_signal_rows())
     }
     items: list[dict[str, Any]] = []
     for requested in selected:
@@ -1787,7 +1812,8 @@ def collection_status() -> dict[str, Any]:
 
 
 def build_signals() -> dict[str, Any]:
-    repositories = get_repository_signal_rows()
+    all_repositories = get_repository_signal_rows()
+    repositories = portfolio_repository_rows(all_repositories)
     traffic_period = summarize_traffic_period(repositories)
     traffic_rows = [
         repo for repo in repositories if (repo.get("traffic_period") or {}).get("to")
@@ -1818,6 +1844,7 @@ def build_signals() -> dict[str, Any]:
             "net_forks",
         )
     }
+    totals["stars"] = sum(int(repo.get("stars") or 0) for repo in all_repositories)
     follower_delta = latest_counts["followers"] - baseline_counts["followers"]
     cards = [
         {
@@ -1947,6 +1974,10 @@ def build_signals() -> dict[str, Any]:
             if item["type"] in {"traffic_spike", "net_star_growth", "new_follower"}
         ),
         "tracked_repositories": len(active_repositories),
+        "statistics_scope": {
+            "profile_repositories_excluded": True,
+            "description": "Profile README repositories are excluded from activity analysis; their current stars remain in the account total.",
+        },
         "relationship_counts": latest_counts,
         "relationship_delta": {
             key: latest_counts[key] - baseline_counts[key] for key in latest_counts

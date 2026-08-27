@@ -68,6 +68,76 @@ class SignalTests(unittest.TestCase):
         self.assertEqual(app.percentage_change(0, 0), 0.0)
         self.assertIsNone(app.percentage_change(5, 0))
 
+    def test_profile_readme_repository_is_excluded_from_portfolio_rows(self) -> None:
+        rows = [
+            {"repo": "octocat/octocat", "stars": 4},
+            {"repo": "octocat/hello-world", "stars": 12},
+        ]
+
+        filtered = app.portfolio_repository_rows(rows)
+
+        self.assertEqual([row["repo"] for row in filtered], ["octocat/hello-world"])
+
+    def test_profile_stars_remain_in_account_total(self) -> None:
+        def signal_row(repo: str, stars: int) -> dict[str, object]:
+            return {
+                "repo": repo,
+                "name": repo.split("/", 1)[-1],
+                "views_7d": 10,
+                "visitor_days_7d": 5,
+                "clones_7d": 2,
+                "cloner_days_7d": 1,
+                "previous_views": 8,
+                "previous_clones": 1,
+                "views_14d": 18,
+                "clones_14d": 3,
+                "stars": stars,
+                "net_stars": 0,
+                "forks": 0,
+                "net_forks": 0,
+                "traffic_period": {
+                    "from": "2026-08-20",
+                    "to": "2026-08-26",
+                    "days_available": 7,
+                    "is_complete": True,
+                    "label": "7d ending Aug 26 UTC",
+                },
+                "traffic_comparison_ready": True,
+                "snapshot_period": {"is_full_window": True},
+                "traffic_collected_at": app.utc_now(),
+            }
+
+        counts = {
+            "followers": 0,
+            "following": 0,
+            "mutual": 0,
+            "not_following_back": 0,
+            "followers_not_followed": 0,
+        }
+        rows = [
+            signal_row("octocat/octocat", 4),
+            signal_row("octocat/hello-world", 12),
+        ]
+        relation_period = {"label": "no comparison yet"}
+
+        with (
+            mock.patch.object(app, "get_repository_signal_rows", return_value=rows),
+            mock.patch.object(
+                app,
+                "get_latest_relation_counts",
+                return_value=(counts, counts, relation_period),
+            ),
+            mock.patch.object(app, "get_relation_movements", return_value=[]),
+            mock.patch.object(app, "collection_status", return_value={}),
+        ):
+            signals = app.build_signals()
+
+        self.assertEqual(signals["totals"]["stars"], 16)
+        self.assertEqual(
+            [row["repo"] for row in signals["repository_ranking"]],
+            ["octocat/hello-world"],
+        )
+
 
 class OpportunityTests(unittest.TestCase):
     def test_finds_foundation_discoverability_and_setup_opportunities(
@@ -152,15 +222,36 @@ class OpportunityTests(unittest.TestCase):
         self.assertIn("license", missing["gaps"])
 
     def test_profile_repository_is_not_scored_as_a_project(self) -> None:
-        health = app.repository_health(
-            {
-                "full_name": "octocat/octocat",
-                "pushed_at": app.utc_now(),
-            }
-        )
+        repository = {
+            "full_name": "octocat/octocat",
+            "name": "octocat",
+            "archived": False,
+            "fork": False,
+            "pushed_at": app.utc_now(),
+        }
+        health = app.repository_health(repository)
 
         self.assertFalse(health["applicable"])
         self.assertIsNone(health["score"])
+
+        opportunities, readiness = app.analyze_opportunities(
+            [repository],
+            [
+                {
+                    "repo": "octocat/octocat",
+                    "views_7d": 100,
+                    "previous_views": 80,
+                    "clones_7d": 20,
+                    "net_stars": 0,
+                    "traffic_comparison_ready": True,
+                    "traffic_period": {"is_complete": True},
+                    "snapshot_period": {"is_full_window": True},
+                }
+            ],
+        )
+
+        self.assertEqual(opportunities, [])
+        self.assertEqual(readiness, [])
 
     def test_builds_markdown_digest(self) -> None:
         signals = {

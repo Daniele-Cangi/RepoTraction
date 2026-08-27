@@ -191,6 +191,12 @@ const dashboard = {
     html_url: accountUrl,
   },
   repositories,
+  portfolio: {
+    repositories: repositories.length,
+    stars: repositories.reduce((sum, repo) => sum + repo.stars, 0),
+    stars_include_profile_repositories: true,
+    excluded_profile_repositories: [],
+  },
   counts: {
     followers: 482,
     following: 138,

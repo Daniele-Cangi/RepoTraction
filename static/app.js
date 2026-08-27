@@ -82,7 +82,9 @@ function renderDashboard(data) {
   state.dashboard = data;
   const profile = data.profile;
   const hero = $("#profileHero");
-  const totalStars = data.repositories.reduce((sum, repo) => sum + Number(repo.stars || 0), 0);
+  const totalStars = data.portfolio?.stars
+    ?? data.repositories.reduce((sum, repo) => sum + Number(repo.stars || 0), 0);
+  const projectCount = data.portfolio?.repositories ?? data.repositories.length;
   hero.classList.remove("skeleton-block");
   hero.innerHTML = `
     <div class="hero-profile">
@@ -92,7 +94,7 @@ function renderDashboard(data) {
         <h2>${escapeHtml(profile.name)}</h2>
         <p>@${escapeHtml(profile.login)}${profile.bio ? ` · ${escapeHtml(profile.bio)}` : ""}</p>
         <div class="hero-metrics">
-          <span><strong>${number.format(data.repositories.length)}</strong> repositories</span>
+          <span><strong>${number.format(projectCount)}</strong> projects</span>
           <span><strong>${number.format(totalStars)}</strong> stars</span>
           <span><strong>${number.format(data.counts.followers)}</strong> followers</span>
         </div>
