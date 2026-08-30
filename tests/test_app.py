@@ -61,6 +61,13 @@ class ValidationTests(unittest.TestCase):
         with self.assertRaises(app.GitHubCLIError):
             app.account_database_path("../invalid", root)
 
+    def test_collect_only_cli_mode(self) -> None:
+        with mock.patch.object(sys, "argv", ["app.py", "--collect-only"]):
+            args = app.parse_args()
+
+        self.assertTrue(args.collect_only)
+        self.assertFalse(args.no_open)
+
 
 class SignalTests(unittest.TestCase):
     def test_percentage_change_handles_growth_and_new_signal(self) -> None:

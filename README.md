@@ -124,6 +124,18 @@ On Windows you can also double-click <code>start.cmd</code> or run:
 RepoTraction opens at [http://127.0.0.1:8765](http://127.0.0.1:8765). Press
 <code>Ctrl+C</code> in the terminal to stop it.
 
+### Headless collection
+
+Collect a complete snapshot without starting or keeping the dashboard open:
+
+~~~powershell
+python app.py --collect-only
+~~~
+
+This command is suitable for Windows Task Scheduler, cron and other local job
+runners. It uses the same authenticated GitHub CLI account and the same SQLite
+history as the dashboard, prints a JSON result and exits when collection ends.
+
 ### Synthetic demo
 
 To explore or capture the interface without displaying the authenticated
@@ -182,9 +194,9 @@ If one GitHub traffic endpoint fails, RepoTraction preserves the last valid
 values for that channel instead of replacing them with zero.
 
 While the server is running, a complete collection starts when the previous one
-is more than 20 hours old. You can also start it manually with **Collect now**.
-Non-archived repositories are processed sequentially to keep API usage
-predictable.
+is more than 20 hours old. You can also start it manually with **Collect now**
+or run `python app.py --collect-only` from a local scheduler. Non-archived
+repositories are processed sequentially to keep API usage predictable.
 
 Follower and following lists do not include timestamps. RepoTraction therefore
 creates a baseline on first run and records additions or removals from subsequent

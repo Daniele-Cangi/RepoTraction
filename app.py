@@ -2322,11 +2322,11 @@ def build_activity(*, force: bool = False) -> dict[str, Any]:
     return payload
 
 
-def collect_all_data() -> None:
+def collect_all_data() -> dict[str, Any]:
     started_at = utc_now()
     with COLLECTION_LOCK:
         if COLLECTION_STATE["running"]:
-            return
+            return dict(COLLECTION_STATE)
         COLLECTION_STATE.update(
             {
                 "running": True,
@@ -2390,6 +2390,7 @@ def collect_all_data() -> None:
                 "errors": errors[-20:],
             }
         )
+    return collection_status()
 
 
 def start_collection() -> bool:
@@ -2667,10 +2668,17 @@ class DashboardHandler(BaseHTTPRequestHandler):
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Local-first GitHub dashboard")
+    parser = argparse.ArgumentParser(
+        description="RepoTraction local-first GitHub growth analytics"
+    )
     parser.add_argument("--host", default=DEFAULT_HOST)
     parser.add_argument("--port", type=int, default=DEFAULT_PORT)
     parser.add_argument("--no-open", action="store_true", help="Do not open the browser")
+    parser.add_argument(
+        "--collect-only",
+        action="store_true",
+        help="Collect one complete snapshot without starting the web server",
+    )
     return parser.parse_args()
 
 
@@ -2680,6 +2688,10 @@ def main() -> None:
         raise SystemExit("GitHub CLI (gh) was not found in PATH.")
     account = get_account_login()
     ensure_database()
+    if args.collect_only:
+        result = collect_all_data()
+        print(json.dumps(result, indent=2))
+        raise SystemExit(1 if result.get("last_status") == "failed" else 0)
     threading.Thread(
         target=automatic_collection_loop,
         daemon=True,
