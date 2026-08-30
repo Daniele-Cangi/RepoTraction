@@ -415,6 +415,99 @@ const digest = {
   markdown: "# RepoTraction Weekly Digest\n\nSynthetic demo data.",
 };
 
+function impactMetric(metric, pre, post, portfolio, days, confidence) {
+  const change = Math.round(((post - pre) / pre) * 1000) / 10;
+  return {
+    metric,
+    status: days === 7 ? "complete" : "collecting",
+    window_days: days,
+    pre,
+    post,
+    change_pct: change,
+    change_kind: "measured",
+    portfolio_change_pct: portfolio,
+    portfolio_repositories: 5,
+    lift_pct_points: Math.round((change - portfolio) * 10) / 10,
+    confidence,
+  };
+}
+
+const impactLab = {
+  generated_at: generatedAt,
+  summary: {
+    events: 3,
+    releases: 1,
+    readme_changes: 1,
+    metadata_changes: 1,
+    measured: 2,
+    important: 1,
+  },
+  method: {
+    name: "Portfolio Baseline",
+    description: "Compares up to seven observed days before and after each event, then subtracts the median change across other repositories in the same portfolio.",
+    limitation: "This is observational evidence, not proof that the repository change caused the measured traffic movement.",
+  },
+  events: [
+    {
+      id: 1,
+      repo: account + "/nebula-notes",
+      name: "nebula-notes",
+      event_type: "release",
+      title: "Release v1.8.0",
+      occurred_at: "2026-08-17T10:00:00Z",
+      url: "https://example.com/octoforge-demo/nebula-notes/releases/v1.8.0",
+      metadata: { tag: "v1.8.0" },
+      outcome_key: "outperformed",
+      outcome: "Outperformed portfolio baseline",
+      summary: "Clone events changed +112.5% versus a +9.4% portfolio median.",
+      confidence: "high",
+      important: true,
+      metrics: {
+        views: impactMetric("views", 248, 318, 8.5, 7, "high"),
+        clones: impactMetric("clones", 16, 34, 9.4, 7, "high"),
+      },
+    },
+    {
+      id: 2,
+      repo: account + "/atlas-api",
+      name: "atlas-api",
+      event_type: "readme",
+      title: "README updated",
+      occurred_at: "2026-08-20T09:30:00Z",
+      url: "https://example.com/octoforge-demo/atlas-api/commit/demo",
+      metadata: { message: "docs: move the three-step quick start above the fold" },
+      outcome_key: "outperformed",
+      outcome: "Outperformed portfolio baseline",
+      summary: "Page views changed +33.6% versus a +7.1% portfolio median.",
+      confidence: "medium",
+      important: false,
+      metrics: {
+        views: impactMetric("views", 122, 163, 7.1, 4, "medium"),
+        clones: impactMetric("clones", 18, 25, 6.4, 4, "medium"),
+      },
+    },
+    {
+      id: 3,
+      repo: account + "/signal-lab",
+      name: "signal-lab",
+      event_type: "metadata",
+      title: "Repository metadata updated",
+      occurred_at: "2026-08-23T08:00:00Z",
+      url: "https://example.com/octoforge-demo/signal-lab",
+      metadata: { changed_fields: ["topics_json", "homepage"] },
+      outcome_key: "collecting",
+      outcome: "Collecting evidence",
+      summary: "A comparable before/after window is not available yet.",
+      confidence: "low",
+      important: false,
+      metrics: {
+        views: { metric: "views", status: "waiting", window_days: 0 },
+        clones: { metric: "clones", status: "waiting", window_days: 0 },
+      },
+    },
+  ],
+};
+
 const trafficHistory = [
   [10, 58, 34], [11, 63, 37], [12, 54, 31], [13, 71, 42],
   [14, 69, 40], [15, 82, 49], [16, 77, 45], [17, 91, 53],
@@ -520,6 +613,7 @@ export function getDemoResponse(path) {
   if (url.pathname === "/api/dashboard") return clone(dashboard);
   if (url.pathname === "/api/signals") return clone(signals);
   if (url.pathname === "/api/opportunities") return clone(opportunityCenter);
+  if (url.pathname === "/api/impact") return clone(impactLab);
   if (url.pathname === "/api/digest") return clone(digest);
   if (url.pathname === "/api/activity") return clone(activity);
   if (url.pathname === "/api/collection") return clone(collection);

@@ -31,6 +31,9 @@
           <button class="nav-item" data-view="insights" type="button">
             <span class="nav-icon">✦</span><span>Insights</span>
           </button>
+          <button class="nav-item" data-view="impact" type="button">
+            <span class="nav-icon">◉</span><span>Impact Lab</span>
+          </button>
           <button class="nav-item" data-view="network" type="button">
             <span class="nav-icon">◎</span><span>Network</span>
           </button>
@@ -257,6 +260,43 @@
                 <p>Receive a local notification when RepoTraction detects important traffic, star or community changes.</p>
                 <button id="desktopAlertsButton" class="button button-primary" type="button">Enable desktop alerts</button>
                 <small id="desktopAlertsStatus">Disabled · nothing leaves your computer</small>
+              </article>
+            </div>
+          </section>
+
+          <section id="impactView" class="view-panel">
+            <div class="section-heading">
+              <div><p class="eyebrow">Impact Lab</p><h2>Measure what changed</h2></div>
+              <p>Connect releases, README work and repository metadata changes with observed traffic movement.</p>
+            </div>
+
+            <section id="impactSummary" class="impact-summary" aria-label="Impact summary">
+              <article><span>Tracked changes</span><strong>—</strong><small>impact ledger events</small></article>
+              <article><span>Measured</span><strong>—</strong><small>comparable windows</small></article>
+              <article><span>Important</span><strong>—</strong><small>large relative movement</small></article>
+              <article><span>Releases</span><strong>—</strong><small>detected automatically</small></article>
+            </section>
+
+            <div class="impact-layout">
+              <article class="panel-card impact-method-card">
+                <div class="card-heading"><div><p class="eyebrow">Method</p><h3 id="impactMethodName">Portfolio Baseline</h3></div></div>
+                <p id="impactMethodDescription">Comparing the repository before and after each tracked change.</p>
+                <ol class="method-steps">
+                  <li><span>01</span><p><strong>Detect</strong>Release, README or metadata change.</p></li>
+                  <li><span>02</span><p><strong>Compare</strong>Up to seven days before and after.</p></li>
+                  <li><span>03</span><p><strong>Control</strong>Subtract the portfolio median movement.</p></li>
+                </ol>
+                <p id="impactMethodLimitation" class="method-warning">Observational evidence is not proof of causality.</p>
+              </article>
+
+              <article class="panel-card impact-ledger-card">
+                <div class="card-heading">
+                  <div><p class="eyebrow">Evidence ledger</p><h3>Repository interventions</h3></div>
+                  <span id="impactCount" class="count-pill">0</span>
+                </div>
+                <div id="impactEventList" class="impact-event-list">
+                  <div class="data-empty">Collecting repository events…</div>
+                </div>
               </article>
             </div>
           </section>

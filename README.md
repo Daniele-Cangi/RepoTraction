@@ -38,9 +38,7 @@ There is no username to configure and no token to paste into the app.
 | **Activity** | Recent public events and an experimental Achievement Lab |
 | **Data** | Daily collection status, CSV exports and a complete JSON backup |
 
-![RepoTraction repository radar](docs/screenshots/repositories.png)
-
-![RepoTraction opportunity center and weekly digest](docs/screenshots/insights.png)
+![RepoTraction Impact Lab](docs/screenshots/impact-lab.png)
 
 ## Designed for every GitHub account
 

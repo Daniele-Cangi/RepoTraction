@@ -3,6 +3,7 @@ const state = {
   signals: null,
   activity: null,
   insights: null,
+  impact: null,
   digest: null,
   relationshipFilter: "not_following_back",
   search: "",
@@ -449,6 +450,70 @@ async function loadInsights(refresh = false) {
   }
 }
 
+function signedPercent(value) {
+  if (value === null || value === undefined) return "—";
+  const numeric = Number(value);
+  return `${numeric > 0 ? "+" : ""}${number.format(numeric)}%`;
+}
+
+function renderImpactMetric(label, metric = {}) {
+  if (metric.status === "waiting") {
+    return `<div class="impact-metric waiting"><div class="impact-metric-head"><span>${escapeHtml(label)}</span><b>Waiting for traffic</b></div><p>No post-event day is available yet.</p></div>`;
+  }
+  const change = metric.change_kind === "new" ? "New activity" : signedPercent(metric.change_pct);
+  const lift = metric.lift_pct_points === null || metric.lift_pct_points === undefined
+    ? "No portfolio baseline"
+    : `${signedPercent(metric.lift_pct_points)} vs portfolio`;
+  return `<div class="impact-metric">
+    <div class="impact-metric-head"><span>${escapeHtml(label)}</span><b>${escapeHtml(metric.status === "complete" ? "7-day result" : `${metric.window_days || 0}-day early read`)}</b></div>
+    <div class="metric-flow"><span><small>Before</small><strong>${metric.pre === null || metric.pre === undefined ? "—" : number.format(metric.pre)}</strong></span><i>→</i><span><small>After</small><strong>${number.format(metric.post || 0)}</strong></span></div>
+    <div class="impact-deltas"><span>${escapeHtml(change)} change</span><span>${escapeHtml(metric.portfolio_change_pct === null || metric.portfolio_change_pct === undefined ? "Portfolio unavailable" : `${signedPercent(metric.portfolio_change_pct)} portfolio median`)}</span><strong>${escapeHtml(lift)}</strong></div>
+  </div>`;
+}
+
+function renderImpactLab(data) {
+  state.impact = data;
+  const summary = data.summary || {};
+  const values = [summary.events || 0, summary.measured || 0, summary.important || 0, summary.releases || 0];
+  $$("#impactSummary strong").forEach((target, index) => {
+    target.textContent = number.format(values[index]);
+  });
+  $("#impactCount").textContent = number.format(summary.events || 0);
+  $("#impactMethodName").textContent = data.method?.name || "Portfolio Baseline";
+  $("#impactMethodDescription").textContent = data.method?.description || "Comparing each intervention with the rest of the portfolio.";
+  $("#impactMethodLimitation").textContent = data.method?.limitation || "Observational evidence is not proof of causality.";
+
+  const events = data.events || [];
+  $("#impactEventList").innerHTML = events.length
+    ? events.map((event) => {
+      const message = event.metadata?.message ? `<p class="impact-commit">${escapeHtml(event.metadata.message)}</p>` : "";
+      return `<article class="impact-event ${escapeHtml(event.outcome_key || "collecting")}">
+        <div class="impact-event-top">
+          <span class="event-type ${escapeHtml(event.event_type)}">${escapeHtml(event.event_type)}</span>
+          <span class="confidence-pill ${escapeHtml(event.confidence || "low")}">${escapeHtml(event.confidence || "low")} confidence</span>
+        </div>
+        <div class="impact-event-title">
+          <div><a href="${escapeHtml(event.url)}" target="_blank" rel="noreferrer">${escapeHtml(event.title)}</a><p>${escapeHtml(event.name)} · ${formatDateTime(event.occurred_at)}</p></div>
+          <span class="outcome-pill ${escapeHtml(event.outcome_key || "collecting")}">${escapeHtml(event.outcome || "Collecting evidence")}</span>
+        </div>
+        ${message}
+        <p class="impact-summary-copy">${escapeHtml(event.summary)}</p>
+        <div class="impact-metrics">${renderImpactMetric("Page views", event.metrics?.views)}${renderImpactMetric("Clone events", event.metrics?.clones)}</div>
+      </article>`;
+    }).join("")
+    : '<div class="quiet-state"><span>◎</span><strong>No interventions recorded yet</strong><p>Run a full collection to import recent releases and README changes. Future metadata changes will be detected automatically.</p></div>';
+}
+
+async function loadImpact(refresh = false) {
+  if (state.impact && !refresh) return;
+  hideError();
+  try {
+    renderImpactLab(await api("/api/impact"));
+  } catch (error) {
+    showError(error.message);
+  }
+}
+
 async function copyWeeklyDigest() {
   if (!state.digest?.markdown) await loadInsights();
   if (!state.digest?.markdown) return;
@@ -709,6 +774,7 @@ async function pollCollection() {
       await loadCore(false);
       if (state.activity) await loadActivity(true);
       if (state.insights) await loadInsights(true);
+      if (state.impact) await loadImpact(true);
     } else if (collection.running) {
       state.collectionWasRunning = true;
     }
@@ -734,6 +800,7 @@ const pageTitles = {
   overview: "Overview",
   repositories: "Repositories",
   insights: "Insights",
+  impact: "Impact Lab",
   network: "Network",
   activity: "Activity",
   data: "Data & privacy",
@@ -749,6 +816,7 @@ function switchView(view) {
   window.scrollTo({ top: 0, behavior: "smooth" });
   if (view === "activity") loadActivity();
   if (view === "insights") loadInsights();
+  if (view === "impact") loadImpact();
 }
 
 $$(".nav-item").forEach((button) => button.addEventListener("click", () => switchView(button.dataset.view)));
