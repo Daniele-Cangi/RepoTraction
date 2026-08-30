@@ -460,8 +460,8 @@ async function copyWeeklyDigest() {
   }
 }
 
-const DESKTOP_ALERTS_KEY = "github-pulse-desktop-alerts";
-const DESKTOP_ALERTS_SEEN_KEY = "github-pulse-desktop-alerts-seen";
+const DESKTOP_ALERTS_KEY = "repotraction-desktop-alerts";
+const DESKTOP_ALERTS_SEEN_KEY = "repotraction-desktop-alerts-seen";
 
 function alertsEnabled() {
   try {
@@ -511,7 +511,7 @@ function maybeNotifyImportantSignals(data) {
     if (!signalId || localStorage.getItem(DESKTOP_ALERTS_SEEN_KEY) === signalId) return;
     const important = (data.notifications || []).filter((item) => ["traffic_spike", "net_star_growth", "new_follower"].includes(item.type));
     const detail = important.slice(0, 2).map((item) => item.title).join(" · ");
-    new Notification(`GitHub Pulse · ${data.important_signals} important signal${data.important_signals === 1 ? "" : "s"}`, {
+    new Notification(`RepoTraction · ${data.important_signals} important signal${data.important_signals === 1 ? "" : "s"}`, {
       body: detail || "Open the dashboard to review the latest changes.",
     });
     localStorage.setItem(DESKTOP_ALERTS_SEEN_KEY, signalId);

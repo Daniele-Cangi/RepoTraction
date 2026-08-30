@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="dark" />
-    <meta name="description" content="GitHub Pulse turns repository traffic, stars, activity and community changes into useful signals in one local-first dashboard." />
-    <title>GitHub Pulse · Control center</title>
+    <meta name="description" content="RepoTraction turns GitHub traffic, adoption and repository changes into evidence-based growth signals for maintainers." />
+    <title>RepoTraction · Maintainer growth lab</title>
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
@@ -14,11 +14,11 @@
 
     <div class="app-layout">
       <aside class="sidebar">
-        <a class="brand" href="#overview" aria-label="GitHub Pulse">
+        <a class="brand" href="#overview" aria-label="RepoTraction">
           <span class="brand-mark" aria-hidden="true">
             <svg viewBox="0 0 24 24"><path d="M3 12h4l2.2-6 4.1 12 2.1-6H21" /></svg>
           </span>
-          <span>GitHub <strong>Pulse</strong></span>
+          <span>Repo<strong>Traction</strong></span>
         </a>
 
         <nav class="main-nav" aria-label="Primary navigation">
@@ -50,7 +50,7 @@
 
         <div class="sidebar-foot">
           <span class="secure-pill"><i></i> Local · gh keyring</span>
-          <small>GitHub Pulse 2.1</small>
+          <small>RepoTraction 3.0</small>
         </div>
       </aside>
 
@@ -254,7 +254,7 @@
 
               <article class="panel-card alert-card">
                 <div class="card-heading"><div><p class="eyebrow">Local notifications</p><h3>Desktop alerts</h3></div></div>
-                <p>Receive a local notification when GitHub Pulse detects important traffic, star or community changes.</p>
+                <p>Receive a local notification when RepoTraction detects important traffic, star or community changes.</p>
                 <button id="desktopAlertsButton" class="button button-primary" type="button">Enable desktop alerts</button>
                 <small id="desktopAlertsStatus">Disabled · nothing leaves your computer</small>
               </article>
@@ -338,7 +338,7 @@
 
               <article class="panel-card export-card">
                 <div class="card-heading"><div><p class="eyebrow">Portability</p><h3>Export your data</h3></div></div>
-                <p>Download the history collected by GitHub Pulse in readable formats.</p>
+                <p>Download the history collected by RepoTraction in readable formats.</p>
                 <div class="export-actions">
                   <a class="button button-secondary" href="/api/export?dataset=traffic">Traffic CSV</a>
                   <a class="button button-secondary" href="/api/export?dataset=movements">Movements CSV</a>
@@ -349,14 +349,14 @@
 
             <div class="about-grid">
               <article class="about-card"><span class="about-number">01</span><h3>No tokens in the app</h3><p>Requests flow through GitHub CLI and the OS keyring. The browser never sees your credentials.</p></article>
-              <article class="about-card"><span class="about-number">02</span><h3>History beyond 14 days</h3><p>GitHub Pulse stores daily snapshots in SQLite and refreshes them automatically while the server is running.</p></article>
+              <article class="about-card"><span class="about-number">02</span><h3>History beyond 14 days</h3><p>RepoTraction stores daily snapshots in SQLite and can refresh them from the dashboard or its headless collector.</p></article>
               <article class="about-card warning-card"><span class="about-number">!</span><h3>GitHub limitations</h3><p>GitHub exposes repository traffic for a rolling 14-day window. Account-level unique people and clone identities are unavailable, so repository uniques are never added together or treated as conversions.</p></article>
             </div>
           </section>
         </main>
 
         <footer>
-          <span>GitHub Pulse · local data</span>
+          <span>RepoTraction · local data</span>
           <span id="lastUpdated">Not updated yet</span>
         </footer>
       </div>

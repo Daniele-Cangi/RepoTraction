@@ -1,8 +1,8 @@
 <div align="center">
 
-# GitHub Pulse
+# RepoTraction
 
-### Your local-first GitHub intelligence dashboard
+### Evidence-based growth analytics for GitHub maintainers
 
 Turn repository traffic, stars, clones, activity and community changes into signals you can actually use.
 
@@ -14,12 +14,12 @@ Turn repository traffic, stars, clones, activity and community changes into sign
 
 </div>
 
-![GitHub Pulse overview](docs/screenshots/overview.png)
+![RepoTraction overview](docs/screenshots/overview.png)
 
-> The screenshots use GitHub Pulse's built-in synthetic demo profile. They do
+> The screenshots use RepoTraction's built-in synthetic demo profile. They do
 > not contain data from a real GitHub account.
 
-GitHub Pulse is a self-hosted control center for the account currently active in
+RepoTraction is a self-hosted control center for the account currently active in
 [GitHub CLI](https://cli.github.com/). It runs on your computer, reads GitHub
 through the authenticated <code>gh</code> session and stores historical data in
 a local SQLite database.
@@ -38,13 +38,13 @@ There is no username to configure and no token to paste into the app.
 | **Activity** | Recent public events and an experimental Achievement Lab |
 | **Data** | Daily collection status, CSV exports and a complete JSON backup |
 
-![GitHub Pulse repository radar](docs/screenshots/repositories.png)
+![RepoTraction repository radar](docs/screenshots/repositories.png)
 
-![GitHub Pulse opportunity center and weekly digest](docs/screenshots/insights.png)
+![RepoTraction opportunity center and weekly digest](docs/screenshots/insights.png)
 
 ## Designed for every GitHub account
 
-GitHub Pulse automatically runs:
+RepoTraction automatically runs:
 
 ~~~powershell
 gh api user
@@ -53,11 +53,12 @@ gh api user
 to identify the active account. Each account gets an isolated database:
 
 ~~~text
-data/github-pulse-<github-login>.sqlite3
+data/repotraction-<github-login>.sqlite3
 ~~~
 
 If you use more than one GitHub account, switch the active <code>gh</code>
-account and restart GitHub Pulse. Existing histories remain separate.
+account and restart RepoTraction. Existing histories remain separate. Existing
+`github-pulse-<login>.sqlite3` histories are migrated automatically on first run.
 
 ## Requirements
 
@@ -73,13 +74,13 @@ library, GitHub CLI and SQLite.
 Clone the repository and enter the project directory:
 
 ~~~powershell
-git clone https://github.com/Daniele-Cangi/GitHub-Pulse.git
-cd GitHub-Pulse
+git clone https://github.com/Daniele-Cangi/RepoTraction.git
+cd RepoTraction
 ~~~
 
 ### Windows installer
 
-Install GitHub Pulse for the current Windows user:
+Install RepoTraction for the current Windows user:
 
 ~~~powershell
 .\install.ps1
@@ -88,13 +89,13 @@ Install GitHub Pulse for the current Windows user:
 You can also double-click <code>install.cmd</code>.
 
 The installer creates a Start menu shortcut and copies the application to
-<code>%LOCALAPPDATA%\GitHubPulse</code>. Re-running it updates the application
+<code>%LOCALAPPDATA%\RepoTraction</code>. Re-running it updates the application
 without overwriting the local SQLite history.
 
 To remove the application while keeping your history:
 
 ~~~powershell
-& "$env:LOCALAPPDATA\GitHubPulse\uninstall.ps1"
+& "$env:LOCALAPPDATA\RepoTraction\uninstall.ps1"
 ~~~
 
 Pass <code>-RemoveData</code> only if you also want to delete the collected
@@ -120,7 +121,7 @@ On Windows you can also double-click <code>start.cmd</code> or run:
 .\start.ps1
 ~~~
 
-GitHub Pulse opens at [http://127.0.0.1:8765](http://127.0.0.1:8765). Press
+RepoTraction opens at [http://127.0.0.1:8765](http://127.0.0.1:8765). Press
 <code>Ctrl+C</code> in the terminal to stop it.
 
 ### Synthetic demo
@@ -139,7 +140,7 @@ disabled in the interface.
 ## How collection works
 
 GitHub exposes repository views and clones for a rolling 14-day window. GitHub
-Pulse stores both the native 14-day totals and every available daily value in
+RepoTraction stores both the native 14-day totals and every available daily value in
 SQLite, building an event history that can extend beyond GitHub's window.
 
 Rolling 7-day metrics end on the latest UTC day actually returned by GitHub,
@@ -176,7 +177,7 @@ The dashboard keeps the meanings separate:
   (`NOASSERTION`) and **missing**. A custom or proprietary license is not treated
   as absent.
 
-If one GitHub traffic endpoint fails, GitHub Pulse preserves the last valid
+If one GitHub traffic endpoint fails, RepoTraction preserves the last valid
 values for that channel instead of replacing them with zero.
 
 While the server is running, a complete collection starts when the previous one
@@ -184,7 +185,7 @@ is more than 20 hours old. You can also start it manually with **Collect now**.
 Non-archived repositories are processed sequentially to keep API usage
 predictable.
 
-Follower and following lists do not include timestamps. GitHub Pulse therefore
+Follower and following lists do not include timestamps. RepoTraction therefore
 creates a baseline on first run and records additions or removals from subsequent
 snapshots.
 
@@ -278,12 +279,12 @@ POST /api/collect
 GET  /api/export?dataset=summary
 ~~~
 
-The [v2.0.0 release](https://github.com/Daniele-Cangi/GitHub-Pulse/releases/tag/v2.0.0)
+The [v2.0.0 release](https://github.com/Daniele-Cangi/RepoTraction/releases/tag/v2.0.0)
 preserves the stable dashboard baseline from before the Insights expansion.
 
 ## License
 
-GitHub Pulse is open-source software released under the
+RepoTraction is open-source software released under the
 [MIT License](LICENSE). You can use, modify and distribute it, including in
 commercial projects, while retaining the copyright and license notice.
 

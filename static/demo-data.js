@@ -84,7 +84,7 @@ const repositories = repositorySignals.map((row) => ({
   open_issues: row.open_issues,
   language: row.language,
   html_url: "https://example.com/" + row.repo,
-  description: "Synthetic demo repository for GitHub Pulse.",
+  description: "Synthetic demo repository for RepoTraction.",
   homepage: "https://example.com/" + row.name,
   topics: ["demo", "open-source", "developer-tools"],
   license: "MIT",
@@ -385,7 +385,7 @@ const digest = {
   top_repositories: repositorySignals.slice(0, 5),
   opportunities: opportunities.slice(0, 3),
   alerts: notifications.slice(0, 2),
-  markdown: "# GitHub Pulse Weekly Digest\n\nSynthetic demo data.",
+  markdown: "# RepoTraction Weekly Digest\n\nSynthetic demo data.",
 };
 
 const trafficHistory = [
@@ -489,7 +489,7 @@ function clone(value) {
 }
 
 export function getDemoResponse(path) {
-  const url = new URL(path, "http://github-pulse.demo");
+  const url = new URL(path, "http://repotraction.demo");
   if (url.pathname === "/api/dashboard") return clone(dashboard);
   if (url.pathname === "/api/signals") return clone(signals);
   if (url.pathname === "/api/opportunities") return clone(opportunityCenter);

@@ -3,12 +3,12 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-$InstallDirectory = Join-Path ([Environment]::GetFolderPath("LocalApplicationData")) "GitHubPulse"
+$InstallDirectory = Join-Path ([Environment]::GetFolderPath("LocalApplicationData")) "RepoTraction"
 $ExpectedDirectory = [IO.Path]::GetFullPath($InstallDirectory)
 $ProgramsDirectory = [Environment]::GetFolderPath("Programs")
-$ShortcutPath = Join-Path $ProgramsDirectory "GitHub Pulse.lnk"
+$ShortcutPath = Join-Path $ProgramsDirectory "RepoTraction.lnk"
 
-if ([IO.Path]::GetFileName($ExpectedDirectory) -ne "GitHubPulse") {
+if ([IO.Path]::GetFileName($ExpectedDirectory) -ne "RepoTraction") {
     throw "Refusing to uninstall from an unexpected directory: $ExpectedDirectory"
 }
 
@@ -42,7 +42,7 @@ if (Test-Path -LiteralPath $ExpectedDirectory -PathType Container) {
 }
 
 Write-Host ""
-Write-Host "GitHub Pulse has been uninstalled." -ForegroundColor Green
+Write-Host "RepoTraction has been uninstalled." -ForegroundColor Green
 if (-not $RemoveData -and (Test-Path -LiteralPath $DataDirectory)) {
     Write-Host "Local history was preserved in $DataDirectory"
     Write-Host "Delete that folder manually only if you also want to remove the collected history."

@@ -25,8 +25,11 @@ from urllib.parse import parse_qs, urlparse
 APP_DIR = Path(__file__).resolve().parent
 STATIC_DIR = APP_DIR / "static"
 DATA_DIR = APP_DIR / "data"
-LEGACY_DB_PATH = DATA_DIR / "github-pulse.sqlite3"
-DB_PATH = LEGACY_DB_PATH
+APP_NAME = "RepoTraction"
+APP_SLUG = "repotraction"
+LEGACY_APP_SLUG = "github-pulse"
+LEGACY_DB_PATH = DATA_DIR / f"{LEGACY_APP_SLUG}.sqlite3"
+DB_PATH = DATA_DIR / f"{APP_SLUG}.sqlite3"
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8765
 REPO_PATTERN = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")
@@ -78,7 +81,16 @@ def account_database_path(login: str, data_dir: Path | None = None) -> Path:
     if not LOGIN_PATTERN.fullmatch(login):
         raise GitHubCLIError("GitHub CLI returned an invalid account name.")
     root = data_dir or DATA_DIR
-    return root / f"github-pulse-{login.casefold()}.sqlite3"
+    return root / f"{APP_SLUG}-{login.casefold()}.sqlite3"
+
+
+def legacy_account_database_path(
+    login: str, data_dir: Path | None = None
+) -> Path:
+    if not LOGIN_PATTERN.fullmatch(login):
+        raise GitHubCLIError("GitHub CLI returned an invalid account name.")
+    root = data_dir or DATA_DIR
+    return root / f"{LEGACY_APP_SLUG}-{login.casefold()}.sqlite3"
 
 
 def configure_account(login: str) -> str:
@@ -86,8 +98,14 @@ def configure_account(login: str) -> str:
     global ACCOUNT_LOGIN, DB_PATH
     target = account_database_path(login)
     DATA_DIR.mkdir(parents=True, exist_ok=True)
-    if not target.exists() and LEGACY_DB_PATH.exists():
-        shutil.copy2(LEGACY_DB_PATH, target)
+    if not target.exists():
+        migration_sources = (
+            legacy_account_database_path(login),
+            LEGACY_DB_PATH,
+        )
+        source = next((path for path in migration_sources if path.exists()), None)
+        if source is not None:
+            shutil.copy2(source, target)
     ACCOUNT_LOGIN = login
     DB_PATH = target
     return login
@@ -1658,7 +1676,7 @@ def build_digest_markdown(
         "label": "no comparison yet"
     }
     lines = [
-        "# GitHub Pulse Weekly Digest",
+        f"# {APP_NAME} Weekly Digest",
         "",
         f"**Account:** @{account}",
         f"**Traffic period:** {period_start} to {period_end} UTC",
@@ -1700,7 +1718,7 @@ def build_digest_markdown(
     if not notifications:
         lines.append("- No important alerts in this digest.")
 
-    lines.extend(["", "---", "Generated locally by GitHub Pulse.", ""])
+    lines.extend(["", "---", f"Generated locally by {APP_NAME}.", ""])
     return "\n".join(lines)
 
 
@@ -2298,7 +2316,11 @@ def start_collection() -> bool:
     with COLLECTION_LOCK:
         if COLLECTION_STATE["running"]:
             return False
-    threading.Thread(target=collect_all_data, daemon=True, name="github-pulse-collector").start()
+    threading.Thread(
+        target=collect_all_data,
+        daemon=True,
+        name=f"{APP_SLUG}-collector",
+    ).start()
     return True
 
 
@@ -2357,7 +2379,7 @@ def build_csv_export(dataset: str) -> tuple[str, bytes]:
     if dataset == "movements":
         rows = get_relation_movements(200)
         fields = ["collected_at", "event_type", "login", "html_url"]
-        filename = "github-pulse-movements.csv"
+        filename = f"{APP_SLUG}-movements.csv"
     else:
         with database_connection() as connection:
             connection.row_factory = sqlite3.Row
@@ -2380,7 +2402,7 @@ def build_csv_export(dataset: str) -> tuple[str, bytes]:
             "unique_clones",
             "collected_at",
         ]
-        filename = "github-pulse-traffic.csv"
+        filename = f"{APP_SLUG}-traffic.csv"
     writer = csv.DictWriter(output, fieldnames=fields, extrasaction="ignore")
     writer.writeheader()
     writer.writerows(rows)
@@ -2388,7 +2410,7 @@ def build_csv_export(dataset: str) -> tuple[str, bytes]:
 
 
 class DashboardHandler(BaseHTTPRequestHandler):
-    server_version = "GitHubPulse/2.1"
+    server_version = "RepoTraction/3.0"
 
     def do_GET(self) -> None:  # noqa: N802 - required by BaseHTTPRequestHandler
         parsed = urlparse(self.path)
@@ -2396,7 +2418,7 @@ class DashboardHandler(BaseHTTPRequestHandler):
 
         if parsed.path == "/api/health":
             self.send_json(
-                {"ok": True, "app": "GitHub Pulse", "account": get_account_login()}
+                {"ok": True, "app": APP_NAME, "account": get_account_login()}
             )
             return
         if parsed.path == "/api/dashboard":
@@ -2451,7 +2473,7 @@ class DashboardHandler(BaseHTTPRequestHandler):
                 self.send_download(
                     body,
                     "text/markdown; charset=utf-8",
-                    "github-pulse-weekly-digest.md",
+                    f"{APP_SLUG}-weekly-digest.md",
                 )
                 return
             if dataset == "summary":
@@ -2459,7 +2481,9 @@ class DashboardHandler(BaseHTTPRequestHandler):
                     build_export_payload(), ensure_ascii=False, indent=2
                 ).encode("utf-8")
                 self.send_download(
-                    body, "application/json; charset=utf-8", "github-pulse-export.json"
+                    body,
+                    "application/json; charset=utf-8",
+                    f"{APP_SLUG}-export.json",
                 )
                 return
             if dataset not in {"traffic", "movements"}:
@@ -2579,18 +2603,18 @@ def main() -> None:
     threading.Thread(
         target=automatic_collection_loop,
         daemon=True,
-        name="github-pulse-scheduler",
+        name=f"{APP_SLUG}-scheduler",
     ).start()
     server = ThreadingHTTPServer((args.host, args.port), DashboardHandler)
     url = f"http://{args.host}:{args.port}"
-    print(f"GitHub Pulse is available at {url} for @{account}")
+    print(f"{APP_NAME} is available at {url} for @{account}")
     print("Press Ctrl+C to stop the server.")
     if not args.no_open:
         threading.Timer(0.8, lambda: webbrowser.open(url)).start()
     try:
         server.serve_forever()
     except KeyboardInterrupt:
-        print("\nStopping GitHub Pulse…")
+        print(f"\nStopping {APP_NAME}…")
     finally:
         server.server_close()
 

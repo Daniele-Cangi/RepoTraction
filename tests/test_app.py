@@ -56,7 +56,7 @@ class ValidationTests(unittest.TestCase):
         root = Path("data")
         self.assertEqual(
             app.account_database_path("Octo-Cat", root),
-            root / "github-pulse-octo-cat.sqlite3",
+            root / "repotraction-octo-cat.sqlite3",
         )
         with self.assertRaises(app.GitHubCLIError):
             app.account_database_path("../invalid", root)
@@ -291,7 +291,7 @@ class OpportunityTests(unittest.TestCase):
             generated_at="2026-08-21T12:00:00+00:00",
         )
 
-        self.assertIn("# GitHub Pulse Weekly Digest", digest)
+        self.assertIn("# RepoTraction Weekly Digest", digest)
         self.assertIn("@octocat", digest)
         self.assertIn("Improve the README", digest)
         self.assertIn("Traffic spike", digest)
@@ -303,7 +303,7 @@ class PersistenceTests(unittest.TestCase):
     def setUp(self) -> None:
         self.tempdir = tempfile.TemporaryDirectory()
         self.original_db_path = app.DB_PATH
-        app.DB_PATH = Path(self.tempdir.name) / "github-pulse-test.sqlite3"
+        app.DB_PATH = Path(self.tempdir.name) / "repotraction-test.sqlite3"
         app.ensure_database()
 
     def tearDown(self) -> None:
