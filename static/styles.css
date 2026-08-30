@@ -231,6 +231,10 @@ main { width: min(1380px, 100%); margin: 0 auto; padding: 36px clamp(24px, 4vw, 
 .repo-data-row:hover { background: rgba(255,255,255,.018); }
 .repo-data-row > span:not(.repo-name) { display: flex; align-items: center; gap: 7px; min-width: 0; }
 .repo-data-row strong { font-size: 11px; }.repo-data-row small { color: var(--muted); font-size: 8px; }
+.repo-data-row .adoption-note { color: var(--blue); }
+.repo-data-row .adoption-note.broad { color: var(--lime); }
+.repo-data-row .adoption-note.repeat_heavy { color: var(--amber); }
+.repo-data-row .adoption-note.unavailable { color: var(--muted-2); }
 .repo-name { display: flex; align-items: center; gap: 11px; min-width: 0; }
 .repo-name > i { width: 7px; height: 7px; flex: 0 0 auto; border-radius: 50%; background: var(--lime); }
 .repo-name > i.private { background: var(--violet); }

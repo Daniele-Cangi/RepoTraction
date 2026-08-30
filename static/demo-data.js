@@ -30,6 +30,22 @@ function repositorySignal(
   uniqueVisitors,
   uniqueCloners,
 ) {
+  const nativeCloneEvents = clones + Math.max(0, clones - 7);
+  const repeatFactor = uniqueCloners ? Math.round((nativeCloneEvents / uniqueCloners) * 10) / 10 : null;
+  const breadthPct = nativeCloneEvents ? Math.round((uniqueCloners / nativeCloneEvents) * 1000) / 10 : null;
+  const adoptionKey = nativeCloneEvents >= 10 && uniqueCloners >= 8 && breadthPct >= 60
+    ? "broad"
+    : repeatFactor >= 3
+    ? "repeat_heavy"
+    : nativeCloneEvents >= 5
+    ? "emerging"
+    : "early";
+  const adoptionLabel = {
+    broad: "Broad cloning signal",
+    repeat_heavy: "Repeat-heavy cloning",
+    emerging: "Emerging cloning signal",
+    early: "Early cloning activity",
+  }[adoptionKey];
   return {
     repo: account + "/" + name,
     name,
@@ -47,14 +63,25 @@ function repositorySignal(
     unique_visitors_14d: uniqueVisitors,
     unique_cloners_14d: uniqueCloners,
     native_views_14d: views + previousViews,
-    native_clones_14d: clones + Math.max(0, clones - 7),
+    native_clones_14d: nativeCloneEvents,
     stars,
     net_stars: netStars,
     forks: Math.round(stars * 0.18),
     net_forks: Math.max(0, Math.round(netStars / 3)),
     watchers: Math.max(2, Math.round(stars * 0.08)),
     open_issues: Math.max(1, Math.round(stars * 0.025)),
-    clone_view_ratio: Math.round((clones / views) * 1000) / 10,
+    clone_breadth_pct: breadthPct,
+    clone_repeat_factor: repeatFactor,
+    adoption_signal: {
+      key: adoptionKey,
+      label: adoptionLabel,
+      detail: `${nativeCloneEvents} full clone events from ${uniqueCloners} unique cloners in GitHub's current 14-day window (${repeatFactor}× repeat factor).`,
+      clone_events: nativeCloneEvents,
+      unique_cloners: uniqueCloners,
+      breadth_pct: breadthPct,
+      repeat_factor: repeatFactor,
+      confidence: nativeCloneEvents >= 5 ? "medium" : "low",
+    },
     snapshot_period: snapshotPeriod,
     traffic_period: trafficPeriod,
     traffic_comparison_ready: true,
@@ -310,10 +337,10 @@ const opportunities = [
     kind: "developer_experience",
     priority: "low",
     repo: account + "/atlas-api",
-    title: "Review atlas-api's clone activity",
-    detail: "38 clone events were recorded; GitHub cannot identify people, bots or automation.",
+    title: "Review atlas-api's cloning pattern",
+    detail: "GitHub recorded full clone events and unique cloners in the same 14-day window; identities and automation remain unknown.",
     action: "Check automation patterns first, then improve the quick start if human setup friction is plausible.",
-    metric: "38 clones · 13.9% clone/view",
+    metric: "Broad cloning signal · 2.2× repeat",
     confidence: "low",
     score: 84,
     url: "https://example.com/octoforge-demo/atlas-api",

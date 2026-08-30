@@ -167,8 +167,9 @@ The dashboard keeps the meanings separate:
 - Sums of daily unique values are stored as **visitor-days** and
   **cloner-days** for historical analysis; they are never presented as unique
   people.
-- **Clone/View ratio** compares aggregate events. It is not a conversion rate
-  and does not identify human intent.
+- **Cloning breadth** compares GitHub's native unique cloners with full clone
+  events from the same 14-day snapshot. **Repeat factor** reports clone events
+  per unique cloner. Neither metric identifies people, bots or intent.
 - **Net stars** and **net forks** are differences between repository snapshots,
   not counts of newly acquired stars or forks. Their actual observation window
   is shown next to the value. A single snapshot is reported as **no comparison
@@ -234,8 +235,8 @@ GitHub does not expose:
 
 GitHub's native unique totals apply to one repository and one rolling 14-day
 window. They cannot be added across repositories or days to produce
-account-level unique reach. The Clone/View ratio compares aggregate events and
-is not an individual conversion. Achievement cards are eligibility estimates
+account-level unique reach. Page-view and clone populations are never divided
+to claim an individual conversion. Achievement cards are eligibility estimates
 and not an authoritative badge record.
 
 ## Architecture

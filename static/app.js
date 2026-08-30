@@ -247,7 +247,7 @@ function renderRepositoryRadar(rows) {
     <button class="repo-row repo-data-row" data-repo="${escapeHtml(repo.repo)}" type="button">
       <span class="repo-name"><i class="${repo.private ? "private" : ""}"></i><span><strong>${escapeHtml(repo.name)}</strong><small>${escapeHtml(repo.language || (repo.private ? "Private" : "Public"))}</small></span></span>
       <span><strong>${number.format(repo.views_7d)}</strong>${repo.traffic_comparison_ready ? formatDelta(percentage(repo.views_7d, repo.previous_views), "%") : '<small>baseline incomplete</small>'}<small>${escapeHtml(repo.traffic_period?.label || "no traffic window yet")}</small></span>
-      <span><strong>${number.format(repo.clones_7d)}</strong><small>${repo.clone_view_ratio === null ? "—" : `${repo.clone_view_ratio}% clone/view`}</small></span>
+      <span><strong>${number.format(repo.clones_7d)}</strong><small>${escapeHtml(repo.traffic_period?.label || "7d events")}</small><small class="adoption-note ${escapeHtml(repo.adoption_signal?.key || "unavailable")}" title="${escapeHtml(repo.adoption_signal?.detail || "GitHub-native 14-day cloning data unavailable")}">${repo.clone_repeat_factor === null || repo.clone_repeat_factor === undefined ? "GitHub 14d unavailable" : `${number.format(repo.unique_cloners_14d)} unique cloners · ${repo.clone_repeat_factor}× repeat · GitHub 14d`}</small></span>
       <span><strong>${number.format(repo.stars)}</strong>${starChange}<small>${escapeHtml(repo.snapshot_period?.label || "no comparison yet")}</small></span>
       <span class="pulse-score" title="${escapeHtml(state.signals?.activity_score?.formula || "Local activity heuristic")}">${repo.signal_score}</span>
     </button>`;
@@ -375,7 +375,9 @@ function renderComparison(data) {
       ["View change", repo.traffic_comparison_ready ? (repo.view_change === null ? (repo.views_7d ? "New" : "0%") : comparisonValue(repo.view_change, "%")) : "Waiting for 14 days"],
       ["Unique visitors · GitHub 14d", comparisonValue(repo.unique_visitors_14d)],
       ["Unique cloners · GitHub 14d", comparisonValue(repo.unique_cloners_14d)],
-      ["Clone/View ratio", comparisonValue(repo.clone_view_ratio, "%")],
+      ["Full clone events · GitHub 14d", comparisonValue(repo.native_clones_14d)],
+      ["Cloning breadth · GitHub 14d", comparisonValue(repo.clone_breadth_pct, "%")],
+      ["Repeat factor · GitHub 14d", comparisonValue(repo.clone_repeat_factor, "×")],
       [`Net stars · ${repo.snapshot_period?.label || "no comparison yet"}`, repo.snapshot_period?.has_baseline ? `${Number(repo.net_stars || 0) > 0 ? "+" : ""}${number.format(repo.net_stars || 0)}` : "—"],
     ];
     return `<article class="comparison-repo">

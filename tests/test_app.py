@@ -68,6 +68,20 @@ class SignalTests(unittest.TestCase):
         self.assertEqual(app.percentage_change(0, 0), 0.0)
         self.assertIsNone(app.percentage_change(5, 0))
 
+    def test_adoption_signal_uses_same_window_clone_metrics(self) -> None:
+        broad = app.build_adoption_signal(36, 31)
+        repeated = app.build_adoption_signal(55, 12)
+
+        self.assertEqual(broad["key"], "broad")
+        self.assertEqual(broad["breadth_pct"], 86.1)
+        self.assertEqual(broad["repeat_factor"], 1.2)
+        self.assertEqual(repeated["key"], "repeat_heavy")
+        self.assertEqual(repeated["repeat_factor"], 4.6)
+        self.assertEqual(
+            app.build_adoption_signal(None, None)["confidence"],
+            "unavailable",
+        )
+
     def test_profile_readme_repository_is_excluded_from_portfolio_rows(self) -> None:
         rows = [
             {"repo": "octocat/octocat", "stars": 4},
@@ -165,7 +179,9 @@ class OpportunityTests(unittest.TestCase):
                 "previous_views": 12,
                 "clones_7d": 10,
                 "net_stars": 0,
-                "clone_view_ratio": 41.7,
+                "native_clones_14d": 18,
+                "unique_cloners_14d": 8,
+                "adoption_signal": app.build_adoption_signal(18, 8),
                 "traffic_comparison_ready": True,
                 "traffic_period": {"is_complete": True},
                 "snapshot_period": {"is_full_window": True},
@@ -553,7 +569,9 @@ class PersistenceTests(unittest.TestCase):
         self.assertEqual(row["cloner_days_7d"], 7)
         self.assertEqual(row["unique_visitors_14d"], 12)
         self.assertEqual(row["unique_cloners_14d"], 4)
-        self.assertEqual(row["clone_view_ratio"], 20.0)
+        self.assertEqual(row["clone_breadth_pct"], 28.6)
+        self.assertEqual(row["clone_repeat_factor"], 3.5)
+        self.assertEqual(row["adoption_signal"]["key"], "repeat_heavy")
 
     def test_traffic_windows_end_on_the_latest_available_github_day(self) -> None:
         latest = app.datetime(2026, 8, 25, tzinfo=app.timezone.utc)

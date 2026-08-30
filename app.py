@@ -1262,6 +1262,12 @@ def get_repository_signal_rows() -> list[dict[str, Any]]:
                 + max(0, net_forks or 0) * 12,
             )
         )
+        native_clone_events = repo_native.get("clones_count")
+        native_unique_cloners = repo_native.get("clones_uniques")
+        adoption_signal = build_adoption_signal(
+            native_clone_events,
+            native_unique_cloners,
+        )
         rows.append(
             {
                 "repo": repo,
@@ -1298,9 +1304,9 @@ def get_repository_signal_rows() -> list[dict[str, Any]]:
                 "language": latest.get("language") or "",
                 "pushed_at": latest.get("pushed_at") or "",
                 "snapshot_period": snapshot_period,
-                "clone_view_ratio": round((clones / views) * 100, 1)
-                if views
-                else None,
+                "clone_breadth_pct": adoption_signal["breadth_pct"],
+                "clone_repeat_factor": adoption_signal["repeat_factor"],
+                "adoption_signal": adoption_signal,
                 "signal_score": score,
             }
         )
@@ -1313,6 +1319,72 @@ def get_repository_signal_rows() -> list[dict[str, Any]]:
         reverse=True,
     )
     return rows
+
+
+def build_adoption_signal(
+    clone_events: Any,
+    unique_cloners: Any,
+) -> dict[str, Any]:
+    """Describe same-window GitHub cloning without implying conversion."""
+    if clone_events is None or unique_cloners is None:
+        return {
+            "key": "unavailable",
+            "label": "Cloning data unavailable",
+            "detail": "GitHub's native 14-day clone totals are not available.",
+            "clone_events": clone_events,
+            "unique_cloners": unique_cloners,
+            "breadth_pct": None,
+            "repeat_factor": None,
+            "confidence": "unavailable",
+        }
+
+    events = max(0, int(clone_events))
+    uniques = max(0, int(unique_cloners))
+    breadth_pct = round((uniques / events) * 100, 1) if events else None
+    repeat_factor = round(events / uniques, 1) if uniques else None
+
+    if events == 0:
+        key, label = "quiet", "No cloning activity"
+        confidence = "high"
+    elif uniques == 0:
+        key, label = "uncertain", "Clone events need context"
+        confidence = "low"
+    elif events >= 10 and uniques >= 8 and (breadth_pct or 0) >= 60:
+        key, label = "broad", "Broad cloning signal"
+        confidence = "medium"
+    elif events >= 10 and (repeat_factor or 0) >= 3:
+        key, label = "repeat_heavy", "Repeat-heavy cloning"
+        confidence = "low"
+    elif events >= 5:
+        key, label = "emerging", "Emerging cloning signal"
+        confidence = "medium"
+    else:
+        key, label = "early", "Early cloning activity"
+        confidence = "low"
+
+    if events == 0:
+        detail = "GitHub recorded no full clone events in its current 14-day window."
+    elif uniques == 0:
+        detail = (
+            f"GitHub recorded {events} full clone events but no usable unique "
+            "cloner total in the same window."
+        )
+    else:
+        detail = (
+            f"{events} full clone events from {uniques} unique cloners in "
+            f"GitHub's current 14-day window ({repeat_factor:g}× repeat factor)."
+        )
+
+    return {
+        "key": key,
+        "label": label,
+        "detail": detail,
+        "clone_events": events,
+        "unique_cloners": uniques,
+        "breadth_pct": breadth_pct,
+        "repeat_factor": repeat_factor,
+        "confidence": confidence,
+    }
 
 
 def days_since_timestamp(value: str, *, now: datetime | None = None) -> int | None:
@@ -1441,11 +1513,11 @@ def analyze_opportunities(
         clones = int(signal.get("clones_7d") or 0)
         net_stars = signal.get("net_stars")
         previous_views = int(signal.get("previous_views") or 0)
-        clone_view_ratio = signal.get("clone_view_ratio")
+        adoption_signal = signal.get("adoption_signal") or {}
+        native_clone_events = adoption_signal.get("clone_events")
+        native_unique_cloners = adoption_signal.get("unique_cloners")
+        clone_repeat_factor = adoption_signal.get("repeat_factor")
         traffic_comparison_ready = bool(signal.get("traffic_comparison_ready"))
-        traffic_window_complete = bool(
-            (signal.get("traffic_period") or {}).get("is_complete")
-        )
         star_comparison_ready = bool(
             (signal.get("snapshot_period") or {}).get("is_full_window")
         )
@@ -1501,10 +1573,14 @@ def analyze_opportunities(
                 }
             )
 
-        if traffic_window_complete and clones >= 5:
-            ratio_label = (
-                f" · {clone_view_ratio:g}% clone/view"
-                if clone_view_ratio is not None
+        if (
+            native_clone_events is not None
+            and int(native_clone_events) >= 5
+            and native_unique_cloners is not None
+        ):
+            repeat_label = (
+                f" · {clone_repeat_factor:g}× repeat"
+                if clone_repeat_factor is not None
                 else ""
             )
             opportunities.append(
@@ -1512,15 +1588,19 @@ def analyze_opportunities(
                     "kind": "developer_experience",
                     "priority": "low",
                     "repo": full_name,
-                    "title": f"Review {repo_name}'s clone activity",
+                    "title": f"Review {repo_name}'s cloning pattern",
                     "detail": (
-                        f"{clones} clone events were recorded in the current window; "
-                        "GitHub cannot identify people, bots or automation."
+                        f"GitHub recorded {int(native_clone_events)} full clone events "
+                        f"from {int(native_unique_cloners)} unique cloners in the same "
+                        "14-day window; identities and automation remain unknown."
                     ),
                     "action": "Check automation patterns first, then improve the quick start if human setup friction is plausible.",
-                    "metric": f"{clones} clones{ratio_label}",
+                    "metric": (
+                        f"{adoption_signal.get('label', 'Cloning signal')}"
+                        f"{repeat_label}"
+                    ),
                     "confidence": "low",
-                    "score": 55 + min(clones, 30),
+                    "score": 55 + min(int(native_clone_events), 30),
                     "url": repo_url,
                 }
             )
