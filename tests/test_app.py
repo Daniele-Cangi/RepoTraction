@@ -347,6 +347,123 @@ class PersistenceTests(unittest.TestCase):
             {("Alice", "lost_follower"), ("Carol", "new_follower")},
         )
 
+    def test_metadata_changes_create_impact_ledger_events(self) -> None:
+        repository = {
+            "full_name": "octocat/hello-world",
+            "description": "First description",
+            "homepage": "",
+            "topics": ["demo"],
+            "license": "MIT",
+            "license_status": "recognized",
+        }
+        app.save_repo_metadata_snapshots(
+            [repository], "2026-08-20T08:00:00+00:00"
+        )
+        self.assertEqual(app.get_repository_events(), [])
+
+        repository["description"] = "A clearer description"
+        repository["topics"] = ["demo", "analytics"]
+        created = app.save_repo_metadata_snapshots(
+            [repository], "2026-08-21T08:00:00+00:00"
+        )
+        events = app.get_repository_events()
+
+        self.assertEqual(created, 1)
+        self.assertEqual(events[0]["event_type"], "metadata")
+        self.assertEqual(
+            set(events[0]["metadata"]["changed_fields"]),
+            {"description", "topics_json"},
+        )
+
+    def test_collects_release_and_readme_events_without_duplicates(self) -> None:
+        def fake_api(endpoint: str, **_: object) -> list[dict[str, object]]:
+            if endpoint.endswith("/releases"):
+                return [
+                    {
+                        "tag_name": "v1.0.0",
+                        "published_at": "2026-08-20T10:00:00Z",
+                        "html_url": "https://github.com/octocat/hello-world/releases/v1.0.0",
+                    }
+                ]
+            return [
+                {
+                    "sha": "abc1234",
+                    "html_url": "https://github.com/octocat/hello-world/commit/abc1234",
+                    "commit": {
+                        "message": "docs: improve quick start",
+                        "author": {"date": "2026-08-19T09:00:00Z"},
+                    },
+                }
+            ]
+
+        with mock.patch.object(app, "run_gh_json", side_effect=fake_api):
+            first = app.collect_repository_events("octocat/hello-world")
+            second = app.collect_repository_events("octocat/hello-world")
+
+        self.assertEqual(first["created"], 2)
+        self.assertEqual(second["created"], 0)
+        self.assertEqual(
+            {event["event_type"] for event in app.get_repository_events()},
+            {"release", "readme"},
+        )
+
+    def test_impact_lab_compares_event_with_portfolio_baseline(self) -> None:
+        event_day = app.date(2026, 8, 10)
+        rows = []
+        repositories = [
+            "octocat/target",
+            "octocat/control-a",
+            "octocat/control-b",
+            "octocat/control-c",
+        ]
+        for repo in repositories:
+            for offset in range(-7, 7):
+                day = event_day + app.timedelta(days=offset)
+                is_target_post = repo.endswith("/target") and offset >= 0
+                views = 20 if is_target_post else 10 if repo.endswith("/target") else 5
+                clones = 2 if is_target_post else 1
+                rows.append(
+                    (
+                        repo,
+                        day.isoformat(),
+                        views,
+                        min(views, 3),
+                        clones,
+                        1,
+                        "2026-08-17T08:00:00+00:00",
+                    )
+                )
+        with app.database_connection() as connection:
+            connection.executemany(
+                """
+                INSERT INTO traffic_daily (
+                    repo, day, views, unique_views, clones, unique_clones,
+                    collected_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                """,
+                rows,
+            )
+        app.record_repository_event(
+            repo="octocat/target",
+            event_type="release",
+            title="Release v2.0.0",
+            occurred_at="2026-08-10T10:00:00Z",
+            source="github_release",
+        )
+
+        impact = app.build_impact_lab(limit=10)
+        event = impact["events"][0]
+
+        self.assertEqual(event["outcome_key"], "outperformed")
+        self.assertEqual(event["confidence"], "high")
+        self.assertEqual(event["metrics"]["views"]["change_pct"], 100.0)
+        self.assertEqual(
+            event["metrics"]["views"]["portfolio_change_pct"], 0.0
+        )
+        self.assertEqual(event["metrics"]["views"]["lift_pct_points"], 100.0)
+        self.assertTrue(event["important"])
+        self.assertIn("not proof", impact["method"]["limitation"])
+
     def test_relationship_window_reports_available_history(self) -> None:
         first = app.classify_relationships([user("Alice")], [])
         second = app.classify_relationships([user("Alice"), user("Bob")], [])

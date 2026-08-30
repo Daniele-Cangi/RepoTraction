@@ -32,7 +32,7 @@ There is no username to configure and no token to paste into the app.
 | --- | --- |
 | **Overview** | Page views, clone activity, net star changes, community trends and important signals |
 | **Repositories** | Portfolio ranking, page views, clone events, GitHub-native 14-day uniques, referrers and popular pages |
-| **Insights** | Prioritized opportunities, repository comparison, weekly digest and local alerts |
+| **Insights** | Prioritized opportunities, Impact Lab, repository comparison, weekly digest and local alerts |
 | **Stars** | Timestamped stargazer timeline for repositories you can access |
 | **Network** | Followers, following, mutual relationships and changes over time |
 | **Activity** | Recent public events and an experimental Achievement Lab |
@@ -209,6 +209,13 @@ Each recommendation includes a confidence level. Clone-based recommendations
 are deliberately low-confidence because GitHub cannot distinguish people from
 bots, CI jobs or other automation.
 
+The **Impact Ledger** records releases, README commits and observed changes to
+repository descriptions, topics, homepages and licenses. **Impact Lab** compares
+up to seven available days before and after each event, then subtracts the median
+movement across other repositories in the same portfolio. This Portfolio
+Baseline helps separate repository-specific movement from account-wide noise,
+but it remains observational evidence rather than proof of causality.
+
 The **Activity Score** ranks repositories with this capped local heuristic:
 
 ~~~text
@@ -285,6 +292,7 @@ GET  /api/dashboard
 GET  /api/signals
 GET  /api/activity
 GET  /api/opportunities
+GET  /api/impact
 GET  /api/compare?repos=OWNER/REPO&repos=OWNER/OTHER
 GET  /api/digest
 GET  /api/traffic?repo=OWNER/REPO

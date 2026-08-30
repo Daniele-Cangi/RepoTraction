@@ -8,13 +8,14 @@ import math
 import re
 import shutil
 import sqlite3
+import statistics
 import subprocess
 import threading
 import time
 import webbrowser
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from contextlib import contextmanager
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -294,6 +295,29 @@ def ensure_database() -> None:
                 status TEXT NOT NULL
             );
 
+            CREATE TABLE IF NOT EXISTS repo_metadata_snapshots (
+                repo TEXT NOT NULL,
+                collected_at TEXT NOT NULL,
+                description TEXT NOT NULL DEFAULT '',
+                homepage TEXT NOT NULL DEFAULT '',
+                topics_json TEXT NOT NULL DEFAULT '[]',
+                license_id TEXT NOT NULL DEFAULT '',
+                license_status TEXT NOT NULL DEFAULT 'missing',
+                PRIMARY KEY (repo, collected_at)
+            );
+
+            CREATE TABLE IF NOT EXISTS repository_events (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo TEXT NOT NULL,
+                event_type TEXT NOT NULL,
+                title TEXT NOT NULL,
+                occurred_at TEXT NOT NULL,
+                detected_at TEXT NOT NULL,
+                source TEXT NOT NULL,
+                metadata_json TEXT NOT NULL DEFAULT '{}',
+                UNIQUE (repo, event_type, title, occurred_at)
+            );
+
             CREATE INDEX IF NOT EXISTS idx_relation_events_time
                 ON relation_events (collected_at DESC);
             CREATE INDEX IF NOT EXISTS idx_repo_snapshots_repo_time
@@ -302,6 +326,10 @@ def ensure_database() -> None:
                 ON traffic_snapshots (repo, collected_at DESC);
             CREATE INDEX IF NOT EXISTS idx_repository_registry_active
                 ON repository_registry (active, full_name);
+            CREATE INDEX IF NOT EXISTS idx_repository_events_time
+                ON repository_events (occurred_at DESC, repo);
+            CREATE INDEX IF NOT EXISTS idx_repo_metadata_repo_time
+                ON repo_metadata_snapshots (repo, collected_at DESC);
             """
         )
 
@@ -370,6 +398,14 @@ def merge_repository_history(
         (
             "repo_snapshots",
             "collected_at, stars, forks, watchers, open_issues, private, archived, language, pushed_at",
+        ),
+        (
+            "repo_metadata_snapshots",
+            "collected_at, description, homepage, topics_json, license_id, license_status",
+        ),
+        (
+            "repository_events",
+            "event_type, title, occurred_at, detected_at, source, metadata_json",
         ),
     ):
         rows = connection.execute(
@@ -693,6 +729,499 @@ def save_repo_snapshots(repositories: list[dict[str, Any]], collected_at: str) -
         )
 
 
+def _record_repository_event(
+    connection: sqlite3.Connection,
+    *,
+    repo: str,
+    event_type: str,
+    title: str,
+    occurred_at: str,
+    source: str,
+    metadata: dict[str, Any] | None = None,
+    detected_at: str | None = None,
+) -> bool:
+    cursor = connection.execute(
+        """
+        INSERT OR IGNORE INTO repository_events (
+            repo, event_type, title, occurred_at, detected_at, source,
+            metadata_json
+        ) VALUES (?, ?, ?, ?, ?, ?, ?)
+        """,
+        (
+            validate_repo(repo),
+            event_type,
+            title,
+            occurred_at,
+            detected_at or utc_now(),
+            source,
+            json.dumps(metadata or {}, sort_keys=True, separators=(",", ":")),
+        ),
+    )
+    return cursor.rowcount > 0
+
+
+def record_repository_event(
+    *,
+    repo: str,
+    event_type: str,
+    title: str,
+    occurred_at: str,
+    source: str,
+    metadata: dict[str, Any] | None = None,
+    detected_at: str | None = None,
+) -> bool:
+    with database_connection() as connection:
+        return _record_repository_event(
+            connection,
+            repo=repo,
+            event_type=event_type,
+            title=title,
+            occurred_at=occurred_at,
+            source=source,
+            metadata=metadata,
+            detected_at=detected_at,
+        )
+
+
+def save_repo_metadata_snapshots(
+    repositories: list[dict[str, Any]],
+    collected_at: str,
+) -> int:
+    events_created = 0
+    with database_connection() as connection:
+        connection.row_factory = sqlite3.Row
+        for repo in repositories:
+            full_name = validate_repo(str(repo["full_name"]))
+            current = {
+                "description": str(repo.get("description") or ""),
+                "homepage": str(repo.get("homepage") or ""),
+                "topics_json": json.dumps(
+                    sorted(str(topic) for topic in (repo.get("topics") or [])),
+                    separators=(",", ":"),
+                ),
+                "license_id": str(repo.get("license") or ""),
+                "license_status": str(repo.get("license_status") or "missing"),
+            }
+            previous = connection.execute(
+                """
+                SELECT description, homepage, topics_json, license_id,
+                       license_status
+                FROM repo_metadata_snapshots
+                WHERE repo = ?
+                ORDER BY collected_at DESC
+                LIMIT 1
+                """,
+                (full_name,),
+            ).fetchone()
+            changes = [
+                field
+                for field, value in current.items()
+                if previous is not None and str(previous[field]) != value
+            ]
+            connection.execute(
+                """
+                INSERT OR REPLACE INTO repo_metadata_snapshots (
+                    repo, collected_at, description, homepage, topics_json,
+                    license_id, license_status
+                ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                """,
+                (full_name, collected_at, *current.values()),
+            )
+            if changes and _record_repository_event(
+                connection,
+                repo=full_name,
+                event_type="metadata",
+                title="Repository metadata updated",
+                occurred_at=collected_at,
+                detected_at=collected_at,
+                source="repository_snapshot",
+                metadata={"changed_fields": changes},
+            ):
+                events_created += 1
+    return events_created
+
+
+def collect_repository_events(repo: str) -> dict[str, Any]:
+    repo = validate_repo(repo)
+    endpoints = {
+        "releases": (
+            f"repos/{repo}/releases",
+            {"per_page": 20},
+        ),
+        "readme_commits": (
+            f"repos/{repo}/commits",
+            {"path": "README.md", "per_page": 20},
+        ),
+    }
+    payloads: dict[str, Any] = {}
+    errors: list[str] = []
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        future_map = {
+            executor.submit(run_gh_json, endpoint, params=params): name
+            for name, (endpoint, params) in endpoints.items()
+        }
+        for future in as_completed(future_map):
+            name = future_map[future]
+            try:
+                payloads[name] = future.result()
+            except GitHubCLIError as exc:
+                payloads[name] = []
+                errors.append(f"{name}: {exc}")
+
+    created = 0
+    with database_connection() as connection:
+        for release in payloads.get("releases") or []:
+            if not isinstance(release, dict):
+                continue
+            occurred_at = str(
+                release.get("published_at")
+                or release.get("created_at")
+                or ""
+            )
+            if not occurred_at:
+                continue
+            tag = str(release.get("tag_name") or release.get("name") or "release")
+            if _record_repository_event(
+                connection,
+                repo=repo,
+                event_type="release",
+                title=f"Release {tag}",
+                occurred_at=occurred_at,
+                source="github_release",
+                metadata={
+                    "tag": tag,
+                    "url": str(release.get("html_url") or ""),
+                    "prerelease": bool(release.get("prerelease")),
+                },
+            ):
+                created += 1
+
+        for row in payloads.get("readme_commits") or []:
+            if not isinstance(row, dict):
+                continue
+            commit = row.get("commit") if isinstance(row.get("commit"), dict) else {}
+            author = commit.get("author") if isinstance(commit.get("author"), dict) else {}
+            committer = commit.get("committer") if isinstance(commit.get("committer"), dict) else {}
+            occurred_at = str(author.get("date") or committer.get("date") or "")
+            if not occurred_at:
+                continue
+            message = str(commit.get("message") or "README updated").splitlines()[0]
+            if _record_repository_event(
+                connection,
+                repo=repo,
+                event_type="readme",
+                title="README updated",
+                occurred_at=occurred_at,
+                source="github_commit",
+                metadata={
+                    "sha": str(row.get("sha") or ""),
+                    "message": message[:240],
+                    "url": str(row.get("html_url") or ""),
+                },
+            ):
+                created += 1
+
+    return {"repo": repo, "created": created, "errors": errors}
+
+
+def get_repository_events(limit: int = 80) -> list[dict[str, Any]]:
+    with database_connection() as connection:
+        connection.row_factory = sqlite3.Row
+        rows = connection.execute(
+            """
+            SELECT id, repo, event_type, title, occurred_at, detected_at,
+                   source, metadata_json
+            FROM repository_events
+            ORDER BY occurred_at DESC, id DESC
+            LIMIT ?
+            """,
+            (max(1, min(limit, 300)),),
+        ).fetchall()
+    events = []
+    for row in rows:
+        item = dict(row)
+        try:
+            item["metadata"] = json.loads(item.pop("metadata_json"))
+        except (json.JSONDecodeError, TypeError):
+            item["metadata"] = {}
+            item.pop("metadata_json", None)
+        events.append(item)
+    return events
+
+
+def _utc_date(value: str) -> date:
+    parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=timezone.utc)
+    return parsed.astimezone(timezone.utc).date()
+
+
+def analyze_event_metric(
+    connection: sqlite3.Connection,
+    *,
+    repo: str,
+    event_day: date,
+    metric: str,
+) -> dict[str, Any]:
+    if metric not in {"views", "clones"}:
+        raise ValueError("Unsupported impact metric.")
+
+    post_end = event_day + timedelta(days=6)
+    post_rows = connection.execute(
+        f"""
+        SELECT day, {metric} AS value
+        FROM traffic_daily
+        WHERE repo = ? AND day BETWEEN ? AND ?
+        ORDER BY day ASC
+        """,  # noqa: S608 - metric is validated above
+        (repo, event_day.isoformat(), post_end.isoformat()),
+    ).fetchall()
+    post_by_day = {str(row["day"]): row for row in post_rows}
+    window_days = 0
+    for offset in range(7):
+        if (event_day + timedelta(days=offset)).isoformat() not in post_by_day:
+            break
+        window_days += 1
+    if window_days == 0:
+        return {
+            "metric": metric,
+            "status": "waiting",
+            "window_days": 0,
+            "pre": None,
+            "post": None,
+            "change_pct": None,
+            "change_kind": "waiting",
+            "portfolio_change_pct": None,
+            "portfolio_repositories": 0,
+            "lift_pct_points": None,
+            "confidence": "low",
+        }
+
+    pre_start = event_day - timedelta(days=window_days)
+    pre_end = event_day - timedelta(days=1)
+    effective_post_end = event_day + timedelta(days=window_days - 1)
+    pre_rows = connection.execute(
+        f"""
+        SELECT day, {metric} AS value
+        FROM traffic_daily
+        WHERE repo = ? AND day BETWEEN ? AND ?
+        ORDER BY day ASC
+        """,  # noqa: S608 - metric is validated above
+        (repo, pre_start.isoformat(), pre_end.isoformat()),
+    ).fetchall()
+    post_rows = [
+        post_by_day[(event_day + timedelta(days=offset)).isoformat()]
+        for offset in range(window_days)
+    ]
+    pre_total = sum(int(row["value"] or 0) for row in pre_rows)
+    post_total = sum(int(row["value"] or 0) for row in post_rows)
+    target_change = (
+        percentage_change(post_total, pre_total)
+        if len(pre_rows) == window_days
+        else None
+    )
+    change_kind = (
+        "new"
+        if len(pre_rows) == window_days and pre_total == 0 and post_total > 0
+        else "measured"
+        if target_change is not None
+        else "baseline_incomplete"
+    )
+
+    portfolio_rows = connection.execute(
+        f"""
+        SELECT repo,
+            SUM(CASE WHEN day BETWEEN ? AND ? THEN {metric} ELSE 0 END) AS pre,
+            SUM(CASE WHEN day BETWEEN ? AND ? THEN {metric} ELSE 0 END) AS post,
+            COUNT(CASE WHEN day BETWEEN ? AND ? THEN 1 END) AS pre_days,
+            COUNT(CASE WHEN day BETWEEN ? AND ? THEN 1 END) AS post_days
+        FROM traffic_daily
+        WHERE repo <> ? AND day BETWEEN ? AND ?
+        GROUP BY repo
+        """,  # noqa: S608 - metric is validated above
+        (
+            pre_start.isoformat(),
+            pre_end.isoformat(),
+            event_day.isoformat(),
+            effective_post_end.isoformat(),
+            pre_start.isoformat(),
+            pre_end.isoformat(),
+            event_day.isoformat(),
+            effective_post_end.isoformat(),
+            repo,
+            pre_start.isoformat(),
+            effective_post_end.isoformat(),
+        ),
+    ).fetchall()
+    portfolio_changes = []
+    for row in portfolio_rows:
+        if is_profile_repository_name(str(row["repo"])):
+            continue
+        if int(row["pre_days"] or 0) < window_days or int(row["post_days"] or 0) < window_days:
+            continue
+        previous = int(row["pre"] or 0)
+        current = int(row["post"] or 0)
+        if previous <= 0:
+            continue
+        change = percentage_change(current, previous)
+        if change is not None:
+            portfolio_changes.append(float(change))
+
+    portfolio_change = (
+        round(float(statistics.median(portfolio_changes)), 1)
+        if portfolio_changes
+        else None
+    )
+    lift = (
+        round(float(target_change) - portfolio_change, 1)
+        if target_change is not None and portfolio_change is not None
+        else None
+    )
+    if (
+        window_days == 7
+        and len(pre_rows) == 7
+        and len(portfolio_changes) >= 3
+    ):
+        confidence = "high"
+    elif (
+        window_days >= 4
+        and len(pre_rows) == window_days
+        and len(portfolio_changes) >= 2
+    ):
+        confidence = "medium"
+    else:
+        confidence = "low"
+
+    return {
+        "metric": metric,
+        "status": "complete" if window_days == 7 else "collecting",
+        "window_days": window_days,
+        "period": {
+            "pre_from": pre_start.isoformat(),
+            "pre_to": pre_end.isoformat(),
+            "post_from": event_day.isoformat(),
+            "post_to": effective_post_end.isoformat(),
+        },
+        "pre": pre_total if len(pre_rows) == window_days else None,
+        "post": post_total,
+        "change_pct": target_change,
+        "change_kind": change_kind,
+        "portfolio_change_pct": portfolio_change,
+        "portfolio_repositories": len(portfolio_changes),
+        "lift_pct_points": lift,
+        "confidence": confidence,
+    }
+
+
+def build_impact_lab(*, limit: int = 30) -> dict[str, Any]:
+    events = get_repository_events(max(limit * 3, 80))
+    active_repositories = get_active_repository_names()
+    if active_repositories:
+        events = [
+            event
+            for event in events
+            if str(event["repo"]).casefold() in active_repositories
+            and not is_profile_repository_name(str(event["repo"]))
+        ]
+
+    analyses: list[dict[str, Any]] = []
+    with database_connection() as connection:
+        connection.row_factory = sqlite3.Row
+        for event in events[:limit]:
+            try:
+                event_day = _utc_date(str(event["occurred_at"]))
+            except ValueError:
+                continue
+            metrics = {
+                metric: analyze_event_metric(
+                    connection,
+                    repo=str(event["repo"]),
+                    event_day=event_day,
+                    metric=metric,
+                )
+                for metric in ("views", "clones")
+            }
+            measured = [
+                row
+                for row in metrics.values()
+                if row.get("lift_pct_points") is not None
+            ]
+            strongest = max(
+                measured,
+                key=lambda row: abs(float(row["lift_pct_points"])),
+                default=None,
+            )
+            if strongest is None:
+                outcome_key = "collecting"
+                outcome = "Collecting evidence"
+                summary = "A comparable before/after window is not available yet."
+            else:
+                lift = float(strongest["lift_pct_points"])
+                metric_label = "page views" if strongest["metric"] == "views" else "clone events"
+                if lift >= 25:
+                    outcome_key = "outperformed"
+                    outcome = "Outperformed portfolio baseline"
+                elif lift <= -25:
+                    outcome_key = "underperformed"
+                    outcome = "Underperformed portfolio baseline"
+                else:
+                    outcome_key = "matched"
+                    outcome = "Moved with portfolio baseline"
+                summary = (
+                    f"{metric_label.capitalize()} changed "
+                    f"{float(strongest['change_pct']):+g}% versus a "
+                    f"{float(strongest['portfolio_change_pct']):+g}% portfolio median."
+                )
+            confidence_order = {"low": 0, "medium": 1, "high": 2}
+            confidence = max(
+                (str(row.get("confidence") or "low") for row in metrics.values()),
+                key=lambda value: confidence_order.get(value, 0),
+                default="low",
+            )
+            analyses.append(
+                {
+                    **event,
+                    "name": str(event["repo"]).split("/", 1)[-1],
+                    "url": str((event.get("metadata") or {}).get("url") or f"https://github.com/{event['repo']}"),
+                    "metrics": metrics,
+                    "outcome_key": outcome_key,
+                    "outcome": outcome,
+                    "summary": summary,
+                    "confidence": confidence,
+                    "important": bool(
+                        strongest
+                        and abs(float(strongest["lift_pct_points"])) >= 50
+                        and confidence in {"medium", "high"}
+                    ),
+                }
+            )
+
+    return {
+        "generated_at": utc_now(),
+        "summary": {
+            "events": len(analyses),
+            "releases": sum(1 for row in analyses if row["event_type"] == "release"),
+            "readme_changes": sum(1 for row in analyses if row["event_type"] == "readme"),
+            "metadata_changes": sum(1 for row in analyses if row["event_type"] == "metadata"),
+            "measured": sum(1 for row in analyses if row["outcome_key"] != "collecting"),
+            "important": sum(1 for row in analyses if row["important"]),
+        },
+        "events": analyses,
+        "method": {
+            "name": "Portfolio Baseline",
+            "description": (
+                "Compares up to seven observed days before and after each event, "
+                "then subtracts the median change across other repositories in "
+                "the same portfolio."
+            ),
+            "limitation": (
+                "This is observational evidence, not proof that the repository "
+                "change caused the measured traffic movement."
+            ),
+        },
+    }
+
+
 def get_relation_movements(limit: int = 50) -> list[dict[str, Any]]:
     with database_connection() as connection:
         connection.row_factory = sqlite3.Row
@@ -816,6 +1345,7 @@ def build_dashboard(*, force: bool = False) -> dict[str, Any]:
     reconcile_repository_registry(repositories, collected_at)
     save_relation_snapshot(categories, collected_at)
     save_repo_snapshots(repositories, collected_at)
+    save_repo_metadata_snapshots(repositories, collected_at)
     portfolio_repositories = portfolio_repository_rows(repositories)
     payload = {
         "collected_at": collected_at,
@@ -2359,11 +2889,18 @@ def collect_all_data() -> dict[str, Any]:
                 build_traffic(repo, force=True)
             except (GitHubCLIError, ValueError) as exc:
                 errors.append(f"{repo}: {exc}")
-            finally:
-                completed += 1
-                with COLLECTION_LOCK:
-                    COLLECTION_STATE["repos_completed"] = completed
-                    COLLECTION_STATE["errors"] = errors[-20:]
+            try:
+                event_result = collect_repository_events(repo)
+                errors.extend(
+                    f"{repo} events: {detail}"
+                    for detail in event_result.get("errors", [])
+                )
+            except (GitHubCLIError, ValueError) as exc:
+                errors.append(f"{repo} events: {exc}")
+            completed += 1
+            with COLLECTION_LOCK:
+                COLLECTION_STATE["repos_completed"] = completed
+                COLLECTION_STATE["errors"] = errors[-20:]
     except Exception as exc:
         status = "failed"
         errors.append(str(exc))
@@ -2450,6 +2987,7 @@ def build_export_payload() -> dict[str, Any]:
         "account": get_account_login(),
         "signals": build_signals(),
         "movements": get_relation_movements(200),
+        "repository_events": get_repository_events(300),
         "relationship_history": get_relation_history(3650),
         "traffic": traffic,
     }
@@ -2514,6 +3052,9 @@ class DashboardHandler(BaseHTTPRequestHandler):
                     force=query.get("refresh") == ["1"]
                 )
             )
+            return
+        if parsed.path == "/api/impact":
+            self.handle_api(build_impact_lab)
             return
         if parsed.path == "/api/compare":
             self.handle_api(
