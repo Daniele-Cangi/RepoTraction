@@ -405,6 +405,8 @@ main { width: min(1380px, 100%); margin: 0 auto; padding: 36px clamp(24px, 4vw, 
 .data-control-grid { display: grid; grid-template-columns: 1.1fr .9fr; gap: 12px; }
 .collection-card > p, .export-card > p { min-height: 34px; margin: 0 0 18px; color: var(--muted); font-size: 10px; line-height: 1.6; }
 .status-pill.running { color: #152000; border-color: var(--lime); background: var(--lime); }
+.status-pill.partial { color: #e6b85c; border-color: rgba(230,184,92,.35); background: rgba(230,184,92,.08); }
+.status-pill.failed { color: var(--coral); border-color: rgba(255,123,114,.35); background: rgba(255,123,114,.08); }
 .progress-row { display: grid; grid-template-columns: minmax(0,1fr) 38px; align-items: center; gap: 12px; margin-bottom: 20px; }.progress-track { height: 6px; }.progress-row strong { color: var(--muted); font-size: 9px; text-align: right; }
 .export-actions { display: flex; flex-wrap: wrap; gap: 7px; }
 .about-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 12px; }
