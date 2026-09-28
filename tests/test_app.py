@@ -990,6 +990,22 @@ class PersistenceTests(unittest.TestCase):
             (25, 10, 9, 4),
         )
 
+    def test_unknown_current_traffic_window_requests_a_refresh(self) -> None:
+        with app.database_connection() as connection:
+            connection.execute(
+                """INSERT INTO traffic_daily (
+                    repo, day, views, unique_views, clones, unique_clones,
+                    collected_at
+                ) VALUES (?, ?, 0, 0, 0, 0, ?)""",
+                ("octocat/legacy", "2026-08-25", "2026-08-26T00:00:00+00:00"),
+            )
+        self.assertTrue(app.traffic_availability_refresh_needed())
+        with app.database_connection() as connection:
+            connection.execute(
+                "UPDATE traffic_daily SET views_available = 1, clones_available = 1"
+            )
+        self.assertFalse(app.traffic_availability_refresh_needed())
+
     def test_signal_rows_separate_visitor_days_from_native_uniques(self) -> None:
         now = app.datetime.now(app.timezone.utc)
         views = {

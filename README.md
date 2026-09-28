@@ -200,9 +200,11 @@ rows from older versions are marked as availability-unknown until recollected;
 the migration does not assume that historical zeroes were measured zeroes.
 
 While the server is running, a complete collection starts when the previous one
-is more than 20 hours old. You can also start it manually with **Collect now**
-or run `python app.py --collect-only` from a local scheduler. Non-archived
-repositories are processed sequentially to keep API usage predictable.
+is more than 20 hours old, or sooner if the current traffic window still has
+availability-unknown values after a database migration. You can also start it
+manually with **Collect now** or run `python app.py --collect-only` from a local
+scheduler. Non-archived repositories are processed sequentially to keep API
+usage predictable.
 
 Follower and following lists do not include timestamps. RepoTraction therefore
 creates a baseline on first run and records additions or removals from subsequent

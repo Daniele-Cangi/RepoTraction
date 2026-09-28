@@ -1709,6 +1709,27 @@ def get_traffic_history(repo: str) -> list[dict[str, Any]]:
     return [dict(row) for row in rows]
 
 
+def traffic_availability_refresh_needed() -> bool:
+    """Request a refresh when migrated history leaves a current window unknown."""
+    with database_connection() as connection:
+        row = connection.execute(
+            """WITH bounds AS (
+                   SELECT repo, MAX(day) AS latest_day
+                   FROM traffic_daily
+                   GROUP BY repo
+               )
+               SELECT 1
+               FROM traffic_daily AS traffic
+               JOIN bounds ON bounds.repo = traffic.repo
+               WHERE traffic.day BETWEEN date(bounds.latest_day, '-13 days')
+                                     AND bounds.latest_day
+                 AND (traffic.views_available IS NULL
+                      OR traffic.clones_available IS NULL)
+               LIMIT 1"""
+        ).fetchone()
+    return row is not None
+
+
 def percentage_change(current: int, previous: int) -> float | None:
     if previous == 0:
         return 0.0 if current == 0 else None
@@ -3253,11 +3274,12 @@ def automatic_collection_loop() -> None:
                 LIMIT 1
                 """
             ).fetchone()
+        refresh_needed = traffic_availability_refresh_needed()
         stale = True
         if row and row[0] and row[1] == "completed":
             try:
                 last_run = datetime.fromisoformat(str(row[0]))
-                stale = (
+                stale = refresh_needed or (
                     datetime.now(timezone.utc) - last_run
                 ).total_seconds() >= COLLECTION_STALE_SECONDS
             except ValueError:
