@@ -8,6 +8,7 @@ Turn repository traffic, stars, clones, activity and community changes into sign
 
 ![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=flat-square&logo=python&logoColor=white)
 ![GitHub CLI](https://img.shields.io/badge/GitHub_CLI-required-181717?style=flat-square&logo=github)
+[![GitHub REST API](https://img.shields.io/badge/GitHub_REST_API-2022--11--28-181717?style=flat-square&logo=github)](https://docs.github.com/en/rest)
 [![CI](https://github.com/Daniele-Cangi/RepoTraction/actions/workflows/ci.yml/badge.svg)](https://github.com/Daniele-Cangi/RepoTraction/actions/workflows/ci.yml)
 ![Zero dependencies](https://img.shields.io/badge/dependencies-zero-b8f33d?style=flat-square&labelColor=11161d)
 ![Local first](https://img.shields.io/badge/data-local_only-b084ff?style=flat-square&labelColor=11161d)
