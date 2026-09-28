@@ -327,7 +327,7 @@ GET  /api/export?dataset=summary
 
 ## Release status
 
-The current development line is **RepoTraction 3.0**. It supersedes the
+The current development line is **RepoTraction 3.0.0**. It supersedes the
 [v2.0.0 baseline](https://github.com/Daniele-Cangi/RepoTraction/releases/tag/v2.0.0)
 with the Insights and Impact Lab expansion plus stricter traffic-availability,
 collection-status, account-isolation, repository-identity and local-server
