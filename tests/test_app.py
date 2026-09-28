@@ -1,4 +1,9 @@
+import argparse
 import sys
+import sqlite3
+import http.client
+import json
+import threading
 import tempfile
 import unittest
 from pathlib import Path
@@ -61,12 +66,106 @@ class ValidationTests(unittest.TestCase):
         with self.assertRaises(app.GitHubCLIError):
             app.account_database_path("../invalid", root)
 
+    def test_local_server_rejects_non_loopback_bind_addresses(self) -> None:
+        for host in ("0.0.0.0", "192.168.1.20", "example.com"):
+            with self.subTest(host=host), self.assertRaises(
+                argparse.ArgumentTypeError
+            ):
+                app.validate_local_host(host)
+        self.assertEqual(app.validate_local_host("127.0.0.1"), "127.0.0.1")
+        self.assertEqual(app.validate_local_host("localhost"), "localhost")
+
+    def test_cli_rejects_non_loopback_bind_address(self) -> None:
+        with mock.patch.object(sys, "argv", ["app.py", "--host", "0.0.0.0"]):
+            with self.assertRaises(SystemExit):
+                app.parse_args()
+
+    def test_refuses_to_mix_data_after_active_account_changes(self) -> None:
+        status = json.dumps(
+            {
+                "hosts": {
+                    "github.com": [
+                        {"state": "success", "active": True, "login": "someone-else"}
+                    ]
+                }
+            }
+        )
+        process = app.subprocess.CompletedProcess(
+            args=["gh", "auth", "status"], returncode=0, stdout=status, stderr=""
+        )
+        with mock.patch.object(app, "ACCOUNT_LOGIN", "octocat"), mock.patch.object(
+            app, "_ACCOUNT_CHECKED_AT", 0.0
+        ), mock.patch.object(app.subprocess, "run", return_value=process):
+            with self.assertRaises(app.ActiveAccountChangedError):
+                app.verify_active_account(force=True)
+
+    def test_classifies_github_rate_limit_responses(self) -> None:
+        process = app.subprocess.CompletedProcess(
+            args=["gh", "api"],
+            returncode=1,
+            stdout="",
+            stderr="gh: HTTP 403: API rate limit exceeded for user ID 123",
+        )
+        with mock.patch.object(app, "ACCOUNT_LOGIN", None), mock.patch.object(
+            app.subprocess, "run", return_value=process
+        ):
+            with self.assertRaises(app.GitHubRateLimitError):
+                app.run_gh_json("user")
+
     def test_collect_only_cli_mode(self) -> None:
         with mock.patch.object(sys, "argv", ["app.py", "--collect-only"]):
             args = app.parse_args()
 
         self.assertTrue(args.collect_only)
         self.assertFalse(args.no_open)
+
+    def test_collect_only_exits_nonzero_for_partial_collection(self) -> None:
+        with mock.patch.object(sys, "argv", ["app.py", "--collect-only"]), mock.patch.object(
+            app.shutil, "which", return_value="gh"
+        ), mock.patch.object(app, "get_account_login", return_value="octocat"), mock.patch.object(
+            app, "ensure_database"
+        ), mock.patch.object(
+            app, "collect_all_data", return_value={"last_status": "partial"}
+        ), self.assertRaises(SystemExit) as raised:
+            app.main()
+        self.assertEqual(raised.exception.code, 2)
+
+
+class LocalServerSecurityTests(unittest.TestCase):
+    def test_rejects_nonlocal_host_cross_origin_and_originless_post(self) -> None:
+        server = app.ThreadingHTTPServer(("127.0.0.1", 0), app.DashboardHandler)
+        worker = threading.Thread(target=server.serve_forever, daemon=True)
+        port = server.server_port
+        worker.start()
+        try:
+            with mock.patch.object(app, "verify_active_account", return_value="octocat"), mock.patch.object(
+                app, "get_account_login", return_value="octocat"
+            ):
+                cases = [
+                    ("GET", {"Host": f"evil.example:{port}"}, 403),
+                    (
+                        "GET",
+                        {
+                            "Host": f"127.0.0.1:{port}",
+                            "Origin": f"http://evil.example:{port}",
+                        },
+                        403,
+                    ),
+                    ("GET", {"Host": f"127.0.0.1:{port}"}, 200),
+                    ("POST", {"Host": f"127.0.0.1:{port}"}, 403),
+                ]
+                for method, headers, expected in cases:
+                    with self.subTest(method=method, headers=headers):
+                        client = http.client.HTTPConnection("127.0.0.1", port, timeout=3)
+                        client.request(method, "/api/health" if method == "GET" else "/api/collect", headers=headers)
+                        response = client.getresponse()
+                        response.read()
+                        self.assertEqual(response.status, expected)
+                        client.close()
+        finally:
+            server.shutdown()
+            server.server_close()
+            worker.join(timeout=3)
 
 
 class SignalTests(unittest.TestCase):
@@ -428,7 +527,9 @@ class PersistenceTests(unittest.TestCase):
                         day.isoformat(),
                         views,
                         min(views, 3),
+                        1,
                         clones,
+                        1,
                         1,
                         "2026-08-17T08:00:00+00:00",
                     )
@@ -437,9 +538,9 @@ class PersistenceTests(unittest.TestCase):
             connection.executemany(
                 """
                 INSERT INTO traffic_daily (
-                    repo, day, views, unique_views, clones, unique_clones,
-                    collected_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                    repo, day, views, unique_views, views_available, clones,
+                    unique_clones, clones_available, collected_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 rows,
             )
@@ -588,6 +689,238 @@ class PersistenceTests(unittest.TestCase):
             ).fetchone()
         self.assertEqual(alias, ("octocat/new-name", "renamed"))
 
+    def test_reused_repository_name_keeps_former_history_separate(self) -> None:
+        name = "octocat/recreated"
+        former_name = "octocat/ReCreated"
+        timestamp = "2026-08-21T10:00:00+00:00"
+        app.reconcile_repository_registry(
+            [{"id": 9, "full_name": former_name}], timestamp
+        )
+        app.save_traffic(
+            former_name,
+            {"views": [{"timestamp": timestamp, "count": 17, "uniques": 6}]},
+            None,
+            collected_at=timestamp,
+        )
+
+        app.reconcile_repository_registry(
+            [{"id": 10, "full_name": name}], "2026-08-22T10:00:00+00:00"
+        )
+
+        self.assertEqual(app.get_traffic_history(name), [])
+        self.assertEqual(app.get_active_repository_names(), {name.casefold()})
+        with app.database_connection() as connection:
+            archived = connection.execute(
+                "SELECT repo, views FROM traffic_daily"
+            ).fetchone()
+            registry = connection.execute(
+                "SELECT repo_id, active FROM repository_registry ORDER BY repo_id"
+            ).fetchall()
+        self.assertEqual(
+            archived,
+            ("octocat/ReCreated (archived repository id 9)", 17),
+        )
+        self.assertEqual(registry, [(9, 0), (10, 1)])
+
+    def test_initialized_empty_registry_hides_historical_repositories_and_events(self) -> None:
+        timestamp = "2026-08-21T10:00:00+00:00"
+        app.save_traffic(
+            "octocat/old",
+            {"views": [{"timestamp": timestamp, "count": 4, "uniques": 2}]},
+            None,
+            collected_at=timestamp,
+        )
+        app.record_repository_event(
+            repo="octocat/old",
+            event_type="release",
+            title="v1",
+            occurred_at=timestamp,
+            source="github_release",
+        )
+        with mock.patch.object(app, "run_gh_json", side_effect=app.GitHubCLIError):
+            app.reconcile_repository_registry([], "2026-08-22T10:00:00+00:00")
+
+        self.assertEqual(app.get_active_repository_names(), set())
+        self.assertEqual(app.get_repository_signal_rows(), [])
+        self.assertEqual(app.build_impact_lab()["events"], [])
+
+    def test_migrates_old_schema_without_inventing_traffic_availability(self) -> None:
+        legacy_path = Path(self.tempdir.name) / "legacy.sqlite3"
+        connection = sqlite3.connect(legacy_path)
+        try:
+            connection.executescript(
+                """
+                CREATE TABLE traffic_daily (
+                    repo TEXT NOT NULL, day TEXT NOT NULL,
+                    views INTEGER NOT NULL DEFAULT 0,
+                    unique_views INTEGER NOT NULL DEFAULT 0,
+                    clones INTEGER NOT NULL DEFAULT 0,
+                    unique_clones INTEGER NOT NULL DEFAULT 0,
+                    collected_at TEXT NOT NULL, PRIMARY KEY (repo, day)
+                );
+                INSERT INTO traffic_daily VALUES
+                    ('octocat/old', '2026-08-20', 0, 0, 0, 0, '2026-08-21');
+                CREATE TABLE repository_registry (
+                    repo_id INTEGER PRIMARY KEY,
+                    full_name TEXT NOT NULL UNIQUE,
+                    active INTEGER NOT NULL DEFAULT 1,
+                    first_seen_at TEXT NOT NULL,
+                    last_seen_at TEXT NOT NULL
+                );
+                CREATE TABLE collection_runs (
+                    started_at TEXT PRIMARY KEY, completed_at TEXT,
+                    repos_total INTEGER NOT NULL DEFAULT 0,
+                    repos_completed INTEGER NOT NULL DEFAULT 0,
+                    errors INTEGER NOT NULL DEFAULT 0, status TEXT NOT NULL
+                );
+                """
+            )
+        finally:
+            connection.close()
+
+        original_db_path = app.DB_PATH
+        try:
+            app.DB_PATH = legacy_path
+            app.ensure_database()
+            with app.database_connection() as connection:
+                row = connection.execute(
+                    "SELECT views_available, clones_available FROM traffic_daily"
+                ).fetchone()
+                registry_sql = connection.execute(
+                    "SELECT sql FROM sqlite_master WHERE type='table' AND name='repository_registry'"
+                ).fetchone()[0]
+                run_columns = {
+                    item[1] for item in connection.execute("PRAGMA table_info(collection_runs)")
+                }
+        finally:
+            app.DB_PATH = original_db_path
+
+        self.assertEqual(row, (None, None))
+        self.assertNotIn("UNIQUE", registry_sql.upper())
+        self.assertIn("error_details", run_columns)
+
+    def test_partial_traffic_errors_are_persisted_in_collection_status(self) -> None:
+        dashboard = {
+            "repositories": [{"full_name": "octocat/project", "archived": False}]
+        }
+        with mock.patch.dict(
+            app.COLLECTION_STATE,
+            {
+                "running": False,
+                "started_at": None,
+                "completed_at": None,
+                "current_repo": None,
+                "repos_total": 0,
+                "repos_completed": 0,
+                "errors": [],
+                "last_status": None,
+            },
+            clear=True,
+        ), mock.patch.object(app, "build_dashboard", return_value=dashboard), mock.patch.object(
+            app,
+            "build_traffic",
+            return_value={"partial_errors": ["clones: permission denied"]},
+        ), mock.patch.object(
+            app, "collect_repository_events", return_value={"errors": []}
+        ):
+            result = app.collect_all_data()
+            self.assertEqual(result["last_status"], "partial")
+            self.assertEqual(result["last_error_count"], 1)
+            self.assertIn("clones: permission denied", result["errors"][0])
+
+            with mock.patch.dict(
+                app.COLLECTION_STATE,
+                {"running": False, "last_status": None, "completed_at": None},
+                clear=False,
+            ):
+                restored = app.collection_status()
+            self.assertEqual(restored["last_status"], "partial")
+            self.assertEqual(restored["errors"], result["errors"])
+
+    def test_rate_limit_stops_the_collection_instead_of_hammering_github(self) -> None:
+        dashboard = {
+            "repositories": [
+                {"full_name": "octocat/first", "archived": False},
+                {"full_name": "octocat/second", "archived": False},
+            ]
+        }
+        with mock.patch.dict(
+            app.COLLECTION_STATE,
+            {
+                "running": False,
+                "started_at": None,
+                "completed_at": None,
+                "current_repo": None,
+                "repos_total": 0,
+                "repos_completed": 0,
+                "errors": [],
+                "last_status": None,
+            },
+            clear=True,
+        ), mock.patch.object(app, "build_dashboard", return_value=dashboard), mock.patch.object(
+            app,
+            "build_traffic",
+            side_effect=app.GitHubRateLimitError("API rate limit exceeded"),
+        ) as collect_traffic, mock.patch.object(app, "collect_repository_events") as events:
+            result = app.collect_all_data()
+
+        self.assertEqual(result["last_status"], "failed")
+        self.assertEqual(collect_traffic.call_count, 1)
+        events.assert_not_called()
+
+    def test_impact_confidence_comes_from_the_strongest_metric(self) -> None:
+        event_day = app.date(2026, 8, 10)
+        repos = [
+            "octocat/target",
+            "octocat/control-a",
+            "octocat/control-b",
+            "octocat/control-c",
+        ]
+        rows = []
+        for repo in repos:
+            for offset in range(-7, 7):
+                day = event_day + app.timedelta(days=offset)
+                is_target = repo.endswith("/target")
+                views = (10 if offset < 0 else 12) if is_target else 5
+                clone_measured = is_target or repo.endswith("control-a")
+                clones = (1 if offset < 0 else 4) if is_target else 1
+                rows.append(
+                    (
+                        repo,
+                        day.isoformat(),
+                        views,
+                        1,
+                        1,
+                        clones,
+                        1,
+                        int(clone_measured),
+                        "2026-08-17T08:00:00+00:00",
+                    )
+                )
+        with app.database_connection() as connection:
+            connection.executemany(
+                """INSERT INTO traffic_daily (
+                    repo, day, views, unique_views, views_available, clones,
+                    unique_clones, clones_available, collected_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                rows,
+            )
+        app.record_repository_event(
+            repo="octocat/target",
+            event_type="release",
+            title="Release v2",
+            occurred_at="2026-08-10T10:00:00Z",
+            source="github_release",
+        )
+
+        event = app.build_impact_lab()["events"][0]
+
+        self.assertEqual(event["metrics"]["clones"]["lift_pct_points"], 300.0)
+        self.assertEqual(event["metrics"]["clones"]["confidence"], "low")
+        self.assertEqual(event["metrics"]["views"]["confidence"], "high")
+        self.assertEqual(event["confidence"], "low")
+        self.assertFalse(event["important"])
+
     def test_partial_traffic_updates_preserve_previous_valid_metrics(self) -> None:
         timestamp = "2026-08-21T10:00:00+00:00"
         views = {
@@ -721,7 +1054,11 @@ class PersistenceTests(unittest.TestCase):
         self.assertEqual(row["views_7d"], sum(range(1, 8)))
         self.assertEqual(row["previous_views"], sum(range(8, 15)))
         self.assertTrue(row["traffic_period"]["is_complete"])
-        self.assertTrue(row["traffic_comparison_ready"])
+        self.assertTrue(row["views_comparison_ready"])
+        self.assertFalse(row["clones_comparison_ready"])
+        self.assertFalse(row["traffic_comparison_ready"])
+        self.assertIsNone(row["clones_7d"])
+        self.assertIsNone(row["signal_score"])
 
 
 if __name__ == "__main__":
