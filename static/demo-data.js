@@ -84,6 +84,8 @@ function repositorySignal(
     },
     snapshot_period: snapshotPeriod,
     traffic_period: trafficPeriod,
+    views_comparison_ready: true,
+    clones_comparison_ready: true,
     traffic_comparison_ready: true,
     traffic_collected_at: generatedAt,
     signal_score: score,

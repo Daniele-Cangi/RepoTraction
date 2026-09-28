@@ -36,7 +36,7 @@ There is no username to configure and no token to paste into the app.
 | **Stars** | Timestamped stargazer timeline for repositories you can access |
 | **Network** | Followers, following, mutual relationships and changes over time |
 | **Activity** | Recent public events and an experimental Achievement Lab |
-| **Data** | Daily collection status, CSV exports and a complete JSON backup |
+| **Data** | Daily collection status, CSV exports and a JSON analytics export |
 
 ![RepoTraction Impact Lab](docs/screenshots/impact-lab.png)
 
@@ -154,14 +154,20 @@ RepoTraction stores both the native 14-day totals and every available daily valu
 SQLite, building an event history that can extend beyond GitHub's window.
 
 Rolling 7-day metrics end on the latest UTC day actually returned by GitHub,
-not on the computer's current date. Growth and spike comparisons are enabled
-only when both adjacent 7-day windows contain all seven daily observations.
-Every label includes the effective data-through date.
+not on the computer's current date. Views and clones track availability
+separately: an unavailable endpoint or legacy value is shown as unavailable,
+not as zero. Growth and spike comparisons are enabled only when the relevant
+metric has all seven daily observations in both adjacent windows. Every label
+includes the effective data-through date.
 
 Repositories are tracked by GitHub's immutable numeric repository ID. If a
 repository is renamed, its old records are merged into the current name instead
-of appearing as a second project. Deleted or no-longer-owned repositories remain
-available in exports but are excluded from current totals and rankings.
+of appearing as a second project. If a deleted repository name is later reused,
+the former repository's history is kept separately under an archive label.
+Deleted or no-longer-owned repositories remain available in exports but are
+excluded from current totals and rankings. Before the first registry snapshot,
+historical data remains visible; an initialized but empty registry correctly
+means there are no current repositories.
 The special profile README repository (`owner/owner`) remains available in the
 repository explorer but is excluded from activity totals, Activity Score
 rankings, comparisons, digests and recommendations. Its current stars still
@@ -189,12 +195,16 @@ The dashboard keeps the meanings separate:
   as absent.
 
 If one GitHub traffic endpoint fails, RepoTraction preserves the last valid
-values for that channel instead of replacing them with zero.
+values for that channel instead of replacing them with zero. Existing daily
+rows from older versions are marked as availability-unknown until recollected;
+the migration does not assume that historical zeroes were measured zeroes.
 
 While the server is running, a complete collection starts when the previous one
-is more than 20 hours old. You can also start it manually with **Collect now**
-or run `python app.py --collect-only` from a local scheduler. Non-archived
-repositories are processed sequentially to keep API usage predictable.
+is more than 20 hours old, or sooner if the current traffic window still has
+availability-unknown values after a database migration. You can also start it
+manually with **Collect now** or run `python app.py --collect-only` from a local
+scheduler. Non-archived repositories are processed sequentially to keep API
+usage predictable.
 
 Follower and following lists do not include timestamps. RepoTraction therefore
 creates a baseline on first run and records additions or removals from subsequent
@@ -228,18 +238,26 @@ min(100,
 It does not use summed unique counts or inferred conversion rates and it is not
 an official GitHub quality or health score. **Project Readiness** is a separate,
 local checklist based on description, topics, license presence, homepage and
-recent activity.
+recent activity. Activity Score is withheld where daily views or clone data is
+unavailable rather than treating an unknown channel as zero.
 
 The **Weekly Digest** can be copied or downloaded as Markdown. Desktop alerts
 use the browser's local notification permission and are disabled by default.
 
 ## Privacy and security
 
-- The HTTP server binds to <code>127.0.0.1</code> by default.
+- The HTTP server binds only to <code>localhost</code> or a loopback IP address;
+  requests with a non-local Host or cross-origin Origin are rejected.
 - Tokens never enter the browser or the SQLite database.
-- Authentication remains in the operating system keyring managed by GitHub CLI.
+- RepoTraction does not store credentials; GitHub CLI manages authentication
+  through its configured credential store or environment.
+- The active GitHub CLI account is checked during requests. If it changes while
+  RepoTraction is open, data requests stop until the account is switched back or
+  the server is restarted, keeping account histories separate.
 - Collected databases are ignored by Git and stay on the local machine.
-- CSV, JSON and Markdown exports are generated only when requested.
+- CSV, JSON analytics and Markdown exports are generated only when requested.
+  The JSON export is not a restorable database backup; keep a separate copy of
+  the local SQLite file if you need a full backup.
 
 ## GitHub API limits
 
@@ -255,6 +273,14 @@ window. They cannot be added across repositories or days to produce
 account-level unique reach. Page-view and clone populations are never divided
 to claim an individual conversion. Achievement cards are eligibility estimates
 and not an authoritative badge record.
+
+GitHub API calls share a four-request concurrency limit. If GitHub explicitly
+reports a rate limit, the current collection stops and records the error rather
+than continuing to send requests; failed or partial collections are retried by
+the local scheduler on its next hourly check.
+
+REST requests pin API version `2022-11-28`; update the pinned version only after
+reviewing GitHub's breaking-change notes and running the full test suite.
 
 ## Architecture
 

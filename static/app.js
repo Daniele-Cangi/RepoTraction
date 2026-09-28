@@ -191,7 +191,7 @@ function renderSignals(data) {
       : formatDelta(card.delta_absolute);
     return `<article class="signal-card ${card.key}">
       <div class="signal-top"><span class="signal-icon">${icons[card.key]}</span>${delta}</div>
-      <strong>${number.format(card.value)}</strong>
+      <strong>${comparisonValue(card.value)}</strong>
       <h3>${escapeHtml(card.label)}</h3>
       <p>${escapeHtml(card.unit)}</p>
     </article>`;
@@ -224,13 +224,13 @@ function renderOverviewRanking(rows) {
     target.innerHTML = '<div class="data-empty">The ranking will appear after the first full collection.</div>';
     return;
   }
-  const maxScore = Math.max(1, ...visible.map((repo) => repo.signal_score));
+  const maxScore = Math.max(1, ...visible.map((repo) => repo.signal_score || 0));
   target.innerHTML = visible.map((repo, index) => `
     <button class="ranking-row" data-repo="${escapeHtml(repo.repo)}" type="button">
       <span class="rank-index">${String(index + 1).padStart(2, "0")}</span>
-      <span class="rank-copy"><strong>${escapeHtml(repo.name)}</strong><small>${number.format(repo.views_7d)} page views · ${number.format(repo.clones_7d)} clones</small></span>
+      <span class="rank-copy"><strong>${escapeHtml(repo.name)}</strong><small>${comparisonValue(repo.views_7d)} page views · ${comparisonValue(repo.clones_7d)} clones</small></span>
       <span class="rank-bar"><i style="width:${Math.max(4, (repo.signal_score / maxScore) * 100)}%"></i></span>
-      <span class="rank-score" title="${escapeHtml(state.signals?.activity_score?.description || "Local activity heuristic")}">${repo.signal_score}</span>
+      <span class="rank-score" title="${escapeHtml(state.signals?.activity_score?.description || "Local activity heuristic")}">${comparisonValue(repo.signal_score)}</span>
     </button>`).join("");
 }
 
@@ -247,10 +247,10 @@ function renderRepositoryRadar(rows) {
     return `
     <button class="repo-row repo-data-row" data-repo="${escapeHtml(repo.repo)}" type="button">
       <span class="repo-name"><i class="${repo.private ? "private" : ""}"></i><span><strong>${escapeHtml(repo.name)}</strong><small>${escapeHtml(repo.language || (repo.private ? "Private" : "Public"))}</small></span></span>
-      <span><strong>${number.format(repo.views_7d)}</strong>${repo.traffic_comparison_ready ? formatDelta(percentage(repo.views_7d, repo.previous_views), "%") : '<small>baseline incomplete</small>'}<small>${escapeHtml(repo.traffic_period?.label || "no traffic window yet")}</small></span>
-      <span><strong>${number.format(repo.clones_7d)}</strong><small>${escapeHtml(repo.traffic_period?.label || "7d events")}</small><small class="adoption-note ${escapeHtml(repo.adoption_signal?.key || "unavailable")}" title="${escapeHtml(repo.adoption_signal?.detail || "GitHub-native 14-day cloning data unavailable")}">${repo.clone_repeat_factor === null || repo.clone_repeat_factor === undefined ? "GitHub 14d unavailable" : `${number.format(repo.unique_cloners_14d)} unique cloners · ${repo.clone_repeat_factor}× repeat · GitHub 14d`}</small></span>
+      <span><strong>${comparisonValue(repo.views_7d)}</strong>${repo.views_comparison_ready ? formatDelta(percentage(repo.views_7d, repo.previous_views), "%") : '<small>baseline incomplete</small>'}<small>${escapeHtml(repo.traffic_period?.label || "no traffic window yet")}</small></span>
+      <span><strong>${comparisonValue(repo.clones_7d)}</strong><small>${escapeHtml(repo.traffic_period?.label || "7d events")}</small><small class="adoption-note ${escapeHtml(repo.adoption_signal?.key || "unavailable")}" title="${escapeHtml(repo.adoption_signal?.detail || "GitHub-native 14-day cloning data unavailable")}">${repo.clone_repeat_factor === null || repo.clone_repeat_factor === undefined ? "GitHub 14d unavailable" : `${number.format(repo.unique_cloners_14d)} unique cloners · ${repo.clone_repeat_factor}× repeat · GitHub 14d`}</small></span>
       <span><strong>${number.format(repo.stars)}</strong>${starChange}<small>${escapeHtml(repo.snapshot_period?.label || "no comparison yet")}</small></span>
-      <span class="pulse-score" title="${escapeHtml(state.signals?.activity_score?.formula || "Local activity heuristic")}">${repo.signal_score}</span>
+      <span class="pulse-score" title="${escapeHtml(state.signals?.activity_score?.formula || "Local activity heuristic")}">${comparisonValue(repo.signal_score)}</span>
     </button>`;
   }).join("");
 }
@@ -373,7 +373,7 @@ function renderComparison(data) {
     const metrics = [
       [`Page views · ${repo.traffic_period?.label || "rolling window"}`, comparisonValue(repo.views_7d)],
       [`Clone events · ${repo.traffic_period?.label || "rolling window"}`, comparisonValue(repo.clones_7d)],
-      ["View change", repo.traffic_comparison_ready ? (repo.view_change === null ? (repo.views_7d ? "New" : "0%") : comparisonValue(repo.view_change, "%")) : "Waiting for 14 days"],
+      ["View change", repo.views_comparison_ready ? (repo.view_change === null ? (repo.views_7d ? "New" : "0%") : comparisonValue(repo.view_change, "%")) : "Waiting for 14 days"],
       ["Unique visitors · GitHub 14d", comparisonValue(repo.unique_visitors_14d)],
       ["Unique cloners · GitHub 14d", comparisonValue(repo.unique_cloners_14d)],
       ["Full clone events · GitHub 14d", comparisonValue(repo.native_clones_14d)],
@@ -382,7 +382,7 @@ function renderComparison(data) {
       [`Net stars · ${repo.snapshot_period?.label || "no comparison yet"}`, repo.snapshot_period?.has_baseline ? `${Number(repo.net_stars || 0) > 0 ? "+" : ""}${number.format(repo.net_stars || 0)}` : "—"],
     ];
     return `<article class="comparison-repo">
-      <header><a href="https://github.com/${escapeHtml(repo.repo)}" target="_blank" rel="noreferrer">${escapeHtml(repo.name)}</a><strong title="${escapeHtml(state.signals?.activity_score?.formula || "Local activity heuristic")}">${number.format(repo.signal_score || 0)}</strong></header>
+      <header><a href="https://github.com/${escapeHtml(repo.repo)}" target="_blank" rel="noreferrer">${escapeHtml(repo.name)}</a><strong title="${escapeHtml(state.signals?.activity_score?.formula || "Local activity heuristic")}">${comparisonValue(repo.signal_score)}</strong></header>
       ${metrics.map(([label, value]) => `<div class="comparison-metric"><span>${escapeHtml(label)}</span><b>${escapeHtml(value)}</b></div>`).join("")}
     </article>`;
   }).join("")}</div>`;
@@ -414,8 +414,8 @@ function renderDigest(data) {
   const totals = data.totals || {};
   const followerDelta = Number(data.relationship_delta?.followers || 0);
   const cards = [
-    ["Page views", totals.views_7d || 0, `repository views · ${data.period?.label || "rolling 7d"}`],
-    ["Clones", totals.clones_7d || 0, `full events · ${data.period?.label || "rolling 7d"}`],
+    ["Page views", comparisonValue(totals.views_7d), `repository views · ${data.period?.label || "rolling 7d"}`],
+    ["Clones", comparisonValue(totals.clones_7d), `full events · ${data.period?.label || "rolling 7d"}`],
     ["Stars", `${Number(totals.net_stars || 0) > 0 ? "+" : ""}${number.format(totals.net_stars || 0)}`, "net · per-repo baselines"],
     ["Followers", `${followerDelta > 0 ? "+" : ""}${number.format(followerDelta)}`, data.relationship_period?.label || "no comparison yet"],
   ];
@@ -425,7 +425,7 @@ function renderDigest(data) {
   $("#digestPreview").innerHTML = `
     <div class="digest-summary">${cards.map(([label, value, note]) => `<article><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong><small>${escapeHtml(note)}</small></article>`).join("")}</div>
     <div class="digest-block"><h4>Top repositories</h4>
-      ${repositories.length ? repositories.slice(0, 3).map((repo) => `<div class="digest-line"><span><strong>${escapeHtml(repo.name)}</strong><small>${number.format(repo.views_7d)} page views · ${number.format(repo.clones_7d)} clones</small></span><b>${number.format(repo.signal_score)}</b></div>`).join("") : '<div class="data-empty">No traffic collected yet.</div>'}
+      ${repositories.length ? repositories.slice(0, 3).map((repo) => `<div class="digest-line"><span><strong>${escapeHtml(repo.name)}</strong><small>${comparisonValue(repo.views_7d)} page views · ${comparisonValue(repo.clones_7d)} clones</small></span><b>${comparisonValue(repo.signal_score)}</b></div>`).join("") : '<div class="data-empty">No traffic collected yet.</div>'}
     </div>
     <div class="digest-block"><h4>Priority actions &amp; alerts</h4>
       ${opportunities.length ? opportunities.slice(0, 3).map((item) => `<div class="digest-line"><span><strong>${escapeHtml(item.title)}</strong><small>${escapeHtml(item.action)}</small></span><b>${escapeHtml(item.priority)}</b></div>`).join("") : '<div class="data-empty">No urgent opportunities.</div>'}
@@ -746,9 +746,15 @@ function renderCollection(collection) {
   const total = Number(collection.repos_total || 0);
   const completed = Number(collection.repos_completed || 0);
   const progress = total ? Math.round((completed / total) * 100) : 0;
+  const lastStatus = collection.last_status || "";
+  const firstError = Array.isArray(collection.errors) ? collection.errors[0] : "";
   const description = running
     ? `Analyzing ${collection.current_repo || "repository"} · ${completed}/${total}`
-    : collection.completed_at
+    : lastStatus === "failed"
+      ? `Last collection failed${firstError ? `: ${firstError}` : ". Check GitHub CLI access and try again."}`
+      : lastStatus === "partial"
+        ? `Last collection completed with ${Number(collection.last_error_count || collection.errors?.length || 0)} issue(s)${firstError ? `: ${firstError}` : "."}`
+        : collection.completed_at
       ? `Last collection completed ${formatDateTime(collection.completed_at)}`
       : "The first automatic collection will start shortly.";
 
@@ -757,8 +763,12 @@ function renderCollection(collection) {
   $("#collectionDescription").textContent = description;
   $("#collectionProgress").style.width = `${running ? progress : collection.completed_at ? 100 : 0}%`;
   $("#collectionProgressText").textContent = running ? `${progress}%` : collection.completed_at ? "100%" : "—";
-  $("#collectionStatusPill").textContent = running ? "Running" : "Ready";
+  $("#collectionStatusPill").textContent = running
+    ? "Running"
+    : lastStatus === "failed" ? "Failed" : lastStatus === "partial" ? "Partial" : "Ready";
   $("#collectionStatusPill").classList.toggle("running", running);
+  $("#collectionStatusPill").classList.toggle("partial", lastStatus === "partial");
+  $("#collectionStatusPill").classList.toggle("failed", lastStatus === "failed");
   $("#collectDataButton").disabled = running;
   $("#refreshButton").disabled = running;
   $("#refreshButton").classList.toggle("loading", running);

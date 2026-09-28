@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import ipaddress
 import io
 import json
 import math
@@ -33,15 +34,42 @@ LEGACY_DB_PATH = DATA_DIR / f"{LEGACY_APP_SLUG}.sqlite3"
 DB_PATH = DATA_DIR / f"{APP_SLUG}.sqlite3"
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8765
+GITHUB_API_VERSION = "2022-11-28"
 REPO_PATTERN = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")
 LOGIN_PATTERN = re.compile(r"^[A-Za-z0-9-]{1,39}$")
 COLLECTION_INTERVAL_SECONDS = 24 * 60 * 60
 COLLECTION_STALE_SECONDS = 20 * 60 * 60
+ACCOUNT_CHECK_INTERVAL_SECONDS = 5
 ACCOUNT_LOGIN: str | None = None
+_ACCOUNT_CHECK_LOCK = threading.Lock()
+_ACCOUNT_CHECKED_AT = 0.0
+GH_REQUEST_SEMAPHORE = threading.BoundedSemaphore(4)
 
 
 class GitHubCLIError(RuntimeError):
     pass
+
+
+class ActiveAccountChangedError(GitHubCLIError):
+    pass
+
+
+class GitHubRateLimitError(GitHubCLIError):
+    pass
+
+
+def validate_local_host(host: str) -> str:
+    """Reject non-loopback bind addresses; RepoTraction has no remote auth layer."""
+    if host.casefold() == "localhost":
+        return host
+    try:
+        if ipaddress.ip_address(host).is_loopback:
+            return host
+    except ValueError:
+        pass
+    raise argparse.ArgumentTypeError(
+        "RepoTraction can only bind to localhost or a loopback IP address."
+    )
 
 
 class MemoryCache:
@@ -96,7 +124,7 @@ def legacy_account_database_path(
 
 def configure_account(login: str) -> str:
     """Select a per-account database and preserve data from the legacy version."""
-    global ACCOUNT_LOGIN, DB_PATH
+    global ACCOUNT_LOGIN, DB_PATH, _ACCOUNT_CHECKED_AT
     target = account_database_path(login)
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     if not target.exists():
@@ -109,6 +137,7 @@ def configure_account(login: str) -> str:
             shutil.copy2(source, target)
     ACCOUNT_LOGIN = login
     DB_PATH = target
+    _ACCOUNT_CHECKED_AT = 0.0
     return login
 
 
@@ -134,6 +163,7 @@ def run_gh_json(
     accept: str = "application/vnd.github+json",
 ) -> Any:
     """Read GitHub data through the already-authenticated GitHub CLI."""
+    verify_active_account()
     command = [
         "gh",
         "api",
@@ -142,6 +172,8 @@ def run_gh_json(
         endpoint,
         "-H",
         f"Accept: {accept}",
+        "-H",
+        f"X-GitHub-Api-Version: {GITHUB_API_VERSION}",
     ]
     if paginate:
         command.extend(["--paginate", "--slurp"])
@@ -149,16 +181,17 @@ def run_gh_json(
         command.extend(["-f", f"{key}={value}"])
 
     try:
-        result = subprocess.run(
-            command,
-            capture_output=True,
-            text=True,
-            encoding="utf-8",
-            errors="replace",
-            timeout=timeout,
-            check=False,
-            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
-        )
+        with GH_REQUEST_SEMAPHORE:
+            result = subprocess.run(
+                command,
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                timeout=timeout,
+                check=False,
+                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
+            )
     except FileNotFoundError as exc:
         raise GitHubCLIError(
             "GitHub CLI (gh) is not installed or is not available in PATH."
@@ -168,6 +201,17 @@ def run_gh_json(
 
     if result.returncode != 0:
         detail = (result.stderr or result.stdout or "GitHub CLI error").strip()
+        lowered = detail.casefold()
+        if any(
+            marker in lowered
+            for marker in (
+                "api rate limit exceeded",
+                "secondary rate limit",
+                "abuse detection",
+                "rate limit exceeded",
+            )
+        ):
+            raise GitHubRateLimitError(detail)
         raise GitHubCLIError(detail)
 
     try:
@@ -186,6 +230,56 @@ def run_gh_json(
                 flattened.append(page)
         return flattened
     return payload
+
+
+def verify_active_account(*, force: bool = False) -> str | None:
+    """Prevent cached account identity from being mixed with a switched gh session."""
+    global _ACCOUNT_CHECKED_AT
+    expected = ACCOUNT_LOGIN
+    if not expected:
+        return None
+
+    with _ACCOUNT_CHECK_LOCK:
+        now = time.monotonic()
+        if not force and now - _ACCOUNT_CHECKED_AT < ACCOUNT_CHECK_INTERVAL_SECONDS:
+            return expected
+        try:
+            result = subprocess.run(
+                ["gh", "auth", "status", "--json", "hosts"],
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                timeout=10,
+                check=False,
+                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
+            )
+        except (FileNotFoundError, subprocess.TimeoutExpired) as exc:
+            raise GitHubCLIError(
+                "Unable to verify the active GitHub CLI account; restart RepoTraction after checking gh auth status."
+            ) from exc
+        if result.returncode != 0:
+            raise GitHubCLIError(
+                "Unable to verify the active GitHub CLI account; restart RepoTraction after checking gh auth status."
+            )
+        try:
+            hosts = json.loads(result.stdout).get("hosts", {})
+            active_logins = [
+                str(host.get("login") or "")
+                for host in hosts.get("github.com", [])
+                if host.get("active") and host.get("state") == "success"
+            ]
+        except (json.JSONDecodeError, AttributeError, TypeError):
+            raise GitHubCLIError(
+                "GitHub CLI could not report its active account. Update gh and restart RepoTraction."
+            ) from None
+        if len(active_logins) != 1 or active_logins[0].casefold() != expected.casefold():
+            raise ActiveAccountChangedError(
+                f"RepoTraction is scoped to @{expected}, but GitHub CLI's active account changed. "
+                "Switch back or restart RepoTraction to use the new account's separate history."
+            )
+        _ACCOUNT_CHECKED_AT = now
+        return expected
 
 
 def get_account_login() -> str:
@@ -219,8 +313,10 @@ def ensure_database() -> None:
                 day TEXT NOT NULL,
                 views INTEGER NOT NULL DEFAULT 0,
                 unique_views INTEGER NOT NULL DEFAULT 0,
+                views_available INTEGER,
                 clones INTEGER NOT NULL DEFAULT 0,
                 unique_clones INTEGER NOT NULL DEFAULT 0,
+                clones_available INTEGER,
                 collected_at TEXT NOT NULL,
                 PRIMARY KEY (repo, day)
             );
@@ -272,10 +368,15 @@ def ensure_database() -> None:
 
             CREATE TABLE IF NOT EXISTS repository_registry (
                 repo_id INTEGER PRIMARY KEY,
-                full_name TEXT NOT NULL UNIQUE,
+                full_name TEXT NOT NULL,
                 active INTEGER NOT NULL DEFAULT 1,
                 first_seen_at TEXT NOT NULL,
                 last_seen_at TEXT NOT NULL
+            );
+
+            CREATE TABLE IF NOT EXISTS repository_registry_state (
+                singleton INTEGER PRIMARY KEY CHECK (singleton = 1),
+                initialized INTEGER NOT NULL DEFAULT 0
             );
 
             CREATE TABLE IF NOT EXISTS repository_aliases (
@@ -292,6 +393,7 @@ def ensure_database() -> None:
                 repos_total INTEGER NOT NULL DEFAULT 0,
                 repos_completed INTEGER NOT NULL DEFAULT 0,
                 errors INTEGER NOT NULL DEFAULT 0,
+                error_details TEXT NOT NULL DEFAULT '[]',
                 status TEXT NOT NULL
             );
 
@@ -324,13 +426,81 @@ def ensure_database() -> None:
                 ON repo_snapshots (repo, collected_at DESC);
             CREATE INDEX IF NOT EXISTS idx_traffic_snapshots_repo_time
                 ON traffic_snapshots (repo, collected_at DESC);
-            CREATE INDEX IF NOT EXISTS idx_repository_registry_active
-                ON repository_registry (active, full_name);
             CREATE INDEX IF NOT EXISTS idx_repository_events_time
                 ON repository_events (occurred_at DESC, repo);
             CREATE INDEX IF NOT EXISTS idx_repo_metadata_repo_time
                 ON repo_metadata_snapshots (repo, collected_at DESC);
             """
+        )
+
+        traffic_columns = {
+            str(row[1]) for row in connection.execute("PRAGMA table_info(traffic_daily)")
+        }
+        for column in ("views_available", "clones_available"):
+            if column not in traffic_columns:
+                connection.execute(
+                    f"ALTER TABLE traffic_daily ADD COLUMN {column} INTEGER"  # noqa: S608
+                )
+        connection.execute(
+            """UPDATE traffic_daily SET views_available = 1
+               WHERE views_available IS NULL
+                 AND (views <> 0 OR unique_views <> 0)"""
+        )
+        connection.execute(
+            """UPDATE traffic_daily SET clones_available = 1
+               WHERE clones_available IS NULL
+                 AND (clones <> 0 OR unique_clones <> 0)"""
+        )
+
+        run_columns = {
+            str(row[1]) for row in connection.execute("PRAGMA table_info(collection_runs)")
+        }
+        if "error_details" not in run_columns:
+            connection.execute(
+                "ALTER TABLE collection_runs ADD COLUMN error_details TEXT NOT NULL DEFAULT '[]'"
+            )
+
+        registry_schema = connection.execute(
+            "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'repository_registry'"
+        ).fetchone()
+        if registry_schema and "full_name TEXT NOT NULL UNIQUE" in str(registry_schema[0]):
+            connection.execute(
+                "ALTER TABLE repository_registry RENAME TO repository_registry_legacy"
+            )
+            connection.execute(
+                """CREATE TABLE repository_registry (
+                    repo_id INTEGER PRIMARY KEY,
+                    full_name TEXT NOT NULL,
+                    active INTEGER NOT NULL DEFAULT 1,
+                    first_seen_at TEXT NOT NULL,
+                    last_seen_at TEXT NOT NULL
+                )"""
+            )
+            connection.execute(
+                """INSERT INTO repository_registry (
+                    repo_id, full_name, active, first_seen_at, last_seen_at
+                ) SELECT repo_id, full_name, active, first_seen_at, last_seen_at
+                  FROM repository_registry_legacy"""
+            )
+            connection.execute("DROP TABLE repository_registry_legacy")
+
+        connection.execute(
+            "INSERT OR IGNORE INTO repository_registry_state (singleton, initialized) VALUES (1, 0)"
+        )
+        connection.execute(
+            """UPDATE repository_registry_state SET initialized = 1
+               WHERE singleton = 1 AND (
+                   EXISTS (SELECT 1 FROM repository_registry)
+                   OR EXISTS (SELECT 1 FROM collection_runs)
+               )"""
+        )
+        connection.execute("DROP INDEX IF EXISTS idx_repository_registry_active")
+        connection.execute(
+            "CREATE INDEX idx_repository_registry_active ON repository_registry (active, full_name)"
+        )
+        connection.execute(
+            "CREATE UNIQUE INDEX IF NOT EXISTS idx_repository_registry_active_name "
+            "ON repository_registry (full_name COLLATE NOCASE) WHERE active = 1"
         )
 
 
@@ -346,7 +516,8 @@ def merge_repository_history(
     connection.row_factory = sqlite3.Row
     traffic_rows = connection.execute(
         """
-        SELECT day, views, unique_views, clones, unique_clones, collected_at
+        SELECT day, views, unique_views, views_available, clones,
+               unique_clones, clones_available, collected_at
         FROM traffic_daily
         WHERE repo = ?
         """,
@@ -355,7 +526,7 @@ def merge_repository_history(
     for row in traffic_rows:
         current = connection.execute(
             """
-            SELECT collected_at
+            SELECT collected_at, views_available, clones_available
             FROM traffic_daily
             WHERE repo = ? AND day = ?
             """,
@@ -367,24 +538,25 @@ def merge_repository_history(
                 (canonical_name, old_name, row["day"]),
             )
         else:
-            if str(row["collected_at"]) > str(current["collected_at"]):
-                connection.execute(
-                    """
-                    UPDATE traffic_daily
-                    SET views = ?, unique_views = ?, clones = ?, unique_clones = ?,
-                        collected_at = ?
-                    WHERE repo = ? AND day = ?
-                    """,
-                    (
-                        row["views"],
-                        row["unique_views"],
-                        row["clones"],
-                        row["unique_clones"],
-                        row["collected_at"],
-                        canonical_name,
-                        row["day"],
-                    ),
-                )
+            updates: list[str] = []
+            values: list[Any] = []
+            old_is_newer = str(row["collected_at"]) > str(current["collected_at"])
+            if row["views_available"] == 1 and (
+                current["views_available"] != 1 or old_is_newer
+            ):
+                updates.extend(("views = ?", "unique_views = ?", "views_available = 1"))
+                values.extend((row["views"], row["unique_views"]))
+            if row["clones_available"] == 1 and (
+                current["clones_available"] != 1 or old_is_newer
+            ):
+                updates.extend(("clones = ?", "unique_clones = ?", "clones_available = 1"))
+                values.extend((row["clones"], row["unique_clones"]))
+            updates.append("collected_at = MAX(collected_at, ?)")
+            values.extend((row["collected_at"], canonical_name, row["day"]))
+            connection.execute(
+                f"UPDATE traffic_daily SET {', '.join(updates)} WHERE repo = ? AND day = ?",  # noqa: S608 - assignments are fixed above
+                values,
+            )
             connection.execute(
                 "DELETE FROM traffic_daily WHERE repo = ? AND day = ?",
                 (old_name, row["day"]),
@@ -427,6 +599,49 @@ def merge_repository_history(
         )
 
 
+def archive_repository_history(
+    connection: sqlite3.Connection,
+    repo_name: str,
+    archive_name: str,
+) -> None:
+    """Keep a deleted repository's history separate if its name is reused."""
+    for table in (
+        "traffic_daily",
+        "traffic_snapshots",
+        "repo_snapshots",
+        "repo_metadata_snapshots",
+        "repository_events",
+    ):
+        connection.execute(
+            f"UPDATE {table} SET repo = ? WHERE repo = ?",  # noqa: S608 - fixed table names
+            (archive_name, repo_name),
+        )
+
+
+def archive_reused_legacy_aliases(
+    connection: sqlite3.Connection,
+    current_names: set[str],
+    collected_at: str,
+) -> None:
+    """Keep ID-less legacy history separate when its old name is reused."""
+    aliases = connection.execute(
+        """SELECT alias FROM repository_aliases
+           WHERE repo_id IS NULL AND status = 'inactive'"""
+    ).fetchall()
+    for row in aliases:
+        alias = str(row[0])
+        if alias.casefold() not in current_names:
+            continue
+        archive_name = f"{alias} (archived legacy history)"
+        archive_repository_history(connection, alias, archive_name)
+        connection.execute(
+            """UPDATE repository_aliases
+               SET canonical_name = ?, status = 'reused', resolved_at = ?
+               WHERE alias = ?""",
+            (archive_name, collected_at, alias),
+        )
+
+
 def reconcile_repository_registry(
     repositories: list[dict[str, Any]],
     collected_at: str,
@@ -442,7 +657,29 @@ def reconcile_repository_registry(
     with database_connection() as connection:
         connection.row_factory = sqlite3.Row
         connection.execute("UPDATE repository_registry SET active = 0")
+        archive_reused_legacy_aliases(connection, current_names, collected_at)
         for repo_id, full_name in current_by_id.items():
+            previous_ids = connection.execute(
+                """SELECT repo_id, full_name FROM repository_registry
+                   WHERE full_name = ? COLLATE NOCASE AND repo_id <> ?""",
+                (full_name, repo_id),
+            ).fetchall()
+            for previous_id_row in previous_ids:
+                previous_id = int(previous_id_row[0])
+                former_name = str(previous_id_row[1])
+                archive_name = (
+                    f"{former_name} (archived repository id {previous_id})"
+                )
+                archive_repository_history(
+                    connection,
+                    former_name,
+                    archive_name,
+                )
+                connection.execute(
+                    "UPDATE repository_registry SET full_name = ? WHERE repo_id = ?",
+                    (archive_name, previous_id),
+                )
+
             previous = connection.execute(
                 "SELECT full_name FROM repository_registry WHERE repo_id = ?",
                 (repo_id,),
@@ -471,6 +708,10 @@ def reconcile_repository_registry(
                 (repo_id, full_name, collected_at, collected_at),
             )
 
+        connection.execute(
+            "UPDATE repository_registry_state SET initialized = 1 WHERE singleton = 1"
+        )
+
         historical_names = {
             str(row[0])
             for row in connection.execute(
@@ -489,12 +730,15 @@ def reconcile_repository_registry(
     unresolved = [
         name
         for name in sorted(historical_names, key=str.casefold)
+        if REPO_PATTERN.fullmatch(name)
         if name.casefold() not in current_names
         and name.casefold() not in known_aliases
     ]
     for old_name in unresolved:
         try:
             resolved = run_gh_json(f"repos/{old_name}")
+        except (ActiveAccountChangedError, GitHubRateLimitError):
+            raise
         except GitHubCLIError:
             resolved = {}
         repo_id = int(resolved.get("id") or 0)
@@ -523,8 +767,13 @@ def reconcile_repository_registry(
             )
 
 
-def get_active_repository_names() -> set[str]:
+def get_active_repository_names() -> set[str] | None:
     with database_connection() as connection:
+        initialized = connection.execute(
+            "SELECT initialized FROM repository_registry_state WHERE singleton = 1"
+        ).fetchone()
+        if not initialized or not bool(initialized[0]):
+            return None
         rows = connection.execute(
             "SELECT full_name FROM repository_registry WHERE active = 1"
         ).fetchall()
@@ -864,11 +1113,18 @@ def collect_repository_events(repo: str) -> dict[str, Any]:
             name = future_map[future]
             try:
                 payloads[name] = future.result()
+            except GitHubRateLimitError:
+                for pending in future_map:
+                    pending.cancel()
+                raise
+            except ActiveAccountChangedError:
+                raise
             except GitHubCLIError as exc:
                 payloads[name] = []
                 errors.append(f"{name}: {exc}")
 
     created = 0
+    verify_active_account(force=True)
     with database_connection() as connection:
         for release in payloads.get("releases") or []:
             if not isinstance(release, dict):
@@ -965,13 +1221,14 @@ def analyze_event_metric(
 ) -> dict[str, Any]:
     if metric not in {"views", "clones"}:
         raise ValueError("Unsupported impact metric.")
+    available_column = f"{metric}_available"
 
     post_end = event_day + timedelta(days=6)
     post_rows = connection.execute(
         f"""
         SELECT day, {metric} AS value
         FROM traffic_daily
-        WHERE repo = ? AND day BETWEEN ? AND ?
+        WHERE repo = ? AND {available_column} = 1 AND day BETWEEN ? AND ?
         ORDER BY day ASC
         """,  # noqa: S608 - metric is validated above
         (repo, event_day.isoformat(), post_end.isoformat()),
@@ -1004,7 +1261,7 @@ def analyze_event_metric(
         f"""
         SELECT day, {metric} AS value
         FROM traffic_daily
-        WHERE repo = ? AND day BETWEEN ? AND ?
+        WHERE repo = ? AND {available_column} = 1 AND day BETWEEN ? AND ?
         ORDER BY day ASC
         """,  # noqa: S608 - metric is validated above
         (repo, pre_start.isoformat(), pre_end.isoformat()),
@@ -1031,10 +1288,10 @@ def analyze_event_metric(
     portfolio_rows = connection.execute(
         f"""
         SELECT repo,
-            SUM(CASE WHEN day BETWEEN ? AND ? THEN {metric} ELSE 0 END) AS pre,
-            SUM(CASE WHEN day BETWEEN ? AND ? THEN {metric} ELSE 0 END) AS post,
-            COUNT(CASE WHEN day BETWEEN ? AND ? THEN 1 END) AS pre_days,
-            COUNT(CASE WHEN day BETWEEN ? AND ? THEN 1 END) AS post_days
+            SUM(CASE WHEN {available_column} = 1 AND day BETWEEN ? AND ? THEN {metric} ELSE 0 END) AS pre,
+            SUM(CASE WHEN {available_column} = 1 AND day BETWEEN ? AND ? THEN {metric} ELSE 0 END) AS post,
+            COUNT(CASE WHEN {available_column} = 1 AND day BETWEEN ? AND ? THEN 1 END) AS pre_days,
+            COUNT(CASE WHEN {available_column} = 1 AND day BETWEEN ? AND ? THEN 1 END) AS post_days
         FROM traffic_daily
         WHERE repo <> ? AND day BETWEEN ? AND ?
         GROUP BY repo
@@ -1116,7 +1373,7 @@ def analyze_event_metric(
 def build_impact_lab(*, limit: int = 30) -> dict[str, Any]:
     events = get_repository_events(max(limit * 3, 80))
     active_repositories = get_active_repository_names()
-    if active_repositories:
+    if active_repositories is not None:
         events = [
             event
             for event in events
@@ -1172,12 +1429,9 @@ def build_impact_lab(*, limit: int = 30) -> dict[str, Any]:
                     f"{float(strongest['change_pct']):+g}% versus a "
                     f"{float(strongest['portfolio_change_pct']):+g}% portfolio median."
                 )
-            confidence_order = {"low": 0, "medium": 1, "high": 2}
-            confidence = max(
-                (str(row.get("confidence") or "low") for row in metrics.values()),
-                key=lambda value: confidence_order.get(value, 0),
-                default="low",
-            )
+            # The headline uses the strongest measured metric; confidence must
+            # come from that same metric rather than an unrelated one.
+            confidence = str(strongest.get("confidence") or "low") if strongest else "low"
             analyses.append(
                 {
                     **event,
@@ -1341,6 +1595,7 @@ def build_dashboard(*, force: bool = False) -> dict[str, Any]:
         if repo.get("permissions", {}).get("push") and repo.get("full_name")
     ]
 
+    verify_active_account(force=True)
     collected_at = utc_now()
     reconcile_repository_registry(repositories, collected_at)
     save_relation_snapshot(categories, collected_at)
@@ -1390,6 +1645,8 @@ def validate_repo(repo: str) -> str:
 def _safe_traffic_call(endpoint: str, default: Any) -> Any:
     try:
         return run_gh_json(endpoint)
+    except (ActiveAccountChangedError, GitHubRateLimitError):
+        raise
     except GitHubCLIError:
         return default
 
@@ -1412,17 +1669,54 @@ def save_traffic(
         for item in (clones or {}).get("clones", [])
         if item.get("timestamp")
     }
+    empty_views = (
+        views is not None
+        and not view_days
+        and views.get("count") is not None
+        and int(views["count"]) == 0
+    )
+    empty_clones = (
+        clones is not None
+        and not clone_days
+        and clones.get("count") is not None
+        and int(clones["count"]) == 0
+    )
+    if empty_views or empty_clones:
+        observed_days = view_days.keys() | clone_days.keys()
+        if observed_days:
+            latest_day = date.fromisoformat(max(observed_days))
+        else:
+            # A zero aggregate has no daily timestamps; anchor it to the last
+            # complete UTC day when neither channel supplies a reference date.
+            collected_time = datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
+            if collected_time.tzinfo is None:
+                collected_time = collected_time.replace(tzinfo=timezone.utc)
+            latest_day = (
+                collected_time.astimezone(timezone.utc).date() - timedelta(days=1)
+            )
+        zero_window = {
+            (latest_day - timedelta(days=offset)).isoformat(): {
+                "count": 0,
+                "uniques": 0,
+            }
+            for offset in range(14)
+        }
+        if empty_views:
+            view_days = zero_window
+        if empty_clones:
+            clone_days = zero_window
 
     with database_connection() as connection:
         for day, view in sorted(view_days.items()):
             connection.execute(
                 """
                 INSERT INTO traffic_daily (
-                    repo, day, views, unique_views, collected_at
-                ) VALUES (?, ?, ?, ?, ?)
+                    repo, day, views, unique_views, views_available, collected_at
+                ) VALUES (?, ?, ?, ?, 1, ?)
                 ON CONFLICT(repo, day) DO UPDATE SET
                     views = excluded.views,
                     unique_views = excluded.unique_views,
+                    views_available = 1,
                     collected_at = excluded.collected_at
                 """,
                 (
@@ -1437,11 +1731,12 @@ def save_traffic(
             connection.execute(
                 """
                 INSERT INTO traffic_daily (
-                    repo, day, clones, unique_clones, collected_at
-                ) VALUES (?, ?, ?, ?, ?)
+                    repo, day, clones, unique_clones, clones_available, collected_at
+                ) VALUES (?, ?, ?, ?, 1, ?)
                 ON CONFLICT(repo, day) DO UPDATE SET
                     clones = excluded.clones,
                     unique_clones = excluded.unique_clones,
+                    clones_available = 1,
                     collected_at = excluded.collected_at
                 """,
                 (
@@ -1484,7 +1779,8 @@ def get_traffic_history(repo: str) -> list[dict[str, Any]]:
         connection.row_factory = sqlite3.Row
         rows = connection.execute(
             """
-            SELECT day, views, unique_views, clones, unique_clones
+            SELECT day, views, unique_views, views_available, clones,
+                   unique_clones, clones_available
             FROM traffic_daily
             WHERE repo = ?
             ORDER BY day ASC
@@ -1492,6 +1788,47 @@ def get_traffic_history(repo: str) -> list[dict[str, Any]]:
             (repo,),
         ).fetchall()
     return [dict(row) for row in rows]
+
+
+def traffic_availability_refresh_needed() -> bool:
+    """Refresh unknown traffic only for repositories the collector can reach."""
+    active_repositories = get_active_repository_names()
+    if active_repositories == set():
+        return False
+
+    active_filter = ""
+    parameters: list[str] = []
+    if active_repositories is not None:
+        active_filter = "AND traffic.repo COLLATE NOCASE IN ("
+        active_filter += ", ".join("?" for _ in active_repositories) + ")"
+        parameters = sorted(active_repositories)
+
+    with database_connection() as connection:
+        row = connection.execute(
+            f"""WITH bounds AS (
+                   SELECT repo, MAX(day) AS latest_day
+                   FROM traffic_daily
+                   GROUP BY repo
+               )
+               SELECT 1
+               FROM traffic_daily AS traffic
+               JOIN bounds ON bounds.repo = traffic.repo
+               WHERE traffic.day BETWEEN date(bounds.latest_day, '-13 days')
+                                     AND bounds.latest_day
+                 AND COALESCE((
+                     SELECT snapshot.archived
+                     FROM repo_snapshots AS snapshot
+                     WHERE snapshot.repo = traffic.repo COLLATE NOCASE
+                     ORDER BY snapshot.collected_at DESC
+                     LIMIT 1
+                 ), 0) = 0
+                 AND (traffic.views_available IS NULL
+                      OR traffic.clones_available IS NULL)
+                 {active_filter}
+               LIMIT 1""",
+            parameters,
+        ).fetchone()
+    return row is not None
 
 
 def percentage_change(current: int, previous: int) -> float | None:
@@ -1641,20 +1978,26 @@ def get_repository_signal_rows() -> list[dict[str, Any]]:
                 date(bounds.latest_day, '-6 days') AS traffic_window_from,
                 date(bounds.latest_day, '-7 days') AS previous_window_to,
                 date(bounds.latest_day, '-13 days') AS previous_window_from,
-                COUNT(CASE WHEN traffic.day BETWEEN date(bounds.latest_day, '-6 days') AND bounds.latest_day THEN 1 END) AS traffic_days_available,
-                COUNT(CASE WHEN traffic.day BETWEEN date(bounds.latest_day, '-13 days') AND date(bounds.latest_day, '-7 days') THEN 1 END) AS previous_days_available,
-                SUM(CASE WHEN traffic.day BETWEEN date(bounds.latest_day, '-6 days') AND bounds.latest_day THEN views ELSE 0 END) AS views_7d,
-                SUM(CASE WHEN traffic.day BETWEEN date(bounds.latest_day, '-6 days') AND bounds.latest_day THEN unique_views ELSE 0 END) AS visitor_days_7d,
-                SUM(CASE WHEN traffic.day BETWEEN date(bounds.latest_day, '-6 days') AND bounds.latest_day THEN clones ELSE 0 END) AS clones_7d,
-                SUM(CASE WHEN traffic.day BETWEEN date(bounds.latest_day, '-6 days') AND bounds.latest_day THEN unique_clones ELSE 0 END) AS cloner_days_7d,
-                SUM(CASE WHEN traffic.day BETWEEN date(bounds.latest_day, '-13 days') AND date(bounds.latest_day, '-7 days') THEN views ELSE 0 END) AS previous_views,
-                SUM(CASE WHEN traffic.day BETWEEN date(bounds.latest_day, '-13 days') AND date(bounds.latest_day, '-7 days') THEN unique_views ELSE 0 END) AS previous_visitor_days,
-                SUM(CASE WHEN traffic.day BETWEEN date(bounds.latest_day, '-13 days') AND date(bounds.latest_day, '-7 days') THEN clones ELSE 0 END) AS previous_clones,
-                SUM(CASE WHEN traffic.day BETWEEN date(bounds.latest_day, '-13 days') AND date(bounds.latest_day, '-7 days') THEN unique_clones ELSE 0 END) AS previous_cloner_days,
-                SUM(CASE WHEN traffic.day BETWEEN date(bounds.latest_day, '-13 days') AND bounds.latest_day THEN views ELSE 0 END) AS views_14d,
-                SUM(CASE WHEN traffic.day BETWEEN date(bounds.latest_day, '-13 days') AND bounds.latest_day THEN unique_views ELSE 0 END) AS visitor_days_14d,
-                SUM(CASE WHEN traffic.day BETWEEN date(bounds.latest_day, '-13 days') AND bounds.latest_day THEN clones ELSE 0 END) AS clones_14d,
-                SUM(CASE WHEN traffic.day BETWEEN date(bounds.latest_day, '-13 days') AND bounds.latest_day THEN unique_clones ELSE 0 END) AS cloner_days_14d,
+                COUNT(CASE WHEN (traffic.views_available = 1 OR traffic.clones_available = 1) AND traffic.day BETWEEN date(bounds.latest_day, '-6 days') AND bounds.latest_day THEN 1 END) AS traffic_days_available,
+                COUNT(CASE WHEN (traffic.views_available = 1 OR traffic.clones_available = 1) AND traffic.day BETWEEN date(bounds.latest_day, '-13 days') AND date(bounds.latest_day, '-7 days') THEN 1 END) AS previous_days_available,
+                COUNT(CASE WHEN traffic.views_available = 1 AND traffic.day BETWEEN date(bounds.latest_day, '-6 days') AND bounds.latest_day THEN 1 END) AS views_days_7d,
+                COUNT(CASE WHEN traffic.clones_available = 1 AND traffic.day BETWEEN date(bounds.latest_day, '-6 days') AND bounds.latest_day THEN 1 END) AS clones_days_7d,
+                COUNT(CASE WHEN traffic.views_available = 1 AND traffic.day BETWEEN date(bounds.latest_day, '-13 days') AND date(bounds.latest_day, '-7 days') THEN 1 END) AS previous_views_days,
+                COUNT(CASE WHEN traffic.clones_available = 1 AND traffic.day BETWEEN date(bounds.latest_day, '-13 days') AND date(bounds.latest_day, '-7 days') THEN 1 END) AS previous_clones_days,
+                SUM(CASE WHEN traffic.views_available = 1 AND traffic.day BETWEEN date(bounds.latest_day, '-6 days') AND bounds.latest_day THEN views ELSE 0 END) AS views_7d,
+                SUM(CASE WHEN traffic.views_available = 1 AND traffic.day BETWEEN date(bounds.latest_day, '-6 days') AND bounds.latest_day THEN unique_views ELSE 0 END) AS visitor_days_7d,
+                SUM(CASE WHEN traffic.clones_available = 1 AND traffic.day BETWEEN date(bounds.latest_day, '-6 days') AND bounds.latest_day THEN clones ELSE 0 END) AS clones_7d,
+                SUM(CASE WHEN traffic.clones_available = 1 AND traffic.day BETWEEN date(bounds.latest_day, '-6 days') AND bounds.latest_day THEN unique_clones ELSE 0 END) AS cloner_days_7d,
+                SUM(CASE WHEN traffic.views_available = 1 AND traffic.day BETWEEN date(bounds.latest_day, '-13 days') AND date(bounds.latest_day, '-7 days') THEN views ELSE 0 END) AS previous_views,
+                SUM(CASE WHEN traffic.views_available = 1 AND traffic.day BETWEEN date(bounds.latest_day, '-13 days') AND date(bounds.latest_day, '-7 days') THEN unique_views ELSE 0 END) AS previous_visitor_days,
+                SUM(CASE WHEN traffic.clones_available = 1 AND traffic.day BETWEEN date(bounds.latest_day, '-13 days') AND date(bounds.latest_day, '-7 days') THEN clones ELSE 0 END) AS previous_clones,
+                SUM(CASE WHEN traffic.clones_available = 1 AND traffic.day BETWEEN date(bounds.latest_day, '-13 days') AND date(bounds.latest_day, '-7 days') THEN unique_clones ELSE 0 END) AS previous_cloner_days,
+                COUNT(CASE WHEN traffic.views_available = 1 AND traffic.day BETWEEN date(bounds.latest_day, '-13 days') AND bounds.latest_day THEN 1 END) AS views_days_14d,
+                COUNT(CASE WHEN traffic.clones_available = 1 AND traffic.day BETWEEN date(bounds.latest_day, '-13 days') AND bounds.latest_day THEN 1 END) AS clones_days_14d,
+                SUM(CASE WHEN traffic.views_available = 1 AND traffic.day BETWEEN date(bounds.latest_day, '-13 days') AND bounds.latest_day THEN views ELSE 0 END) AS views_14d,
+                SUM(CASE WHEN traffic.views_available = 1 AND traffic.day BETWEEN date(bounds.latest_day, '-13 days') AND bounds.latest_day THEN unique_views ELSE 0 END) AS visitor_days_14d,
+                SUM(CASE WHEN traffic.clones_available = 1 AND traffic.day BETWEEN date(bounds.latest_day, '-13 days') AND bounds.latest_day THEN clones ELSE 0 END) AS clones_14d,
+                SUM(CASE WHEN traffic.clones_available = 1 AND traffic.day BETWEEN date(bounds.latest_day, '-13 days') AND bounds.latest_day THEN unique_clones ELSE 0 END) AS cloner_days_14d,
                 MAX(traffic.collected_at) AS traffic_collected_at
             FROM traffic_daily AS traffic
             JOIN bounds ON bounds.repo = traffic.repo
@@ -1739,7 +2082,7 @@ def get_repository_signal_rows() -> list[dict[str, Any]]:
 
     active_repositories = get_active_repository_names()
     repository_names = set(traffic) | set(native) | set(snapshots)
-    if active_repositories:
+    if active_repositories is not None:
         repository_names = {
             repo for repo in repository_names if repo.casefold() in active_repositories
         }
@@ -1753,10 +2096,16 @@ def get_repository_signal_rows() -> list[dict[str, Any]]:
             repo_snapshots,
             first_label="since first snapshot",
         )
-        views = int(repo_traffic.get("views_7d") or 0)
-        clones = int(repo_traffic.get("clones_7d") or 0)
-        visitor_days = int(repo_traffic.get("visitor_days_7d") or 0)
-        cloner_days = int(repo_traffic.get("cloner_days_7d") or 0)
+        views_days = int(repo_traffic.get("views_days_7d") or 0)
+        clones_days = int(repo_traffic.get("clones_days_7d") or 0)
+        previous_views_days = int(repo_traffic.get("previous_views_days") or 0)
+        previous_clones_days = int(repo_traffic.get("previous_clones_days") or 0)
+        views_comparison_ready = views_days == 7 and previous_views_days == 7
+        clones_comparison_ready = clones_days == 7 and previous_clones_days == 7
+        views = int(repo_traffic.get("views_7d") or 0) if views_days else None
+        clones = int(repo_traffic.get("clones_7d") or 0) if clones_days else None
+        visitor_days = int(repo_traffic.get("visitor_days_7d") or 0) if views_days else None
+        cloner_days = int(repo_traffic.get("cloner_days_7d") or 0) if clones_days else None
         traffic_days_available = int(repo_traffic.get("traffic_days_available") or 0)
         previous_days_available = int(repo_traffic.get("previous_days_available") or 0)
         traffic_period = {
@@ -1769,9 +2118,7 @@ def get_repository_signal_rows() -> list[dict[str, Any]]:
                 traffic_days_available,
             ),
         }
-        traffic_comparison_ready = (
-            traffic_days_available == 7 and previous_days_available == 7
-        )
+        traffic_comparison_ready = views_comparison_ready and clones_comparison_ready
         has_snapshot_baseline = bool(snapshot_period.get("has_baseline"))
         net_stars = (
             int(latest.get("stars", 0)) - int(baseline.get("stars", 0))
@@ -1783,14 +2130,18 @@ def get_repository_signal_rows() -> list[dict[str, Any]]:
             if has_snapshot_baseline
             else None
         )
-        score = round(
-            min(
-                100,
-                math.log1p(views) * 7
-                + math.log1p(clones) * 9
-                + max(0, net_stars or 0) * 10
-                + max(0, net_forks or 0) * 12,
+        score = (
+            round(
+                min(
+                    100,
+                    math.log1p(views or 0) * 7
+                    + math.log1p(clones or 0) * 9
+                    + max(0, net_stars or 0) * 10
+                    + max(0, net_forks or 0) * 12,
+                )
             )
+            if views_days == 7 and clones_days == 7
+            else None
         )
         native_clone_events = repo_native.get("clones_count")
         native_unique_cloners = repo_native.get("clones_uniques")
@@ -1803,19 +2154,27 @@ def get_repository_signal_rows() -> list[dict[str, Any]]:
                 "repo": repo,
                 "name": repo.split("/", 1)[-1],
                 "views_7d": views,
+                "views_available_days_7d": views_days,
+                "views_comparison_ready": views_comparison_ready,
                 "visitor_days_7d": visitor_days,
                 "clones_7d": clones,
+                "clones_available_days_7d": clones_days,
+                "clones_comparison_ready": clones_comparison_ready,
                 "cloner_days_7d": cloner_days,
-                "previous_views": int(repo_traffic.get("previous_views") or 0),
-                "previous_visitor_days": int(repo_traffic.get("previous_visitor_days") or 0),
-                "previous_clones": int(repo_traffic.get("previous_clones") or 0),
-                "previous_cloner_days": int(repo_traffic.get("previous_cloner_days") or 0),
+                "previous_views": int(repo_traffic.get("previous_views") or 0) if previous_views_days else None,
+                "previous_views_available_days": previous_views_days,
+                "previous_visitor_days": int(repo_traffic.get("previous_visitor_days") or 0) if previous_views_days else None,
+                "previous_clones": int(repo_traffic.get("previous_clones") or 0) if previous_clones_days else None,
+                "previous_clones_available_days": previous_clones_days,
+                "previous_cloner_days": int(repo_traffic.get("previous_cloner_days") or 0) if previous_clones_days else None,
                 "traffic_period": traffic_period,
                 "traffic_comparison_ready": traffic_comparison_ready,
-                "views_14d": int(repo_traffic.get("views_14d") or 0),
-                "visitor_days_14d": int(repo_traffic.get("visitor_days_14d") or 0),
-                "clones_14d": int(repo_traffic.get("clones_14d") or 0),
-                "cloner_days_14d": int(repo_traffic.get("cloner_days_14d") or 0),
+                "views_14d": int(repo_traffic.get("views_14d") or 0) if int(repo_traffic.get("views_days_14d") or 0) else None,
+                "views_available_days_14d": int(repo_traffic.get("views_days_14d") or 0),
+                "visitor_days_14d": int(repo_traffic.get("visitor_days_14d") or 0) if int(repo_traffic.get("views_days_14d") or 0) else None,
+                "clones_14d": int(repo_traffic.get("clones_14d") or 0) if int(repo_traffic.get("clones_days_14d") or 0) else None,
+                "clones_available_days_14d": int(repo_traffic.get("clones_days_14d") or 0),
+                "cloner_days_14d": int(repo_traffic.get("cloner_days_14d") or 0) if int(repo_traffic.get("clones_days_14d") or 0) else None,
                 "unique_visitors_14d": repo_native.get("views_uniques"),
                 "unique_cloners_14d": repo_native.get("clones_uniques"),
                 "native_views_14d": repo_native.get("views_count"),
@@ -1842,8 +2201,8 @@ def get_repository_signal_rows() -> list[dict[str, Any]]:
         )
     rows.sort(
         key=lambda item: (
-            item["signal_score"],
-            item["views_7d"],
+            item["signal_score"] or 0,
+            item["views_7d"] or 0,
             item["stars"],
         ),
         reverse=True,
@@ -2047,13 +2406,17 @@ def analyze_opportunities(
         native_clone_events = adoption_signal.get("clone_events")
         native_unique_cloners = adoption_signal.get("unique_cloners")
         clone_repeat_factor = adoption_signal.get("repeat_factor")
-        traffic_comparison_ready = bool(signal.get("traffic_comparison_ready"))
+        views_comparison_ready = bool(
+            signal.get(
+                "views_comparison_ready", signal.get("traffic_comparison_ready")
+            )
+        )
         star_comparison_ready = bool(
             (signal.get("snapshot_period") or {}).get("is_full_window")
         )
         growth = (
             percentage_change(views, previous_views)
-            if traffic_comparison_ready
+            if views_comparison_ready
             else None
         )
 
@@ -2079,7 +2442,7 @@ def analyze_opportunities(
 
         if (
             views >= 10
-            and traffic_comparison_ready
+            and views_comparison_ready
             and star_comparison_ready
             and net_stars is not None
             and int(net_stars) <= 0
@@ -2135,7 +2498,7 @@ def analyze_opportunities(
                 }
             )
 
-        is_new_traffic = traffic_comparison_ready and growth is None and views >= 5
+        is_new_traffic = views_comparison_ready and growth is None and views >= 5
         if is_new_traffic or (growth is not None and growth >= 50 and views >= 5):
             growth_label = "new traffic" if growth is None else f"+{growth:g}% traffic"
             opportunities.append(
@@ -2155,7 +2518,7 @@ def analyze_opportunities(
 
         pushed_days_ago = health["pushed_days_ago"]
         if (
-            traffic_comparison_ready
+            views_comparison_ready
             and pushed_days_ago is not None
             and pushed_days_ago > 120
             and views >= 3
@@ -2256,7 +2619,7 @@ def build_repository_comparison(selected_repos: list[str]) -> dict[str, Any]:
                     percentage_change(
                         int(row["views_7d"]), int(row["previous_views"])
                     )
-                    if row.get("traffic_comparison_ready")
+                    if row.get("views_comparison_ready")
                     else None
                 ),
                 "history": get_traffic_history(str(row["repo"]))[-30:],
@@ -2293,8 +2656,8 @@ def build_digest_markdown(
         "",
         f"## Traffic · {traffic_label}",
         "",
-        f"- {totals['views_7d']} repository page views",
-        f"- {totals['clones_7d']} full clone events",
+        f"- {totals['views_7d'] if totals['views_7d'] is not None else 'unavailable'} repository page views",
+        f"- {totals['clones_7d'] if totals['clones_7d'] is not None else 'unavailable'} full clone events",
         "",
         "## Snapshot changes",
         "",
@@ -2306,8 +2669,10 @@ def build_digest_markdown(
     ]
     for row in signals["repository_ranking"][:5]:
         lines.append(
-            f"- **{row['name']}** — {row['views_7d']} page views, "
-            f"{row['clones_7d']} clone events, activity score {row['signal_score']}"
+            f"- **{row['name']}** — "
+            f"{row['views_7d'] if row['views_7d'] is not None else 'unavailable'} page views, "
+            f"{row['clones_7d'] if row['clones_7d'] is not None else 'unavailable'} clone events, "
+            f"activity score {row['signal_score'] if row['signal_score'] is not None else 'unavailable'}"
         )
     if not signals["repository_ranking"]:
         lines.append("- No repository traffic collected yet.")
@@ -2415,17 +2780,25 @@ def collection_status() -> dict[str, Any]:
     with COLLECTION_LOCK:
         status = dict(COLLECTION_STATE)
         status["errors"] = list(COLLECTION_STATE["errors"])
-    if not status["running"] and not status["completed_at"]:
-        with database_connection() as connection:
-            row = connection.execute(
-                """
-                SELECT started_at, completed_at, repos_total, repos_completed, errors, status
-                FROM collection_runs
-                ORDER BY started_at DESC
-                LIMIT 1
-                """
-            ).fetchone()
+    if not status["running"] and not status.get("last_status"):
+        try:
+            with database_connection() as connection:
+                row = connection.execute(
+                    """
+                    SELECT started_at, completed_at, repos_total, repos_completed,
+                           errors, status, error_details
+                    FROM collection_runs
+                    ORDER BY started_at DESC
+                    LIMIT 1
+                    """
+                ).fetchone()
+        except sqlite3.Error:
+            row = None
         if row:
+            try:
+                last_errors = json.loads(row[6] or "[]")
+            except (json.JSONDecodeError, TypeError):
+                last_errors = []
             status.update(
                 {
                     "started_at": row[0],
@@ -2434,6 +2807,7 @@ def collection_status() -> dict[str, Any]:
                     "repos_completed": row[3],
                     "last_error_count": row[4],
                     "last_status": row[5],
+                    "errors": last_errors,
                 }
             )
     return status
@@ -2442,13 +2816,15 @@ def collection_status() -> dict[str, Any]:
 def build_signals() -> dict[str, Any]:
     all_repositories = get_repository_signal_rows()
     repositories = portfolio_repository_rows(all_repositories)
-    traffic_period = summarize_traffic_period(repositories)
-    traffic_rows = [
-        repo for repo in repositories if (repo.get("traffic_period") or {}).get("to")
-    ]
-    traffic_comparison_ready = bool(traffic_rows) and all(
-        bool(repo.get("traffic_comparison_ready")) for repo in traffic_rows
+    traffic_rows = [repo for repo in repositories if not repo.get("archived")]
+    traffic_period = summarize_traffic_period(traffic_rows)
+    views_comparison_ready = bool(traffic_rows) and all(
+        bool(repo.get("views_comparison_ready")) for repo in traffic_rows
     )
+    clones_comparison_ready = bool(traffic_rows) and all(
+        bool(repo.get("clones_comparison_ready")) for repo in traffic_rows
+    )
+    traffic_comparison_ready = views_comparison_ready and clones_comparison_ready
     star_comparisons = [
         repo for repo in repositories if repo.get("net_stars") is not None
     ]
@@ -2459,45 +2835,57 @@ def build_signals() -> dict[str, Any]:
 
     totals = {
         key: sum(int(repo.get(key) or 0) for repo in repositories)
-        for key in (
-            "views_7d",
-            "visitor_days_7d",
-            "clones_7d",
-            "cloner_days_7d",
-            "previous_views",
-            "previous_clones",
-            "stars",
-            "net_stars",
-            "forks",
-            "net_forks",
-        )
+        for key in ("net_stars", "forks", "net_forks")
     }
+    totals.update(
+        {
+            key: sum(int(repo.get(key) or 0) for repo in traffic_rows)
+            for key in (
+                "views_7d",
+                "visitor_days_7d",
+                "clones_7d",
+                "cloner_days_7d",
+                "previous_views",
+                "previous_clones",
+            )
+        }
+    )
     totals["stars"] = sum(int(repo.get("stars") or 0) for repo in all_repositories)
+    views_data_available = bool(traffic_rows) and all(
+        int(repo.get("views_available_days_7d") or 0) > 0 for repo in traffic_rows
+    )
+    clones_data_available = bool(traffic_rows) and all(
+        int(repo.get("clones_available_days_7d") or 0) > 0 for repo in traffic_rows
+    )
+    if not views_data_available:
+        totals["views_7d"] = None
+    if not clones_data_available:
+        totals["clones_7d"] = None
     follower_delta = latest_counts["followers"] - baseline_counts["followers"]
     cards = [
         {
             "key": "reach",
             "label": "Page views",
             "value": totals["views_7d"],
-            "unit": f"repository views · {traffic_period['label']}",
+            "unit": f"repository views · {traffic_period['label']}" if views_data_available else "waiting for daily view data",
             "delta": (
                 percentage_change(totals["views_7d"], totals["previous_views"])
-                if traffic_comparison_ready
+                if views_comparison_ready
                 else None
             ),
-            "delta_available": traffic_comparison_ready,
+            "delta_available": views_comparison_ready,
         },
         {
             "key": "clone_activity",
             "label": "Clone activity",
             "value": totals["clones_7d"],
-            "unit": f"full clone events · {traffic_period['label']}",
+            "unit": f"full clone events · {traffic_period['label']}" if clones_data_available else "waiting for daily clone data",
             "delta": (
                 percentage_change(totals["clones_7d"], totals["previous_clones"])
-                if traffic_comparison_ready
+                if clones_comparison_ready
                 else None
             ),
-            "delta_available": traffic_comparison_ready,
+            "delta_available": clones_comparison_ready,
         },
         {
             "key": "stars",
@@ -2541,10 +2929,10 @@ def build_signals() -> dict[str, Any]:
         )
 
     for repo in repositories:
-        current = repo["views_7d"]
-        previous = repo["previous_views"]
+        current = int(repo.get("views_7d") or 0)
+        previous = int(repo.get("previous_views") or 0)
         if (
-            repo.get("traffic_comparison_ready")
+            repo.get("views_comparison_ready")
             and current >= 5
             and current >= max(3, previous * 1.5)
         ):
@@ -2580,7 +2968,7 @@ def build_signals() -> dict[str, Any]:
         key=lambda item: str(item.get("occurred_at") or ""), reverse=True
     )
     active_repositories = [
-        repo for repo in repositories if repo["views_14d"] or repo["clones_14d"]
+        repo for repo in traffic_rows if repo["views_14d"] or repo["clones_14d"]
     ]
     return {
         "generated_at": utc_now(),
@@ -2649,6 +3037,12 @@ def build_traffic(repo: str, *, force: bool = False) -> dict[str, Any]:
                 data[name] = future.result()
                 if name in {"views", "clones"} and isinstance(data[name], dict):
                     data[name]["available"] = True
+            except GitHubRateLimitError:
+                for pending in future_map:
+                    pending.cancel()
+                raise
+            except ActiveAccountChangedError:
+                raise
             except GitHubCLIError as exc:
                 data[name] = defaults[name]
                 failed_endpoints.add(name)
@@ -2660,6 +3054,7 @@ def build_traffic(repo: str, *, force: bool = False) -> dict[str, Any]:
             "that the GitHub CLI token can access the repository."
         )
 
+    verify_active_account(force=True)
     save_traffic(
         repo,
         None if "views" in failed_endpoints else data["views"],
@@ -2886,7 +3281,17 @@ def collect_all_data() -> dict[str, Any]:
             with COLLECTION_LOCK:
                 COLLECTION_STATE["current_repo"] = repo
             try:
-                build_traffic(repo, force=True)
+                traffic_result = build_traffic(repo, force=True)
+                errors.extend(
+                    f"{repo} traffic: {detail}"
+                    for detail in traffic_result.get("partial_errors", [])
+                )
+            except ActiveAccountChangedError:
+                raise
+            except GitHubRateLimitError as exc:
+                errors.append(f"{repo}: {exc}")
+                status = "partial" if completed else "failed"
+                break
             except (GitHubCLIError, ValueError) as exc:
                 errors.append(f"{repo}: {exc}")
             try:
@@ -2895,6 +3300,12 @@ def collect_all_data() -> dict[str, Any]:
                     f"{repo} events: {detail}"
                     for detail in event_result.get("errors", [])
                 )
+            except ActiveAccountChangedError:
+                raise
+            except GitHubRateLimitError as exc:
+                errors.append(f"{repo} events: {exc}")
+                status = "partial" if completed else "failed"
+                break
             except (GitHubCLIError, ValueError) as exc:
                 errors.append(f"{repo} events: {exc}")
             completed += 1
@@ -2907,15 +3318,28 @@ def collect_all_data() -> dict[str, Any]:
     completed_at = utc_now()
     if errors and status == "completed":
         status = "partial"
-    with database_connection() as connection:
-        connection.execute(
-            """
-            INSERT OR REPLACE INTO collection_runs (
-                started_at, completed_at, repos_total, repos_completed, errors, status
-            ) VALUES (?, ?, ?, ?, ?, ?)
-            """,
-            (started_at, completed_at, total, completed, len(errors), status),
-        )
+    try:
+        with database_connection() as connection:
+            connection.execute(
+                """
+                INSERT OR REPLACE INTO collection_runs (
+                    started_at, completed_at, repos_total, repos_completed,
+                    errors, error_details, status
+                ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    started_at,
+                    completed_at,
+                    total,
+                    completed,
+                    len(errors),
+                    json.dumps(errors[-20:], ensure_ascii=False),
+                    status,
+                ),
+            )
+    except Exception as exc:
+        status = "failed"
+        errors.append(f"Could not save collection status: {exc}")
     with COLLECTION_LOCK:
         COLLECTION_STATE.update(
             {
@@ -2925,6 +3349,8 @@ def collect_all_data() -> dict[str, Any]:
                 "repos_total": total,
                 "repos_completed": completed,
                 "errors": errors[-20:],
+                "last_status": status,
+                "last_error_count": len(errors),
             }
         )
     return collection_status()
@@ -2948,18 +3374,19 @@ def automatic_collection_loop() -> None:
         with database_connection() as connection:
             row = connection.execute(
                 """
-                SELECT completed_at
+                SELECT completed_at, status
                 FROM collection_runs
                 WHERE completed_at IS NOT NULL
                 ORDER BY completed_at DESC
                 LIMIT 1
                 """
             ).fetchone()
+        refresh_needed = traffic_availability_refresh_needed()
         stale = True
-        if row and row[0]:
+        if row and row[0] and row[1] == "completed":
             try:
                 last_run = datetime.fromisoformat(str(row[0]))
-                stale = (
+                stale = refresh_needed or (
                     datetime.now(timezone.utc) - last_run
                 ).total_seconds() >= COLLECTION_STALE_SECONDS
             except ValueError:
@@ -2976,7 +3403,8 @@ def build_export_payload() -> dict[str, Any]:
             dict(row)
             for row in connection.execute(
                 """
-                SELECT repo, day, views, unique_views, clones, unique_clones, collected_at
+                SELECT repo, day, views, unique_views, views_available,
+                       clones, unique_clones, clones_available, collected_at
                 FROM traffic_daily
                 ORDER BY day DESC, repo
                 """
@@ -3006,7 +3434,8 @@ def build_csv_export(dataset: str) -> tuple[str, bytes]:
                 dict(row)
                 for row in connection.execute(
                     """
-                    SELECT repo, day, views, unique_views, clones, unique_clones, collected_at
+                    SELECT repo, day, views, unique_views, views_available,
+                           clones, unique_clones, clones_available, collected_at
                     FROM traffic_daily
                     ORDER BY day DESC, repo
                     """
@@ -3017,8 +3446,10 @@ def build_csv_export(dataset: str) -> tuple[str, bytes]:
             "day",
             "views",
             "unique_views",
+            "views_available",
             "clones",
             "unique_clones",
+            "clones_available",
             "collected_at",
         ]
         filename = f"{APP_SLUG}-traffic.csv"
@@ -3031,9 +3462,67 @@ def build_csv_export(dataset: str) -> tuple[str, bytes]:
 class DashboardHandler(BaseHTTPRequestHandler):
     server_version = "RepoTraction/3.0"
 
+    def _is_trusted_local_request(self, *, require_origin: bool = False) -> bool:
+        host_header = self.headers.get("Host", "")
+        try:
+            request_host = urlparse(f"//{host_header}")
+            request_port = request_host.port
+            if request_port is None:
+                request_port = 80
+            is_loopback = bool(
+                request_host.hostname
+                and not request_host.username
+                and not request_host.password
+                and request_host.path == ""
+                and not request_host.query
+                and not request_host.fragment
+                and validate_local_host(request_host.hostname) == request_host.hostname
+                and request_port == self.server.server_port
+            )
+        except (ValueError, argparse.ArgumentTypeError):
+            return False
+        if not is_loopback:
+            return False
+
+        origin_header = self.headers.get("Origin")
+        if require_origin and not origin_header:
+            return False
+        if origin_header:
+            try:
+                origin = urlparse(origin_header)
+                origin_port = origin.port
+                if origin_port is None and origin.scheme == "http":
+                    origin_port = 80
+                if (
+                    origin.scheme != "http"
+                    or not origin.hostname
+                    or origin.hostname.casefold() != request_host.hostname.casefold()
+                    or origin_port != request_port
+                    or origin.path not in {"", "/"}
+                    or origin.query
+                    or origin.fragment
+                    or origin.username
+                    or origin.password
+                ):
+                    return False
+            except ValueError:
+                return False
+
+        return self.headers.get("Sec-Fetch-Site", "").casefold() != "cross-site"
+
     def do_GET(self) -> None:  # noqa: N802 - required by BaseHTTPRequestHandler
+        if not self._is_trusted_local_request():
+            self.send_error(HTTPStatus.FORBIDDEN, "Local same-origin request required.")
+            return
         parsed = urlparse(self.path)
         query = parse_qs(parsed.query)
+
+        if parsed.path.startswith("/api/"):
+            try:
+                verify_active_account()
+            except GitHubCLIError as exc:
+                self.send_json({"error": str(exc)}, status=HTTPStatus.CONFLICT)
+                return
 
         if parsed.path == "/api/health":
             self.send_json(
@@ -3125,6 +3614,14 @@ class DashboardHandler(BaseHTTPRequestHandler):
         self.serve_static(parsed.path)
 
     def do_POST(self) -> None:  # noqa: N802 - required by BaseHTTPRequestHandler
+        if not self._is_trusted_local_request(require_origin=True):
+            self.send_error(HTTPStatus.FORBIDDEN, "Local same-origin request required.")
+            return
+        try:
+            verify_active_account()
+        except GitHubCLIError as exc:
+            self.send_json({"error": str(exc)}, status=HTTPStatus.CONFLICT)
+            return
         parsed = urlparse(self.path)
         if parsed.path == "/api/collect":
             started = start_collection()
@@ -3212,7 +3709,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="RepoTraction local-first GitHub growth analytics"
     )
-    parser.add_argument("--host", default=DEFAULT_HOST)
+    parser.add_argument("--host", type=validate_local_host, default=DEFAULT_HOST)
     parser.add_argument("--port", type=int, default=DEFAULT_PORT)
     parser.add_argument("--no-open", action="store_true", help="Do not open the browser")
     parser.add_argument(
@@ -3232,14 +3729,20 @@ def main() -> None:
     if args.collect_only:
         result = collect_all_data()
         print(json.dumps(result, indent=2))
-        raise SystemExit(1 if result.get("last_status") == "failed" else 0)
+        exit_code = {
+            "completed": 0,
+            "partial": 2,
+            "failed": 1,
+        }.get(result.get("last_status"), 1)
+        raise SystemExit(exit_code)
     threading.Thread(
         target=automatic_collection_loop,
         daemon=True,
         name=f"{APP_SLUG}-scheduler",
     ).start()
     server = ThreadingHTTPServer((args.host, args.port), DashboardHandler)
-    url = f"http://{args.host}:{args.port}"
+    display_host = f"[{args.host}]" if ":" in args.host else args.host
+    url = f"http://{display_host}:{args.port}"
     print(f"{APP_NAME} is available at {url} for @{account}")
     print("Press Ctrl+C to stop the server.")
     if not args.no_open:
