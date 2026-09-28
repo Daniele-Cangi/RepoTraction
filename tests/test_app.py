@@ -145,6 +145,15 @@ class ValidationTests(unittest.TestCase):
 
 
 class LocalServerSecurityTests(unittest.TestCase):
+    def test_accepts_implicit_http_port_80_for_loopback_requests(self) -> None:
+        handler = app.DashboardHandler.__new__(app.DashboardHandler)
+        handler.server = mock.Mock(server_port=80)
+
+        for host in ("localhost", "127.0.0.1"):
+            with self.subTest(host=host):
+                handler.headers = {"Host": host, "Origin": f"http://{host}"}
+                self.assertTrue(handler._is_trusted_local_request(require_origin=True))
+
     def test_rejects_nonlocal_host_cross_origin_and_originless_post(self) -> None:
         server = app.ThreadingHTTPServer(("127.0.0.1", 0), app.DashboardHandler)
         worker = threading.Thread(target=server.serve_forever, daemon=True)
@@ -1064,6 +1073,53 @@ class PersistenceTests(unittest.TestCase):
             (row["views"], row["unique_views"], row["clones"], row["unique_clones"]),
             (25, 10, 9, 4),
         )
+
+    def test_empty_successful_traffic_arrays_are_recorded_as_zero_days(self) -> None:
+        app.save_traffic(
+            "octocat/quiet",
+            {"count": 0, "uniques": 0, "views": []},
+            {"count": 0, "uniques": 0, "clones": []},
+            collected_at="2026-08-27T00:00:00+00:00",
+        )
+
+        history = app.get_traffic_history("octocat/quiet")
+        row = app.get_repository_signal_rows()[0]
+
+        self.assertEqual(len(history), 14)
+        self.assertTrue(
+            all(
+                item["views"] == item["clones"] == 0
+                and item["views_available"] == item["clones_available"] == 1
+                for item in history
+            )
+        )
+        self.assertTrue(row["views_comparison_ready"])
+        self.assertTrue(row["clones_comparison_ready"])
+        self.assertEqual(row["signal_score"], 0)
+
+    def test_empty_successful_channel_is_available_with_other_channel_traffic(self) -> None:
+        app.save_traffic(
+            "octocat/views-only",
+            {"count": 0, "uniques": 0, "views": []},
+            {
+                "count": 3,
+                "uniques": 2,
+                "clones": [
+                    {
+                        "timestamp": "2026-08-25T00:00:00+00:00",
+                        "count": 3,
+                        "uniques": 2,
+                    }
+                ],
+            },
+            collected_at="2026-08-27T00:00:00+00:00",
+        )
+
+        row = app.get_repository_signal_rows()[0]
+
+        self.assertTrue(row["views_comparison_ready"])
+        self.assertEqual(row["views_7d"], 0)
+        self.assertFalse(row["clones_comparison_ready"])
 
     def test_unknown_current_traffic_window_requests_a_refresh(self) -> None:
         with app.database_connection() as connection:

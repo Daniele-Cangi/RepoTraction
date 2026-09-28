@@ -1634,6 +1634,38 @@ def save_traffic(
         for item in (clones or {}).get("clones", [])
         if item.get("timestamp")
     }
+    empty_views = (
+        views is not None
+        and not view_days
+        and views.get("count") is not None
+        and int(views["count"]) == 0
+    )
+    empty_clones = (
+        clones is not None
+        and not clone_days
+        and clones.get("count") is not None
+        and int(clones["count"]) == 0
+    )
+    if empty_views or empty_clones:
+        # A zero aggregate covers the whole rolling API window; it has no daily
+        # timestamps, so anchor those zeroes to the last complete UTC day.
+        collected_time = datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
+        if collected_time.tzinfo is None:
+            collected_time = collected_time.replace(tzinfo=timezone.utc)
+        latest_day = (
+            collected_time.astimezone(timezone.utc).date() - timedelta(days=1)
+        )
+        zero_window = {
+            (latest_day - timedelta(days=offset)).isoformat(): {
+                "count": 0,
+                "uniques": 0,
+            }
+            for offset in range(14)
+        }
+        if empty_views:
+            view_days = zero_window
+        if empty_clones:
+            clone_days = zero_window
 
     with database_connection() as connection:
         for day, view in sorted(view_days.items()):
@@ -3394,6 +3426,8 @@ class DashboardHandler(BaseHTTPRequestHandler):
         try:
             request_host = urlparse(f"//{host_header}")
             request_port = request_host.port
+            if request_port is None:
+                request_port = 80
             is_loopback = bool(
                 request_host.hostname
                 and not request_host.username
@@ -3415,11 +3449,14 @@ class DashboardHandler(BaseHTTPRequestHandler):
         if origin_header:
             try:
                 origin = urlparse(origin_header)
+                origin_port = origin.port
+                if origin_port is None and origin.scheme == "http":
+                    origin_port = 80
                 if (
                     origin.scheme != "http"
                     or not origin.hostname
                     or origin.hostname.casefold() != request_host.hostname.casefold()
-                    or origin.port != request_port
+                    or origin_port != request_port
                     or origin.path not in {"", "/"}
                     or origin.query
                     or origin.fragment
