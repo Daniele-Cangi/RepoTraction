@@ -388,6 +388,36 @@ class OpportunityTests(unittest.TestCase):
         self.assertEqual(opportunities, [])
         self.assertEqual(readiness, [])
 
+    def test_view_opportunities_do_not_depend_on_clone_availability(self) -> None:
+        repository = {
+            "full_name": "octocat/hello-world",
+            "name": "hello-world",
+            "archived": False,
+            "fork": False,
+            "pushed_at": (
+                app.datetime.now(app.timezone.utc) - app.timedelta(days=150)
+            ).isoformat(),
+        }
+        signal = {
+            "repo": "octocat/hello-world",
+            "views_7d": 24,
+            "previous_views": 12,
+            "net_stars": 0,
+            "views_comparison_ready": True,
+            "clones_comparison_ready": False,
+            "traffic_comparison_ready": False,
+            "traffic_period": {"label": "the last complete week"},
+            "snapshot_period": {"is_full_window": True},
+        }
+
+        opportunities, _ = app.analyze_opportunities([repository], [signal])
+
+        self.assertTrue(
+            {"discoverability", "momentum", "freshness"}.issubset(
+                {item["kind"] for item in opportunities}
+            )
+        )
+
     def test_builds_markdown_digest(self) -> None:
         signals = {
             "totals": {
@@ -734,6 +764,38 @@ class PersistenceTests(unittest.TestCase):
             ("octocat/ReCreated (archived repository id 9)", 17),
         )
         self.assertEqual(registry, [(9, 0), (10, 1)])
+
+        replacement_timestamp = "2026-08-22T10:00:00+00:00"
+        app.save_traffic(
+            name,
+            {
+                "views": [
+                    {
+                        "timestamp": replacement_timestamp,
+                        "count": 23,
+                        "uniques": 8,
+                    }
+                ]
+            },
+            None,
+            collected_at=replacement_timestamp,
+        )
+        app.reconcile_repository_registry(
+            [{"id": 10, "full_name": name}], "2026-08-23T10:00:00+00:00"
+        )
+
+        self.assertEqual(
+            sum(row["views"] for row in app.get_traffic_history(name)), 23
+        )
+        self.assertEqual(
+            sum(
+                row["views"]
+                for row in app.get_traffic_history(
+                    "octocat/ReCreated (archived repository id 9)"
+                )
+            ),
+            17,
+        )
 
     def test_initialized_empty_registry_hides_historical_repositories_and_events(self) -> None:
         timestamp = "2026-08-21T10:00:00+00:00"
@@ -1087,6 +1149,22 @@ class PersistenceTests(unittest.TestCase):
         self.assertFalse(row["clones_comparison_ready"])
         self.assertFalse(row["traffic_comparison_ready"])
         self.assertIsNone(row["clones_7d"])
+        self.assertIsNone(row["signal_score"])
+
+    def test_activity_score_is_unavailable_for_partial_traffic_channels(self) -> None:
+        timestamp = app.datetime.now(app.timezone.utc).isoformat()
+        app.save_traffic(
+            "octocat/partial-traffic",
+            {
+                "views": [{"timestamp": timestamp, "count": 8, "uniques": 3}]
+            },
+            {"clones": [{"timestamp": timestamp, "count": 4, "uniques": 2}]},
+        )
+
+        row = app.get_repository_signal_rows()[0]
+
+        self.assertEqual(row["views_available_days_7d"], 1)
+        self.assertEqual(row["clones_available_days_7d"], 1)
         self.assertIsNone(row["signal_score"])
 
 

@@ -632,10 +632,17 @@ def reconcile_repository_registry(
             for previous_id_row in previous_ids:
                 previous_id = int(previous_id_row[0])
                 former_name = str(previous_id_row[1])
+                archive_name = (
+                    f"{former_name} (archived repository id {previous_id})"
+                )
                 archive_repository_history(
                     connection,
                     former_name,
-                    f"{former_name} (archived repository id {previous_id})",
+                    archive_name,
+                )
+                connection.execute(
+                    "UPDATE repository_registry SET full_name = ? WHERE repo_id = ?",
+                    (archive_name, previous_id),
                 )
 
             previous = connection.execute(
@@ -2042,7 +2049,7 @@ def get_repository_signal_rows() -> list[dict[str, Any]]:
                     + max(0, net_forks or 0) * 12,
                 )
             )
-            if views_days and clones_days
+            if views_days == 7 and clones_days == 7
             else None
         )
         native_clone_events = repo_native.get("clones_count")
@@ -2308,13 +2315,17 @@ def analyze_opportunities(
         native_clone_events = adoption_signal.get("clone_events")
         native_unique_cloners = adoption_signal.get("unique_cloners")
         clone_repeat_factor = adoption_signal.get("repeat_factor")
-        traffic_comparison_ready = bool(signal.get("traffic_comparison_ready"))
+        views_comparison_ready = bool(
+            signal.get(
+                "views_comparison_ready", signal.get("traffic_comparison_ready")
+            )
+        )
         star_comparison_ready = bool(
             (signal.get("snapshot_period") or {}).get("is_full_window")
         )
         growth = (
             percentage_change(views, previous_views)
-            if traffic_comparison_ready
+            if views_comparison_ready
             else None
         )
 
@@ -2340,7 +2351,7 @@ def analyze_opportunities(
 
         if (
             views >= 10
-            and traffic_comparison_ready
+            and views_comparison_ready
             and star_comparison_ready
             and net_stars is not None
             and int(net_stars) <= 0
@@ -2396,7 +2407,7 @@ def analyze_opportunities(
                 }
             )
 
-        is_new_traffic = traffic_comparison_ready and growth is None and views >= 5
+        is_new_traffic = views_comparison_ready and growth is None and views >= 5
         if is_new_traffic or (growth is not None and growth >= 50 and views >= 5):
             growth_label = "new traffic" if growth is None else f"+{growth:g}% traffic"
             opportunities.append(
@@ -2416,7 +2427,7 @@ def analyze_opportunities(
 
         pushed_days_ago = health["pushed_days_ago"]
         if (
-            traffic_comparison_ready
+            views_comparison_ready
             and pushed_days_ago is not None
             and pushed_days_ago > 120
             and views >= 3
