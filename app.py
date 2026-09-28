@@ -3460,7 +3460,7 @@ def build_csv_export(dataset: str) -> tuple[str, bytes]:
 
 
 class DashboardHandler(BaseHTTPRequestHandler):
-    server_version = "RepoTraction/3.0"
+    server_version = "RepoTraction/3.0.0"
 
     def _is_trusted_local_request(self, *, require_origin: bool = False) -> bool:
         host_header = self.headers.get("Host", "")
