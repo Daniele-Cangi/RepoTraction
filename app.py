@@ -441,6 +441,16 @@ def ensure_database() -> None:
                 connection.execute(
                     f"ALTER TABLE traffic_daily ADD COLUMN {column} INTEGER"  # noqa: S608
                 )
+        connection.execute(
+            """UPDATE traffic_daily SET views_available = 1
+               WHERE views_available IS NULL
+                 AND (views <> 0 OR unique_views <> 0)"""
+        )
+        connection.execute(
+            """UPDATE traffic_daily SET clones_available = 1
+               WHERE clones_available IS NULL
+                 AND (clones <> 0 OR unique_clones <> 0)"""
+        )
 
         run_columns = {
             str(row[1]) for row in connection.execute("PRAGMA table_info(collection_runs)")
@@ -608,6 +618,30 @@ def archive_repository_history(
         )
 
 
+def archive_reused_legacy_aliases(
+    connection: sqlite3.Connection,
+    current_names: set[str],
+    collected_at: str,
+) -> None:
+    """Keep ID-less legacy history separate when its old name is reused."""
+    aliases = connection.execute(
+        """SELECT alias FROM repository_aliases
+           WHERE repo_id IS NULL AND status = 'inactive'"""
+    ).fetchall()
+    for row in aliases:
+        alias = str(row[0])
+        if alias.casefold() not in current_names:
+            continue
+        archive_name = f"{alias} (archived legacy history)"
+        archive_repository_history(connection, alias, archive_name)
+        connection.execute(
+            """UPDATE repository_aliases
+               SET canonical_name = ?, status = 'reused', resolved_at = ?
+               WHERE alias = ?""",
+            (archive_name, collected_at, alias),
+        )
+
+
 def reconcile_repository_registry(
     repositories: list[dict[str, Any]],
     collected_at: str,
@@ -623,6 +657,7 @@ def reconcile_repository_registry(
     with database_connection() as connection:
         connection.row_factory = sqlite3.Row
         connection.execute("UPDATE repository_registry SET active = 0")
+        archive_reused_legacy_aliases(connection, current_names, collected_at)
         for repo_id, full_name in current_by_id.items():
             previous_ids = connection.execute(
                 """SELECT repo_id, full_name FROM repository_registry

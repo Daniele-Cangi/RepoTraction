@@ -829,6 +829,82 @@ class PersistenceTests(unittest.TestCase):
             17,
         )
 
+    def test_reused_name_archives_legacy_alias_history_without_repository_id(
+        self,
+    ) -> None:
+        name = "octocat/recreated"
+        former_name = "octocat/ReCreated"
+        original_timestamp = "2026-08-21T10:00:00+00:00"
+        app.save_traffic(
+            former_name,
+            {
+                "views": [
+                    {
+                        "timestamp": original_timestamp,
+                        "count": 17,
+                        "uniques": 6,
+                    }
+                ]
+            },
+            None,
+            collected_at=original_timestamp,
+        )
+
+        with mock.patch.object(app, "run_gh_json", side_effect=app.GitHubCLIError):
+            app.reconcile_repository_registry(
+                [], "2026-08-22T10:00:00+00:00"
+            )
+
+        with app.database_connection() as connection:
+            unresolved_alias = connection.execute(
+                "SELECT repo_id, status FROM repository_aliases WHERE alias = ?",
+                (former_name,),
+            ).fetchone()
+        self.assertEqual(unresolved_alias, (None, "inactive"))
+
+        app.reconcile_repository_registry(
+            [{"id": 10, "full_name": name}], "2026-08-23T10:00:00+00:00"
+        )
+
+        archive_name = f"{former_name} (archived legacy history)"
+        self.assertEqual(app.get_traffic_history(name), [])
+        self.assertEqual(
+            sum(row["views"] for row in app.get_traffic_history(archive_name)),
+            17,
+        )
+        with app.database_connection() as connection:
+            alias = connection.execute(
+                "SELECT canonical_name, status FROM repository_aliases WHERE alias = ?",
+                (former_name,),
+            ).fetchone()
+        self.assertEqual(alias, (archive_name, "reused"))
+
+        replacement_timestamp = "2026-08-23T10:00:00+00:00"
+        app.save_traffic(
+            name,
+            {
+                "views": [
+                    {
+                        "timestamp": replacement_timestamp,
+                        "count": 23,
+                        "uniques": 8,
+                    }
+                ]
+            },
+            None,
+            collected_at=replacement_timestamp,
+        )
+        app.reconcile_repository_registry(
+            [{"id": 10, "full_name": name}], "2026-08-24T10:00:00+00:00"
+        )
+
+        self.assertEqual(
+            sum(row["views"] for row in app.get_traffic_history(name)), 23
+        )
+        self.assertEqual(
+            sum(row["views"] for row in app.get_traffic_history(archive_name)), 17
+        )
+
     def test_initialized_empty_registry_hides_historical_repositories_and_events(self) -> None:
         timestamp = "2026-08-21T10:00:00+00:00"
         app.save_traffic(
@@ -866,7 +942,9 @@ class PersistenceTests(unittest.TestCase):
                     collected_at TEXT NOT NULL, PRIMARY KEY (repo, day)
                 );
                 INSERT INTO traffic_daily VALUES
-                    ('octocat/old', '2026-08-20', 0, 0, 0, 0, '2026-08-21');
+                    ('octocat/ambiguous-zero', '2026-08-20', 0, 0, 0, 0, '2026-08-21'),
+                    ('octocat/known-views', '2026-08-21', 5, 2, 0, 0, '2026-08-22'),
+                    ('octocat/known-clones', '2026-08-22', 0, 0, 3, 1, '2026-08-23');
                 CREATE TABLE repository_registry (
                     repo_id INTEGER PRIMARY KEY,
                     full_name TEXT NOT NULL UNIQUE,
@@ -890,9 +968,10 @@ class PersistenceTests(unittest.TestCase):
             app.DB_PATH = legacy_path
             app.ensure_database()
             with app.database_connection() as connection:
-                row = connection.execute(
-                    "SELECT views_available, clones_available FROM traffic_daily"
-                ).fetchone()
+                rows = connection.execute(
+                    """SELECT repo, views_available, clones_available
+                       FROM traffic_daily ORDER BY repo"""
+                ).fetchall()
                 registry_sql = connection.execute(
                     "SELECT sql FROM sqlite_master WHERE type='table' AND name='repository_registry'"
                 ).fetchone()[0]
@@ -902,7 +981,14 @@ class PersistenceTests(unittest.TestCase):
         finally:
             app.DB_PATH = original_db_path
 
-        self.assertEqual(row, (None, None))
+        self.assertEqual(
+            rows,
+            [
+                ("octocat/ambiguous-zero", None, None),
+                ("octocat/known-clones", None, 1),
+                ("octocat/known-views", 1, None),
+            ],
+        )
         self.assertNotIn("UNIQUE", registry_sql.upper())
         self.assertIn("error_details", run_columns)
 
