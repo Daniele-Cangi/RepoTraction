@@ -382,7 +382,7 @@ function renderComparison(data) {
       [`Net stars · ${repo.snapshot_period?.label || "no comparison yet"}`, repo.snapshot_period?.has_baseline ? `${Number(repo.net_stars || 0) > 0 ? "+" : ""}${number.format(repo.net_stars || 0)}` : "—"],
     ];
     return `<article class="comparison-repo">
-      <header><a href="https://github.com/${escapeHtml(repo.repo)}" target="_blank" rel="noreferrer">${escapeHtml(repo.name)}</a><strong title="${escapeHtml(state.signals?.activity_score?.formula || "Local activity heuristic")}">${number.format(repo.signal_score || 0)}</strong></header>
+      <header><a href="https://github.com/${escapeHtml(repo.repo)}" target="_blank" rel="noreferrer">${escapeHtml(repo.name)}</a><strong title="${escapeHtml(state.signals?.activity_score?.formula || "Local activity heuristic")}">${comparisonValue(repo.signal_score)}</strong></header>
       ${metrics.map(([label, value]) => `<div class="comparison-metric"><span>${escapeHtml(label)}</span><b>${escapeHtml(value)}</b></div>`).join("")}
     </article>`;
   }).join("")}</div>`;

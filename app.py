@@ -1720,10 +1720,21 @@ def get_traffic_history(repo: str) -> list[dict[str, Any]]:
 
 
 def traffic_availability_refresh_needed() -> bool:
-    """Request a refresh when migrated history leaves a current window unknown."""
+    """Refresh unknown traffic only for repositories the collector can reach."""
+    active_repositories = get_active_repository_names()
+    if active_repositories == set():
+        return False
+
+    active_filter = ""
+    parameters: list[str] = []
+    if active_repositories is not None:
+        active_filter = "AND traffic.repo COLLATE NOCASE IN ("
+        active_filter += ", ".join("?" for _ in active_repositories) + ")"
+        parameters = sorted(active_repositories)
+
     with database_connection() as connection:
         row = connection.execute(
-            """WITH bounds AS (
+            f"""WITH bounds AS (
                    SELECT repo, MAX(day) AS latest_day
                    FROM traffic_daily
                    GROUP BY repo
@@ -1733,9 +1744,18 @@ def traffic_availability_refresh_needed() -> bool:
                JOIN bounds ON bounds.repo = traffic.repo
                WHERE traffic.day BETWEEN date(bounds.latest_day, '-13 days')
                                      AND bounds.latest_day
+                 AND COALESCE((
+                     SELECT snapshot.archived
+                     FROM repo_snapshots AS snapshot
+                     WHERE snapshot.repo = traffic.repo COLLATE NOCASE
+                     ORDER BY snapshot.collected_at DESC
+                     LIMIT 1
+                 ), 0) = 0
                  AND (traffic.views_available IS NULL
                       OR traffic.clones_available IS NULL)
-               LIMIT 1"""
+                 {active_filter}
+               LIMIT 1""",
+            parameters,
         ).fetchone()
     return row is not None
 

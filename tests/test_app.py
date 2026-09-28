@@ -1081,6 +1081,44 @@ class PersistenceTests(unittest.TestCase):
             )
         self.assertFalse(app.traffic_availability_refresh_needed())
 
+    def test_refresh_ignores_archived_and_deleted_legacy_repositories(self) -> None:
+        timestamp = "2026-08-26T00:00:00+00:00"
+        repositories = [
+            {"id": 1, "full_name": "octocat/archived"},
+            {"id": 2, "full_name": "octocat/current"},
+        ]
+        app.reconcile_repository_registry(repositories, timestamp)
+        app.save_repo_snapshots(
+            [
+                {"full_name": "octocat/archived", "archived": True},
+                {"full_name": "octocat/current", "archived": False},
+            ],
+            timestamp,
+        )
+        with app.database_connection() as connection:
+            connection.executemany(
+                """INSERT INTO traffic_daily (
+                    repo, day, views, unique_views, clones, unique_clones,
+                    collected_at
+                ) VALUES (?, '2026-08-25', 0, 0, 0, 0, ?)""",
+                [
+                    ("octocat/archived", timestamp),
+                    ("octocat/deleted", timestamp),
+                ],
+            )
+
+        self.assertFalse(app.traffic_availability_refresh_needed())
+
+        with app.database_connection() as connection:
+            connection.execute(
+                """INSERT INTO traffic_daily (
+                    repo, day, views, unique_views, clones, unique_clones,
+                    collected_at
+                ) VALUES (?, '2026-08-25', 0, 0, 0, 0, ?)""",
+                ("octocat/current", timestamp),
+            )
+        self.assertTrue(app.traffic_availability_refresh_needed())
+
     def test_signal_rows_separate_visitor_days_from_native_uniques(self) -> None:
         now = app.datetime.now(app.timezone.utc)
         views = {
