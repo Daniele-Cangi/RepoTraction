@@ -8,6 +8,7 @@ Turn repository traffic, stars, clones, activity and community changes into sign
 
 ![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=flat-square&logo=python&logoColor=white)
 ![GitHub CLI](https://img.shields.io/badge/GitHub_CLI-required-181717?style=flat-square&logo=github)
+[![CI](https://github.com/Daniele-Cangi/RepoTraction/actions/workflows/ci.yml/badge.svg)](https://github.com/Daniele-Cangi/RepoTraction/actions/workflows/ci.yml)
 ![Zero dependencies](https://img.shields.io/badge/dependencies-zero-b8f33d?style=flat-square&labelColor=11161d)
 ![Local first](https://img.shields.io/badge/data-local_only-b084ff?style=flat-square&labelColor=11161d)
 ![MIT License](https://img.shields.io/badge/license-MIT-b084ff?style=flat-square&labelColor=11161d)
@@ -19,10 +20,11 @@ Turn repository traffic, stars, clones, activity and community changes into sign
 > The screenshots use RepoTraction's built-in synthetic demo profile. They do
 > not contain data from a real GitHub account.
 
-RepoTraction is a self-hosted control center for the account currently active in
-[GitHub CLI](https://cli.github.com/). It runs on your computer, reads GitHub
-through the authenticated <code>gh</code> session and stores historical data in
-a local SQLite database.
+RepoTraction is a local-first analytics application built on the
+[GitHub REST API](https://docs.github.com/en/rest) for the account currently
+active in [GitHub CLI](https://cli.github.com/). It runs on your computer,
+reads GitHub through the authenticated <code>gh</code> session and stores
+historical data in a local SQLite database.
 
 There is no username to configure and no token to paste into the app.
 
@@ -149,8 +151,7 @@ disabled in the interface.
 
 ## How collection works
 
-GitHub exposes repository views and clones for a rolling 14-day window. GitHub
-RepoTraction stores both the native 14-day totals and every available daily value in
+GitHub exposes repository views and clones for a rolling 14-day window. RepoTraction stores both the native 14-day totals and every available daily value in
 SQLite, building an event history that can extend beyond GitHub's window.
 
 Rolling 7-day metrics end on the latest UTC day actually returned by GitHub,
@@ -274,7 +275,7 @@ account-level unique reach. Page-view and clone populations are never divided
 to claim an individual conversion. Achievement cards are eligibility estimates
 and not an authoritative badge record.
 
-GitHub API calls share a four-request concurrency limit. If GitHub explicitly
+RepoTraction caps concurrent GitHub API requests at four. If GitHub explicitly
 reports a rate limit, the current collection stops and records the error rather
 than continuing to send requests; failed or partial collections are retried by
 the local scheduler on its next hourly check.
@@ -291,7 +292,7 @@ Browser
 Python local server ─── SQLite history
    │
    ▼
-GitHub CLI / OS keyring
+GitHub CLI / credential store
    │
    ▼
 GitHub REST API
@@ -324,8 +325,21 @@ POST /api/collect
 GET  /api/export?dataset=summary
 ~~~
 
-The [v2.0.0 release](https://github.com/Daniele-Cangi/RepoTraction/releases/tag/v2.0.0)
-preserves the stable dashboard baseline from before the Insights expansion.
+## Release status
+
+The current development line is **RepoTraction 3.0**. It supersedes the
+[v2.0.0 baseline](https://github.com/Daniele-Cangi/RepoTraction/releases/tag/v2.0.0)
+with the Insights and Impact Lab expansion plus stricter traffic-availability,
+collection-status, account-isolation, repository-identity and local-server
+safety handling.
+
+## Support
+
+For RepoTraction support, bug reports that should not be public, or other
+project questions, contact **daniele.tl.project@gmail.com**. Public bugs and
+feature requests can also be opened through GitHub Issues.
+
+See [SUPPORT.md](SUPPORT.md) for the support policy.
 
 ## License
 
