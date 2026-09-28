@@ -34,6 +34,7 @@ LEGACY_DB_PATH = DATA_DIR / f"{LEGACY_APP_SLUG}.sqlite3"
 DB_PATH = DATA_DIR / f"{APP_SLUG}.sqlite3"
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8765
+GITHUB_API_VERSION = "2022-11-28"
 REPO_PATTERN = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")
 LOGIN_PATTERN = re.compile(r"^[A-Za-z0-9-]{1,39}$")
 COLLECTION_INTERVAL_SECONDS = 24 * 60 * 60
@@ -171,6 +172,8 @@ def run_gh_json(
         endpoint,
         "-H",
         f"Accept: {accept}",
+        "-H",
+        f"X-GitHub-Api-Version: {GITHUB_API_VERSION}",
     ]
     if paginate:
         command.extend(["--paginate", "--slurp"])

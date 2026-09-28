@@ -112,6 +112,19 @@ class ValidationTests(unittest.TestCase):
             with self.assertRaises(app.GitHubRateLimitError):
                 app.run_gh_json("user")
 
+    def test_pins_the_rest_api_version(self) -> None:
+        process = app.subprocess.CompletedProcess(
+            args=["gh", "api"], returncode=0, stdout='{"login":"octocat"}', stderr=""
+        )
+        with mock.patch.object(app, "ACCOUNT_LOGIN", None), mock.patch.object(
+            app.subprocess, "run", return_value=process
+        ) as run:
+            self.assertEqual(app.run_gh_json("user"), {"login": "octocat"})
+        command = run.call_args.args[0]
+        self.assertIn(
+            f"X-GitHub-Api-Version: {app.GITHUB_API_VERSION}", command
+        )
+
     def test_collect_only_cli_mode(self) -> None:
         with mock.patch.object(sys, "argv", ["app.py", "--collect-only"]):
             args = app.parse_args()

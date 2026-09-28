@@ -279,6 +279,9 @@ reports a rate limit, the current collection stops and records the error rather
 than continuing to send requests; failed or partial collections are retried by
 the local scheduler on its next hourly check.
 
+REST requests pin API version `2022-11-28`; update the pinned version only after
+reviewing GitHub's breaking-change notes and running the full test suite.
+
 ## Architecture
 
 ~~~text
