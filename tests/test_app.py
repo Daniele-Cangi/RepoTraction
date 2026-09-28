@@ -245,6 +245,11 @@ class SignalTests(unittest.TestCase):
                     "label": "7d ending Aug 26 UTC",
                 },
                 "traffic_comparison_ready": True,
+                "views_available_days_7d": 7,
+                "clones_available_days_7d": 7,
+                "views_comparison_ready": True,
+                "clones_comparison_ready": True,
+                "archived": False,
                 "snapshot_period": {"is_full_window": True},
                 "traffic_collected_at": app.utc_now(),
             }
@@ -256,9 +261,23 @@ class SignalTests(unittest.TestCase):
             "not_following_back": 0,
             "followers_not_followed": 0,
         }
+        archived = signal_row("octocat/archived", 100)
+        archived.update(
+            {
+                "archived": True,
+                "views_7d": None,
+                "clones_7d": None,
+                "views_available_days_7d": 0,
+                "clones_available_days_7d": 0,
+                "views_comparison_ready": False,
+                "clones_comparison_ready": False,
+                "traffic_comparison_ready": False,
+            }
+        )
         rows = [
             signal_row("octocat/octocat", 4),
             signal_row("octocat/hello-world", 12),
+            archived,
         ]
         relation_period = {"label": "no comparison yet"}
 
@@ -274,10 +293,14 @@ class SignalTests(unittest.TestCase):
         ):
             signals = app.build_signals()
 
-        self.assertEqual(signals["totals"]["stars"], 16)
-        self.assertEqual(
+        self.assertEqual(signals["totals"]["stars"], 116)
+        self.assertEqual(signals["totals"]["views_7d"], 10)
+        self.assertEqual(signals["totals"]["clones_7d"], 2)
+        self.assertTrue(signals["traffic_comparison_ready"])
+        self.assertEqual(signals["tracked_repositories"], 1)
+        self.assertCountEqual(
             [row["repo"] for row in signals["repository_ranking"]],
-            ["octocat/hello-world"],
+            ["octocat/archived", "octocat/hello-world"],
         )
 
 
@@ -1106,7 +1129,7 @@ class PersistenceTests(unittest.TestCase):
                 "uniques": 2,
                 "clones": [
                     {
-                        "timestamp": "2026-08-25T00:00:00+00:00",
+                        "timestamp": "2026-08-27T00:00:00+00:00",
                         "count": 3,
                         "uniques": 2,
                     }

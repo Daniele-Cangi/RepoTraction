@@ -1647,14 +1647,18 @@ def save_traffic(
         and int(clones["count"]) == 0
     )
     if empty_views or empty_clones:
-        # A zero aggregate covers the whole rolling API window; it has no daily
-        # timestamps, so anchor those zeroes to the last complete UTC day.
-        collected_time = datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
-        if collected_time.tzinfo is None:
-            collected_time = collected_time.replace(tzinfo=timezone.utc)
-        latest_day = (
-            collected_time.astimezone(timezone.utc).date() - timedelta(days=1)
-        )
+        observed_days = view_days.keys() | clone_days.keys()
+        if observed_days:
+            latest_day = date.fromisoformat(max(observed_days))
+        else:
+            # A zero aggregate has no daily timestamps; anchor it to the last
+            # complete UTC day when neither channel supplies a reference date.
+            collected_time = datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
+            if collected_time.tzinfo is None:
+                collected_time = collected_time.replace(tzinfo=timezone.utc)
+            latest_day = (
+                collected_time.astimezone(timezone.utc).date() - timedelta(days=1)
+            )
         zero_window = {
             (latest_day - timedelta(days=offset)).isoformat(): {
                 "count": 0,
@@ -2777,8 +2781,8 @@ def collection_status() -> dict[str, Any]:
 def build_signals() -> dict[str, Any]:
     all_repositories = get_repository_signal_rows()
     repositories = portfolio_repository_rows(all_repositories)
-    traffic_period = summarize_traffic_period(repositories)
-    traffic_rows = repositories
+    traffic_rows = [repo for repo in repositories if not repo.get("archived")]
+    traffic_period = summarize_traffic_period(traffic_rows)
     views_comparison_ready = bool(traffic_rows) and all(
         bool(repo.get("views_comparison_ready")) for repo in traffic_rows
     )
@@ -2796,19 +2800,21 @@ def build_signals() -> dict[str, Any]:
 
     totals = {
         key: sum(int(repo.get(key) or 0) for repo in repositories)
-        for key in (
-            "views_7d",
-            "visitor_days_7d",
-            "clones_7d",
-            "cloner_days_7d",
-            "previous_views",
-            "previous_clones",
-            "stars",
-            "net_stars",
-            "forks",
-            "net_forks",
-        )
+        for key in ("net_stars", "forks", "net_forks")
     }
+    totals.update(
+        {
+            key: sum(int(repo.get(key) or 0) for repo in traffic_rows)
+            for key in (
+                "views_7d",
+                "visitor_days_7d",
+                "clones_7d",
+                "cloner_days_7d",
+                "previous_views",
+                "previous_clones",
+            )
+        }
+    )
     totals["stars"] = sum(int(repo.get("stars") or 0) for repo in all_repositories)
     views_data_available = bool(traffic_rows) and all(
         int(repo.get("views_available_days_7d") or 0) > 0 for repo in traffic_rows
@@ -2927,7 +2933,7 @@ def build_signals() -> dict[str, Any]:
         key=lambda item: str(item.get("occurred_at") or ""), reverse=True
     )
     active_repositories = [
-        repo for repo in repositories if repo["views_14d"] or repo["clones_14d"]
+        repo for repo in traffic_rows if repo["views_14d"] or repo["clones_14d"]
     ]
     return {
         "generated_at": utc_now(),
