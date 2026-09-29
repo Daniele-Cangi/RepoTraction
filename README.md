@@ -43,6 +43,11 @@ There is no username to configure and no token to paste into the app.
 
 ![RepoTraction Impact Lab](docs/screenshots/impact-lab.png)
 
+![RepoTraction Network](docs/screenshots/network.png)
+
+The Network view compares followers, people you follow, mutuals and saved
+relationship changes. GitHub does not expose profile visitors.
+
 ## Designed for every GitHub account
 
 RepoTraction automatically runs:
