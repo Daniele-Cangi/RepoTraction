@@ -314,9 +314,11 @@ def ensure_database() -> None:
                 views INTEGER NOT NULL DEFAULT 0,
                 unique_views INTEGER NOT NULL DEFAULT 0,
                 views_available INTEGER,
+                views_status TEXT NOT NULL DEFAULT 'missing',
                 clones INTEGER NOT NULL DEFAULT 0,
                 unique_clones INTEGER NOT NULL DEFAULT 0,
                 clones_available INTEGER,
+                clones_status TEXT NOT NULL DEFAULT 'missing',
                 collected_at TEXT NOT NULL,
                 PRIMARY KEY (repo, day)
             );
@@ -369,6 +371,7 @@ def ensure_database() -> None:
             CREATE TABLE IF NOT EXISTS repository_registry (
                 repo_id INTEGER PRIMARY KEY,
                 full_name TEXT NOT NULL,
+                created_at TEXT,
                 active INTEGER NOT NULL DEFAULT 1,
                 first_seen_at TEXT NOT NULL,
                 last_seen_at TEXT NOT NULL
@@ -452,6 +455,44 @@ def ensure_database() -> None:
                  AND (clones <> 0 OR unique_clones <> 0)"""
         )
 
+        traffic_columns = {
+            str(row[1]) for row in connection.execute("PRAGMA table_info(traffic_daily)")
+        }
+        for column in ("views_status", "clones_status"):
+            if column not in traffic_columns:
+                connection.execute(
+                    f"ALTER TABLE traffic_daily ADD COLUMN {column} TEXT"  # noqa: S608
+                )
+        # Historical available zeroes have no provenance: earlier versions also
+        # synthesized them when GitHub returned an empty daily array. Keep their
+        # values for audit/export, but remove them from evidentiary queries until
+        # a fresh daily bucket is observed.
+        for metric, available_column, value_column, unique_column in (
+            ("views", "views_available", "views", "unique_views"),
+            ("clones", "clones_available", "clones", "unique_clones"),
+        ):
+            connection.execute(
+                f"""UPDATE traffic_daily
+                    SET {metric}_status = CASE
+                        WHEN {available_column} = 1
+                         AND ({value_column} <> 0 OR {unique_column} <> 0)
+                            THEN 'observed_value'
+                        WHEN {available_column} = 1 THEN 'legacy_unknown'
+                        ELSE 'missing'
+                    END
+                    WHERE {metric}_status IS NULL""",  # noqa: S608
+            )
+            connection.execute(
+                f"""UPDATE traffic_daily SET {available_column} = NULL
+                    WHERE {metric}_status = 'legacy_unknown'""",  # noqa: S608
+            )
+
+        registry_columns = {
+            str(row[1]) for row in connection.execute("PRAGMA table_info(repository_registry)")
+        }
+        if "created_at" not in registry_columns:
+            connection.execute("ALTER TABLE repository_registry ADD COLUMN created_at TEXT")
+
         run_columns = {
             str(row[1]) for row in connection.execute("PRAGMA table_info(collection_runs)")
         }
@@ -471,6 +512,7 @@ def ensure_database() -> None:
                 """CREATE TABLE repository_registry (
                     repo_id INTEGER PRIMARY KEY,
                     full_name TEXT NOT NULL,
+                    created_at TEXT,
                     active INTEGER NOT NULL DEFAULT 1,
                     first_seen_at TEXT NOT NULL,
                     last_seen_at TEXT NOT NULL
@@ -478,8 +520,8 @@ def ensure_database() -> None:
             )
             connection.execute(
                 """INSERT INTO repository_registry (
-                    repo_id, full_name, active, first_seen_at, last_seen_at
-                ) SELECT repo_id, full_name, active, first_seen_at, last_seen_at
+                    repo_id, full_name, created_at, active, first_seen_at, last_seen_at
+                ) SELECT repo_id, full_name, created_at, active, first_seen_at, last_seen_at
                   FROM repository_registry_legacy"""
             )
             connection.execute("DROP TABLE repository_registry_legacy")
@@ -652,6 +694,11 @@ def reconcile_repository_registry(
         for repo in repositories
         if repo.get("id") and repo.get("full_name")
     }
+    created_at_by_id = {
+        int(repo["id"]): str(repo.get("created_at") or "") or None
+        for repo in repositories
+        if repo.get("id") and repo.get("full_name")
+    }
     current_names = {name.casefold() for name in current_by_id.values()}
 
     with database_connection() as connection:
@@ -698,14 +745,21 @@ def reconcile_repository_registry(
             connection.execute(
                 """
                 INSERT INTO repository_registry (
-                    repo_id, full_name, active, first_seen_at, last_seen_at
-                ) VALUES (?, ?, 1, ?, ?)
+                    repo_id, full_name, created_at, active, first_seen_at, last_seen_at
+                ) VALUES (?, ?, ?, 1, ?, ?)
                 ON CONFLICT(repo_id) DO UPDATE SET
                     full_name = excluded.full_name,
+                    created_at = COALESCE(excluded.created_at, repository_registry.created_at),
                     active = 1,
                     last_seen_at = excluded.last_seen_at
                 """,
-                (repo_id, full_name, collected_at, collected_at),
+                (
+                    repo_id,
+                    full_name,
+                    created_at_by_id.get(repo_id),
+                    collected_at,
+                    collected_at,
+                ),
             )
 
         connection.execute(
@@ -1221,7 +1275,68 @@ def analyze_event_metric(
 ) -> dict[str, Any]:
     if metric not in {"views", "clones"}:
         raise ValueError("Unsupported impact metric.")
+    connection.row_factory = sqlite3.Row
     available_column = f"{metric}_available"
+
+    created_row = connection.execute(
+        """SELECT created_at FROM repository_registry
+           WHERE full_name = ? COLLATE NOCASE LIMIT 1""",
+        (repo,),
+    ).fetchone()
+    try:
+        created_day = (
+            _utc_date(str(created_row[0])) if created_row and created_row[0] else None
+        )
+    except ValueError:
+        created_day = None
+    today = datetime.now(timezone.utc).date()
+
+    def after_creation(rows: Any) -> list[Any]:
+        return [
+            row
+            for row in rows
+            if str(row["day"]) < today.isoformat()
+            and (created_day is None or str(row["day"]) > created_day.isoformat())
+        ]
+
+    def unavailable(
+        status: str,
+        message: str,
+        *,
+        window_days: int = 0,
+        latest_day: str | None = None,
+    ) -> dict[str, Any]:
+        return {
+            "metric": metric,
+            "status": status,
+            "message": message,
+            "window_days": window_days,
+            "latest_day": latest_day,
+            "pre": None,
+            "post": None,
+            "change_pct": None,
+            "change_kind": status,
+            "portfolio_change_pct": None,
+            "portfolio_repositories": 0,
+            "lift_pct_points": None,
+            "confidence": "low",
+        }
+
+    latest_row = connection.execute(
+        f"""SELECT MAX(day) FROM traffic_daily
+            WHERE repo = ? AND {available_column} = 1
+              AND day < ?
+              AND day > COALESCE((
+                  SELECT substr(created_at, 1, 10)
+                  FROM repository_registry
+                  WHERE full_name = ? COLLATE NOCASE LIMIT 1
+              ), '0000-01-01')""",  # noqa: S608 - metric validated above
+        (repo, today.isoformat(), repo),
+    ).fetchone()
+    latest_day = str(latest_row[0]) if latest_row and latest_row[0] else None
+    latest_is_stale = bool(
+        latest_day and latest_day < (today - timedelta(days=2)).isoformat()
+    )
 
     post_end = event_day + timedelta(days=6)
     post_rows = connection.execute(
@@ -1233,68 +1348,82 @@ def analyze_event_metric(
         """,  # noqa: S608 - metric is validated above
         (repo, event_day.isoformat(), post_end.isoformat()),
     ).fetchall()
-    post_by_day = {str(row["day"]): row for row in post_rows}
+    post_by_day = {str(row["day"]): row for row in after_creation(post_rows)}
     window_days = 0
     for offset in range(7):
         if (event_day + timedelta(days=offset)).isoformat() not in post_by_day:
             break
         window_days += 1
     if window_days == 0:
-        return {
-            "metric": metric,
-            "status": "waiting",
-            "window_days": 0,
-            "pre": None,
-            "post": None,
-            "change_pct": None,
-            "change_kind": "waiting",
-            "portfolio_change_pct": None,
-            "portfolio_repositories": 0,
-            "lift_pct_points": None,
-            "confidence": "low",
-        }
+        if latest_is_stale:
+            age_days = (today - date.fromisoformat(latest_day)).days
+            return unavailable(
+                "stale_upstream",
+                f"GitHub traffic data is stale: the latest observed bucket is {age_days} days old.",
+                latest_day=latest_day,
+            )
+        return unavailable(
+            "waiting",
+            "Waiting for GitHub traffic data; no daily bucket is available for this event yet.",
+            latest_day=latest_day,
+        )
 
     pre_start = event_day - timedelta(days=window_days)
     pre_end = event_day - timedelta(days=1)
     effective_post_end = event_day + timedelta(days=window_days - 1)
-    pre_rows = connection.execute(
-        f"""
-        SELECT day, {metric} AS value
-        FROM traffic_daily
-        WHERE repo = ? AND {available_column} = 1 AND day BETWEEN ? AND ?
-        ORDER BY day ASC
-        """,  # noqa: S608 - metric is validated above
-        (repo, pre_start.isoformat(), pre_end.isoformat()),
-    ).fetchall()
+    pre_rows = after_creation(
+        connection.execute(
+            f"""
+            SELECT day, {metric} AS value
+            FROM traffic_daily
+            WHERE repo = ? AND {available_column} = 1 AND day BETWEEN ? AND ?
+            ORDER BY day ASC
+            """,  # noqa: S608 - metric is validated above
+            (repo, pre_start.isoformat(), pre_end.isoformat()),
+        ).fetchall()
+    )
     post_rows = [
         post_by_day[(event_day + timedelta(days=offset)).isoformat()]
         for offset in range(window_days)
     ]
+    if len(pre_rows) != window_days or (window_days < 7 and latest_is_stale):
+        if latest_is_stale:
+            age_days = (today - date.fromisoformat(latest_day)).days
+            return unavailable(
+                "stale_upstream",
+                f"GitHub traffic data is stale: the latest observed bucket is {age_days} days old.",
+                window_days=window_days,
+                latest_day=latest_day,
+            )
+        return unavailable(
+            "waiting",
+            "Waiting for a complete pre-event baseline; this repository does not have enough valid days yet.",
+            window_days=window_days,
+            latest_day=latest_day,
+        )
+
     pre_total = sum(int(row["value"] or 0) for row in pre_rows)
     post_total = sum(int(row["value"] or 0) for row in post_rows)
-    target_change = (
-        percentage_change(post_total, pre_total)
-        if len(pre_rows) == window_days
-        else None
-    )
-    change_kind = (
-        "new"
-        if len(pre_rows) == window_days and pre_total == 0 and post_total > 0
-        else "measured"
-        if target_change is not None
-        else "baseline_incomplete"
-    )
+    target_change = percentage_change(post_total, pre_total)
+    change_kind = "new" if pre_total == 0 and post_total > 0 else "measured"
 
     portfolio_rows = connection.execute(
         f"""
-        SELECT repo,
-            SUM(CASE WHEN {available_column} = 1 AND day BETWEEN ? AND ? THEN {metric} ELSE 0 END) AS pre,
-            SUM(CASE WHEN {available_column} = 1 AND day BETWEEN ? AND ? THEN {metric} ELSE 0 END) AS post,
-            COUNT(CASE WHEN {available_column} = 1 AND day BETWEEN ? AND ? THEN 1 END) AS pre_days,
-            COUNT(CASE WHEN {available_column} = 1 AND day BETWEEN ? AND ? THEN 1 END) AS post_days
-        FROM traffic_daily
-        WHERE repo <> ? AND day BETWEEN ? AND ?
-        GROUP BY repo
+        SELECT traffic.repo AS repo,
+            SUM(CASE WHEN {available_column} = 1 AND traffic.day BETWEEN ? AND ? THEN traffic.{metric} ELSE 0 END) AS pre,
+            SUM(CASE WHEN {available_column} = 1 AND traffic.day BETWEEN ? AND ? THEN traffic.{metric} ELSE 0 END) AS post,
+            COUNT(CASE WHEN {available_column} = 1 AND traffic.day BETWEEN ? AND ? THEN 1 END) AS pre_days,
+            COUNT(CASE WHEN {available_column} = 1 AND traffic.day BETWEEN ? AND ? THEN 1 END) AS post_days
+        FROM traffic_daily AS traffic
+        WHERE traffic.repo <> ? AND traffic.day BETWEEN ? AND ?
+          AND traffic.day < ?
+          AND traffic.day > COALESCE((
+              SELECT substr(registry.created_at, 1, 10)
+              FROM repository_registry AS registry
+              WHERE registry.full_name = traffic.repo COLLATE NOCASE
+              LIMIT 1
+          ), '0000-01-01')
+        GROUP BY traffic.repo
         """,  # noqa: S608 - metric is validated above
         (
             pre_start.isoformat(),
@@ -1308,6 +1437,7 @@ def analyze_event_metric(
             repo,
             pre_start.isoformat(),
             effective_post_end.isoformat(),
+            today.isoformat(),
         ),
     ).fetchall()
     portfolio_changes = []
@@ -1334,17 +1464,9 @@ def analyze_event_metric(
         if target_change is not None and portfolio_change is not None
         else None
     )
-    if (
-        window_days == 7
-        and len(pre_rows) == 7
-        and len(portfolio_changes) >= 3
-    ):
+    if window_days == 7 and len(portfolio_changes) >= 3:
         confidence = "high"
-    elif (
-        window_days >= 4
-        and len(pre_rows) == window_days
-        and len(portfolio_changes) >= 2
-    ):
+    elif window_days >= 4 and len(portfolio_changes) >= 2:
         confidence = "medium"
     else:
         confidence = "low"
@@ -1353,13 +1475,14 @@ def analyze_event_metric(
         "metric": metric,
         "status": "complete" if window_days == 7 else "collecting",
         "window_days": window_days,
+        "latest_day": latest_day,
         "period": {
             "pre_from": pre_start.isoformat(),
             "pre_to": pre_end.isoformat(),
             "post_from": event_day.isoformat(),
             "post_to": effective_post_end.isoformat(),
         },
-        "pre": pre_total if len(pre_rows) == window_days else None,
+        "pre": pre_total,
         "post": post_total,
         "change_pct": target_change,
         "change_kind": change_kind,
@@ -1409,9 +1532,14 @@ def build_impact_lab(*, limit: int = 30) -> dict[str, Any]:
                 default=None,
             )
             if strongest is None:
-                outcome_key = "collecting"
-                outcome = "Collecting evidence"
-                summary = "A comparable before/after window is not available yet."
+                if any(metric.get("status") == "stale_upstream" for metric in metrics.values()):
+                    outcome_key = "stale_upstream"
+                    outcome = "Traffic data unavailable"
+                    summary = "GitHub traffic data is stale; no reliable before/after read is available."
+                else:
+                    outcome_key = "collecting"
+                    outcome = "Collecting evidence"
+                    summary = "A comparable before/after window is not available yet."
             else:
                 lift = float(strongest["lift_pct_points"])
                 metric_label = "page views" if strongest["metric"] == "views" else "clone events"
@@ -1457,7 +1585,14 @@ def build_impact_lab(*, limit: int = 30) -> dict[str, Any]:
             "releases": sum(1 for row in analyses if row["event_type"] == "release"),
             "readme_changes": sum(1 for row in analyses if row["event_type"] == "readme"),
             "metadata_changes": sum(1 for row in analyses if row["event_type"] == "metadata"),
-            "measured": sum(1 for row in analyses if row["outcome_key"] != "collecting"),
+            "measured": sum(
+                1
+                for row in analyses
+                if any(
+                    metric.get("change_pct") is not None
+                    for metric in row["metrics"].values()
+                )
+            ),
             "important": sum(1 for row in analyses if row["important"]),
         },
         "events": analyses,
@@ -1567,6 +1702,7 @@ def build_dashboard(*, force: bool = False) -> dict[str, Any]:
             "id": int(repo.get("id") or 0),
             "full_name": repo.get("full_name", ""),
             "name": repo.get("name", ""),
+            "created_at": repo.get("created_at", ""),
             "private": bool(repo.get("private")),
             "archived": bool(repo.get("archived")),
             "fork": bool(repo.get("fork")),
@@ -1669,81 +1805,88 @@ def save_traffic(
         for item in (clones or {}).get("clones", [])
         if item.get("timestamp")
     }
-    empty_views = (
-        views is not None
-        and not view_days
-        and views.get("count") is not None
-        and int(views["count"]) == 0
-    )
-    empty_clones = (
-        clones is not None
-        and not clone_days
-        and clones.get("count") is not None
-        and int(clones["count"]) == 0
-    )
-    if empty_views or empty_clones:
-        observed_days = view_days.keys() | clone_days.keys()
-        if observed_days:
-            latest_day = date.fromisoformat(max(observed_days))
-        else:
-            # A zero aggregate has no daily timestamps; anchor it to the last
-            # complete UTC day when neither channel supplies a reference date.
-            collected_time = datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
-            if collected_time.tzinfo is None:
-                collected_time = collected_time.replace(tzinfo=timezone.utc)
-            latest_day = (
-                collected_time.astimezone(timezone.utc).date() - timedelta(days=1)
-            )
-        zero_window = {
-            (latest_day - timedelta(days=offset)).isoformat(): {
-                "count": 0,
-                "uniques": 0,
-            }
-            for offset in range(14)
-        }
-        if empty_views:
-            view_days = zero_window
-        if empty_clones:
-            clone_days = zero_window
 
     with database_connection() as connection:
+        created_row = connection.execute(
+            "SELECT created_at FROM repository_registry WHERE full_name = ? COLLATE NOCASE LIMIT 1",
+            (repo,),
+        ).fetchone()
+        created_day = (
+            str(created_row[0])[:10]
+            if created_row and created_row[0]
+            else None
+        )
         for day, view in sorted(view_days.items()):
+            # GitHub sometimes returns zero-filled buckets for dates before a
+            # repository existed. They are not traffic observations.
+            if created_day and day <= created_day:
+                continue
+            count = int(view.get("count", 0))
+            uniques = int(view.get("uniques", 0))
+            observation_status = (
+                "observed_zero" if count == 0 and uniques == 0 else "observed_value"
+            )
             connection.execute(
                 """
                 INSERT INTO traffic_daily (
-                    repo, day, views, unique_views, views_available, collected_at
-                ) VALUES (?, ?, ?, ?, 1, ?)
+                    repo, day, views, unique_views, views_available, views_status,
+                    clones_status, collected_at
+                ) VALUES (?, ?, ?, ?, 1, ?, 'missing', ?)
                 ON CONFLICT(repo, day) DO UPDATE SET
                     views = excluded.views,
                     unique_views = excluded.unique_views,
                     views_available = 1,
+                    views_status = excluded.views_status,
                     collected_at = excluded.collected_at
+                WHERE julianday(excluded.collected_at) >=
+                      julianday(traffic_daily.collected_at)
+                  AND NOT (
+                      excluded.views = 0 AND excluded.unique_views = 0
+                      AND (traffic_daily.views <> 0 OR traffic_daily.unique_views <> 0)
+                  )
                 """,
                 (
                     repo,
                     day,
-                    int(view.get("count", 0)),
-                    int(view.get("uniques", 0)),
+                    count,
+                    uniques,
+                    observation_status,
                     timestamp,
                 ),
             )
         for day, clone in sorted(clone_days.items()):
+            if created_day and day <= created_day:
+                continue
+            count = int(clone.get("count", 0))
+            uniques = int(clone.get("uniques", 0))
+            observation_status = (
+                "observed_zero" if count == 0 and uniques == 0 else "observed_value"
+            )
             connection.execute(
                 """
                 INSERT INTO traffic_daily (
-                    repo, day, clones, unique_clones, clones_available, collected_at
-                ) VALUES (?, ?, ?, ?, 1, ?)
+                    repo, day, clones, unique_clones, clones_available,
+                    views_status, clones_status, collected_at
+                ) VALUES (?, ?, ?, ?, 1, 'missing', ?, ?)
                 ON CONFLICT(repo, day) DO UPDATE SET
                     clones = excluded.clones,
                     unique_clones = excluded.unique_clones,
                     clones_available = 1,
+                    clones_status = excluded.clones_status,
                     collected_at = excluded.collected_at
+                WHERE julianday(excluded.collected_at) >=
+                      julianday(traffic_daily.collected_at)
+                  AND NOT (
+                      excluded.clones = 0 AND excluded.unique_clones = 0
+                      AND (traffic_daily.clones <> 0 OR traffic_daily.unique_clones <> 0)
+                  )
                 """,
                 (
                     repo,
                     day,
-                    int(clone.get("count", 0)),
-                    int(clone.get("uniques", 0)),
+                    count,
+                    uniques,
+                    observation_status,
                     timestamp,
                 ),
             )
@@ -1779,8 +1922,8 @@ def get_traffic_history(repo: str) -> list[dict[str, Any]]:
         connection.row_factory = sqlite3.Row
         rows = connection.execute(
             """
-            SELECT day, views, unique_views, views_available, clones,
-                   unique_clones, clones_available
+            SELECT day, views, unique_views, views_available, views_status,
+                   clones, unique_clones, clones_available, clones_status
             FROM traffic_daily
             WHERE repo = ?
             ORDER BY day ASC
@@ -3403,8 +3546,8 @@ def build_export_payload() -> dict[str, Any]:
             dict(row)
             for row in connection.execute(
                 """
-                SELECT repo, day, views, unique_views, views_available,
-                       clones, unique_clones, clones_available, collected_at
+                SELECT repo, day, views, unique_views, views_available, views_status,
+                       clones, unique_clones, clones_available, clones_status, collected_at
                 FROM traffic_daily
                 ORDER BY day DESC, repo
                 """
@@ -3434,8 +3577,8 @@ def build_csv_export(dataset: str) -> tuple[str, bytes]:
                 dict(row)
                 for row in connection.execute(
                     """
-                    SELECT repo, day, views, unique_views, views_available,
-                           clones, unique_clones, clones_available, collected_at
+                    SELECT repo, day, views, unique_views, views_available, views_status,
+                           clones, unique_clones, clones_available, clones_status, collected_at
                     FROM traffic_daily
                     ORDER BY day DESC, repo
                     """
@@ -3447,9 +3590,11 @@ def build_csv_export(dataset: str) -> tuple[str, bytes]:
             "views",
             "unique_views",
             "views_available",
+            "views_status",
             "clones",
             "unique_clones",
             "clones_available",
+            "clones_status",
             "collected_at",
         ]
         filename = f"{APP_SLUG}-traffic.csv"

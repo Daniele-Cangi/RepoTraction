@@ -456,9 +456,30 @@ function signedPercent(value) {
   return `${numeric > 0 ? "+" : ""}${number.format(numeric)}%`;
 }
 
+function renderMetadataChanges(fields) {
+  if (!Array.isArray(fields) || fields.length === 0) return "";
+  const labels = {
+    description: "Description",
+    homepage: "Homepage",
+    topics_json: "Topics",
+  };
+  const changedFields = [...new Set(fields.map((field) => String(field).trim()).filter(Boolean))];
+  if (!changedFields.length) return "";
+  return `<div class="impact-metadata" aria-label="Changed repository fields">
+    <span class="impact-metadata-label">Changed</span>
+    <div class="impact-metadata-fields">${changedFields.map((field) => {
+      const label = labels[field.toLowerCase()] || field.replace(/[_-]+/g, " ").replace(/\b[a-z]/g, (letter) => letter.toUpperCase());
+      return `<span class="impact-metadata-field">${escapeHtml(label)}</span>`;
+    }).join("")}</div>
+  </div>`;
+}
+
 function renderImpactMetric(label, metric = {}) {
+  if (metric.status === "stale_upstream") {
+    return `<div class="impact-metric waiting stale"><div class="impact-metric-head"><span>${escapeHtml(label)}</span><b>Upstream data stale</b></div><p>${escapeHtml(metric.message || "GitHub traffic data is stale; this is not a measured zero.")}</p></div>`;
+  }
   if (metric.status === "waiting") {
-    return `<div class="impact-metric waiting"><div class="impact-metric-head"><span>${escapeHtml(label)}</span><b>Waiting for traffic</b></div><p>No post-event day is available yet.</p></div>`;
+    return `<div class="impact-metric waiting"><div class="impact-metric-head"><span>${escapeHtml(label)}</span><b>Waiting for traffic</b></div><p>${escapeHtml(metric.message || "No post-event day is available yet.")}</p></div>`;
   }
   const change = metric.change_kind === "new" ? "New activity" : signedPercent(metric.change_pct);
   const lift = metric.lift_pct_points === null || metric.lift_pct_points === undefined
@@ -487,6 +508,7 @@ function renderImpactLab(data) {
   $("#impactEventList").innerHTML = events.length
     ? events.map((event) => {
       const message = event.metadata?.message ? `<p class="impact-commit">${escapeHtml(event.metadata.message)}</p>` : "";
+      const metadataChanges = event.event_type === "metadata" ? renderMetadataChanges(event.metadata?.changed_fields) : "";
       return `<article class="impact-event ${escapeHtml(event.outcome_key || "collecting")}">
         <div class="impact-event-top">
           <span class="event-type ${escapeHtml(event.event_type)}">${escapeHtml(event.event_type)}</span>
@@ -497,6 +519,7 @@ function renderImpactLab(data) {
           <span class="outcome-pill ${escapeHtml(event.outcome_key || "collecting")}">${escapeHtml(event.outcome || "Collecting evidence")}</span>
         </div>
         ${message}
+        ${metadataChanges}
         <p class="impact-summary-copy">${escapeHtml(event.summary)}</p>
         <div class="impact-metrics">${renderImpactMetric("Page views", event.metrics?.views)}${renderImpactMetric("Clone events", event.metrics?.clones)}</div>
       </article>`;
