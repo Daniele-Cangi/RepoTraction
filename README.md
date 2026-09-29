@@ -30,8 +30,13 @@ RepoTraction collects repository traffic, repository metadata and snapshot
 changes, public activity, and follower/following relationships for the active
 GitHub CLI account. It stores that history locally, then turns observed data
 into comparisons, portfolio summaries and clearly labeled recommendations.
-Traffic is limited to the rolling window GitHub provides; unknown data remains
-unavailable instead of being presented as zero.
+
+GitHub exposes repository views and clone data for only its latest rolling
+14-day window. RepoTraction saves each observed daily snapshot in local SQLite,
+so your traffic history can continue beyond GitHub's window. Collection builds
+that history from the first successful run; it cannot restore days that had
+already expired. Missing or unverified data stays unavailable instead of being
+presented as zero.
 
 It does **not** measure visits to a personal GitHub profile, identify people
 who clone repositories, or prove that a repository change caused a traffic
@@ -46,9 +51,23 @@ GitHub ratings.
 | **Repositories** | Portfolio ranking, page views, clone events, GitHub-native 14-day uniques, referrers and popular pages |
 | **Insights** | Prioritized opportunities, Impact Lab, repository comparison, weekly digest and local alerts |
 | **Stars** | Timestamped stargazer timeline for repositories you can access |
-| **Network** | Followers, following, mutual relationships and changes over time |
+| **Network** | Followers, following, mutual and one-sided relationships, and changes between saved snapshots; not profile visits |
 | **Activity** | Recent public events and an experimental Achievement Lab |
 | **Data** | Daily collection status, CSV exports and a JSON analytics export |
+
+## Alternatives and trade-offs
+
+| Option | What it is good at | Choose it when |
+| --- | --- | --- |
+| [GitHub's built-in Traffic](https://docs.github.com/en/repositories/viewing-activity-and-data-for-your-repository/viewing-traffic-to-a-repository) | Native per-repository views, clones, referrers and popular paths for the latest 14 days. | You only need a quick, zero-setup look at recent traffic. |
+| [RepoHistory](https://github.com/marketplace/repohistory) | A third-party hosted dashboard for longer-term repository traffic and star history. | You prefer a managed service focused on repository analytics. Review its separate privacy policy before connecting an account. |
+| **RepoTraction** | Local portfolio history plus repository signals, relationship snapshots, activity and change-impact comparisons. | You want a local-first view across your GitHub account, and are comfortable running it with GitHub CLI. |
+
+Long-term traffic collection is not unique to RepoTraction: other tools also
+preserve it. Its distinction is combining that local history with account-wide
+repository, community and impact views. [GitHub's API](https://docs.github.com/en/rest/metrics/traffic)
+returns traffic in a rolling 14-day window; RepoTraction can only keep data it
+collects while it is available.
 
 ## Screenshots
 
@@ -81,7 +100,7 @@ not expose profile visitors.
 
 RepoTraction automatically runs:
 
-~~~powershell
+~~~sh
 gh api user
 ~~~
 
@@ -108,10 +127,35 @@ library, GitHub CLI and SQLite.
 
 Clone the repository and enter the project directory:
 
-~~~powershell
+~~~sh
 git clone https://github.com/Daniele-Cangi/RepoTraction.git
 cd RepoTraction
 ~~~
+
+Verify that GitHub CLI is installed and authenticated:
+
+~~~sh
+gh auth status
+~~~
+
+### Run from source
+
+The source app uses Python's standard library and works on Windows, macOS and
+Linux. Use the Python launcher available on your system:
+
+~~~sh
+# macOS / Linux
+python3 app.py
+~~~
+
+~~~powershell
+# Windows
+python app.py
+~~~
+
+The local dashboard opens at [http://127.0.0.1:8765](http://127.0.0.1:8765).
+Press <code>Ctrl+C</code> in the terminal to stop it. On Windows, you can also
+double-click <code>start.cmd</code> or run <code>start.ps1</code>.
 
 ### Windows installer
 
@@ -136,40 +180,55 @@ To remove the application while keeping your history:
 Pass <code>-RemoveData</code> only if you also want to delete the collected
 history.
 
-### Run from source
+## Commands, exports and notifications
 
-Verify the active GitHub account:
+### Command-line options
 
-~~~powershell
-gh auth status
-~~~
+| Option | What it does |
+| --- | --- |
+| `--help` | Show all command-line options. |
+| `--host HOST` | Bind to a loopback address only; defaults to `127.0.0.1`. Network/LAN binding is rejected. |
+| `--port PORT` | Choose the local server port; defaults to `8765`. |
+| `--no-open` | Start the server without opening a browser tab. |
+| `--collect-only` | Collect one snapshot and exit without starting the dashboard. Exit status is `0` for complete, `2` for partial, and `1` for failed collection. |
 
-Start the dashboard:
-
-~~~powershell
-python app.py
-~~~
-
-On Windows you can also double-click <code>start.cmd</code> or run:
+Example: use a different port and keep the browser closed.
 
 ~~~powershell
-.\start.ps1
+python app.py --port 8766 --no-open
 ~~~
 
-RepoTraction opens at [http://127.0.0.1:8765](http://127.0.0.1:8765). Press
-<code>Ctrl+C</code> in the terminal to stop it.
+On macOS or Linux, use `python3` instead of `python`.
 
-### Headless collection
-
-Collect a complete snapshot without starting or keeping the dashboard open:
+To run a one-off collection for Task Scheduler, cron or another local scheduler:
 
 ~~~powershell
 python app.py --collect-only
 ~~~
 
-This command is suitable for Windows Task Scheduler, cron and other local job
-runners. It uses the same authenticated GitHub CLI account and the same SQLite
-history as the dashboard, prints a JSON result and exits when collection ends.
+Use `python app.py --help` (or `python3 app.py --help`) for the current option
+summary.
+
+### Export datasets
+
+Download exports from **Data & privacy**; the weekly Markdown digest is in
+**Insights → Digest & alerts**. The available `dataset` values are:
+
+| Dataset | Format | Contents |
+| --- | --- | --- |
+| `traffic` | CSV | Daily per-repository views and clones, native unique counts, availability/provenance status and collection time. |
+| `movements` | CSV | Follower/following relationship changes with event time and profile URL. |
+| `summary` | JSON | Account signals, repository events, relationship history and collected traffic. This is an analytics export, not a restorable SQLite backup. |
+| `digest` | Markdown | The weekly portfolio digest. |
+
+For example: `/api/export?dataset=traffic` downloads the traffic CSV.
+
+### Desktop notifications
+
+Open **Insights → Digest & alerts**, select **Enable desktop alerts**, and grant
+the browser's notification permission. Alerts are off by default and are kept
+in that browser; while the dashboard is open, it can notify you about detected
+traffic spikes, net star growth and new followers.
 
 ### Synthetic demo
 
