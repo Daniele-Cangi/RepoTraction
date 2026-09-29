@@ -371,6 +371,7 @@ main { width: min(1380px, 100%); margin: 0 auto; padding: 36px clamp(24px, 4vw, 
 .impact-event { padding: 17px; border: 1px solid var(--line); border-radius: 14px; background: rgba(255,255,255,.014); }
 .impact-event.outperformed { border-color: rgba(184,243,61,.16); }
 .impact-event.underperformed { border-color: rgba(255,123,114,.16); }
+.impact-event.stale_upstream { border-color: rgba(242,204,96,.2); }
 .impact-event-top, .impact-event-title { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .event-type { display: inline-flex; padding: 5px 8px; border-radius: 999px; color: var(--blue); background: rgba(88,166,255,.09); font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
 .event-type.release { color: var(--lime); background: rgba(184,243,61,.08); }
@@ -385,6 +386,10 @@ main { width: min(1380px, 100%); margin: 0 auto; padding: 36px clamp(24px, 4vw, 
 .outcome-pill.underperformed { color: var(--coral); background: rgba(255,123,114,.09); }
 .outcome-pill.matched { color: var(--blue); background: rgba(88,166,255,.08); }
 .impact-commit { margin: 12px 0 0; padding-left: 10px; border-left: 2px solid rgba(176,132,255,.4); color: var(--muted); font: 12px ui-monospace, SFMono-Regular, Consolas, monospace; }
+.impact-metadata { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; margin-top: 12px; }
+.impact-metadata-label { color: var(--muted-2); font-size: 10px; font-weight: 750; letter-spacing: .08em; text-transform: uppercase; }
+.impact-metadata-fields { display: flex; flex-wrap: wrap; gap: 6px; }
+.impact-metadata-field { padding: 4px 8px; border: 1px solid rgba(242,204,96,.18); border-radius: 999px; color: var(--amber); background: rgba(242,204,96,.045); font-size: 11px; }
 .impact-summary-copy { margin: 12px 0; color: var(--muted); font-size: 13px; line-height: 1.55; }
 .impact-metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 .impact-metric { padding: 13px; border: 1px solid var(--line); border-radius: 11px; background: rgba(7,10,14,.32); }
@@ -401,6 +406,8 @@ main { width: min(1380px, 100%); margin: 0 auto; padding: 36px clamp(24px, 4vw, 
 .impact-deltas span, .impact-deltas strong { padding: 4px 6px; border-radius: 7px; color: var(--muted); background: rgba(255,255,255,.03); font-size: 10px; font-weight: 600; }
 .impact-deltas strong { color: var(--lime); }
 .impact-metric.waiting p { margin: 14px 0 0; color: var(--muted-2); font-size: 11px; }
+.impact-metric.waiting.stale { border-color: rgba(242,204,96,.18); }
+.impact-metric.waiting.stale .impact-metric-head b { color: var(--amber); }
 
 .data-control-grid { display: grid; grid-template-columns: 1.1fr .9fr; gap: 12px; }
 .collection-card > p, .export-card > p { min-height: 34px; margin: 0 0 18px; color: var(--muted); font-size: 10px; line-height: 1.6; }
