@@ -1278,7 +1278,7 @@ class PersistenceTests(unittest.TestCase):
         self.assertIsNone(row["views_7d"])
         self.assertFalse(row["clones_comparison_ready"])
 
-    def test_empty_aggregate_does_not_overwrite_a_previously_observed_bucket(self) -> None:
+    def test_zero_traffic_does_not_overwrite_a_previously_observed_bucket(self) -> None:
         timestamp = "2026-08-26T00:00:00+00:00"
         app.save_traffic(
             "octocat/quiet",
@@ -1297,6 +1297,18 @@ class PersistenceTests(unittest.TestCase):
             {"count": 0, "uniques": 0, "views": []},
             None,
             collected_at="2026-08-27T00:00:00+00:00",
+        )
+        app.save_traffic(
+            "octocat/quiet",
+            {
+                "count": 0,
+                "uniques": 0,
+                "views": [
+                    {"timestamp": "2026-08-25T00:00:00Z", "count": 0, "uniques": 0}
+                ],
+            },
+            None,
+            collected_at="2026-08-28T00:00:00+00:00",
         )
 
         row = app.get_traffic_history("octocat/quiet")[0]

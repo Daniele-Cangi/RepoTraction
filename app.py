@@ -1840,6 +1840,10 @@ def save_traffic(
                     collected_at = excluded.collected_at
                 WHERE julianday(excluded.collected_at) >=
                       julianday(traffic_daily.collected_at)
+                  AND NOT (
+                      excluded.views = 0 AND excluded.unique_views = 0
+                      AND (traffic_daily.views <> 0 OR traffic_daily.unique_views <> 0)
+                  )
                 """,
                 (
                     repo,
@@ -1872,6 +1876,10 @@ def save_traffic(
                     collected_at = excluded.collected_at
                 WHERE julianday(excluded.collected_at) >=
                       julianday(traffic_daily.collected_at)
+                  AND NOT (
+                      excluded.clones = 0 AND excluded.unique_clones = 0
+                      AND (traffic_daily.clones <> 0 OR traffic_daily.unique_clones <> 0)
+                  )
                 """,
                 (
                     repo,
