@@ -16,11 +16,6 @@ Turn repository traffic, stars, clones, activity and community changes into sign
 
 </div>
 
-![RepoTraction overview](docs/screenshots/overview.png)
-
-> The screenshots use RepoTraction's built-in synthetic demo profile. They do
-> not contain data from a real GitHub account.
-
 RepoTraction is a local-first analytics application built on the
 [GitHub REST API](https://docs.github.com/en/rest) for the account currently
 active in [GitHub CLI](https://cli.github.com/). It runs on your computer,
@@ -29,7 +24,21 @@ historical data in a local SQLite database.
 
 There is no username to configure and no token to paste into the app.
 
-## What you get
+## What RepoTraction actually does
+
+RepoTraction collects repository traffic, repository metadata and snapshot
+changes, public activity, and follower/following relationships for the active
+GitHub CLI account. It stores that history locally, then turns observed data
+into comparisons, portfolio summaries and clearly labeled recommendations.
+Traffic is limited to the rolling window GitHub provides; unknown data remains
+unavailable instead of being presented as zero.
+
+It does **not** measure visits to a personal GitHub profile, identify people
+who clone repositories, or prove that a repository change caused a traffic
+change. Its scores and recommendations are local heuristics, not official
+GitHub ratings.
+
+### Dashboard areas
 
 | Area | What it shows |
 | --- | --- |
@@ -41,12 +50,32 @@ There is no username to configure and no token to paste into the app.
 | **Activity** | Recent public events and an experimental Achievement Lab |
 | **Data** | Daily collection status, CSV exports and a JSON analytics export |
 
+## Screenshots
+
+The images below use RepoTraction's built-in synthetic demo profile; they do
+not contain data from a real GitHub account.
+
+### Overview
+
+Account signals, repository highlights and the recent activity pulse in one
+place.
+
+![RepoTraction overview](docs/screenshots/overview.png)
+
+### Impact Lab
+
+Compare observed traffic before and after releases, README work or repository
+metadata changes. The comparison is observational, not proof of causality.
+
 ![RepoTraction Impact Lab](docs/screenshots/impact-lab.png)
 
-![RepoTraction Network](docs/screenshots/network.png)
+### Network
 
-The Network view compares followers, people you follow, mutuals and saved
-relationship changes. GitHub does not expose profile visitors.
+Compare followers with the accounts you follow, find mutuals or accounts that
+do not follow back, and review changes between saved snapshots. GitHub does
+not expose profile visitors.
+
+![RepoTraction Network](docs/screenshots/network.png)
 
 ## Designed for every GitHub account
 
