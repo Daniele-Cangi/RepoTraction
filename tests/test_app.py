@@ -992,6 +992,59 @@ class PersistenceTests(unittest.TestCase):
         self.assertNotIn("UNIQUE", registry_sql.upper())
         self.assertIn("error_details", run_columns)
 
+    def test_migration_downgrades_unproven_legacy_zero_days(self) -> None:
+        legacy_path = Path(self.tempdir.name) / "legacy-zero-traffic.sqlite3"
+        connection = sqlite3.connect(legacy_path)
+        try:
+            connection.execute(
+                """CREATE TABLE traffic_daily (
+                    repo TEXT NOT NULL, day TEXT NOT NULL,
+                    views INTEGER NOT NULL DEFAULT 0,
+                    unique_views INTEGER NOT NULL DEFAULT 0,
+                    views_available INTEGER,
+                    clones INTEGER NOT NULL DEFAULT 0,
+                    unique_clones INTEGER NOT NULL DEFAULT 0,
+                    clones_available INTEGER,
+                    collected_at TEXT NOT NULL,
+                    PRIMARY KEY (repo, day)
+                )"""
+            )
+            connection.executemany(
+                """INSERT INTO traffic_daily (
+                    repo, day, views, unique_views, views_available,
+                    clones, unique_clones, clones_available, collected_at
+                ) VALUES (?, ?, 0, 0, 1, 0, 0, 1, ?)""",
+                [
+                    (
+                        "octocat/ambiguous",
+                        (app.date(2026, 9, 29) - app.timedelta(days=offset)).isoformat(),
+                        "2026-09-29T15:27:25Z",
+                    )
+                    for offset in range(14)
+                ],
+            )
+            connection.commit()
+        finally:
+            connection.close()
+
+        original_db_path = app.DB_PATH
+        try:
+            app.DB_PATH = legacy_path
+            app.ensure_database()
+            with app.database_connection() as connection:
+                rows = connection.execute(
+                    """SELECT views_available, views_status,
+                              clones_available, clones_status
+                       FROM traffic_daily"""
+                ).fetchall()
+        finally:
+            app.DB_PATH = original_db_path
+
+        self.assertEqual(len(rows), 14)
+        self.assertTrue(
+            all(tuple(row) == (None, "legacy_unknown", None, "legacy_unknown") for row in rows)
+        )
+
     def test_partial_traffic_errors_are_persisted_in_collection_status(self) -> None:
         dashboard = {
             "repositories": [{"full_name": "octocat/project", "archived": False}]
@@ -1183,7 +1236,7 @@ class PersistenceTests(unittest.TestCase):
             (25, 10, 9, 4),
         )
 
-    def test_empty_successful_traffic_arrays_are_recorded_as_zero_days(self) -> None:
+    def test_empty_successful_traffic_arrays_do_not_create_evidence_days(self) -> None:
         app.save_traffic(
             "octocat/quiet",
             {"count": 0, "uniques": 0, "views": []},
@@ -1192,21 +1245,16 @@ class PersistenceTests(unittest.TestCase):
         )
 
         history = app.get_traffic_history("octocat/quiet")
-        row = app.get_repository_signal_rows()[0]
 
-        self.assertEqual(len(history), 14)
-        self.assertTrue(
-            all(
-                item["views"] == item["clones"] == 0
-                and item["views_available"] == item["clones_available"] == 1
-                for item in history
-            )
-        )
-        self.assertTrue(row["views_comparison_ready"])
-        self.assertTrue(row["clones_comparison_ready"])
-        self.assertEqual(row["signal_score"], 0)
+        self.assertEqual(history, [])
+        with app.database_connection() as connection:
+            snapshot = connection.execute(
+                """SELECT views_count, clones_count FROM traffic_snapshots
+                   WHERE repo = 'octocat/quiet'"""
+            ).fetchone()
+        self.assertEqual(tuple(snapshot), (0, 0))
 
-    def test_empty_successful_channel_is_available_with_other_channel_traffic(self) -> None:
+    def test_empty_channel_stays_unknown_when_other_channel_has_buckets(self) -> None:
         app.save_traffic(
             "octocat/views-only",
             {"count": 0, "uniques": 0, "views": []},
@@ -1226,9 +1274,115 @@ class PersistenceTests(unittest.TestCase):
 
         row = app.get_repository_signal_rows()[0]
 
-        self.assertTrue(row["views_comparison_ready"])
-        self.assertEqual(row["views_7d"], 0)
+        self.assertFalse(row["views_comparison_ready"])
+        self.assertIsNone(row["views_7d"])
         self.assertFalse(row["clones_comparison_ready"])
+
+    def test_empty_aggregate_does_not_overwrite_a_previously_observed_bucket(self) -> None:
+        timestamp = "2026-08-26T00:00:00+00:00"
+        app.save_traffic(
+            "octocat/quiet",
+            {
+                "count": 4,
+                "uniques": 2,
+                "views": [
+                    {"timestamp": "2026-08-25T00:00:00Z", "count": 4, "uniques": 2}
+                ],
+            },
+            None,
+            collected_at=timestamp,
+        )
+        app.save_traffic(
+            "octocat/quiet",
+            {"count": 0, "uniques": 0, "views": []},
+            None,
+            collected_at="2026-08-27T00:00:00+00:00",
+        )
+
+        row = app.get_traffic_history("octocat/quiet")[0]
+        self.assertEqual(row["views"], 4)
+        self.assertEqual(row["unique_views"], 2)
+        self.assertEqual(row["views_available"], 1)
+        self.assertEqual(row["views_status"], "observed_value")
+
+    def test_repository_creation_date_excludes_impossible_zero_buckets(self) -> None:
+        today = app.datetime.now(app.timezone.utc).date()
+        created_day = today - app.timedelta(days=1)
+        created_at = f"{created_day.isoformat()}T09:29:28Z"
+        app.reconcile_repository_registry(
+            [{"id": 42, "full_name": "octocat/butterfly", "created_at": created_at}],
+            app.datetime.now(app.timezone.utc).isoformat(),
+        )
+        daily = [
+            {
+                "timestamp": app.datetime.combine(
+                    today - app.timedelta(days=13 - offset),
+                    app.datetime.min.time(),
+                    app.timezone.utc,
+                ).isoformat(),
+                "count": 0,
+                "uniques": 0,
+            }
+            for offset in range(14)
+        ]
+        app.save_traffic(
+            "octocat/butterfly",
+            {"count": 0, "uniques": 0, "views": daily},
+            {"count": 0, "uniques": 0, "clones": daily},
+            collected_at=app.datetime.now(app.timezone.utc).isoformat(),
+        )
+
+        history = app.get_traffic_history("octocat/butterfly")
+        self.assertEqual([row["day"] for row in history], [today.isoformat()])
+        with app.database_connection() as connection:
+            metric = app.analyze_event_metric(
+                connection,
+                repo="octocat/butterfly",
+                event_day=created_day,
+                metric="views",
+            )
+        self.assertEqual(metric["status"], "waiting")
+        self.assertIsNone(metric["pre"])
+        self.assertIsNone(metric["post"])
+        self.assertEqual(metric["window_days"], 0)
+
+    def test_stale_latest_bucket_is_reported_as_upstream_stale(self) -> None:
+        latest = app.datetime.now(app.timezone.utc).date() - app.timedelta(days=4)
+        daily = [
+            {
+                "timestamp": app.datetime.combine(
+                    latest - app.timedelta(days=offset), app.datetime.min.time(), app.timezone.utc
+                ).isoformat(),
+                "count": 0,
+                "uniques": 0,
+            }
+            for offset in range(4)
+        ]
+        app.save_traffic(
+            "octocat/stale",
+            {"count": 0, "uniques": 0, "views": daily},
+            None,
+        )
+        with app.database_connection() as connection:
+            metric = app.analyze_event_metric(
+                connection,
+                repo="octocat/stale",
+                event_day=latest + app.timedelta(days=1),
+                metric="views",
+            )
+        self.assertEqual(metric["status"], "stale_upstream")
+        self.assertIsNone(metric["change_pct"])
+        event_day = latest + app.timedelta(days=1)
+        app.record_repository_event(
+            repo="octocat/stale",
+            event_type="readme",
+            title="Stale traffic event",
+            occurred_at=f"{event_day.isoformat()}T12:00:00Z",
+            source="github_commit",
+        )
+        impact = app.build_impact_lab(limit=1)
+        self.assertEqual(impact["events"][0]["outcome_key"], "stale_upstream")
+        self.assertEqual(impact["summary"]["measured"], 0)
 
     def test_unknown_current_traffic_window_requests_a_refresh(self) -> None:
         with app.database_connection() as connection:
