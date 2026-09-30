@@ -10,6 +10,7 @@ from __future__ import annotations
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 import json
+import copy
 import os
 from pathlib import Path
 from threading import Thread
@@ -35,6 +36,7 @@ def source_fixture():
         "account": "fixture-user",
         "provider": {"configured": False},
         "repositories": [{
+            "id": 7,
             "full_name": "fixture-user/public-repo",
             "revision": "a" * 40,
             "coverage": {"summary": "Synthetic UI test coverage only"},
@@ -53,6 +55,7 @@ def source_fixture():
                   "stage": "Synthetic fixture collected", "requests_used": 5,
                   "input": {"repo": "fixture-user/public-repo", "max_requests": 80}}],
         "matches": [{
+            "repo_id": 7,
             "id": "match-fixture", "repo": "fixture-user/public-repo",
             "revision": "a" * 40, "capability_id": "cap-fixture",
             "classification": "investigate",
@@ -266,6 +269,39 @@ class MissingLinkFrontendTests(unittest.TestCase):
         self.page.locator("#mlIncludeSuperseded").check()
         self.assertEqual(self.page.locator(".ml-match").count(), 1)
         self.assertIn("Superseded result", self.page.locator("#mlMatches").inner_text())
+
+    def test_repository_rename_keeps_same_identity_history(self):
+        fixture = source_fixture()
+        self.fixture_page(fixture)
+        fixture["repositories"][0]["full_name"] = "fixture-user/renamed"
+        self.page.evaluate("fixture => {window.mlFixture = fixture;}", fixture)
+        self.page.locator("#mlRepo").fill("fixture-user/renamed")
+        self.page.locator("#mlRepo").dispatch_event("input")
+        self.page.locator('[data-ml-action="refresh"]').click()
+        self.page.locator(".ml-match").wait_for()
+        self.assertEqual(self.page.locator(".ml-match").count(), 1)
+        self.assertIn("Synthetic request", self.page.locator("#mlMatches").inner_text())
+
+    def test_reused_name_does_not_mix_distinct_repository_ids(self):
+        fixture = source_fixture()
+        fixture["repositories"][0]["full_name"] = "fixture-user/renamed"
+        other = copy.deepcopy(fixture["repositories"][0])
+        other.update(id=8, full_name="fixture-user/public-repo")
+        fixture["repositories"].append(other)
+        fixture["matches"][0]["request"]["title"] = "Historical repository need"
+        other_match = copy.deepcopy(fixture["matches"][0])
+        other_match.update(id="new-repository-match", repo_id=8)
+        other_match["request"]["title"] = "New repository need"
+        fixture["matches"].append(other_match)
+        self.fixture_page(fixture)
+        self.assertEqual(self.page.locator(".ml-match").count(), 1)
+        self.assertIn("New repository need", self.page.locator("#mlMatches").inner_text())
+        self.assertNotIn("Historical repository need", self.page.locator("#mlMatches").inner_text())
+        self.page.locator("#mlRepo").fill("fixture-user/renamed")
+        self.page.locator("#mlRepo").dispatch_event("input")
+        self.assertEqual(self.page.locator(".ml-match").count(), 1)
+        self.assertIn("Historical repository need", self.page.locator("#mlMatches").inner_text())
+        self.assertNotIn("New repository need", self.page.locator("#mlMatches").inner_text())
 
     def test_exhausted_budget_requires_explicit_higher_limit(self):
         fixture = source_fixture()

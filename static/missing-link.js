@@ -243,8 +243,9 @@ export function initMissingLink({ api, escapeHtml, demoMode, getDashboard }) {
   }
 
   function renderMatches() {
+    const selected = matchingRepo();
     const all = array(state.data?.matches).filter((match) =>
-      (!selectedRepo() || String(match.repo).toLowerCase() === selectedRepo().toLowerCase())
+      (!selectedRepo() || (selected?.id != null && match.repo_id != null && String(match.repo_id) === String(selected.id)))
       && (state.includeSuperseded || !(match.superseded === true || match.status === "superseded")));
     const matches = all.filter((match) => state.filter === "all" || match.classification === state.filter);
     find("mlMatchCount").textContent = `${all.length} results for selected repository`;
@@ -260,8 +261,8 @@ export function initMissingLink({ api, escapeHtml, demoMode, getDashboard }) {
       const verification = bridge.verification || { status: "not_executed" };
       const examples = array(match.isolated_examples);
       const currentExamples = examples.filter((example) => example.applies_to_current_bridge === true);
-      const capability = match.capability || array(state.data?.repositories).flatMap((repo) => array(repo.capabilities)).find((item) => item.id === match.capability_id);
-      const revisionChanged = matchingRepo()?.revision && match.revision && matchingRepo().revision !== match.revision;
+      const capability = match.capability || array(selected?.capabilities).find((item) => item.id === match.capability_id);
+      const revisionChanged = selected?.revision && match.revision && selected.revision !== match.revision;
       const feedbackHistory = array(match.feedback);
       const latestFeedback = feedbackHistory.length ? feedbackHistory[feedbackHistory.length - 1] : match.feedback || {};
       const checks = array(match.checks);
