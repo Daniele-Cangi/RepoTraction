@@ -130,7 +130,20 @@ def _kind(path: str) -> str:
     return "unsupported"
 
 
-def _priority(entry: dict[str, Any]) -> tuple[int, int, str]:
+def source_role(path: str) -> str:
+    """Path-only sampling hint, never a claim about functionality or exports."""
+    parts = PurePosixPath(path.split(":", 1)[0].casefold()).parts
+    if not parts:
+        return "implementation"
+    if any(part in {".github", "checks", "tools", "scripts", "benchmarks", "docs", "doc", "examples"}
+           for part in parts[:-1]) or parts[-1] in {"setup.py", "conftest.py", "selftest.py"}:
+        return "infrastructure"
+    if _kind(path.split(":", 1)[0]) == "test":
+        return "test"
+    return "implementation"
+
+
+def _priority(entry: dict[str, Any]) -> tuple:
     path = entry["path"]
     name = PurePosixPath(path).name.casefold()
     preferred = name.startswith(("readme", "license", "copying")) or name in {
@@ -138,7 +151,8 @@ def _priority(entry: dict[str, Any]) -> tuple[int, int, str]:
     # Size is only a sampling heuristic, not proof that an initializer is empty.
     # Keep tiny initializers eligible, but behind ordinary implementations.
     empty_init = name == "__init__.py" and entry.get("size", 0) < 100
-    return (2 if empty_init else 0 if preferred else 1, path.count("/"), path.casefold())
+    return (source_role(path) == "infrastructure", 2 if empty_init else 0 if preferred else 1,
+            path.count("/"), path.casefold())
 
 
 def _select_files(entries: list[dict[str, Any]], limit: int) -> list[dict[str, Any]]:
@@ -264,6 +278,10 @@ class PublicGitHub:
             limitations.append(f"File budget sampled {max_files} of {len(candidates)} eligible files.")
         if excluded:
             limitations.append("Some files were excluded for safety, size, encoding or unsupported type.")
+        eligible_roles = Counter(source_role(e["path"]) for e in candidates if _kind(e["path"]) == "source")
+        acquired_roles = Counter(source_role(f["path"]) for f in files if f["kind"] == "source")
+        if eligible_roles["implementation"] and not acquired_roles["implementation"]:
+            limitations.append("No implementation source was acquired; this sample cannot represent product capabilities.")
         description, redacted, description_truncated = _redact(repo.get("description"))
         return {"id": repo.get("id"), "full_name": full_name, "revision": revision,
                 "default_branch": branch, "description": description, "license": repo.get("license"),
@@ -275,6 +293,8 @@ class PublicGitHub:
                              "files_scanned": len(files), "file_budget": max_files,
                              "bytes_scanned": total_bytes, "language_counts": dict(language_counts),
                              "tree_language_counts": dict(languages_in_tree), "excluded": dict(excluded),
+                             "sampling_policy": "Path heuristic: implementation before infrastructure; bounded docs/source/test mix, not export verification.",
+                             "eligible_source_roles": dict(eligible_roles), "acquired_source_roles": dict(acquired_roles),
                              "metadata_redacted": redacted, "metadata_truncated": description_truncated,
                              "complete": not tree.get("truncated") and len(files) == len(candidates) and not excluded,
                              "eligible_sample_complete": not tree.get("truncated") and len(files) == len(candidates),

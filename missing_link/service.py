@@ -13,7 +13,7 @@ from .analysis import (analysis_contract, conservative_matches, conservative_req
 from .provider import Provider
 from .store import Store
 from .lease import WorkerLease
-from .sources import PublicGitHub, extract_structure
+from .sources import PublicGitHub, extract_structure, source_role
 
 
 def now():
@@ -399,6 +399,7 @@ class Service:
         candidates = repository.get("capabilities", [])
         ranked = sorted(candidates, key=lambda cap: (
             0 if cap.get("maintainer_correction") else 1 if cap.get("claim_source") == "model" else 2,
+            source_role(cap.get("entrypoint", "") or "unknown") == "infrastructure",
             0 if cap.get("level") == "mechanism" and not cap.get("name", "").startswith("_") else 1,
             0 if not cap.get("summary", "").startswith(("Declared ", "Declaration candidate")) else 1,
             1 if any(term in cap.get("entrypoint", "").lower() for term in ("__main__", "tools/", "tests/")) else 0))

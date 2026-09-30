@@ -3,6 +3,7 @@ import json
 import re
 
 from .analysis import evidence_catalog, resolve_evidence
+from .sources import source_role
 
 
 def size(value):
@@ -60,6 +61,7 @@ def build_context(repository, issue, phase, byte_limit):
     candidates = []
     if repository:
         candidates = sorted(repository.get("capabilities", []), key=lambda c: (
+            source_role(c.get("entrypoint", "") or "unknown") == "infrastructure",
             c.get("level") != "mechanism", c.get("name", "").startswith("_"), c.get("standalone") != "yes"))[:30]
         data["repository"] = {key: repository.get(key) for key in ("id", "full_name", "revision", "license", "coverage")}
         # Do not duplicate source snippets, raw files, snapshots or account data.
