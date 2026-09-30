@@ -24,6 +24,7 @@ MAX_TOTAL_BYTES = 2 * 1024 * 1024
 MAX_TEXT_CHARS = 64 * 1024
 MAX_DISCUSSION_CHARS = 512 * 1024
 MAX_CAPABILITIES = 100
+MAX_INITIALIZER_HINTS = 64
 REPO_PATTERN = re.compile(r"[A-Za-z0-9][A-Za-z0-9-]{0,38}/[A-Za-z0-9_.-]{1,100}\Z")
 SHA_PATTERN = re.compile(r"(?:[a-fA-F0-9]{40}|[a-fA-F0-9]{64})\Z")
 SUPPORTED_CODE = {".py": "Python", ".js": "JavaScript", ".mjs": "JavaScript",
@@ -203,6 +204,8 @@ def _initializer_imports(path: str, text: str, eligible: dict) -> list[str]:
                 for candidate in (stem + ".py", stem + "/__init__.py"):
                     if candidate in eligible and candidate != path and candidate not in targets:
                         targets.append(candidate)
+                        if len(targets) == MAX_INITIALIZER_HINTS:
+                            return targets
     return targets
 
 
@@ -282,6 +285,7 @@ class PublicGitHub:
         eligible_by_path = {entry["path"]: entry for entry in candidates}
         attempted = set()
         initializer_hints = []
+        initializer_hints_complete = True
         # Following an initializer replaces later heuristic slots; it never
         # expands the read/file/byte budget, including failed acquisitions.
         while pending and len(attempted) < max_files:
@@ -319,8 +323,13 @@ class PublicGitHub:
                           "url": f"https://github.com/{full_name}/blob/{revision}/{quote(path, safe='/')}",
                           "kind": _kind(path), "language": language, "bytes": len(raw)})
             targets = _initializer_imports(path, text, eligible_by_path)
+            if len(targets) == MAX_INITIALIZER_HINTS:
+                initializer_hints_complete = False
             for target in targets:
-                initializer_hints.append({"from": path, "path": target})
+                if len(initializer_hints) < MAX_INITIALIZER_HINTS:
+                    initializer_hints.append({"from": path, "path": target})
+                else:
+                    initializer_hints_complete = False
             to_follow = [target for target in targets if target not in attempted]
             pending = ([eligible_by_path[target] for target in to_follow] +
                        [item for item in pending if item["path"] not in to_follow])
@@ -348,6 +357,8 @@ class PublicGitHub:
                              "tree_language_counts": dict(languages_in_tree), "excluded": dict(excluded),
                              "sampling_policy": "Path heuristic plus static initializer-import hints; bounded docs/source/test mix, not export verification.",
                              "initializer_import_hints": initializer_hints,
+                             "initializer_import_hints_complete": initializer_hints_complete,
+                             "initializer_hint_limit": MAX_INITIALIZER_HINTS,
                              "omitted_initializer_imports": sorted({hint["path"] for hint in initializer_hints}
                                  - {file["path"] for file in files}),
                              "eligible_source_roles": dict(eligible_roles), "acquired_source_roles": dict(acquired_roles),

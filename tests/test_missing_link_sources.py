@@ -174,6 +174,16 @@ class SourceValidationTests(unittest.TestCase):
 
 
 class RepositoryAcquisitionTests(unittest.TestCase):
+    def test_import_hint_ledger_has_a_bound_independent_of_file_budget(self):
+        fixture = GitHubFixture()
+        fixture.add("pkg/__init__.py", "\n".join(f"from .module_{i:02d} import item" for i in range(80)))
+        for i in range(80):
+            fixture.add(f"pkg/module_{i:02d}.py", "def item(): pass\n")
+        result = PublicGitHub(fixture.read).fetch_repository("sample/project", max_files=2)
+        self.assertEqual(len(result["files"]), 2)
+        self.assertEqual(len(result["coverage"]["initializer_import_hints"]), 64)
+        self.assertFalse(result["coverage"]["initializer_import_hints_complete"])
+
     def test_large_first_module_cannot_hide_later_public_engine(self):
         fixture = GitHubFixture()
         fixture.add("pkg/core.py", "\n".join(f"def helper_{i}(): return True" for i in range(120)))
