@@ -19,6 +19,12 @@ def digest(value: Any) -> str:
     return hashlib.sha256(json.dumps(value, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
 
 
+def capability_fingerprint(capability: dict) -> str:
+    # Audit timestamps/original values do not change the effective interpretation.
+    return digest({key: value for key, value in capability.items()
+                   if key not in {"original_interpretation", "maintainer_correction"}})
+
+
 def text(value: Any, limit: int = 6000) -> str:
     if not isinstance(value, str):
         raise ValueError("Expected text in analysis.")
@@ -205,10 +211,12 @@ def validate_matches(raw_matches: list, repository: dict, issue: dict, request: 
             classification = "extraction" if capability.get("standalone") == "no" else "investigate"
             obstacles.append("Separately usable entry point is not established.")
         key = {"repo_id": repository["id"], "revision": repository["revision"],
-            "request": request["fingerprint"], "capability": capability_id, "source": source}
+            "request": request["fingerprint"], "capability": capability_id, "source": source,
+            "capability_fingerprint": capability_fingerprint(capability)}
         matches.append({"id": digest(key)[:32], "repo": repository["full_name"], "repo_id": repository["id"],
             "revision": repository["revision"], "request": request, "capability_id": capability_id,
-            "capability": capability, "classification": classification, "summary": text(raw.get("summary", "Investigation required.")),
+            "capability": capability, "capability_fingerprint": key["capability_fingerprint"],
+            "classification": classification, "summary": text(raw.get("summary", "Investigation required.")),
             "checks": checks, "bridge": bridge, "obstacles": list(dict.fromkeys(obstacles)),
             "analysis_source": source, "source_fingerprint": request["fingerprint"],
             "source_issue": issue,

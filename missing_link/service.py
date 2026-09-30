@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from .analysis import (analysis_contract, conservative_matches, conservative_request, digest,
-    evidence_catalog, extension_groups, text, texts, validate_matches, validate_request)
+    evidence_catalog, extension_groups, text, texts, validate_matches, validate_request, capability_fingerprint)
 from .provider import Provider
 from .store import Store
 from .lease import WorkerLease
@@ -106,6 +106,7 @@ class Service:
         self._reconcile_abandoned_jobs()
         repositories = self.store.list("repositories")
         revisions = {repo["id"]: repo["revision"] for repo in repositories}
+        by_id = {repo["id"]: repo for repo in repositories}
         matches = self.store.list("matches")
         latest_discussions = self.store.latest_discussions()
         for match in matches:
@@ -113,7 +114,9 @@ class Service:
             latest_discussions.setdefault(str(request["id"]), request)
         for match in matches:
             latest = latest_discussions.get(str(match["request"]["id"]), {})
-            match["stale"] = revisions.get(match["repo_id"]) != match["revision"] or latest.get("fingerprint") != match["source_fingerprint"]
+            match["stale"] = (revisions.get(match["repo_id"]) != match["revision"] or
+                latest.get("fingerprint") != match["source_fingerprint"] or
+                not self._capability_current(match, by_id.get(match["repo_id"], {})))
             match.pop("source_issue", None)
             match["isolated_examples"] = self._example_receipts(match)
         # Frontend does not need complete fetched code or prompt contexts on every poll.
@@ -127,6 +130,15 @@ class Service:
             "jobs": jobs, "matches": matches, "extension_groups": extension_groups(matches),
             "safety": {"public_only": True, "host_execution": False, "publication": False},
             "limits": {"requests_per_job_max": 200, "candidates_per_job_max": 10, "source_files": 24}}
+
+    @staticmethod
+    def _capability_current(match, repository):
+        current = next((cap for cap in repository.get("capabilities", [])
+                        if cap["id"] == match.get("capability_id")), None)
+        # Old matches already embed their interpretation; no migration or
+        # silently substituting today's capability into historical evidence.
+        expected = match.get("capability_fingerprint") or capability_fingerprint(match.get("capability", {}))
+        return current is not None and capability_fingerprint(current) == expected
 
     @staticmethod
     def _bounded_integer(raw, default, minimum, maximum):
@@ -532,6 +544,8 @@ class Service:
         current = self.store.get("repositories", match["repo_id"])
         if current["revision"] != match["revision"]:
             raise ValueError("The repository revision changed; reevaluate before executing an example.")
+        if not self._capability_current(match, current):
+            raise ValueError("The capability interpretation changed; reevaluate before executing an example.")
         issue = self.store.latest_discussions().get(str(match["request"]["id"]))
         if issue and issue["fingerprint"] != match["source_fingerprint"]:
             raise ValueError("The discussion changed; reevaluate before executing an example.")

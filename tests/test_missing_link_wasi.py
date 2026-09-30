@@ -115,6 +115,24 @@ class WasiTests(unittest.TestCase):
                     run.assert_not_called()
                 self.assertEqual(restarted.store.proofs(match["id"]), [])
 
+    def test_capability_correction_blocks_old_example_before_runner(self):
+        with tempfile.TemporaryDirectory() as temp:
+            service = Service(Path(temp) / "alice.sqlite3", "alice", lambda _: {}, lambda: "alice", provider=Provider({}))
+            match, repo = fixture()
+            repo.update(id=7, public=True)
+            match.update(repo_id=7, analysis_source="model", source_fingerprint="fixture-fingerprint")
+            service.store.put("repositories", 7, repo)
+            service.store.save_matches([match], repo)
+            self.assertTrue(service._capability_current(match, repo))
+            service.correct_capability({"repo": repo["full_name"], "capability_id": match["capability_id"],
+                "correction": {"standalone": "no", "limitations": ["Needs target runtime"]}})
+            restarted = Service(service.store.path, "alice", lambda _: {}, lambda: "alice", provider=Provider({}))
+            with mock.patch("missing_link.wasi_runner.WasiRunner.run") as run:
+                with self.assertRaisesRegex(ValueError, "capability interpretation changed"):
+                    restarted.execute_example({"approved": True, "match_id": match["id"], "entrypoint": "bridge/example.py"})
+                run.assert_not_called()
+            self.assertEqual(restarted.store.proofs(match["id"]), [])
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -388,6 +388,45 @@ class ServiceTests(unittest.TestCase):
         self.service.store.put("repositories", repo["id"], repo)
         self.assertTrue(all(match["stale"] for match in self.service.state()["matches"]))
 
+    def test_capability_correction_invalidates_history_and_reassessment_gets_new_id(self):
+        job = self.run_fixture()
+        old_id = job["result"]["match_ids"][0]
+        self.service.feedback({"match_id": old_id, "decision": "needs_work", "note": "Preserve history"})
+        self.assertFalse(self.service.state()["matches"][0]["stale"])
+        self.service.correct_capability({"repo": "example/words", "capability_id": "trim",
+            "correction": {"standalone": "no", "preconditions": ["Needs host state"], "limitations": ["Not standalone"]}})
+        restarted = Service(self.path, "alice", self.read, lambda: "alice", Provider({}))
+        self.assertTrue(restarted.state()["matches"][0]["stale"])
+        new_id = self.run_fixture()["result"]["match_ids"][0]
+        self.assertNotEqual(old_id, new_id)
+        states = {match["id"]: match for match in self.service.state()["matches"]}
+        self.assertTrue(states[old_id]["stale"])
+        self.assertFalse(states[new_id]["stale"])
+        self.assertEqual(states[old_id]["feedback"][0]["note"], "Preserve history")
+        self.assertEqual(states[old_id]["capability"]["standalone"], "yes")
+        self.assertEqual(states[new_id]["capability"]["standalone"], "no")
+
+    def test_legacy_match_uses_embedded_capability_for_freshness(self):
+        job = self.run_fixture()
+        match = self.service.store.get("matches", job["result"]["match_ids"][0])
+        match.pop("capability_fingerprint")
+        self.service.store.put("matches", match["id"], match)
+        self.assertFalse(self.service.state()["matches"][0]["stale"])
+        self.service.correct_capability({"repo": "example/words", "capability_id": "trim",
+            "correction": {"limitations": ["Requires another service"]}})
+        self.assertTrue(self.service.state()["matches"][0]["stale"])
+
+    def test_other_capability_and_audit_metadata_do_not_invalidate_match(self):
+        job = self.run_fixture()
+        match = self.service.store.get("matches", job["result"]["match_ids"][0])
+        repo = repository()
+        repo["capabilities"].append(dict(repo["capabilities"][0], id="other", standalone="no"))
+        repo["capabilities"][0]["maintainer_correction"] = {"at": "2026-09-30T12:00:00Z"}
+        repo["capabilities"][0]["original_interpretation"] = {"standalone": "unknown"}
+        self.assertTrue(Service._capability_current(match, repo))
+        repo["capabilities"] = []
+        self.assertFalse(Service._capability_current(match, repo))
+
     def test_store_redacts_credential_shapes_without_truncating_source(self):
         long_text = "z" * 100000
         self.service.store.put("repositories", 5, {"text": long_text, "note": "ghp_" + "A" * 36})

@@ -24,6 +24,8 @@ def fixture():
         "bridge": {"kind": "adapter", "summary": "Fixture proposal", "existing_contribution": "Boundary handling", "new_logic": "CLI wrapper", "steps": ["Review the package"], "files": [{"path": "example.py", "content": "# inspection only\n"}], "success_criteria": ["Optional wrapper check"], "verification": {"status": "passed"}},
     }
     repo = {"full_name": "fixture/library", "revision": "a" * 40, "license": {"spdx_id": "MIT"}, "files": {"library.py": "# fixture source\ndef boundary(value):\n    return value\n", "LICENSE": "Fixture license metadata only"}, "api_key": "never-export-me", "database_path": "C:/Users/private.sqlite3"}
+    match["capability_id"] = match["capability"]["id"] = "fixture-capability"
+    repo["capabilities"] = [dict(match["capability"])]
     return match, repo
 
 
