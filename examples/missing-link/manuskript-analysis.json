@@ -17,8 +17,8 @@
     "classification": "adapter",
     "summary": "The existing Unicode-preserving slug pipeline can provide readable Cyrillic stems; integrating it into Manuskript's persisted naming contract needs a small adapter and compatibility checks.",
     "checks": [
-      {"requirement_id": "r0", "status": "satisfied", "reason": "The public wrapper forwards allow_unicode to the frozen pipeline, whose Unicode branch uses NFKC and Unicode-permitted filtering rather than transliterating or replacing all Cyrillic characters. This is source-grounded compatibility, NOT an executed filename integration.", "source_ids": ["file:slugify/slugify.py#L195-L222", "file:slugify/_legacy.py#L137-L161", "file:README.md"]},
-      {"requirement_id": "r1", "status": "satisfied", "reason": "An importable public slugify function and usage examples exist.", "source_ids": ["file:slugify/__init__.py", "file:README.md"]}
+      {"requirement_id": "r0", "status": "satisfied", "contribution": "existing_behavior", "reason": "The public wrapper forwards allow_unicode to the frozen pipeline, whose Unicode branch uses NFKC and Unicode-permitted filtering rather than transliterating or replacing all Cyrillic characters. This is source-grounded compatibility, NOT an executed filename integration.", "source_ids": ["file:slugify/slugify.py#L195-L222", "file:slugify/_legacy.py#L137-L161", "file:README.md"]},
+      {"requirement_id": "r1", "status": "satisfied", "contribution": "existing_behavior", "reason": "An importable public slugify function and usage examples exist.", "source_ids": ["file:slugify/__init__.py", "file:README.md"]}
     ],
     "obstacles": ["Source behavior has not been executed in the target application.", "Python >=3.10 and text-unidecode dependency require target-environment review.", "Changing the old helper blindly could rename persisted files or produce collisions.", "The reported need is old; no outreach or adoption forecast is justified."],
     "bridge": {

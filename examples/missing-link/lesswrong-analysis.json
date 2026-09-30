@@ -16,7 +16,7 @@
     "classification": "investigate",
     "summary": "Reuse the lower-level smart_truncate mechanism without the slug product's normalization; strict whole-word behavior needs an edge-policy adapter.",
     "checks": [
-      {"requirement_id": "r0", "status": "undetermined", "reason": "With word_boundary=True and save_order=True it can keep ordinary space-separated words in order. However, no separator or no fitting first word falls back to a hard slice (lines 87-88 and 100-101), so the unconditional requirement is NOT satisfied by the helper alone.", "source_ids": ["file:slugify/_legacy.py#L68-L102", "file:slugify/slugify.py", "file:slugify/__init__.py"]}
+      {"requirement_id": "r0", "status": "undetermined", "contribution": "not_demonstrated", "reason": "With word_boundary=True and save_order=True it can keep ordinary space-separated words in order. However, no separator or no fitting first word falls back to a hard slice (lines 87-88 and 100-101), so the unconditional requirement is NOT satisfied by the helper alone.", "source_ids": ["file:slugify/_legacy.py#L68-L102", "file:slugify/slugify.py", "file:slugify/__init__.py"]}
     ],
     "obstacles": ["Overlong first-word/no-space fallback splits words.", "The default save_order=False can skip early words; opt in explicitly.", "Unknown budget/runtime and old demand; no qualified opportunity or proven extraction.", "Do not pass raw HTML or call slugify on prose."],
     "bridge": {

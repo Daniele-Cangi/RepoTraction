@@ -48,8 +48,8 @@ def request_raw():
 
 def raw_match():
     return {"capability_id": "trim", "classification": "direct", "summary": "Similar words",
-        "checks": [{"requirement_id": "r0", "status": "satisfied", "reason": "Source declaration", "source_ids": ["c0:0"]},
-            {"requirement_id": "r1", "status": "incompatible", "reason": "Python is not CSS", "source_ids": ["file:words.py"]}],
+        "checks": [{"requirement_id": "r0", "status": "satisfied", "contribution": "existing_behavior", "reason": "Source declaration", "source_ids": ["c0:0"]},
+            {"requirement_id": "r1", "status": "incompatible", "contribution": "not_demonstrated", "reason": "Python is not CSS", "source_ids": ["file:words.py"]}],
         "bridge": {"kind": "example", "summary": "Inspect interface", "files": [{"path": "example.txt", "content": "Not run."}],
             "success_criteria": ["Just import successfully"], "verification": {"status": "live"}}}
 

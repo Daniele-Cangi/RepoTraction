@@ -280,7 +280,10 @@ def assess_discovery(repository, issue, request, classification, checks, catalog
                        and bool(re.fullmatch(r"[a-fA-F0-9]{40}|[a-fA-F0-9]{64}", target_context["revision"])))
     relationship = ("same_project" if same_project else "already_referenced" if linked else
                     "reference_hint" if reference_count else "external" if target else "unknown")
-    supported_ids = [check["requirement_id"] for check in checks if check["status"] == "satisfied"]
+    supported_ids = [check["requirement_id"] for check in checks
+                     if check["status"] == "satisfied" and check.get("contribution") == "existing_behavior"]
+    scope_ids = [check["requirement_id"] for check in checks
+                 if check["status"] == "satisfied" and check.get("contribution") == "scope_compatible"]
     conflict_ids = [check["requirement_id"] for check in checks if check["status"] == "incompatible"]
     unknown_ids = [check["requirement_id"] for check in checks if check["status"] == "undetermined"]
     supported = bool(supported_ids)
@@ -321,12 +324,15 @@ def assess_discovery(repository, issue, request, classification, checks, catalog
     else:
         status = "external_lead"
         reasons.append("Potential external connection with supported requirements; novelty, execution, target integration and adoption remain unverified.")
-    reasons.append("No reference found in a bounded discussion is not proof that this connection is new or unknown to the author.")
+    if scope_ids:
+        reasons.append("Scope-compatible constraints (such as leaving an API unchanged) are not reusable existing behavior and do not count as a useful contribution.")
+    reasons.append("No reference found in bounded discussion/target samples is not proof that this connection is new or unknown to the author.")
     if not target_acquired:
         reasons.append("No pinned public target reference context was acquired; prior dependency/use remains unknown.")
     reasons.extend(review["qualification_blockers"])
     return {"status": status, "relationship": relationship, "contribution": contribution,
         "supported_requirement_ids": supported_ids, "conflicting_requirement_ids": conflict_ids,
+        "scope_compatible_requirement_ids": scope_ids,
         "undetermined_requirement_ids": unknown_ids,
         "opportunity_review": review,
         "novelty": "unverified", "eligible_for_followup": status == "external_lead",

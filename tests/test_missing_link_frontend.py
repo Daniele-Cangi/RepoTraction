@@ -136,6 +136,20 @@ class MissingLinkFrontendTests(unittest.TestCase):
         self.assertIn("Invalid quote <img", warning.inner_text())
         self.assertEqual(warning.locator("img").count(), 0)
 
+    def test_scope_compatibility_is_not_displayed_as_existing_behavior(self):
+        fixture = source_fixture()
+        match = fixture["matches"][0]
+        match["checks"][0].update(status="satisfied", contribution="scope_compatible")
+        match["discovery_assessment"] = {"status": "similarity_only", "supported_requirement_ids": [],
+            "scope_compatible_requirement_ids": ["r1"], "conflicting_requirement_ids": [], "undetermined_requirement_ids": []}
+        self.fixture_page(fixture)
+        details = self.page.locator('[data-ml-detail="discovery-match-fixture"]')
+        details.locator("summary").click()
+        self.assertIn("Existing behavior: 0", details.inner_text())
+        self.assertIn("Scope-compatible constraints: 1", details.inner_text())
+        self.page.locator('[data-ml-detail="requirements-match-fixture"] summary').click()
+        self.assertIn("Scope-compatible constraint only", self.page.locator(".ml-requirement").inner_text())
+
     def test_discovery_qualification_is_separate_and_reference_markup_is_escaped(self):
         fixture = source_fixture()
         fixture["matches"][0]["classification"] = "direct"
@@ -246,7 +260,7 @@ class MissingLinkFrontendTests(unittest.TestCase):
         self.page.get_by_text("Partial code support · full request still rejected", exact=True).wait_for()
         self.assertIn("Not a fit", self.page.locator("#mlMatches").inner_text())
         self.page.locator('[data-ml-detail="discovery-match-fixture"]').evaluate("node => node.open = true")
-        self.assertIn("Existing support: 1 requirements · Conflicts: 1", self.page.locator("#mlMatches").inner_text())
+        self.assertIn("Existing behavior: 1 requirements · Scope-compatible constraints: 0 · Conflicts: 1", self.page.locator("#mlMatches").inner_text())
         self.assertEqual(self.page.locator("#mlMatches script").count(), 0)
         self.assertIn("Not executed", self.page.locator("#mlMatches").inner_text())
 

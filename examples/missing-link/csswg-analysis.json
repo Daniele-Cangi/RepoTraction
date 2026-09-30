@@ -17,8 +17,8 @@
     "classification": "rejected",
     "summary": "The phrase 'word boundaries' retrieves a similar mechanism, but a Python character-count helper cannot implement native CSS paint/layout semantics.",
     "checks": [
-      {"requirement_id": "r0", "status": "incompatible", "reason": "smart_truncate receives a Python string and integer max_length, selects words using string splitting, and returns a string. It has no browser layout widths, scroll state or CSS property implementation. Server-side text alteration would change the requested mechanism.", "source_ids": ["file:slugify/_legacy.py#L68-L102", "q1"]},
-      {"requirement_id": "r1", "status": "undetermined", "reason": "Its ordinary character-budget truncation is not pixel/paint-time clipping, and it also has hard-slice fallback edges.", "source_ids": ["file:slugify/_legacy.py#L85-L102"]}
+      {"requirement_id": "r0", "status": "incompatible", "contribution": "not_demonstrated", "reason": "smart_truncate receives a Python string and integer max_length, selects words using string splitting, and returns a string. It has no browser layout widths, scroll state or CSS property implementation. Server-side text alteration would change the requested mechanism.", "source_ids": ["file:slugify/_legacy.py#L68-L102", "q1"]},
+      {"requirement_id": "r1", "status": "undetermined", "contribution": "not_demonstrated", "reason": "Its ordinary character-budget truncation is not pixel/paint-time clipping, and it also has hard-slice fallback edges.", "source_ids": ["file:slugify/_legacy.py#L85-L102"]}
     ],
     "obstacles": ["Hard runtime/layout mismatch: Python string processing versus browser-native CSS behavior.", "The line-clamp branch is not an unmet need according to the follow-up.", "A new browser layout implementation would be a different project, not narrow reuse."],
     "bridge": {

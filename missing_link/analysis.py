@@ -15,7 +15,17 @@ from .qualification import assess_discovery
 
 CLASSIFICATIONS = {"direct", "adapter", "extraction", "rejected", "investigate"}
 REQUEST_STATUSES = {"unresolved", "resolved", "duplicate", "unclear", "automated"}
-ANALYSIS_CONTRACT_VERSION = 8
+ANALYSIS_CONTRACT_VERSION = 9
+
+
+def passive_api_constraint(requirement: dict) -> bool:
+    """Narrow preservation hint, not a general classifier of negative demands."""
+    for value in (requirement["text"], requirement.get("source", {}).get("quote", "")):
+        if (re.search(r"\b(?:apis?|interfaces?)\b|\bcapture_\w*", value, re.I)
+                and re.search(r"\bunchanged\b|\bno changes?\b|\bwithout (?:changing|modifying)\b|"
+                              r"\bnot (?:be )?necessary to (?:make changes|change|modify)\b", value, re.I)):
+            return True
+    return False
 
 
 def digest(value: Any) -> str:
@@ -218,6 +228,9 @@ def validate_matches(raw_matches: list, repository: dict, issue: dict, request: 
             status = item.get("status", "undetermined")
             if status not in {"satisfied", "incompatible", "undetermined"}:
                 raise ValueError("Unknown requirement verdict.")
+            contribution = item.get("contribution", "not_demonstrated")
+            if contribution not in {"existing_behavior", "scope_compatible", "not_demonstrated"}:
+                raise ValueError("Unknown requirement contribution kind.")
             evidence = []
             for reference in item.get("source_ids", []):
                 entry = resolve_evidence(reference, catalog)
@@ -227,13 +240,21 @@ def validate_matches(raw_matches: list, repository: dict, issue: dict, request: 
             # No citation => no affirmative conclusion; lexical overlap cannot satisfy a requirement.
             if status in {"satisfied", "incompatible"} and not any(e.get("path") for e in evidence):
                 status = "undetermined"
-            checks.append({"requirement_id": rid, "status": status,
+            if status == "satisfied" and contribution == "not_demonstrated":
+                status = "undetermined"
+            if status != "satisfied":
+                contribution = "not_demonstrated"
+            elif passive_api_constraint(requirement):
+                contribution = "scope_compatible"
+            checks.append({"requirement_id": rid, "status": status, "contribution": contribution,
                 "reason": text(item.get("reason", "No grounded assessment supplied.")), "evidence": evidence})
         hard = [item for item in checks if requirements[item["requirement_id"]]["mandatory"]]
         obstacles = texts(raw.get("obstacles", []))
         if any(item["status"] == "incompatible" for item in hard):
             classification = "rejected"
         elif any(item["status"] == "undetermined" for item in hard) or not hard:
+            classification = "investigate"
+        elif not any(item["contribution"] == "existing_behavior" for item in checks):
             classification = "investigate"
         if request["status"] in {"resolved", "duplicate", "automated"}:
             classification = "rejected"
@@ -332,7 +353,7 @@ def analysis_contract() -> dict:
         "environment": [], "prior_attempts": [], "missing_information": []},
         "matches": [{"capability_id": "ID from repository", "classification": "investigate",
             "summary": "Problem to existing contribution", "checks": [{"requirement_id": "r0", "status": "undetermined",
-                "reason": "Explain operating conditions", "source_ids": ["file:example.py#L1-L8"]}], "obstacles": [],
+                "contribution": "not_demonstrated", "reason": "Explain operating conditions", "source_ids": ["file:example.py#L1-L8"]}], "obstacles": [],
             "bridge": {"kind": "investigation", "summary": "Smallest useful connection",
                 "steps": [], "existing_contribution": "Existing code", "new_logic": "Added code, if any", "assumptions": [], "files": [],
                 "dependencies": [], "runtime": "", "permissions": [], "coupling": "", "input": "", "expected_output": "", "ablation": ""}}]}
