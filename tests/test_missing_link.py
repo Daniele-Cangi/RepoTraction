@@ -342,6 +342,51 @@ class ServiceTests(unittest.TestCase):
         self.service.store.put("discussions", updated["url"], updated)
         self.assertTrue(all(match["stale"] for match in self.service.state()["matches"]))
 
+    def test_renamed_discussion_invalidates_matches_by_immutable_id(self):
+        self.run_fixture()
+        updated = dict(issue(), url="https://github.com/example/renamed-site/issues/7",
+                       fingerprint="new-context", fetched_at="2026-09-30T12:00:00Z")
+        self.service.store.put("discussions", updated["id"], updated)
+        self.assertTrue(all(match["stale"] for match in self.service.state()["matches"]))
+        self.assertEqual(self.service.store.get("discussions", updated["id"])["url"], updated["url"])
+
+    def test_legacy_url_records_choose_latest_fetch_not_last_insert(self):
+        self.run_fixture()
+        updated = dict(issue(), url="https://github.com/example/renamed-site/issues/7",
+                       fingerprint="new-context", fetched_at="2026-09-30T12:00:00Z")
+        self.service.store.put("discussions", updated["url"], updated)
+        old = dict(issue(), fetched_at="2026-09-29T12:00:00Z")
+        self.service.store.put("discussions", old["url"], old)
+        restarted = Service(self.path, "alice", self.read, lambda: "alice", Provider({}))
+        self.assertTrue(all(match["stale"] for match in restarted.state()["matches"]))
+        self.assertEqual(restarted.store.latest_discussions()[str(old["id"])]["fingerprint"], "new-context")
+
+    def test_same_url_different_issue_id_does_not_invalidate_match(self):
+        self.run_fixture()
+        unrelated = dict(issue(), id=999, fingerprint="unrelated")
+        self.service.store.put("discussions", unrelated["id"], unrelated)
+        self.assertFalse(any(match["stale"] for match in self.service.state()["matches"]))
+
+    def test_newer_fetch_on_existing_id_key_beats_legacy_row(self):
+        self.run_fixture()
+        original = dict(issue(), fetched_at="2026-09-28T12:00:00Z")
+        self.service.store.put("discussions", original["id"], original)
+        legacy = dict(issue(), url="https://github.com/example/renamed-site/issues/7",
+                      fetched_at="2026-09-29T12:00:00Z")
+        self.service.store.put("discussions", legacy["url"], legacy)
+        refreshed = dict(legacy, fetched_at="2026-09-30T12:00:00Z", fingerprint="new-context")
+        self.service.store.put("discussions", refreshed["id"], refreshed)
+        self.assertEqual(self.service.store.latest_discussions()[str(refreshed["id"])]["fingerprint"], "new-context")
+        self.assertTrue(all(match["stale"] for match in self.service.state()["matches"]))
+
+    def test_discussion_freshness_is_not_limited_to_polling_window(self):
+        self.run_fixture()
+        updated = dict(issue(), url="https://github.com/example/renamed-site/issues/7", fingerprint="new-context")
+        self.service.store.put("discussions", updated["id"], updated)
+        for identity in range(1000, 1501):
+            self.service.store.put("discussions", identity, dict(issue(), id=identity))
+        self.assertTrue(all(match["stale"] for match in self.service.state()["matches"]))
+
     def test_cancelled_checkpoint_prevents_further_calls_and_can_resume(self):
         event = threading.Event()
         release = threading.Event()

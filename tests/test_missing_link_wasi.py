@@ -75,6 +75,25 @@ class WasiTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 service.execute_example({"approved": True, "match_id": match["id"], "entrypoint": "project/library.py"})
 
+    def test_renamed_changed_issue_blocks_example_before_runner(self):
+        for legacy in (False, True):
+            with self.subTest(legacy=legacy), tempfile.TemporaryDirectory() as temp:
+                service = Service(Path(temp) / "alice.sqlite3", "alice", lambda _: {}, lambda: "alice", provider=Provider({}))
+                match, repo = fixture()
+                repo.update(id=7, public=True)
+                match.update(repo_id=7, analysis_source="model", source_fingerprint="fixture-fingerprint")
+                service.store.put("repositories", 7, repo)
+                service.store.save_matches([match], repo)
+                changed = dict(match["request"], url="https://github.com/fixture/renamed-app/issues/1",
+                               fingerprint="changed-after-rename")
+                service.store.put("discussions", changed["url"] if legacy else changed["id"], changed)
+                restarted = Service(service.store.path, "alice", lambda _: {}, lambda: "alice", provider=Provider({}))
+                with mock.patch("missing_link.wasi_runner.WasiRunner.run") as run:
+                    with self.assertRaisesRegex(ValueError, "discussion changed"):
+                        restarted.execute_example({"approved": True, "match_id": match["id"], "entrypoint": "bridge/example.py"})
+                    run.assert_not_called()
+                self.assertEqual(restarted.store.proofs(match["id"]), [])
+
 
 if __name__ == "__main__":
     unittest.main()

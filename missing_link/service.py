@@ -105,14 +105,12 @@ class Service:
         repositories = self.store.list("repositories")
         revisions = {repo["id"]: repo["revision"] for repo in repositories}
         matches = self.store.list("matches")
-        latest_discussions = {issue["url"]: issue for issue in self.store.list("discussions")}
+        latest_discussions = self.store.latest_discussions()
         for match in matches:
             request = match["request"]
-            previous = latest_discussions.get(request["url"])
-            if not previous:
-                latest_discussions[request["url"]] = request
+            latest_discussions.setdefault(str(request["id"]), request)
         for match in matches:
-            latest = latest_discussions.get(match["request"]["url"], {})
+            latest = latest_discussions.get(str(match["request"]["id"]), {})
             match["stale"] = revisions.get(match["repo_id"]) != match["revision"] or latest.get("fingerprint") != match["source_fingerprint"]
             match.pop("source_issue", None)
             match["isolated_examples"] = self._example_receipts(match)
@@ -339,7 +337,7 @@ class Service:
                 discussions = checkpoints.setdefault("discussions", {})
                 if key not in discussions:
                     discussions[key] = source.fetch_issue(candidate["url"])
-                    self.store.put("discussions", discussions[key]["url"], discussions[key])
+                    self.store.put("discussions", discussions[key]["id"], discussions[key])
                     save()
                 issue = discussions[key]
                 stage("requirements", "Extracting demand independently from the candidate repository.")
@@ -530,9 +528,9 @@ class Service:
         current = self.store.get("repositories", match["repo_id"])
         if current["revision"] != match["revision"]:
             raise ValueError("The repository revision changed; reevaluate before executing an example.")
-        for issue in self.store.list("discussions"):
-            if issue["url"] == match["request"]["url"] and issue["fingerprint"] != match["source_fingerprint"]:
-                raise ValueError("The discussion changed; reevaluate before executing an example.")
+        issue = self.store.latest_discussions().get(str(match["request"]["id"]))
+        if issue and issue["fingerprint"] != match["source_fingerprint"]:
+            raise ValueError("The discussion changed; reevaluate before executing an example.")
         handoff = export_handoff(match, repository)  # public/path/revision/credential checks
         files = {"project/" + safe_relative_path(path): content for path, content in _source_files(repository).items()
             if path.endswith(".py")}

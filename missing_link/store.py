@@ -173,6 +173,25 @@ class Store:
             rows = db.execute(f"SELECT payload FROM {self._table(kind)} ORDER BY rowid DESC LIMIT 500").fetchall()
         return [json.loads(row[0]) for row in rows]
 
+    def latest_discussions(self):
+        """Index by immutable GitHub ID, including legacy URL-keyed records.
+
+        A rename can leave multiple old URL keys for one issue. Prefer the
+        latest acquisition, not URL or insertion order (upserts keep rowid).
+        Do not apply the polling list's 500-record limit to freshness checks.
+        """
+        with self.connection() as db:
+            rows = db.execute("""SELECT payload FROM ml_discussions
+                ORDER BY COALESCE(json_extract(payload, '$.fetched_at'), '') DESC,
+                    COALESCE(json_extract(payload, '$.updated_at'), '') DESC,
+                    rowid DESC""").fetchall()
+        latest = {}
+        for (raw,) in rows:
+            issue = json.loads(raw)
+            if issue.get("id") is not None:
+                latest.setdefault(str(issue["id"]), issue)
+        return latest
+
     def cache_get(self, key):
         with self.connection() as db:
             row = db.execute("SELECT payload FROM ml_cache WHERE key=? AND expires>?", (key, time.time())).fetchone()
