@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from .analysis import (analysis_contract, conservative_matches, conservative_request, digest,
-    evidence_catalog, extension_groups, text, texts, validate_matches, validate_request, capability_fingerprint)
+    evidence_catalog, extension_groups, text, texts, validate_matches, validate_request, capability_fingerprint, ANALYSIS_CONTRACT_VERSION)
 from .provider import Provider, CandidateValidationError
 from .store import Store
 from .lease import WorkerLease
@@ -115,6 +115,7 @@ class Service:
         for match in matches:
             latest = latest_discussions.get(str(match["request"]["id"]), {})
             match["stale"] = (revisions.get(match["repo_id"]) != match["revision"] or
+                match.get("analysis_contract_version") != ANALYSIS_CONTRACT_VERSION or
                 latest.get("fingerprint") != match["source_fingerprint"] or
                 not self._capability_current(match, by_id.get(match["repo_id"], {})))
             match.pop("source_issue", None)
@@ -559,6 +560,8 @@ class Service:
         snapshot = self.store.match_snapshot(match_id)
         if not snapshot or match.get("superseded") or match["classification"] == "rejected":
             raise ValueError("Choose a current non-rejected match with a pinned reproduction snapshot.")
+        if match.get("analysis_contract_version") != ANALYSIS_CONTRACT_VERSION:
+            raise ValueError("The analysis contract changed; reevaluate before executing an example.")
         repository = snapshot["repository"]
         current = self.store.get("repositories", match["repo_id"])
         if current["revision"] != match["revision"]:

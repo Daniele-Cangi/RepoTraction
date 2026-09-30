@@ -493,6 +493,17 @@ class ServiceTests(unittest.TestCase):
             "correction": {"limitations": ["Requires another service"]}})
         self.assertTrue(self.service.state()["matches"][0]["stale"])
 
+    def test_old_analysis_contract_is_historical_and_blocks_example_execution(self):
+        job = self.run_fixture()
+        mid = job["result"]["match_ids"][0]
+        match = self.service.store.get("matches", mid)
+        match.pop("analysis_contract_version")
+        self.service.store.put("matches", mid, match)
+        self.assertTrue(self.service.state()["matches"][0]["stale"])
+        self.assertNotIn("analysis_contract_version", self.service.store.get("matches", mid))
+        with self.assertRaisesRegex(ValueError, "analysis contract changed"):
+            self.service.execute_example({"match_id": mid, "approved": True, "entrypoint": "bridge/example.py"})
+
     def test_other_capability_and_audit_metadata_do_not_invalidate_match(self):
         job = self.run_fixture()
         match = self.service.store.get("matches", job["result"]["match_ids"][0])

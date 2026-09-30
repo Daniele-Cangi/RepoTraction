@@ -394,6 +394,7 @@ class PublicGitHub:
                   "state": issue.get("state"), "state_reason": issue.get("state_reason"),
                   "updated_at": issue.get("updated_at"), "created_at": issue.get("created_at"),
                   "closed_at": issue.get("closed_at"), "author": (issue.get("user") or {}).get("login"),
+                  "author_association": issue.get("author_association"), "repo_archived": bool(repo.get("archived")),
                   "author_type": (issue.get("user") or {}).get("type"), "bot": _bot(issue.get("user")),
                   "labels": labels, "comments": normalized_comments, "timeline": normalized_timeline,
                   "context_complete": comments_complete and timeline_complete and not text_incomplete and not any_redaction and not unresolved_cross_references,

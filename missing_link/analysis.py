@@ -10,9 +10,11 @@ import hashlib
 import json
 import re
 from typing import Any
+from .discussion import authorship, constraint_hints
 
 CLASSIFICATIONS = {"direct", "adapter", "extraction", "rejected", "investigate"}
 REQUEST_STATUSES = {"unresolved", "resolved", "duplicate", "unclear", "automated"}
+ANALYSIS_CONTRACT_VERSION = 3
 
 
 def digest(value: Any) -> str:
@@ -53,9 +55,11 @@ def quoted_span(quote: str, source: str) -> str | None:
 
 
 def evidence_catalog(repository: dict, issue: dict) -> dict[str, dict]:
-    catalog = {"q0": {"url": issue["url"], "quote": issue.get("title", "") + "\n" + issue.get("body", ""), "kind": "request"}}
+    catalog = {"q0": {"url": issue["url"], "quote": issue.get("title", "") + "\n" + (issue.get("body") or ""),
+                      "kind": "request", **authorship(issue, original=True)}}
     for index, comment in enumerate(issue.get("comments", []), 1):
-        catalog[f"q{index}"] = {"url": comment["url"], "quote": comment.get("body", ""), "kind": "discussion"}
+        catalog[f"q{index}"] = {"url": comment["url"], "quote": comment.get("body", ""), "kind": "discussion",
+                                **authorship(comment, issue.get("author"))}
     for index, event in enumerate(issue.get("timeline", [])):
         catalog[f"t{index}"] = {"url": issue["url"], "quote": json.dumps(event, ensure_ascii=False, sort_keys=True), "kind": "timeline"}
     for file in repository.get("files", []):
@@ -69,6 +73,27 @@ def evidence_catalog(repository: dict, issue: dict) -> dict[str, dict]:
 
 def request_catalog(issue: dict) -> dict[str, dict]:
     return evidence_catalog({"files": [], "capabilities": []}, issue)
+
+
+def review_constraints(issue: dict, requirements: list) -> dict:
+    review = constraint_hints(issue)
+    blockers = []
+    for hint in review["items"]:
+        represented = [r["id"] for r in requirements if r["source"]["source_id"] == hint["source_id"]
+                       and r["mandatory"] and r["explicit"] and quoted_span(hint["quote"], r["source"]["quote"]) is not None]
+        hint["represented_by"] = represented
+        hint["needs_review"] = bool(not represented or hint["quote_truncated"]
+                                  or hint["authority"] in {"not_established", "automation_or_generated_text_needs_review"})
+        if hint["needs_review"]:
+            blockers.append("Potential constraint needs extraction/authority review: " + hint["id"])
+    if not review["complete"]:
+        blockers.append("Constraint hint scan is bounded/incomplete.")
+    if not (issue.get("body") or "").strip():
+        blockers.append("Empty issue body: independent actionable demand is not established; discussion may be reference notes.")
+    if issue.get("repo_archived"):
+        blockers.append("Target repository is archived; current actionable adoption is not established.")
+    review["qualification_blockers"] = blockers
+    return review
 
 
 def resolve_evidence(reference: str, catalog: dict[str, dict]) -> dict:
@@ -125,12 +150,15 @@ def validate_request(raw: dict, issue: dict) -> dict:
         status = "unclear"
     if not issue.get("context_complete", False) and status == "unresolved":
         status = "unclear"
+    if issue.get("bot"):
+        status = "automated"
     return {"id": issue["id"], "title": issue["title"], "url": issue["url"],
         "outcome": text(raw.get("outcome", issue["title"])), "status": status,
         "status_reason": text(raw.get("status_reason", "")), "status_evidence": status_evidence,
         "requirements": requirements, "environment": texts(raw.get("environment", [])),
         "prior_attempts": texts(raw.get("prior_attempts", [])),
         "missing_information": texts(raw.get("missing_information", [])),
+        "constraint_review": review_constraints(issue, requirements),
         "context_complete": bool(issue.get("context_complete")),
         "updated_at": issue.get("updated_at"), "fingerprint": issue.get("fingerprint", digest(issue))}
 
@@ -150,6 +178,8 @@ def conservative_request(issue: dict) -> dict:
 def validate_matches(raw_matches: list, repository: dict, issue: dict, request: dict, source: str) -> list[dict]:
     if not isinstance(raw_matches, list) or len(raw_matches) > 12:
         raise ValueError("At most 12 evaluated capabilities per discussion.")
+    # Recompute from acquired discussion even for imported/older request objects.
+    request = dict(request, constraint_review=review_constraints(issue, request["requirements"]))
     catalog = evidence_catalog(repository, issue)
     capabilities = {item["id"]: item for item in repository["capabilities"]}
     requirements = {item["id"]: item for item in request["requirements"]}
@@ -204,6 +234,11 @@ def validate_matches(raw_matches: list, repository: dict, issue: dict, request: 
             if classification != "rejected":
                 classification = "investigate"
             obstacles.append("Request resolution or discussion completeness is not established.")
+        blockers = request["constraint_review"]["qualification_blockers"]
+        if blockers:
+            if classification != "rejected":
+                classification = "investigate"
+            obstacles.extend(blockers)
         bridge = copy.deepcopy(raw.get("bridge", {}))
         if not isinstance(bridge, dict):
             raise ValueError("Bridge must be an object.")
@@ -226,9 +261,11 @@ def validate_matches(raw_matches: list, repository: dict, issue: dict, request: 
             classification = "extraction" if capability.get("standalone") == "no" else "investigate"
             obstacles.append("Separately usable entry point is not established.")
         key = {"repo_id": repository["id"], "revision": repository["revision"],
+            "analysis_contract_version": ANALYSIS_CONTRACT_VERSION,
             "request": request["fingerprint"], "capability": capability_id, "source": source,
             "capability_fingerprint": capability_fingerprint(capability)}
         matches.append({"id": digest(key)[:32], "repo": repository["full_name"], "repo_id": repository["id"],
+            "analysis_contract_version": ANALYSIS_CONTRACT_VERSION,
             "revision": repository["revision"], "request": request, "capability_id": capability_id,
             "capability": capability, "capability_fingerprint": key["capability_fingerprint"],
             "classification": classification, "summary": text(raw.get("summary", "Investigation required.")),
@@ -256,7 +293,8 @@ def conservative_matches(repository: dict, issue: dict, request: dict) -> list[d
 def extension_groups(matches: list[dict]) -> list[dict]:
     grouped: dict[str, dict] = {}
     for match in matches:
-        if match.get("stale") or match.get("superseded") or match["request"]["status"] != "unresolved":
+        if (match.get("stale") or match.get("superseded") or match["request"]["status"] != "unresolved"
+                or match["request"].get("constraint_review", {}).get("qualification_blockers")):
             continue
         requirements = {item["id"]: item for item in match["request"]["requirements"]}
         for check in match["checks"]:

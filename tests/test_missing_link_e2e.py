@@ -149,7 +149,7 @@ class MissingLinkAcceptanceTests(unittest.TestCase):
                                 release_correction.set()
                         self.assertEqual(correction_response.value.status, 200)
                     page.locator(".ml-match .ml-callout").filter(
-                        has_text="capability interpretation or request discussion changed after this result"
+                        has_text="request discussion or analysis contract changed after this result"
                     ).wait_for()
                     self.assertTrue(service.state()["matches"][0]["stale"])
                     self.assertFalse(page.locator("#mlReviewed").is_checked())

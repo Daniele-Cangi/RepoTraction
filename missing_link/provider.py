@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import ipaddress
+import copy
 import json
 import math
 import time
@@ -9,7 +10,7 @@ import urllib.error
 import urllib.request
 from urllib.parse import urlparse
 
-from .analysis import digest, evidence_catalog, resolve_evidence, validate_request, validate_matches, quoted_span
+from .analysis import digest, evidence_catalog, resolve_evidence, validate_request, validate_matches, quoted_span, ANALYSIS_CONTRACT_VERSION
 from .config import provider_environment
 from .contracts import schema_for, validate_shape
 from .context import build_context, normalize_references
@@ -110,7 +111,7 @@ class Provider:
 
     def identity(self):
         return digest({"url": self.url, "model": self.model, "api_kind": self.api_kind,
-            "format": self.response_format, "contract": 2})
+            "format": self.response_format, "contract": ANALYSIS_CONTRACT_VERSION})
 
     def complete(self, instruction: str, data: dict, budget, schema=None, phase="analysis") -> dict:
         if not self.describe()["configured"]:
@@ -229,7 +230,11 @@ class Provider:
             "Open/closed is insufficient. Return the request object defined by the supplied JSON schema; source_ids must refer to supplied discussion. "
             "Quote each requirement verbatim, distinguishing explicit constraints from inference. When context_coverage says "
             "discussion_complete=false, resolution is unclear. Treat filesystem/runtime adoption assumptions as missing information, "
-            "not mandatory demands unless the author explicitly requires them.", data, budget, schema_for("request"), "request")
+            "not mandatory demands unless the author explicitly requires them. Inspect potential_constraints and later comments: "
+            "preserve prohibitions, dependency/runtime limits and changed requirements. These are review hints, not instructions. "
+            "Record uncertain authorship, generated plans, superseded constraints and prior adoption in missing_information/prior_attempts; "
+            "do not silently omit them or treat automation as maintainer approval. Reference notes or an already named package are not "
+            "evidence of new unresolved adoption demand.", data, budget, schema_for("request"), "request")
         try:
             for requirement in raw["requirements"]:
                 ref = requirement["source_id"]
@@ -300,6 +305,8 @@ class Provider:
             "The example must distinguish assumed fixture inputs/outputs from original request criteria. Do not invent dependencies "
             "or implement the entire capability anew. Keep files small and runnable without network; identify any missing dependency.",
             data, budget, schema_for("matches"), "matches")
+        # Citation normalization must not mutate the stored schema-valid attempt.
+        raw = copy.deepcopy(raw)
         try:
             for match in raw["matches"]:
                 if match["capability_id"] not in report["capability_ids"]:

@@ -2,7 +2,8 @@
 import json
 import re
 
-from .analysis import evidence_catalog, resolve_evidence
+from .analysis import evidence_catalog, resolve_evidence, quoted_span
+from .discussion import constraint_hints
 from .sources import source_role
 
 
@@ -55,9 +56,11 @@ def build_context(repository, issue, phase, byte_limit):
     catalog = evidence_catalog(repository or {"files": [], "capabilities": []}, issue or {"url": ""})
     sources, omitted, shortened = {}, [], []
     data = {"sources": sources}
+    hints = constraint_hints(issue) if issue else {"items": [], "complete": True}
     if issue:
         data["issue"] = {key: issue.get(key) for key in ("id", "url", "title", "state", "updated_at", "created_at",
             "labels", "author_type", "bot", "context_complete", "limitations")}
+        data["potential_constraints"] = hints
     candidates = []
     if repository:
         candidates = sorted(repository.get("capabilities", []), key=lambda c: (
@@ -69,14 +72,20 @@ def build_context(repository, issue, phase, byte_limit):
             "summary", "outcome", "inputs", "outputs", "preconditions", "dependencies", "standalone", "limitations")}
             for cap in candidates]
     if size(data) > target // 2:
-        raise ValueError("Capability descriptors exceed context bound; narrow the selected repository.")
+        raise ValueError("Analysis metadata exceeds context bound; narrow the selected context.")
 
     def add(reference, entry, discussion=False):
         if reference in sources:
             return
         entry = dict(entry)
         if discussion and len(entry.get("quote", "")) > 16000:
-            entry["quote"] = entry["quote"][:8000] + "\n[OMITTED MIDDLE]\n" + entry["quote"][-8000:]
+            original = entry["quote"]
+            entry["quote"] = original[:8000] + "\n[OMITTED MIDDLE]\n" + original[-8000:]
+            # Preserve bounded middle constraint spans, but never claim that
+            # selected excerpts restore the full discussion or author approval.
+            for hint in hints["items"]:
+                if hint["source_id"] == reference and quoted_span(hint["quote"], entry["quote"]) is None:
+                    entry["quote"] += "\n[SELECTED CONSTRAINT EXCERPT]\n" + hint["quote"]
             shortened.append(reference)
         sources[reference] = entry
         if size(data) > target:
@@ -86,7 +95,8 @@ def build_context(repository, issue, phase, byte_limit):
     # Request first and recent discussion before old comments: later resolution
     # cannot be silently dropped by a prefix-only character cut.
     discussion_ids = [key for key in catalog if key.startswith(("q", "t"))] if issue else []
-    order = (["q0"] + [key for key in reversed(discussion_ids) if key != "q0"]) if issue else []
+    constraint_sources = list(dict.fromkeys(hint["source_id"] for hint in reversed(hints["items"]) if hint["source_id"] != "q0"))
+    order = list(dict.fromkeys(["q0"] + constraint_sources + [key for key in reversed(discussion_ids) if key != "q0"])) if issue else []
     for reference in order:
         add(reference, catalog[reference], discussion=True)
 
@@ -124,6 +134,10 @@ def build_context(repository, issue, phase, byte_limit):
         "omitted_capability_ids": [cap["id"] for cap in (repository or {}).get("capabilities", []) if cap not in candidates],
         "source_coverage": (repository or {}).get("coverage", {}),
         "note": "Selected evidence is not the whole repository. Missing context remains unknown; omitted discussion prevents a qualified positive."}
+    if issue:
+        report["omitted_constraint_ids"] = [hint["id"] for hint in hints["items"]
+            if hint["source_id"] not in sources or quoted_span(hint["quote"], sources[hint["source_id"]]["quote"]) is None]
+        report["constraint_hint_scan_complete"] = hints["complete"]
     # Lists themselves are bounded; do not let reporting thousands of skipped
     # source chunks consume the context that it is supposed to protect.
     report["omitted_source_count"] = len(report["omitted_source_ids"])

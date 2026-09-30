@@ -13,7 +13,7 @@ from missing_link.analysis import evidence_catalog
 from missing_link.contracts import schema_for, validate_shape
 from missing_link.provider import Provider
 from missing_link.store import Store
-from test_missing_link import issue, repository, request_raw
+from test_missing_link import issue, repository, request_raw, raw_match
 
 
 class ProviderContractTests(unittest.TestCase):
@@ -198,6 +198,16 @@ class ProviderContractTests(unittest.TestCase):
             raw["requirements"][0]["quote"] = quote
             with self.subTest(quote=quote), mock.patch.object(provider, "complete", return_value=raw), self.assertRaises(ValueError):
                 provider.interpret_request(demand, mock.Mock())
+
+    def test_citation_normalization_does_not_rewrite_recorded_provider_attempt(self):
+        provider = Provider({"REPOTRACTION_AI_URL": "http://localhost/v1", "REPOTRACTION_AI_MODEL": "fixture"})
+        repo = repository()
+        repo["files"][0]["text"] = "# acquired source\n" * 180
+        raw = {"matches": [raw_match()]}
+        raw["matches"][0]["checks"][0]["source_ids"] = ["file:words.py#L20-L80"]
+        with mock.patch.object(provider, "complete", return_value=raw):
+            provider.evaluate(repo, issue(), validate_request(request_raw(), issue()), mock.Mock())
+        self.assertEqual(raw["matches"][0]["checks"][0]["source_ids"], ["file:words.py#L20-L80"])
 
     def test_persisted_allowance_is_shared_by_jobs_and_survives_restart(self):
         with tempfile.TemporaryDirectory() as temp:

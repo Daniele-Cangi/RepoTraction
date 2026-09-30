@@ -124,6 +124,18 @@ class MissingLinkFrontendTests(unittest.TestCase):
         self.context.close()
         self.assertEqual(self.errors, [], "Frontend JavaScript error")
 
+    def test_partial_job_exposes_candidate_error_without_executing_error_markup(self):
+        fixture = source_fixture()
+        fixture["jobs"][0]["result"] = {"partial": True, "candidate_errors": [{
+            "url": "https://github.com/fixture/request/issues/1", "stage": "requirements",
+            "error": "Invalid quote <img src=x onerror=alert(1)>"}]}
+        self.fixture_page(fixture)
+        warning = self.page.locator(".ml-job .ml-callout").filter(has_text="Partial investigation")
+        warning.wait_for()
+        self.assertIn("No automatic retry", warning.inner_text())
+        self.assertIn("Invalid quote <img", warning.inner_text())
+        self.assertEqual(warning.locator("img").count(), 0)
+
     def fixture_page(self, fixture=None):
         self.page.route("**/ui-fixture", lambda route: route.fulfill(
             content_type="text/html",
