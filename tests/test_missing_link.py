@@ -14,8 +14,8 @@ from unittest import mock
 
 import app
 from missing_link.analysis import (conservative_request, extension_groups, validate_matches, validate_request)
-from missing_link.provider import Provider
-from missing_link.service import Service
+from missing_link.provider import Provider, CandidateValidationError
+from missing_link.service import Service, Paused, Cancelled
 from missing_link.store import Store
 from missing_link.lease import WorkerLease
 
@@ -251,6 +251,83 @@ class ServiceTests(unittest.TestCase):
         self.assertFalse(job["result"]["search"]["complete"])
         self.assertEqual(len(job["checkpoint"]["candidates"]), 1)
         self.assertEqual(job["ai_calls_used"], 0)
+
+    def run_candidate_failure_fixture(self, failure, phase="request", stop_second=False):
+        source = self.fake_sources()
+        first = issue()
+        second = dict(issue(), id=9, url="https://github.com/example/site/issues/9", fingerprint="second")
+        source.search_issues.return_value = {"items": [{"url": first["url"]}, {"url": second["url"]}]}
+        source.fetch_issue.side_effect = [first, second]
+        provider = mock.Mock()
+        provider.describe.return_value = {"configured": True, "model": "fixture"}
+        provider.interpret_capabilities.return_value = repository()["capabilities"]
+        def interpret(demand, budget):
+            budget.reserve_ai(.10, 8, 2)
+            if stop_second and demand["id"] == second["id"]:
+                raise Paused("Fixture global stop")
+            if demand["id"] == first["id"] and phase == "request":
+                raise failure
+            return validate_request(request_raw(), demand)
+        def evaluate(repo, demand, request, budget):
+            budget.reserve_ai(.10, 8, 2)
+            if demand["id"] == first["id"] and phase == "matches":
+                raise failure
+            proposal = raw_match()
+            if demand["id"] == first["id"] and phase == "proposal":
+                proposal["bridge"]["files"][0]["path"] = "../unsafe.py"
+            return validate_matches([proposal], repo, demand, request, "model")
+        provider.interpret_request.side_effect = interpret
+        provider.evaluate.side_effect = evaluate
+        self.service.provider = provider
+        with mock.patch("missing_link.service.PublicGitHub", return_value=source), \
+             mock.patch("missing_link.service.extract_structure", return_value=repository()["capabilities"]):
+            result = self.service.start({"repo": "example/words", "query": "word boundaries", "use_ai": True}, background=False)
+        return self.service.store.get("jobs", result["job_id"]), source, provider
+
+    def test_invalid_candidate_does_not_abort_other_demand_or_refund_usage(self):
+        for phase in ("request", "matches", "proposal"):
+            with self.subTest(phase=phase):
+                job, source, provider = self.run_candidate_failure_fixture(CandidateValidationError("Invalid quote"), phase)
+                self.assertEqual(job["status"], "completed")
+                self.assertTrue(job["result"]["partial"])
+                self.assertEqual(job["checkpoint"]["evaluated"], ["1"])
+                self.assertEqual(list(job["checkpoint"]["candidate_failures"]), ["0"])
+                self.assertEqual(job["result"]["candidate_errors"][0]["stage"], "requirements" if phase == "request" else "compatibility")
+                self.assertEqual(len(job["result"]["match_ids"]), 1)
+                self.assertEqual(source.fetch_issue.call_count, 2)
+                self.assertEqual(job["ai_calls_used"], 3 if phase == "request" else 4)
+                self.assertAlmostEqual(job["cost_reserved_usd"], .3 if phase == "request" else .4)
+                self.assertEqual(self.service.store.get("matches", job["result"]["match_ids"][0])["request"]["id"], 9)
+                restarted = Service(self.path, "alice", self.read, lambda: self.account, Provider({}))
+                public = next(j for j in restarted.state()["jobs"] if j["id"] == job["id"])
+                self.assertEqual(public["result"]["candidate_errors"], job["result"]["candidate_errors"])
+
+    def test_resume_skips_failed_candidate_without_automatic_paid_retry(self):
+        job, source, provider = self.run_candidate_failure_fixture(CandidateValidationError("Invalid quote"), stop_second=True)
+        self.assertEqual(job["status"], "paused")
+        self.assertEqual(job["ai_calls_used"], 2)
+        provider.interpret_request.side_effect = lambda demand, budget: validate_request(request_raw(), demand)
+        with mock.patch("missing_link.service.PublicGitHub", return_value=source):
+            self.service.resume({"job_id": job["id"]}, background=False)
+        resumed = self.service.store.get("jobs", job["id"])
+        self.assertEqual(resumed["status"], "completed")
+        self.assertEqual(source.fetch_issue.call_count, 2)
+        self.assertEqual(provider.interpret_request.call_count, 3)
+        self.assertEqual(len(resumed["result"]["candidate_errors"]), 1)
+        self.assertEqual(resumed["checkpoint"]["evaluated"], ["1"])
+        self.assertEqual(resumed["ai_calls_used"], 3)
+
+    def test_candidate_handler_never_swallows_global_stop_conditions(self):
+        for error, expected in [(Paused("AI call budget reached"), "paused"),
+                                (Cancelled("Cancelled"), "cancelled"),
+                                (ValueError("GitHub account changed"), "paused"),
+                                (ValueError("AI request failed"), "failed")]:
+            with self.subTest(error=error):
+                job, source, _ = self.run_candidate_failure_fixture(error)
+                self.assertEqual(job["status"], expected)
+                self.assertEqual(source.fetch_issue.call_count, 1)
+                self.assertNotIn("candidate_errors", job["result"])
+                self.assertEqual(job["ai_calls_used"], 1)
 
     def test_account_switch_refuses_jobs_context_and_results(self):
         job = self.run_fixture()

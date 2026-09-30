@@ -34,6 +34,10 @@ class ResponseError(ValueError):
     """Only fixed, non-sensitive transport diagnostics may pass through."""
 
 
+class CandidateValidationError(ValueError):
+    """Candidate-local invalid analysis, not transport, account or budget failure."""
+
+
 class Provider:
     def __init__(self, env: dict | None = None):
         env = provider_environment() if env is None else env
@@ -210,7 +214,9 @@ class Provider:
             if schema:
                 validate_shape(parsed, schema)
         except (KeyError, IndexError, TypeError, AttributeError, json.JSONDecodeError):
-            raise ValueError("AI returned malformed structured output; no partial analysis is accepted.") from None
+            raise CandidateValidationError("AI returned malformed structured output; no partial analysis is accepted.") from None
+        except ValueError as exc:
+            raise CandidateValidationError(str(exc)) from None
         budget.checkpoint()
         budget.record_output(phase, parsed)
         return parsed
@@ -224,14 +230,17 @@ class Provider:
             "Quote each requirement verbatim, distinguishing explicit constraints from inference. When context_coverage says "
             "discussion_complete=false, resolution is unclear. Treat filesystem/runtime adoption assumptions as missing information, "
             "not mandatory demands unless the author explicitly requires them.", data, budget, schema_for("request"), "request")
-        for requirement in raw["requirements"]:
-            ref = requirement["source_id"]
-            if ref not in data["sources"] or quoted_span(requirement["quote"], data["sources"][ref]["quote"]) is None:
-                raise ValueError("AI requirement quotes must come from context actually supplied to this call.")
-        if any(ref not in data["sources"] for ref in raw["status_source_ids"]):
-            raise ValueError("AI request disposition cites unavailable context.")
-        scoped_issue = dict(issue, context_complete=report["discussion_complete"])
-        request = validate_request(raw, scoped_issue)
+        try:
+            for requirement in raw["requirements"]:
+                ref = requirement["source_id"]
+                if ref not in data["sources"] or quoted_span(requirement["quote"], data["sources"][ref]["quote"]) is None:
+                    raise ValueError("AI requirement quotes must come from context actually supplied to this call.")
+            if any(ref not in data["sources"] for ref in raw["status_source_ids"]):
+                raise ValueError("AI request disposition cites unavailable context.")
+            scoped_issue = dict(issue, context_complete=report["discussion_complete"])
+            request = validate_request(raw, scoped_issue)
+        except ValueError as exc:
+            raise CandidateValidationError(str(exc)) from None
         request["analysis_context"] = report
         return request
 
@@ -291,15 +300,18 @@ class Provider:
             "The example must distinguish assumed fixture inputs/outputs from original request criteria. Do not invent dependencies "
             "or implement the entire capability anew. Keep files small and runnable without network; identify any missing dependency.",
             data, budget, schema_for("matches"), "matches")
-        for match in raw["matches"]:
-            if match["capability_id"] not in report["capability_ids"]:
-                raise ValueError("AI selected a capability not included in this call.")
-            for check in match["checks"]:
-                check["source_ids"] = normalize_references(check["source_ids"], data["sources"], evidence_catalog(repository, issue))
-        scoped = dict(request)
-        if not report["discussion_complete"]:
-            scoped["context_complete"] = False
-        matches = validate_matches(raw["matches"], repository, issue, scoped, "model")
+        try:
+            for match in raw["matches"]:
+                if match["capability_id"] not in report["capability_ids"]:
+                    raise ValueError("AI selected a capability not included in this call.")
+                for check in match["checks"]:
+                    check["source_ids"] = normalize_references(check["source_ids"], data["sources"], evidence_catalog(repository, issue))
+            scoped = dict(request)
+            if not report["discussion_complete"]:
+                scoped["context_complete"] = False
+            matches = validate_matches(raw["matches"], repository, issue, scoped, "model")
+        except ValueError as exc:
+            raise CandidateValidationError(str(exc)) from None
         for match in matches:
             match["analysis_context"] = report
         return matches

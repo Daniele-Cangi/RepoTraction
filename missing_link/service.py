@@ -10,7 +10,7 @@ from pathlib import Path
 
 from .analysis import (analysis_contract, conservative_matches, conservative_request, digest,
     evidence_catalog, extension_groups, text, texts, validate_matches, validate_request, capability_fingerprint)
-from .provider import Provider
+from .provider import Provider, CandidateValidationError
 from .store import Store
 from .lease import WorkerLease
 from .sources import PublicGitHub, extract_structure, source_role
@@ -347,7 +347,7 @@ class Service:
                 save()
             for index, candidate in enumerate(checkpoints["candidates"]):
                 key = str(index)
-                if key in checkpoints.get("evaluated", []):
+                if key in checkpoints.get("evaluated", []) or key in checkpoints.get("candidate_failures", {}):
                     continue
                 stage("discussion", f"Reading public discussion {index + 1}/{len(checkpoints['candidates'])}.")
                 discussions = checkpoints.setdefault("discussions", {})
@@ -356,24 +356,42 @@ class Service:
                     self.store.put("discussions", discussions[key]["id"], discussions[key])
                     save()
                 issue = discussions[key]
-                stage("requirements", "Extracting demand independently from the candidate repository.")
-                requests = checkpoints.setdefault("requests", {})
-                if key not in requests:
-                    requests[key] = self.provider.interpret_request(issue, budget) if job["input"]["use_ai"] else conservative_request(issue)
-                    save()
-                request = requests[key]
-                stage("compatibility", "Checking hard constraints and preparing the smallest technical bridge.")
-                matches = self.provider.evaluate(repository, issue, request, budget) if job["input"]["use_ai"] else conservative_matches(repository, issue, request)
-                for match in matches:
+                before = {name: job[name] for name in ("ai_calls_used", "cost_reserved_usd")}
+                try:
+                    stage("requirements", "Extracting demand independently from the candidate repository.")
+                    requests = checkpoints.setdefault("requests", {})
+                    if key not in requests:
+                        requests[key] = self.provider.interpret_request(issue, budget) if job["input"]["use_ai"] else conservative_request(issue)
+                        save()
+                    request = requests[key]
+                    stage("compatibility", "Checking hard constraints and preparing the smallest technical bridge.")
+                    matches = self.provider.evaluate(repository, issue, request, budget) if job["input"]["use_ai"] else conservative_matches(repository, issue, request)
+                    for match in matches:
+                        budget.checkpoint()
+                        # Reject unsafe proposals before any match for this candidate is saved.
+                        try:
+                            self.validate_proposal(match, repository)
+                        except ValueError:
+                            raise CandidateValidationError("Generated candidate artifacts failed safety validation; none were stored.") from None
                     budget.checkpoint()
-                    # Validate package safety before persisting any generated filenames/content.
-                    self.validate_proposal(match, repository)
-                budget.checkpoint()
-                self.store.save_matches(matches, repository)
-                job["result"]["match_ids"] = list(dict.fromkeys(job["result"]["match_ids"] + [match["id"] for match in matches]))
-                checkpoints.setdefault("evaluated", []).append(key)
+                    self.store.save_matches(matches, repository)
+                    job["result"]["match_ids"] = list(dict.fromkeys(job["result"]["match_ids"] + [match["id"] for match in matches]))
+                    checkpoints.setdefault("evaluated", []).append(key)
+                except CandidateValidationError as exc:
+                    # Never catch cancellation, budget/account or upstream transport here.
+                    budget.checkpoint()
+                    failure = {"index": index, "url": candidate["url"], "stage": job["stage"],
+                        "code": "invalid_candidate_analysis", "error": str(exc)[:500],
+                        "ai_calls_used": job["ai_calls_used"] - before["ai_calls_used"],
+                        "cost_reserved_usd": job["cost_reserved_usd"] - before["cost_reserved_usd"],
+                        "at": now(), "retry": "No automatic retry; start a new explicit investigation after review."}
+                    checkpoints.setdefault("candidate_failures", {})[key] = failure
+                    job["result"].setdefault("candidate_errors", []).append(failure)
+                    job["result"]["partial"] = True
                 save()
-            stage("completed", "Investigation finished; inspect evidence and unexecuted bridges.")
+            failed_count = len(checkpoints.get("candidate_failures", {}))
+            stage("completed", f"Investigation finished with {failed_count} candidate validation failure(s); results are partial."
+                  if failed_count else "Investigation finished; inspect evidence and unexecuted bridges.")
             with self.lock:
                 budget.checkpoint()
                 job["status"] = "completed"

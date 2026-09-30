@@ -80,8 +80,9 @@ def main():
         if args.report:
             args.report.parent.mkdir(parents=True, exist_ok=True)
             args.report.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
-        if job["status"] != "completed":
-            print(json.dumps({"error": job.get("error"), "report": str(args.report) if args.report else None}), flush=True)
+        if job["status"] != "completed" or job["result"].get("partial"):
+            print(json.dumps({"error": job.get("error"), "candidate_errors": job["result"].get("candidate_errors", []),
+                "partial": bool(job["result"].get("partial")), "report": str(args.report) if args.report else None}), flush=True)
             return 1
     print(json.dumps({"completed": True, "report": str(args.report) if args.report else None}), flush=True)
     return 0
