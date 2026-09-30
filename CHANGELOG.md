@@ -24,6 +24,17 @@
 
 ### Changed
 
+- Missing Link contract 9 separates reusable existing behavior from compatible
+  scope constraints; passive API preservation alone cannot qualify a contribution.
+- Prior-reference review includes distribution/import aliases and a bounded,
+  pinned public target manifest/cited-file sample, saved in match handoffs.
+- Automatic discovery records narrowly screened code dumps/exam manuals as
+  skipped, not rejected; explicit issue/query selection bypasses screening.
+- Failed quote validation retains strict evidence requirements and gains a safe
+  diagnostic linked to the saved attempt; no automatic correction, retry or refund.
+- Unavailable TOML parsing on Python 3.10, malformed/truncated manifests and
+  missing target samples remain review blockers rather than evidence of novelty.
+  Older results stay historical; no paid reevaluation runs automatically.
 - Windows installer includes the new modules; an explicit temporary destination
   supports install/update smoke checks while preserving data.
 - CI covers Windows/Linux and Python 3.10/3.13; existing analytics remain independent

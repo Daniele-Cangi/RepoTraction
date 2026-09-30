@@ -78,11 +78,19 @@ code is executed on host Python. An explicitly approved optional WASI runner can
 test small pure-Python examples without Docker; separate receipts never claim
 target integration. No comments or third-party pull requests are published.
 
+Discovery qualification checks bounded public target manifests and cited files
+for prior package references. Reusable existing behavior is counted separately
+from compatible scope constraints such as leaving an API unchanged. Neither a
+missing reference nor a source citation proves novelty or successful integration.
+
 See [usage, provider configuration and limits](docs/missing-link.md),
 [three inspected real cases](docs/missing-link-cases.md), and
 [reviewed example analyses](examples/missing-link/README.md). The
 [real API verification](docs/missing-link-api-verification.md) is separate from
-those manually reviewed analyses and fictional protocol tests.
+those manually reviewed analyses and fictional protocol tests. The
+[second held-out cohort](docs/missing-link-second-heldout-discovery.md) found no
+qualified external leads; [the resulting corrections](docs/missing-link-context-attribution.md)
+describe the fixes and what still needs fresh testing.
 
 ## Alternatives and trade-offs
 
