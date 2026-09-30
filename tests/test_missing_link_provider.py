@@ -82,6 +82,30 @@ class ProviderContractTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             normalize_references(["file:words.py#L20-L80"], data["sources"], catalog)
 
+    def test_selected_definition_precedes_large_manifest_or_unrelated_source(self):
+        for kind in ("manifest", "source"):
+            for with_issue in (False, True):
+                with self.subTest(kind=kind, with_issue=with_issue):
+                    repo = repository()
+                    repo["files"][0]["text"] = "# unrelated prefix " + "x" * 120 + "\n"
+                    repo["files"][0]["text"] *= 500
+                    repo["files"][0]["text"] += ("# selected implementation " + "y" * 110 + "\n") * 120
+                    repo["capabilities"][0]["definition"] = {"end_line": 620}
+                    repo["capabilities"][0]["evidence"][0].update(line=501, end_line=503)
+                    repo["files"].insert(0, {"path": "package.json" if kind == "manifest" else "early.py",
+                        "kind": kind, "text": ("# broad coverage " + "z" * 120 + "\n") * 1000,
+                        "url": "https://github.com/example/words/blob/" + "a" * 40 + "/early"})
+                    demand = issue() if with_issue else None
+                    data, report = build_context(repo, demand, "matches" if with_issue else "capabilities", 60000)
+                    catalog = evidence_catalog(repo, demand or {"url": ""})
+                    self.assertEqual(normalize_references(["file:words.py#L501-L620"], data["sources"], catalog),
+                        ["file:words.py#L501-L560", "file:words.py#L561-L620"])
+                    self.assertIn("trim", report["capability_ids"])
+                    self.assertTrue(report["omitted_source_count"])
+                    self.assertLess(len(json.dumps(data).encode()), 44000)
+                    if with_issue:
+                        self.assertIn("q0", data["sources"])
+
     def complete_fixture(self, result, data=None):
         provider = Provider({"REPOTRACTION_AI_URL": "http://127.0.0.1:9000/v1", "REPOTRACTION_AI_MODEL": "fixture",
             "REPOTRACTION_AI_API_KIND": "responses", "REPOTRACTION_AI_RESPONSE_FORMAT": "json_schema"})

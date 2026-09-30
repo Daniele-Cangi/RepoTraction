@@ -93,13 +93,8 @@ def build_context(repository, issue, phase, byte_limit):
         # Include implementation spans around selected entry points, then imports,
         # manifests, documentation and the remaining acquired text as space permits.
         regions = []
-        # Acquire real implementation first. Documentation/history must not fill
-        # the budget while leaving only the first 13 declaration lines of code.
-        for file in sorted(by_path.values(), key=lambda f: (
-            0 if f.get("kind") == "manifest" else 1 if f.get("kind") == "source" and not f["path"].startswith("tools/")
-            else 2 if f["path"].lower().startswith("readme") else 3 if f.get("kind") == "source" else 4)):
-            if file.get("kind") in {"source", "manifest"} or file["path"].lower().startswith("readme"):
-                regions.append((file["path"], 1, len(file["text"].splitlines())))
+        # Selected definitions must precede broad file prefixes: a large
+        # manifest or unrelated early code can otherwise consume their budget.
         for cap in candidates:
             for evidence in cap.get("evidence", []):
                 if evidence.get("path") in by_path:
@@ -107,6 +102,11 @@ def build_context(repository, issue, phase, byte_limit):
                     end = max(start, cap.get("definition", {}).get("end_line", evidence.get("end_line", start))
                         if evidence.get("kind") == "declaration" else evidence.get("end_line", start))
                     regions.append((evidence["path"], start, min(end, start + 179)))
+        for file in sorted(by_path.values(), key=lambda f: (
+            0 if f.get("kind") == "manifest" else 1 if f.get("kind") == "source" and not f["path"].startswith("tools/")
+            else 2 if f["path"].lower().startswith("readme") else 3 if f.get("kind") == "source" else 4)):
+            if file.get("kind") in {"source", "manifest"} or file["path"].lower().startswith("readme"):
+                regions.append((file["path"], 1, len(file["text"].splitlines())))
         for file in sorted(by_path.values(), key=lambda f: f.get("kind") not in {"manifest", "documentation"}):
             regions.append((file["path"], 1, len(file["text"].splitlines())))
         for path, start, end in regions:
