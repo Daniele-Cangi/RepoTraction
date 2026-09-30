@@ -201,6 +201,42 @@ class QualificationTests(unittest.TestCase):
         self.assertEqual(assessment["relationship"], "external")
         self.assertEqual(assessment["references"], [])
 
+    def test_terminal_sentence_and_markdown_punctuation_keep_exact_repository_reference(self):
+        for suffix in (".", ". Next sentence", ".\nNext line", "...", '"', "'", "`", "**",
+                       ".)", '."', ".`", ";", "!", ":", "}", ".git.", '.git"'):
+            with self.subTest(suffix=suffix):
+                repo, demand, raw_request, raw_match = self.case()
+                demand["body"] += " See https://github.com/example/words" + suffix
+                assessment = self.evaluate(repo, demand, raw_request, raw_match)["discovery_assessment"]
+                self.assertEqual(assessment["status"], "known_reference")
+                self.assertEqual(assessment["relationship"], "already_referenced")
+                self.assertFalse(assessment["eligible_for_followup"])
+                self.assertEqual(assessment["reference_count"], 1)
+                self.assertEqual(assessment["references"][0]["kind"], "repository_link")
+                self.assertIn(assessment["references"][0]["quote"], demand["title"] + "\n" + demand["body"])
+
+    def test_repository_name_suffixes_are_not_terminal_punctuation(self):
+        for suffix in (".extra", ".extra.", ".git.extra", ".git-extra", ".git2", "-extra", "_extra", "2", "...extra", "._extra"):
+            with self.subTest(suffix=suffix):
+                repo, demand, raw_request, raw_match = self.case()
+                demand["body"] += " See https://github.com/example/words" + suffix
+                assessment = self.evaluate(repo, demand, raw_request, raw_match)["discovery_assessment"]
+                self.assertEqual(assessment["relationship"], "external")
+                self.assertEqual(assessment["reference_count"], 0)
+                self.assertEqual(assessment["references"], [])
+
+    def test_punctuated_existing_reference_cannot_enter_external_extension_groups(self):
+        matches = []
+        for number in (7, 8):
+            demand = issue()
+            demand["url"] = f"https://github.com/example/site/issues/{number}"
+            demand["body"] += " Previously considered https://github.com/example/words."
+            matches += validate_matches([fixtures.raw_match()], repository(), demand,
+                validate_request(fixtures.request_raw(), demand), "model")
+        self.assertTrue(all(m["classification"] == "rejected" for m in matches))
+        self.assertTrue(all(m["discovery_assessment"]["status"] == "known_reference" for m in matches))
+        self.assertEqual(extension_groups(matches), [])
+
     def test_all_undetermined_checks_and_forged_discovery_claim_are_not_a_lead(self):
         repo, demand, raw_request, raw_match = self.case()
         raw_match["checks"] = []

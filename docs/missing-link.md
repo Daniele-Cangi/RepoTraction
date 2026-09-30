@@ -225,7 +225,10 @@ discussion excerpts. Reference detection scans all acquired discussion regardles
 of the eight-excerpt presentation/export cap. Exact repository links take priority
 over package-name hints in those excerpts, including links found in later comments;
 within each kind the original discovery order is preserved. Total counts and
-incomplete excerpt coverage remain explicit. These heuristics are non-exhaustive
+incomplete excerpt coverage remain explicit. URL detection accepts closing quotes,
+Markdown delimiters and terminal sentence punctuation; dotted/extended repository
+names such as `words.extra` are not treated as a link to `words`. These are text
+heuristics rather than URL-resolution/identity verification, and are non-exhaustive
 and can need review.
 All-undetermined checks demonstrate no contribution, even if the model proposes
 a bridge. Only complete unresolved external demand with supported mandatory

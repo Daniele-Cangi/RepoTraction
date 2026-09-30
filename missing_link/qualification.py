@@ -16,8 +16,11 @@ def _references(repository, catalog):
     name = repository["full_name"].split("/")[-1]
     # A repository link establishes a reference; package-name spellings only
     # suggest one. Do not confuse ordinary 'click' prose with the Click package.
+    # Quotes/Markdown delimit URLs. Dots may also belong to a repository
+    # name, so accept them only as terminal sentence punctuation, not .extra.
+    url_end = r"(?=$|[\s/#?,;:!)}\]>\"'`*]|\.+(?=$|[\s,;:!)}\]>\"'`*]))"
     patterns = [("repository_link", re.compile(r"https://github\.com/" + re.escape(repository["full_name"])
-                  + r"(?:\.git)?(?=$|[\s/#?,)\]>])", re.I)),
+                  + r"(?:\.git)?" + url_end, re.I)),
                 ("package_name_hint", re.compile(r"[`'\"]" + re.escape(name) + r"[`'\"]", re.I)),
                 ("package_name_hint", re.compile(r"\b(?:from|import)\s+" + re.escape(name)
                   + r"(?=$|[\s.;])", re.I))]
