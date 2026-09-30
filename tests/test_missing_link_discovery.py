@@ -174,6 +174,38 @@ class DiscoveryServiceTests(unittest.TestCase):
 
 
 class QualificationTests(unittest.TestCase):
+    def test_old_request_and_unknown_or_future_activity_cannot_be_followup_ready(self):
+        for updated in ("2017-04-07T13:24:36Z", "not-a-date", None, "2027-01-01T00:00:00Z",
+                        "2026-09-29T12:00:00"):
+            with self.subTest(updated=updated):
+                repo, demand, raw_request, raw_match = self.case()
+                demand["updated_at"] = updated
+                assessment = self.evaluate(repo, demand, raw_request, raw_match)["discovery_assessment"]
+                self.assertEqual(assessment["status"], "needs_review")
+                self.assertFalse(assessment["eligible_for_followup"])
+                self.assertTrue(assessment["opportunity_review"]["qualification_blockers"])
+        repo, demand, raw_request, raw_match = self.case()
+        demand.pop("fetched_at")
+        self.assertFalse(self.evaluate(repo, demand, raw_request, raw_match)["discovery_assessment"]["eligible_for_followup"])
+
+    def test_reference_only_body_does_not_turn_title_into_adoption_demand(self):
+        repo, demand, raw_request, raw_match = self.case()
+        demand["title"] = "Shorten text without splitting words"
+        demand["body"] = "For ex:\n- https://github.com/another/cache\n"
+        assessment = self.evaluate(repo, demand, raw_request, raw_match)["discovery_assessment"]
+        self.assertEqual(assessment["status"], "reference_only")
+        self.assertFalse(assessment["eligible_for_followup"])
+        self.assertTrue(assessment["opportunity_review"]["reference_body_hint"])
+
+    def test_short_real_request_and_snapshot_relative_age_are_not_discarded(self):
+        repo, demand, raw_request, raw_match = self.case()
+        demand["body"] = "without splitting words"
+        assessment = self.evaluate(repo, demand, raw_request, raw_match)["discovery_assessment"]
+        self.assertEqual(assessment["status"], "external_lead")
+        self.assertEqual(assessment["opportunity_review"]["activity_age_days"], 1)
+        # Reassessing a saved snapshot does not age its observations using wall time.
+        self.assertEqual(self.evaluate(repo, demand, raw_request, raw_match)["discovery_assessment"], assessment)
+
     def test_partial_support_survives_hard_conflict_without_becoming_a_lead(self):
         match = validate_matches([fixtures.raw_match()], repository(), issue(),
                                  validate_request(fixtures.request_raw(), issue()), "model")[0]

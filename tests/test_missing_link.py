@@ -35,7 +35,8 @@ def issue():
     return {"id": 7, "url": "https://github.com/example/site/issues/7", "title": "Keep words intact",
         "body": "I need plain text shortened without splitting words. Must work in native CSS without Python.",
         "comments": [{"id": 8, "url": "https://github.com/example/site/issues/7#issuecomment-8", "body": "This is now fixed."}],
-        "context_complete": True, "updated_at": "2026-09-29T12:00:00Z", "fingerprint": "fixture-fingerprint"}
+        "context_complete": True, "updated_at": "2026-09-29T12:00:00Z", "fetched_at": "2026-09-30T12:00:00Z",
+        "fingerprint": "fixture-fingerprint"}
 
 
 def request_raw():

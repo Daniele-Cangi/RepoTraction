@@ -4,12 +4,44 @@ Name/reference hints are conservative review signals, not adoption evidence.
 Absence of a hint never establishes novelty or author awareness.
 """
 import re
+from datetime import datetime
 
 from .sources import parse_issue_url
 from .discussion import authorship
 
 
 MAX_REFERENCE_EXCERPTS = 8
+STALE_DEMAND_DAYS = 365
+
+
+def _reference_body(body):
+    """High-precision link-note hint; short real requests remain eligible."""
+    without_urls = re.sub(r"https?://[^\s<>]+", " ", body or "", flags=re.I)
+    tokens = re.findall(r"[\w]+", without_urls.casefold())
+    return not tokens or set(tokens) <= {"for", "ex", "example", "examples", "see", "reference",
+                                        "references", "link", "links", "e", "g"}
+
+
+def opportunity_review(issue):
+    """Snapshot-relative review signals, never proof that old demand is gone."""
+    blockers = []
+    age = None
+    try:
+        collected = datetime.fromisoformat(issue["fetched_at"].replace("Z", "+00:00"))
+        updated = datetime.fromisoformat(issue["updated_at"].replace("Z", "+00:00"))
+        if collected.utcoffset() is None or updated.utcoffset() is None or updated > collected:
+            raise ValueError("Invalid activity timestamps")
+        age = (collected - updated).days
+    except (KeyError, TypeError, AttributeError, ValueError, OverflowError):
+        blockers.append("Demand recency is unknown: valid collection and issue-update timestamps are required before follow-up qualification.")
+    if age is not None and age >= STALE_DEMAND_DAYS:
+        blockers.append(f"Issue activity is {age} days old; confirm current demand before follow-up. Age alone does not prove resolution or inactivity.")
+    reference_only = _reference_body(issue.get("body"))
+    if reference_only:
+        blockers.append("The body contains only references/example links, not an independently specified adoption request.")
+    return {"activity_age_days": age, "stale_after_days": STALE_DEMAND_DAYS,
+            "reference_body_hint": reference_only, "qualification_blockers": blockers,
+            "method": "snapshot-relative conservative review hints; not a demand or runtime compatibility proof"}
 
 
 def _references(repository, catalog):
@@ -63,6 +95,7 @@ def assess_discovery(repository, issue, request, classification, checks, catalog
                and repository["id"] == issue["repo_id"])
     same_project = same_id or target.casefold() == repository["full_name"].casefold()
     references, reference_count, linked = _references(repository, catalog)
+    review = opportunity_review(issue)
     relationship = ("same_project" if same_project else "already_referenced" if linked else
                     "reference_hint" if reference_count else "external" if target else "unknown")
     supported_ids = [check["requirement_id"] for check in checks if check["status"] == "satisfied"]
@@ -79,9 +112,9 @@ def assess_discovery(repository, issue, request, classification, checks, catalog
     if same_project:
         status = "same_project"
         reasons.append("The request belongs to the source project; this is internal work, not a new external connection.")
-    elif not (issue.get("body") or "").strip():
+    elif review["reference_body_hint"]:
         status = "reference_only"
-        reasons.append("The empty issue body does not establish actionable demand; it may be a reference note.")
+        reasons.append("An empty or reference-only issue body does not establish independently specified actionable demand.")
     elif reference_count:
         status = "known_reference" if linked else "reference_review"
         reasons.append("The source is already referenced or its package name appears in acquired discussion. Verify identity, intent and prior use; a mention is not adoption or endorsement.")
@@ -98,6 +131,7 @@ def assess_discovery(repository, issue, request, classification, checks, catalog
         reasons.append("No requirement has a supported existing contribution. Retrieval or all-undetermined checks are not a discovered solution.")
     elif (relationship == "unknown" or request["status"] != "unresolved" or not request.get("context_complete")
           or request.get("constraint_review", {}).get("qualification_blockers") or not complete_hard
+          or review["qualification_blockers"]
           or classification not in {"direct", "adapter", "extraction"}):
         status = "needs_review"
         reasons.append("Some contribution is supported, but demand, context or mandatory compatibility still needs review.")
@@ -105,9 +139,11 @@ def assess_discovery(repository, issue, request, classification, checks, catalog
         status = "external_lead"
         reasons.append("Potential external connection with supported requirements; novelty, execution, target integration and adoption remain unverified.")
     reasons.append("No reference found in a bounded discussion is not proof that this connection is new or unknown to the author.")
+    reasons.extend(review["qualification_blockers"])
     return {"status": status, "relationship": relationship, "contribution": contribution,
         "supported_requirement_ids": supported_ids, "conflicting_requirement_ids": conflict_ids,
         "undetermined_requirement_ids": unknown_ids,
+        "opportunity_review": review,
         "novelty": "unverified", "eligible_for_followup": status == "external_lead",
         "references": references, "reference_count": reference_count,
         "reference_coverage_complete": reference_count <= len(references),
