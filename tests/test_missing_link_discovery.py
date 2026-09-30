@@ -226,6 +226,44 @@ class QualificationTests(unittest.TestCase):
         self.assertFalse(assessment["eligible_for_followup"])
         self.assertTrue(assessment["opportunity_review"]["reference_body_hint"])
 
+    def test_markdown_and_html_link_labels_do_not_establish_adoption_demand(self):
+        for body in (
+            "[Example project](https://github.com/x/y)",
+            "[Example project](<https://github.com/x/y>)",
+            '[Example project](https://github.com/x/y "Project title")',
+            "[Example [nested] project](https://example.org/wiki/Foo_(bar))",
+            '<a href="https://github.com/x/y"><strong>Example project</strong></a>',
+            '<p>For example: <a href="https://github.com/x/y">Useful project</a></p>',
+            "![Project screenshot](https://example.org/image.png)",
+            "[Example project][project]\n\n[project]: https://github.com/x/y",
+            "[Project][]\n\n[Project]: https://github.com/x/y",
+            "[Project]\n\n[Project]: https://github.com/x/y",
+        ):
+            with self.subTest(body=body):
+                repo, demand, raw_request, raw_match = self.case()
+                demand.update(title="Shorten text without splitting words", body=body)
+                assessment = self.evaluate(repo, demand, raw_request, raw_match)["discovery_assessment"]
+                self.assertEqual(assessment["status"], "reference_only")
+                self.assertFalse(assessment["eligible_for_followup"])
+                self.assertTrue(assessment["opportunity_review"]["reference_body_hint"])
+
+    def test_link_normalization_preserves_real_request_prose(self):
+        for body in (
+            "I need plain text shortened without splitting words. [Example project](https://github.com/x/y)",
+            '<p>I need plain text shortened without splitting words. <a href="https://github.com/x/y">Example project</a></p>',
+            "I need plain text shortened without splitting words. [Project][p]\n\n[p]: https://github.com/x/y",
+            "I need plain text shortened without splitting words. [An unfinished link](",
+            "I need plain text shortened without splitting words. [Plain bracketed prose]",
+            r"I need plain text shortened without splitting words. \[Literal label](https://github.com/x/y)",
+        ):
+            with self.subTest(body=body):
+                repo, demand, raw_request, raw_match = self.case()
+                demand["body"] = body
+                assessment = self.evaluate(repo, demand, raw_request, raw_match)["discovery_assessment"]
+                self.assertEqual(assessment["status"], "external_lead")
+                self.assertTrue(assessment["eligible_for_followup"])
+                self.assertFalse(assessment["opportunity_review"]["reference_body_hint"])
+
     def test_short_real_request_and_snapshot_relative_age_are_not_discarded(self):
         repo, demand, raw_request, raw_match = self.case()
         demand["body"] = "without splitting words"

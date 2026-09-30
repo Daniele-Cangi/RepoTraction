@@ -65,7 +65,10 @@ conflict**. It is not follow-up-ready. Proposed adapter code is new work, not
 evidence that the selected interface already implements that behavior.
 
 An empty body or a body containing only example/reference links cannot establish
-independent adoption demand from its title. Follow-up qualification also requires
+independent adoption demand from its title. Markdown link/image labels and HTML
+anchor labels are references, not request prose; surrounding request prose is
+retained. Extension groups also exclude demand with qualification blockers,
+including old activity or unknown/invalid recency. Follow-up qualification requires
 valid snapshot collection/update timestamps. Issue activity at least 365 days old
 requires current-demand review; this conservative threshold is not proof of
 resolution or project abandonment. Activity age is calculated against the saved
@@ -218,7 +221,7 @@ at a new revision. Maintainer feedback does not overwrite original evidence.
 Refreshes atomically preserve feedback and supersession. Each result keeps its
 exact reproduction snapshot, independent of the list of recent jobs. Resuming
 with another provider/model/contract pauses rather than mixing interpretations.
-Analysis contract version 6 also marks older assessments historical and blocks
+Analysis contract version 7 also marks older assessments historical and blocks
 their isolated examples until reevaluation; historical snapshots/exports remain
 available and are not silently rewritten as current evidence.
 Discussion freshness uses immutable GitHub issue IDs, including older URL-keyed

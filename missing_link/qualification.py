@@ -5,6 +5,7 @@ Absence of a hint never establishes novelty or author awareness.
 """
 import re
 from datetime import datetime
+from html.parser import HTMLParser
 
 from .sources import parse_issue_url
 from .discussion import authorship
@@ -14,9 +15,99 @@ MAX_REFERENCE_EXCERPTS = 8
 STALE_DEMAND_DAYS = 365
 
 
+class _LinkProse(HTMLParser):
+    """Keep prose outside HTML anchors; labels/attributes are not demand."""
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.parts = []
+        self.anchors = []
+        self.link_depth = 0
+
+    def handle_starttag(self, tag, attrs):
+        if tag == "a":
+            linked = any(name == "href" for name, _ in attrs)
+            self.anchors.append(linked)
+            self.link_depth += linked
+        self.parts.append(" ")
+
+    def handle_endtag(self, tag):
+        if tag == "a" and self.anchors:
+            self.link_depth -= self.anchors.pop()
+        self.parts.append(" ")
+
+    def handle_data(self, data):
+        if not self.link_depth:
+            self.parts.append(data)
+
+
+def _balanced_end(value, start, opening, closing):
+    """Exclusive end of a balanced Markdown label/destination, or None."""
+    depth, index = 1, start + 1
+    while index < len(value):
+        char = value[index]
+        if char == "\\":
+            index += 2
+            continue
+        if char == opening:
+            depth += 1
+        elif char == closing:
+            depth -= 1
+            if not depth:
+                return index + 1
+        index += 1
+    return None
+
+
+def _without_markdown_links(value):
+    # Remove definitions and recognize inline, full/collapsed/shortcut reference
+    # links. A forward scan avoids backtracking through nested untrusted labels.
+    references = set()
+    def reference_key(label):
+        return " ".join(label.split()).casefold()
+    def definition(match):
+        references.add(reference_key(match[1]))
+        return " "
+    value = re.sub(r"(?m)^[ \t]{0,3}\[([^\]\n]+)\]:[ \t]*\S+[^\n]*$", definition, value)
+    parts, position = [], 0
+    while position < len(value):
+        start = value.find("[", position)
+        if start < 0:
+            parts.append(value[position:])
+            break
+        parts.append(value[position:start])
+        escaped = start - 1
+        while escaped >= 0 and value[escaped] == "\\":
+            escaped -= 1
+        if (start - escaped - 1) % 2:
+            parts.append("[")
+            position = start + 1
+            continue
+        end = _balanced_end(value, start, "[", "]")
+        if end is None:
+            parts.append(value[start:])
+            break
+        label = reference_key(value[start + 1:end - 1])
+        link_end = None
+        if value[end:end + 1] == "(":
+            link_end = _balanced_end(value, end, "(", ")")
+        elif value[end:end + 1] == "[":
+            ref_end = _balanced_end(value, end, "[", "]")
+            if ref_end is not None and (reference_key(value[end + 1:ref_end - 1]) or label) in references:
+                link_end = ref_end
+        elif label in references:
+            link_end = end
+        parts.append(" " if link_end is not None else value[start:end])
+        position = link_end if link_end is not None else end
+    return "".join(parts)
+
+
 def _reference_body(body):
     """High-precision link-note hint; short real requests remain eligible."""
-    without_urls = re.sub(r"https?://[^\s<>]+", " ", body or "", flags=re.I)
+    parser = _LinkProse()
+    parser.feed(body or "")
+    parser.close()
+    prose = _without_markdown_links("".join(parser.parts))
+    without_urls = re.sub(r"https?://[^\s<>]+", " ", prose, flags=re.I)
     tokens = re.findall(r"[\w]+", without_urls.casefold())
     return not tokens or set(tokens) <= {"for", "ex", "example", "examples", "see", "reference",
                                         "references", "link", "links", "e", "g"}
