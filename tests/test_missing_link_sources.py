@@ -14,6 +14,7 @@ from missing_link.sources import (  # noqa: E402
     parse_issue_url,
     redact_public_text,
     validate_repository,
+    _select_files,
 )
 
 
@@ -67,6 +68,27 @@ class GitHubFixture:
 
 
 class SourceValidationTests(unittest.TestCase):
+    def test_tiny_initializers_do_not_crowd_out_deeper_implementation(self):
+        fixture = GitHubFixture()
+        for index in range(30):
+            fixture.add(f"pkg{index:02d}/__init__.py", "" if index % 2 else "# package marker\n")
+        fixture.add("src/deep/implementation.py", "def convert(value):\n    return value\n")
+        result = PublicGitHub(fixture.read).fetch_repository("sample/project")
+        paths = [file["path"] for file in result["files"]]
+        self.assertEqual(len(paths), 24)
+        self.assertEqual(paths[0], "src/deep/implementation.py")
+        self.assertEqual(sum(path.endswith("__init__.py") for path in paths), 23)
+
+    def test_initializers_remain_eligible_and_substantial_ones_are_not_demoted(self):
+        markers = [{"path": f"pkg{index:02d}/__init__.py", "size": 0} for index in range(30)]
+        self.assertEqual(len(_select_files(markers, 24)), 24)
+        entries = markers + [{"path": "meaningful/__init__.py", "size": 400},
+                             {"path": "src/deep/implementation.py", "size": 2000},
+                             {"path": "cli.py", "size": 200}]
+        selected = _select_files(entries, 3)
+        self.assertEqual([entry["path"] for entry in selected],
+                         ["cli.py", "meaningful/__init__.py", "src/deep/implementation.py"])
+
     def test_repository_and_issue_urls_are_strict(self):
         self.assertEqual(validate_repository("sample/project"), "sample/project")
         self.assertEqual(parse_issue_url("https://github.com/sample/project/issues/8"), ("sample/project", 8))

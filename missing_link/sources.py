@@ -135,9 +135,10 @@ def _priority(entry: dict[str, Any]) -> tuple[int, int, str]:
     name = PurePosixPath(path).name.casefold()
     preferred = name.startswith(("readme", "license", "copying")) or name in {
         "app.py", "main.py", "cli.py", "index.js", "index.ts", "core.py"}
-    # Empty __init__ files should not crowd real implementations out of the budget.
+    # Size is only a sampling heuristic, not proof that an initializer is empty.
+    # Keep tiny initializers eligible, but behind ordinary implementations.
     empty_init = name == "__init__.py" and entry.get("size", 0) < 100
-    return (1 if empty_init else 0 if preferred else 1, path.count("/"), path.casefold())
+    return (2 if empty_init else 0 if preferred else 1, path.count("/"), path.casefold())
 
 
 def _select_files(entries: list[dict[str, Any]], limit: int) -> list[dict[str, Any]]:
