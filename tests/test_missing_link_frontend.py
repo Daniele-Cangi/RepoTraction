@@ -150,6 +150,16 @@ class MissingLinkFrontendTests(unittest.TestCase):
         self.page.locator('[data-ml-detail="requirements-match-fixture"] summary').click()
         self.assertIn("Scope-compatible constraint only", self.page.locator(".ml-requirement").inner_text())
 
+    def test_retrieval_skip_is_distinct_from_rejected_or_invalid_analysis(self):
+        fixture = source_fixture()
+        fixture["jobs"][0]["result"] = {"candidate_skips": [{"url": "https://github.com/fixture/request/issues/1",
+            "code": "source_file_dump_hint", "reason": "Hint <img src=x onerror=alert(1)>"}]}
+        self.fixture_page(fixture)
+        warning = self.page.locator(".ml-job .ml-callout").filter(has_text="retrieval candidate(s) skipped")
+        warning.wait_for()
+        self.assertIn("not a rejection", warning.inner_text())
+        self.assertEqual(warning.locator("img").count(), 0)
+
     def test_discovery_qualification_is_separate_and_reference_markup_is_escaped(self):
         fixture = source_fixture()
         fixture["matches"][0]["classification"] = "direct"

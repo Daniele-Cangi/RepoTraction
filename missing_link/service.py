@@ -14,7 +14,7 @@ from .provider import Provider, CandidateValidationError
 from .store import Store
 from .lease import WorkerLease
 from .sources import PublicGitHub, extract_structure, parse_issue_url
-from .discovery import problem_queries, select_candidates, SELECTION_POLICY
+from .discovery import problem_queries, select_candidates, screen_candidate, SELECTION_POLICY, SCREENING_POLICY
 
 
 def now():
@@ -64,14 +64,15 @@ class Budget:
         self.save()
 
     def record_call(self, metadata):
-        self.job.setdefault("ai_trace", []).append(metadata)
+        self.job.setdefault("ai_trace", []).append(dict(metadata, call_number=self.job["ai_calls_used"],
+            attempt_id=f"{self.job['id']}:{self.job['ai_calls_used']}"))
         self.save()
 
     def record_output(self, phase, output):
         # Keep schema-valid attempts for provenance/debugging, including failed
         # semantic validation. Hidden from polling state, redacted by Store.
         self.job["checkpoint"].setdefault("ai_outputs", []).append({"phase": phase,
-            "call_number": self.job["ai_calls_used"], "output": output})
+            "call_number": self.job["ai_calls_used"], "attempt_id": f"{self.job['id']}:{self.job['ai_calls_used']}", "output": output})
         self.save()
 
 
@@ -349,7 +350,8 @@ class Service:
                 save()
             for index, candidate in enumerate(checkpoints["candidates"]):
                 key = str(index)
-                if key in checkpoints.get("evaluated", []) or key in checkpoints.get("candidate_failures", {}):
+                if (key in checkpoints.get("evaluated", []) or key in checkpoints.get("candidate_failures", {})
+                        or key in checkpoints.get("candidate_skips", {})):
                     continue
                 stage("discussion", f"Reading public discussion {index + 1}/{len(checkpoints['candidates'])}.")
                 discussions = checkpoints.setdefault("discussions", {})
@@ -358,6 +360,16 @@ class Service:
                     self.store.put("discussions", discussions[key]["id"], discussions[key])
                     save()
                 issue = discussions[key]
+                if not job["input"]["issue_url"] and not job["input"]["query"]:
+                    screening = screen_candidate(issue)
+                    checkpoints.setdefault("candidate_screening", {})[key] = screening
+                    job["result"]["search"]["screening_policy"] = SCREENING_POLICY
+                    if screening["skip"]:
+                        skipped = {"index": index, "url": candidate["url"], "at": now(), **screening}
+                        checkpoints.setdefault("candidate_skips", {})[key] = skipped
+                        job["result"].setdefault("candidate_skips", []).append(skipped)
+                        save()
+                        continue
                 before = {name: job[name] for name in ("ai_calls_used", "cost_reserved_usd")}
                 try:
                     stage("requirements", "Extracting demand independently from the candidate repository.")
@@ -370,10 +382,12 @@ class Service:
                         stage("target-context", "Checking bounded public target manifests and cited files for prior use.")
                         target, _ = parse_issue_url(issue["url"])
                         contexts = checkpoints.setdefault("target_contexts", {})
-                        if target.casefold() not in contexts:
-                            contexts[target.casefold()] = source.fetch_reference_context(issue)
+                        # Different discussions can cite different target files.
+                        context_key = digest({"target": target.casefold(), "discussion": issue["fingerprint"]})
+                        if context_key not in contexts:
+                            contexts[context_key] = source.fetch_reference_context(issue)
                             save()
-                        context = contexts[target.casefold()]
+                        context = contexts[context_key]
                         issue = dict(issue, target_context=context, fingerprint=digest({
                             "discussion": issue["fingerprint"], "target_context": context["fingerprint"]}))
                         discussions[key] = issue
@@ -402,13 +416,19 @@ class Service:
                         "ai_calls_used": job["ai_calls_used"] - before["ai_calls_used"],
                         "cost_reserved_usd": job["cost_reserved_usd"] - before["cost_reserved_usd"],
                         "at": now(), "retry": "No automatic retry; start a new explicit investigation after review."}
+                    if job["ai_calls_used"] > before["ai_calls_used"]:
+                        failure.update(call_number=job["ai_calls_used"], attempt_id=f"{job['id']}:{job['ai_calls_used']}")
+                    if exc.diagnostics:
+                        # Fixed scalar diagnostics only; never model text or arbitrary exception fields.
+                        failure["validation_diagnostics"] = exc.diagnostics
                     checkpoints.setdefault("candidate_failures", {})[key] = failure
                     job["result"].setdefault("candidate_errors", []).append(failure)
                     job["result"]["partial"] = True
                 save()
             failed_count = len(checkpoints.get("candidate_failures", {}))
+            skipped_count = len(checkpoints.get("candidate_skips", {}))
             stage("completed", f"Investigation finished with {failed_count} candidate validation failure(s); results are partial."
-                  if failed_count else "Investigation finished; inspect evidence and unexecuted bridges.")
+                  if failed_count else f"Investigation finished; {skipped_count} retrieval hint(s) skipped; inspect evidence and unexecuted bridges.")
             with self.lock:
                 budget.checkpoint()
                 job["status"] = "completed"

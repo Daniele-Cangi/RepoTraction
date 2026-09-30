@@ -5,7 +5,13 @@ Absence of a hint never establishes novelty or author awareness.
 """
 import re
 import json
-import tomllib
+try:
+    import tomllib
+except ImportError:  # Python 3.10 keeps core analytics dependency-free.
+    try:
+        import tomli as tomllib  # Optional backport, never installed implicitly.
+    except ImportError:
+        tomllib = None
 from datetime import datetime
 from html.parser import HTMLParser
 
@@ -17,6 +23,33 @@ MAX_REFERENCE_EXCERPTS = 8
 STALE_DEMAND_DAYS = 365
 
 
+def _manifest_metadata(path, value):
+    if path == "package.json":
+        data = json.loads(value)
+        if not isinstance(data, dict):
+            raise ValueError("Manifest is not an object")
+        for key in ("dependencies", "devDependencies", "peerDependencies", "optionalDependencies"):
+            if key in data and (not isinstance(data[key], dict)
+                                or any(not isinstance(version, str) for version in data[key].values())):
+                raise ValueError("Invalid dependency fields")
+        return data
+    if tomllib is None:
+        raise ValueError("TOML parser unavailable")
+    data = tomllib.loads(value)
+    project = data.get("project", {})
+    poetry = data.get("tool", {}).get("poetry", {})
+    if not isinstance(project, dict) or not isinstance(poetry, dict):
+        raise ValueError("Invalid package metadata")
+    dependencies = project.get("dependencies", [])
+    optional = project.get("optional-dependencies", {})
+    if (not isinstance(dependencies, list) or any(not isinstance(dep, str) for dep in dependencies)
+            or not isinstance(optional, dict) or any(not isinstance(group, list)
+                or any(not isinstance(dep, str) for dep in group) for group in optional.values())
+            or not isinstance(poetry.get("dependencies", {}), dict)):
+        raise ValueError("Invalid dependency fields")
+    return data
+
+
 def package_names(repository):
     """Declared distribution names and static package paths; identity hints only."""
     name = repository["full_name"].split("/")[-1]
@@ -25,15 +58,15 @@ def package_names(repository):
         path, value = file.get("path", ""), file.get("text", "")
         try:
             if path == "pyproject.toml":
-                data = tomllib.loads(value)
+                data = _manifest_metadata(path, value)
                 declared = data.get("project", {}).get("name") or data.get("tool", {}).get("poetry", {}).get("name")
             elif path == "package.json":
-                declared = json.loads(value).get("name")
+                declared = _manifest_metadata(path, value).get("name")
             else:
                 declared = None
             if isinstance(declared, str) and re.fullmatch(r"(?:@[\w.-]+/)?[\w.-]{1,100}", declared):
                 distributions.add(declared)
-        except (ValueError, TypeError, AttributeError):
+        except (ValueError, TypeError, AttributeError, RecursionError):
             pass  # Missing/malformed/truncated metadata is unknown, not an alias.
         parts = path.split("/")
         if parts[-1] == "__init__.py":
@@ -47,14 +80,14 @@ def _declared_dependencies(path, value):
     """Parse literal dependency fields only; never execute build metadata."""
     try:
         if path == "pyproject.toml":
-            data = tomllib.loads(value)
+            data = _manifest_metadata(path, value)
             project = data.get("project", {})
             deps = list(project.get("dependencies", []))
             for group in project.get("optional-dependencies", {}).values():
                 deps.extend(group)
             deps.extend(data.get("tool", {}).get("poetry", {}).get("dependencies", {}).keys())
         elif path == "package.json":
-            data = json.loads(value)
+            data = _manifest_metadata(path, value)
             deps = [name for key in ("dependencies", "devDependencies", "peerDependencies", "optionalDependencies")
                     for name in data.get(key, {}).keys()]
         elif path == "requirements.txt":
@@ -63,7 +96,7 @@ def _declared_dependencies(path, value):
             return set()
         return {match[0].casefold().replace("_", "-").replace(".", "-") for dep in deps
                 if isinstance(dep, str) and (match := re.match(r"(?:@[\w.-]+/)?[\w.-]+", dep))}
-    except (ValueError, TypeError, AttributeError):
+    except (ValueError, TypeError, AttributeError, RecursionError):
         return set()
 
 
@@ -275,6 +308,19 @@ def assess_discovery(repository, issue, request, classification, checks, catalog
     references, reference_count, linked = _references(repository, catalog)
     review = opportunity_review(issue)
     target_context = issue.get("target_context", {})
+    manifest_review = []
+    for role, context in (("source", repository), ("target", target_context)):
+        for file in context.get("files", []):
+            path = file.get("path")
+            if path not in {"pyproject.toml", "package.json", "requirements.txt"}:
+                continue
+            try:
+                if file.get("reference_truncated"):
+                    raise ValueError("Truncated")
+                if path != "requirements.txt":
+                    _manifest_metadata(path, file.get("text", ""))
+            except (ValueError, TypeError, AttributeError, RecursionError):
+                manifest_review.append(f"{role} manifest {path} could not be fully reviewed (parser unavailable, malformed or truncated); prior package/dependency use remains unknown.")
     target_acquired = (target_context.get("public") is True and bool(target_context.get("files"))
                        and isinstance(target_context.get("revision"), str)
                        and bool(re.fullmatch(r"[a-fA-F0-9]{40}|[a-fA-F0-9]{64}", target_context["revision"])))
@@ -316,6 +362,7 @@ def assess_discovery(repository, issue, request, classification, checks, catalog
         reasons.append("No requirement has a supported existing contribution. Retrieval or all-undetermined checks are not a discovered solution.")
     elif (relationship == "unknown" or request["status"] != "unresolved" or not request.get("context_complete")
           or not target_acquired
+          or manifest_review
           or request.get("constraint_review", {}).get("qualification_blockers") or not complete_hard
           or review["qualification_blockers"]
           or classification not in {"direct", "adapter", "extraction"}):
@@ -330,6 +377,7 @@ def assess_discovery(repository, issue, request, classification, checks, catalog
     if not target_acquired:
         reasons.append("No pinned public target reference context was acquired; prior dependency/use remains unknown.")
     reasons.extend(review["qualification_blockers"])
+    reasons.extend(manifest_review)
     return {"status": status, "relationship": relationship, "contribution": contribution,
         "supported_requirement_ids": supported_ids, "conflicting_requirement_ids": conflict_ids,
         "scope_compatible_requirement_ids": scope_ids,
@@ -342,4 +390,5 @@ def assess_discovery(repository, issue, request, classification, checks, catalog
             "revision": issue.get("target_context", {}).get("revision"),
             "files_sampled": len(issue.get("target_context", {}).get("files", [])),
             "absence_proves_novelty": False},
+        "manifest_review_blockers": manifest_review,
         "reasons": reasons, "method": "source-derived conservative hints, not a novelty classifier"}

@@ -5,6 +5,7 @@ from unittest import mock
 from missing_link.analysis import validate_request, validate_matches
 from missing_link.context import build_context
 from missing_link.sources import PublicGitHub
+from missing_link.qualification import tomllib
 from test_missing_link import repository, issue, request_raw, raw_match
 import test_missing_link as fixtures
 from test_missing_link_sources import GitHubFixture, REVISION
@@ -31,6 +32,7 @@ class ReferenceContextTests(unittest.TestCase):
             self.assertEqual(assessment["status"], "reference_review")
             self.assertFalse(assessment["eligible_for_followup"])
 
+    @unittest.skipIf(tomllib is None, "Optional TOML backport not installed on Python 3.10")
     def test_target_dependency_field_catches_genai_prior_use_not_manifest_prose(self):
         repo = repository()
         repo["full_name"] = "jd/tenacity"
@@ -107,10 +109,35 @@ class ReferenceContextTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "public"):
             PublicGitHub(fixture.read).fetch_reference_context({"url": "https://github.com/sample/project/issues/8"})
 
+    def test_target_blob_links_in_later_comments_are_tree_constrained(self):
+        fixture = GitHubFixture()
+        fixture.add("client.py", "import tenacity\n")
+        fixture.add("foreign.py", "raise RuntimeError('never execute')\n")
+        context = PublicGitHub(fixture.read).fetch_reference_context({"url": "https://github.com/sample/project/issues/8",
+            "body": "See https://github.com/other/project/blob/main/foreign.py", "comments": [{
+                "body": "Source: https://github.com/Sample/Project/blob/" + "b" * 40 + "/client.py#L1"}]})
+        self.assertEqual([file["path"] for file in context["files"]], ["client.py"])
+        self.assertEqual(context["revision"], REVISION)  # Current target revision, not the issue link's revision.
+
 
 class TargetPersistenceTests(unittest.TestCase):
     setUp = fixtures.ServiceTests.setUp
     fake_sources = fixtures.ServiceTests.fake_sources
+
+    def test_different_issues_in_same_target_do_not_reuse_the_wrong_cited_file_sample(self):
+        source = self.fake_sources()
+        first = dict(issue(), body=issue()["body"] + " See first.py")
+        second = dict(issue(), id=9, url=issue()["url"] + "9", fingerprint="different-discussion",
+            body=issue()["body"] + " See second.py")
+        source.search_issues.return_value = {"items": [{"url": first["url"]}, {"url": second["url"]}]}
+        source.fetch_issue.side_effect = [first, second]
+        with mock.patch("missing_link.service.PublicGitHub", return_value=source), \
+             mock.patch("missing_link.service.extract_structure", return_value=repository()["capabilities"]):
+            started = self.service.start({"repo": "example/words", "query": "custom request"}, background=False)
+        job = self.service.store.get("jobs", started["job_id"])
+        self.assertEqual(job["status"], "completed", job.get("error"))
+        self.assertEqual(source.fetch_reference_context.call_count, 2)
+        self.assertEqual(len(job["checkpoint"]["target_contexts"]), 2)
 
     def test_target_snapshot_survives_job_and_match_export_without_reacquisition(self):
         source = self.fake_sources()

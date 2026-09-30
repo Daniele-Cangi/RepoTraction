@@ -290,8 +290,8 @@ class QualificationTests(unittest.TestCase):
         demand = issue()
         demand["target_context"] = {"id": 101, "full_name": "example/site", "revision": "b" * 40,
             "public": True, "reference_only": True,
-            "files": [{"path": "pyproject.toml", "text": '[project]\nname="consumer"\n',
-                "url": "https://github.com/example/site/blob/" + "b" * 40 + "/pyproject.toml"}], "fingerprint": "target-fixture"}
+            "files": [{"path": "package.json", "text": '{"name":"consumer"}',
+                "url": "https://github.com/example/site/blob/" + "b" * 40 + "/package.json"}], "fingerprint": "target-fixture"}
         demand["body"] = "I need plain text shortened without splitting words."
         demand["comments"] = []
         raw_request = fixtures.request_raw()

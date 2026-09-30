@@ -12,7 +12,7 @@ class ContributionTests(unittest.TestCase):
         repo, issue = fixtures.repository(), fixtures.issue()
         issue.update(body="The capture APIs require no changes. Offload blocking file preparation.", comments=[])
         issue["target_context"] = {"public": True, "revision": "b" * 40,
-            "files": [{"path": "pyproject.toml", "text": '[project]\nname="target"', "url": issue["url"]}]}
+            "files": [{"path": "package.json", "text": '{"name":"target"}', "url": issue["url"]}]}
         raw_request = fixtures.request_raw()
         raw_request["requirements"] = [{"text": "Keep capture APIs unchanged", "mandatory": True,
             "explicit": True, "source_id": "q0", "quote": "The capture APIs require no changes.", "inference": ""}]
@@ -81,3 +81,22 @@ class ContributionTests(unittest.TestCase):
                 invalid["contribution"] = value
             with self.assertRaises(ValueError):
                 validate_shape(invalid, schema)
+
+    def test_no_toml_parser_or_bad_manifest_blocks_followup_not_core_import(self):
+        from unittest import mock
+        from missing_link import qualification
+        repo, issue = fixtures.repository(), fixtures.issue()
+        issue.update(body="without splitting words", comments=[])
+        raw, demand = fixtures.raw_match(), fixtures.request_raw()
+        raw["checks"] = raw["checks"][:1]
+        demand["requirements"] = demand["requirements"][:1]
+        for path, value, truncated in (("pyproject.toml", '[project]\nname="target"', False),
+                                        ("package.json", '{"dependencies":[]}', False),
+                                        ("package.json", '{"name":"target"}', True)):
+            with self.subTest(path=path, value=value, truncated=truncated), mock.patch.object(qualification, "tomllib", None):
+                issue["target_context"] = {"public": True, "revision": "b" * 40, "files": [
+                    {"path": path, "text": value, "url": issue["url"], "reference_truncated": truncated}]}
+                match = validate_matches([raw], repo, issue, validate_request(demand, issue), "model")[0]
+                self.assertEqual(match["discovery_assessment"]["status"], "needs_review")
+                self.assertTrue(match["discovery_assessment"]["manifest_review_blockers"])
+                self.assertFalse(match["discovery_assessment"]["eligible_for_followup"])

@@ -420,9 +420,15 @@ class PublicGitHub:
     def fetch_reference_context(self, issue: dict) -> dict:
         """Pinned public target sample for prior-reference hints, not compatibility."""
         target, _ = parse_issue_url(issue["url"])
-        prose = issue.get("body") or ""
-        paths = list(dict.fromkeys(re.findall(
-            r"(?<![\w./-])([A-Za-z0-9_./-]+\.(?:py|js|mjs|cjs|ts|tsx|jsx))(?![\w/-])", prose)))[:20]
+        prose = "\n".join([issue.get("body") or "", *[(comment.get("body") or "") for comment in issue.get("comments", [])]])
+        paths = re.findall(r"(?<![\w./-])([A-Za-z0-9_./-]+\.(?:py|js|mjs|cjs|ts|tsx|jsx))(?![\w/-])", prose)
+        # A complete GitHub blob URL is not a relative path. Only extract paths
+        # from this target, then constrain them to its public safety-filtered tree.
+        for name, path in re.findall(r"https://github\.com/([\w.-]+/[\w.-]+)/blob/[^/\s]+/"
+                                    r"([A-Za-z0-9_./-]+\.(?:py|js|mjs|cjs|ts|tsx|jsx))(?![\w/-])", prose):
+            if name.casefold() == target.casefold():
+                paths.append(path)
+        paths = list(dict.fromkeys(paths))[:20]
         paths = [path for path in paths if _safe_path(path) and not SECRET_PATH.search(path)]
         context = self.fetch_repository(target, max_files=4, reference_paths=paths)
         # Target files are separate from the source repository and its exports.
