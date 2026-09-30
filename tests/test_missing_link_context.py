@@ -49,6 +49,50 @@ class ContextSelectionTests(unittest.TestCase):
         self.assertFalse(report["discussion_complete"])
         schema_for("matches", source_ids=data["sources"], capability_ids=report["capability_ids"], requirement_ids=["r0"])
 
+    def target(self, path, value):
+        return {"path": path, "text": value,
+                "url": "https://github.com/example/site/blob/" + "b" * 40 + "/" + path}
+
+    def test_target_ids_are_not_timeline_or_shortened_discussion(self):
+        demand = issue()
+        demand["timeline"] = [{"event": "labeled", "id": 99}]
+        value = "# target reference only\n" + "x" * 20000
+        demand["target_context"] = {"public": True, "revision": "b" * 40,
+                                    "files": [self.target("client.py", value)]}
+        data, report = build_context(repository(), demand, "matches", 180000)
+        self.assertTrue(report["discussion_complete"])
+        self.assertEqual(report["shortened_discussion_ids"], [])
+        self.assertIn("t0", data["sources"])
+        self.assertIn("q1", data["sources"])
+        self.assertEqual(data["sources"]["target:client.py"]["quote"], value)
+        self.assertEqual(data["sources"]["target:client.py"]["kind"], "target_reference_context")
+        ids = list(data["sources"])
+        self.assertLess(ids.index("q1"), ids.index("target:client.py"))
+        self.assertLess(ids.index("t0"), ids.index("target:client.py"))
+        self.assertLess(ids.index("file:words.py#L1-L3"), ids.index("target:client.py"))
+
+    def test_large_target_omissions_do_not_displace_discussion_or_definition(self):
+        demand = issue()
+        demand["target_context"] = {"files": [self.target(f"client{i}.py", "x" * 32768) for i in range(4)]}
+        data, report = build_context(repository(), demand, "matches", 60000)
+        self.assertTrue(report["discussion_complete"])
+        self.assertEqual(report["shortened_discussion_ids"], [])
+        self.assertIn("q0", data["sources"])
+        self.assertIn("q1", data["sources"])
+        self.assertIn("file:words.py#L1-L3", data["sources"])
+        omitted = report["target_reference_context"]["omitted_source_ids"]
+        self.assertGreaterEqual(len(omitted), 3)
+        self.assertTrue(all(ref.startswith("target:") for ref in omitted))
+
+    def test_target_files_do_not_take_reserved_definition_slot_at_id_limit(self):
+        demand = self.busy_issue()
+        demand["target_context"] = {"files": [self.target(f"client{i}.py", "import example\n") for i in range(4)]}
+        data, report = build_context(repository(), demand, "matches", 180000)
+        self.assertIn("file:words.py#L1-L3", data["sources"])
+        self.assertLessEqual(len(data["sources"]), MAX_SCOPED_IDS)
+        self.assertTrue(report["target_reference_context"]["omitted_source_ids"])
+        self.assertFalse(report["discussion_complete"])  # Only real discussion omissions determine this.
+
     def cap(self, path, name, first=1, last=3):
         cap = copy.deepcopy(repository()["capabilities"][0])
         cap.update(id=path + ":" + name, name=name, entrypoint=path + ":" + name,
