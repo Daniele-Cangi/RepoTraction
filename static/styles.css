@@ -466,7 +466,7 @@ body { font-size: 14px; line-height: 1.45; }
 .digest-line small, .movement-row small { line-height: 1.55; }
 
 /* Missing Link uses readable evidence cards instead of dense score tables. */
-.missing-link-root { display: grid; gap: 24px; font-size: 14px; line-height: 1.6; }
+.missing-link-root { display: grid; grid-template-columns: minmax(0, 1fr); min-width: 0; gap: 24px; font-size: 14px; line-height: 1.6; overflow-wrap: anywhere; }
 .missing-link-root h3 { font-size: 21px; }
 .missing-link-root h4 { margin: 12px 0 8px; font-size: 20px; line-height: 1.4; }
 .missing-link-root h5 { margin: 18px 0 6px; font-size: 14px; }

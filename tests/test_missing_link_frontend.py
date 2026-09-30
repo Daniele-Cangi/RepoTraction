@@ -178,6 +178,21 @@ class MissingLinkFrontendTests(unittest.TestCase):
         self.page.locator('[data-view="missing-link"]').click()
         self.page.locator("#missing-linkView.active").wait_for()
         self.assertEqual(calls, [])
+
+    def test_runner_receipts_are_escaped_and_not_misrepresented_as_integration(self):
+        fixture = source_fixture()
+        fixture["matches"][0]["isolated_examples"] = [{"status": "exited_successfully", "applies_to_current_bridge": True,
+            "entrypoint": "bridge/test.py", "stdout": "<script>alert(1)</script>", "revision": "a" * 40}]
+        self.fixture_page(fixture)
+        self.page.get_by_text("Isolated example ran", exact=True).wait_for()
+        self.assertIn("target integration remain unverified", self.page.locator("#mlMatches").inner_text())
+        self.page.locator('[data-ml-detail="examples-match-fixture"]').evaluate("node => node.open = true")
+        self.assertEqual(self.page.locator("#mlMatches script").count(), 0)
+        fixture["matches"][0]["isolated_examples"][0]["applies_to_current_bridge"] = False
+        self.page.evaluate("fixture => {window.mlFixture = fixture;}", fixture)
+        self.page.locator('[data-ml-action="refresh"]').click()
+        self.page.get_by_text("historical artifact", exact=False).wait_for()
+        self.assertEqual(self.page.get_by_text("Isolated example ran", exact=True).count(), 0)
         self.page.set_viewport_size({"width": 390, "height": 844})
         self.assertTrue(self.page.evaluate("document.documentElement.scrollWidth <= innerWidth"))
 
@@ -209,7 +224,9 @@ class MissingLinkFrontendTests(unittest.TestCase):
         ), 1)
 
     def test_untrusted_evidence_remains_text_and_mobile_fits(self):
-        self.fixture_page()
+        fixture = source_fixture()
+        fixture["provider"] = {"configured": True, "limits": {"allowance_id": "a-very-long-allowance-identifier-" * 5}}
+        self.fixture_page(fixture)
         self.assertEqual(self.page.locator(
             '#missingLinkRoot img, #missingLinkRoot script, a[href^="javascript:"]'
         ).count(), 0)

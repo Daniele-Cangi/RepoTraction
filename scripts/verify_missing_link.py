@@ -48,6 +48,10 @@ def main():
                 page.screenshot(path=args.screenshot, full_page=False)
             page.set_viewport_size({"width": 390, "height": 844})
             result["mobile_overflow"] = page.evaluate("document.documentElement.scrollWidth > innerWidth")
+            if result["mobile_overflow"]:
+                result["overflow_nodes"] = page.evaluate("""[...document.querySelectorAll('#missingLinkRoot *')]
+                    .filter(node => node.getBoundingClientRect().right > innerWidth + 1 && node.getBoundingClientRect().width)
+                    .slice(0, 10).map(node => ({tag: node.tagName, class: node.className, text: node.textContent.slice(0, 80)}))""")
             print(json.dumps(result, indent=2))
             if errors or mutations or result["mobile_overflow"] or result["title"] != "Missing Link":
                 raise SystemExit(1)

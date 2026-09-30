@@ -21,7 +21,7 @@ if (-not (Get-Command gh -ErrorAction SilentlyContinue)) {
     throw "GitHub CLI (gh) is required and must be available in PATH."
 }
 
-$requiredFiles = @("app.py", "start.ps1", "start.cmd", "README.md", "LICENSE", "uninstall.ps1")
+$requiredFiles = @("app.py", "start.ps1", "start.cmd", "README.md", "LICENSE", "uninstall.ps1", ".env.example")
 foreach ($file in $requiredFiles) {
     $source = Join-Path $SourceDirectory $file
     if (-not (Test-Path -LiteralPath $source -PathType Leaf)) {
@@ -53,6 +53,18 @@ Get-ChildItem -LiteralPath (Join-Path $SourceDirectory "static") -File | ForEach
 }
 Get-ChildItem -LiteralPath (Join-Path $SourceDirectory "missing_link") -Filter "*.py" -File | ForEach-Object {
     Copy-Item -LiteralPath $_.FullName -Destination (Join-Path $MissingLinkDirectory $_.Name) -Force
+}
+
+# Ship optional tools and their documentation, never local .env or runtime/data.
+foreach ($folder in @("scripts", "docs", "examples\missing-link")) {
+    $sourceFolder = Join-Path $SourceDirectory $folder
+    $targetFolder = Join-Path $InstallDirectory $folder
+    New-Item -ItemType Directory -Path $targetFolder -Force | Out-Null
+    Get-ChildItem -LiteralPath $sourceFolder -File | Where-Object {
+        $_.Extension -in @(".py", ".md", ".json")
+    } | ForEach-Object {
+        Copy-Item -LiteralPath $_.FullName -Destination (Join-Path $targetFolder $_.Name) -Force
+    }
 }
 
 if (-not $NoShortcut) {
