@@ -186,16 +186,21 @@ def _initializer_imports(path: str, text: str, eligible: dict) -> list[str]:
     parent = PurePosixPath(path).parent.parts
     targets = []
     for node in tree.body:
-        if not isinstance(node, ast.ImportFrom):
+        if isinstance(node, ast.Import):
+            modules = [alias.name for alias in node.names]
+            level = 0
+        elif isinstance(node, ast.ImportFrom):
+            modules = ([node.module] if node.module else
+                       [alias.name for alias in node.names if alias.name != "*"])
+            level = node.level
+        else:
             continue
-        modules = ([node.module] if node.module else
-                   [alias.name for alias in node.names if alias.name != "*"])
         for module in modules:
             parts = module.split(".")
-            if node.level:
-                if node.level > len(parent):
+            if level:
+                if level > len(parent):
                     continue
-                roots = [parent[:len(parent) - node.level + 1]]
+                roots = [parent[:len(parent) - level + 1]]
             else:
                 # Both flat and src-layout packages, constrained to this tree.
                 roots = [(), ("src",)]
