@@ -136,6 +136,30 @@ class MissingLinkFrontendTests(unittest.TestCase):
         self.assertIn("Invalid quote <img", warning.inner_text())
         self.assertEqual(warning.locator("img").count(), 0)
 
+    def test_discovery_qualification_is_separate_and_reference_markup_is_escaped(self):
+        fixture = source_fixture()
+        fixture["matches"][0]["classification"] = "direct"
+        fixture["matches"][0]["discovery_assessment"] = {"status": "known_reference", "reasons": [
+            "Already mentioned <img src=x onerror=alert(1)>"], "references": [{
+            "source_id": "q1", "url": "javascript:alert(1)", "kind": "repository_link",
+            "quote": "<script>alert(1)</script>"}]}
+        self.fixture_page(fixture)
+        card = self.page.locator(".ml-match")
+        card.wait_for()
+        self.assertIn("Existing interface", card.inner_text())
+        self.assertIn("Already referenced · not a new discovery", card.inner_text())
+        detail = card.locator('details[data-ml-detail="discovery-match-fixture"]')
+        detail.locator("summary").click()
+        self.assertIn("not evidence of adoption", detail.inner_text())
+        self.assertIn("<script>", detail.inner_text())
+        self.assertEqual(card.locator("script, img, a[href^='javascript:']").count(), 0)
+
+    def test_historical_result_without_discovery_assessment_does_not_claim_novelty(self):
+        self.fixture_page()
+        card = self.page.locator(".ml-match")
+        card.wait_for()
+        self.assertIn("Discovery not assessed · novelty unverified", card.inner_text())
+
     def fixture_page(self, fixture=None):
         self.page.route("**/ui-fixture", lambda route: route.fulfill(
             content_type="text/html",

@@ -13,7 +13,8 @@ from .analysis import (analysis_contract, conservative_matches, conservative_req
 from .provider import Provider, CandidateValidationError
 from .store import Store
 from .lease import WorkerLease
-from .sources import PublicGitHub, extract_structure, source_role
+from .sources import PublicGitHub, extract_structure
+from .discovery import problem_queries, select_candidates, SELECTION_POLICY
 
 
 def now():
@@ -333,16 +334,16 @@ class Service:
                         queries = [query]
                     else:
                         queries = self.queries(repository)
-                    found, metadata = {}, []
+                    batches, metadata = [], []
                     for query in queries[:3]:
                         result = source.search_issues(query, max_pages=2, page_size=20)
                         metadata.append({key: value for key, value in result.items() if key not in {"items", "candidates"}})
-                        for candidate in result.get("items", result.get("candidates", [])):
-                            url = candidate.get("url") if str(candidate.get("url", "")).startswith("https://github.com/") else candidate.get("html_url")
-                            if url:
-                                found[url] = {"url": url, "title": candidate.get("title", "")}
-                    checkpoints["candidates"] = list(found.values())[:job["input"]["max_candidates"]]
-                    job["result"]["search"] = {"queries": queries, "pages": metadata, "candidates_found": len(found),
+                        batches.append(result.get("items", result.get("candidates", [])))
+                    selected, found = select_candidates(batches, queries, repository, job["input"]["max_candidates"])
+                    checkpoints["candidates"] = selected
+                    job["result"]["search"] = {"queries": queries, "pages": metadata, "candidates_found": found,
+                        "selection_policy": SELECTION_POLICY, "selected_candidates": selected,
+                        "automatic_query": not bool(job["input"]["query"]),
                         "candidates_evaluated_cap": job["input"]["max_candidates"], "complete": False,
                         "note": "Bounded search sample. Empty results do not prove absence of demand; search indexing is not exhaustive."}
                 save()
@@ -414,26 +415,7 @@ class Service:
 
     @staticmethod
     def queries(repository):
-        queries = []
-        candidates = repository.get("capabilities", [])
-        ranked = sorted(candidates, key=lambda cap: (
-            0 if cap.get("maintainer_correction") else 1 if cap.get("claim_source") == "model" else 2,
-            source_role(cap.get("entrypoint", "") or "unknown") == "infrastructure",
-            0 if cap.get("level") == "mechanism" and not cap.get("name", "").startswith("_") else 1,
-            0 if not cap.get("summary", "").startswith(("Declared ", "Declaration candidate")) else 1,
-            1 if any(term in cap.get("entrypoint", "").lower() for term in ("__main__", "tools/", "tests/")) else 0))
-        for capability in ranked:
-            # No project-name query: desired mechanisms/outcomes, bounded human-visible retrieval terms.
-            terms = capability.get("search_terms", [])
-            clean = [re.sub(r"[^a-zA-Z0-9 -]", " ", term).strip() for term in terms if isinstance(term, str)]
-            clean = [term for term in clean if len(term) >= 4 and term.lower() not in {"function", "return", "class", "unknown"}]
-            if clean:
-                query = " ".join(clean[:2])[:160]
-                if query not in queries:
-                    queries.append(query)
-        if not queries:
-            raise ValueError("No problem-oriented search terms established. Review a capability or supply a discovery query.")
-        return queries[:3]
+        return problem_queries(repository)
 
     def repository_for_job(self, job_id):
         job = self.store.get("jobs", job_id)

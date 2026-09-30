@@ -379,3 +379,40 @@ against saved reports without additional model calls.
 The safe conclusion is that conservative filtering and persistence improved,
 while reliable autonomous discovery remains unproven. UI/key-entry work and
 another paid cohort are deferred pending a decision on these remaining weaknesses.
+
+### Offline discovery-qualification regression — 30 September 2026
+
+After the source-context/citation fixes merged in PR #12, retrieval and discovery
+qualification were tested locally against fixtures and the **already acquired**
+recovery snapshots. This is regression verification, not another autonomous run:
+no new GitHub candidate search, model response, manual analysis import, stored
+match rewrite, publication or bridge execution occurred.
+
+Automatic queries now remove source-package names, target open external issues,
+skip unreviewed declaration filler and balance source modules within each
+source/review tier. Sampling a different file cannot promote weak documentation
+over reviewed implementation. Selection ranks the bounded pool and balances
+projects/query provenance instead of retaining the first hits. These remain
+lexical heuristics; a query such as graph core decomposition can still retrieve
+an unrelated domain, and compatibility review must reject it.
+
+Read-only application of the new qualification rules to saved comparisons gives:
+
+| Saved discussion | Technical assessment retained | Separate discovery qualification |
+| --- | --- | --- |
+| Click #730 | 1 investigate, 1 rejected | Same-project work, not external discovery |
+| syno-mihomo-gateway #75 | 1 investigate | Similarity only; no supported contribution |
+| PySDKit #53 | 2 rejected | Not a usable connection |
+| FileMaker #36 | 2 investigate | Existing package-name reference requires intent/identity review |
+| magicdawn #186 | 2 investigate | Empty-body reference notes; demand not established |
+
+Historical stored records are left untouched. New evaluations use analysis
+contract **5**, derive qualification from acquired sources rather than accepting
+model/import novelty claims, and preserve it in JSON/ZIP handoffs. A potential
+external lead still has `novelty: unverified`; technical fit, execution,
+integration and author awareness are separate questions.
+
+The shared allowance remains **$0.906622 reserved out of $2**. No new AI spending
+was incurred. A new held-out repository cohort is still needed to measure whether
+these changes improve real autonomous discovery; this offline regression does
+not demonstrate a new useful connection, precision, recall or generalization.

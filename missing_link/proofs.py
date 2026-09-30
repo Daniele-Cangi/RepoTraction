@@ -107,7 +107,7 @@ def export_handoff(match: dict[str, Any], repository: dict[str, Any]) -> dict[st
         if source_issue.get("public") is False:
             raise ValueError("Proof export supports acquired public discussion context only.")
         request["source_issue"] = _select(source_issue, (
-            "id", "repo", "number", "url", "title", "body", "state",
+            "id", "repo", "repo_id", "number", "url", "title", "body", "state",
             "state_reason", "updated_at", "created_at", "closed_at", "author",
             "author_type", "author_association", "repo_archived", "bot", "labels", "comments", "timeline",
             "context_complete", "limitations", "fingerprint", "fetched_at", "public",
@@ -167,7 +167,7 @@ def export_handoff(match: dict[str, Any], repository: dict[str, Any]) -> dict[st
         "match": _select(match, (
             "id", "repo", "capability_id", "capability", "classification",
             "summary", "checks", "obstacles", "feedback", "source_fingerprint",
-            "analysis_source", "limitations", "analysis_context", "analysis_contract_version",
+            "analysis_source", "limitations", "analysis_context", "analysis_contract_version", "discovery_assessment",
         )),
         "request": request,
         "acceptance_criteria_from_request": criteria,
