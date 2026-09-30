@@ -221,6 +221,25 @@ class ServiceTests(unittest.TestCase):
         self.service.import_analysis(body)
         self.assertEqual(self.service.store.get("matches", mid)["feedback"][0]["source"], "maintainer")
 
+    def test_ai_analysis_with_zero_structural_candidates_completes_without_spending(self):
+        provider = Provider({"REPOTRACTION_AI_URL": "http://localhost/v1", "REPOTRACTION_AI_MODEL": "fixture"})
+        self.service.provider = provider
+        source = self.fake_sources()
+        source.fetch_repository.return_value = dict(repository(), files=[], capabilities=[])
+        with mock.patch("missing_link.service.PublicGitHub", return_value=source), \
+             mock.patch("missing_link.service.extract_structure", return_value=[]), \
+             mock.patch.object(provider, "complete") as complete:
+            started = self.service.start({"repo": "example/words", "action": "analyze", "use_ai": True}, background=False)
+        job = self.service.store.get("jobs", started["job_id"])
+        self.assertEqual(job["status"], "completed")
+        self.assertIsNone(job["error"])
+        self.assertEqual(job["ai_calls_used"], 0)
+        self.assertEqual(job["cost_reserved_usd"], 0)
+        self.assertTrue(job["checkpoint"]["capabilities_interpreted"])
+        self.assertEqual(job["checkpoint"]["repository"]["capabilities"], [])
+        self.assertEqual(self.service.store.get("repositories", 42)["capabilities"], [])
+        complete.assert_not_called()
+
     def test_refresh_preserves_feedback_and_superseded_structural_candidates(self):
         first = self.run_fixture()
         structural_id = first["result"]["match_ids"][0]

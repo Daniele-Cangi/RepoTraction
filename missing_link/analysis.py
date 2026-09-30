@@ -14,7 +14,7 @@ from .discussion import authorship, constraint_hints
 
 CLASSIFICATIONS = {"direct", "adapter", "extraction", "rejected", "investigate"}
 REQUEST_STATUSES = {"unresolved", "resolved", "duplicate", "unclear", "automated"}
-ANALYSIS_CONTRACT_VERSION = 3
+ANALYSIS_CONTRACT_VERSION = 4
 
 
 def digest(value: Any) -> str:

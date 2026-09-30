@@ -169,7 +169,7 @@ at a new revision. Maintainer feedback does not overwrite original evidence.
 Refreshes atomically preserve feedback and supersession. Each result keeps its
 exact reproduction snapshot, independent of the list of recent jobs. Resuming
 with another provider/model/contract pauses rather than mixing interpretations.
-Analysis contract version 3 also marks older assessments historical and blocks
+Analysis contract version 4 also marks older assessments historical and blocks
 their isolated examples until reevaluation; historical snapshots/exports remain
 available and are not silently rewritten as current evidence.
 Discussion freshness uses immutable GitHub issue IDs, including older URL-keyed
@@ -185,6 +185,34 @@ it does not claim semantic clustering or predict adoption. Superseded/historical
 results are not current opportunities.
 
 ## Coverage and trust boundaries
+
+Prompt selection prioritizes implementation over documentation, tests and build
+helpers (including `winbuild`, `ci_tools` and `_custom_build`). The 30-capability
+sample distributes candidates across files; definition chunks are interleaved
+before broad file coverage so one large module cannot monopolize the prompt.
+Coverage records the selected capability roles and actually supplied source roles
+and implementation paths, including an explicit missing-implementation flag.
+These are path-based sampling hints, not verified exports or execution evidence.
+
+Provider schemas are scoped per call: source IDs must be exact keys actually
+supplied, and capability/requirement IDs must belong to the selected candidates.
+Context packing shares the schema's 400-ID bound, in addition to the byte bound;
+ID-limited omissions are counted in coverage and make discussion incomplete.
+Repository comparisons reserve ID slots for selected source/support excerpts.
+Wider or fabricated line ranges are not offered as valid model outputs. This
+scope is checked locally for JSON-mode providers too; inspection/import contracts
+still accept precisely validated visible subspans. Request instructions require
+short contiguous original quotations, preserving Markdown, math and punctuation;
+only whitespace differences are tolerated by the provenance validator. Schema
+membership proves availability, not semantic support for a claim. Invalid quotes
+remain failures with no automatic paid retry; improved real-model success rates
+still require a separate experiment.
+
+An analysis with no structural capability candidates completes with an empty
+list, without constructing an AI schema, calling the provider or reserving cost.
+Compatibility comparison also returns no matches when there are no candidates.
+This does not prove absence of useful functionality in unsupported/unsampled code;
+discovery still needs established search terms or an explicit operator query.
 
 - Source sampling uses a path heuristic to prioritize implementation over build,
   check, benchmark and example infrastructure within the existing file budget.

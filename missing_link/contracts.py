@@ -1,5 +1,7 @@
 """Machine-readable interpretation schemas, distinct from human examples."""
 
+MAX_SCOPED_IDS = 400
+
 
 def obj(**properties):
     return {"type": "object", "properties": properties, "required": list(properties), "additionalProperties": False}
@@ -13,7 +15,7 @@ def array(items=None):
     return {"type": "array", "items": items or string()}
 
 
-def schema_for(phase):
+def schema_for(phase, *, source_ids=None, capability_ids=None, requirement_ids=None):
     requirement = obj(text=string(), mandatory={"type": "boolean"}, explicit={"type": "boolean"},
         source_id=string(), quote=string(), inference=string())
     request = obj(outcome=string(), status=string("unresolved", "resolved", "duplicate", "unclear", "automated"),
@@ -29,8 +31,37 @@ def schema_for(phase):
     match = obj(capability_id=string(), classification=string("direct", "adapter", "extraction", "rejected", "investigate"),
         summary=string(), checks=array(obj(requirement_id=string(), status=string("satisfied", "incompatible", "undetermined"),
             reason=string(), source_ids=array())), obstacles=array(), bridge=bridge)
-    return {"request": request, "capabilities": obj(capabilities=array(capability)),
-        "matches": obj(matches=array(match))}[phase]
+    schema = {"request": request, "capabilities": obj(capabilities=array(capability)),
+              "matches": obj(matches=array(match))}[phase]
+
+    def choices(values):
+        # Bound dynamic enum growth before provider transport/reservation. Imports
+        # and human examples retain the general schema when no scope is provided.
+        ids = list(values)
+        if not ids or any(not isinstance(value, str) or not value for value in ids):
+            raise ValueError("Analysis citation scope is empty or exceeds contract bounds.")
+        ids = list(dict.fromkeys(ids))
+        if len(ids) > MAX_SCOPED_IDS:
+            raise ValueError("Analysis citation scope is empty or exceeds contract bounds.")
+        return string(*ids)
+
+    if source_ids is not None:
+        references = choices(source_ids)
+        if phase == "request":
+            requirement["properties"]["source_id"] = references
+            request["properties"]["status_source_ids"] = array(references)
+        elif phase == "capabilities":
+            capability["properties"]["source_ids"] = array(references)
+        else:
+            match["properties"]["checks"]["items"]["properties"]["source_ids"] = array(references)
+    if capability_ids is not None:
+        if phase == "capabilities":
+            capability["properties"]["id"] = choices(capability_ids)
+        elif phase == "matches":
+            match["properties"]["capability_id"] = choices(capability_ids)
+    if requirement_ids is not None and phase == "matches":
+        match["properties"]["checks"]["items"]["properties"]["requirement_id"] = choices(requirement_ids)
+    return schema
 
 
 def validate_shape(value, schema, location="output"):
