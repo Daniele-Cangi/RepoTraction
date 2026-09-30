@@ -1,0 +1,34 @@
+{
+  "request": {
+    "outcome": "Generate readable filename stems for non-ASCII character names in Manuskript projects.",
+    "status": "unresolved",
+    "status_source_ids": ["q0"],
+    "status_reason": "The acquired issue has no solution comments. A separate inspection of Manuskript revision 01e05747f3c13f637d802ca915c31f9a27a601f8, manuskript/load_save/version_1.py:81-95, still shows ASCII-only naming. The 2022 report's current maintainer priority remains unknown.",
+    "requirements": [
+      {"text": "Make Cyrillic character names recognizable instead of dashed filename stems.", "mandatory": true, "explicit": true, "source_id": "q0", "quote": "If you create a bunch of characters with Cyrillic names, you get a lot of files named like `18----_----_---.txt` inside a project. It is not human-readable at all."},
+      {"text": "Prefer a Unicode-compatible external slug helper.", "mandatory": false, "explicit": true, "source_id": "q0", "quote": "I propose to use the unicode-compatible slugify method from an external module"}
+    ],
+    "environment": ["Python naming/storage helper in Manuskript; target Python version and filesystem policy not established."],
+    "prior_attempts": ["The author briefly tried unicode-slugify; that is an alternative reported in the issue, not a RepoTraction execution proof."],
+    "missing_information": ["Whether maintainers still want this change.", "Target Python compatibility with python-slugify >=3.10.", "Collision policy, historical saved paths, filename length and filesystem compatibility."]
+  },
+  "matches": [{
+    "capability_id": "f1747732047002d2b704",
+    "classification": "adapter",
+    "summary": "The existing Unicode-preserving slug pipeline can provide readable Cyrillic stems; integrating it into Manuskript's persisted naming contract needs a small adapter and compatibility checks.",
+    "checks": [
+      {"requirement_id": "r0", "status": "satisfied", "reason": "The public wrapper forwards allow_unicode to the frozen pipeline, whose Unicode branch uses NFKC and Unicode-permitted filtering rather than transliterating or replacing all Cyrillic characters. This is source-grounded compatibility, NOT an executed filename integration.", "source_ids": ["file:slugify/slugify.py#L195-L222", "file:slugify/_legacy.py#L137-L161", "file:README.md"]},
+      {"requirement_id": "r1", "status": "satisfied", "reason": "An importable public slugify function and usage examples exist.", "source_ids": ["file:slugify/__init__.py", "file:README.md"]}
+    ],
+    "obstacles": ["Source behavior has not been executed in the target application.", "Python >=3.10 and text-unidecode dependency require target-environment review.", "Changing the old helper blindly could rename persisted files or produce collisions.", "The reported need is old; no outreach or adoption forecast is justified."],
+    "bridge": {
+      "kind": "example",
+      "summary": "Inspect a Unicode-preserving call, then add an explicit non-ASCII path while retaining old ASCII naming and saved-project migration policy.",
+      "steps": ["Use python-slugify revision 866401ea6b346d7575cf941bc73ad32a362e34aa in a separately isolated Python >=3.10 environment; preserve its MIT notice and review dependency licensing.", "Run the example only in that isolated environment and compare its stem with the existing Manuskript helper on the same name.", "Before integrating, add saved-project, collision, empty-name, length and filesystem tests; no patch to Manuskript is applied here."],
+      "existing_contribution": "Unicode normalization/filtering and separator handling in the existing slug pipeline.",
+      "new_logic": "Target integration, collision policy and historical path handling; no new transliteration algorithm.",
+      "assumptions": ["The illustrated desired stem preserves original Cyrillic letters and underscores between words; exact separator/case policy must be confirmed.", "The example input is an illustrative fixture, not copied from the issue's user's private project."],
+      "files": [{"path": "unicode_stem.py", "content": "# NOT EXECUTED. Run only in a separately isolated environment.\nfrom slugify import slugify\n\nname = 'Персонаж Алиса'\nstem = slugify(name, allow_unicode=True, lowercase=False, separator='_')\nassert stem == 'Персонаж_Алиса', stem\nprint(stem)\n# Ablation: compare against the unchanged Manuskript helper on the SAME name;\n# assess readability, not an import failure. Target helper is not bundled here.\n"}]
+    }
+  }]
+}

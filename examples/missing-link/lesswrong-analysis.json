@@ -1,0 +1,32 @@
+{
+  "request": {
+    "outcome": "Avoid cutting a prose meta description in the middle of a word.",
+    "status": "unclear",
+    "status_source_ids": ["q0"],
+    "status_reason": "This 2014 report was imported in 2015, has no comments, and its current deployment/applicability is not established. Open status alone cannot qualify it as a live unmet need.",
+    "requirements": [
+      {"text": "Do not split a description word at the truncation boundary.", "mandatory": true, "explicit": true, "source_id": "q0", "quote": "meta description does not truncate on word boundaries"}
+    ],
+    "environment": ["HTML meta description containing prose; runtime/version not established."],
+    "prior_attempts": [],
+    "missing_information": ["Desired character/byte budget.", "Policy when a first word is longer than the budget.", "Whether the old report still applies.", "Plain-text conversion and HTML escaping contract."]
+  },
+  "matches": [{
+    "capability_id": "07ac7bc5baeb6f9f8a8c",
+    "classification": "investigate",
+    "summary": "Reuse the lower-level smart_truncate mechanism without the slug product's normalization; strict whole-word behavior needs an edge-policy adapter.",
+    "checks": [
+      {"requirement_id": "r0", "status": "undetermined", "reason": "With word_boundary=True and save_order=True it can keep ordinary space-separated words in order. However, no separator or no fitting first word falls back to a hard slice (lines 87-88 and 100-101), so the unconditional requirement is NOT satisfied by the helper alone.", "source_ids": ["file:slugify/_legacy.py#L68-L102", "file:slugify/slugify.py", "file:slugify/__init__.py"]}
+    ],
+    "obstacles": ["Overlong first-word/no-space fallback splits words.", "The default save_order=False can skip early words; opt in explicitly.", "Unknown budget/runtime and old demand; no qualified opportunity or proven extraction.", "Do not pass raw HTML or call slugify on prose."],
+    "bridge": {
+      "kind": "investigation",
+      "summary": "Inspect smart_truncate independently and resolve oversized-word policy before adopting it.",
+      "steps": ["Prepare plain text and establish the real length budget from the target application.", "Test ordinary words, an oversized first word, no-space text and multi-byte characters in an isolated environment.", "Compare ordinary slicing versus smart_truncate on the same text and budget, measuring whole-word/prefix preservation.", "Define an explicit empty-result/over-budget policy for edge cases, and HTML-escape only after truncation."],
+      "existing_contribution": "The separately exported low-level word-selection mechanism; the slug normalization pipeline is not used.",
+      "new_logic": "Length budget, target HTML integration and oversized-word policy remain to be specified; none are claimed implemented.",
+      "assumptions": ["160 characters is illustrative, NOT a request-derived requirement.", "Space-separated prose only for this example; grapheme-aware and pixel-aware truncation are not established."],
+      "files": [{"path": "inspect_truncate.py", "content": "# NOT EXECUTED. Inspection example, not a strict whole-word adapter.\nfrom slugify import smart_truncate\n\ndef inspect(text, assumed_limit=160):\n    return {\n        'slicing_baseline': text[:assumed_limit],\n        'existing_mechanism': smart_truncate(text, max_length=assumed_limit,\n            word_boundary=True, save_order=True),\n    }\n# Supply the REAL budget and test oversized words before integration.\n"}]
+    }
+  }]
+}
