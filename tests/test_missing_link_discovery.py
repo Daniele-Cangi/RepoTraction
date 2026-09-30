@@ -1,10 +1,14 @@
 """Offline retrieval/qualification regressions, not a discovery-quality benchmark."""
 import copy
+import io
+import json
 import unittest
+import zipfile
 from unittest import mock
 
 from missing_link.discovery import problem_queries, select_candidates
 from missing_link.analysis import validate_matches, validate_request, extension_groups
+from missing_link.proofs import export_handoff, build_package
 import test_missing_link as fixtures
 
 repository, issue = fixtures.repository, fixtures.issue
@@ -241,6 +245,50 @@ class QualificationTests(unittest.TestCase):
         for ref in assessment["references"]:
             index = int(ref["source_id"][1:]) - 1
             self.assertIn(ref["quote"], demand["comments"][index]["body"])
+
+    def test_late_repository_link_overrides_full_hint_ledger_and_survives_exports(self):
+        repo, demand, raw_request, raw_match = self.case()
+        demand["body"] += " " + "`words` " * 8
+        link_comment = {"url": demand["url"] + "#issuecomment-9",
+                        "body": "Previously tried https://github.com/example/words#readme", "author": "fixture-author"}
+        demand["comments"] = [link_comment]
+        match = self.evaluate(repo, demand, raw_request, raw_match)
+        assessment = match["discovery_assessment"]
+        self.assertEqual(assessment["status"], "known_reference")
+        self.assertEqual(assessment["relationship"], "already_referenced")
+        self.assertEqual(assessment["reference_count"], 9)
+        self.assertEqual(len(assessment["references"]), 8)
+        self.assertFalse(assessment["reference_coverage_complete"])
+        self.assertFalse(assessment["eligible_for_followup"])
+        strongest = assessment["references"][0]
+        self.assertEqual(strongest["kind"], "repository_link")
+        self.assertEqual(strongest["source_id"], "q1")
+        self.assertEqual(strongest["url"], link_comment["url"])
+        self.assertIn(strongest["quote"], link_comment["body"])
+        self.assertEqual(export_handoff(match, repo)["match"]["discovery_assessment"], assessment)
+        with zipfile.ZipFile(io.BytesIO(build_package(match, repo))) as archive:
+            self.assertEqual(json.loads(archive.read("handoff.json"))["match"]["discovery_assessment"], assessment)
+
+    def test_links_keep_precedence_and_stable_order_even_after_both_kinds_exceed_cap(self):
+        repo, demand, raw_request, raw_match = self.case()
+        demand["body"] += " " + "`words` " * 12
+        demand["comments"] = [{"url": demand["url"] + f"#issuecomment-{i}",
+            "body": f"Exact reference {i}: https://github.com/example/words/"} for i in range(12)]
+        assessment = self.evaluate(repo, demand, raw_request, raw_match)["discovery_assessment"]
+        self.assertEqual(assessment["status"], "known_reference")
+        self.assertEqual(assessment["reference_count"], 24)
+        self.assertEqual([ref["source_id"] for ref in assessment["references"]], [f"q{i}" for i in range(1, 9)])
+        self.assertTrue(all(ref["kind"] == "repository_link" for ref in assessment["references"]))
+        self.assertFalse(assessment["reference_coverage_complete"])
+
+    def test_more_than_eight_name_hints_alone_still_require_reference_review(self):
+        repo, demand, raw_request, raw_match = self.case()
+        demand["body"] += " " + "`words` " * 12
+        assessment = self.evaluate(repo, demand, raw_request, raw_match)["discovery_assessment"]
+        self.assertEqual(assessment["status"], "reference_review")
+        self.assertEqual(assessment["reference_count"], 12)
+        self.assertEqual(len(assessment["references"]), 8)
+        self.assertTrue(all(ref["kind"] == "package_name_hint" for ref in assessment["references"]))
 
     def test_known_and_internal_work_do_not_inflate_external_extension_groups(self):
         match = validate_matches([fixtures.raw_match()], repository(), issue(),

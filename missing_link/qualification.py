@@ -9,6 +9,9 @@ from .sources import parse_issue_url
 from .discussion import authorship
 
 
+MAX_REFERENCE_EXCERPTS = 8
+
+
 def _references(repository, catalog):
     name = repository["full_name"].split("/")[-1]
     # A repository link establishes a reference; package-name spellings only
@@ -20,7 +23,7 @@ def _references(repository, catalog):
                   + r"(?=$|[\s.;])", re.I))]
     if "-" in name and len(name) >= 5:
         patterns.append(("package_name_hint", re.compile(r"(?<![\w-])" + re.escape(name) + r"(?![\w-])", re.I)))
-    references, found = [], 0
+    references, found, repository_link_found = [], 0, False
     for source_id, source in catalog.items():
         if not re.fullmatch(r"q\d+", source_id):
             continue
@@ -33,11 +36,18 @@ def _references(repository, catalog):
                     continue
                 seen.add(match.span())
                 found += 1
-                if len(references) < 8:
+                repository_link_found |= kind == "repository_link"
+                # Detection covers every acquired source; the excerpt cap only
+                # limits presentation/export. Exact links displace weaker name
+                # hints, preserving the first excerpts within each priority.
+                if (len(references) < MAX_REFERENCE_EXCERPTS or
+                        (kind == "repository_link" and any(ref["kind"] != kind for ref in references))):
                     start, end = max(0, match.start() - 80), min(len(value), match.end() + 160)
                     references.append({"source_id": source_id, "url": source.get("url"), "kind": kind,
                         "quote": value[start:end], "authority": source.get("authority", "not_established")})
-    return references, found
+                    references.sort(key=lambda ref: ref["kind"] != "repository_link")
+                    del references[MAX_REFERENCE_EXCERPTS:]
+    return references, found, repository_link_found
 
 
 def assess_discovery(repository, issue, request, classification, checks, catalog):
@@ -49,8 +59,7 @@ def assess_discovery(repository, issue, request, classification, checks, catalog
     same_id = (repository.get("id") is not None and issue.get("repo_id") is not None
                and repository["id"] == issue["repo_id"])
     same_project = same_id or target.casefold() == repository["full_name"].casefold()
-    references, reference_count = _references(repository, catalog)
-    linked = any(ref["kind"] == "repository_link" for ref in references)
+    references, reference_count, linked = _references(repository, catalog)
     relationship = ("same_project" if same_project else "already_referenced" if linked else
                     "reference_hint" if reference_count else "external" if target else "unknown")
     supported = sum(check["status"] == "satisfied" for check in checks)

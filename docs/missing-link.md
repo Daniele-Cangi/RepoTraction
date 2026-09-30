@@ -221,7 +221,12 @@ same-project distinction after a rename when available.
 A source mention may be a prior attempt or an explicit refusal, never presumed
 endorsement. Ordinary words such as “click” are not treated as package references;
 repository URLs and bounded name/code-pattern hints are retained with exact
-discussion excerpts. These heuristics are non-exhaustive and can need review.
+discussion excerpts. Reference detection scans all acquired discussion regardless
+of the eight-excerpt presentation/export cap. Exact repository links take priority
+over package-name hints in those excerpts, including links found in later comments;
+within each kind the original discovery order is preserved. Total counts and
+incomplete excerpt coverage remain explicit. These heuristics are non-exhaustive
+and can need review.
 All-undetermined checks demonstrate no contribution, even if the model proposes
 a bridge. Only complete unresolved external demand with supported mandatory
 explicit requirements and a positive compatibility class becomes a follow-up lead;
