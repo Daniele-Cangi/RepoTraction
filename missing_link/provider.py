@@ -9,7 +9,7 @@ import urllib.error
 import urllib.request
 from urllib.parse import urlparse
 
-from .analysis import digest, evidence_catalog, resolve_evidence, validate_request, validate_matches
+from .analysis import digest, evidence_catalog, resolve_evidence, validate_request, validate_matches, quoted_span
 from .config import provider_environment
 from .contracts import schema_for, validate_shape
 from .context import build_context, normalize_references
@@ -226,7 +226,7 @@ class Provider:
             "not mandatory demands unless the author explicitly requires them.", data, budget, schema_for("request"), "request")
         for requirement in raw["requirements"]:
             ref = requirement["source_id"]
-            if ref not in data["sources"] or requirement["quote"] not in data["sources"][ref]["quote"]:
+            if ref not in data["sources"] or quoted_span(requirement["quote"], data["sources"][ref]["quote"]) is None:
                 raise ValueError("AI requirement quotes must come from context actually supplied to this call.")
         if any(ref not in data["sources"] for ref in raw["status_source_ids"]):
             raise ValueError("AI request disposition cites unavailable context.")

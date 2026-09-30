@@ -39,6 +39,19 @@ def texts(value: Any, maximum: int = 30) -> list[str]:
     return [text(item) for item in value]
 
 
+def quoted_span(quote: str, source: str) -> str | None:
+    """Recover an original contiguous span; only whitespace may differ."""
+    if not quote:
+        return None
+    if quote in source:
+        return quote
+    tokens = re.findall(r"\S+", quote)
+    if not tokens:
+        return None
+    match = re.search(r"\s+".join(re.escape(token) for token in tokens), source)
+    return match.group(0) if match else None
+
+
 def evidence_catalog(repository: dict, issue: dict) -> dict[str, dict]:
     catalog = {"q0": {"url": issue["url"], "quote": issue.get("title", "") + "\n" + issue.get("body", ""), "kind": "request"}}
     for index, comment in enumerate(issue.get("comments", []), 1):
@@ -88,14 +101,16 @@ def validate_request(raw: dict, issue: dict) -> dict:
             raise ValueError("Each requirement must be an object.")
         source_id = item.get("source_id", "")
         quote = text(item.get("quote", ""))
-        if source_id not in catalog or not quote or quote not in catalog[source_id]["quote"]:
+        original = quoted_span(quote, catalog[source_id]["quote"]) if source_id in catalog else None
+        if original is None:
             raise ValueError("Every requirement needs a verbatim quote from the fetched discussion.")
         for key in ("mandatory", "explicit"):
             if not isinstance(item.get(key), bool):
                 raise ValueError("Requirement mandatory/explicit flags must be boolean.")
         requirements.append({"id": f"r{index}", "text": text(item["text"]),
             "mandatory": item["mandatory"], "explicit": item["explicit"],
-            "source": {"url": catalog[source_id]["url"], "quote": quote, "source_id": source_id},
+            "source": {"url": catalog[source_id]["url"], "quote": original, "source_id": source_id,
+                "quote_match": "exact" if original == quote else "whitespace_normalized"},
             "inference": text(item.get("inference", ""))})
     status = raw.get("status", "unclear")
     if status not in REQUEST_STATUSES:

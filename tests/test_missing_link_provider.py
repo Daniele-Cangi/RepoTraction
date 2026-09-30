@@ -176,6 +176,29 @@ class ProviderContractTests(unittest.TestCase):
         with mock.patch.object(provider, "complete", return_value=raw), self.assertRaises(ValueError):
             provider.interpret_request(issue(), mock.Mock())
 
+    def test_whitespace_only_quotes_recover_original_not_model_reformatting(self):
+        provider = Provider({"REPOTRACTION_AI_URL": "http://localhost/v1", "REPOTRACTION_AI_MODEL": "fixture"})
+        demand = issue()
+        demand["body"] = "I need plain text shortened without\r\n    splitting\twords. Must work in native CSS without Python."
+        raw = request_raw()
+        with mock.patch.object(provider, "complete", return_value=raw):
+            result = provider.interpret_request(demand, mock.Mock())
+        source = result["requirements"][0]["source"]
+        self.assertEqual(source["quote"], "without\r\n    splitting\twords")
+        self.assertEqual(source["quote_match"], "whitespace_normalized")
+        self.assertIn(source["quote"], demand["body"])
+        self.assertEqual(raw["requirements"][0]["quote"], "without splitting words")
+
+    def test_whitespace_tolerance_does_not_allow_paraphrases_or_omitted_middle(self):
+        provider = Provider({"REPOTRACTION_AI_URL": "http://localhost/v1", "REPOTRACTION_AI_MODEL": "fixture"})
+        demand = issue()
+        demand["body"] = "start " + "padding\n" * 2000 + "hidden requirement" + "padding\n" * 2000 + " end"
+        for quote in ("without dividing words", "hidden requirement", "start end", " "):
+            raw = request_raw()
+            raw["requirements"][0]["quote"] = quote
+            with self.subTest(quote=quote), mock.patch.object(provider, "complete", return_value=raw), self.assertRaises(ValueError):
+                provider.interpret_request(demand, mock.Mock())
+
     def test_persisted_allowance_is_shared_by_jobs_and_survives_restart(self):
         with tempfile.TemporaryDirectory() as temp:
             path = Path(temp) / "alice.sqlite3"
