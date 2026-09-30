@@ -169,7 +169,7 @@ at a new revision. Maintainer feedback does not overwrite original evidence.
 Refreshes atomically preserve feedback and supersession. Each result keeps its
 exact reproduction snapshot, independent of the list of recent jobs. Resuming
 with another provider/model/contract pauses rather than mixing interpretations.
-Analysis contract version 3 also marks older assessments historical and blocks
+Analysis contract version 4 also marks older assessments historical and blocks
 their isolated examples until reevaluation; historical snapshots/exports remain
 available and are not silently rewritten as current evidence.
 Discussion freshness uses immutable GitHub issue IDs, including older URL-keyed
@@ -185,6 +185,14 @@ it does not claim semantic clustering or predict adoption. Superseded/historical
 results are not current opportunities.
 
 ## Coverage and trust boundaries
+
+Prompt selection prioritizes implementation over documentation, tests and build
+helpers (including `winbuild`, `ci_tools` and `_custom_build`). The 30-capability
+sample distributes candidates across files; definition chunks are interleaved
+before broad file coverage so one large module cannot monopolize the prompt.
+Coverage records the selected capability roles and actually supplied source roles
+and implementation paths, including an explicit missing-implementation flag.
+These are path-based sampling hints, not verified exports or execution evidence.
 
 - Source sampling uses a path heuristic to prioritize implementation over build,
   check, benchmark and example infrastructure within the existing file budget.

@@ -1,6 +1,7 @@
 """Bounded, phase-specific source context with explicit omissions and stable IDs."""
 import json
 import re
+from collections import Counter
 
 from .analysis import evidence_catalog, resolve_evidence, quoted_span
 from .discussion import constraint_hints
@@ -46,6 +47,43 @@ def normalize_references(references, sources, catalog):
     return list(dict.fromkeys(normalized))
 
 
+def capability_path(capability):
+    path = (capability.get("entrypoint") or "").split(":", 1)[0]
+    return path or next((e["path"] for e in capability.get("evidence", []) if e.get("path")), "unknown")
+
+
+def select_capabilities(capabilities, limit=30):
+    """Prefer product implementation with bounded per-file diversity, not export proof."""
+    ranked = sorted(capabilities, key=lambda cap: (
+        {"implementation": 0, "support": 1, "test": 2, "infrastructure": 3}[source_role(capability_path(cap))],
+        cap.get("level") != "mechanism", cap.get("name", "").startswith("_"), cap.get("standalone") != "yes"))
+    selected = []
+    for role in ("implementation", "support", "test", "infrastructure"):
+        groups = {}
+        for cap in ranked:
+            path = capability_path(cap)
+            if source_role(path) == role:
+                groups.setdefault(path, []).append(cap)
+        # One definition from each file before a second one from a large module.
+        for offset in range(max((len(group) for group in groups.values()), default=0)):
+            for group in groups.values():
+                if offset < len(group):
+                    selected.append(group[offset])
+                    if len(selected) == limit:
+                        return selected
+    return selected
+
+
+def interleave_regions(regions):
+    """First source chunk of each region before later chunks from a long definition."""
+    chunks = [[(path, first, min(end, first + 59)) for first in range(start, end + 1, 60)]
+              for path, start, end in regions]
+    for offset in range(max((len(group) for group in chunks), default=0)):
+        for group in chunks:
+            if offset < len(group):
+                yield group[offset]
+
+
 def build_context(repository, issue, phase, byte_limit):
     # Leave room for instructions, the JSON schema and protocol framing.
     # Reserve for the coverage ledger, interpreted requirements and the schema
@@ -63,9 +101,7 @@ def build_context(repository, issue, phase, byte_limit):
         data["potential_constraints"] = hints
     candidates = []
     if repository:
-        candidates = sorted(repository.get("capabilities", []), key=lambda c: (
-            source_role(c.get("entrypoint", "") or "unknown") == "infrastructure",
-            c.get("level") != "mechanism", c.get("name", "").startswith("_"), c.get("standalone") != "yes"))[:30]
+        candidates = select_capabilities(repository.get("capabilities", []))
         data["repository"] = {key: repository.get(key) for key in ("id", "full_name", "revision", "license", "coverage")}
         # Do not duplicate source snippets, raw files, snapshots or account data.
         data["repository"]["capabilities"] = [{key: cap.get(key) for key in ("id", "name", "level", "entrypoint",
@@ -104,7 +140,7 @@ def build_context(repository, issue, phase, byte_limit):
         by_path = {file["path"]: file for file in repository.get("files", [])}
         # Include implementation spans around selected entry points, then imports,
         # manifests, documentation and the remaining acquired text as space permits.
-        regions = []
+        definition_regions = []
         # Selected definitions must precede broad file prefixes: a large
         # manifest or unrelated early code can otherwise consume their budget.
         for cap in candidates:
@@ -113,19 +149,24 @@ def build_context(repository, issue, phase, byte_limit):
                     start = max(1, evidence.get("line", 1))
                     end = max(start, cap.get("definition", {}).get("end_line", evidence.get("end_line", start))
                         if evidence.get("kind") == "declaration" else evidence.get("end_line", start))
-                    regions.append((evidence["path"], start, min(end, start + 179)))
+                    definition_regions.append((evidence["path"], start, min(end, start + 179)))
+        # Do not allow test references attached to a product capability to consume
+        # the implementation's budget before other product entry points.
+        ordered_definitions = []
+        for role in ("implementation", "support", "test", "infrastructure"):
+            ordered_definitions.extend(interleave_regions([region for region in definition_regions
+                                                          if source_role(region[0]) == role]))
+        regions = []
         for file in sorted(by_path.values(), key=lambda f: (
-            0 if f.get("kind") == "manifest" else 1 if f.get("kind") == "source" and not f["path"].startswith("tools/")
-            else 2 if f["path"].lower().startswith("readme") else 3 if f.get("kind") == "source" else 4)):
+            0 if f.get("kind") == "source" and source_role(f["path"]) == "implementation"
+            else 1 if f.get("kind") == "manifest" else 2 if f["path"].lower().startswith("readme") else 3)):
             if file.get("kind") in {"source", "manifest"} or file["path"].lower().startswith("readme"):
                 regions.append((file["path"], 1, len(file["text"].splitlines())))
         for file in sorted(by_path.values(), key=lambda f: f.get("kind") not in {"manifest", "documentation"}):
             regions.append((file["path"], 1, len(file["text"].splitlines())))
-        for path, start, end in regions:
-            for first in range(start, end + 1, 60):
-                last = min(end, first + 59)
-                reference = f"file:{path}#L{first}-L{last}"
-                add(reference, resolve_evidence(reference, catalog))
+        for path, first, last in ordered_definitions + list(interleave_regions(regions)):
+            reference = f"file:{path}#L{first}-L{last}"
+            add(reference, resolve_evidence(reference, catalog))
 
     report = {"phase": phase, "source_ids": list(sources), "omitted_source_ids": list(dict.fromkeys(omitted)),
         "shortened_discussion_ids": shortened,
@@ -138,6 +179,13 @@ def build_context(repository, issue, phase, byte_limit):
         report["omitted_constraint_ids"] = [hint["id"] for hint in hints["items"]
             if hint["source_id"] not in sources or quoted_span(hint["quote"], sources[hint["source_id"]]["quote"]) is None]
         report["constraint_hint_scan_complete"] = hints["complete"]
+    if repository:
+        supplied_paths = list(dict.fromkeys(entry["path"] for entry in sources.values() if entry.get("path")))
+        report["selection_policy"] = "Implementation first; per-file capability diversity and interleaved definition spans. Path heuristic, not verified exports."
+        report["selected_capability_roles"] = dict(Counter(source_role(capability_path(cap)) for cap in candidates))
+        report["supplied_source_roles"] = dict(Counter(source_role(path) for path in supplied_paths))
+        report["implementation_source_paths"] = [path for path in supplied_paths if source_role(path) == "implementation"]
+        report["implementation_context_missing"] = not report["implementation_source_paths"]
     # Lists themselves are bounded; do not let reporting thousands of skipped
     # source chunks consume the context that it is supposed to protect.
     report["omitted_source_count"] = len(report["omitted_source_ids"])

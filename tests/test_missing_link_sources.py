@@ -15,6 +15,7 @@ from missing_link.sources import (  # noqa: E402
     redact_public_text,
     validate_repository,
     _select_files,
+    source_role,
 )
 
 
@@ -68,6 +69,11 @@ class GitHubFixture:
 
 
 class SourceValidationTests(unittest.TestCase):
+    def test_build_directories_are_sampling_hints_not_product_implementation(self):
+        for path in ("winbuild/build_prepare.py", "ci_tools/update.py", "_custom_build/backend.py:compile"):
+            self.assertEqual(source_role(path), "infrastructure")
+        self.assertEqual(source_role("src/PIL/Image.py:open"), "implementation")
+
     def test_infrastructure_does_not_crowd_out_product_source(self):
         fixture = GitHubFixture()
         for index in range(40):

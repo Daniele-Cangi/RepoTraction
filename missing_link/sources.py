@@ -135,11 +135,14 @@ def source_role(path: str) -> str:
     parts = PurePosixPath(path.split(":", 1)[0].casefold()).parts
     if not parts:
         return "implementation"
-    if any(part in {".github", "checks", "tools", "scripts", "benchmarks", "docs", "doc", "examples"}
+    if any(part in {".github", "checks", "tools", "scripts", "benchmarks", "docs", "doc", "examples",
+                    "winbuild", "ci_tools", "_custom_build"}
            for part in parts[:-1]) or parts[-1] in {"setup.py", "conftest.py", "selftest.py"}:
         return "infrastructure"
     if _kind(path.split(":", 1)[0]) == "test":
         return "test"
+    if _kind(path.split(":", 1)[0]) in {"manifest", "documentation"}:
+        return "support"
     return "implementation"
 
 
