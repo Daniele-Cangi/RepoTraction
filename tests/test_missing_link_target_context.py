@@ -17,6 +17,27 @@ def target_file(path, value):
 
 
 class ReferenceContextTests(unittest.TestCase):
+    def test_unsafe_paths_cannot_consume_reference_cap(self):
+        fixture = GitHubFixture()
+        fixture.add("client.py", "import tenacity\n")
+        fixture.add("helper.py", "import tenacity\n")
+        source = PublicGitHub(fixture.read)
+        unsafe = " ".join(f"https://github.com/other/project/blob/main/file{i}.py ../../bad{i}.py .env/private{i}.py"
+                          for i in range(25))
+        with mock.patch.object(source, "fetch_repository", wraps=source.fetch_repository) as fetch:
+            context = source.fetch_reference_context({"url": "https://github.com/sample/project/issues/8",
+                "body": unsafe, "comments": [{"body": "client.py client.py "
+                    "https://github.com/sample/project/blob/main/helper.py"}]})
+        self.assertEqual(fetch.call_args.kwargs["reference_paths"], ["client.py", "helper.py"])
+        self.assertEqual({f["path"] for f in context["files"]}, {"client.py", "helper.py"})
+
+    def test_safe_reference_paths_remain_deduplicated_and_capped(self):
+        source = PublicGitHub(lambda *args: None)
+        body = " ".join(f"file{i}.py file{i}.py" for i in range(25))
+        with mock.patch.object(source, "fetch_repository", return_value={"id": 1, "revision": REVISION, "files": []}) as fetch:
+            source.fetch_reference_context({"url": "https://github.com/sample/project/issues/8", "body": body})
+        self.assertEqual(fetch.call_args.kwargs["reference_paths"], [f"file{i}.py" for i in range(20)])
+
     def evaluate(self, repo=None, demand=None):
         repo, demand = repo or repository(), demand or issue()
         return validate_matches([raw_match()], repo, demand, validate_request(request_raw(), demand), "model")[0]

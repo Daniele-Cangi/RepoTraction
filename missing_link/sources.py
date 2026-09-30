@@ -428,8 +428,8 @@ class PublicGitHub:
                                     r"([A-Za-z0-9_./-]+\.(?:py|js|mjs|cjs|ts|tsx|jsx))(?![\w/-])", prose):
             if name.casefold() == target.casefold():
                 paths.append(path)
-        paths = list(dict.fromkeys(paths))[:20]
-        paths = [path for path in paths if _safe_path(path) and not SECRET_PATH.search(path)]
+        paths = list(dict.fromkeys(path for path in paths
+            if _safe_path(path) and not SECRET_PATH.search(path)))[:20]
         context = self.fetch_repository(target, max_files=4, reference_paths=paths)
         # Target files are separate from the source repository and its exports.
         # Keep only a bounded prefix for reference review, preserving line numbers.
