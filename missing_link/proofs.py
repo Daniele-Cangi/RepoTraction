@@ -20,6 +20,11 @@ MAX_FILE_BYTES = 128_000
 MAX_BRIDGE_FILES = 32
 MAX_EVIDENCE_SNIPPETS = 32
 MAX_SNIPPET_LINES = 60
+
+
+class PackageLimitError(ValueError):
+    """A valid proposal can still be too large for an inspection ZIP."""
+
 _DEVICE = re.compile(r"^(CON|PRN|AUX|NUL|CONIN\$|CONOUT\$|COM[1-9¹²³]|LPT[1-9¹²³])(?:\.|$)", re.I)
 _SECRET = re.compile(
     r"(?:gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|"
@@ -260,9 +265,9 @@ def build_package(match: dict[str, Any], repository: dict[str, Any]) -> bytes:
         portable_names.add(path.casefold())
         data = content.encode("utf-8") if isinstance(content, str) else content
         if len(data) > MAX_FILE_BYTES:
-            raise ValueError(f"Package file exceeds {MAX_FILE_BYTES} bytes: {path}")
+            raise PackageLimitError(f"Package file exceeds {MAX_FILE_BYTES} bytes: {path}")
         if sum(len(item) for item in contents.values()) + len(data) > MAX_PACKAGE_BYTES:
-            raise ValueError("Package size exceeds the supported limit.")
+            raise PackageLimitError("Package size exceeds the supported limit.")
         contents[path] = data
 
     bridge_files = handoff["bridge"].get("files", [])

@@ -17,6 +17,7 @@ from missing_link.analysis import (conservative_request, extension_groups, valid
 from missing_link.provider import Provider
 from missing_link.service import Service
 from missing_link.store import Store
+from missing_link.lease import WorkerLease
 
 
 def repository():
@@ -242,6 +243,27 @@ class ServiceTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "No AI provider"):
             self.service.start({"repo": "example/words", "use_ai": True})
 
+    def test_second_process_cannot_pause_healthy_job_or_start_another(self):
+        lease = WorkerLease(self.path)
+        self.assertTrue(lease.acquire())
+        try:
+            self.service.store.put("jobs", "healthy", {"id": "healthy", "status": "running"})
+            other = Service(self.path, "alice", self.read, lambda: "alice", Provider({}))
+            self.assertEqual(other.store.get("jobs", "healthy")["status"], "running")
+            with self.assertRaisesRegex(ValueError, "Another RepoTraction process"):
+                other.start({"repo": "example/words"})
+        finally:
+            lease.release()
+        recovered = Service(self.path, "alice", self.read, lambda: "alice", Provider({}))
+        self.assertEqual(recovered.store.get("jobs", "healthy")["status"], "paused")
+
+    def test_cross_instance_cancellation_is_seen_by_worker(self):
+        job = self.run_fixture()
+        self.service.store.request_cancel(job["id"])
+        self.assertTrue(Store(self.path, "alice").is_cancelled(job["id"]))
+        self.service.store.clear_cancel(job["id"])
+        self.assertFalse(Store(self.path, "alice").is_cancelled(job["id"]))
+
     def test_budget_pause_resume_keeps_used_count_and_does_not_retry_limit(self):
         def consume(repo, **kwargs):
             # Simulate enough Github requests to exhaust a deliberately tiny cap.
@@ -330,6 +352,16 @@ class ServiceTests(unittest.TestCase):
         self.assertEqual(request_arguments[0]["url"], issue()["url"])
         self.assertNotIn("capabilities", request_arguments[0])
         self.assertEqual(self.service.state()["matches"][0]["classification"], "rejected")
+
+    def test_large_public_context_keeps_valid_result_with_explicit_zip_block(self):
+        job = self.run_fixture()
+        job["checkpoint"]["discussions"]["0"]["comments"] += [{"id": index, "url": issue()["url"] + "#large",
+            "body": "x" * 50000} for index in range(3)]
+        self.service.store.put("jobs", job["id"], job)
+        result = self.service.import_analysis({"job_id": job["id"], "analysis": {"request": request_raw(), "matches": [raw_match()]}})
+        match = self.service.store.get("matches", result["match_ids"][0])
+        self.assertEqual(match["bridge"]["package_status"]["status"], "blocked")
+        self.assertEqual(self.service.export(match["id"])["verification"]["status"], "not_executed")
 
 
 class ApiTests(unittest.TestCase):

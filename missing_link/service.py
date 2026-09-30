@@ -12,6 +12,7 @@ from .analysis import (analysis_contract, conservative_matches, conservative_req
     evidence_catalog, extension_groups, text, texts, validate_matches, validate_request)
 from .provider import Provider
 from .store import Store
+from .lease import WorkerLease
 from .sources import PublicGitHub, extract_structure
 
 
@@ -69,6 +70,16 @@ class Service:
         self.lock = threading.RLock()
         self.threads: dict[str, threading.Thread] = {}
         self.events: dict[str, threading.Event] = {}
+        self.lease = WorkerLease(database)
+        # Opening a second dashboard must not pause a healthy worker in another process.
+        if self.lease.acquire():
+            try:
+                for job in self.store.list("jobs"):
+                    if job["status"] in {"queued", "running"}:
+                        job.update(status="paused", error="Previous worker exited. Resume explicitly; checkpoints and used budgets remain.")
+                        self.store.put("jobs", job["id"], job)
+            finally:
+                self.lease.release()
 
     def _verify(self):
         actual = self.verify()
@@ -129,12 +140,18 @@ class Service:
         with self.lock:
             if any(thread.is_alive() for thread in self.threads.values()):
                 raise ValueError("One investigation at a time per account. Cancel or wait for the current job.")
+            if not self.lease.acquire():
+                raise ValueError("Another RepoTraction process is investigating this account. Use that dashboard or wait.")
             job = {"id": uuid.uuid4().hex, "account": self.account, "input": normalized,
                 "status": "queued", "stage": "queued", "progress": "Waiting to acquire public sources.",
                 "created_at": now(), "updated_at": now(), "requests_used": 0, "ai_calls_used": 0,
                 "cost_reserved_usd": 0.0, "cache_hits": 0, "error": None, "checkpoint": {}, "result": {"match_ids": []}}
-            self.store.put("jobs", job["id"], job)
-            self._dispatch(job, background)
+            try:
+                self.store.put("jobs", job["id"], job)
+                self._dispatch(job, background)
+            except Exception:
+                self.lease.release()
+                raise
         return {"job_id": job["id"], "job": {k: v for k, v in job.items() if k != "checkpoint"}}
 
     def _dispatch(self, job, background=True):
@@ -154,6 +171,7 @@ class Service:
                 return {"job": {k: v for k, v in job.items() if k != "checkpoint"}}
             if job_id in self.events:
                 self.events[job_id].set()
+            self.store.request_cancel(job_id)
             job["status"] = "cancelled"
             job["error"] = "Cancellation requested. An in-flight read may finish, but no new calls start."
             self.store.put("jobs", job_id, job)
@@ -170,16 +188,29 @@ class Service:
             if data.get("max_requests") is not None:
                 job["input"]["max_requests"] = self._bounded_integer(data["max_requests"], 80, job["requests_used"] + 1, 200)
             job.update(status="queued", error=None)
-            self.store.put("jobs", job["id"], job)
-            self._dispatch(job, background)
+            if not self.lease.acquire():
+                raise ValueError("Another RepoTraction process is investigating this account. Use that dashboard or wait.")
+            try:
+                self.store.clear_cancel(job["id"])
+                self.store.put("jobs", job["id"], job)
+                self._dispatch(job, background)
+            except Exception:
+                self.lease.release()
+                raise
         return {"job_id": job["id"]}
 
     def _run(self, job):
+        try:
+            self._execute(job)
+        finally:
+            self.lease.release()
+
+    def _execute(self, job):
         def save():
             job["updated_at"] = now()
             self.store.put("jobs", job["id"], job)
         event = self.events[job["id"]]
-        budget = Budget(job, save, event.is_set, self._verify)
+        budget = Budget(job, save, lambda: event.is_set() or self.store.is_cancelled(job["id"]), self._verify)
         def stage(name, message):
             budget.checkpoint()
             job.update(status="running", stage=name, progress=message)
@@ -288,11 +319,10 @@ class Service:
                 request = requests[key]
                 stage("compatibility", "Checking hard constraints and preparing the smallest technical bridge.")
                 matches = self.provider.evaluate(repository, issue, request, budget) if job["input"]["use_ai"] else conservative_matches(repository, issue, request)
-                from .proofs import build_package
                 for match in matches:
                     budget.checkpoint()
                     # Validate package safety before persisting any generated filenames/content.
-                    build_package(match, repository)
+                    self.validate_proposal(match, repository)
                     self.store.put("matches", match["id"], match)
                     job["result"]["match_ids"].append(match["id"])
                 checkpoints.setdefault("evaluated", []).append(key)
@@ -371,9 +401,8 @@ class Service:
         raw = data.get("analysis", {})
         request = validate_request(raw.get("request", {}), issue)
         matches = validate_matches(raw.get("matches", []), repository, issue, request, "coding_agent_import")
-        from .proofs import build_package
         for match in matches:
-            build_package(match, repository)
+            self.validate_proposal(match, repository)
         for match in matches:
             # Re-import at the same evidence identity must preserve human feedback.
             try:
@@ -388,6 +417,17 @@ class Service:
                 existing["superseded"] = True
                 self.store.put("matches", existing["id"], existing)
         return {"match_ids": [match["id"] for match in matches], "analysis_source": "coding_agent_import"}
+
+    @staticmethod
+    def validate_proposal(match, repository):
+        from .proofs import build_package, export_handoff, PackageLimitError
+        # Path/public-source validation remains mandatory even if ZIP context is oversized.
+        export_handoff(match, repository)
+        try:
+            build_package(match, repository)
+        except PackageLimitError as exc:
+            match["bridge"]["package_status"] = {"status": "blocked", "reason": str(exc)}
+            match["obstacles"].append("Inspection ZIP exceeds its size bound; source context and JSON handoff remain available. " + str(exc))
 
     def correct_capability(self, data):
         self._verify()

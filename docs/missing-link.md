@@ -104,6 +104,9 @@ and 10 candidates. Broad retrieval and deeper full-context evaluation are separa
 GitHub's [search API](https://docs.github.com/en/rest/search/search) limits result
 sets to 1,000 and can report incomplete results. Missing Link also limits pages
 and records queries, counts and incompleteness. No-results is not no-demand.
+An OS-released worker lease also enforces this across two RepoTraction processes
+sharing the same account database. Opening another instance does not pause a
+healthy job. Cancellation is persisted so the other instance can request it too.
 
 **Cancel** stops new calls at checkpoints; an in-flight GitHub/provider read may
 finish first. **Resume** retains completed checkpoints and used budgets; increasing
@@ -155,6 +158,9 @@ ZIPs contain `HANDOFF.md`, `handoff.json`, a SHA256 manifest, bounded source
 snippets, available license text and proposed bridge files. Revision agreement,
 portable relative paths, case-insensitive collisions, symlinks and sizes are
 checked. Criteria come from the original demand; new assumptions remain separate.
+If acquired discussion context makes the ZIP exceed its bounds, the match is
+retained with an explicit packaging obstacle; JSON handoff/source context remain
+available. This is not an excuse to bypass path, public-source or credential checks.
 
 All packages say **NOT EXECUTED**. A genuinely isolated proof backend is not yet
 implemented/configured; a subprocess or the mere presence of Docker CLI is not

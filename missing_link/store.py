@@ -31,6 +31,7 @@ class Store:
                 CREATE TABLE IF NOT EXISTS ml_jobs (id TEXT PRIMARY KEY, payload TEXT NOT NULL);
                 CREATE TABLE IF NOT EXISTS ml_matches (id TEXT PRIMARY KEY, payload TEXT NOT NULL);
                 CREATE TABLE IF NOT EXISTS ml_discussions (id TEXT PRIMARY KEY, payload TEXT NOT NULL);
+                CREATE TABLE IF NOT EXISTS ml_cancellations (job_id TEXT PRIMARY KEY);
                 CREATE TABLE IF NOT EXISTS ml_corrections (repo_id INTEGER, capability_id TEXT, revision TEXT, payload TEXT,
                     PRIMARY KEY(repo_id, capability_id));
                 CREATE TABLE IF NOT EXISTS ml_cache (key TEXT PRIMARY KEY, expires REAL NOT NULL, payload TEXT NOT NULL);
@@ -39,11 +40,6 @@ class Store:
             if identities and identities != [(self.account,)]:
                 raise ValueError("Missing Link database belongs to a different account.")
             db.execute("INSERT OR IGNORE INTO ml_identity VALUES (?)", (self.account,))
-        for job in self.list("jobs"):
-            if job["status"] in {"queued", "running"}:
-                job.update(status="paused", error="Server restarted. Resume explicitly; existing budgets and checkpoints are preserved.")
-                self.put("jobs", job["id"], job)
-
     @contextmanager
     def connection(self):
         self.path.parent.mkdir(parents=True, exist_ok=True)
@@ -104,3 +100,15 @@ class Store:
         with self.connection() as db:
             rows = db.execute("SELECT capability_id,revision,payload FROM ml_corrections WHERE repo_id=?", (repo_id,)).fetchall()
         return [{"capability_id": row[0], "revision": row[1], "correction": json.loads(row[2])} for row in rows]
+
+    def request_cancel(self, job_id):
+        with self.connection() as db:
+            db.execute("INSERT OR IGNORE INTO ml_cancellations VALUES (?)", (job_id,))
+
+    def is_cancelled(self, job_id):
+        with self.connection() as db:
+            return db.execute("SELECT 1 FROM ml_cancellations WHERE job_id=?", (job_id,)).fetchone() is not None
+
+    def clear_cancel(self, job_id):
+        with self.connection() as db:
+            db.execute("DELETE FROM ml_cancellations WHERE job_id=?", (job_id,))
