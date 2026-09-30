@@ -213,6 +213,19 @@ def _initializer_imports(path: str, text: str, eligible: dict) -> list[str]:
                 # Both flat and src-layout packages, constrained to this tree.
                 roots = [(), ("src",)]
             for root in roots:
+                # A dotted import traverses package initializers before its
+                # final module. These are tree-constrained hints, not execution
+                # proof; namespace packages simply have no eligible initializer.
+                for depth in range(1, len(parts)):
+                    candidate = "/".join((*root, *parts[:depth], "__init__.py"))
+                    # The safety-filtered tree accepts paths up to 1024 chars.
+                    # Avoid building arbitrarily deep untrusted import prefixes.
+                    if len(candidate) > 1024:
+                        break
+                    if candidate in eligible and candidate != path and candidate not in targets:
+                        targets.append(candidate)
+                        if len(targets) == MAX_INITIALIZER_HINTS:
+                            return targets
                 stem = "/".join((*root, *parts))
                 for candidate in (stem + ".py", stem + "/__init__.py"):
                     if candidate in eligible and candidate != path and candidate not in targets:

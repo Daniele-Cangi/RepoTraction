@@ -52,7 +52,9 @@ Empty results and excluded candidates do not demonstrate absence of demand.
 
 Python source acquisition follows top-level imports in already acquired package
 initializers to eligible local modules (including `src` layouts), within the same
-file/read/byte limits. These static hints are recorded with omitted targets; they
+file/read/byte limits. Dotted imports prioritize eligible intermediate package
+initializers before the final module; missing namespace-package initializers are
+not invented. These static hints are recorded with omitted targets; they
 are not verified exports or dependency closure. Declaration sampling prioritizes
 public top-level callables and balances files within source-role tiers so an early
 large helper class cannot consume all 100 capability slots. Dynamic imports,
