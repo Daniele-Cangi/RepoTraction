@@ -92,6 +92,11 @@ those manually reviewed analyses and fictional protocol tests. The
 qualified external leads; [the resulting corrections](docs/missing-link-context-attribution.md)
 describe the fixes and what still needs fresh testing.
 
+## Development plan
+
+For planned architectural work and deferred language coverage, see the
+[development plan](docs/development-plan.md).
+
 ## Alternatives and trade-offs
 
 | Option | What it is good at | Choose it when |
