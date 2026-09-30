@@ -194,6 +194,17 @@ Coverage records the selected capability roles and actually supplied source role
 and implementation paths, including an explicit missing-implementation flag.
 These are path-based sampling hints, not verified exports or execution evidence.
 
+Provider schemas are scoped per call: source IDs must be exact keys actually
+supplied, and capability/requirement IDs must belong to the selected candidates.
+Wider or fabricated line ranges are not offered as valid model outputs. This
+scope is checked locally for JSON-mode providers too; inspection/import contracts
+still accept precisely validated visible subspans. Request instructions require
+short contiguous original quotations, preserving Markdown, math and punctuation;
+only whitespace differences are tolerated by the provenance validator. Schema
+membership proves availability, not semantic support for a claim. Invalid quotes
+remain failures with no automatic paid retry; improved real-model success rates
+still require a separate experiment.
+
 - Source sampling uses a path heuristic to prioritize implementation over build,
   check, benchmark and example infrastructure within the existing file budget.
   Source-role counts and missing-implementation warnings are recorded in coverage.
