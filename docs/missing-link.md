@@ -53,8 +53,12 @@ evaluate existing candidates rather than inventing additional capability IDs.
 
 ## Optional interpretation provider
 
-Only standard-library HTTP is used. Configure an OpenAI-compatible chat completion
-endpoint and model **before starting the server**. For a local server, for example:
+Only standard-library HTTP is used. Configure a provider **before starting the
+server**, either in the process environment or by copying `.env.example` to the
+ignored project-root `.env`. The reader accepts only `REPOTRACTION_AI_*`
+assignments, never evaluates shell/interpolation, and never returns the key to
+the browser. Process environment overrides the file. Never commit `.env`.
+For a local OpenAI-compatible chat server, for example:
 
 ```powershell
 $env:REPOTRACTION_AI_URL = "http://127.0.0.1:11434/v1"
@@ -78,6 +82,14 @@ For a remote HTTPS endpoint, these **additional** settings are mandatory:
 | `REPOTRACTION_AI_INPUT_USD_PER_MILLION` | User-configured conservative price for input tokens. |
 | `REPOTRACTION_AI_OUTPUT_USD_PER_MILLION` | User-configured conservative price for output tokens. |
 | `REPOTRACTION_AI_MAX_CALLS` | Per-job call ceiling (default 8). |
+| `REPOTRACTION_AI_TOTAL_BUDGET_USD` | Positive allowance shared across jobs/restarts in this account database; required for paid remote calls. |
+| `REPOTRACTION_AI_BUDGET_ID` | Stable allowance identifier; changing it starts a different allowance. |
+| `REPOTRACTION_AI_API_KIND` | `chat` (compatible default) or `responses`. |
+| `REPOTRACTION_AI_RESPONSE_FORMAT` | `json_schema` (closed strict schema) or `json_object` (locally validated). |
+| `REPOTRACTION_AI_REASONING_EFFORT` | Responses reasoning setting, e.g. `medium`. |
+| `REPOTRACTION_AI_STREAMING=1` | Responses SSE; only a complete terminal response is accepted, not partial deltas. |
+| `REPOTRACTION_AI_MAX_PROMPT_BYTES` | Serialized request limit including framing/schema (default 180000). |
+| `REPOTRACTION_AI_MAX_OUTPUT_TOKENS` | Output/reasoning cap (default 12000). |
 
 Use your provider's current prices/limits, not example guesses. Prompts reserve
 a conservative byte-per-token input bound plus framing allowance and the output
@@ -93,8 +105,23 @@ API keys must not be pasted into capability corrections or issue text. Credentia
 shape redaction is defense in depth, not a universal secret detector.
 
 Without a configured provider the rest of RepoTraction works normally. No paid
-provider call was made during this implementation's verification; local HTTP
-protocol tests use explicitly fictional responses.
+call starts merely by opening the dashboard. Real API checks are separate from
+fictional protocol fixtures in [the API verification report](missing-link-api-verification.md).
+
+The sample `.env.example` selects OpenAI **gpt-6-luna**, Responses, strict JSON
+schema and streaming. Budget defaults are zero (disabled): choose explicit
+positive per-job and total ceilings before enabling paid calls. Sample prices
+were checked against [the model documentation](https://developers.openai.com/api/docs/models/gpt-6-luna)
+on 2026-09-30; verify them again for your model/account. Chat-server configuration
+does not inherit the sample's Responses-only settings unless explicitly set.
+
+Request extraction sees only the public discussion, not the candidate repository.
+Context packing preserves recent comments/resolution evidence, selects actual
+implementation spans, and records omitted/shortened sources. Incomplete
+discussion coverage cannot qualify a positive match. Citations must refer to
+lines actually supplied in that phase; fully visible long spans are normalized
+into bounded evidence chunks. Refused, malformed, partial or incomplete output
+does not become a match. Provider identity and request hashes stay in the job.
 
 ## Jobs, persistence and updates
 
@@ -127,6 +154,9 @@ to refresh. A changed revision or newly acquired discussion fingerprint marks ol
 results stale, including before a replacement evaluation is completed. There is
 no background Missing Link crawler. Old capability corrections require review
 at a new revision. Maintainer feedback does not overwrite original evidence.
+Refreshes atomically preserve feedback and supersession. Each result keeps its
+exact reproduction snapshot, independent of the list of recent jobs. Resuming
+with another provider/model/contract pauses rather than mixing interpretations.
 
 Independent unresolved requests blocked by the same normalized requirement text
 can be grouped as extension leads. This first grouping is deliberately narrow;
@@ -162,17 +192,51 @@ If acquired discussion context makes the ZIP exceed its bounds, the match is
 retained with an explicit packaging obstacle; JSON handoff/source context remain
 available. This is not an excuse to bypass path, public-source or credential checks.
 
-All packages say **NOT EXECUTED**. A genuinely isolated proof backend is not yet
-implemented/configured; a subprocess or the mere presence of Docker CLI is not
-isolation. Do not run acquired/generated code in the account/credential environment.
-The environment used for this change had Docker CLI but no reachable engine.
-Installing/starting Docker is not performed automatically.
+Packages still say **NOT EXECUTED**: model/imported claims cannot certify a run.
+The optional isolated runner writes separate persistent receipts, shown in result
+cards and JSON exports. Exit code zero never promotes compatibility, verifies
+original criteria automatically, or claims target integration.
+
+### Optional isolated Python examples without Docker (Windows x64)
+
+```sh
+python scripts/bootstrap_missing_link_wasi.py
+python scripts/verify_missing_link_wasi.py --report data/wasi-boundary.json
+```
+
+Explicit bootstrap downloads pinned Wasmtime 49.0.1 and an
+[unofficial CPython WASI 3.14.7 build](https://github.com/brettcannon/cpython-wasi-build),
+validates archive SHA256 values and extraction, and never executes project code.
+Downloads stay in ignored `data/wasi-runtime`; no Docker, WSL, VM or system install
+is needed. Engine/module hashes are checked again before execution. Review the
+runtime supply chain before opting in. Other platforms fail closed for this backend.
+
+After inspecting a pinned match and its files, choose a Python example:
+
+```sh
+python scripts/run_missing_link_example.py --match-id ID --entrypoint bridge/test_bridge.py --approve --report data/example.json
+```
+
+An independent test can be supplied with `--reviewed-test PATH` and
+`--entrypoint reviewed_tests/FILENAME.py`; these are human-owned fixture checks,
+not a manual import of analysis. The API never reads arbitrary host paths.
+Only pinned public Python source, bridge text and explicitly reviewed tests enter
+a fresh temporary directory. The guest sees that copy and Python stdlib only.
+
+[Wasmtime/WASI capabilities](https://docs.wasmtime.dev/security.html) deny host
+paths, inherited guest environment, network and native subprocesses. Limits are
+256 MiB guest linear memory, 5 billion fuel units, 15-second WASM timeout,
+45-second host watchdog and 32 KiB per output stream. Guest writes are ephemeral.
+This is not a VM, a complete host-memory quota or a guarantee against runtime
+vulnerabilities. Small pure-Python examples are supported; native extensions,
+GUI applications, services and real target integration remain unverified.
 
 The three real cases test source-aware usefulness, not general discovery accuracy:
 Unicode filename adaptation, independent prose truncation, and incompatible CSS
 layout. The cases are old; maintainer interest/current deployment needs review.
-No successful target integration, functional ablation run, paid-provider quality
-evaluation or fresh user-demand volume has been established.
+No successful target integration, general provider-quality benchmark or fresh
+user-demand volume has been established. Controlled example/ablation results are
+reported separately, with their assumptions and limits.
 
 ## Verification and development
 
@@ -210,6 +274,7 @@ POST /api/missing-link/capability {repo, capability_id, correction}
 POST /api/missing-link/feedback   {match_id, decision, note}
 GET  /api/missing-link/context?job_id=ID
 POST /api/missing-link/analysis   {job_id, discussion_index?, analysis}
+POST /api/missing-link/example    {match_id, entrypoint, approved:true, reviewed_tests?:[{path,content}]}
 GET  /api/missing-link/export?match_id=ID
 GET  /api/missing-link/package?match_id=ID
 ```

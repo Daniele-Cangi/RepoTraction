@@ -74,11 +74,15 @@ your coding agent and import its grounded analysis.
 Results are source-supported hypotheses, **not executed third-party integration
 proofs**. Download JSON/ZIP handoffs containing requirements, revision, provenance,
 bridge files, license information and explicit obstacles. No acquired/generated
-code is executed here, and no comments or third-party pull requests are published.
+code is executed on host Python. An explicitly approved optional WASI runner can
+test small pure-Python examples without Docker; separate receipts never claim
+target integration. No comments or third-party pull requests are published.
 
 See [usage, provider configuration and limits](docs/missing-link.md),
 [three inspected real cases](docs/missing-link-cases.md), and
-[reviewed example analyses](examples/missing-link/README.md).
+[reviewed example analyses](examples/missing-link/README.md). The
+[real API verification](docs/missing-link-api-verification.md) is separate from
+those manually reviewed analyses and fictional protocol tests.
 
 ## Alternatives and trade-offs
 
