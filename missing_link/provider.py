@@ -230,8 +230,11 @@ class Provider:
             "Open/closed is insufficient. Return the request object defined by the supplied JSON schema; source_ids must refer to supplied discussion. "
             "For each requirement copy a SHORT CONTIGUOUS substring of that source's quote field, preserving Markdown, "
             "code fences, math escaping, Unicode punctuation and original wording. Do not concatenate separated clauses, "
-            "add ellipses or rewrite the quotation to match your interpretation. Source IDs must be copied exactly from "
-            "sources keys, never from omitted_source_ids. Put paraphrases/inferences in text/inference, not quote. "
+            "add ellipses or rewrite the quotation to match your interpretation. "
+            "For example, from 'structural DTOs (DTOs), decoupled' copy a shorter exact span such as 'structural DTOs', "
+            "not 'structural DTOs, decoupled'; from '**Cold-storage test:** yes please' do not quote 'Cold-storage test: yes please'. "
+            "Prefer a short exact substring over reproducing an entire sentence incorrectly. "
+            "Source IDs must be copied exactly from sources keys, never from omitted_source_ids. Put paraphrases/inferences in text/inference, not quote. "
             "If you cannot ground a requirement in supplied text, record the gap in missing_information instead of fabricating "
             "a quotation. Distinguish explicit constraints from inference. When context_coverage says "
             "discussion_complete=false, resolution is unclear. Treat filesystem/runtime adoption assumptions as missing information, "
@@ -241,10 +244,12 @@ class Provider:
             "do not silently omit them or treat automation as maintainer approval. Reference notes or an already named package are not "
             "evidence of new unresolved adoption demand.", data, budget, data["schema"], "request")
         try:
-            for requirement in raw["requirements"]:
+            for index, requirement in enumerate(raw["requirements"]):
                 ref = requirement["source_id"]
                 if ref not in data["sources"] or quoted_span(requirement["quote"], data["sources"][ref]["quote"]) is None:
-                    raise ValueError("AI requirement quotes must come from context actually supplied to this call.")
+                    # Identify the failed requirement, never echo untrusted text
+                    # or provider response bodies into logs/public job errors.
+                    raise ValueError(f"AI requirement r{index} quote is not a contiguous span of supplied context. Copy unchanged source text; no automatic retry.")
             if any(ref not in data["sources"] for ref in raw["status_source_ids"]):
                 raise ValueError("AI request disposition cites unavailable context.")
             scoped_issue = dict(issue, context_complete=report["discussion_complete"])

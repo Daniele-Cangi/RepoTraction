@@ -250,6 +250,14 @@ class MissingLinkFrontendTests(unittest.TestCase):
         self.assertEqual(self.page.locator("#mlMatches script").count(), 0)
         self.assertIn("Not executed", self.page.locator("#mlMatches").inner_text())
 
+    def test_stale_lead_is_visibly_historical_not_silently_requalified(self):
+        fixture = source_fixture()
+        fixture["matches"][0].update(stale=True, discovery_assessment={"status": "external_lead", "reasons": []})
+        self.fixture_page(fixture)
+        self.page.get_by_text("Historical qualification · reevaluation required · Potential external connection · novelty unverified",
+                              exact=True).wait_for()
+
+
     def test_review_opt_in_and_request_validation(self):
         self.fixture_page()
         self.assertTrue(self.page.locator("#mlDiscoverButton").is_disabled())

@@ -283,7 +283,7 @@ export function initMissingLink({ api, escapeHtml, demoMode, getDashboard }) {
       const unknownHard = array(request.requirements).filter((requirement) => requirement.mandatory && checks.find((check) => check.requirement_id === requirement.id)?.status !== "satisfied");
       return `<article class="ml-match ${tone}">
         <div class="ml-card-top"><span class="ml-pill ${tone}">${classification}</span><span class="ml-muted">${e(match.analysis_source || match.claim_source || "Conservative source analysis")}</span></div>
-        <p class="ml-callout">${e(DISCOVERY[discovery.status] || "Discovery not assessed · novelty unverified")}</p>
+        <p class="ml-callout">${match.stale ? "Historical qualification · reevaluation required · " : ""}${e(DISCOVERY[discovery.status] || "Discovery not assessed · novelty unverified")}</p>
         ${match.superseded === true || match.status === "superseded" ? '<p class="ml-callout">Superseded result · retained for audit and export, not a current opportunity.</p>' : ""}
         <p class="ml-kicker">Publicly expressed problem</p><h4>${link(request.url, request.title || request.outcome || "Public request")}</h4>
         ${request.outcome ? `<p>${e(request.outcome)}</p>` : ""}<p class="ml-muted">Discussion: ${e(request.status || "unknown")} · ${request.context_complete === true ? "Available context collected" : "Context incomplete / not established"}</p>
