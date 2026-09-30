@@ -7,7 +7,7 @@ import copy
 import os
 from pathlib import Path
 import tempfile
-from threading import Thread
+from threading import Event, Thread
 import unittest
 from unittest import mock
 
@@ -87,17 +87,36 @@ class MissingLinkAcceptanceTests(unittest.TestCase):
                             }});
                         window.acceptance.setActive(true);
                     }""")
+                    page.locator("#mlProvider strong").get_by_text(
+                        "No AI provider configured · no paid calls", exact=True
+                    ).wait_for()
                     page.locator("#mlRepo").fill("example/words")
                     page.locator("#mlRepo").dispatch_event("input")
-                    page.locator("#mlAnalyzeButton").click()
-                    page.locator("#mlCapabilities h4").get_by_text("trim", exact=True).wait_for()
+                    with page.expect_response(lambda response:
+                            response.url == origin + "/api/missing-link/jobs"
+                            and response.request.method == "POST") as analysis_response:
+                        page.locator("#mlAnalyzeButton").click()
+                    self.assertEqual(analysis_response.value.status, 202)
                     # The fixture finishes almost instantly; wait for its lease
                     # release before triggering the independent discovery job.
                     for worker in list(service.threads.values()):
                         worker.join(timeout=3)
+                        self.assertFalse(worker.is_alive())
+                    page.wait_for_function("!document.querySelector('#mlAnalyzeButton').disabled")
+                    page.get_by_role("button", name="Refresh results").click()
+                    page.locator("#mlCapabilities h4").get_by_text("trim", exact=True).wait_for()
                     page.locator("#mlReviewed").check()
                     page.locator("#mlIssue").fill(issue()["url"])
-                    page.locator("#mlDiscoverButton").click()
+                    with page.expect_response(lambda response:
+                            response.url == origin + "/api/missing-link/jobs"
+                            and response.request.method == "POST") as discovery_response:
+                        page.locator("#mlDiscoverButton").click()
+                    self.assertEqual(discovery_response.value.status, 202)
+                    for worker in list(service.threads.values()):
+                        worker.join(timeout=3)
+                        self.assertFalse(worker.is_alive())
+                    page.wait_for_function("!document.querySelector('#mlAnalyzeButton').disabled")
+                    page.get_by_role("button", name="Refresh results").click()
                     try:
                         page.locator(".ml-match").first.wait_for(timeout=15000)
                     except Exception as error:
@@ -108,8 +127,30 @@ class MissingLinkAcceptanceTests(unittest.TestCase):
                     form = page.locator('.ml-correction-form[data-capability-id="trim"]')
                     form.locator('[name="limitations"]').fill("Synthetic acceptance: requires host state")
                     form.locator('[name="standalone"]').select_option("no")
-                    form.get_by_role("button", name="Save maintainer correction").click()
-                    page.locator(".ml-match .ml-callout").first.wait_for()
+                    correction_received, release_correction = Event(), Event()
+                    correct_capability = service.correct_capability
+                    def delayed_correction(data):
+                        correction_received.set()
+                        if not release_correction.wait(timeout=5):
+                            raise ValueError("Acceptance fixture correction was not released")
+                        return correct_capability(data)
+                    with mock.patch.object(service, "correct_capability", side_effect=delayed_correction):
+                        with page.expect_response(lambda response:
+                                response.url == origin + "/api/missing-link/capability"
+                                and response.request.method == "POST") as correction_response:
+                            try:
+                                form.get_by_role("button", name="Save maintainer correction").click()
+                                self.assertTrue(correction_received.wait(timeout=3))
+                                # An unrelated callout is already visible. A slow
+                                # correction must not be mistaken for persisted state.
+                                self.assertGreater(page.locator(".ml-match .ml-callout").count(), 0)
+                                self.assertFalse(service.state()["matches"][0]["stale"])
+                            finally:
+                                release_correction.set()
+                        self.assertEqual(correction_response.value.status, 200)
+                    page.locator(".ml-match .ml-callout").filter(
+                        has_text="capability interpretation or request discussion changed after this result"
+                    ).wait_for()
                     self.assertTrue(service.state()["matches"][0]["stale"])
                     self.assertFalse(page.locator("#mlReviewed").is_checked())
                     blocked = page.request.post(origin + "/api/missing-link/example", headers={"Origin": origin},
@@ -118,7 +159,16 @@ class MissingLinkAcceptanceTests(unittest.TestCase):
                     self.assertEqual(blocked.status, 400)
                     self.assertIn("capability interpretation changed", blocked.json()["error"])
                     page.locator("#mlReviewed").check()
-                    page.locator("#mlDiscoverButton").click()
+                    with page.expect_response(lambda response:
+                            response.url == origin + "/api/missing-link/jobs"
+                            and response.request.method == "POST") as reevaluation_response:
+                        page.locator("#mlDiscoverButton").click()
+                    self.assertEqual(reevaluation_response.value.status, 202)
+                    for worker in list(service.threads.values()):
+                        worker.join(timeout=3)
+                        self.assertFalse(worker.is_alive())
+                    page.wait_for_function("!document.querySelector('#mlAnalyzeButton').disabled")
+                    page.get_by_role("button", name="Refresh results").click()
                     page.wait_for_function("document.querySelectorAll('.ml-match').length === 2")
                     current = next(match for match in service.state()["matches"] if not match["stale"])
                     self.assertNotEqual(current["id"], original["id"])
