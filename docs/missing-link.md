@@ -83,6 +83,8 @@ or `not_demonstrated`. A compatible boundary (for example keeping capture APIs
 unchanged) can satisfy a constraint but is not a reusable behavior. Qualification
 counts it separately in `scope_compatible_requirement_ids`, not in supported
 requirements. A scope-only candidate cannot qualify as a useful contribution.
+Recurring gaps without any demonstrated reusable behavior cannot form extension
+groups either; repeated passive scope compatibility is not an extension lead.
 Old imported checks without this field default to unknown, not affirmative support.
 
 Independent demand extraction does not receive candidate source or target files.

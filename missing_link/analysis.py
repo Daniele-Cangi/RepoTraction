@@ -328,6 +328,11 @@ def extension_groups(matches: list[dict]) -> list[dict]:
         if (match.get("stale") or match.get("superseded") or match["request"]["status"] != "unresolved"
                 or match["request"].get("constraint_review", {}).get("qualification_blockers")):
             continue
+        if not any(check.get("status") == "satisfied" and check.get("contribution") == "existing_behavior"
+                   for check in match["checks"]):
+            # A recurring gap with no reusable source behavior is not an
+            # extension of an established contribution (nor a discovery lead).
+            continue
         discovery = match.get("discovery_assessment", {})
         if (discovery.get("relationship", "external") != "external"
                 or discovery.get("status") in {"reference_only", "not_actionable"}

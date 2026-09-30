@@ -48,10 +48,10 @@ rewritten to improve the apparent outcome.
 
 ## Verification
 
-- Full local Python 3.13 suite: **311 tests passed**, including local browser,
+- Full local Python 3.13 suite: **312 tests passed**, including local browser,
   API/persistence and optional isolated-example regressions. Acquired repository
   code was not executed on the host.
-- Parser-unavailable simulation: **57 tests, 56 passed and one explicitly skipped**;
+- Parser-unavailable simulation: **58 tests, 57 passed and one explicitly skipped**;
   follow-up qualification stays blocked for unreviewed TOML. This is not an actual
   Python 3.10 runtime test; Windows/Linux 3.10/3.13 CI remains authoritative.
 - Python 3.11 target/contribution regressions also pass with its built-in parser.

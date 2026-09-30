@@ -2,7 +2,7 @@
 import copy
 import unittest
 
-from missing_link.analysis import validate_request, validate_matches, passive_api_constraint
+from missing_link.analysis import validate_request, validate_matches, passive_api_constraint, extension_groups
 from missing_link.contracts import schema_for, validate_shape
 import test_missing_link as fixtures
 
@@ -43,6 +43,13 @@ class ContributionTests(unittest.TestCase):
         self.assertEqual(match["classification"], "rejected")
         self.assertEqual(match["discovery_assessment"]["status"], "not_a_fit")
         self.assertEqual(match["discovery_assessment"]["supported_requirement_ids"], [])
+
+    def test_repeated_passive_scope_does_not_create_an_extension_opportunity(self):
+        match = self.case(conflict=True)
+        other = copy.deepcopy(match)
+        other["id"] = "independent-request"
+        other["request"]["url"] += "1"
+        self.assertEqual(extension_groups([match, other]), [])
 
     def test_real_behavior_and_passive_boundary_are_counted_separately(self):
         match = self.case(include_behavior=True)
