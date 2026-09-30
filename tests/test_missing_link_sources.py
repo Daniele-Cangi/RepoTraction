@@ -174,6 +174,41 @@ class SourceValidationTests(unittest.TestCase):
 
 
 class RepositoryAcquisitionTests(unittest.TestCase):
+    def test_from_imports_follow_eligible_child_modules_and_keep_base_module(self):
+        for prefix, statement, base, child in (
+            ("", "from pkg import z_engine", None, "pkg/z_engine.py"),
+            ("src/", "from pkg import z_engine as engine", None, "src/pkg/z_engine.py"),
+            ("", "from pkg import z_engine", None, "pkg/z_engine/__init__.py"),
+            ("", "from .nested import z_engine as engine", "pkg/nested/__init__.py", "pkg/nested/z_engine.py"),
+        ):
+            with self.subTest(statement=statement, child=child):
+                fixture = GitHubFixture()
+                initializer = prefix + "pkg/__init__.py"
+                fixture.add(initializer, "# Public package interface\n" * 4 + statement + "\n")
+                fixture.add(prefix + "pkg/a_helper.py", "def helper(): pass\n")
+                if base:
+                    fixture.add(base, "# nested package marker\n")
+                fixture.add(child, "def validate(value): return value\n")
+                expected = [initializer] + ([base] if base else []) + [child]
+                result = PublicGitHub(fixture.read).fetch_repository("sample/project", max_files=len(expected))
+                self.assertEqual([f["path"] for f in result["files"]], expected)
+                self.assertEqual(sum("/git/blobs/" in endpoint for endpoint, _ in fixture.calls), len(expected))
+                self.assertEqual(result["coverage"]["initializer_import_hints"],
+                                 [{"from": initializer, "path": path} for path in expected[1:]])
+
+    def test_from_import_child_hints_exclude_symlinks_and_do_not_expand_star(self):
+        fixture = GitHubFixture()
+        fixture.add("pkg/__init__.py", "# Public package interface\n" * 4 +
+                    "from pkg import secret, z_engine as engine, z_engine\nfrom pkg import *\n")
+        secret_sha = fixture.add("pkg/secret.py", "secret", mode="120000")
+        fixture.add("pkg/a_helper.py", "def helper(): pass\n")
+        fixture.add("pkg/z_engine.py", "def execute(): pass\n")
+        result = PublicGitHub(fixture.read).fetch_repository("sample/project", max_files=2)
+        self.assertEqual([f["path"] for f in result["files"]], ["pkg/__init__.py", "pkg/z_engine.py"])
+        self.assertEqual(result["coverage"]["initializer_import_hints"],
+                         [{"from": "pkg/__init__.py", "path": "pkg/z_engine.py"}])
+        self.assertNotIn(f"repos/sample/project/git/blobs/{secret_sha}", [c[0] for c in fixture.calls])
+
     def test_plain_initializer_imports_prioritize_module_or_package_within_budget(self):
         for prefix, statement, target in (
             ("", "import pkg.z_engine", "pkg/z_engine.py"),

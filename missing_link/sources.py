@@ -192,6 +192,10 @@ def _initializer_imports(path: str, text: str, eligible: dict) -> list[str]:
         elif isinstance(node, ast.ImportFrom):
             modules = ([node.module] if node.module else
                        [alias.name for alias in node.names if alias.name != "*"])
+            if node.module:
+                # Imported names may be submodules or ordinary symbols. Treat
+                # only children present in the safety-filtered tree as hints.
+                modules.extend(f"{node.module}.{alias.name}" for alias in node.names if alias.name != "*")
             level = node.level
         else:
             continue
