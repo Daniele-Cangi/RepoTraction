@@ -248,3 +248,134 @@ reports separately under ignored `data/autonomous-discovery-recovery-2026-09-30/
 Assess selected candidates independently only after their run finishes, using
 the original rubric; retain partial outcomes and charged validation failures.
 No automatic retry is permitted, and no UI/key-entry features are added here.
+
+### Recovery results
+
+Protocol commit: `cceac41`, before paid execution. Runs used the merged product
+code `691f1a2`, from 13:49 to 14:05 UTC on 2026-09-30. All five inputs retained
+empty issue/query fields. Original reports were not overwritten. No code changes,
+manual imports, maintainer corrections or third-party execution occurred during
+the cohort.
+
+**Reliability improved in candidate isolation, but autonomous useful novelty is
+still not demonstrated.** Four jobs finished processing with explicitly partial
+results, rather than aborting at a candidate validation error. None finished
+without a failure: Pillow failed before search, and seven of twelve selected
+candidates failed analysis validation. The five evaluated candidates produced
+nine comparisons: six `investigate`, three `rejected`, no qualified positive.
+These counts describe this small recovery cohort, not precision or recall.
+
+| Input | Candidates found / selected | Discussions fetched | Outcome | Comparisons | AI calls |
+| --- | --- | --- | --- | --- | --- |
+| Pillow | 0 / 0 | 0 | Failed during capability interpretation | None | 1 |
+| Click | 108 / 3 | 3 | Partial; 2 candidate errors | 1 investigate, 1 rejected | 6 |
+| dateutil | 28 / 3 | 3 | Partial; 2 candidate errors | 1 investigate | 6 |
+| NetworkX | 85 / 3 | 3 | Partial; 2 candidate errors | 2 rejected | 5 |
+| p-limit | 78 / 3 | 3 | Partial; 1 candidate error | 4 investigate | 6 |
+
+All searches remained bounded/incomplete. A finished job is not necessarily a
+successful investigation; the script returned nonzero for every partial/failed
+run, and continued to the next fixed repository without retrying a failed one.
+
+#### Independent assessment of selected candidates
+
+- **Pillow:** acquisition now includes `src/PIL` implementation, but the prompt
+  still heavily represents Windows build infrastructure. Path heuristics label
+  `winbuild/build_prepare.py` as implementation. The model cited
+  `file:winbuild/build_prepare.py#L520-L538`; supplied spans were L520-L530 and
+  L533-L538, leaving an actual gap. The provenance guard correctly rejected this
+  wider citation. Fixing source acquisition alone did not fix prompt selection or
+  model citation discipline; no demand search occurred.
+- **Click:** generated searches named Click and returned
+  [Click #730](https://github.com/pallets/click/issues/730),
+  [Ollama #17778](https://github.com/ollama/ollama/issues/17778) and
+  [TensorFlow #62523](https://github.com/tensorflow/tensorflow/issues/62523).
+  Only the first completed comparison. It is a same-project ordering feature,
+  not unexpected external reuse. Pinned `src/click/core.py` lines 168–192 sort
+  by eagerness then invocation position, confirming that declaration-order
+  precedence requires new policy and command-loop integration. The model kept
+  that mechanism provisional and rejected `Context.invoke`, which invokes a
+  callback rather than defining parameter-processing precedence. Incomplete
+  cross-referenced discussion prevents a qualified current-demand claim.
+  Ollama failed requirement-quote provenance; TensorFlow failed compatibility
+  source-line provenance. They were not credited as evaluated matches.
+- **dateutil:** searches centered on timezone archive updating, Easter and
+  calendar intervals, but selected
+  [syno-mihomo-gateway #75](https://github.com/czhaoca/syno-mihomo-gateway/issues/75),
+  [MSB database #122](https://github.com/Gregovate/MSB-Production-Database-Project/issues/122)
+  and [Android #59](https://github.com/Benjamin-Loison/android/issues/59).
+  Only the settings-panel issue completed comparison. A timezone archive updater
+  does not implement settings persistence, HTTP endpoints, migration or mutation
+  auditing. Every mandatory check was `undetermined`; the result stayed
+  `investigate`, with constraint blockers. Discussion also reports an already
+  completed local implementation, without proving publication or adoption.
+  This is a weak/overinclusive investigation lead, not useful new demand.
+  The database candidate failed request quotations, and Android failed source
+  citations during compatibility analysis.
+- **NetworkX:** searches for core decomposition, k-core and k-truss selected
+  [PySDKit #53](https://github.com/wwhenxuan/PySDKit/issues/53),
+  [RH_Lean #163](https://github.com/OVVO-Financial/RH_Lean/issues/163) and
+  [gam #2951](https://github.com/SauersML/gam/issues/2951).
+  The first reports VMD memory usage for long signals, not graph decomposition.
+  Pinned `networkx/algorithms/core.py` and `networkx/convert_matrix.py` confirm
+  that `k_core` returns a graph subgraph and `to_scipy_sparse_array` constructs
+  graph adjacency. Neither remedies signal-domain VMD history allocation.
+  Both rejections are independently reasonable. The other two candidates failed
+  request-quote validation and provide no evaluated reuse evidence.
+- **p-limit:** selected the same three discussions as the primary run:
+  [FileMaker #36](https://github.com/beezwax/filemaker-odata/issues/36),
+  [magicdawn #186](https://github.com/magicdawn/magicdawn/issues/186) and
+  [pokemon2 #3](https://github.com/ManoFardo-PR/pokemon2/issues/3).
+  Pinned `index.js` still supports queueing and capacity release after fulfillment
+  or rejection, but not client configuration or routing all FileMaker methods.
+  FileMaker's issue itself suggests p-limit; this remains a useful known
+  integration lead, not new discovery. Product documentation yielded a separate
+  `investigate` comparison rather than implementation proof. Personal notes
+  remain empty-body reference material: both `pLimit` and `limitFunction` are
+  now blocked from qualification, fixing the primary run's misleading `direct`.
+  pokemon2 failed request-quote provenance in this run, so the later prohibition
+  was not freshly evaluated. Offline regression coverage of that guard is not a
+  replacement for a completed real investigation.
+
+No bridge was executed or target integrated. Correctly rejecting three capability
+comparisons does not compensate for seven invalid candidate analyses, weak search
+selection, or the absence of a newly verified actionable opportunity.
+
+#### Cost and persistent evidence
+
+The cohort used 144 GitHub requests and 24 paid responses. All responses reported
+token usage. Conservative reservations added **$0.3818966**; reported-token
+estimates at configured prices total **$0.0931035**, not an invoice. Failed
+validation remained charged. The unchanged shared $2 allowance now has
+**$0.906622 reserved**, leaving **$1.093378** of conservative headroom.
+
+| Input | Source revision | Job ID | Reserved USD | Token estimate USD |
+| --- | --- | --- | --- | --- |
+| Pillow | `9d30729003b5dae074c60fa73d7cc135cccae734` | `87748e1eb662475ba6b2fa2d248269fa` | 0.0194454 | 0.0050853 |
+| Click | `06b2a678741131fd577ce170e23e5ca0aeba0309` | `4b01cff5ac184eb1a9300bc01469e948` | 0.0966342 | 0.0230493 |
+| dateutil | `2642afacc33fb839c404b75b230fff58b79793f2` | `36bbba94d8ca4095b9b8995b5718021d` | 0.1090991 | 0.0254475 |
+| NetworkX | `92f497e2eb8192d1ce9205595f512294e4a9b696` | `1f352209b08e4e1ca2b76e41ad340a65` | 0.0802752 | 0.0206454 |
+| p-limit | `a8a6fbec4e0e866d6d779b10889bb4f5567e70eb` | `aac1f972c7734b489cd3281b40937df4` | 0.0764427 | 0.0188760 |
+
+Raw reports remain in the ignored recovery directory; account checkpoints retain
+source/discussion snapshots and model traces. Only this public summary is committed.
+The merged code's local suite passed 196 tests before this cohort; this recovery
+branch changes documentation only. Protocol/accounting assertions were checked
+against saved reports without additional model calls.
+
+#### Next reliability work, before UI expansion
+
+1. Keep source acquisition and actual prompt selection aligned, including build
+   directories not recognized by today's path heuristic. Merely acquiring product
+   code does not mean it reaches the model.
+2. Tighten output guidance to supplied quote spans/source IDs without weakening
+   provenance or silently retrying paid failures. Whitespace normalization did
+   not solve all real citation failures.
+3. Improve capability-to-demand query relevance and separate same-project work,
+   existing package mentions and reference notes from unexpected external needs.
+   Test improvements on new held-out repositories as well as this recovery set;
+   repeatedly optimizing these five would not establish general discovery quality.
+
+The safe conclusion is that conservative filtering and persistence improved,
+while reliable autonomous discovery remains unproven. UI/key-entry work and
+another paid cohort are deferred pending a decision on these remaining weaknesses.
