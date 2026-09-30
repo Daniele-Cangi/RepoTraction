@@ -36,6 +36,19 @@ class ScreeningTests(unittest.TestCase):
                       fixtures.issue()):
             self.assertFalse(screen_candidate(issue)["skip"])
 
+    def test_request_prose_in_php_comments_is_not_screened_out(self):
+        for comment in ("// Please fix the formatter", "/* I need help formatting */",
+                        "/** I would like human-readable sizes */", " * Expected behavior: readable byte sizes",
+                        "# Please add byte formatting", "/// Could you support formatting?",
+                        "$size = 1024; // Please fix the formatter", "$size = 1024; /* I need byte formatting */",
+                        "/*\n * I need help formatting\n */"):
+            with self.subTest(comment=comment):
+                demand = dict(code_dump(), body=code_dump()["body"] + "\n" + comment)
+                original = demand["body"]
+                self.assertFalse(screen_candidate(demand)["skip"])
+                self.assertEqual(demand["body"], original)
+        self.assertTrue(screen_candidate(code_dump())["skip"])  # A genuine dump still gets the bounded hint.
+
     def test_language_name_stays_whole_while_camelcase_mechanisms_still_split(self):
         repo = fixtures.repository()
         for term in ("JavaScript human byte formatting", "java script human byte formatting"):
@@ -49,9 +62,9 @@ class ScreeningServiceTests(unittest.TestCase):
     setUp = fixtures.ServiceTests.setUp
     fake_sources = fixtures.ServiceTests.fake_sources
 
-    def run_screening(self, **input_override):
+    def run_screening(self, demand=None, **input_override):
         source = self.fake_sources()
-        source.fetch_issue.return_value = code_dump()
+        source.fetch_issue.return_value = demand or code_dump()
         with mock.patch("missing_link.service.PublicGitHub", return_value=source), \
              mock.patch("missing_link.service.extract_structure", return_value=fixtures.repository()["capabilities"]):
             result = self.service.start({"repo": "example/words", **input_override}, background=False)
@@ -82,6 +95,17 @@ class ScreeningServiceTests(unittest.TestCase):
                 self.assertNotIn("candidate_skips", job["result"])
                 self.assertTrue(job["result"]["match_ids"])
                 source.fetch_reference_context.assert_called_once()
+
+    def test_automatic_php_comment_request_reaches_analysis_without_replacement(self):
+        demand = dict(code_dump(), body=code_dump()["body"] + "\n// Please fix the formatter")
+        job, source = self.run_screening(demand=demand)
+        self.assertEqual(job["status"], "completed")
+        self.assertNotIn("candidate_skips", job["result"])
+        self.assertTrue(job["result"]["match_ids"])
+        self.assertEqual(job["checkpoint"]["evaluated"], ["0"])
+        source.fetch_issue.assert_called_once()
+        source.fetch_reference_context.assert_called_once()
+        self.assertEqual(job["ai_calls_used"], 0)
 
     def test_resume_keeps_skip_and_does_not_refill_frozen_selection(self):
         job, source = self.run_screening()

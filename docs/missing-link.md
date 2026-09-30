@@ -86,6 +86,10 @@ requirements. A scope-only candidate cannot qualify as a useful contribution.
 Recurring gaps without any demonstrated reusable behavior cannot form extension
 groups either; repeated passive scope compatibility is not an extension lead.
 Old imported checks without this field default to unknown, not affirmative support.
+The deterministic API-preservation override only recognizes whole, preservation-
+only extracted requirements. Compound requirements such as "format bytes without
+changing the public API" retain source-supported functional behavior. A passive
+clause in a larger quotation cannot relabel a functional extracted requirement.
 
 Independent demand extraction does not receive candidate source or target files.
 After extraction, prior-reference review reads a pinned public target sample:
@@ -97,6 +101,10 @@ fields, static Python imports and package/import aliases provide review hints,
 not adoption or endorsement evidence. Different discussions do not reuse each
 other's cited-file sample. Revision, fingerprints, coverage and acquired files
 are saved with matches and included in handoffs. No target code is executed.
+Only numeric `qN`/`tN` IDs count as discussion/timeline. Reference-only target
+files are not head/tail-shortened as comments and cannot make an otherwise complete
+discussion appear incomplete. Actual discussion and selected source definitions
+are supplied before target references; omitted target context is reported separately.
 Paths in same-target GitHub blob links are sampled from the target's current
 pinned default-branch tree, not automatically from the linked historical revision.
 
@@ -108,7 +116,7 @@ On Python 3.10, [Tomli](https://github.com/hukkin/tomli) is an optional backport
 review is explicitly incomplete, not negative evidence. Core analytics do not
 require this optional dependency.
 
-Contract 9 marks earlier results as historical, preserving their original
+Contract 10 marks earlier results as historical, preserving their original
 interpretations and exports. There is no automatic migration or paid reevaluation.
 
 An empty body or a body containing only example/reference links cannot establish

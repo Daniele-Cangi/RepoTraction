@@ -1,6 +1,6 @@
 # Missing Link: corrections after the second held-out cohort
 
-Date: 2026-10-01. Analysis contract: **9**.
+Date: 2026-10-01. Analysis contract: **10**.
 
 The [frozen second cohort](missing-link-second-heldout-discovery.md) remains
 unchanged: five repositories, 15 selected issues, 22 comparisons and **zero
@@ -41,20 +41,25 @@ and SHA-256. No quote/prompt/key is echoed into public job errors. Stored attemp
 retain credential redaction and are excluded from polling state. Usage remains
 reserved even when semantic validation rejects an attempt.
 
-Historic contract-7/8 matches are retained unchanged and marked stale by contract
-9. No source review, paid reanalysis, feedback mutation or target publication
+Historic contract-7/8/9 matches are retained unchanged and marked stale by contract
+10. No source review, paid reanalysis, feedback mutation or target publication
 happens automatically. The original cohort and its charged allowance are not
 rewritten to improve the apparent outcome.
 
 ## Verification
 
-- Full local Python 3.13 suite: **312 tests passed**, including local browser,
+- Full local Python 3.13 suite: **320 tests passed**, including local browser,
   API/persistence and optional isolated-example regressions. Acquired repository
   code was not executed on the host.
-- Parser-unavailable simulation: **58 tests, 57 passed and one explicitly skipped**;
+- Parser-unavailable simulation: **82 tests, 81 passed and one explicitly skipped**;
   follow-up qualification stays blocked for unreviewed TOML. This is not an actual
   Python 3.10 runtime test; Windows/Linux 3.10/3.13 CI remains authoritative.
 - Python 3.11 target/contribution regressions also pass with its built-in parser.
+- Follow-up review regressions cover compound functional/API requirements versus
+  pure preservation, broader-quotation isolation, numeric discussion/timeline IDs,
+  target omissions at byte/ID bounds, source-definition priority and PHP comment
+  requests (line, block, docblock and inline). These are offline fixtures, not a
+  new autonomous-discovery outcome.
 - Read-only real GitHub API target check on `googleapis/python-genai#2938`:
   revision `feef230daf9a31fe9dec433483d8e3066b33fe4d`, two manifest files,
   Tenacity dependency hints from `pyproject.toml` and `requirements.txt`, nine

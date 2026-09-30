@@ -24,8 +24,13 @@
 
 ### Changed
 
-- Missing Link contract 9 separates reusable existing behavior from compatible
-  scope constraints; passive API preservation alone cannot qualify a contribution.
+- Missing Link contract 10 separates reusable existing behavior from compatible
+  scope constraints; only preservation-only API requirements are forced to scope
+  compatibility, never a compound functional requirement or a broader quotation.
+- Target reference IDs no longer enter discussion/timeline selection, shortening
+  or completeness accounting; discussion and selected definitions precede them.
+- Request prose in PHP line/block comments remains eligible for automatic
+  investigation rather than being mistaken for a request-free code dump.
 - Prior-reference review includes distribution/import aliases and a bounded,
   pinned public target manifest/cited-file sample, saved in match handoffs.
 - Automatic discovery records narrowly screened code dumps/exam manuals as

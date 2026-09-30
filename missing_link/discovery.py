@@ -36,7 +36,10 @@ def screen_candidate(issue):
     # Keep even request-like prose inside code/comments: avoiding a false skip
     # matters more than filtering every dump, and no Markdown rewrite is needed.
     prose = body
-    request_prose = re.search(r"(?im)^\s*(?:#+\s*)?(?:please\s+(?:fix|add|support|change|help)|"
+    # Accept common PHP line/block comment prefixes, including inline comments.
+    # This is only a retrieval hint; original body/quotes are never rewritten.
+    prefix = r"(?:^[ \t]*(?:#+[ \t]*)?|//+[ \t]*|/\*+[ \t]*|^[ \t]*\*+[ \t]*)"
+    request_prose = re.search(r"(?im)" + prefix + r"(?:please\s+(?:fix|add|support|change|help)|"
         r"(?:could|can|would)\s+(?:we|you)\b|i\s+(?:need|want|would like)\b|"
         r"(?:bug|feature)\s+request\b|expected\s+(?:behavior|result)\b|steps to reproduce\b)", prose)
     if request_prose:
