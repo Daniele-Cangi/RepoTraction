@@ -10,3 +10,8 @@ data/*.log
 # File temporanei del sistema operativo
 .DS_Store
 Thumbs.db
+
+# Local provider credentials and budgets (never packaged or installed).
+.env
+.env.*
+!.env.example

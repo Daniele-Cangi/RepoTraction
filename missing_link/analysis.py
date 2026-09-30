@@ -78,6 +78,8 @@ def validate_request(raw: dict, issue: dict) -> dict:
     if not isinstance(raw_requirements, list) or not 1 <= len(raw_requirements) <= 30:
         raise ValueError("Extract at least one source-grounded requirement (maximum 30).")
     for index, item in enumerate(raw_requirements):
+        if not isinstance(item, dict):
+            raise ValueError("Each requirement must be an object.")
         source_id = item.get("source_id", "")
         quote = text(item.get("quote", ""))
         if source_id not in catalog or not quote or quote not in catalog[source_id]["quote"]:
@@ -133,6 +135,8 @@ def validate_matches(raw_matches: list, repository: dict, issue: dict, request: 
     matches = []
     used = set()
     for raw in raw_matches:
+        if not isinstance(raw, dict):
+            raise ValueError("Each compatibility assessment must be an object.")
         capability_id = raw.get("capability_id")
         if capability_id not in capabilities or capability_id in used:
             raise ValueError("Unknown or duplicate capability in compatibility analysis.")
@@ -142,7 +146,12 @@ def validate_matches(raw_matches: list, repository: dict, issue: dict, request: 
         if classification not in CLASSIFICATIONS:
             raise ValueError("Unknown compatibility classification.")
         checks = []
-        supplied = {item.get("requirement_id"): item for item in raw.get("checks", [])}
+        raw_checks = raw.get("checks", [])
+        if not isinstance(raw_checks, list) or len(raw_checks) > 30 or any(not isinstance(item, dict) for item in raw_checks):
+            raise ValueError("Compatibility checks must be a bounded list of objects.")
+        supplied = {item.get("requirement_id"): item for item in raw_checks}
+        if len(supplied) != len(raw_checks):
+            raise ValueError("Duplicate requirement assessment.")
         if set(supplied) - set(requirements):
             raise ValueError("Unknown requirement in compatibility matrix.")
         for rid, requirement in requirements.items():
@@ -177,9 +186,9 @@ def validate_matches(raw_matches: list, repository: dict, issue: dict, request: 
         bridge = copy.deepcopy(raw.get("bridge", {}))
         if not isinstance(bridge, dict):
             raise ValueError("Bridge must be an object.")
-        for key in ("summary", "existing_contribution", "new_logic"):
+        for key in ("summary", "existing_contribution", "new_logic", "runtime", "coupling", "input", "expected_output", "ablation"):
             bridge[key] = text(bridge.get(key, ""))
-        for key in ("steps", "assumptions"):
+        for key in ("steps", "assumptions", "dependencies", "permissions"):
             bridge[key] = texts(bridge.get(key, []))
         bridge["kind"] = bridge.get("kind", "investigation")
         if bridge["kind"] not in {"command", "example", "adapter", "extraction", "investigation"}:
@@ -240,12 +249,13 @@ def extension_groups(matches: list[dict]) -> list[dict]:
 
 
 def analysis_contract() -> dict:
-    return {"request": {"outcome": "Desired outcome independent of the candidate", "status": "unresolved|resolved|duplicate|unclear|automated",
+    return {"request": {"outcome": "Desired outcome independent of the candidate", "status": "unclear",
         "status_source_ids": ["q0"], "status_reason": "Read later comments, do not use issue state alone.",
-        "requirements": [{"text": "Requirement", "mandatory": True, "explicit": True, "source_id": "q0", "quote": "verbatim source text"}],
+        "requirements": [{"text": "Requirement", "mandatory": True, "explicit": True, "source_id": "q0", "quote": "verbatim source text", "inference": ""}],
         "environment": [], "prior_attempts": [], "missing_information": []},
-        "matches": [{"capability_id": "ID from repository", "classification": "direct|adapter|extraction|rejected|investigate",
-            "summary": "Problem to existing contribution", "checks": [{"requirement_id": "r0", "status": "satisfied|incompatible|undetermined",
+        "matches": [{"capability_id": "ID from repository", "classification": "investigate",
+            "summary": "Problem to existing contribution", "checks": [{"requirement_id": "r0", "status": "undetermined",
                 "reason": "Explain operating conditions", "source_ids": ["file:example.py#L1-L8"]}], "obstacles": [],
-            "bridge": {"kind": "command|example|adapter|extraction|investigation", "summary": "Smallest useful connection",
-                "steps": [], "existing_contribution": "Existing code", "new_logic": "Added code, if any", "assumptions": [], "files": []}}]}
+            "bridge": {"kind": "investigation", "summary": "Smallest useful connection",
+                "steps": [], "existing_contribution": "Existing code", "new_logic": "Added code, if any", "assumptions": [], "files": [],
+                "dependencies": [], "runtime": "", "permissions": [], "coupling": "", "input": "", "expected_output": "", "ablation": ""}}]}

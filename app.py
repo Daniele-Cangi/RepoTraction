@@ -3807,7 +3807,8 @@ class DashboardHandler(BaseHTTPRequestHandler):
         parsed = urlparse(self.path)
         if parsed.path.startswith("/api/missing-link/"):
             try:
-                # Bounded JSON only; no arbitrary uploads, paths, execution or publication endpoints.
+                # Bounded JSON only; optional proof execution uses approved public
+                # text in WASI, never local paths or native project execution.
                 length = int(self.headers.get("Content-Length", "0"))
                 if length <= 0 or length > 512000 or self.headers.get("Transfer-Encoding"):
                     raise ValueError("A bounded JSON request body is required (maximum 512 KB).")
@@ -3824,6 +3825,7 @@ class DashboardHandler(BaseHTTPRequestHandler):
                     "/api/missing-link/capability": service.correct_capability,
                     "/api/missing-link/feedback": service.feedback,
                     "/api/missing-link/analysis": service.import_analysis,
+                    "/api/missing-link/example": service.execute_example,
                 }
                 if parsed.path not in actions:
                     self.send_json({"error": "Endpoint not found."}, status=HTTPStatus.NOT_FOUND)

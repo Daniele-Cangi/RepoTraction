@@ -98,7 +98,8 @@ def export_handoff(match: dict[str, Any], repository: dict[str, Any]) -> dict[st
     request = _select(match.get("request"), (
         "id", "title", "url", "updated_at", "fingerprint", "requirements",
         "status", "missing_information", "context_complete", "context",
-        "environment", "attempts", "outcome", "limitations",
+        "environment", "attempts", "prior_attempts", "outcome", "limitations",
+        "status_reason", "status_evidence", "analysis_context",
     ))
     raw_request = match.get("request", {})
     source_issue = match.get("source_issue") or (raw_request.get("source_issue") if isinstance(raw_request, dict) else None)
@@ -117,7 +118,7 @@ def export_handoff(match: dict[str, Any], repository: dict[str, Any]) -> dict[st
     bridge = _select(match.get("bridge"), (
         "kind", "summary", "steps", "existing_contribution", "new_logic",
         "assumptions", "files", "success_criteria", "dependencies", "runtime",
-        "input", "expected_output", "ablation", "limitations",
+        "input", "expected_output", "ablation", "limitations", "permissions", "coupling",
     ))
     bridge_files = bridge.get("files", [])
     if not isinstance(bridge_files, list) or len(bridge_files) > MAX_BRIDGE_FILES:
@@ -164,7 +165,7 @@ def export_handoff(match: dict[str, Any], repository: dict[str, Any]) -> dict[st
         "match": _select(match, (
             "id", "repo", "capability_id", "capability", "classification",
             "summary", "checks", "obstacles", "feedback", "source_fingerprint",
-            "analysis_source", "limitations",
+            "analysis_source", "limitations", "analysis_context",
         )),
         "request": request,
         "acceptance_criteria_from_request": criteria,

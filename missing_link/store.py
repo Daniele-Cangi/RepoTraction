@@ -32,6 +32,11 @@ class Store:
                 CREATE TABLE IF NOT EXISTS ml_matches (id TEXT PRIMARY KEY, payload TEXT NOT NULL);
                 CREATE TABLE IF NOT EXISTS ml_discussions (id TEXT PRIMARY KEY, payload TEXT NOT NULL);
                 CREATE TABLE IF NOT EXISTS ml_cancellations (job_id TEXT PRIMARY KEY);
+                CREATE TABLE IF NOT EXISTS ml_match_snapshots (match_id TEXT PRIMARY KEY, payload TEXT NOT NULL);
+                CREATE TABLE IF NOT EXISTS ml_proofs (id TEXT PRIMARY KEY, match_id TEXT NOT NULL, payload TEXT NOT NULL);
+                CREATE TABLE IF NOT EXISTS ml_ai_allowances (id TEXT PRIMARY KEY, reserved REAL NOT NULL);
+                CREATE TABLE IF NOT EXISTS ml_ai_reservations (id INTEGER PRIMARY KEY, allowance_id TEXT NOT NULL,
+                    job_id TEXT NOT NULL, cost REAL NOT NULL, created REAL NOT NULL);
                 CREATE TABLE IF NOT EXISTS ml_corrections (repo_id INTEGER, capability_id TEXT, revision TEXT, payload TEXT,
                     PRIMARY KEY(repo_id, capability_id));
                 CREATE TABLE IF NOT EXISTS ml_cache (key TEXT PRIMARY KEY, expires REAL NOT NULL, payload TEXT NOT NULL);
@@ -63,8 +68,96 @@ class Store:
         table = self._table(kind)
         column = "repo_id" if kind == "repositories" else "id"
         with self.connection() as db:
+            if kind == "matches":
+                # Refreshes must not overwrite annotations written by another request/process.
+                db.execute("BEGIN IMMEDIATE")
+                payload = self._merge_annotations(db, key, payload)
             db.execute(f"INSERT INTO {table} ({column},payload) VALUES (?,?) ON CONFLICT({column}) DO UPDATE SET payload=excluded.payload",
                 (key, json.dumps(redact_payload(payload), ensure_ascii=False)))
+
+    @staticmethod
+    def _merge_annotations(db, key, payload):
+        payload = dict(payload)
+        previous = db.execute("SELECT payload FROM ml_matches WHERE id=?", (key,)).fetchone()
+        if previous:
+            previous = json.loads(previous[0])
+            payload["feedback"] = previous.get("feedback", [])
+            if previous.get("superseded"):
+                payload["superseded"] = True
+        return payload
+
+    def save_matches(self, matches, repository):
+        """Commit results, pinned reproduction context and supersession atomically."""
+        with self.connection() as db:
+            db.execute("BEGIN IMMEDIATE")
+            for incoming in matches:
+                match = self._merge_annotations(db, incoming["id"], incoming)
+                # A previously reviewed interpretation continues to supersede a
+                # structural result even when that result is first regenerated later.
+                peers = db.execute("SELECT id,payload FROM ml_matches").fetchall()
+                for peer_id, raw in peers:
+                    peer = json.loads(raw)
+                    same = (peer.get("repo_id"), peer.get("revision"), peer.get("source_fingerprint")) == (
+                        match["repo_id"], match["revision"], match["source_fingerprint"])
+                    if not same:
+                        continue
+                    if match["analysis_source"] == "structural" and peer.get("analysis_source") != "structural":
+                        match["superseded"] = True
+                    elif match["analysis_source"] != "structural" and peer.get("analysis_source") == "structural":
+                        peer["superseded"] = True
+                        db.execute("UPDATE ml_matches SET payload=? WHERE id=?", (json.dumps(peer), peer_id))
+                db.execute("INSERT INTO ml_matches VALUES (?,?) ON CONFLICT(id) DO UPDATE SET payload=excluded.payload",
+                    (match["id"], json.dumps(redact_payload(match), ensure_ascii=False)))
+                # Unlike a scan of the most recent jobs, this snapshot cannot select
+                # a different interpretation of the same revision or age out at 500.
+                snapshot = {"repository": repository, "issue": match.get("source_issue", {})}
+                db.execute("INSERT INTO ml_match_snapshots VALUES (?,?) ON CONFLICT(match_id) DO UPDATE SET payload=excluded.payload",
+                    (match["id"], json.dumps(redact_payload(snapshot), ensure_ascii=False)))
+
+    def match_snapshot(self, match_id):
+        with self.connection() as db:
+            row = db.execute("SELECT payload FROM ml_match_snapshots WHERE match_id=?", (match_id,)).fetchone()
+        return json.loads(row[0]) if row else None
+
+    def save_proof(self, proof):
+        # Separate from model/importable match payloads: only the runner writes receipts.
+        with self.connection() as db:
+            db.execute("INSERT INTO ml_proofs VALUES (?,?,?)", (proof["id"], proof["match_id"],
+                json.dumps(redact_payload(proof), ensure_ascii=False)))
+
+    def proofs(self, match_id):
+        with self.connection() as db:
+            rows = db.execute("SELECT payload FROM ml_proofs WHERE match_id=? ORDER BY rowid DESC LIMIT 20", (match_id,)).fetchall()
+        return [json.loads(row[0]) for row in rows]
+
+    def reserve_ai_allowance(self, allowance_id, job_id, cost, ceiling):
+        with self.connection() as db:
+            db.execute("BEGIN IMMEDIATE")
+            row = db.execute("SELECT reserved FROM ml_ai_allowances WHERE id=?", (allowance_id,)).fetchone()
+            total = (row[0] if row else 0) + cost
+            if total > ceiling:
+                raise ValueError("Persisted AI allowance would exceed the explicit total dollar budget.")
+            db.execute("INSERT INTO ml_ai_allowances VALUES (?,?) ON CONFLICT(id) DO UPDATE SET reserved=excluded.reserved",
+                (allowance_id, total))
+            db.execute("INSERT INTO ml_ai_reservations (allowance_id,job_id,cost,created) VALUES (?,?,?,?)",
+                (allowance_id, job_id, cost, time.time()))
+        return total
+
+    def ai_reserved(self, allowance_id):
+        with self.connection() as db:
+            row = db.execute("SELECT reserved FROM ml_ai_allowances WHERE id=?", (allowance_id,)).fetchone()
+        return row[0] if row else 0.0
+
+    def append_feedback(self, match_id, annotation):
+        with self.connection() as db:
+            db.execute("BEGIN IMMEDIATE")
+            row = db.execute("SELECT payload FROM ml_matches WHERE id=?", (match_id,)).fetchone()
+            if not row:
+                raise ValueError("Investigation record not found for this account.")
+            match = json.loads(row[0])
+            match["feedback"] = (match.get("feedback", []) + [redact_payload(annotation)])[-50:]
+            db.execute("UPDATE ml_matches SET payload=? WHERE id=?", (json.dumps(match, ensure_ascii=False), match_id))
+        return match
 
     def get(self, kind, key):
         table = self._table(kind)

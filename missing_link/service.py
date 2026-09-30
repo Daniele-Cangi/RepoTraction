@@ -1,4 +1,4 @@
-"""Bounded, resumable public investigations; nothing from GitHub is executed."""
+"""Bounded investigations; optional approved examples run only in a WASI sandbox."""
 from __future__ import annotations
 
 import base64
@@ -29,8 +29,9 @@ class Cancelled(RuntimeError):
 
 
 class Budget:
-    def __init__(self, job: dict, save, cancelled, verify):
+    def __init__(self, job: dict, save, cancelled, verify, reserve_total=None):
         self.job, self.save, self.cancelled, self.verify = job, save, cancelled, verify
+        self.reserve_total = reserve_total
 
     def checkpoint(self):
         if self.cancelled():
@@ -50,6 +51,8 @@ class Budget:
             raise Paused("Configured AI call budget reached.")
         if cost_limit is not None and self.job["cost_reserved_usd"] + cost > cost_limit:
             raise Paused("Conservative AI cost reservation would exceed the configured budget.")
+        if self.reserve_total:
+            self.reserve_total(cost)
         self.job["ai_calls_used"] += 1
         self.job["cost_reserved_usd"] += cost
         self.save()
@@ -57,6 +60,17 @@ class Budget:
     def record_usage(self, input_tokens, output_tokens, estimated_cost):
         self.job.setdefault("reported_usage", []).append({"input_tokens": input_tokens, "output_tokens": output_tokens,
             "estimated_cost_usd_at_configured_prices": estimated_cost})
+        self.save()
+
+    def record_call(self, metadata):
+        self.job.setdefault("ai_trace", []).append(metadata)
+        self.save()
+
+    def record_output(self, phase, output):
+        # Keep schema-valid attempts for provenance/debugging, including failed
+        # semantic validation. Hidden from polling state, redacted by Store.
+        self.job["checkpoint"].setdefault("ai_outputs", []).append({"phase": phase,
+            "call_number": self.job["ai_calls_used"], "output": output})
         self.save()
 
 
@@ -101,10 +115,15 @@ class Service:
             latest = latest_discussions.get(match["request"]["url"], {})
             match["stale"] = revisions.get(match["repo_id"]) != match["revision"] or latest.get("fingerprint") != match["source_fingerprint"]
             match.pop("source_issue", None)
+            match["isolated_examples"] = self._example_receipts(match)
         # Frontend does not need complete fetched code or prompt contexts on every poll.
         public_repos = [{key: value for key, value in repo.items() if key not in {"files"}} for repo in repositories]
         jobs = [{key: value for key, value in job.items() if key not in {"checkpoint"}} for job in self.store.list("jobs")]
-        return {"account": self.account, "provider": self.provider.describe(), "repositories": public_repos,
+        provider_description = self.provider.describe()
+        if isinstance(self.provider, Provider) and self.provider.total_budget:
+            provider_description["limits"]["total_reserved_usd"] = self.store.ai_reserved(self.provider.budget_id)
+        from .wasi_runner import WasiRunner
+        return {"account": self.account, "provider": provider_description, "isolation": WasiRunner().describe(), "repositories": public_repos,
             "jobs": jobs, "matches": matches, "extension_groups": extension_groups(matches),
             "safety": {"public_only": True, "host_execution": False, "publication": False},
             "limits": {"requests_per_job_max": 200, "candidates_per_job_max": 10, "source_files": 24}}
@@ -211,6 +230,13 @@ class Service:
             self.store.put("jobs", job["id"], job)
         event = self.events[job["id"]]
         budget = Budget(job, save, lambda: event.is_set() or self.store.is_cancelled(job["id"]), self._verify)
+        if isinstance(self.provider, Provider) and self.provider.total_budget:
+            def reserve_total(cost):
+                try:
+                    self.store.reserve_ai_allowance(self.provider.budget_id, job["id"], cost, self.provider.total_budget)
+                except ValueError as exc:
+                    raise Paused(str(exc)) from None
+            budget.reserve_total = reserve_total
         def stage(name, message):
             budget.checkpoint()
             job.update(status="running", stage=name, progress=message)
@@ -243,6 +269,11 @@ class Service:
         source = PublicGitHub(read, checkpoint=budget.checkpoint)
         checkpoints = job["checkpoint"]
         try:
+            if job["input"]["use_ai"] and isinstance(self.provider, Provider):
+                identity = self.provider.identity()
+                if job.get("provider_identity", identity) != identity:
+                    raise Paused("Provider/model/contract changed. Start a new job rather than mixing old interpretation checkpoints.")
+                job["provider_identity"] = identity
             stage("repository", "Reading public repository metadata and pinned source.")
             if "repository" not in checkpoints:
                 repository = source.fetch_repository(job["input"]["repo"])
@@ -323,8 +354,9 @@ class Service:
                     budget.checkpoint()
                     # Validate package safety before persisting any generated filenames/content.
                     self.validate_proposal(match, repository)
-                    self.store.put("matches", match["id"], match)
-                    job["result"]["match_ids"].append(match["id"])
+                budget.checkpoint()
+                self.store.save_matches(matches, repository)
+                job["result"]["match_ids"] = list(dict.fromkeys(job["result"]["match_ids"] + [match["id"] for match in matches]))
                 checkpoints.setdefault("evaluated", []).append(key)
                 save()
             stage("completed", "Investigation finished; inspect evidence and unexecuted bridges.")
@@ -403,19 +435,7 @@ class Service:
         matches = validate_matches(raw.get("matches", []), repository, issue, request, "coding_agent_import")
         for match in matches:
             self.validate_proposal(match, repository)
-        for match in matches:
-            # Re-import at the same evidence identity must preserve human feedback.
-            try:
-                existing = self.store.get("matches", match["id"])
-                match["feedback"] = existing.get("feedback", [])
-            except ValueError:
-                pass
-            self.store.put("matches", match["id"], match)
-        # Retain old conservative candidates as superseded, not competing positive opportunities.
-        for existing in self.store.list("matches"):
-            if existing["repo_id"] == repository["id"] and existing["revision"] == repository["revision"] and existing["source_fingerprint"] == request["fingerprint"] and existing["analysis_source"] == "structural":
-                existing["superseded"] = True
-                self.store.put("matches", existing["id"], existing)
+        self.store.save_matches(matches, repository)
         return {"match_ids": [match["id"] for match in matches], "analysis_source": "coding_agent_import"}
 
     @staticmethod
@@ -456,22 +476,97 @@ class Service:
 
     def feedback(self, data):
         self._verify()
-        match = self.store.get("matches", text(data.get("match_id", ""), 40))
+        match_id = text(data.get("match_id", ""), 40)
         decision = data.get("decision")
         if decision not in {"relevant", "rejected", "needs_work"}:
             raise ValueError("Unknown maintainer feedback decision.")
-        match.setdefault("feedback", []).append({"decision": decision, "note": text(data.get("note", "")), "at": now(), "source": "maintainer"})
-        match["feedback"] = match["feedback"][-50:]
-        self.store.put("matches", match["id"], match)
+        match = self.store.append_feedback(match_id, {"decision": decision, "note": text(data.get("note", "")), "at": now(), "source": "maintainer"})
         return {"match": match}
 
     def export(self, match_id, package=False):
         self._verify()
         from .proofs import build_package, export_handoff
         match = self.store.get("matches", match_id)
-        repository = next((job.get("checkpoint", {}).get("repository") for job in self.store.list("jobs")
+        snapshot = self.store.match_snapshot(match_id)
+        repository = snapshot["repository"] if snapshot else next((job.get("checkpoint", {}).get("repository") for job in self.store.list("jobs")
             if job.get("checkpoint", {}).get("repository", {}).get("revision") == match["revision"] and
                 job.get("checkpoint", {}).get("repository", {}).get("id") == match["repo_id"]), None)
         if not repository:
             raise ValueError("Pinned evidence snapshot no longer available; cannot silently substitute a newer revision.")
-        return build_package(match, repository) if package else export_handoff(match, repository)
+        if package:
+            return build_package(match, repository)
+        handoff = export_handoff(match, repository)
+        handoff["isolated_examples"] = self._example_receipts(match, handoff)
+        return handoff
+
+    def _example_receipts(self, match, handoff=None):
+        receipts = self.store.proofs(match["id"])
+        if not receipts:
+            return []
+        if handoff is None:
+            from .proofs import export_handoff
+            handoff = export_handoff(match, {"revision": match["revision"]})
+        for receipt in receipts:
+            receipt["applies_to_current_bridge"] = (
+                receipt.get("revision") == match["revision"] and
+                receipt.get("source_fingerprint") == match["source_fingerprint"] and
+                receipt.get("bridge_sha256") == digest(handoff["bridge"]) and
+                receipt.get("criteria_sha256") == digest(handoff["acceptance_criteria_from_request"]))
+        return receipts
+
+    def execute_example(self, data):
+        """Explicit opt-in, pinned public text only; never a native host subprocess."""
+        self._verify()
+        if data.get("approved") is not True:
+            raise ValueError("Review the artifacts and explicitly approve this isolated example first.")
+        from .proofs import _source_files, export_handoff, safe_relative_path
+        from .wasi_runner import WasiRunner
+        match_id = text(data.get("match_id", ""), 40)
+        match = self.store.get("matches", match_id)
+        snapshot = self.store.match_snapshot(match_id)
+        if not snapshot or match.get("superseded") or match["classification"] == "rejected":
+            raise ValueError("Choose a current non-rejected match with a pinned reproduction snapshot.")
+        repository = snapshot["repository"]
+        current = self.store.get("repositories", match["repo_id"])
+        if current["revision"] != match["revision"]:
+            raise ValueError("The repository revision changed; reevaluate before executing an example.")
+        for issue in self.store.list("discussions"):
+            if issue["url"] == match["request"]["url"] and issue["fingerprint"] != match["source_fingerprint"]:
+                raise ValueError("The discussion changed; reevaluate before executing an example.")
+        handoff = export_handoff(match, repository)  # public/path/revision/credential checks
+        files = {"project/" + safe_relative_path(path): content for path, content in _source_files(repository).items()
+            if path.endswith(".py")}
+        for artifact in handoff["bridge"].get("files", []):
+            files["bridge/" + artifact["path"]] = artifact["content"]
+        tests = data.get("reviewed_tests", [])
+        if not isinstance(tests, list) or len(tests) > 4:
+            raise ValueError("At most four explicitly reviewed test files are supported.")
+        for artifact in tests:
+            if not isinstance(artifact, dict) or set(artifact) != {"path", "content"}:
+                raise ValueError("Reviewed tests require path and content only.")
+            path = safe_relative_path(artifact["path"])
+            if not path.endswith(".py") or "reviewed_tests/" + path in files:
+                raise ValueError("Reviewed tests require distinct Python paths.")
+            files["reviewed_tests/" + path] = artifact["content"]
+        entrypoint = safe_relative_path(data.get("entrypoint"))
+        if not entrypoint.startswith(("bridge/", "reviewed_tests/")):
+            raise ValueError("Select a reviewed bridge/test entry point, not a repository command.")
+        from .store import redact_payload
+        if redact_payload(files) != files:
+            raise ValueError("Credential-shaped artifact content is not permitted in isolated examples.")
+        runner = WasiRunner()
+        if not runner.describe()["available"]:
+            raise ValueError("The pinned optional WASI runtime is unavailable; no code executed.")
+        if not self.lease.acquire():
+            raise ValueError("Another investigation/example is active for this account. Wait before executing.")
+        try:
+            result = runner.run(files, entrypoint)
+            receipt = {"id": uuid.uuid4().hex, "match_id": match_id, "at": now(), "revision": match["revision"],
+                "source_fingerprint": match["source_fingerprint"], "bridge_sha256": digest(handoff["bridge"]),
+                "criteria_sha256": digest(handoff["acceptance_criteria_from_request"]),
+                "reviewed_test_paths": [item["path"] for item in tests], **result}
+            self.store.save_proof(receipt)
+        finally:
+            self.lease.release()
+        self._verify()
+        return {"isolated_example": receipt}

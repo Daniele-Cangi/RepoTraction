@@ -39,9 +39,10 @@ def issue():
 
 
 def request_raw():
-    return {"outcome": "Shorten text", "status": "unresolved", "status_source_ids": ["q0"], "requirements": [
-        {"text": "Do not split words", "mandatory": True, "explicit": True, "source_id": "q0", "quote": "without splitting words"},
-        {"text": "No Python runtime; native CSS", "mandatory": True, "explicit": True, "source_id": "q0", "quote": "Must work in native CSS without Python."}]}
+    return {"outcome": "Shorten text", "status": "unresolved", "status_source_ids": ["q0"], "status_reason": "Fixture only",
+        "environment": [], "prior_attempts": [], "missing_information": [], "requirements": [
+        {"text": "Do not split words", "mandatory": True, "explicit": True, "source_id": "q0", "quote": "without splitting words", "inference": ""},
+        {"text": "No Python runtime; native CSS", "mandatory": True, "explicit": True, "source_id": "q0", "quote": "Must work in native CSS without Python.", "inference": ""}]}
 
 
 def raw_match():
@@ -122,7 +123,8 @@ class ProviderTests(unittest.TestCase):
         configured = {"REPOTRACTION_AI_URL": "https://provider.example/v1", "REPOTRACTION_AI_MODEL": "test"}
         self.assertFalse(Provider(configured).describe()["configured"])
         configured.update(REPOTRACTION_AI_ALLOW_REMOTE="1", REPOTRACTION_AI_MAX_COST_USD="1",
-            REPOTRACTION_AI_INPUT_USD_PER_MILLION="2", REPOTRACTION_AI_OUTPUT_USD_PER_MILLION="10")
+            REPOTRACTION_AI_INPUT_USD_PER_MILLION="2", REPOTRACTION_AI_OUTPUT_USD_PER_MILLION="10",
+            REPOTRACTION_AI_TOTAL_BUDGET_USD="2", REPOTRACTION_AI_BUDGET_ID="fixture-allowance")
         self.assertTrue(Provider(configured).describe()["configured"])
         for url in ("http://provider.example/v1", "https://user:key@provider.example/v1", "https://provider.example/v1?key=secret"):
             configured["REPOTRACTION_AI_URL"] = url
@@ -218,6 +220,31 @@ class ServiceTests(unittest.TestCase):
         self.service.feedback({"match_id": mid, "decision": "needs_work", "note": "Need runtime confirmation"})
         self.service.import_analysis(body)
         self.assertEqual(self.service.store.get("matches", mid)["feedback"][0]["source"], "maintainer")
+
+    def test_refresh_preserves_feedback_and_superseded_structural_candidates(self):
+        first = self.run_fixture()
+        structural_id = first["result"]["match_ids"][0]
+        self.service.feedback({"match_id": structural_id, "decision": "rejected", "note": "Already reviewed"})
+        self.service.import_analysis({"job_id": first["id"], "analysis": {"request": request_raw(), "matches": [raw_match()]}})
+        self.run_fixture()
+        refreshed = self.service.store.get("matches", structural_id)
+        self.assertTrue(refreshed["superseded"])
+        self.assertEqual(refreshed["feedback"][0]["note"], "Already reviewed")
+
+    def test_atomic_annotations_cannot_be_lost_by_stale_refresh(self):
+        job = self.run_fixture()
+        mid = job["result"]["match_ids"][0]
+        stale = self.service.store.get("matches", mid)
+        other = Store(self.path, "alice")
+        other.append_feedback(mid, {"note": "Concurrent review"})
+        self.service.store.put("matches", mid, stale)
+        self.assertEqual(other.get("matches", mid)["feedback"], [{"note": "Concurrent review"}])
+
+    def test_pinned_export_does_not_depend_on_recent_job_scan(self):
+        job = self.run_fixture()
+        mid = job["result"]["match_ids"][0]
+        with mock.patch.object(self.service.store, "list", side_effect=AssertionError("No recent-job fallback")):
+            self.assertEqual(self.service.export(mid)["revision"], "a" * 40)
 
     def test_public_discovery_exposes_sampling_not_probability(self):
         job = self.run_fixture({"repo": "example/words", "query": "shorten word"})

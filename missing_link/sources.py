@@ -554,6 +554,7 @@ def extract_structure(snapshot: dict[str, Any]) -> list[dict[str, Any]]:
                     summary = doc.splitlines()[0][:600] if doc else f"Declared {'class' if isinstance(node, ast.ClassDef) else 'function'} {name}."
                     if isinstance(node, ast.ClassDef):
                         append(file, name, "subsystem", summary, line, min(end_line, line + 12),
+                               definition={"path": path, "line": line, "end_line": end_line},
                                signature=signature, dependencies=imports, calls=calls,
                                preconditions=["Class construction, coupling and runtime requirements are not verified."],
                                standalone="no" if parent else "unknown")
@@ -564,6 +565,7 @@ def extract_structure(snapshot: dict[str, Any]) -> list[dict[str, Any]]:
                                   if argument.arg not in {"self", "cls"}]
                         outputs = [ast.unparse(node.returns)] if node.returns else ["Return contract not declared."]
                         append(file, name, "mechanism", summary, line, min(end_line, line + 12),
+                               definition={"path": path, "line": line, "end_line": end_line},
                                signature=signature, inputs=inputs, outputs=outputs,
                                dependencies=imports, calls=calls, standalone="no" if parent else "unknown")
                         # Nested implementation mechanisms are useful, but explicitly coupled.
