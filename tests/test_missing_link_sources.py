@@ -174,6 +174,52 @@ class SourceValidationTests(unittest.TestCase):
 
 
 class RepositoryAcquisitionTests(unittest.TestCase):
+    def test_large_first_module_cannot_hide_later_public_engine(self):
+        fixture = GitHubFixture()
+        fixture.add("pkg/core.py", "\n".join(f"def helper_{i}(): return True" for i in range(120)))
+        fixture.add("pkg/engine.py", "class _Internal:\n" +
+                    "\n".join(f"    def hidden_{i}(self): pass" for i in range(120)) +
+                    "\ndef validate(value): return value\n")
+        snapshot = PublicGitHub(fixture.read).fetch_repository("sample/project")
+        capabilities = extract_structure(snapshot)
+        self.assertEqual(len(capabilities), 100)
+        self.assertIn("pkg/engine.py:validate", [cap["entrypoint"] for cap in capabilities])
+        self.assertTrue(snapshot["coverage"]["analysis"]["capability_limit_reached"])
+
+    def test_initializer_imports_preserve_public_engine_within_existing_budget(self):
+        fixture = GitHubFixture()
+        fixture.add("pkg/__init__.py", "# Public package interface\n" * 4 + "from pkg.validators import validate\nfrom .errors import Error\n")
+        for index in range(30):
+            fixture.add(f"pkg/a_helper_{index:02d}.py", "def helper(): return True\n")
+        fixture.add("pkg/validators.py", "def validate(value): return value\n")
+        fixture.add("pkg/errors.py", "class Error(Exception): pass\n")
+        result = PublicGitHub(fixture.read).fetch_repository("sample/project", max_files=3)
+        self.assertEqual([f["path"] for f in result["files"]],
+                         ["pkg/__init__.py", "pkg/validators.py", "pkg/errors.py"])
+        self.assertEqual(sum("/git/blobs/" in endpoint for endpoint, _ in fixture.calls), 3)
+        self.assertEqual(result["coverage"]["omitted_initializer_imports"], [])
+        self.assertFalse(result["coverage"]["complete"])
+
+    def test_import_hints_are_safe_bounded_static_and_support_src_layout(self):
+        fixture = GitHubFixture()
+        fixture.add("src/pkg/__init__.py", "# Public package interface\n" * 4 + "from pkg.engine import execute\nfrom . import late\nfrom .secret import token\n")
+        fixture.add("src/pkg/engine.py", "raise RuntimeError('never execute')\n")
+        fixture.add("src/pkg/late.py", "def late(): pass\n")
+        fixture.add("src/pkg/secret.py", "secret", mode="120000")
+        result = PublicGitHub(fixture.read).fetch_repository("sample/project", max_files=2)
+        self.assertEqual([f["path"] for f in result["files"]], ["src/pkg/__init__.py", "src/pkg/engine.py"])
+        self.assertEqual(result["coverage"]["omitted_initializer_imports"], ["src/pkg/late.py"])
+        self.assertEqual(len([c for c in fixture.calls if "/git/blobs/" in c[0]]), 2)
+
+    def test_invalid_initializer_or_nested_dynamic_import_keeps_heuristic_sample(self):
+        fixture = GitHubFixture()
+        fixture.add("pkg/__init__.py", "# Public package interface\n" * 4 + "def later():\n    from .z_engine import execute\n")
+        fixture.add("pkg/a_helper.py", "def helper(): pass\n")
+        fixture.add("pkg/z_engine.py", "def execute(): pass\n")
+        result = PublicGitHub(fixture.read).fetch_repository("sample/project", max_files=2)
+        self.assertEqual([f["path"] for f in result["files"]], ["pkg/__init__.py", "pkg/a_helper.py"])
+        self.assertEqual(result["coverage"]["initializer_import_hints"], [])
+
     def test_pins_revision_reads_docs_source_tests_and_exact_license(self):
         fixture = GitHubFixture()
         fixture.add("README.md", "# Tool\n\nConvert records.")

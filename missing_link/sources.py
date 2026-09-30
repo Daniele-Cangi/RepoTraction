@@ -170,6 +170,42 @@ def _select_files(entries: list[dict[str, Any]], limit: int) -> list[dict[str, A
     return selected
 
 
+def _initializer_imports(path: str, text: str, eligible: dict) -> list[str]:
+    """Static package-import hints, not proof of exports or execution.
+
+    Resolve only top-level imports in acquired Python initializers against the
+    already safety-filtered tree. No imports, filesystem reads or extra budget.
+    """
+    if PurePosixPath(path).name != "__init__.py":
+        return []
+    try:
+        tree = ast.parse(text)
+    except (SyntaxError, ValueError, RecursionError):
+        return []
+    parent = PurePosixPath(path).parent.parts
+    targets = []
+    for node in tree.body:
+        if not isinstance(node, ast.ImportFrom):
+            continue
+        modules = ([node.module] if node.module else
+                   [alias.name for alias in node.names if alias.name != "*"])
+        for module in modules:
+            parts = module.split(".")
+            if node.level:
+                if node.level > len(parent):
+                    continue
+                roots = [parent[:len(parent) - node.level + 1]]
+            else:
+                # Both flat and src-layout packages, constrained to this tree.
+                roots = [(), ("src",)]
+            for root in roots:
+                stem = "/".join((*root, *parts))
+                for candidate in (stem + ".py", stem + "/__init__.py"):
+                    if candidate in eligible and candidate != path and candidate not in targets:
+                        targets.append(candidate)
+    return targets
+
+
 def _bot(user: Any) -> bool:
     return (isinstance(user, dict) and (user.get("type") == "Bot"
             or str(user.get("login", "")).casefold().endswith("[bot]")))
@@ -242,7 +278,15 @@ class PublicGitHub:
         files: list[dict[str, Any]] = []
         total_bytes = 0
         language_counts: Counter[str] = Counter()
-        for entry in _select_files(candidates, max_files):
+        pending = _select_files(candidates, len(candidates))
+        eligible_by_path = {entry["path"]: entry for entry in candidates}
+        attempted = set()
+        initializer_hints = []
+        # Following an initializer replaces later heuristic slots; it never
+        # expands the read/file/byte budget, including failed acquisitions.
+        while pending and len(attempted) < max_files:
+            entry = pending.pop(0)
+            attempted.add(entry["path"])
             if total_bytes + entry["size"] > MAX_TOTAL_BYTES:
                 excluded["total_size_budget"] += 1
                 continue
@@ -274,6 +318,12 @@ class PublicGitHub:
             files.append({"path": path, "sha": entry["sha"], "text": text,
                           "url": f"https://github.com/{full_name}/blob/{revision}/{quote(path, safe='/')}",
                           "kind": _kind(path), "language": language, "bytes": len(raw)})
+            targets = _initializer_imports(path, text, eligible_by_path)
+            for target in targets:
+                initializer_hints.append({"from": path, "path": target})
+            to_follow = [target for target in targets if target not in attempted]
+            pending = ([eligible_by_path[target] for target in to_follow] +
+                       [item for item in pending if item["path"] not in to_follow])
         limitations = ["Bounded source sample; declarations and test references are not execution proof."]
         if tree.get("truncated"):
             limitations.append("GitHub truncated the recursive tree; unseen paths were not analyzed.")
@@ -296,7 +346,10 @@ class PublicGitHub:
                              "files_scanned": len(files), "file_budget": max_files,
                              "bytes_scanned": total_bytes, "language_counts": dict(language_counts),
                              "tree_language_counts": dict(languages_in_tree), "excluded": dict(excluded),
-                             "sampling_policy": "Path heuristic: implementation before infrastructure; bounded docs/source/test mix, not export verification.",
+                             "sampling_policy": "Path heuristic plus static initializer-import hints; bounded docs/source/test mix, not export verification.",
+                             "initializer_import_hints": initializer_hints,
+                             "omitted_initializer_imports": sorted({hint["path"] for hint in initializer_hints}
+                                 - {file["path"] for file in files}),
                              "eligible_source_roles": dict(eligible_roles), "acquired_source_roles": dict(acquired_roles),
                              "metadata_redacted": redacted, "metadata_truncated": description_truncated,
                              "complete": not tree.get("truncated") and len(files) == len(candidates) and not excluded,
@@ -492,6 +545,7 @@ def extract_structure(snapshot: dict[str, Any]) -> list[dict[str, Any]]:
     snapshot so consumers cannot present a bounded sample as whole-repo analysis.
     """
     capabilities: list[dict[str, Any]] = []
+    per_file: dict[str, list[dict[str, Any]]] = {}
     analysis_files: list[dict[str, Any]] = []
     parsed: dict[str, ast.Module] = {}
     tests: dict[str, list[dict[str, Any]]] = {}
@@ -529,14 +583,15 @@ def extract_structure(snapshot: dict[str, Any]) -> list[dict[str, Any]]:
 
     def append(file: dict[str, Any], name: str, level: str, summary: str,
                line: int, end_line: int, **extra: Any) -> None:
-        if len(capabilities) >= MAX_CAPABILITIES:
+        group = per_file.setdefault(file["path"], [])
+        if len(group) >= MAX_CAPABILITIES:
             return
         references = tests.get(name.rsplit(".", 1)[-1], [])[:3]
         # Keep maintainer corrections attached across commits/line movements;
         # exact evidence remains pinned separately to the snapshot revision.
         repository_id = snapshot.get("id") or str(snapshot.get("full_name") or "").casefold()
         identity = f"{repository_id}:{file['path']}:{name}"
-        capabilities.append({"id": hashlib.sha256(identity.encode()).hexdigest()[:20], "name": name,
+        group.append({"id": hashlib.sha256(identity.encode()).hexdigest()[:20], "name": name,
                              "level": level, "summary": summary, "outcome": "Not verified; requires request-specific analysis.",
                              "inputs": [], "outputs": [], "entrypoint": f"{file['path']}:{name}",
                              "dependencies": [], "preconditions": ["Execution and adoption context have not been verified."],
@@ -567,7 +622,12 @@ def extract_structure(snapshot: dict[str, Any]) -> list[dict[str, Any]]:
             def visit(body: list[ast.stmt], parent: str = "", depth: int = 0) -> None:
                 if depth > 10:
                     return
-                for node in body:
+                # Public top-level callables before helper classes/nested
+                # mechanisms; this is a sampling hint, not verified exports.
+                ordered = sorted(body, key=lambda node: (
+                    getattr(node, "name", "").startswith("_"),
+                    isinstance(node, ast.ClassDef), getattr(node, "lineno", 0))) if not parent else body
+                for node in ordered:
                     if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
                         continue
                     name = f"{parent}.{node.name}" if parent else node.name
@@ -608,6 +668,14 @@ def extract_structure(snapshot: dict[str, Any]) -> list[dict[str, Any]]:
                            f"Declaration candidate {name}; JavaScript/TypeScript partial scan.", line, line,
                            signature=text.strip()[:400],
                            limitations=["Partial declaration scan, not a JS/TS parser, typecheck or execution proof."])
+    # No large first module may consume the entire declaration budget before
+    # later public engines. Keep role priority and round-robin file diversity.
+    for role in ("implementation", "support", "test", "infrastructure"):
+        groups = [group for path, group in per_file.items() if source_role(path) == role]
+        for offset in range(max((len(group) for group in groups), default=0)):
+            for group in groups:
+                if offset < len(group) and len(capabilities) < MAX_CAPABILITIES:
+                    capabilities.append(group[offset])
     coverage = snapshot.setdefault("coverage", {})
     coverage["analysis"] = {"files": analysis_files, "capabilities": len(capabilities),
                              "capability_limit": MAX_CAPABILITIES,
