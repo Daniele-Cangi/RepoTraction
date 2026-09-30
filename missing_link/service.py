@@ -85,15 +85,16 @@ class Service:
         self.threads: dict[str, threading.Thread] = {}
         self.events: dict[str, threading.Event] = {}
         self.lease = WorkerLease(database)
+        self._reconcile_abandoned_jobs()
+
+    def _reconcile_abandoned_jobs(self):
         # Opening a second dashboard must not pause a healthy worker in another process.
-        if self.lease.acquire():
-            try:
-                for job in self.store.list("jobs"):
-                    if job["status"] in {"queued", "running"}:
-                        job.update(status="paused", error="Previous worker exited. Resume explicitly; checkpoints and used budgets remain.")
-                        self.store.put("jobs", job["id"], job)
-            finally:
-                self.lease.release()
+        with self.lock:
+            if self.lease.acquire():
+                try:
+                    self.store.pause_abandoned_jobs(now())
+                finally:
+                    self.lease.release()
 
     def _verify(self):
         actual = self.verify()
@@ -102,6 +103,7 @@ class Service:
 
     def state(self):
         self._verify()
+        self._reconcile_abandoned_jobs()
         repositories = self.store.list("repositories")
         revisions = {repo["id"]: repo["revision"] for repo in repositories}
         matches = self.store.list("matches")
@@ -164,6 +166,7 @@ class Service:
                 "created_at": now(), "updated_at": now(), "requests_used": 0, "ai_calls_used": 0,
                 "cost_reserved_usd": 0.0, "cache_hits": 0, "error": None, "checkpoint": {}, "result": {"match_ids": []}}
             try:
+                self.store.pause_abandoned_jobs(now())
                 self.store.put("jobs", job["id"], job)
                 self._dispatch(job, background)
             except Exception:
@@ -199,15 +202,16 @@ class Service:
         with self.lock:
             if any(thread.is_alive() for thread in self.threads.values()):
                 raise ValueError("Wait for the active investigation to finish before resuming.")
-            job = self.store.get("jobs", text(data.get("job_id", ""), 40))
-            if job["status"] not in {"paused", "cancelled", "failed"}:
-                raise ValueError("Only paused, cancelled or failed investigations can resume.")
-            if data.get("max_requests") is not None:
-                job["input"]["max_requests"] = self._bounded_integer(data["max_requests"], 80, job["requests_used"] + 1, 200)
-            job.update(status="queued", error=None)
             if not self.lease.acquire():
                 raise ValueError("Another RepoTraction process is investigating this account. Use that dashboard or wait.")
             try:
+                self.store.pause_abandoned_jobs(now())
+                job = self.store.get("jobs", text(data.get("job_id", ""), 40))
+                if job["status"] not in {"paused", "cancelled", "failed"}:
+                    raise ValueError("Only paused, cancelled or failed investigations can resume.")
+                if data.get("max_requests") is not None:
+                    job["input"]["max_requests"] = self._bounded_integer(data["max_requests"], 80, job["requests_used"] + 1, 200)
+                job.update(status="queued", error=None)
                 self.store.clear_cancel(job["id"])
                 self.store.put("jobs", job["id"], job)
                 self._dispatch(job, background)

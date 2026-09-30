@@ -119,6 +119,18 @@ class Store:
             row = db.execute("SELECT payload FROM ml_match_snapshots WHERE match_id=?", (match_id,)).fetchone()
         return json.loads(row[0]) if row else None
 
+    def pause_abandoned_jobs(self, updated_at):
+        """Caller must hold the worker lease; preserve checkpoints and budgets."""
+        with self.connection() as db:
+            db.execute("BEGIN IMMEDIATE")
+            rows = db.execute("""SELECT id,payload FROM ml_jobs
+                WHERE json_extract(payload, '$.status') IN ('queued', 'running')""").fetchall()
+            for job_id, raw in rows:
+                job = json.loads(raw)
+                job.update(status="paused", updated_at=updated_at,
+                           error="Previous worker exited. Resume explicitly; checkpoints and used budgets remain.")
+                db.execute("UPDATE ml_jobs SET payload=? WHERE id=?", (json.dumps(job, ensure_ascii=False), job_id))
+
     def save_proof(self, proof):
         # Separate from model/importable match payloads: only the runner writes receipts.
         with self.connection() as db:

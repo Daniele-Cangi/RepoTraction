@@ -291,6 +291,66 @@ class ServiceTests(unittest.TestCase):
         self.service.store.clear_cancel(job["id"])
         self.assertFalse(Store(self.path, "alice").is_cancelled(job["id"]))
 
+    def test_open_dashboard_recovers_jobs_after_competing_worker_exits(self):
+        lease = WorkerLease(self.path)
+        self.assertTrue(lease.acquire())
+        try:
+            self.service.store.put("jobs", "abandoned", {"id": "abandoned", "status": "running",
+                "checkpoint": {"completed": ["source"]}, "requests_used": 9, "ai_calls_used": 2,
+                "cost_reserved_usd": 0.25})
+            other = Service(self.path, "alice", self.read, lambda: "alice", Provider({}))
+            self.assertEqual(other.state()["jobs"][0]["status"], "running")
+        finally:
+            lease.release()
+        self.assertEqual(other.state()["jobs"][0]["status"], "paused")
+        recovered = other.store.get("jobs", "abandoned")
+        self.assertEqual(recovered["checkpoint"], {"completed": ["source"]})
+        self.assertEqual((recovered["requests_used"], recovered["ai_calls_used"], recovered["cost_reserved_usd"]), (9, 2, 0.25))
+        self.assertEqual(other.threads, {})
+
+    def test_resume_recovers_abandoned_job_without_poll_or_restart(self):
+        job = self.run_fixture()
+        job.update(status="running")
+        self.service.store.put("jobs", job["id"], job)
+        lease = WorkerLease(self.path)
+        self.assertTrue(lease.acquire())
+        try:
+            other = Service(self.path, "alice", self.read, lambda: "alice", Provider({}))
+            with self.assertRaisesRegex(ValueError, "Another RepoTraction process"):
+                other.resume({"job_id": job["id"]}, background=False)
+            self.assertEqual(other.store.get("jobs", job["id"])["status"], "running")
+        finally:
+            lease.release()
+        with mock.patch("missing_link.service.PublicGitHub", return_value=self.fake_sources()):
+            other.resume({"job_id": job["id"]}, background=False)
+        resumed = other.store.get("jobs", job["id"])
+        self.assertEqual(resumed["status"], "completed")
+        self.assertEqual(resumed["requests_used"], job["requests_used"])
+        self.assertEqual(resumed["checkpoint"], job["checkpoint"])
+
+    def test_recovery_checks_jobs_outside_polling_window_and_preserves_final_states(self):
+        lease = WorkerLease(self.path)
+        self.assertTrue(lease.acquire())
+        try:
+            other = Service(self.path, "alice", self.read, lambda: "alice", Provider({}))
+            for status in ("queued", "running", "completed", "cancelled", "failed", "paused"):
+                other.store.put("jobs", status, {"id": status, "status": status})
+            for index in range(501):
+                other.store.put("jobs", str(index), {"id": str(index), "status": "completed"})
+        finally:
+            lease.release()
+        other.state()
+        for status in ("queued", "running", "completed", "cancelled", "failed", "paused"):
+            self.assertEqual(other.store.get("jobs", status)["status"], "paused" if status in {"queued", "running"} else status)
+
+    def test_invalid_resume_releases_recovery_lease(self):
+        job = self.run_fixture()
+        with self.assertRaisesRegex(ValueError, "Only paused"):
+            self.service.resume({"job_id": job["id"]}, background=False)
+        lease = WorkerLease(self.path)
+        self.assertTrue(lease.acquire())
+        lease.release()
+
     def test_budget_pause_resume_keeps_used_count_and_does_not_retry_limit(self):
         def consume(repo, **kwargs):
             # Simulate enough Github requests to exhaust a deliberately tiny cap.
