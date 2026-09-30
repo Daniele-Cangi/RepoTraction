@@ -17,6 +17,10 @@
   evidence, hashes, safe file paths and NOT EXECUTED status.
 - Source-reviewed positive, lower-level reuse and deceptive-similarity cases;
   repeatable optional browser regressions and a read-only live browser check.
+- Real GitHub/OpenAI API investigation without manual analysis import, including
+  a useful narrow adapter, rejected false positives and recorded uncertainty.
+- Optional explicitly approved Wasmtime/WASI Python examples without Docker;
+  pinned runtime bootstrap, bounded execution and separate persistent receipts.
 
 ### Changed
 
@@ -26,13 +30,22 @@
   from Missing Link and optional AI.
 - Missing Link results are placed ahead of the collapsible capability inventory;
   no fictional successful matches are added to synthetic demo mode.
+- Freshness follows immutable repository/issue identities and effective capability
+  interpretations; corrections retain history and require reevaluation.
+- Open dashboards recover abandoned investigations when the worker lease becomes
+  free, without pausing healthy workers or automatically restarting paid work.
+- Candidate definition spans precede broad file context, and tiny package
+  initializers are sampled after implementation modules.
+- WASI Python startup disables site hooks and unsafe startup paths; trusted
+  stdlib precedes project dependencies, which are added only after startup.
 
 ### Boundaries
 
 - No private repository analysis, automatic publication or host execution.
-- No isolated proof runner is configured. Third-party bridges are not executed.
-- Real model quality/integration remains untested without a configured provider;
-  protocol tests are fixtures, not AI evaluation or third-party execution proof.
+- Optional pure-Python examples have run in isolation; they do not establish
+  original-request compliance or production/target-application integration.
+- Real API cases are separate from fictional protocol and browser acceptance
+  fixtures. They do not establish general discovery accuracy or fresh demand.
 
 ## 3.0.0 — 2026-09-28
 
