@@ -1,5 +1,7 @@
 """Machine-readable interpretation schemas, distinct from human examples."""
 
+MAX_SCOPED_IDS = 400
+
 
 def obj(**properties):
     return {"type": "object", "properties": properties, "required": list(properties), "additionalProperties": False}
@@ -39,7 +41,7 @@ def schema_for(phase, *, source_ids=None, capability_ids=None, requirement_ids=N
         if not ids or any(not isinstance(value, str) or not value for value in ids):
             raise ValueError("Analysis citation scope is empty or exceeds contract bounds.")
         ids = list(dict.fromkeys(ids))
-        if len(ids) > 400:
+        if len(ids) > MAX_SCOPED_IDS:
             raise ValueError("Analysis citation scope is empty or exceeds contract bounds.")
         return string(*ids)
 

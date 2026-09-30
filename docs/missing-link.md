@@ -196,6 +196,9 @@ These are path-based sampling hints, not verified exports or execution evidence.
 
 Provider schemas are scoped per call: source IDs must be exact keys actually
 supplied, and capability/requirement IDs must belong to the selected candidates.
+Context packing shares the schema's 400-ID bound, in addition to the byte bound;
+ID-limited omissions are counted in coverage and make discussion incomplete.
+Repository comparisons reserve ID slots for selected source/support excerpts.
 Wider or fabricated line ranges are not offered as valid model outputs. This
 scope is checked locally for JSON-mode providers too; inspection/import contracts
 still accept precisely validated visible subspans. Request instructions require

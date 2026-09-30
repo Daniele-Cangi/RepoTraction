@@ -221,6 +221,21 @@ class ProviderContractTests(unittest.TestCase):
             with self.subTest(field=field), self.assertRaises(ValueError):
                 validate_shape(raw, schema)
 
+    def test_high_activity_request_reaches_provider_with_explicit_partial_context(self):
+        demand = issue()
+        demand["comments"] = [{"url": demand["url"] + f"#issuecomment-{i}", "body": "Short comment."} for i in range(200)]
+        demand["timeline"] = [{"id": i, "event": "labeled"} for i in range(200)]
+        provider = Provider({"REPOTRACTION_AI_URL": "http://localhost/v1", "REPOTRACTION_AI_MODEL": "fixture"})
+        with mock.patch.object(provider, "complete", return_value=request_raw()) as complete:
+            request = provider.interpret_request(demand, mock.Mock())
+        complete.assert_called_once()
+        schema = complete.call_args.args[3]
+        validate_shape(request_raw(), schema)
+        self.assertFalse(request["context_complete"])
+        self.assertEqual(request["status"], "unclear")
+        self.assertEqual(request["analysis_context"]["source_id_limit_omissions"], 1)
+        self.assertIn("q1", request["analysis_context"]["omitted_source_ids"])
+
     def test_capability_and_match_schemas_scope_exact_visible_ids(self):
         capability = {key: value for key, value in dict(id="trim", name="trim", summary="shorten", outcome="shorter",
             inputs=[], outputs=[], preconditions=[], dependencies=[], limitations=[], standalone="yes",

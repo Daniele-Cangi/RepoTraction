@@ -5,6 +5,7 @@ from collections import Counter
 
 from .analysis import evidence_catalog, resolve_evidence, quoted_span
 from .discussion import constraint_hints
+from .contracts import MAX_SCOPED_IDS
 from .sources import source_role
 
 
@@ -92,7 +93,7 @@ def build_context(repository, issue, phase, byte_limit):
     if target < 12000:
         raise ValueError("AI prompt bound is too small for grounded investigation.")
     catalog = evidence_catalog(repository or {"files": [], "capabilities": []}, issue or {"url": ""})
-    sources, omitted, shortened = {}, [], []
+    sources, omitted, shortened, id_limited = {}, [], [], set()
     data = {"sources": sources}
     hints = constraint_hints(issue) if issue else {"items": [], "complete": True}
     if issue:
@@ -110,8 +111,18 @@ def build_context(repository, issue, phase, byte_limit):
     if size(data) > target // 2:
         raise ValueError("Analysis metadata exceeds context bound; narrow the selected context.")
 
+    # Match the schema's ID bound, independently of the byte bound. Leave some
+    # slots for selected definitions/support files when comparing a discussion
+    # to a repository, rather than filling the entire scope with discussion IDs.
+    repository_slots = min(MAX_SCOPED_IDS // 4, len(candidates) * 3 + len((repository or {}).get("files", [])))
+    discussion_id_limit = MAX_SCOPED_IDS - repository_slots
+
     def add(reference, entry, discussion=False):
         if reference in sources:
+            return
+        if len(sources) >= (discussion_id_limit if discussion else MAX_SCOPED_IDS):
+            omitted.append(reference)
+            id_limited.add(reference)
             return
         entry = dict(entry)
         if discussion and len(entry.get("quote", "")) > 16000:
@@ -169,6 +180,7 @@ def build_context(repository, issue, phase, byte_limit):
             add(reference, resolve_evidence(reference, catalog))
 
     report = {"phase": phase, "source_ids": list(sources), "omitted_source_ids": list(dict.fromkeys(omitted)),
+        "source_id_limit": MAX_SCOPED_IDS, "source_id_limit_omissions": len(id_limited),
         "shortened_discussion_ids": shortened,
         "discussion_complete": bool(issue and issue.get("context_complete") and not shortened and all(key in sources for key in discussion_ids)),
         "capability_ids": [cap["id"] for cap in candidates],
