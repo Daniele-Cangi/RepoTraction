@@ -188,6 +188,8 @@ def _initializer_imports(path: str, text: str, eligible: dict) -> list[str]:
     except (SyntaxError, ValueError, RecursionError):
         return []
     parent = PurePosixPath(path).parent.parts
+    layout_root = ("src",) if len(parent) > 1 and parent[0] == "src" else ()
+    package_parts = parent[len(layout_root):]
     targets = []
     for node in tree.body:
         if isinstance(node, ast.Import):
@@ -210,8 +212,13 @@ def _initializer_imports(path: str, text: str, eligible: dict) -> list[str]:
                     continue
                 roots = [parent[:len(parent) - level + 1]]
             else:
-                # Both flat and src-layout packages, constrained to this tree.
-                roots = [(), ("src",)]
+                # Absolute imports of this package stay in its own layout;
+                # an absent child is not evidence for an unrelated same-name
+                # package elsewhere. Other packages remain heuristic hints,
+                # preferring the acquired initializer's layout.
+                alternate_root = () if layout_root else ("src",)
+                roots = ([layout_root] if package_parts and parts[0] == package_parts[0]
+                         else [layout_root, alternate_root])
             for root in roots:
                 # A dotted import traverses package initializers before its
                 # final module. These are tree-constrained hints, not execution

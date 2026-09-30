@@ -55,6 +55,8 @@ initializers to eligible local modules (including `src` layouts), within the sam
 file/read/byte limits. Dotted imports prioritize eligible intermediate package
 initializers before the final module; missing namespace-package initializers are
 not invented. These static hints are recorded with omitted targets; they
+keep same-package absolute imports in the acquired initializer's flat or `src`
+layout rather than following an unrelated same-name package in another tree, and
 are not verified exports or dependency closure. Declaration sampling prioritizes
 public top-level classes/functions before their nested mechanisms and balances
 files within source-role tiers so an early

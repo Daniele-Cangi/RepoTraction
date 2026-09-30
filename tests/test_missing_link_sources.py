@@ -18,6 +18,7 @@ from missing_link.sources import (  # noqa: E402
     validate_repository,
     _select_files,
     source_role,
+    _initializer_imports,
 )
 
 
@@ -197,6 +198,71 @@ class SourceValidationTests(unittest.TestCase):
 
 
 class RepositoryAcquisitionTests(unittest.TestCase):
+    def test_same_package_absolute_hints_stay_in_the_initializer_layout(self):
+        for prefix in ("", "src/"):
+            for statement in ("import pkg.engine", "import pkg.engine as api",
+                              "from pkg.engine import run", "from pkg import engine"):
+                with self.subTest(prefix=prefix, statement=statement):
+                    initializer = prefix + "pkg/__init__.py"
+                    own_engine = prefix + "pkg/engine.py"
+                    eligible = {path: {} for path in ("pkg/__init__.py", "pkg/engine.py",
+                                                       "src/pkg/__init__.py", "src/pkg/engine.py")}
+                    self.assertEqual(_initializer_imports(initializer, statement, eligible), [own_engine])
+                    del eligible[own_engine]
+                    self.assertEqual(_initializer_imports(initializer, statement, eligible), [])
+
+    def test_nested_initializer_uses_own_layout_for_absolute_package_imports(self):
+        for prefix in ("", "src/"):
+            with self.subTest(prefix=prefix):
+                eligible = {path: {} for path in ("pkg/__init__.py", "pkg/engine.py",
+                                                   "src/pkg/__init__.py", "src/pkg/engine.py")}
+                self.assertEqual(_initializer_imports(prefix + "pkg/plugins/__init__.py",
+                                                      "import pkg.engine", eligible),
+                                 [prefix + "pkg/__init__.py", prefix + "pkg/engine.py"])
+
+    def test_other_package_hints_prefer_local_layout_without_claiming_runtime_resolution(self):
+        eligible = {"other/engine.py": {}, "src/other/engine.py": {}}
+        self.assertEqual(_initializer_imports("src/pkg/__init__.py", "import other.engine", eligible),
+                         ["src/other/engine.py", "other/engine.py"])
+        self.assertEqual(_initializer_imports("pkg/__init__.py", "import other.engine", eligible),
+                         ["other/engine.py", "src/other/engine.py"])
+        # A root package literally named src is not a src-layout search root.
+        self.assertEqual(_initializer_imports("src/__init__.py", "import src.engine",
+                                              {"src/engine.py": {}, "src/src/engine.py": {}}),
+                         ["src/engine.py"])
+
+    def test_acquired_initializer_cannot_follow_same_package_in_another_layout(self):
+        for prefix in ("", "src/"):
+            for own_exists in (True, False):
+                with self.subTest(prefix=prefix, own_exists=own_exists):
+                    fixture = GitHubFixture()
+                    other_prefix = "" if prefix else "src/"
+                    initializer = prefix + "pkg/__init__.py"
+                    helper = prefix + "pkg/a_helper.py"
+                    own_engine = prefix + "pkg/engine.py"
+                    other_engine = other_prefix + "pkg/engine.py"
+                    fixture.add(initializer, "# Public package interface\n" * 4 + "import pkg.engine\n")
+                    fixture.add(helper, "def helper(): pass\n")
+                    other_sha = fixture.add(other_engine, "def unrelated_engine(): pass\n")
+                    if own_exists:
+                        fixture.add(own_engine, "def execute(): pass\n")
+                    # The regression concerns an already acquired initializer,
+                    # independent of which layout the path heuristic sees first.
+                    def selected(entries, limit):
+                        ordered = _select_files(entries, limit)
+                        return ([entry for entry in ordered if entry["path"] == initializer] +
+                                [entry for entry in ordered if entry["path"] == helper] +
+                                [entry for entry in ordered if entry["path"] not in {initializer, helper}])
+                    with mock.patch("missing_link.sources._select_files", side_effect=selected):
+                        result = PublicGitHub(fixture.read).fetch_repository("sample/project", max_files=2)
+                    self.assertEqual([f["path"] for f in result["files"]],
+                                     [initializer, own_engine if own_exists else helper])
+                    self.assertEqual(result["coverage"]["initializer_import_hints"],
+                                     [{"from": initializer, "path": own_engine}] if own_exists else [])
+                    blob_calls = [endpoint for endpoint, _ in fixture.calls if "/git/blobs/" in endpoint]
+                    self.assertEqual(len(blob_calls), 2)
+                    self.assertNotIn(f"repos/sample/project/git/blobs/{other_sha}", blob_calls)
+
     def test_dotted_imports_prioritize_intermediate_initializers_before_final_module(self):
         for prefix, statement in (
             ("", "import pkg.plugins.engine"),
