@@ -49,6 +49,16 @@ class WasiRunner:
             "output_bytes_per_stream": MAX_OUTPUT, "persistent_guest_writes": False}
 
     def command(self, directory, entrypoint):
+        entry = "/sandbox/work/" + safe_relative_path(entrypoint)
+        # Start with trusted stdlib only: no sitecustomize, usercustomize,
+        # .pth processing, cwd or project modules on the startup search path.
+        # Add example dependencies *after* startup, behind stdlib, then run
+        # exactly the approved artifact without a project-shadowable runpy import.
+        bootstrap = ("import sys; "
+            "sys.path.extend(['/sandbox/work/project', '/sandbox/work/bridge', '/sandbox/work/reviewed_tests']); "
+            f"sys.argv = [{entry!r}]; "
+            f"exec(compile(open({entry!r}, encoding='utf-8').read(), {entry!r}, 'exec'), "
+            f"{{'__name__': '__main__', '__file__': {entry!r}, '__package__': None, '__spec__': None}})")
         return [str(self.engine.resolve()), "run", "-W", f"max-memory-size={MAX_MEMORY}",
             "-W", f"fuel={FUEL}", "-W", "timeout=15s", "-W", "max-memories=1", "-W", "max-instances=1",
             "-W", "threads=n", "-W", "shared-memory=n",
@@ -57,8 +67,7 @@ class WasiRunner:
             "-S", "config=n", "-S", "keyvalue=n", "-S", "nn=n", "-S", "threads=n",
             "-S", "max-resources=128", "-S", "hostcall-fuel=16777216",
             "--dir", str(directory) + "::/sandbox", "--env", "PYTHONHOME=/sandbox/runtime",
-            "--env", "PYTHONPATH=/sandbox/work/project:/sandbox/work/bridge",
-            "--env", "PYTHONDONTWRITEBYTECODE=1", str(self.module.resolve()), "/sandbox/work/" + entrypoint]
+            "--env", "PYTHONDONTWRITEBYTECODE=1", str(self.module.resolve()), "-S", "-P", "-c", bootstrap]
 
     def run(self, files, entrypoint):
         status = self.describe()

@@ -28,6 +28,27 @@ class WasiTests(unittest.TestCase):
         self.assertIn(f"max-memory-size={MAX_MEMORY}", command)
         self.assertNotIn("--allow-precompiled", command)
         self.assertNotIn("-m", command)
+        python_args = command[command.index(str(runner.module.resolve())) + 1:]
+        self.assertEqual(python_args[:3], ["-S", "-P", "-c"])
+        self.assertFalse(any(argument.startswith("PYTHONPATH=") for argument in command))
+        self.assertNotIn("runpy", python_args[3])
+
+    @unittest.skipUnless(WasiRunner().describe()["available"], "Optional pinned Windows WASI runtime unavailable")
+    def test_real_runtime_does_not_autorun_or_shadow_startup_modules(self):
+        files = {"project/sitecustomize.py": "raise RuntimeError('UNREVIEWED SITE STARTUP')\n",
+                 "project/usercustomize.py": "raise RuntimeError('UNREVIEWED USER STARTUP')\n",
+                 "project/encodings.py": "raise RuntimeError('UNREVIEWED ENCODINGS')\n",
+                 "project/types.py": "raise RuntimeError('UNREVIEWED STDLIB SHADOW')\n",
+                 "bridge/sitecustomize.py": "raise RuntimeError('UNREVIEWED BRIDGE STARTUP')\n",
+                 "project/library.py": "def reviewed_dependency():\n    return 'DEPENDENCY OK'\n",
+                 "bridge/example.py": "import sys, types\nfrom library import reviewed_dependency\n"
+                    "assert sys.flags.no_site and sys.flags.safe_path\n"
+                    "assert types.__file__.startswith('/sandbox/runtime/')\n"
+                    "assert sys.argv == [__file__]\nprint('APPROVED ENTRY', reviewed_dependency())\n"}
+        result = WasiRunner().run(files, "bridge/example.py")
+        self.assertEqual(result["status"], "exited_successfully", result)
+        self.assertIn("APPROVED ENTRY DEPENDENCY OK", result["stdout"])
+        self.assertNotIn("UNREVIEWED", result["stdout"] + result["stderr"])
 
     def test_artifacts_are_bounded_portable_and_collisions_rejected_before_launch(self):
         runner = WasiRunner()
