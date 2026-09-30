@@ -68,6 +68,28 @@ class GitHubFixture:
 
 
 class SourceValidationTests(unittest.TestCase):
+    def test_infrastructure_does_not_crowd_out_product_source(self):
+        fixture = GitHubFixture()
+        for index in range(40):
+            fixture.add(f"checks/check_{index:02d}.py", "def check(): return True\n")
+        for path in ("setup.py", "conftest.py", "selftest.py", ".github/compare-dist-sizes.py"):
+            fixture.add(path, "def helper(): return True\n")
+        for path in ("src/PIL/Image.py", "src/PIL/ImageOps.py", "src/PIL/Font.py"):
+            fixture.add(path, "def transform(image): return image\n")
+        result = PublicGitHub(fixture.read).fetch_repository("sample/project")
+        self.assertEqual([f["path"] for f in result["files"] if f["kind"] == "source"][:3],
+                         ["src/PIL/Font.py", "src/PIL/Image.py", "src/PIL/ImageOps.py"])
+        self.assertEqual(result["coverage"]["acquired_source_roles"]["implementation"], 3)
+        self.assertFalse(result["coverage"]["complete"])
+        self.assertIn("not export verification", result["coverage"]["sampling_policy"])
+
+    def test_missing_implementation_sample_is_explicit(self):
+        fixture = GitHubFixture()
+        fixture.add("README.md", "documentation")
+        fixture.add("src/library.py", "def solve(): return True\n")
+        result = PublicGitHub(fixture.read).fetch_repository("sample/project", max_files=1)
+        self.assertTrue(any("cannot represent product" in x for x in result["coverage"]["limitations"]))
+
     def test_tiny_initializers_do_not_crowd_out_deeper_implementation(self):
         fixture = GitHubFixture()
         for index in range(30):

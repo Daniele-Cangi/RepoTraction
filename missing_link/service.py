@@ -9,11 +9,11 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from .analysis import (analysis_contract, conservative_matches, conservative_request, digest,
-    evidence_catalog, extension_groups, text, texts, validate_matches, validate_request, capability_fingerprint)
-from .provider import Provider
+    evidence_catalog, extension_groups, text, texts, validate_matches, validate_request, capability_fingerprint, ANALYSIS_CONTRACT_VERSION)
+from .provider import Provider, CandidateValidationError
 from .store import Store
 from .lease import WorkerLease
-from .sources import PublicGitHub, extract_structure
+from .sources import PublicGitHub, extract_structure, source_role
 
 
 def now():
@@ -115,6 +115,7 @@ class Service:
         for match in matches:
             latest = latest_discussions.get(str(match["request"]["id"]), {})
             match["stale"] = (revisions.get(match["repo_id"]) != match["revision"] or
+                match.get("analysis_contract_version") != ANALYSIS_CONTRACT_VERSION or
                 latest.get("fingerprint") != match["source_fingerprint"] or
                 not self._capability_current(match, by_id.get(match["repo_id"], {})))
             match.pop("source_issue", None)
@@ -347,7 +348,7 @@ class Service:
                 save()
             for index, candidate in enumerate(checkpoints["candidates"]):
                 key = str(index)
-                if key in checkpoints.get("evaluated", []):
+                if key in checkpoints.get("evaluated", []) or key in checkpoints.get("candidate_failures", {}):
                     continue
                 stage("discussion", f"Reading public discussion {index + 1}/{len(checkpoints['candidates'])}.")
                 discussions = checkpoints.setdefault("discussions", {})
@@ -356,24 +357,42 @@ class Service:
                     self.store.put("discussions", discussions[key]["id"], discussions[key])
                     save()
                 issue = discussions[key]
-                stage("requirements", "Extracting demand independently from the candidate repository.")
-                requests = checkpoints.setdefault("requests", {})
-                if key not in requests:
-                    requests[key] = self.provider.interpret_request(issue, budget) if job["input"]["use_ai"] else conservative_request(issue)
-                    save()
-                request = requests[key]
-                stage("compatibility", "Checking hard constraints and preparing the smallest technical bridge.")
-                matches = self.provider.evaluate(repository, issue, request, budget) if job["input"]["use_ai"] else conservative_matches(repository, issue, request)
-                for match in matches:
+                before = {name: job[name] for name in ("ai_calls_used", "cost_reserved_usd")}
+                try:
+                    stage("requirements", "Extracting demand independently from the candidate repository.")
+                    requests = checkpoints.setdefault("requests", {})
+                    if key not in requests:
+                        requests[key] = self.provider.interpret_request(issue, budget) if job["input"]["use_ai"] else conservative_request(issue)
+                        save()
+                    request = requests[key]
+                    stage("compatibility", "Checking hard constraints and preparing the smallest technical bridge.")
+                    matches = self.provider.evaluate(repository, issue, request, budget) if job["input"]["use_ai"] else conservative_matches(repository, issue, request)
+                    for match in matches:
+                        budget.checkpoint()
+                        # Reject unsafe proposals before any match for this candidate is saved.
+                        try:
+                            self.validate_proposal(match, repository)
+                        except ValueError:
+                            raise CandidateValidationError("Generated candidate artifacts failed safety validation; none were stored.") from None
                     budget.checkpoint()
-                    # Validate package safety before persisting any generated filenames/content.
-                    self.validate_proposal(match, repository)
-                budget.checkpoint()
-                self.store.save_matches(matches, repository)
-                job["result"]["match_ids"] = list(dict.fromkeys(job["result"]["match_ids"] + [match["id"] for match in matches]))
-                checkpoints.setdefault("evaluated", []).append(key)
+                    self.store.save_matches(matches, repository)
+                    job["result"]["match_ids"] = list(dict.fromkeys(job["result"]["match_ids"] + [match["id"] for match in matches]))
+                    checkpoints.setdefault("evaluated", []).append(key)
+                except CandidateValidationError as exc:
+                    # Never catch cancellation, budget/account or upstream transport here.
+                    budget.checkpoint()
+                    failure = {"index": index, "url": candidate["url"], "stage": job["stage"],
+                        "code": "invalid_candidate_analysis", "error": str(exc)[:500],
+                        "ai_calls_used": job["ai_calls_used"] - before["ai_calls_used"],
+                        "cost_reserved_usd": job["cost_reserved_usd"] - before["cost_reserved_usd"],
+                        "at": now(), "retry": "No automatic retry; start a new explicit investigation after review."}
+                    checkpoints.setdefault("candidate_failures", {})[key] = failure
+                    job["result"].setdefault("candidate_errors", []).append(failure)
+                    job["result"]["partial"] = True
                 save()
-            stage("completed", "Investigation finished; inspect evidence and unexecuted bridges.")
+            failed_count = len(checkpoints.get("candidate_failures", {}))
+            stage("completed", f"Investigation finished with {failed_count} candidate validation failure(s); results are partial."
+                  if failed_count else "Investigation finished; inspect evidence and unexecuted bridges.")
             with self.lock:
                 budget.checkpoint()
                 job["status"] = "completed"
@@ -399,6 +418,7 @@ class Service:
         candidates = repository.get("capabilities", [])
         ranked = sorted(candidates, key=lambda cap: (
             0 if cap.get("maintainer_correction") else 1 if cap.get("claim_source") == "model" else 2,
+            source_role(cap.get("entrypoint", "") or "unknown") == "infrastructure",
             0 if cap.get("level") == "mechanism" and not cap.get("name", "").startswith("_") else 1,
             0 if not cap.get("summary", "").startswith(("Declared ", "Declaration candidate")) else 1,
             1 if any(term in cap.get("entrypoint", "").lower() for term in ("__main__", "tools/", "tests/")) else 0))
@@ -540,6 +560,8 @@ class Service:
         snapshot = self.store.match_snapshot(match_id)
         if not snapshot or match.get("superseded") or match["classification"] == "rejected":
             raise ValueError("Choose a current non-rejected match with a pinned reproduction snapshot.")
+        if match.get("analysis_contract_version") != ANALYSIS_CONTRACT_VERSION:
+            raise ValueError("The analysis contract changed; reevaluate before executing an example.")
         repository = snapshot["repository"]
         current = self.store.get("repositories", match["repo_id"])
         if current["revision"] != match["revision"]:

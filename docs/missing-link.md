@@ -142,6 +142,16 @@ pauses the job without automatic retry. Server restarts pause unfinished jobs,
 not restart them silently. AI-budget exhaustion requires an explicit configuration
 change/restart or another reviewed workflow, not a hidden unlimited retry.
 
+Invalid candidate analysis (for example an unsupported requirement quotation or
+unsafe proposed artifact) is recorded in `result.candidate_errors`; other selected
+candidates continue. `status=completed` means processing ended, **not** that all
+candidates succeeded: `result.partial=true` and the visible warning identify
+partial results. Reservations remain charged. Resume after a global pause skips
+these invalid candidates rather than silently retrying them; a fresh explicit
+investigation is needed after review. Authentication, transport errors, budget
+exhaustion and cancellation still stop/pause the whole job. The investigation
+script saves available matches but returns a nonzero exit code for partial jobs.
+
 Tables prefixed `ml_` live in the existing per-account SQLite database. A service
 captures that account/database path; account switches stop the old account's work.
 Numeric GitHub repository IDs and stable source-path/symbol capability IDs support
@@ -159,6 +169,9 @@ at a new revision. Maintainer feedback does not overwrite original evidence.
 Refreshes atomically preserve feedback and supersession. Each result keeps its
 exact reproduction snapshot, independent of the list of recent jobs. Resuming
 with another provider/model/contract pauses rather than mixing interpretations.
+Analysis contract version 3 also marks older assessments historical and blocks
+their isolated examples until reevaluation; historical snapshots/exports remain
+available and are not silently rewritten as current evidence.
 Discussion freshness uses immutable GitHub issue IDs, including older URL-keyed
 records after renames. Capability corrections invalidate previous results and
 block their isolated examples; reevaluation produces a distinct result while
@@ -173,6 +186,24 @@ results are not current opportunities.
 
 ## Coverage and trust boundaries
 
+- Source sampling uses a path heuristic to prioritize implementation over build,
+  check, benchmark and example infrastructure within the existing file budget.
+  Source-role counts and missing-implementation warnings are recorded in coverage.
+  This is not exported-API discovery or proof that the sample represents the
+  entire product. Unsupported/native source still remains outside the analyzer.
+- Requirement quotations may differ only in whitespace; the stored quote is
+  recovered from one contiguous original source span. Paraphrases, changed
+  punctuation and quotes from omitted context are not accepted.
+- A bounded, non-exhaustive English constraint-hint scan examines acquired
+  discussion before prompt shortening. Selected middle excerpts preserve likely
+  dependency/runtime prohibitions; omissions and truncation remain explicit.
+  `request.constraint_review` retains authorship, exact spans, represented
+  requirement IDs and qualification blockers. Unrepresented, truncated or
+  authority-uncertain hints prevent a qualified positive. Generated plans are
+  not maintainer approval, and the guard does not infer or execute their rules.
+  Empty-body reference notes and archived targets also require demand review.
+  Absence of a marker is not proof that all constraints were understood; false
+  review flags and non-English constraints still require human assessment.
 - Python functions/classes are parsed with `ast`; source snippets, signatures,
   imports/calls and test references are structural evidence, not behavior proofs.
 - JS/TS uses a partial declaration scan, not a parser/typechecker. Other languages

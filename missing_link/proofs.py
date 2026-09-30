@@ -99,7 +99,7 @@ def export_handoff(match: dict[str, Any], repository: dict[str, Any]) -> dict[st
         "id", "title", "url", "updated_at", "fingerprint", "requirements",
         "status", "missing_information", "context_complete", "context",
         "environment", "attempts", "prior_attempts", "outcome", "limitations",
-        "status_reason", "status_evidence", "analysis_context",
+        "status_reason", "status_evidence", "analysis_context", "constraint_review",
     ))
     raw_request = match.get("request", {})
     source_issue = match.get("source_issue") or (raw_request.get("source_issue") if isinstance(raw_request, dict) else None)
@@ -109,7 +109,7 @@ def export_handoff(match: dict[str, Any], repository: dict[str, Any]) -> dict[st
         request["source_issue"] = _select(source_issue, (
             "id", "repo", "number", "url", "title", "body", "state",
             "state_reason", "updated_at", "created_at", "closed_at", "author",
-            "author_type", "bot", "labels", "comments", "timeline",
+            "author_type", "author_association", "repo_archived", "bot", "labels", "comments", "timeline",
             "context_complete", "limitations", "fingerprint", "fetched_at", "public",
         ))
     requirements = request.get("requirements", [])
@@ -157,6 +157,8 @@ def export_handoff(match: dict[str, Any], repository: dict[str, Any]) -> dict[st
         warnings.append("Repository revision is not a full pinned commit hash; retrieve a pinned snapshot before reproducing the proposal.")
     if request.get("context_complete") is not True:
         warnings.append("Request discussion context is incomplete; compatibility remains provisional.")
+    if request.get("constraint_review", {}).get("qualification_blockers"):
+        warnings.append("Demand/constraint qualification is blocked pending review; extracted criteria are not a complete adoption contract.")
     payload = {
         "schema_version": 1,
         "purpose": "Missing Link inspection and coding-agent handoff; no automatic publication or execution.",
@@ -165,7 +167,7 @@ def export_handoff(match: dict[str, Any], repository: dict[str, Any]) -> dict[st
         "match": _select(match, (
             "id", "repo", "capability_id", "capability", "classification",
             "summary", "checks", "obstacles", "feedback", "source_fingerprint",
-            "analysis_source", "limitations", "analysis_context",
+            "analysis_source", "limitations", "analysis_context", "analysis_contract_version",
         )),
         "request": request,
         "acceptance_criteria_from_request": criteria,

@@ -12,11 +12,13 @@ from unittest import mock
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from missing_link.proofs import build_package, export_handoff, isolation_status, safe_relative_path
+from missing_link.analysis import ANALYSIS_CONTRACT_VERSION
 
 
 def fixture():
     match = {
         "id": "fixture-match", "repo": "fixture/library", "revision": "a" * 40,
+        "analysis_contract_version": ANALYSIS_CONTRACT_VERSION,
         "classification": "adapter", "summary": "Fixture-only request and bridge.",
         "request": {"id": "fixture-request", "title": "Fixture requirement", "url": "https://github.com/fixture/app/issues/1", "updated_at": "2026-09-30T00:00:00Z", "fingerprint": "fixture-fingerprint", "context_complete": True,
                     "requirements": [{"id": "r1", "text": "Keep complete words", "mandatory": True, "explicit": True, "source": {"url": "https://github.com/fixture/app/issues/1", "quote": "Keep complete words"}}]},
@@ -30,6 +32,13 @@ def fixture():
 
 
 class ProofPackagingTests(unittest.TestCase):
+    def test_qualification_warning_and_analysis_version_survive_handoff(self):
+        match, repo = fixture()
+        match["request"]["constraint_review"] = {"qualification_blockers": ["Unreviewed constraint"]}
+        exported = export_handoff(match, repo)
+        self.assertEqual(exported["match"]["analysis_contract_version"], ANALYSIS_CONTRACT_VERSION)
+        self.assertTrue(any("qualification is blocked" in warning for warning in exported["warnings"]))
+
     def test_package_contains_pinned_evidence_and_license_with_integrity_hashes(self):
         match, repo = fixture()
         with zipfile.ZipFile(io.BytesIO(build_package(match, repo))) as archive:
