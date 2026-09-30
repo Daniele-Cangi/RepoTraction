@@ -192,6 +192,8 @@ class ServiceTests(unittest.TestCase):
         source = mock.Mock()
         source.fetch_repository.return_value = repository()
         source.fetch_issue.return_value = issue()
+        source.fetch_reference_context.return_value = {"id": 101, "full_name": "example/site",
+            "revision": "b" * 40, "public": True, "reference_only": True, "files": [], "fingerprint": "target-fixture"}
         source.search_issues.return_value = {"items": [{"url": issue()["url"]}], "incomplete": True, "total_count": 6000}
         return source
 

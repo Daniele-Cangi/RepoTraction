@@ -146,6 +146,10 @@ def build_context(repository, issue, phase, byte_limit):
     order = list(dict.fromkeys(["q0"] + constraint_sources + [key for key in reversed(discussion_ids) if key != "q0"])) if issue else []
     for reference in order:
         add(reference, catalog[reference], discussion=True)
+    if issue and repository:
+        for reference, entry in catalog.items():
+            if reference.startswith("target:"):
+                add(reference, entry)
 
     if repository:
         by_path = {file["path"]: file for file in repository.get("files", [])}
@@ -188,6 +192,11 @@ def build_context(repository, issue, phase, byte_limit):
         "source_coverage": (repository or {}).get("coverage", {}),
         "note": "Selected evidence is not the whole repository. Missing context remains unknown; omitted discussion prevents a qualified positive."}
     if issue:
+        target_context = issue.get("target_context", {})
+        report["target_reference_context"] = {"revision": target_context.get("revision"),
+            "source_ids": [ref for ref in sources if ref.startswith("target:")],
+            "omitted_source_ids": [ref for ref in omitted if ref.startswith("target:")],
+            "reference_only": True, "absence_proves_novelty": False}
         report["omitted_constraint_ids"] = [hint["id"] for hint in hints["items"]
             if hint["source_id"] not in sources or quoted_span(hint["quote"], sources[hint["source_id"]]["quote"]) is None]
         report["constraint_hint_scan_complete"] = hints["complete"]

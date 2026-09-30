@@ -4,6 +4,8 @@ Name/reference hints are conservative review signals, not adoption evidence.
 Absence of a hint never establishes novelty or author awareness.
 """
 import re
+import json
+import tomllib
 from datetime import datetime
 from html.parser import HTMLParser
 
@@ -13,6 +15,56 @@ from .discussion import authorship
 
 MAX_REFERENCE_EXCERPTS = 8
 STALE_DEMAND_DAYS = 365
+
+
+def package_names(repository):
+    """Declared distribution names and static package paths; identity hints only."""
+    name = repository["full_name"].split("/")[-1]
+    distributions, modules = {name}, {name} if name.isidentifier() else set()
+    for file in repository.get("files", []):
+        path, value = file.get("path", ""), file.get("text", "")
+        try:
+            if path == "pyproject.toml":
+                data = tomllib.loads(value)
+                declared = data.get("project", {}).get("name") or data.get("tool", {}).get("poetry", {}).get("name")
+            elif path == "package.json":
+                declared = json.loads(value).get("name")
+            else:
+                declared = None
+            if isinstance(declared, str) and re.fullmatch(r"(?:@[\w.-]+/)?[\w.-]{1,100}", declared):
+                distributions.add(declared)
+        except (ValueError, TypeError, AttributeError):
+            pass  # Missing/malformed/truncated metadata is unknown, not an alias.
+        parts = path.split("/")
+        if parts[-1] == "__init__.py":
+            package = parts[1] if len(parts) == 3 and parts[0] in {"src", "lib"} else parts[0] if len(parts) == 2 else ""
+            if package.isidentifier():
+                modules.add(package)
+    return sorted(distributions), sorted(modules)
+
+
+def _declared_dependencies(path, value):
+    """Parse literal dependency fields only; never execute build metadata."""
+    try:
+        if path == "pyproject.toml":
+            data = tomllib.loads(value)
+            project = data.get("project", {})
+            deps = list(project.get("dependencies", []))
+            for group in project.get("optional-dependencies", {}).values():
+                deps.extend(group)
+            deps.extend(data.get("tool", {}).get("poetry", {}).get("dependencies", {}).keys())
+        elif path == "package.json":
+            data = json.loads(value)
+            deps = [name for key in ("dependencies", "devDependencies", "peerDependencies", "optionalDependencies")
+                    for name in data.get(key, {}).keys()]
+        elif path == "requirements.txt":
+            deps = [line.strip() for line in value.splitlines() if not line.lstrip().startswith(("#", "-"))]
+        else:
+            return set()
+        return {match[0].casefold().replace("_", "-").replace(".", "-") for dep in deps
+                if isinstance(dep, str) and (match := re.match(r"(?:@[\w.-]+/)?[\w.-]+", dep))}
+    except (ValueError, TypeError, AttributeError):
+        return set()
 
 
 class _LinkProse(HTMLParser):
@@ -136,7 +188,7 @@ def opportunity_review(issue):
 
 
 def _references(repository, catalog):
-    name = repository["full_name"].split("/")[-1]
+    names, modules = package_names(repository)
     # A repository link establishes a reference; package-name spellings only
     # suggest one. Do not confuse ordinary 'click' prose with the Click package.
     # Quotes/Markdown delimit URLs. Dots may also belong to a repository
@@ -144,19 +196,54 @@ def _references(repository, catalog):
     url_end = r"(?=$|[\s/#?,;:!)}\]>\"'`*]|\.+(?=$|[\s,;:!)}\]>\"'`*]))"
     patterns = [("repository_link", re.compile(r"https://github\.com/" + re.escape(repository["full_name"])
                   + r"(?:\.git)?" + url_end, re.I)),
-                ("package_name_hint", re.compile(r"[`'\"]" + re.escape(name) + r"[`'\"]", re.I)),
-                ("package_name_hint", re.compile(r"\b(?:from|import)\s+" + re.escape(name)
-                  + r"(?=$|[\s.;])", re.I))]
-    if "-" in name and len(name) >= 5:
-        patterns.append(("package_name_hint", re.compile(r"(?<![\w-])" + re.escape(name) + r"(?![\w-])", re.I)))
+                ]
+    for name in names:
+        bounded = r"(?<![\w./-])" + re.escape(name) + r"(?![\w./-])"
+        patterns.append(("package_name_hint", re.compile(r"[`'\"]" + re.escape(name) + r"[`'\"]", re.I)))
+        patterns.append(("package_name_hint", re.compile(bounded + r"(?=['’]s\b|\s+(?:package|library|dependency)\b)", re.I)))
+        patterns.append(("package_name_hint", re.compile(r"\b(?:uses?|using|depends on)\s+" + bounded, re.I)))
+        if "-" in name and len(name) >= 5:
+            patterns.append(("package_name_hint", re.compile(bounded, re.I)))
+    for module in modules:
+        patterns.append(("package_name_hint", re.compile(r"\b(?:from|import)\s+" + re.escape(module)
+            + r"(?=$|[\s.;])", re.I)))
     references, found, repository_link_found = [], 0, False
     for source_id, source in catalog.items():
-        if not re.fullmatch(r"q\d+", source_id):
+        target = source_id.startswith("target:")
+        if not re.fullmatch(r"q\d+", source_id) and not target:
             continue
         value = source.get("quote") or ""
+        active_patterns = patterns
+        if target:
+            dependencies = _declared_dependencies(source.get("target_path"), value)
+            declared = [name for name in names if name.casefold().replace("_", "-").replace(".", "-") in dependencies]
+            active_patterns = [("dependency_declaration_hint", re.compile(r"(?<![\w.-])" + re.escape(name) + r"(?![\w.-])", re.I))
+                               for name in declared]
+            if source.get("target_path", "").endswith(".py"):
+                # Static imports only, not string/docstring lookalikes.
+                import ast
+                try:
+                    tree = ast.parse(value)
+                    imports = {}
+                    for node in ast.walk(tree):
+                        if isinstance(node, ast.Import):
+                            roots = {alias.name.split(".")[0] for alias in node.names}
+                        elif isinstance(node, ast.ImportFrom) and node.level == 0 and node.module:
+                            roots = {node.module.split(".")[0]}
+                        else:
+                            continue
+                        imports.setdefault(node.lineno, set()).update(roots)
+                except (SyntaxError, ValueError, RecursionError):
+                    imports = {}
+                active_patterns += [("target_import_hint", re.compile(
+                    r"(?:\b(?:from|import)\s+|,\s*)(" + re.escape(module) + r")(?=$|[\s.,;])")) for module in modules]
         seen = set()
-        for kind, pattern in patterns:
+        for kind, pattern in active_patterns:
             for match in pattern.finditer(value):
+                if kind == "target_import_hint":
+                    line = value.count("\n", 0, match.start()) + 1
+                    if match[1] not in imports.get(line, set()):
+                        continue
                 # Overlapping URL/name matches should not multiply evidence.
                 if any(start <= match.start() < end for start, end in seen):
                     continue
@@ -187,6 +274,10 @@ def assess_discovery(repository, issue, request, classification, checks, catalog
     same_project = same_id or target.casefold() == repository["full_name"].casefold()
     references, reference_count, linked = _references(repository, catalog)
     review = opportunity_review(issue)
+    target_context = issue.get("target_context", {})
+    target_acquired = (target_context.get("public") is True and bool(target_context.get("files"))
+                       and isinstance(target_context.get("revision"), str)
+                       and bool(re.fullmatch(r"[a-fA-F0-9]{40}|[a-fA-F0-9]{64}", target_context["revision"])))
     relationship = ("same_project" if same_project else "already_referenced" if linked else
                     "reference_hint" if reference_count else "external" if target else "unknown")
     supported_ids = [check["requirement_id"] for check in checks if check["status"] == "satisfied"]
@@ -208,7 +299,7 @@ def assess_discovery(repository, issue, request, classification, checks, catalog
         reasons.append("An empty or reference-only issue body does not establish independently specified actionable demand.")
     elif reference_count:
         status = "known_reference" if linked else "reference_review"
-        reasons.append("The source is already referenced or its package name appears in acquired discussion. Verify identity, intent and prior use; a mention is not adoption or endorsement.")
+        reasons.append("The source is referenced in acquired discussion or bounded target manifests/imports. Verify identity, intent and prior use; a mention is not adoption or endorsement.")
     elif (request["status"] in {"resolved", "duplicate", "automated"} or issue.get("repo_archived")
           or authorship(issue, original=True)["generated_hint"]):
         status = "not_actionable"
@@ -221,6 +312,7 @@ def assess_discovery(repository, issue, request, classification, checks, catalog
         status = "similarity_only"
         reasons.append("No requirement has a supported existing contribution. Retrieval or all-undetermined checks are not a discovered solution.")
     elif (relationship == "unknown" or request["status"] != "unresolved" or not request.get("context_complete")
+          or not target_acquired
           or request.get("constraint_review", {}).get("qualification_blockers") or not complete_hard
           or review["qualification_blockers"]
           or classification not in {"direct", "adapter", "extraction"}):
@@ -230,6 +322,8 @@ def assess_discovery(repository, issue, request, classification, checks, catalog
         status = "external_lead"
         reasons.append("Potential external connection with supported requirements; novelty, execution, target integration and adoption remain unverified.")
     reasons.append("No reference found in a bounded discussion is not proof that this connection is new or unknown to the author.")
+    if not target_acquired:
+        reasons.append("No pinned public target reference context was acquired; prior dependency/use remains unknown.")
     reasons.extend(review["qualification_blockers"])
     return {"status": status, "relationship": relationship, "contribution": contribution,
         "supported_requirement_ids": supported_ids, "conflicting_requirement_ids": conflict_ids,
@@ -238,4 +332,8 @@ def assess_discovery(repository, issue, request, classification, checks, catalog
         "novelty": "unverified", "eligible_for_followup": status == "external_lead",
         "references": references, "reference_count": reference_count,
         "reference_coverage_complete": reference_count <= len(references),
+        "target_reference_context": {"acquired": target_acquired,
+            "revision": issue.get("target_context", {}).get("revision"),
+            "files_sampled": len(issue.get("target_context", {}).get("files", [])),
+            "absence_proves_novelty": False},
         "reasons": reasons, "method": "source-derived conservative hints, not a novelty classifier"}

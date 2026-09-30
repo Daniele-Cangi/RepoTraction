@@ -15,7 +15,7 @@ from .qualification import assess_discovery
 
 CLASSIFICATIONS = {"direct", "adapter", "extraction", "rejected", "investigate"}
 REQUEST_STATUSES = {"unresolved", "resolved", "duplicate", "unclear", "automated"}
-ANALYSIS_CONTRACT_VERSION = 7
+ANALYSIS_CONTRACT_VERSION = 8
 
 
 def digest(value: Any) -> str:
@@ -69,6 +69,13 @@ def evidence_catalog(repository: dict, issue: dict) -> dict[str, dict]:
     for index, capability in enumerate(repository.get("capabilities", [])):
         for offset, evidence in enumerate(capability.get("evidence", [])):
             catalog[f"c{index}:{offset}"] = dict(evidence)
+    if repository.get("id"):
+        # Target evidence cannot satisfy an existing SOURCE-code requirement.
+        target = issue.get("target_context", {})
+        for file in target.get("files", []):
+            catalog[f"target:{file['path']}"] = {"target_path": file["path"],
+                "url": file["url"], "quote": file["text"], "kind": "target_reference_context",
+                "authority": "pinned_public_target_source", "reference_truncated": file.get("reference_truncated", False)}
     return catalog
 
 
@@ -262,12 +269,14 @@ def validate_matches(raw_matches: list, repository: dict, issue: dict, request: 
             classification = "extraction" if capability.get("standalone") == "no" else "investigate"
             obstacles.append("Separately usable entry point is not established.")
         key = {"repo_id": repository["id"], "revision": repository["revision"],
+            "target_context_fingerprint": issue.get("target_context", {}).get("fingerprint") or digest(issue.get("target_context", {})),
             "analysis_contract_version": ANALYSIS_CONTRACT_VERSION,
             "request": request["fingerprint"], "capability": capability_id, "source": source,
             "capability_fingerprint": capability_fingerprint(capability)}
         matches.append({"id": digest(key)[:32], "repo": repository["full_name"], "repo_id": repository["id"],
             "analysis_contract_version": ANALYSIS_CONTRACT_VERSION,
             "revision": repository["revision"], "request": request, "capability_id": capability_id,
+            "target_context_fingerprint": key["target_context_fingerprint"],
             "capability": capability, "capability_fingerprint": key["capability_fingerprint"],
             "classification": classification, "summary": text(raw.get("summary", "Investigation required.")),
             "discovery_assessment": assess_discovery(repository, issue, request, classification, checks, catalog),

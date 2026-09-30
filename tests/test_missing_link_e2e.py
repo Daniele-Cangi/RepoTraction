@@ -52,6 +52,8 @@ class MissingLinkAcceptanceTests(unittest.TestCase):
             source = mock.Mock()
             source.fetch_repository.side_effect = lambda *_: copy.deepcopy(repository())
             source.fetch_issue.side_effect = lambda *_: copy.deepcopy(issue())
+            source.fetch_reference_context.return_value = {"id": 101, "full_name": "example/site",
+                "revision": "b" * 40, "public": True, "reference_only": True, "files": [], "fingerprint": "target-fixture"}
             server = app.ThreadingHTTPServer(("127.0.0.1", 0), AcceptanceHandler)
             thread = Thread(target=server.serve_forever, daemon=True)
             thread.start()

@@ -106,11 +106,13 @@ def export_handoff(match: dict[str, Any], repository: dict[str, Any]) -> dict[st
     if isinstance(source_issue, dict):
         if source_issue.get("public") is False:
             raise ValueError("Proof export supports acquired public discussion context only.")
+        if source_issue.get("target_context") and source_issue["target_context"].get("public") is not True:
+            raise ValueError("Target reference context must be acquired from a public repository.")
         request["source_issue"] = _select(source_issue, (
             "id", "repo", "repo_id", "number", "url", "title", "body", "state",
             "state_reason", "updated_at", "created_at", "closed_at", "author",
             "author_type", "author_association", "repo_archived", "bot", "labels", "comments", "timeline",
-            "context_complete", "limitations", "fingerprint", "fetched_at", "public",
+            "context_complete", "limitations", "fingerprint", "fetched_at", "public", "target_context",
         ))
     requirements = request.get("requirements", [])
     if not isinstance(requirements, list):
@@ -167,7 +169,7 @@ def export_handoff(match: dict[str, Any], repository: dict[str, Any]) -> dict[st
         "match": _select(match, (
             "id", "repo", "capability_id", "capability", "classification",
             "summary", "checks", "obstacles", "feedback", "source_fingerprint",
-            "analysis_source", "limitations", "analysis_context", "analysis_contract_version", "discovery_assessment",
+            "analysis_source", "limitations", "analysis_context", "analysis_contract_version", "discovery_assessment", "target_context_fingerprint",
         )),
         "request": request,
         "acceptance_criteria_from_request": criteria,

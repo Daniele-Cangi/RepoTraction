@@ -13,7 +13,7 @@ from .analysis import (analysis_contract, conservative_matches, conservative_req
 from .provider import Provider, CandidateValidationError
 from .store import Store
 from .lease import WorkerLease
-from .sources import PublicGitHub, extract_structure
+from .sources import PublicGitHub, extract_structure, parse_issue_url
 from .discovery import problem_queries, select_candidates, SELECTION_POLICY
 
 
@@ -366,6 +366,21 @@ class Service:
                         requests[key] = self.provider.interpret_request(issue, budget) if job["input"]["use_ai"] else conservative_request(issue)
                         save()
                     request = requests[key]
+                    if "target_context" not in issue:
+                        stage("target-context", "Checking bounded public target manifests and cited files for prior use.")
+                        target, _ = parse_issue_url(issue["url"])
+                        contexts = checkpoints.setdefault("target_contexts", {})
+                        if target.casefold() not in contexts:
+                            contexts[target.casefold()] = source.fetch_reference_context(issue)
+                            save()
+                        context = contexts[target.casefold()]
+                        issue = dict(issue, target_context=context, fingerprint=digest({
+                            "discussion": issue["fingerprint"], "target_context": context["fingerprint"]}))
+                        discussions[key] = issue
+                        self.store.put("discussions", issue["id"], issue)
+                    request = dict(request, fingerprint=issue["fingerprint"])
+                    requests[key] = request
+                    save()
                     stage("compatibility", "Checking hard constraints and preparing the smallest technical bridge.")
                     matches = self.provider.evaluate(repository, issue, request, budget) if job["input"]["use_ai"] else conservative_matches(repository, issue, request)
                     for match in matches:
