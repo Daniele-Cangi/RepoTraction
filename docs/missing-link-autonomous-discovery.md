@@ -231,3 +231,20 @@ paid job and current GitHub discussions/search ordering can differ. No third-par
 code was executed in this experiment. Automated code tests were not rerun for
 this documentation-only branch; report accounting and frozen-input invariants
 were checked against the five saved initial runs.
+
+## Recovery cohort — protocol frozen before execution
+
+After merging the reliability fixes in PR #10 (`691f1a2`), repeat the same five
+repository-only inputs sequentially with the same three-candidate, 80-request,
+eight-AI-call limits. These are **recovery runs**, not replacement primary results.
+The original failures and assessments above remain unchanged. Current GitHub
+revisions and search ordering may differ; this is not a controlled accuracy benchmark.
+
+Use the existing OpenAI `gpt-6-luna` provider and unchanged shared allowance
+`missing-link-verification-2026-09-30`: **$2 total**, with **$0.5247254** already
+reserved before this cohort. No issue URLs, tailored queries, manual analysis
+imports, candidate replacement or bridge execution are supplied. Save new raw
+reports separately under ignored `data/autonomous-discovery-recovery-2026-09-30/`.
+Assess selected candidates independently only after their run finishes, using
+the original rubric; retain partial outcomes and charged validation failures.
+No automatic retry is permitted, and no UI/key-entry features are added here.
