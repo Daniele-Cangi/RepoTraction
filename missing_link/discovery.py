@@ -10,6 +10,8 @@ SELECTION_POLICY = "external/open first; balance projects and queries; title ove
 _GENERIC = {"function", "functions", "return", "returns", "class", "unknown", "method", "methods",
             "the", "and", "with", "from", "for", "this", "that", "support", "supports",
             "constructor", "declaration", "declared", "candidate", "partial", "scan"}
+_GENERIC_SINGLETON = {"main", "run", "next", "result", "helper", "helpers", "util", "utils",
+                      "get", "set", "call", "invoke", "execute", "init", "test", "check"}
 
 
 def words(value):
@@ -65,12 +67,22 @@ def problem_queries(repository):
             # A scanner's description of itself is not a reusable mechanism.
             # Do not let file diversity promote test/build declaration filler.
             continue
-        clean = [_problem_terms(term, repository) for term in cap.get("search_terms", []) if isinstance(term, str)]
-        # A lone package name or generic helper cannot create a discovery query.
+        clean = []
+        for term in cap.get("search_terms", []):
+            if not isinstance(term, str):
+                continue
+            tokens = _problem_terms(term, repository)
+            if len(tokens) == 1 and (tokens[0] in _GENERIC_SINGLETON or len(tokens[0]) < 2
+                    or not tokens[0][0].isalpha() or "constructor" in words(term)):
+                continue
+            clean.append(tokens)
+        # Prefer contextual phrases, but specific single-word mechanisms such
+        # as pagination/backpressure need no invented second word to be searched.
+        # Package names and generic helpers are filtered before this selection.
         phrase = next((term for term in clean if len(term) >= 2), None)
         if not phrase:
             combined = list(dict.fromkeys(token for term in clean for token in term))
-            phrase = combined if len(combined) >= 2 else None
+            phrase = combined or None
         if phrase:
             value = " ".join(phrase[:6])[:100]
             if value not in [item[2] for item in phrases]:

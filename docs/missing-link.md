@@ -27,7 +27,11 @@ depend on trusting that checkbox.
 ### How automatic discovery chooses its sample
 
 Automatic queries use short mechanism/problem phrases, removing the source
-package name rather than searching for existing references to it. Up to three
+package name rather than searching for existing references to it. Automatic
+queries may also use specific single-word mechanisms such as `pagination` or
+`backpressure`; a second word is not mandatory. Contextual phrases are preferred
+when available, while package names and generic helpers such as `main`/`run`
+cannot create queries on their own. Up to three
 queries cover distinct source modules within the same source/review priority
 tier where possible; diversity cannot promote weaker docs over reviewed code.
 Unreviewed declaration

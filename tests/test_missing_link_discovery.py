@@ -19,6 +19,27 @@ def hit(repo, number=1, title="shorten string", state="open"):
 
 
 class RetrievalTests(unittest.TestCase):
+    def test_specific_single_word_terms_work_for_enrichment_and_maintainer_corrections(self):
+        for metadata in ({"claim_source": "model"}, {"maintainer_correction": {"revision": "a" * 40}}):
+            for term in ("pagination", "backpressure", "serialization", "throttling", "fft"):
+                with self.subTest(metadata=metadata, term=term):
+                    repo = repository()
+                    repo["capabilities"][0].update(metadata, search_terms=[term])
+                    self.assertEqual(problem_queries(repo), [f"{term} is:open in:title,body -repo:example/words"])
+
+    def test_singleton_package_names_and_generic_helpers_cannot_create_queries(self):
+        for term in ("words", "function", "unknown", "run", "main", "helper", "get", "set", "next", "12345", "x"):
+            with self.subTest(term=term):
+                repo = repository()
+                repo["capabilities"][0].update(claim_source="model", search_terms=[term])
+                with self.assertRaisesRegex(ValueError, "No problem-oriented"):
+                    problem_queries(repo)
+
+    def test_contextual_phrase_remains_preferred_to_single_word(self):
+        repo = repository()
+        repo["capabilities"][0]["search_terms"] = ["pagination", "cursor pagination"]
+        self.assertTrue(problem_queries(repo)[0].startswith("cursor pagination is:open"))
+
     def test_remove_package_tokens_but_keep_problem_words(self):
         repo = repository()
         repo["full_name"] = "sindresorhus/p-limit"
@@ -68,6 +89,9 @@ class RetrievalTests(unittest.TestCase):
         repo = repository()
         repo["capabilities"][0]["search_terms"] = ["relativedelta constructor", "calendar interval difference"]
         self.assertTrue(problem_queries(repo)[0].startswith("calendar interval difference is:open"))
+        repo["capabilities"][0]["search_terms"] = ["relativedelta constructor"]
+        with self.assertRaisesRegex(ValueError, "No problem-oriented"):
+            problem_queries(repo)
 
     def test_rank_open_external_diverse_projects_and_queries_before_first_hits(self):
         batches = [[hit("example/words"), hit("a/site", state="closed"), hit("b/site"), hit("b/site", 2)],
@@ -100,6 +124,20 @@ class RetrievalTests(unittest.TestCase):
 class DiscoveryServiceTests(unittest.TestCase):
     setUp = fixtures.ServiceTests.setUp
     fake_sources = fixtures.ServiceTests.fake_sources
+
+    def test_automatic_discovery_with_only_single_word_terms_reaches_search_without_ai(self):
+        repo = repository()
+        repo["capabilities"][0]["search_terms"] = ["pagination"]
+        source = self.fake_sources()
+        source.fetch_repository.return_value = repo
+        with mock.patch("missing_link.service.PublicGitHub", return_value=source), \
+             mock.patch("missing_link.service.extract_structure", return_value=repo["capabilities"]):
+            result = self.service.start({"repo": "example/words"}, background=False)
+        job = self.service.store.get("jobs", result["job_id"])
+        self.assertEqual(job["status"], "completed")
+        source.search_issues.assert_called_once_with("pagination is:open in:title,body -repo:example/words", max_pages=2, page_size=20)
+        self.assertTrue(job["result"]["search"]["automatic_query"])
+        self.assertEqual(job["ai_calls_used"], 0)
 
     def test_query_override_and_candidate_decision_are_persisted(self):
         source = self.fake_sources()
