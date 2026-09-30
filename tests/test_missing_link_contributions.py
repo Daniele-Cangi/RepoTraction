@@ -76,6 +76,39 @@ class ContributionTests(unittest.TestCase):
             self.assertFalse(passive_api_constraint({"text": value}))
         self.assertTrue(passive_api_constraint({"text": "It should not be necessary to make changes to capture_xxx APIs"}))
 
+    def test_compound_functional_requirement_keeps_existing_behavior_and_fit(self):
+        for text in ("Shorten text without changing the public API.",
+                     "Keep the public API unchanged while shortening text.",
+                     "Shorten text and keep the public API unchanged.",
+                     "Format byte counts without modifying existing interfaces."):
+            with self.subTest(text=text):
+                repo, issue, raw_request, raw = fixtures.repository(), fixtures.issue(), fixtures.request_raw(), fixtures.raw_match()
+                issue.update(title="Compound functional requirement", body=text, comments=[])
+                issue["target_context"] = {"public": True, "revision": "b" * 40, "files": [
+                    {"path": "package.json", "text": '{"name":"consumer"}', "url": issue["url"]}]}
+                raw_request["requirements"] = [dict(raw_request["requirements"][0], text=text, quote=text)]
+                raw["checks"] = raw["checks"][:1]
+                match = validate_matches([raw], repo, issue, validate_request(raw_request, issue), "model")[0]
+                self.assertFalse(passive_api_constraint(match["request"]["requirements"][0]))
+                self.assertEqual(match["checks"][0]["contribution"], "existing_behavior")
+                self.assertEqual(match["classification"], "direct")
+                self.assertEqual(match["discovery_assessment"]["supported_requirement_ids"], ["r0"])
+                self.assertEqual(match["discovery_assessment"]["scope_compatible_requirement_ids"], [])
+
+    def test_quote_preservation_clause_cannot_override_functional_extracted_text(self):
+        self.assertFalse(passive_api_constraint({"text": "Format byte counts without changing the public API",
+            "source": {"quote": "Keep the public API unchanged."}}))
+        self.assertFalse(passive_api_constraint({"text": "Format byte counts",
+            "source": {"quote": "Format byte counts. The public API requires no changes."}}))
+
+    def test_pure_preservation_variants_remain_scope_only(self):
+        for text in ("Keep capture APIs unchanged", "The capture APIs require no changes.",
+                     "Public interfaces must remain unchanged", "No changes are needed to the public API",
+                     "Do not modify the public API", "Without changing the API", "API unchanged",
+                     "It should not be necessary to make changes to Sentry's capture_xxx APIs"):
+            with self.subTest(text=text):
+                self.assertTrue(passive_api_constraint({"text": text}))
+
     def test_provider_schema_requires_an_explicit_bounded_contribution_kind(self):
         schema = schema_for("matches")["properties"]["matches"]["items"]["properties"]["checks"]["items"]
         check = fixtures.raw_match()["checks"][0]

@@ -15,17 +15,29 @@ from .qualification import assess_discovery
 
 CLASSIFICATIONS = {"direct", "adapter", "extraction", "rejected", "investigate"}
 REQUEST_STATUSES = {"unresolved", "resolved", "duplicate", "unclear", "automated"}
-ANALYSIS_CONTRACT_VERSION = 9
+ANALYSIS_CONTRACT_VERSION = 10
 
 
 def passive_api_constraint(requirement: dict) -> bool:
-    """Narrow preservation hint, not a general classifier of negative demands."""
-    for value in (requirement["text"], requirement.get("source", {}).get("quote", "")):
-        if (re.search(r"\b(?:apis?|interfaces?)\b|\bcapture_\w*", value, re.I)
-                and re.search(r"\bunchanged\b|\bno changes?\b|\bwithout (?:changing|modifying)\b|"
-                              r"\bnot (?:be )?necessary to (?:make changes|change|modify)\b", value, re.I)):
-            return True
-    return False
+    """Override only an unambiguously preservation-only extracted requirement.
+
+    A compound functional requirement or a larger quotation is not passive just
+    because it also preserves an API. Unrecognized wording remains model review.
+    """
+    value = " ".join(requirement["text"].split()).rstrip(".;:!?")
+    # A bounded API noun phrase, not an arbitrary clause before the word API.
+    name = r"(?!(?:and|or|then|while|but|without|to)\b)[\w'’/-]+"
+    api = rf"(?:{name} ){{0,12}}(?:apis?|interfaces?)"
+    modal = r"(?:(?:must|should|shall) )?"
+    forms = (
+        rf"{modal}(?:keep|leave|preserve|maintain) {api} unchanged",
+        rf"{api} (?:{modal}(?:remain|stay|be) unchanged|(?:is|are) unchanged|unchanged|(?:requires?|needs?) no changes?)",
+        rf"no changes? (?:(?:are )?(?:needed|required|necessary) )?to {api}",
+        rf"(?:(?:must|should|shall) not|do not|don't) (?:change|modify) {api}",
+        rf"without (?:changing|modifying) {api}",
+        rf"(?:it (?:should|must) )?not (?:be )?necessary to (?:make changes to|change|modify) {api}",
+    )
+    return any(re.fullmatch(form, value, re.I) is not None for form in forms)
 
 
 def digest(value: Any) -> str:
