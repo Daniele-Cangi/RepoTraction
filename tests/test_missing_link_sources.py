@@ -254,6 +254,7 @@ class IssueAcquisitionTests(unittest.TestCase):
         reader = PublicGitHub(fixture.read)
         result = reader.fetch_issue("https://github.com/sample/project/issues/8")
         self.assertTrue(result["context_complete"])
+        self.assertEqual(result["repo_id"], fixture.repo["id"])
         self.assertEqual(result["comments"][0]["author"], "human")
         self.assertEqual(result["timeline"][2]["event"], "marked_as_duplicate")
         fixture.comment_pages[1][0]["updated_at"] = "time2"

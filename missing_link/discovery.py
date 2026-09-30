@@ -1,13 +1,15 @@
 """Deterministic retrieval hints, not semantic compatibility or novelty scores."""
 import re
 from collections import Counter
+from itertools import groupby
 
 from .sources import parse_issue_url, source_role
 
 
 SELECTION_POLICY = "external/open first; balance projects and queries; title overlap then upstream rank"
 _GENERIC = {"function", "functions", "return", "returns", "class", "unknown", "method", "methods",
-            "the", "and", "with", "from", "for", "this", "that", "support", "supports"}
+            "the", "and", "with", "from", "for", "this", "that", "support", "supports",
+            "constructor", "declaration", "declared", "candidate", "partial", "scan"}
 
 
 def words(value):
@@ -50,13 +52,19 @@ def problem_queries(repository):
     These are lexical hints from reviewed capabilities, not inferred demands.
     An explicit query/issue remains available for closed or same-project work.
     """
-    candidates = sorted(repository.get("capabilities", []), key=lambda cap: (
-        source_role(_path(cap)) in {"infrastructure", "test"},
-        0 if cap.get("maintainer_correction") else 1 if cap.get("claim_source") == "model" else 2,
+    def quality(cap):
+        return ({"implementation": 0, "support": 1, "test": 2, "infrastructure": 3}[source_role(_path(cap))],
+                0 if cap.get("maintainer_correction") else 1 if cap.get("claim_source") == "model" else 2)
+    candidates = sorted(repository.get("capabilities", []), key=lambda cap: (*quality(cap),
         cap.get("level") != "mechanism" or cap.get("name", "").startswith("_"),
         cap.get("summary", "").startswith(("Declared ", "Declaration candidate"))))
     phrases = []
     for cap in candidates:
+        if (cap.get("summary", "").startswith(("Declared ", "Declaration candidate"))
+                and not cap.get("maintainer_correction") and cap.get("claim_source") != "model"):
+            # A scanner's description of itself is not a reusable mechanism.
+            # Do not let file diversity promote test/build declaration filler.
+            continue
         clean = [_problem_terms(term, repository) for term in cap.get("search_terms", []) if isinstance(term, str)]
         # A lone package name or generic helper cannot create a discovery query.
         phrase = next((term for term in clean if len(term) >= 2), None)
@@ -65,16 +73,21 @@ def problem_queries(repository):
             phrase = combined if len(combined) >= 2 else None
         if phrase:
             value = " ".join(phrase[:6])[:100]
-            if value not in [item[1] for item in phrases]:
-                phrases.append((_path(cap), value))
-    # First pass covers distinct source modules; remaining slots may use others.
+            if value not in [item[2] for item in phrases]:
+                phrases.append((quality(cap), _path(cap), value))
+    # Diversity must not promote weak documentation/declarations over reviewed
+    # implementation. Balance modules within each quality tier before moving on.
     selected, paths = [], set()
-    for diverse in (True, False):
-        for path, phrase in phrases:
-            if phrase in selected or (diverse and path in paths):
-                continue
-            selected.append(phrase)
-            paths.add(path)
+    for _, group in groupby(phrases, key=lambda item: item[0]):
+        tier = list(group)
+        for diverse in (True, False):
+            for _, path, phrase in tier:
+                if phrase in selected or (diverse and path in paths):
+                    continue
+                selected.append(phrase)
+                paths.add(path)
+                if len(selected) == 3:
+                    break
             if len(selected) == 3:
                 break
         if len(selected) == 3:
@@ -100,7 +113,7 @@ def select_candidates(batches, queries, repository, limit):
     query_words = [set(words(re.sub(r"(?:^|\s)-?\w+:[^\s]+", " ", query))) - _GENERIC for query in queries]
     for query_index, batch in enumerate(batches):
         for rank, raw in enumerate(batch):
-            url = raw.get("url") or raw.get("html_url") or ""
+            url = raw.get("url") if str(raw.get("url", "")).startswith("https://github.com/") else raw.get("html_url") or ""
             try:
                 repo, number = parse_issue_url(url)
             except (ValueError, TypeError):

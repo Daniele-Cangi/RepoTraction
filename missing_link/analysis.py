@@ -11,10 +11,11 @@ import json
 import re
 from typing import Any
 from .discussion import authorship, constraint_hints
+from .qualification import assess_discovery
 
 CLASSIFICATIONS = {"direct", "adapter", "extraction", "rejected", "investigate"}
 REQUEST_STATUSES = {"unresolved", "resolved", "duplicate", "unclear", "automated"}
-ANALYSIS_CONTRACT_VERSION = 4
+ANALYSIS_CONTRACT_VERSION = 5
 
 
 def digest(value: Any) -> str:
@@ -269,6 +270,7 @@ def validate_matches(raw_matches: list, repository: dict, issue: dict, request: 
             "revision": repository["revision"], "request": request, "capability_id": capability_id,
             "capability": capability, "capability_fingerprint": key["capability_fingerprint"],
             "classification": classification, "summary": text(raw.get("summary", "Investigation required.")),
+            "discovery_assessment": assess_discovery(repository, issue, request, classification, checks, catalog),
             "checks": checks, "bridge": bridge, "obstacles": list(dict.fromkeys(obstacles)),
             "analysis_source": source, "source_fingerprint": request["fingerprint"],
             "source_issue": issue,
@@ -295,6 +297,10 @@ def extension_groups(matches: list[dict]) -> list[dict]:
     for match in matches:
         if (match.get("stale") or match.get("superseded") or match["request"]["status"] != "unresolved"
                 or match["request"].get("constraint_review", {}).get("qualification_blockers")):
+            continue
+        discovery = match.get("discovery_assessment", {})
+        if (discovery.get("relationship", "external") != "external"
+                or discovery.get("status") in {"reference_only", "not_actionable"}):
             continue
         requirements = {item["id"]: item for item in match["request"]["requirements"]}
         for check in match["checks"]:

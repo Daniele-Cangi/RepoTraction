@@ -28,7 +28,11 @@ depend on trusting that checkbox.
 
 Automatic queries use short mechanism/problem phrases, removing the source
 package name rather than searching for existing references to it. Up to three
-queries cover distinct source modules where possible. They target open issues
+queries cover distinct source modules within the same source/review priority
+tier where possible; diversity cannot promote weaker docs over reviewed code.
+Unreviewed declaration
+filler is skipped rather than promoted for diversity; a bare API constructor
+name does not establish problem-oriented terms. They target open issues
 in title/body and exclude the source repository; a custom query or specific
 issue still allows closed discussions and same-project work. Open issue state
 is a retrieval hint, not proof that the request remains unresolved.
@@ -187,7 +191,7 @@ at a new revision. Maintainer feedback does not overwrite original evidence.
 Refreshes atomically preserve feedback and supersession. Each result keeps its
 exact reproduction snapshot, independent of the list of recent jobs. Resuming
 with another provider/model/contract pauses rather than mixing interpretations.
-Analysis contract version 4 also marks older assessments historical and blocks
+Analysis contract version 5 also marks older assessments historical and blocks
 their isolated examples until reevaluation; historical snapshots/exports remain
 available and are not silently rewritten as current evidence.
 Discussion freshness uses immutable GitHub issue IDs, including older URL-keyed
@@ -200,7 +204,33 @@ become paused and require explicit resume, with checkpoints and budgets intact.
 Independent unresolved requests blocked by the same normalized requirement text
 can be grouped as extension leads. This first grouping is deliberately narrow;
 it does not claim semantic clustering or predict adoption. Superseded/historical
-results are not current opportunities.
+results are not current opportunities. Same-project work, existing source
+references and package-reference hints do not enter external extension groups.
+
+### Compatibility is not a new discovery
+
+Each result also has a source-derived `discovery_assessment`, separate from its
+technical `classification`. It distinguishes same-project work, an existing
+repository reference, a package-name hint needing identity/intent review,
+empty-body reference notes, non-actionable demand, an incompatible contribution,
+retrieval-only resemblance, incomplete qualification and a potential external
+connection. Imported/model claims cannot set this assessment; it is recomputed
+from acquired discussion and validated checks. Repository IDs preserve the
+same-project distinction after a rename when available.
+
+A source mention may be a prior attempt or an explicit refusal, never presumed
+endorsement. Ordinary words such as “click” are not treated as package references;
+repository URLs and bounded name/code-pattern hints are retained with exact
+discussion excerpts. These heuristics are non-exhaustive and can need review.
+All-undetermined checks demonstrate no contribution, even if the model proposes
+a bridge. Only complete unresolved external demand with supported mandatory
+explicit requirements and a positive compatibility class becomes a follow-up lead;
+inferred mandatory demand still needs confirmation.
+Even then `novelty` stays `unverified`: no name found in bounded context is not
+proof that an author has never considered it. Execution, target integration and
+adoption need separate verification. The assessment and reference evidence are
+visible in cards and preserved in JSON/ZIP handoffs; historical data is not
+retroactively relabeled as new evidence.
 
 ## Coverage and trust boundaries
 

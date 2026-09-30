@@ -39,6 +39,14 @@ class ProofPackagingTests(unittest.TestCase):
         self.assertEqual(exported["match"]["analysis_contract_version"], ANALYSIS_CONTRACT_VERSION)
         self.assertTrue(any("qualification is blocked" in warning for warning in exported["warnings"]))
 
+    def test_derived_discovery_qualification_survives_json_and_zip_export(self):
+        match, repo = fixture()
+        match["discovery_assessment"] = {"status": "known_reference", "novelty": "unverified",
+            "eligible_for_followup": False, "references": [{"source_id": "q0", "quote": "Already tried source."}]}
+        self.assertEqual(export_handoff(match, repo)["match"]["discovery_assessment"], match["discovery_assessment"])
+        with zipfile.ZipFile(io.BytesIO(build_package(match, repo))) as archive:
+            self.assertEqual(json.loads(archive.read("handoff.json"))["match"]["discovery_assessment"], match["discovery_assessment"])
+
     def test_package_contains_pinned_evidence_and_license_with_integrity_hashes(self):
         match, repo = fixture()
         with zipfile.ZipFile(io.BytesIO(build_package(match, repo))) as archive:

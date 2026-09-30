@@ -392,7 +392,7 @@ class PublicGitHub:
         if _bot(issue.get("user")):
             limitations.append("Automated issue author; not independent human demand without review.")
         labels = [str(label.get("name") or "") for label in issue.get("labels", []) if isinstance(label, dict)]
-        result = {"id": issue.get("id"), "repo": full_name, "number": number,
+        result = {"id": issue.get("id"), "repo": full_name, "repo_id": repo.get("id"), "number": number,
                   "url": f"https://github.com/{full_name}/issues/{number}", "title": title, "body": body,
                   "state": issue.get("state"), "state_reason": issue.get("state_reason"),
                   "updated_at": issue.get("updated_at"), "created_at": issue.get("created_at"),
