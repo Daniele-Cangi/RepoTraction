@@ -12,7 +12,7 @@ import binascii
 import hashlib
 import json
 import re
-from collections import Counter
+from collections import Counter, deque
 from datetime import datetime, timezone
 from pathlib import PurePosixPath
 from typing import Any, Callable
@@ -160,14 +160,18 @@ def _priority(entry: dict[str, Any]) -> tuple:
 
 
 def _select_files(entries: list[dict[str, Any]], limit: int) -> list[dict[str, Any]]:
-    groups = {kind: sorted((e for e in entries if _kind(e["path"]) == kind), key=_priority)
-              for kind in ("documentation", "manifest", "source", "test")}
+    buckets = {kind: [] for kind in ("documentation", "manifest", "source", "test")}
+    for entry in entries:
+        kind = _kind(entry["path"])
+        if kind in buckets:
+            buckets[kind].append(entry)
+    groups = {kind: deque(sorted(bucket, key=_priority)) for kind, bucket in buckets.items()}
     cycle = ("documentation", "manifest", "source", "source", "test", "source")
     selected: list[dict[str, Any]] = []
     while len(selected) < limit and any(groups.values()):
         for kind in cycle:
             if groups[kind] and len(selected) < limit:
-                selected.append(groups[kind].pop(0))
+                selected.append(groups[kind].popleft())
     return selected
 
 
@@ -290,7 +294,7 @@ class PublicGitHub:
         files: list[dict[str, Any]] = []
         total_bytes = 0
         language_counts: Counter[str] = Counter()
-        pending = _select_files(candidates, len(candidates))
+        pending = deque(_select_files(candidates, len(candidates)))
         eligible_by_path = {entry["path"]: entry for entry in candidates}
         attempted = set()
         initializer_hints = []
@@ -298,7 +302,11 @@ class PublicGitHub:
         # Following an initializer replaces later heuristic slots; it never
         # expands the read/file/byte budget, including failed acquisitions.
         while pending and len(attempted) < max_files:
-            entry = pending.pop(0)
+            entry = pending.popleft()
+            # Prioritized hints can also remain in the heuristic queue. Skip
+            # their old slots without charging another attempt or blob read.
+            if entry["path"] in attempted:
+                continue
             attempted.add(entry["path"])
             if total_bytes + entry["size"] > MAX_TOTAL_BYTES:
                 excluded["total_size_budget"] += 1
@@ -339,9 +347,8 @@ class PublicGitHub:
                     initializer_hints.append({"from": path, "path": target})
                 else:
                     initializer_hints_complete = False
-            to_follow = [target for target in targets if target not in attempted]
-            pending = ([eligible_by_path[target] for target in to_follow] +
-                       [item for item in pending if item["path"] not in to_follow])
+            pending.extendleft(eligible_by_path[target] for target in reversed(targets)
+                               if target not in attempted)
         limitations = ["Bounded source sample; declarations and test references are not execution proof."]
         if tree.get("truncated"):
             limitations.append("GitHub truncated the recursive tree; unseen paths were not analyzed.")

@@ -2,7 +2,9 @@ import base64
 import copy
 import sys
 import unittest
+from collections import deque
 from pathlib import Path
+from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
@@ -69,6 +71,27 @@ class GitHubFixture:
 
 
 class SourceValidationTests(unittest.TestCase):
+    def test_complete_selection_uses_queue_removals_and_preserves_bounded_prefix(self):
+        removals = []
+        class TrackingQueue(deque):
+            def popleft(self):
+                item = super().popleft()
+                removals.append(item["path"])
+                return item
+        entries = [{"path": f"pkg/mod_{index:05d}.py", "size": 200} for index in range(10000)]
+        entries += [{"path": "README.md", "size": 100}, {"path": "pyproject.toml", "size": 100},
+                    {"path": "tests/test_engine.py", "size": 100}, {"path": "pkg/core.py", "size": 200}]
+        bounded = _select_files(entries, 6)
+        self.assertEqual([e["path"] for e in bounded],
+                         ["README.md", "pyproject.toml", "pkg/core.py", "pkg/mod_00000.py",
+                          "tests/test_engine.py", "pkg/mod_00001.py"])
+        with mock.patch("missing_link.sources.deque", TrackingQueue, create=True):
+            complete = _select_files(entries, len(entries))
+        self.assertEqual(complete[:6], bounded)
+        self.assertEqual(len(complete), len(entries))
+        self.assertEqual(len(removals), len(entries))
+        self.assertEqual(len({entry["path"] for entry in complete}), len(entries))
+
     def test_build_directories_are_sampling_hints_not_product_implementation(self):
         for path in ("winbuild/build_prepare.py", "ci_tools/update.py", "_custom_build/backend.py:compile"):
             self.assertEqual(source_role(path), "infrastructure")
@@ -174,6 +197,21 @@ class SourceValidationTests(unittest.TestCase):
 
 
 class RepositoryAcquisitionTests(unittest.TestCase):
+    def test_repeated_hints_do_not_consume_extra_attempts_or_repeat_blob_reads(self):
+        fixture = GitHubFixture()
+        fixture.add("pkg/__init__.py", "# Public package interface\n" * 4 + "from pkg import b, c\n")
+        fixture.add("pkg/a_helper.py", "def helper(): pass\n")
+        # b's initializer repeats c's existing hint.
+        fixture.add("pkg/b/__init__.py", "# Public package interface\n" * 4 + "from pkg import c\n")
+        fixture.add("pkg/c.py", "def validate(value): return value\n")
+        result = PublicGitHub(fixture.read).fetch_repository("sample/project", max_files=4)
+        self.assertEqual([f["path"] for f in result["files"]],
+                         ["pkg/__init__.py", "pkg/b/__init__.py", "pkg/c.py", "pkg/a_helper.py"])
+        blob_calls = [endpoint for endpoint, _ in fixture.calls if "/git/blobs/" in endpoint]
+        self.assertEqual(len(blob_calls), 4)
+        self.assertEqual(len(set(blob_calls)), 4)
+        self.assertTrue(result["coverage"]["complete"])
+
     def test_from_imports_follow_eligible_child_modules_and_keep_base_module(self):
         for prefix, statement, base, child in (
             ("", "from pkg import z_engine", None, "pkg/z_engine.py"),
