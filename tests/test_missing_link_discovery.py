@@ -174,6 +174,19 @@ class DiscoveryServiceTests(unittest.TestCase):
 
 
 class QualificationTests(unittest.TestCase):
+    def test_partial_support_survives_hard_conflict_without_becoming_a_lead(self):
+        match = validate_matches([fixtures.raw_match()], repository(), issue(),
+                                 validate_request(fixtures.request_raw(), issue()), "model")[0]
+        assessment = match["discovery_assessment"]
+        self.assertEqual(match["classification"], "rejected")
+        self.assertEqual(assessment["status"], "partial_contribution")
+        self.assertEqual(assessment["contribution"], "supported_with_conflicts")
+        self.assertEqual(assessment["supported_requirement_ids"], ["r0"])
+        self.assertEqual(assessment["conflicting_requirement_ids"], ["r1"])
+        self.assertFalse(assessment["eligible_for_followup"])
+        self.assertEqual(extension_groups([match, copy.deepcopy(match)]), [])
+        self.assertEqual(export_handoff(match, repository())["match"]["discovery_assessment"], assessment)
+
     def case(self):
         demand = issue()
         demand["body"] = "I need plain text shortened without splitting words."

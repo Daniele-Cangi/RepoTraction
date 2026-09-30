@@ -15,7 +15,7 @@ from .qualification import assess_discovery
 
 CLASSIFICATIONS = {"direct", "adapter", "extraction", "rejected", "investigate"}
 REQUEST_STATUSES = {"unresolved", "resolved", "duplicate", "unclear", "automated"}
-ANALYSIS_CONTRACT_VERSION = 5
+ANALYSIS_CONTRACT_VERSION = 6
 
 
 def digest(value: Any) -> str:
