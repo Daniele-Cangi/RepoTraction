@@ -145,7 +145,9 @@ change/restart or another reviewed workflow, not a hidden unlimited retry.
 Tables prefixed `ml_` live in the existing per-account SQLite database. A service
 captures that account/database path; account switches stop the old account's work.
 Numeric GitHub repository IDs and stable source-path/symbol capability IDs support
-renames/revision changes. Sources/permalinks remain pinned to exact commits.
+renames/revision changes. The result filter uses the selected repository's numeric
+ID, not the historical name: a rename retains its matches, and reusing an old name
+for another repository cannot mix their histories. Sources/permalinks remain pinned to exact commits.
 Screened unchanged blobs are reused; the default branch head is checked anew on
 a new job. Old discussion snapshots and rejection reasons remain available.
 
@@ -207,6 +209,13 @@ python scripts/verify_missing_link_wasi.py --report data/wasi-boundary.json
 Explicit bootstrap downloads pinned Wasmtime 49.0.1 and an
 [unofficial CPython WASI 3.14.7 build](https://github.com/brettcannon/cpython-wasi-build),
 validates archive SHA256 values and extraction, and never executes project code.
+Each asset is staged and checked before publication. Completed installations are
+verified against pinned archive contents and reused; archives are cached locally
+and their vendor SHA256 is checked on every reuse. A failed second download or
+extraction can be retried without replacing the first completed asset. Existing
+partial/changed directories are preserved as `NAME.previous-ID` before repair;
+an ordinary publication failure restores the previous destination. Unexpected
+links/junctions fail closed instead of being followed or deleted.
 Downloads stay in ignored `data/wasi-runtime`; no Docker, WSL, VM or system install
 is needed. Engine/module hashes are checked again before execution. Review the
 runtime supply chain before opting in. Other platforms fail closed for this backend.
