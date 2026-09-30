@@ -56,7 +56,8 @@ file/read/byte limits. Dotted imports prioritize eligible intermediate package
 initializers before the final module; missing namespace-package initializers are
 not invented. These static hints are recorded with omitted targets; they
 are not verified exports or dependency closure. Declaration sampling prioritizes
-public top-level callables and balances files within source-role tiers so an early
+public top-level classes/functions before their nested mechanisms and balances
+files within source-role tiers so an early
 large helper class cannot consume all 100 capability slots. Dynamic imports,
 conditional exports, JS/TS exports and oversized/excluded modules remain limitations.
 

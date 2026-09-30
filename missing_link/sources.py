@@ -662,11 +662,13 @@ def extract_structure(snapshot: dict[str, Any]) -> list[dict[str, Any]]:
             def visit(body: list[ast.stmt], parent: str = "", depth: int = 0) -> None:
                 if depth > 10:
                     return
-                # Public top-level callables before helper classes/nested
-                # mechanisms; this is a sampling hint, not verified exports.
+                # Public top-level classes and functions share source-order
+                # priority. Sample their declarations before nested mechanisms
+                # so a large class body cannot hide other top-level APIs.
                 ordered = sorted(body, key=lambda node: (
                     getattr(node, "name", "").startswith("_"),
-                    isinstance(node, ast.ClassDef), getattr(node, "lineno", 0))) if not parent else body
+                    getattr(node, "lineno", 0))) if not parent else body
+                deferred = []
                 for node in ordered:
                     if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
                         continue
@@ -683,7 +685,6 @@ def extract_structure(snapshot: dict[str, Any]) -> list[dict[str, Any]]:
                                signature=signature, dependencies=imports, calls=calls,
                                preconditions=["Class construction, coupling and runtime requirements are not verified."],
                                standalone="no" if parent else "unknown")
-                        visit(node.body, name, depth + 1)
                     else:
                         inputs = [argument.arg + (f": {ast.unparse(argument.annotation)}" if argument.annotation else "")
                                   for argument in (*node.args.posonlyargs, *node.args.args, *node.args.kwonlyargs)
@@ -693,8 +694,14 @@ def extract_structure(snapshot: dict[str, Any]) -> list[dict[str, Any]]:
                                definition={"path": path, "line": line, "end_line": end_line},
                                signature=signature, inputs=inputs, outputs=outputs,
                                dependencies=imports, calls=calls, standalone="no" if parent else "unknown")
-                        # Nested implementation mechanisms are useful, but explicitly coupled.
+                    # Nested implementation mechanisms remain useful and
+                    # explicitly coupled, after top-level declarations.
+                    if parent:
                         visit(node.body, name, depth + 1)
+                    else:
+                        deferred.append((node.body, name))
+                for nested_body, name in deferred:
+                    visit(nested_body, name, depth + 1)
 
             visit(module.body)
         elif PurePosixPath(path).suffix.casefold() in SUPPORTED_CODE:

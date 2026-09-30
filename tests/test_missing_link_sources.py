@@ -603,6 +603,30 @@ class SearchTests(unittest.TestCase):
 
 
 class StructuralAnalysisTests(unittest.TestCase):
+    def test_public_class_is_not_displaced_by_100_later_public_functions(self):
+        fixture = GitHubFixture()
+        fixture.add("engine.py", "class Engine:\n    def run(self): pass\n\n" +
+                    "\n".join(f"def helper_{i}(): pass" for i in range(100)))
+        snapshot = PublicGitHub(fixture.read).fetch_repository("sample/project")
+        capabilities = extract_structure(snapshot)
+        self.assertEqual(len(capabilities), 100)
+        self.assertEqual(capabilities[0]["entrypoint"], "engine.py:Engine")
+        self.assertEqual(capabilities[0]["level"], "subsystem")
+        self.assertEqual(capabilities[0]["verification"], "not_executed")
+
+    def test_public_top_level_declarations_precede_large_class_method_bodies(self):
+        fixture = GitHubFixture()
+        fixture.add("engine.py", "class Engine:\n" +
+                    "\n".join(f"    def method_{i}(self): pass" for i in range(120)) +
+                    "\n\ndef validate(value): return value\n\nclass OtherEngine: pass\n")
+        snapshot = PublicGitHub(fixture.read).fetch_repository("sample/project")
+        capabilities = extract_structure(snapshot)
+        self.assertEqual(len(capabilities), 100)
+        self.assertEqual([c["entrypoint"] for c in capabilities[:3]],
+                         ["engine.py:Engine", "engine.py:validate", "engine.py:OtherEngine"])
+        self.assertIn("engine.py:Engine.method_0", [c["entrypoint"] for c in capabilities])
+        self.assertTrue(snapshot["coverage"]["analysis"]["capability_limit_reached"])
+
     def snapshot(self):
         fixture = GitHubFixture()
         fixture.add("README.md", "# Convert\n\nA converter for records.\n")
