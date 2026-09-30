@@ -285,6 +285,23 @@ class ProviderContractTests(unittest.TestCase):
         with self.assertRaises(CandidateValidationError):
             self.complete_fixture(response, schema=schema)
 
+    def test_empty_capabilities_skip_enrichment_and_comparison_calls(self):
+        provider = Provider({"REPOTRACTION_AI_URL": "http://localhost/v1", "REPOTRACTION_AI_MODEL": "fixture"})
+        for files in ([], [{"path": "Cargo.toml", "kind": "manifest", "text": '[package]\nname="fixture"\n',
+                           "url": "https://github.com/example/words/blob/" + "a" * 40 + "/Cargo.toml"}]):
+            repo = dict(repository(), files=files, capabilities=[])
+            original = copy.deepcopy(repo)
+            budget = mock.Mock()
+            with self.subTest(files=files), mock.patch.object(provider, "complete") as complete, \
+                 mock.patch("missing_link.provider.build_context") as context:
+                self.assertEqual(provider.interpret_capabilities(repo, budget), [])
+                self.assertEqual(provider.evaluate(repo, issue(), validate_request(request_raw(), issue()), budget), [])
+            complete.assert_not_called()
+            context.assert_not_called()
+            budget.reserve_ai.assert_not_called()
+            budget.record_output.assert_not_called()
+            self.assertEqual(repo, original)
+
     def test_interpretation_calls_supply_their_own_scoped_schemas(self):
         provider = Provider({"REPOTRACTION_AI_URL": "http://localhost/v1", "REPOTRACTION_AI_MODEL": "fixture"})
         with mock.patch.object(provider, "complete", return_value=request_raw()) as complete:

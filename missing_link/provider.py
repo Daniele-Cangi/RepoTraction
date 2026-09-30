@@ -255,6 +255,10 @@ class Provider:
         return request
 
     def interpret_capabilities(self, repository: dict, budget) -> list[dict]:
+        # Enrichment cannot create structural candidates. An empty extraction is
+        # a valid result, not an invalid enum or permission to spend a paid call.
+        if not repository.get("capabilities"):
+            return []
         data, report = build_context(repository, None, "capabilities", self.max_bytes)
         data["schema"] = schema_for("capabilities", source_ids=data["sources"], capability_ids=report["capability_ids"])
         # An enrichment pass over structural candidates, not an unconstrained capability hallucination.
@@ -296,6 +300,8 @@ class Provider:
         return enriched + [item for key, item in candidates.items() if key not in changed]
 
     def evaluate(self, repository: dict, issue: dict, request: dict, budget) -> list[dict]:
+        if not repository.get("capabilities"):
+            return []
         data, report = build_context(repository, issue, "matches", self.max_bytes)
         data["request"] = request
         data["schema"] = schema_for("matches", source_ids=data["sources"], capability_ids=report["capability_ids"],

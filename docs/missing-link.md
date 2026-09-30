@@ -208,6 +208,12 @@ membership proves availability, not semantic support for a claim. Invalid quotes
 remain failures with no automatic paid retry; improved real-model success rates
 still require a separate experiment.
 
+An analysis with no structural capability candidates completes with an empty
+list, without constructing an AI schema, calling the provider or reserving cost.
+Compatibility comparison also returns no matches when there are no candidates.
+This does not prove absence of useful functionality in unsupported/unsampled code;
+discovery still needs established search terms or an explicit operator query.
+
 - Source sampling uses a path heuristic to prioritize implementation over build,
   check, benchmark and example infrastructure within the existing file budget.
   Source-role counts and missing-implementation warnings are recorded in coverage.
