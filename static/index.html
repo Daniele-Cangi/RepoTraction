@@ -6,7 +6,7 @@
     <meta name="color-scheme" content="dark" />
     <meta name="description" content="RepoTraction turns GitHub traffic, adoption and repository changes into evidence-based growth signals for maintainers." />
     <title>RepoTraction · Maintainer growth lab</title>
-    <link rel="stylesheet" href="/styles.css?v=3.0.1" />
+    <link rel="stylesheet" href="/styles.css?v=3.1.0-proof1" />
   </head>
   <body>
     <div class="ambient ambient-one"></div>
@@ -34,6 +34,9 @@
           <button class="nav-item" data-view="impact" title="Compare observed traffic before and after repository changes." type="button">
             <span class="nav-icon">◉</span><span>Impact Lab</span>
           </button>
+          <button class="nav-item" data-view="missing-link" title="Connect public requests to verified repository capabilities and a concrete technical bridge." type="button">
+            <span class="nav-icon">⋈</span><span>Missing Link</span>
+          </button>
           <button class="nav-item" data-view="network" title="Compare followers, following, mutuals and saved relationship changes." type="button">
             <span class="nav-icon">◎</span><span>Network</span>
           </button>
@@ -53,7 +56,7 @@
 
         <div class="sidebar-foot">
           <span class="secure-pill"><i></i> Local · gh keyring</span>
-          <small>RepoTraction 3.0</small>
+          <small>RepoTraction 3.1</small>
         </div>
       </aside>
 
@@ -301,6 +304,16 @@
             </div>
           </section>
 
+          <section id="missing-linkView" class="view-panel" aria-label="Missing Link">
+            <div class="section-heading">
+              <div><p class="eyebrow">Capability discovery</p><h2>Find the problem your code can solve</h2></div>
+              <p>Public requests → code-backed capabilities → adoption obstacles → a practical bridge. No popularity score or automatic outreach.</p>
+            </div>
+            <div id="missingLinkRoot" class="missing-link-root">
+              <div class="data-empty" role="status">Loading Missing Link…</div>
+            </div>
+          </section>
+
           <section id="networkView" class="view-panel">
             <div class="section-heading">
               <div><p class="eyebrow">Community</p><h2>Network &amp; relationships</h2></div>
@@ -401,6 +414,6 @@
         </footer>
       </div>
     </div>
-    <script src="/app.js?v=3.0.1" defer></script>
+    <script src="/app.js?v=3.1.0-proof2" defer></script>
   </body>
 </html>

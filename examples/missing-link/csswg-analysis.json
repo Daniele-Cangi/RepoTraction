@@ -1,0 +1,34 @@
+{
+  "request": {
+    "outcome": "Provide native CSS paint-time ellipsis at word boundaries for text-overflow.",
+    "status": "unclear",
+    "status_source_ids": ["q1"],
+    "status_reason": "The follow-up says line-clamp already specifies the requested behavior; text-overflow remains different. Other cross-referenced discussions are not acquired, so current resolution is not established.",
+    "requirements": [
+      {"text": "Handle native CSS text-overflow paint-time rendering, not server-side string shortening.", "mandatory": true, "explicit": true, "source_id": "q1", "quote": "`text-overflow` is a paint time effect over overflowing content, not a truncation of content."},
+      {"text": "Only allow clipping at word boundaries.", "mandatory": true, "explicit": true, "source_id": "q0", "quote": "Having an option to only allow clipping at word boundaries can eliminate this problem."}
+    ],
+    "environment": ["Browser CSS layout, paint-time ellipsis, widths and scrolling."],
+    "prior_attempts": ["The collaborator clarifies that line-clamp already clips at soft wrapping opportunities."],
+    "missing_information": ["Current disposition of cross-referenced CSSWG discussions."]
+  },
+  "matches": [{
+    "capability_id": "07ac7bc5baeb6f9f8a8c",
+    "classification": "rejected",
+    "summary": "The phrase 'word boundaries' retrieves a similar mechanism, but a Python character-count helper cannot implement native CSS paint/layout semantics.",
+    "checks": [
+      {"requirement_id": "r0", "status": "incompatible", "reason": "smart_truncate receives a Python string and integer max_length, selects words using string splitting, and returns a string. It has no browser layout widths, scroll state or CSS property implementation. Server-side text alteration would change the requested mechanism.", "source_ids": ["file:slugify/_legacy.py#L68-L102", "q1"]},
+      {"requirement_id": "r1", "status": "undetermined", "reason": "Its ordinary character-budget truncation is not pixel/paint-time clipping, and it also has hard-slice fallback edges.", "source_ids": ["file:slugify/_legacy.py#L85-L102"]}
+    ],
+    "obstacles": ["Hard runtime/layout mismatch: Python string processing versus browser-native CSS behavior.", "The line-clamp branch is not an unmet need according to the follow-up.", "A new browser layout implementation would be a different project, not narrow reuse."],
+    "bridge": {
+      "kind": "investigation",
+      "summary": "Do not propose python-slugify as the solution; retain the rejection and CSS context.",
+      "steps": ["Consult the linked CSSWG discussion and the collaborator's distinction between line-clamp and text-overflow.", "Only reevaluate if the demand changes to explicit server-side plain-text shortening."],
+      "existing_contribution": "No compatible contribution to the mandatory native CSS behavior.",
+      "new_logic": "Browser-native layout/paint work would be a substantial new implementation, not an adapter.",
+      "assumptions": [],
+      "files": []
+    }
+  }]
+}

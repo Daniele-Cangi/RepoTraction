@@ -10,10 +10,11 @@ permissions:
 
 jobs:
   tests:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
+        os: [ubuntu-latest, windows-latest]
         python-version: ["3.10", "3.13"]
 
     steps:
@@ -27,3 +28,23 @@ jobs:
 
       - name: Run unit tests
         run: python -m unittest discover -s tests -v
+
+      - name: Verify source startup options
+        run: python app.py --help
+
+      - name: Verify Windows install and update preserve data
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $testDestination = Join-Path $env:RUNNER_TEMP "RepoTraction-install-smoke"
+          ./install.ps1 -NoShortcut -Destination $testDestination
+          $historyFile = Join-Path $testDestination "data/smoke.sqlite3"
+          [System.IO.File]::WriteAllText($historyFile, "preserve-me")
+          $configFile = Join-Path $testDestination ".env"
+          [System.IO.File]::WriteAllText($configFile, "# preserve-local-configuration")
+          ./install.ps1 -NoShortcut -Destination $testDestination
+          if ([System.IO.File]::ReadAllText($historyFile) -ne "preserve-me") { throw "Update replaced history" }
+          if ([System.IO.File]::ReadAllText($configFile) -ne "# preserve-local-configuration") { throw "Update replaced local configuration" }
+          if (-not (Test-Path (Join-Path $testDestination "scripts/bootstrap_missing_link_wasi.py"))) { throw "Optional runner tools are missing" }
+          python (Join-Path $testDestination "app.py") --help
+          python -c "import sys; sys.path.insert(0, sys.argv[1]); from missing_link.service import Service" $testDestination

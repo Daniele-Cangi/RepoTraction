@@ -44,6 +44,23 @@ ACCOUNT_LOGIN: str | None = None
 _ACCOUNT_CHECK_LOCK = threading.Lock()
 _ACCOUNT_CHECKED_AT = 0.0
 GH_REQUEST_SEMAPHORE = threading.BoundedSemaphore(4)
+_MISSING_LINK_LOCK = threading.Lock()
+_MISSING_LINK_SERVICES: dict[tuple[str, str], Any] = {}
+
+
+def missing_link_service() -> Any:
+    """Lazy optional feature; analytics and collect-only never load its provider."""
+    from missing_link.service import Service
+
+    account = get_account_login()
+    verify_active_account()
+    key = (account.casefold(), str(DB_PATH.resolve()))
+    with _MISSING_LINK_LOCK:
+        if key not in _MISSING_LINK_SERVICES:
+            _MISSING_LINK_SERVICES[key] = Service(
+                DB_PATH, account, run_gh_json, verify_active_account
+            )
+        return _MISSING_LINK_SERVICES[key]
 
 
 class GitHubCLIError(RuntimeError):
@@ -3605,7 +3622,7 @@ def build_csv_export(dataset: str) -> tuple[str, bytes]:
 
 
 class DashboardHandler(BaseHTTPRequestHandler):
-    server_version = "RepoTraction/3.0.0"
+    server_version = "RepoTraction/3.1.0"
 
     def _is_trusted_local_request(self, *, require_origin: bool = False) -> bool:
         host_header = self.headers.get("Host", "")
@@ -3673,6 +3690,26 @@ class DashboardHandler(BaseHTTPRequestHandler):
             self.send_json(
                 {"ok": True, "app": APP_NAME, "account": get_account_login()}
             )
+            return
+        if parsed.path == "/api/missing-link":
+            self.handle_api(lambda: missing_link_service().state())
+            return
+        if parsed.path in {"/api/missing-link/export", "/api/missing-link/package", "/api/missing-link/context"}:
+            try:
+                service = missing_link_service()
+                if parsed.path.endswith("/context"):
+                    payload = service.context(query.get("job_id", [""])[0])
+                    body = json.dumps(payload, ensure_ascii=False, indent=2).encode("utf-8")
+                    self.send_download(body, "application/json; charset=utf-8", "missing-link-context.json")
+                else:
+                    match_id = query.get("match_id", [""])[0]
+                    package = parsed.path.endswith("/package")
+                    payload = service.export(match_id, package=package)
+                    body = payload if package else json.dumps(payload, ensure_ascii=False, indent=2).encode("utf-8")
+                    self.send_download(body, "application/zip" if package else "application/json; charset=utf-8",
+                        "missing-link-package.zip" if package else "missing-link-handoff.json")
+            except (GitHubCLIError, ValueError) as exc:
+                self.send_json({"error": str(exc)}, status=HTTPStatus.BAD_REQUEST)
             return
         if parsed.path == "/api/dashboard":
             self.handle_api(lambda: build_dashboard(force=query.get("refresh") == ["1"]))
@@ -3768,6 +3805,35 @@ class DashboardHandler(BaseHTTPRequestHandler):
             self.send_json({"error": str(exc)}, status=HTTPStatus.CONFLICT)
             return
         parsed = urlparse(self.path)
+        if parsed.path.startswith("/api/missing-link/"):
+            try:
+                # Bounded JSON only; optional proof execution uses approved public
+                # text in WASI, never local paths or native project execution.
+                length = int(self.headers.get("Content-Length", "0"))
+                if length <= 0 or length > 512000 or self.headers.get("Transfer-Encoding"):
+                    raise ValueError("A bounded JSON request body is required (maximum 512 KB).")
+                if self.headers.get_content_type() != "application/json":
+                    raise ValueError("Content-Type must be application/json.")
+                data = json.loads(self.rfile.read(length))
+                if not isinstance(data, dict):
+                    raise ValueError("Request body must be a JSON object.")
+                service = missing_link_service()
+                actions = {
+                    "/api/missing-link/jobs": service.start,
+                    "/api/missing-link/cancel": lambda body: service.cancel(body.get("job_id", "")),
+                    "/api/missing-link/resume": service.resume,
+                    "/api/missing-link/capability": service.correct_capability,
+                    "/api/missing-link/feedback": service.feedback,
+                    "/api/missing-link/analysis": service.import_analysis,
+                    "/api/missing-link/example": service.execute_example,
+                }
+                if parsed.path not in actions:
+                    self.send_json({"error": "Endpoint not found."}, status=HTTPStatus.NOT_FOUND)
+                    return
+                self.send_json(actions[parsed.path](data), status=HTTPStatus.ACCEPTED if parsed.path.endswith("/jobs") else HTTPStatus.OK)
+            except (ValueError, GitHubCLIError, KeyError, TypeError) as exc:
+                self.send_json({"error": str(exc)}, status=HTTPStatus.BAD_REQUEST)
+            return
         if parsed.path == "/api/collect":
             started = start_collection()
             self.send_json(

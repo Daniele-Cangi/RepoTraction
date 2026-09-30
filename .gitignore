@@ -2,6 +2,7 @@ __pycache__/
 *.py[cod]
 
 # Dati raccolti localmente dalla dashboard
+/data/
 data/*.sqlite3
 data/*.sqlite3-*
 data/*.log
@@ -9,3 +10,8 @@ data/*.log
 # File temporanei del sistema operativo
 .DS_Store
 Thumbs.db
+
+# Local provider credentials and budgets (never packaged or installed).
+.env
+.env.*
+!.env.example

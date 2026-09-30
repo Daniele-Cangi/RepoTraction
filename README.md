@@ -2,9 +2,9 @@
 
 # RepoTraction
 
-### Evidence-based growth analytics for GitHub maintainers
+### Evidence-based analytics and capability discovery for GitHub maintainers
 
-Turn repository traffic, stars, clones, activity and community changes into signals you can actually use.
+Understand your repository signals and discover problems your existing code could solve.
 
 ![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=flat-square&logo=python&logoColor=white)
 ![GitHub CLI](https://img.shields.io/badge/GitHub_CLI-required-181717?style=flat-square&logo=github)
@@ -50,10 +50,39 @@ GitHub ratings.
 | **Overview** | Page views, clone activity, net star changes, community trends and important signals |
 | **Repositories** | Portfolio ranking, page views, clone events, GitHub-native 14-day uniques, referrers and popular pages |
 | **Insights** | Prioritized opportunities, Impact Lab, repository comparison, weekly digest and local alerts |
+| **Missing Link** | Public requests matched to pinned code capabilities, hard constraints, adoption obstacles and inspectable technical bridges; independent of traffic/popularity |
 | **Stars** | Timestamped stargazer timeline for repositories you can access |
 | **Network** | Followers, following, mutual and one-sided relationships, and changes between saved snapshots; not profile visits |
 | **Activity** | Recent public events and an experimental Achievement Lab |
 | **Data** | Daily collection status, CSV exports and a JSON analytics export |
+
+### Missing Link: problem → capability → technical bridge
+
+Select a public repository, review its source-backed capabilities, then evaluate
+a public GitHub issue or start bounded discovery. Missing Link separates the
+desired outcome from the candidate solution, checks mandatory constraints, and
+prepares a command/example/adapter proposal with pinned source evidence.
+Internal mechanisms can be considered independently of the complete product.
+
+This first working version supports Python AST analysis and a partial JS/TS
+declaration scan; its actual source coverage is visible. No AI provider is required
+for existing analytics. Without a provider, Missing Link collects sources and
+retrieval candidates **but leaves compatibility as investigation**. For deeper
+interpretation, configure an optional provider or export the source context to
+your coding agent and import its grounded analysis.
+
+Results are source-supported hypotheses, **not executed third-party integration
+proofs**. Download JSON/ZIP handoffs containing requirements, revision, provenance,
+bridge files, license information and explicit obstacles. No acquired/generated
+code is executed on host Python. An explicitly approved optional WASI runner can
+test small pure-Python examples without Docker; separate receipts never claim
+target integration. No comments or third-party pull requests are published.
+
+See [usage, provider configuration and limits](docs/missing-link.md),
+[three inspected real cases](docs/missing-link-cases.md), and
+[reviewed example analyses](examples/missing-link/README.md). The
+[real API verification](docs/missing-link-api-verification.md) is separate from
+those manually reviewed analyses and fictional protocol tests.
 
 ## Alternatives and trade-offs
 
@@ -392,8 +421,10 @@ GitHub CLI / credential store
 GitHub REST API
 ~~~
 
-The frontend is plain HTML, CSS and JavaScript. The backend is a single Python
-application with no framework or package-manager dependency.
+The frontend is plain HTML, CSS and JavaScript. The Python server has no framework
+or package-manager dependency. Traffic analytics remain in `app.py`; Missing Link
+has separate acquisition/analysis, provider, persistence/job and packaging modules
+in `missing_link/`. Its optional AI service does not become an analytics dependency.
 
 ## Development
 
@@ -412,6 +443,10 @@ GET  /api/signals
 GET  /api/activity
 GET  /api/opportunities
 GET  /api/impact
+GET  /api/missing-link
+POST /api/missing-link/jobs
+GET  /api/missing-link/context?job_id=ID
+POST /api/missing-link/analysis
 GET  /api/compare?repos=OWNER/REPO&repos=OWNER/OTHER
 GET  /api/digest
 GET  /api/traffic?repo=OWNER/REPO
@@ -421,7 +456,9 @@ GET  /api/export?dataset=summary
 
 ## Release status
 
-The current development line is **RepoTraction 3.0.0**. It supersedes the
+The current development line is **RepoTraction 3.1.0** (Missing Link). It extends
+3.0's analytics without claiming universal discovery or executed proof support.
+It supersedes the
 [v2.0.0 baseline](https://github.com/Daniele-Cangi/RepoTraction/releases/tag/v2.0.0)
 with the Insights and Impact Lab expansion plus stricter traffic-availability,
 collection-status, account-isolation, repository-identity and local-server

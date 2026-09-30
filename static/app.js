@@ -13,6 +13,24 @@ const state = {
 
 const DEMO_MODE = new URLSearchParams(window.location.search).get("demo") === "1";
 const demoModule = DEMO_MODE ? import("/demo-data.js") : null;
+let missingLinkModule = null;
+let missingLinkController = null;
+
+async function openMissingLink() {
+  try {
+    missingLinkModule ||= import("/missing-link.js?v=3.1.0-proof2");
+    const module = await missingLinkModule;
+    missingLinkController ||= module.initMissingLink({
+      api,
+      escapeHtml,
+      demoMode: DEMO_MODE,
+      getDashboard: () => state.dashboard,
+    });
+    missingLinkController.setActive(state.currentView === "missing-link");
+  } catch (error) {
+    $("#missingLinkRoot").textContent = `Missing Link could not load: ${error.message}`;
+  }
+}
 
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
@@ -115,6 +133,7 @@ function renderDashboard(data) {
   renderRelationships();
   renderMovements(data.relationship_movements || []);
   renderRepositories(data.repositories);
+  missingLinkController?.updateDashboard(data);
   $("#lastUpdated").textContent = `Updated ${formatDateTime(data.collected_at)}`;
 }
 
@@ -834,6 +853,7 @@ const pageTitles = {
   repositories: "Repositories",
   insights: "Insights",
   impact: "Impact Lab",
+  "missing-link": "Missing Link",
   network: "Network",
   activity: "Activity",
   data: "Data & privacy",
@@ -850,6 +870,8 @@ function switchView(view) {
   if (view === "activity") loadActivity();
   if (view === "insights") loadInsights();
   if (view === "impact") loadImpact();
+  missingLinkController?.setActive(view === "missing-link");
+  if (view === "missing-link") openMissingLink();
 }
 
 $$(".nav-item").forEach((button) => button.addEventListener("click", () => switchView(button.dataset.view)));
