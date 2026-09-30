@@ -174,6 +174,35 @@ class DiscoveryServiceTests(unittest.TestCase):
 
 
 class QualificationTests(unittest.TestCase):
+    def test_extension_groups_exclude_stale_or_unknown_demand_even_when_rejected(self):
+        for updated in ("2017-04-07T13:24:36Z", "not-a-date", None,
+                        "2027-01-01T00:00:00Z", "2026-09-29T12:00:00"):
+            for partial in (True, False):
+                with self.subTest(updated=updated, partial=partial):
+                    matches = []
+                    for number in (7, 8):
+                        demand = issue()
+                        demand.update(updated_at=updated, url=f"https://github.com/example/site/issues/{number}")
+                        raw_match = fixtures.raw_match()
+                        if not partial:
+                            raw_match["checks"][0].update(status="undetermined", source_ids=[])
+                        matches.append(self.evaluate(repository(), demand, fixtures.request_raw(), raw_match))
+                    self.assertEqual({m["discovery_assessment"]["status"] for m in matches},
+                                     {"partial_contribution" if partial else "not_a_fit"})
+                    self.assertTrue(all(m["discovery_assessment"]["opportunity_review"]["qualification_blockers"]
+                                        for m in matches))
+                    self.assertEqual(extension_groups(matches), [])
+
+    def test_extension_groups_still_include_independent_recent_conflicting_requests(self):
+        matches = []
+        for number in (7, 8):
+            demand = issue()
+            demand["url"] = f"https://github.com/example/site/issues/{number}"
+            matches.append(self.evaluate(repository(), demand, fixtures.request_raw(), fixtures.raw_match()))
+        groups = extension_groups(matches)
+        self.assertEqual(len(groups), 1)
+        self.assertEqual(groups[0]["count"], 2)
+
     def test_old_request_and_unknown_or_future_activity_cannot_be_followup_ready(self):
         for updated in ("2017-04-07T13:24:36Z", "not-a-date", None, "2027-01-01T00:00:00Z",
                         "2026-09-29T12:00:00"):
