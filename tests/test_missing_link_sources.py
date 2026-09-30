@@ -2,7 +2,9 @@ import base64
 import copy
 import sys
 import unittest
+from collections import deque
 from pathlib import Path
+from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
@@ -16,6 +18,7 @@ from missing_link.sources import (  # noqa: E402
     validate_repository,
     _select_files,
     source_role,
+    _initializer_imports,
 )
 
 
@@ -69,6 +72,27 @@ class GitHubFixture:
 
 
 class SourceValidationTests(unittest.TestCase):
+    def test_complete_selection_uses_queue_removals_and_preserves_bounded_prefix(self):
+        removals = []
+        class TrackingQueue(deque):
+            def popleft(self):
+                item = super().popleft()
+                removals.append(item["path"])
+                return item
+        entries = [{"path": f"pkg/mod_{index:05d}.py", "size": 200} for index in range(10000)]
+        entries += [{"path": "README.md", "size": 100}, {"path": "pyproject.toml", "size": 100},
+                    {"path": "tests/test_engine.py", "size": 100}, {"path": "pkg/core.py", "size": 200}]
+        bounded = _select_files(entries, 6)
+        self.assertEqual([e["path"] for e in bounded],
+                         ["README.md", "pyproject.toml", "pkg/core.py", "pkg/mod_00000.py",
+                          "tests/test_engine.py", "pkg/mod_00001.py"])
+        with mock.patch("missing_link.sources.deque", TrackingQueue, create=True):
+            complete = _select_files(entries, len(entries))
+        self.assertEqual(complete[:6], bounded)
+        self.assertEqual(len(complete), len(entries))
+        self.assertEqual(len(removals), len(entries))
+        self.assertEqual(len({entry["path"] for entry in complete}), len(entries))
+
     def test_build_directories_are_sampling_hints_not_product_implementation(self):
         for path in ("winbuild/build_prepare.py", "ci_tools/update.py", "_custom_build/backend.py:compile"):
             self.assertEqual(source_role(path), "infrastructure")
@@ -174,6 +198,293 @@ class SourceValidationTests(unittest.TestCase):
 
 
 class RepositoryAcquisitionTests(unittest.TestCase):
+    def test_same_package_absolute_hints_stay_in_the_initializer_layout(self):
+        for prefix in ("", "src/"):
+            for statement in ("import pkg.engine", "import pkg.engine as api",
+                              "from pkg.engine import run", "from pkg import engine"):
+                with self.subTest(prefix=prefix, statement=statement):
+                    initializer = prefix + "pkg/__init__.py"
+                    own_engine = prefix + "pkg/engine.py"
+                    eligible = {path: {} for path in ("pkg/__init__.py", "pkg/engine.py",
+                                                       "src/pkg/__init__.py", "src/pkg/engine.py")}
+                    self.assertEqual(_initializer_imports(initializer, statement, eligible), [own_engine])
+                    del eligible[own_engine]
+                    self.assertEqual(_initializer_imports(initializer, statement, eligible), [])
+
+    def test_nested_initializer_uses_own_layout_for_absolute_package_imports(self):
+        for prefix in ("", "src/"):
+            with self.subTest(prefix=prefix):
+                eligible = {path: {} for path in ("pkg/__init__.py", "pkg/engine.py",
+                                                   "src/pkg/__init__.py", "src/pkg/engine.py")}
+                self.assertEqual(_initializer_imports(prefix + "pkg/plugins/__init__.py",
+                                                      "import pkg.engine", eligible),
+                                 [prefix + "pkg/__init__.py", prefix + "pkg/engine.py"])
+
+    def test_other_package_hints_prefer_local_layout_without_claiming_runtime_resolution(self):
+        eligible = {"other/engine.py": {}, "src/other/engine.py": {}}
+        self.assertEqual(_initializer_imports("src/pkg/__init__.py", "import other.engine", eligible),
+                         ["src/other/engine.py", "other/engine.py"])
+        self.assertEqual(_initializer_imports("pkg/__init__.py", "import other.engine", eligible),
+                         ["other/engine.py", "src/other/engine.py"])
+        # A root package literally named src is not a src-layout search root.
+        self.assertEqual(_initializer_imports("src/__init__.py", "import src.engine",
+                                              {"src/engine.py": {}, "src/src/engine.py": {}}),
+                         ["src/engine.py"])
+
+    def test_acquired_initializer_cannot_follow_same_package_in_another_layout(self):
+        for prefix in ("", "src/"):
+            for own_exists in (True, False):
+                with self.subTest(prefix=prefix, own_exists=own_exists):
+                    fixture = GitHubFixture()
+                    other_prefix = "" if prefix else "src/"
+                    initializer = prefix + "pkg/__init__.py"
+                    helper = prefix + "pkg/a_helper.py"
+                    own_engine = prefix + "pkg/engine.py"
+                    other_engine = other_prefix + "pkg/engine.py"
+                    fixture.add(initializer, "# Public package interface\n" * 4 + "import pkg.engine\n")
+                    fixture.add(helper, "def helper(): pass\n")
+                    other_sha = fixture.add(other_engine, "def unrelated_engine(): pass\n")
+                    if own_exists:
+                        fixture.add(own_engine, "def execute(): pass\n")
+                    # The regression concerns an already acquired initializer,
+                    # independent of which layout the path heuristic sees first.
+                    def selected(entries, limit):
+                        ordered = _select_files(entries, limit)
+                        return ([entry for entry in ordered if entry["path"] == initializer] +
+                                [entry for entry in ordered if entry["path"] == helper] +
+                                [entry for entry in ordered if entry["path"] not in {initializer, helper}])
+                    with mock.patch("missing_link.sources._select_files", side_effect=selected):
+                        result = PublicGitHub(fixture.read).fetch_repository("sample/project", max_files=2)
+                    self.assertEqual([f["path"] for f in result["files"]],
+                                     [initializer, own_engine if own_exists else helper])
+                    self.assertEqual(result["coverage"]["initializer_import_hints"],
+                                     [{"from": initializer, "path": own_engine}] if own_exists else [])
+                    blob_calls = [endpoint for endpoint, _ in fixture.calls if "/git/blobs/" in endpoint]
+                    self.assertEqual(len(blob_calls), 2)
+                    self.assertNotIn(f"repos/sample/project/git/blobs/{other_sha}", blob_calls)
+
+    def test_dotted_imports_prioritize_intermediate_initializers_before_final_module(self):
+        for prefix, statement in (
+            ("", "import pkg.plugins.engine"),
+            ("src/", "import pkg.plugins.engine as engine"),
+            ("", "from pkg.plugins.engine import execute"),
+            ("src/", "from pkg.plugins import engine as public_engine"),
+            ("", "from .plugins.engine import execute"),
+            ("src/", "from .plugins import engine"),
+        ):
+            with self.subTest(prefix=prefix, statement=statement):
+                fixture = GitHubFixture()
+                initializer = prefix + "pkg/__init__.py"
+                intermediate = prefix + "pkg/plugins/__init__.py"
+                engine = prefix + "pkg/plugins/engine.py"
+                fixture.add(initializer, "# Public package interface\n" * 4 + statement + "\n")
+                fixture.add(prefix + "pkg/a_helper.py", "def helper(): pass\n")
+                fixture.add(intermediate, "# Plugin registration\n")
+                fixture.add(engine, "def execute(): pass\n")
+                result = PublicGitHub(fixture.read).fetch_repository("sample/project", max_files=3)
+                self.assertEqual([f["path"] for f in result["files"]], [initializer, intermediate, engine])
+                self.assertEqual(result["coverage"]["initializer_import_hints"],
+                                 [{"from": initializer, "path": intermediate},
+                                  {"from": initializer, "path": engine}])
+                self.assertEqual(result["coverage"]["omitted_initializer_imports"], [])
+                self.assertEqual(sum("/git/blobs/" in endpoint for endpoint, _ in fixture.calls), 3)
+
+    def test_intermediate_initializers_supply_further_hints_without_expanding_budget(self):
+        fixture = GitHubFixture()
+        fixture.add("pkg/__init__.py", "# Public package interface\n" * 4 + "import pkg.plugins.engine\n")
+        fixture.add("pkg/a_helper.py", "def helper(): pass\n")
+        fixture.add("pkg/plugins/__init__.py", "from .registry import register\n")
+        fixture.add("pkg/plugins/registry.py", "raise RuntimeError('never execute')\n")
+        engine_sha = fixture.add("pkg/plugins/engine.py", "def execute(): pass\n")
+        result = PublicGitHub(fixture.read).fetch_repository("sample/project", max_files=3)
+        self.assertEqual([f["path"] for f in result["files"]],
+                         ["pkg/__init__.py", "pkg/plugins/__init__.py", "pkg/plugins/registry.py"])
+        self.assertEqual(result["coverage"]["omitted_initializer_imports"], ["pkg/plugins/engine.py"])
+        blob_calls = [endpoint for endpoint, _ in fixture.calls if "/git/blobs/" in endpoint]
+        self.assertEqual(len(blob_calls), 3)
+        self.assertNotIn(f"repos/sample/project/git/blobs/{engine_sha}", blob_calls)
+
+    def test_deep_imports_keep_ancestor_order_and_skip_unsafe_or_absent_initializers(self):
+        fixture = GitHubFixture()
+        fixture.add("pkg/__init__.py", "# Public package interface\n" * 4 +
+                    "import pkg.ns.plugins.deep.more.engine\nimport pkg.ns.plugins.deep.more.engine as duplicate\n")
+        fixture.add("pkg/a_helper.py", "def helper(): pass\n")
+        # ns is a namespace package (no initializer); plugins is excluded.
+        unsafe_sha = fixture.add("pkg/ns/plugins/__init__.py", "secret", mode="120000")
+        fixture.add("pkg/ns/plugins/deep/__init__.py", "# Package marker\n")
+        fixture.add("pkg/ns/plugins/deep/more/__init__.py", "# Package marker\n")
+        fixture.add("pkg/ns/plugins/deep/more/engine.py", "def execute(): pass\n")
+        result = PublicGitHub(fixture.read).fetch_repository("sample/project", max_files=4)
+        self.assertEqual([f["path"] for f in result["files"]],
+                         ["pkg/__init__.py", "pkg/ns/plugins/deep/__init__.py",
+                          "pkg/ns/plugins/deep/more/__init__.py", "pkg/ns/plugins/deep/more/engine.py"])
+        self.assertEqual(len(result["coverage"]["initializer_import_hints"]), 3)
+        blob_calls = [endpoint for endpoint, _ in fixture.calls if "/git/blobs/" in endpoint]
+        self.assertEqual(len(blob_calls), 4)
+        self.assertNotIn(f"repos/sample/project/git/blobs/{unsafe_sha}", blob_calls)
+
+    def test_intermediate_import_hint_chain_keeps_existing_metadata_and_read_caps(self):
+        fixture = GitHubFixture()
+        parts = ["pkg"] + [f"p{i:02d}" for i in range(80)]
+        fixture.add("pkg/__init__.py", "import " + ".".join(parts) + ".engine\n")
+        for depth in range(2, len(parts) + 1):
+            fixture.add("/".join(parts[:depth]) + "/__init__.py", "# Package marker\n")
+        fixture.add("/".join(parts) + "/engine.py", "def execute(): pass\n")
+        result = PublicGitHub(fixture.read).fetch_repository("sample/project", max_files=3)
+        self.assertEqual([f["path"] for f in result["files"]],
+                         ["pkg/__init__.py", "pkg/p00/__init__.py", "pkg/p00/p01/__init__.py"])
+        self.assertEqual(len(result["coverage"]["initializer_import_hints"]), 64)
+        self.assertFalse(result["coverage"]["initializer_import_hints_complete"])
+        self.assertEqual(len(result["coverage"]["omitted_initializer_imports"]), 62)
+        self.assertEqual(sum("/git/blobs/" in endpoint for endpoint, _ in fixture.calls), 3)
+
+    def test_repeated_hints_do_not_consume_extra_attempts_or_repeat_blob_reads(self):
+        fixture = GitHubFixture()
+        fixture.add("pkg/__init__.py", "# Public package interface\n" * 4 + "from pkg import b, c\n")
+        fixture.add("pkg/a_helper.py", "def helper(): pass\n")
+        # b's initializer repeats c's existing hint.
+        fixture.add("pkg/b/__init__.py", "# Public package interface\n" * 4 + "from pkg import c\n")
+        fixture.add("pkg/c.py", "def validate(value): return value\n")
+        result = PublicGitHub(fixture.read).fetch_repository("sample/project", max_files=4)
+        self.assertEqual([f["path"] for f in result["files"]],
+                         ["pkg/__init__.py", "pkg/b/__init__.py", "pkg/c.py", "pkg/a_helper.py"])
+        blob_calls = [endpoint for endpoint, _ in fixture.calls if "/git/blobs/" in endpoint]
+        self.assertEqual(len(blob_calls), 4)
+        self.assertEqual(len(set(blob_calls)), 4)
+        self.assertTrue(result["coverage"]["complete"])
+
+    def test_from_imports_follow_eligible_child_modules_and_keep_base_module(self):
+        for prefix, statement, base, child in (
+            ("", "from pkg import z_engine", None, "pkg/z_engine.py"),
+            ("src/", "from pkg import z_engine as engine", None, "src/pkg/z_engine.py"),
+            ("", "from pkg import z_engine", None, "pkg/z_engine/__init__.py"),
+            ("", "from .nested import z_engine as engine", "pkg/nested/__init__.py", "pkg/nested/z_engine.py"),
+        ):
+            with self.subTest(statement=statement, child=child):
+                fixture = GitHubFixture()
+                initializer = prefix + "pkg/__init__.py"
+                fixture.add(initializer, "# Public package interface\n" * 4 + statement + "\n")
+                fixture.add(prefix + "pkg/a_helper.py", "def helper(): pass\n")
+                if base:
+                    fixture.add(base, "# nested package marker\n")
+                fixture.add(child, "def validate(value): return value\n")
+                expected = [initializer] + ([base] if base else []) + [child]
+                result = PublicGitHub(fixture.read).fetch_repository("sample/project", max_files=len(expected))
+                self.assertEqual([f["path"] for f in result["files"]], expected)
+                self.assertEqual(sum("/git/blobs/" in endpoint for endpoint, _ in fixture.calls), len(expected))
+                self.assertEqual(result["coverage"]["initializer_import_hints"],
+                                 [{"from": initializer, "path": path} for path in expected[1:]])
+
+    def test_from_import_child_hints_exclude_symlinks_and_do_not_expand_star(self):
+        fixture = GitHubFixture()
+        fixture.add("pkg/__init__.py", "# Public package interface\n" * 4 +
+                    "from pkg import secret, z_engine as engine, z_engine\nfrom pkg import *\n")
+        secret_sha = fixture.add("pkg/secret.py", "secret", mode="120000")
+        fixture.add("pkg/a_helper.py", "def helper(): pass\n")
+        fixture.add("pkg/z_engine.py", "def execute(): pass\n")
+        result = PublicGitHub(fixture.read).fetch_repository("sample/project", max_files=2)
+        self.assertEqual([f["path"] for f in result["files"]], ["pkg/__init__.py", "pkg/z_engine.py"])
+        self.assertEqual(result["coverage"]["initializer_import_hints"],
+                         [{"from": "pkg/__init__.py", "path": "pkg/z_engine.py"}])
+        self.assertNotIn(f"repos/sample/project/git/blobs/{secret_sha}", [c[0] for c in fixture.calls])
+
+    def test_plain_initializer_imports_prioritize_module_or_package_within_budget(self):
+        for prefix, statement, target in (
+            ("", "import pkg.z_engine", "pkg/z_engine.py"),
+            ("src/", "import pkg.z_engine as engine", "src/pkg/z_engine.py"),
+            ("", "import pkg.z_engine as engine", "pkg/z_engine/__init__.py"),
+        ):
+            with self.subTest(statement=statement, target=target):
+                fixture = GitHubFixture()
+                initializer = prefix + "pkg/__init__.py"
+                fixture.add(initializer, "# Public package interface\n" * 4 + statement + "\n")
+                fixture.add(prefix + "pkg/a_helper.py", "def helper(): pass\n")
+                fixture.add(target, "def validate(value): return value\n")
+                result = PublicGitHub(fixture.read).fetch_repository("sample/project", max_files=2)
+                self.assertEqual([f["path"] for f in result["files"]], [initializer, target])
+                self.assertEqual(result["coverage"]["initializer_import_hints"],
+                                 [{"from": initializer, "path": target}])
+                self.assertEqual(result["coverage"]["omitted_initializer_imports"], [])
+                self.assertEqual(sum("/git/blobs/" in endpoint for endpoint, _ in fixture.calls), 2)
+
+    def test_plain_import_hints_resolve_multiple_names_only_against_safe_tree(self):
+        fixture = GitHubFixture()
+        fixture.add("pkg/__init__.py", "# Public package interface\n" * 4 +
+                    "import external_library, pkg.secret, pkg.z_engine as engine, pkg.z_late\n")
+        fixture.add("pkg/a_helper.py", "def helper(): pass\n")
+        secret_sha = fixture.add("pkg/secret.py", "secret", mode="120000")
+        fixture.add("pkg/z_engine.py", "raise RuntimeError('never execute')\n")
+        late_sha = fixture.add("pkg/z_late.py", "def late(): pass\n")
+        result = PublicGitHub(fixture.read).fetch_repository("sample/project", max_files=2)
+        self.assertEqual([f["path"] for f in result["files"]], ["pkg/__init__.py", "pkg/z_engine.py"])
+        self.assertEqual(result["coverage"]["initializer_import_hints"],
+                         [{"from": "pkg/__init__.py", "path": "pkg/z_engine.py"},
+                          {"from": "pkg/__init__.py", "path": "pkg/z_late.py"}])
+        self.assertEqual(result["coverage"]["omitted_initializer_imports"], ["pkg/z_late.py"])
+        endpoints = [endpoint for endpoint, _ in fixture.calls]
+        self.assertEqual(sum("/git/blobs/" in endpoint for endpoint in endpoints), 2)
+        for sha in (secret_sha, late_sha):
+            self.assertNotIn(f"repos/sample/project/git/blobs/{sha}", endpoints)
+
+    def test_import_hint_ledger_has_a_bound_independent_of_file_budget(self):
+        for statement in ("from .module_{i:02d} import item", "import pkg.module_{i:02d}"):
+            with self.subTest(statement=statement):
+                fixture = GitHubFixture()
+                fixture.add("pkg/__init__.py", "\n".join(statement.format(i=i) for i in range(80)))
+                for i in range(80):
+                    fixture.add(f"pkg/module_{i:02d}.py", "def item(): pass\n")
+                result = PublicGitHub(fixture.read).fetch_repository("sample/project", max_files=2)
+                self.assertEqual(len(result["files"]), 2)
+                self.assertEqual(len(result["coverage"]["initializer_import_hints"]), 64)
+                self.assertFalse(result["coverage"]["initializer_import_hints_complete"])
+
+    def test_large_first_module_cannot_hide_later_public_engine(self):
+        fixture = GitHubFixture()
+        fixture.add("pkg/core.py", "\n".join(f"def helper_{i}(): return True" for i in range(120)))
+        fixture.add("pkg/engine.py", "class _Internal:\n" +
+                    "\n".join(f"    def hidden_{i}(self): pass" for i in range(120)) +
+                    "\ndef validate(value): return value\n")
+        snapshot = PublicGitHub(fixture.read).fetch_repository("sample/project")
+        capabilities = extract_structure(snapshot)
+        self.assertEqual(len(capabilities), 100)
+        self.assertIn("pkg/engine.py:validate", [cap["entrypoint"] for cap in capabilities])
+        self.assertTrue(snapshot["coverage"]["analysis"]["capability_limit_reached"])
+
+    def test_initializer_imports_preserve_public_engine_within_existing_budget(self):
+        fixture = GitHubFixture()
+        fixture.add("pkg/__init__.py", "# Public package interface\n" * 4 + "from pkg.validators import validate\nfrom .errors import Error\n")
+        for index in range(30):
+            fixture.add(f"pkg/a_helper_{index:02d}.py", "def helper(): return True\n")
+        fixture.add("pkg/validators.py", "def validate(value): return value\n")
+        fixture.add("pkg/errors.py", "class Error(Exception): pass\n")
+        result = PublicGitHub(fixture.read).fetch_repository("sample/project", max_files=3)
+        self.assertEqual([f["path"] for f in result["files"]],
+                         ["pkg/__init__.py", "pkg/validators.py", "pkg/errors.py"])
+        self.assertEqual(sum("/git/blobs/" in endpoint for endpoint, _ in fixture.calls), 3)
+        self.assertEqual(result["coverage"]["omitted_initializer_imports"], [])
+        self.assertFalse(result["coverage"]["complete"])
+
+    def test_import_hints_are_safe_bounded_static_and_support_src_layout(self):
+        fixture = GitHubFixture()
+        fixture.add("src/pkg/__init__.py", "# Public package interface\n" * 4 + "from pkg.engine import execute\nfrom . import late\nfrom .secret import token\n")
+        fixture.add("src/pkg/engine.py", "raise RuntimeError('never execute')\n")
+        fixture.add("src/pkg/late.py", "def late(): pass\n")
+        fixture.add("src/pkg/secret.py", "secret", mode="120000")
+        result = PublicGitHub(fixture.read).fetch_repository("sample/project", max_files=2)
+        self.assertEqual([f["path"] for f in result["files"]], ["src/pkg/__init__.py", "src/pkg/engine.py"])
+        self.assertEqual(result["coverage"]["omitted_initializer_imports"], ["src/pkg/late.py"])
+        self.assertEqual(len([c for c in fixture.calls if "/git/blobs/" in c[0]]), 2)
+
+    def test_invalid_initializer_or_nested_dynamic_import_keeps_heuristic_sample(self):
+        fixture = GitHubFixture()
+        fixture.add("pkg/__init__.py", "# Public package interface\n" * 4 +
+                    "def later():\n    from .z_engine import execute\n    import pkg.z_engine\n")
+        fixture.add("pkg/a_helper.py", "def helper(): pass\n")
+        fixture.add("pkg/z_engine.py", "def execute(): pass\n")
+        result = PublicGitHub(fixture.read).fetch_repository("sample/project", max_files=2)
+        self.assertEqual([f["path"] for f in result["files"]], ["pkg/__init__.py", "pkg/a_helper.py"])
+        self.assertEqual(result["coverage"]["initializer_import_hints"], [])
+
     def test_pins_revision_reads_docs_source_tests_and_exact_license(self):
         fixture = GitHubFixture()
         fixture.add("README.md", "# Tool\n\nConvert records.")
@@ -358,6 +669,30 @@ class SearchTests(unittest.TestCase):
 
 
 class StructuralAnalysisTests(unittest.TestCase):
+    def test_public_class_is_not_displaced_by_100_later_public_functions(self):
+        fixture = GitHubFixture()
+        fixture.add("engine.py", "class Engine:\n    def run(self): pass\n\n" +
+                    "\n".join(f"def helper_{i}(): pass" for i in range(100)))
+        snapshot = PublicGitHub(fixture.read).fetch_repository("sample/project")
+        capabilities = extract_structure(snapshot)
+        self.assertEqual(len(capabilities), 100)
+        self.assertEqual(capabilities[0]["entrypoint"], "engine.py:Engine")
+        self.assertEqual(capabilities[0]["level"], "subsystem")
+        self.assertEqual(capabilities[0]["verification"], "not_executed")
+
+    def test_public_top_level_declarations_precede_large_class_method_bodies(self):
+        fixture = GitHubFixture()
+        fixture.add("engine.py", "class Engine:\n" +
+                    "\n".join(f"    def method_{i}(self): pass" for i in range(120)) +
+                    "\n\ndef validate(value): return value\n\nclass OtherEngine: pass\n")
+        snapshot = PublicGitHub(fixture.read).fetch_repository("sample/project")
+        capabilities = extract_structure(snapshot)
+        self.assertEqual(len(capabilities), 100)
+        self.assertEqual([c["entrypoint"] for c in capabilities[:3]],
+                         ["engine.py:Engine", "engine.py:validate", "engine.py:OtherEngine"])
+        self.assertIn("engine.py:Engine.method_0", [c["entrypoint"] for c in capabilities])
+        self.assertTrue(snapshot["coverage"]["analysis"]["capability_limit_reached"])
+
     def snapshot(self):
         fixture = GitHubFixture()
         fixture.add("README.md", "# Convert\n\nA converter for records.\n")

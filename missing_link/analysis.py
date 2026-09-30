@@ -15,7 +15,7 @@ from .qualification import assess_discovery
 
 CLASSIFICATIONS = {"direct", "adapter", "extraction", "rejected", "investigate"}
 REQUEST_STATUSES = {"unresolved", "resolved", "duplicate", "unclear", "automated"}
-ANALYSIS_CONTRACT_VERSION = 5
+ANALYSIS_CONTRACT_VERSION = 7
 
 
 def digest(value: Any) -> str:
@@ -300,7 +300,8 @@ def extension_groups(matches: list[dict]) -> list[dict]:
             continue
         discovery = match.get("discovery_assessment", {})
         if (discovery.get("relationship", "external") != "external"
-                or discovery.get("status") in {"reference_only", "not_actionable"}):
+                or discovery.get("status") in {"reference_only", "not_actionable"}
+                or discovery.get("opportunity_review", {}).get("qualification_blockers")):
             continue
         requirements = {item["id"]: item for item in match["request"]["requirements"]}
         for check in match["checks"]:

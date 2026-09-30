@@ -12,7 +12,7 @@ import binascii
 import hashlib
 import json
 import re
-from collections import Counter
+from collections import Counter, deque
 from datetime import datetime, timezone
 from pathlib import PurePosixPath
 from typing import Any, Callable
@@ -24,6 +24,7 @@ MAX_TOTAL_BYTES = 2 * 1024 * 1024
 MAX_TEXT_CHARS = 64 * 1024
 MAX_DISCUSSION_CHARS = 512 * 1024
 MAX_CAPABILITIES = 100
+MAX_INITIALIZER_HINTS = 64
 REPO_PATTERN = re.compile(r"[A-Za-z0-9][A-Za-z0-9-]{0,38}/[A-Za-z0-9_.-]{1,100}\Z")
 SHA_PATTERN = re.compile(r"(?:[a-fA-F0-9]{40}|[a-fA-F0-9]{64})\Z")
 SUPPORTED_CODE = {".py": "Python", ".js": "JavaScript", ".mjs": "JavaScript",
@@ -159,15 +160,86 @@ def _priority(entry: dict[str, Any]) -> tuple:
 
 
 def _select_files(entries: list[dict[str, Any]], limit: int) -> list[dict[str, Any]]:
-    groups = {kind: sorted((e for e in entries if _kind(e["path"]) == kind), key=_priority)
-              for kind in ("documentation", "manifest", "source", "test")}
+    buckets = {kind: [] for kind in ("documentation", "manifest", "source", "test")}
+    for entry in entries:
+        kind = _kind(entry["path"])
+        if kind in buckets:
+            buckets[kind].append(entry)
+    groups = {kind: deque(sorted(bucket, key=_priority)) for kind, bucket in buckets.items()}
     cycle = ("documentation", "manifest", "source", "source", "test", "source")
     selected: list[dict[str, Any]] = []
     while len(selected) < limit and any(groups.values()):
         for kind in cycle:
             if groups[kind] and len(selected) < limit:
-                selected.append(groups[kind].pop(0))
+                selected.append(groups[kind].popleft())
     return selected
+
+
+def _initializer_imports(path: str, text: str, eligible: dict) -> list[str]:
+    """Static package-import hints, not proof of exports or execution.
+
+    Resolve only top-level imports in acquired Python initializers against the
+    already safety-filtered tree. No imports, filesystem reads or extra budget.
+    """
+    if PurePosixPath(path).name != "__init__.py":
+        return []
+    try:
+        tree = ast.parse(text)
+    except (SyntaxError, ValueError, RecursionError):
+        return []
+    parent = PurePosixPath(path).parent.parts
+    layout_root = ("src",) if len(parent) > 1 and parent[0] == "src" else ()
+    package_parts = parent[len(layout_root):]
+    targets = []
+    for node in tree.body:
+        if isinstance(node, ast.Import):
+            modules = [alias.name for alias in node.names]
+            level = 0
+        elif isinstance(node, ast.ImportFrom):
+            modules = ([node.module] if node.module else
+                       [alias.name for alias in node.names if alias.name != "*"])
+            if node.module:
+                # Imported names may be submodules or ordinary symbols. Treat
+                # only children present in the safety-filtered tree as hints.
+                modules.extend(f"{node.module}.{alias.name}" for alias in node.names if alias.name != "*")
+            level = node.level
+        else:
+            continue
+        for module in modules:
+            parts = module.split(".")
+            if level:
+                if level > len(parent):
+                    continue
+                roots = [parent[:len(parent) - level + 1]]
+            else:
+                # Absolute imports of this package stay in its own layout;
+                # an absent child is not evidence for an unrelated same-name
+                # package elsewhere. Other packages remain heuristic hints,
+                # preferring the acquired initializer's layout.
+                alternate_root = () if layout_root else ("src",)
+                roots = ([layout_root] if package_parts and parts[0] == package_parts[0]
+                         else [layout_root, alternate_root])
+            for root in roots:
+                # A dotted import traverses package initializers before its
+                # final module. These are tree-constrained hints, not execution
+                # proof; namespace packages simply have no eligible initializer.
+                for depth in range(1, len(parts)):
+                    candidate = "/".join((*root, *parts[:depth], "__init__.py"))
+                    # The safety-filtered tree accepts paths up to 1024 chars.
+                    # Avoid building arbitrarily deep untrusted import prefixes.
+                    if len(candidate) > 1024:
+                        break
+                    if candidate in eligible and candidate != path and candidate not in targets:
+                        targets.append(candidate)
+                        if len(targets) == MAX_INITIALIZER_HINTS:
+                            return targets
+                stem = "/".join((*root, *parts))
+                for candidate in (stem + ".py", stem + "/__init__.py"):
+                    if candidate in eligible and candidate != path and candidate not in targets:
+                        targets.append(candidate)
+                        if len(targets) == MAX_INITIALIZER_HINTS:
+                            return targets
+    return targets
 
 
 def _bot(user: Any) -> bool:
@@ -242,7 +314,20 @@ class PublicGitHub:
         files: list[dict[str, Any]] = []
         total_bytes = 0
         language_counts: Counter[str] = Counter()
-        for entry in _select_files(candidates, max_files):
+        pending = deque(_select_files(candidates, len(candidates)))
+        eligible_by_path = {entry["path"]: entry for entry in candidates}
+        attempted = set()
+        initializer_hints = []
+        initializer_hints_complete = True
+        # Following an initializer replaces later heuristic slots; it never
+        # expands the read/file/byte budget, including failed acquisitions.
+        while pending and len(attempted) < max_files:
+            entry = pending.popleft()
+            # Prioritized hints can also remain in the heuristic queue. Skip
+            # their old slots without charging another attempt or blob read.
+            if entry["path"] in attempted:
+                continue
+            attempted.add(entry["path"])
             if total_bytes + entry["size"] > MAX_TOTAL_BYTES:
                 excluded["total_size_budget"] += 1
                 continue
@@ -274,6 +359,16 @@ class PublicGitHub:
             files.append({"path": path, "sha": entry["sha"], "text": text,
                           "url": f"https://github.com/{full_name}/blob/{revision}/{quote(path, safe='/')}",
                           "kind": _kind(path), "language": language, "bytes": len(raw)})
+            targets = _initializer_imports(path, text, eligible_by_path)
+            if len(targets) == MAX_INITIALIZER_HINTS:
+                initializer_hints_complete = False
+            for target in targets:
+                if len(initializer_hints) < MAX_INITIALIZER_HINTS:
+                    initializer_hints.append({"from": path, "path": target})
+                else:
+                    initializer_hints_complete = False
+            pending.extendleft(eligible_by_path[target] for target in reversed(targets)
+                               if target not in attempted)
         limitations = ["Bounded source sample; declarations and test references are not execution proof."]
         if tree.get("truncated"):
             limitations.append("GitHub truncated the recursive tree; unseen paths were not analyzed.")
@@ -296,7 +391,12 @@ class PublicGitHub:
                              "files_scanned": len(files), "file_budget": max_files,
                              "bytes_scanned": total_bytes, "language_counts": dict(language_counts),
                              "tree_language_counts": dict(languages_in_tree), "excluded": dict(excluded),
-                             "sampling_policy": "Path heuristic: implementation before infrastructure; bounded docs/source/test mix, not export verification.",
+                             "sampling_policy": "Path heuristic plus static initializer-import hints; bounded docs/source/test mix, not export verification.",
+                             "initializer_import_hints": initializer_hints,
+                             "initializer_import_hints_complete": initializer_hints_complete,
+                             "initializer_hint_limit": MAX_INITIALIZER_HINTS,
+                             "omitted_initializer_imports": sorted({hint["path"] for hint in initializer_hints}
+                                 - {file["path"] for file in files}),
                              "eligible_source_roles": dict(eligible_roles), "acquired_source_roles": dict(acquired_roles),
                              "metadata_redacted": redacted, "metadata_truncated": description_truncated,
                              "complete": not tree.get("truncated") and len(files) == len(candidates) and not excluded,
@@ -492,6 +592,7 @@ def extract_structure(snapshot: dict[str, Any]) -> list[dict[str, Any]]:
     snapshot so consumers cannot present a bounded sample as whole-repo analysis.
     """
     capabilities: list[dict[str, Any]] = []
+    per_file: dict[str, list[dict[str, Any]]] = {}
     analysis_files: list[dict[str, Any]] = []
     parsed: dict[str, ast.Module] = {}
     tests: dict[str, list[dict[str, Any]]] = {}
@@ -529,14 +630,15 @@ def extract_structure(snapshot: dict[str, Any]) -> list[dict[str, Any]]:
 
     def append(file: dict[str, Any], name: str, level: str, summary: str,
                line: int, end_line: int, **extra: Any) -> None:
-        if len(capabilities) >= MAX_CAPABILITIES:
+        group = per_file.setdefault(file["path"], [])
+        if len(group) >= MAX_CAPABILITIES:
             return
         references = tests.get(name.rsplit(".", 1)[-1], [])[:3]
         # Keep maintainer corrections attached across commits/line movements;
         # exact evidence remains pinned separately to the snapshot revision.
         repository_id = snapshot.get("id") or str(snapshot.get("full_name") or "").casefold()
         identity = f"{repository_id}:{file['path']}:{name}"
-        capabilities.append({"id": hashlib.sha256(identity.encode()).hexdigest()[:20], "name": name,
+        group.append({"id": hashlib.sha256(identity.encode()).hexdigest()[:20], "name": name,
                              "level": level, "summary": summary, "outcome": "Not verified; requires request-specific analysis.",
                              "inputs": [], "outputs": [], "entrypoint": f"{file['path']}:{name}",
                              "dependencies": [], "preconditions": ["Execution and adoption context have not been verified."],
@@ -567,7 +669,14 @@ def extract_structure(snapshot: dict[str, Any]) -> list[dict[str, Any]]:
             def visit(body: list[ast.stmt], parent: str = "", depth: int = 0) -> None:
                 if depth > 10:
                     return
-                for node in body:
+                # Public top-level classes and functions share source-order
+                # priority. Sample their declarations before nested mechanisms
+                # so a large class body cannot hide other top-level APIs.
+                ordered = sorted(body, key=lambda node: (
+                    getattr(node, "name", "").startswith("_"),
+                    getattr(node, "lineno", 0))) if not parent else body
+                deferred = []
+                for node in ordered:
                     if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
                         continue
                     name = f"{parent}.{node.name}" if parent else node.name
@@ -583,7 +692,6 @@ def extract_structure(snapshot: dict[str, Any]) -> list[dict[str, Any]]:
                                signature=signature, dependencies=imports, calls=calls,
                                preconditions=["Class construction, coupling and runtime requirements are not verified."],
                                standalone="no" if parent else "unknown")
-                        visit(node.body, name, depth + 1)
                     else:
                         inputs = [argument.arg + (f": {ast.unparse(argument.annotation)}" if argument.annotation else "")
                                   for argument in (*node.args.posonlyargs, *node.args.args, *node.args.kwonlyargs)
@@ -593,8 +701,14 @@ def extract_structure(snapshot: dict[str, Any]) -> list[dict[str, Any]]:
                                definition={"path": path, "line": line, "end_line": end_line},
                                signature=signature, inputs=inputs, outputs=outputs,
                                dependencies=imports, calls=calls, standalone="no" if parent else "unknown")
-                        # Nested implementation mechanisms are useful, but explicitly coupled.
+                    # Nested implementation mechanisms remain useful and
+                    # explicitly coupled, after top-level declarations.
+                    if parent:
                         visit(node.body, name, depth + 1)
+                    else:
+                        deferred.append((node.body, name))
+                for nested_body, name in deferred:
+                    visit(nested_body, name, depth + 1)
 
             visit(module.body)
         elif PurePosixPath(path).suffix.casefold() in SUPPORTED_CODE:
@@ -608,6 +722,14 @@ def extract_structure(snapshot: dict[str, Any]) -> list[dict[str, Any]]:
                            f"Declaration candidate {name}; JavaScript/TypeScript partial scan.", line, line,
                            signature=text.strip()[:400],
                            limitations=["Partial declaration scan, not a JS/TS parser, typecheck or execution proof."])
+    # No large first module may consume the entire declaration budget before
+    # later public engines. Keep role priority and round-robin file diversity.
+    for role in ("implementation", "support", "test", "infrastructure"):
+        groups = [group for path, group in per_file.items() if source_role(path) == role]
+        for offset in range(max((len(group) for group in groups), default=0)):
+            for group in groups:
+                if offset < len(group) and len(capabilities) < MAX_CAPABILITIES:
+                    capabilities.append(group[offset])
     coverage = snapshot.setdefault("coverage", {})
     coverage["analysis"] = {"files": analysis_files, "capabilities": len(capabilities),
                              "capability_limit": MAX_CAPABILITIES,

@@ -174,6 +174,118 @@ class DiscoveryServiceTests(unittest.TestCase):
 
 
 class QualificationTests(unittest.TestCase):
+    def test_extension_groups_exclude_stale_or_unknown_demand_even_when_rejected(self):
+        for updated in ("2017-04-07T13:24:36Z", "not-a-date", None,
+                        "2027-01-01T00:00:00Z", "2026-09-29T12:00:00"):
+            for partial in (True, False):
+                with self.subTest(updated=updated, partial=partial):
+                    matches = []
+                    for number in (7, 8):
+                        demand = issue()
+                        demand.update(updated_at=updated, url=f"https://github.com/example/site/issues/{number}")
+                        raw_match = fixtures.raw_match()
+                        if not partial:
+                            raw_match["checks"][0].update(status="undetermined", source_ids=[])
+                        matches.append(self.evaluate(repository(), demand, fixtures.request_raw(), raw_match))
+                    self.assertEqual({m["discovery_assessment"]["status"] for m in matches},
+                                     {"partial_contribution" if partial else "not_a_fit"})
+                    self.assertTrue(all(m["discovery_assessment"]["opportunity_review"]["qualification_blockers"]
+                                        for m in matches))
+                    self.assertEqual(extension_groups(matches), [])
+
+    def test_extension_groups_still_include_independent_recent_conflicting_requests(self):
+        matches = []
+        for number in (7, 8):
+            demand = issue()
+            demand["url"] = f"https://github.com/example/site/issues/{number}"
+            matches.append(self.evaluate(repository(), demand, fixtures.request_raw(), fixtures.raw_match()))
+        groups = extension_groups(matches)
+        self.assertEqual(len(groups), 1)
+        self.assertEqual(groups[0]["count"], 2)
+
+    def test_old_request_and_unknown_or_future_activity_cannot_be_followup_ready(self):
+        for updated in ("2017-04-07T13:24:36Z", "not-a-date", None, "2027-01-01T00:00:00Z",
+                        "2026-09-29T12:00:00"):
+            with self.subTest(updated=updated):
+                repo, demand, raw_request, raw_match = self.case()
+                demand["updated_at"] = updated
+                assessment = self.evaluate(repo, demand, raw_request, raw_match)["discovery_assessment"]
+                self.assertEqual(assessment["status"], "needs_review")
+                self.assertFalse(assessment["eligible_for_followup"])
+                self.assertTrue(assessment["opportunity_review"]["qualification_blockers"])
+        repo, demand, raw_request, raw_match = self.case()
+        demand.pop("fetched_at")
+        self.assertFalse(self.evaluate(repo, demand, raw_request, raw_match)["discovery_assessment"]["eligible_for_followup"])
+
+    def test_reference_only_body_does_not_turn_title_into_adoption_demand(self):
+        repo, demand, raw_request, raw_match = self.case()
+        demand["title"] = "Shorten text without splitting words"
+        demand["body"] = "For ex:\n- https://github.com/another/cache\n"
+        assessment = self.evaluate(repo, demand, raw_request, raw_match)["discovery_assessment"]
+        self.assertEqual(assessment["status"], "reference_only")
+        self.assertFalse(assessment["eligible_for_followup"])
+        self.assertTrue(assessment["opportunity_review"]["reference_body_hint"])
+
+    def test_markdown_and_html_link_labels_do_not_establish_adoption_demand(self):
+        for body in (
+            "[Example project](https://github.com/x/y)",
+            "[Example project](<https://github.com/x/y>)",
+            '[Example project](https://github.com/x/y "Project title")',
+            "[Example [nested] project](https://example.org/wiki/Foo_(bar))",
+            '<a href="https://github.com/x/y"><strong>Example project</strong></a>',
+            '<p>For example: <a href="https://github.com/x/y">Useful project</a></p>',
+            "![Project screenshot](https://example.org/image.png)",
+            "[Example project][project]\n\n[project]: https://github.com/x/y",
+            "[Project][]\n\n[Project]: https://github.com/x/y",
+            "[Project]\n\n[Project]: https://github.com/x/y",
+        ):
+            with self.subTest(body=body):
+                repo, demand, raw_request, raw_match = self.case()
+                demand.update(title="Shorten text without splitting words", body=body)
+                assessment = self.evaluate(repo, demand, raw_request, raw_match)["discovery_assessment"]
+                self.assertEqual(assessment["status"], "reference_only")
+                self.assertFalse(assessment["eligible_for_followup"])
+                self.assertTrue(assessment["opportunity_review"]["reference_body_hint"])
+
+    def test_link_normalization_preserves_real_request_prose(self):
+        for body in (
+            "I need plain text shortened without splitting words. [Example project](https://github.com/x/y)",
+            '<p>I need plain text shortened without splitting words. <a href="https://github.com/x/y">Example project</a></p>',
+            "I need plain text shortened without splitting words. [Project][p]\n\n[p]: https://github.com/x/y",
+            "I need plain text shortened without splitting words. [An unfinished link](",
+            "I need plain text shortened without splitting words. [Plain bracketed prose]",
+            r"I need plain text shortened without splitting words. \[Literal label](https://github.com/x/y)",
+        ):
+            with self.subTest(body=body):
+                repo, demand, raw_request, raw_match = self.case()
+                demand["body"] = body
+                assessment = self.evaluate(repo, demand, raw_request, raw_match)["discovery_assessment"]
+                self.assertEqual(assessment["status"], "external_lead")
+                self.assertTrue(assessment["eligible_for_followup"])
+                self.assertFalse(assessment["opportunity_review"]["reference_body_hint"])
+
+    def test_short_real_request_and_snapshot_relative_age_are_not_discarded(self):
+        repo, demand, raw_request, raw_match = self.case()
+        demand["body"] = "without splitting words"
+        assessment = self.evaluate(repo, demand, raw_request, raw_match)["discovery_assessment"]
+        self.assertEqual(assessment["status"], "external_lead")
+        self.assertEqual(assessment["opportunity_review"]["activity_age_days"], 1)
+        # Reassessing a saved snapshot does not age its observations using wall time.
+        self.assertEqual(self.evaluate(repo, demand, raw_request, raw_match)["discovery_assessment"], assessment)
+
+    def test_partial_support_survives_hard_conflict_without_becoming_a_lead(self):
+        match = validate_matches([fixtures.raw_match()], repository(), issue(),
+                                 validate_request(fixtures.request_raw(), issue()), "model")[0]
+        assessment = match["discovery_assessment"]
+        self.assertEqual(match["classification"], "rejected")
+        self.assertEqual(assessment["status"], "partial_contribution")
+        self.assertEqual(assessment["contribution"], "supported_with_conflicts")
+        self.assertEqual(assessment["supported_requirement_ids"], ["r0"])
+        self.assertEqual(assessment["conflicting_requirement_ids"], ["r1"])
+        self.assertFalse(assessment["eligible_for_followup"])
+        self.assertEqual(extension_groups([match, copy.deepcopy(match)]), [])
+        self.assertEqual(export_handoff(match, repository())["match"]["discovery_assessment"], assessment)
+
     def case(self):
         demand = issue()
         demand["body"] = "I need plain text shortened without splitting words."

@@ -50,6 +50,37 @@ candidate URLs, query attribution, upstream ranks and selection order are saved
 in `job.result.search`. Resuming keeps the selected checkpoint batch unchanged.
 Empty results and excluded candidates do not demonstrate absence of demand.
 
+Python source acquisition follows top-level imports in already acquired package
+initializers to eligible local modules (including `src` layouts), within the same
+file/read/byte limits. Dotted imports prioritize eligible intermediate package
+initializers before the final module; missing namespace-package initializers are
+not invented. These static hints are recorded with omitted targets; they
+keep same-package absolute imports in the acquired initializer's flat or `src`
+layout rather than following an unrelated same-name package in another tree, and
+are not verified exports or dependency closure. Declaration sampling prioritizes
+public top-level classes/functions before their nested mechanisms and balances
+files within source-role tiers so an early
+large helper class cannot consume all 100 capability slots. Dynamic imports,
+conditional exports, JS/TS exports and oversized/excluded modules remain limitations.
+
+Technical compatibility and useful partial contribution are separate. A rejected
+request can retain supported requirement IDs alongside conflicts and unknowns;
+**partial support does not satisfy the whole request or unblock a mandatory
+conflict**. It is not follow-up-ready. Proposed adapter code is new work, not
+evidence that the selected interface already implements that behavior.
+
+An empty body or a body containing only example/reference links cannot establish
+independent adoption demand from its title. Markdown link/image labels and HTML
+anchor labels are references, not request prose; surrounding request prose is
+retained. Extension groups also exclude demand with qualification blockers,
+including old activity or unknown/invalid recency. Follow-up qualification requires
+valid snapshot collection/update timestamps. Issue activity at least 365 days old
+requires current-demand review; this conservative threshold is not proof of
+resolution or project abandonment. Activity age is calculated against the saved
+collection time, not today's clock, and is reproducible in historical exports.
+An open/non-archived target alone does not verify runtime versions, acceptance
+criteria, current demand, integration or adoption.
+
 ## Coding-agent mode without a provider
 
 After evaluating a selected issue, expand **Use a coding agent without configuring
@@ -195,7 +226,7 @@ at a new revision. Maintainer feedback does not overwrite original evidence.
 Refreshes atomically preserve feedback and supersession. Each result keeps its
 exact reproduction snapshot, independent of the list of recent jobs. Resuming
 with another provider/model/contract pauses rather than mixing interpretations.
-Analysis contract version 5 also marks older assessments historical and blocks
+Analysis contract version 7 also marks older assessments historical and blocks
 their isolated examples until reevaluation; historical snapshots/exports remain
 available and are not silently rewritten as current evidence.
 Discussion freshness uses immutable GitHub issue IDs, including older URL-keyed

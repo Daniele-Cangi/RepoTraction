@@ -235,6 +235,29 @@ class MissingLinkFrontendTests(unittest.TestCase):
         self.page.set_viewport_size({"width": 390, "height": 844})
         self.assertTrue(self.page.evaluate("document.documentElement.scrollWidth <= innerWidth"))
 
+    def test_partial_contribution_does_not_hide_full_rejection(self):
+        fixture = source_fixture()
+        match = fixture["matches"][0]
+        match["classification"] = "rejected"
+        match["discovery_assessment"] = {"status": "partial_contribution", "eligible_for_followup": False,
+            "supported_requirement_ids": ["r0"], "conflicting_requirement_ids": ["r1"],
+            "undetermined_requirement_ids": [], "reasons": ["<script>not executable</script>"], "references": []}
+        self.fixture_page(fixture)
+        self.page.get_by_text("Partial code support · full request still rejected", exact=True).wait_for()
+        self.assertIn("Not a fit", self.page.locator("#mlMatches").inner_text())
+        self.page.locator('[data-ml-detail="discovery-match-fixture"]').evaluate("node => node.open = true")
+        self.assertIn("Existing support: 1 requirements · Conflicts: 1", self.page.locator("#mlMatches").inner_text())
+        self.assertEqual(self.page.locator("#mlMatches script").count(), 0)
+        self.assertIn("Not executed", self.page.locator("#mlMatches").inner_text())
+
+    def test_stale_lead_is_visibly_historical_not_silently_requalified(self):
+        fixture = source_fixture()
+        fixture["matches"][0].update(stale=True, discovery_assessment={"status": "external_lead", "reasons": []})
+        self.fixture_page(fixture)
+        self.page.get_by_text("Historical qualification · reevaluation required · Potential external connection · novelty unverified",
+                              exact=True).wait_for()
+
+
     def test_review_opt_in_and_request_validation(self):
         self.fixture_page()
         self.assertTrue(self.page.locator("#mlDiscoverButton").is_disabled())

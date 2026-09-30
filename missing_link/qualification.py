@@ -4,12 +4,135 @@ Name/reference hints are conservative review signals, not adoption evidence.
 Absence of a hint never establishes novelty or author awareness.
 """
 import re
+from datetime import datetime
+from html.parser import HTMLParser
 
 from .sources import parse_issue_url
 from .discussion import authorship
 
 
 MAX_REFERENCE_EXCERPTS = 8
+STALE_DEMAND_DAYS = 365
+
+
+class _LinkProse(HTMLParser):
+    """Keep prose outside HTML anchors; labels/attributes are not demand."""
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.parts = []
+        self.anchors = []
+        self.link_depth = 0
+
+    def handle_starttag(self, tag, attrs):
+        if tag == "a":
+            linked = any(name == "href" for name, _ in attrs)
+            self.anchors.append(linked)
+            self.link_depth += linked
+        self.parts.append(" ")
+
+    def handle_endtag(self, tag):
+        if tag == "a" and self.anchors:
+            self.link_depth -= self.anchors.pop()
+        self.parts.append(" ")
+
+    def handle_data(self, data):
+        if not self.link_depth:
+            self.parts.append(data)
+
+
+def _balanced_end(value, start, opening, closing):
+    """Exclusive end of a balanced Markdown label/destination, or None."""
+    depth, index = 1, start + 1
+    while index < len(value):
+        char = value[index]
+        if char == "\\":
+            index += 2
+            continue
+        if char == opening:
+            depth += 1
+        elif char == closing:
+            depth -= 1
+            if not depth:
+                return index + 1
+        index += 1
+    return None
+
+
+def _without_markdown_links(value):
+    # Remove definitions and recognize inline, full/collapsed/shortcut reference
+    # links. A forward scan avoids backtracking through nested untrusted labels.
+    references = set()
+    def reference_key(label):
+        return " ".join(label.split()).casefold()
+    def definition(match):
+        references.add(reference_key(match[1]))
+        return " "
+    value = re.sub(r"(?m)^[ \t]{0,3}\[([^\]\n]+)\]:[ \t]*\S+[^\n]*$", definition, value)
+    parts, position = [], 0
+    while position < len(value):
+        start = value.find("[", position)
+        if start < 0:
+            parts.append(value[position:])
+            break
+        parts.append(value[position:start])
+        escaped = start - 1
+        while escaped >= 0 and value[escaped] == "\\":
+            escaped -= 1
+        if (start - escaped - 1) % 2:
+            parts.append("[")
+            position = start + 1
+            continue
+        end = _balanced_end(value, start, "[", "]")
+        if end is None:
+            parts.append(value[start:])
+            break
+        label = reference_key(value[start + 1:end - 1])
+        link_end = None
+        if value[end:end + 1] == "(":
+            link_end = _balanced_end(value, end, "(", ")")
+        elif value[end:end + 1] == "[":
+            ref_end = _balanced_end(value, end, "[", "]")
+            if ref_end is not None and (reference_key(value[end + 1:ref_end - 1]) or label) in references:
+                link_end = ref_end
+        elif label in references:
+            link_end = end
+        parts.append(" " if link_end is not None else value[start:end])
+        position = link_end if link_end is not None else end
+    return "".join(parts)
+
+
+def _reference_body(body):
+    """High-precision link-note hint; short real requests remain eligible."""
+    parser = _LinkProse()
+    parser.feed(body or "")
+    parser.close()
+    prose = _without_markdown_links("".join(parser.parts))
+    without_urls = re.sub(r"https?://[^\s<>]+", " ", prose, flags=re.I)
+    tokens = re.findall(r"[\w]+", without_urls.casefold())
+    return not tokens or set(tokens) <= {"for", "ex", "example", "examples", "see", "reference",
+                                        "references", "link", "links", "e", "g"}
+
+
+def opportunity_review(issue):
+    """Snapshot-relative review signals, never proof that old demand is gone."""
+    blockers = []
+    age = None
+    try:
+        collected = datetime.fromisoformat(issue["fetched_at"].replace("Z", "+00:00"))
+        updated = datetime.fromisoformat(issue["updated_at"].replace("Z", "+00:00"))
+        if collected.utcoffset() is None or updated.utcoffset() is None or updated > collected:
+            raise ValueError("Invalid activity timestamps")
+        age = (collected - updated).days
+    except (KeyError, TypeError, AttributeError, ValueError, OverflowError):
+        blockers.append("Demand recency is unknown: valid collection and issue-update timestamps are required before follow-up qualification.")
+    if age is not None and age >= STALE_DEMAND_DAYS:
+        blockers.append(f"Issue activity is {age} days old; confirm current demand before follow-up. Age alone does not prove resolution or inactivity.")
+    reference_only = _reference_body(issue.get("body"))
+    if reference_only:
+        blockers.append("The body contains only references/example links, not an independently specified adoption request.")
+    return {"activity_age_days": age, "stale_after_days": STALE_DEMAND_DAYS,
+            "reference_body_hint": reference_only, "qualification_blockers": blockers,
+            "method": "snapshot-relative conservative review hints; not a demand or runtime compatibility proof"}
 
 
 def _references(repository, catalog):
@@ -63,10 +186,15 @@ def assess_discovery(repository, issue, request, classification, checks, catalog
                and repository["id"] == issue["repo_id"])
     same_project = same_id or target.casefold() == repository["full_name"].casefold()
     references, reference_count, linked = _references(repository, catalog)
+    review = opportunity_review(issue)
     relationship = ("same_project" if same_project else "already_referenced" if linked else
                     "reference_hint" if reference_count else "external" if target else "unknown")
-    supported = sum(check["status"] == "satisfied" for check in checks)
-    contribution = "conflict" if classification == "rejected" else "supported" if supported else "not_demonstrated"
+    supported_ids = [check["requirement_id"] for check in checks if check["status"] == "satisfied"]
+    conflict_ids = [check["requirement_id"] for check in checks if check["status"] == "incompatible"]
+    unknown_ids = [check["requirement_id"] for check in checks if check["status"] == "undetermined"]
+    supported = bool(supported_ids)
+    contribution = ("supported_with_conflicts" if supported and conflict_ids else
+                    "supported" if supported else "conflict" if conflict_ids else "not_demonstrated")
     hard_ids = {r["id"] for r in request["requirements"] if r["mandatory"]}
     verdicts = {check["requirement_id"]: check["status"] for check in checks}
     complete_hard = (bool(hard_ids) and all(verdicts.get(rid) == "satisfied" for rid in hard_ids)
@@ -75,9 +203,9 @@ def assess_discovery(repository, issue, request, classification, checks, catalog
     if same_project:
         status = "same_project"
         reasons.append("The request belongs to the source project; this is internal work, not a new external connection.")
-    elif not (issue.get("body") or "").strip():
+    elif review["reference_body_hint"]:
         status = "reference_only"
-        reasons.append("The empty issue body does not establish actionable demand; it may be a reference note.")
+        reasons.append("An empty or reference-only issue body does not establish independently specified actionable demand.")
     elif reference_count:
         status = "known_reference" if linked else "reference_review"
         reasons.append("The source is already referenced or its package name appears in acquired discussion. Verify identity, intent and prior use; a mention is not adoption or endorsement.")
@@ -86,13 +214,15 @@ def assess_discovery(repository, issue, request, classification, checks, catalog
         status = "not_actionable"
         reasons.append("An unresolved independent human demand in an active target is not established.")
     elif classification == "rejected":
-        status = "not_a_fit"
-        reasons.append("Compatibility assessment rejected this contribution; lexical resemblance is not a usable connection.")
+        status = "partial_contribution" if supported else "not_a_fit"
+        reasons.append("Some requirements have existing code support, but the complete request is rejected; supported parts do not remove mandatory conflicts or establish an actionable connection."
+                       if supported else "Compatibility assessment rejected this contribution; lexical resemblance is not a usable connection.")
     elif not supported:
         status = "similarity_only"
         reasons.append("No requirement has a supported existing contribution. Retrieval or all-undetermined checks are not a discovered solution.")
     elif (relationship == "unknown" or request["status"] != "unresolved" or not request.get("context_complete")
           or request.get("constraint_review", {}).get("qualification_blockers") or not complete_hard
+          or review["qualification_blockers"]
           or classification not in {"direct", "adapter", "extraction"}):
         status = "needs_review"
         reasons.append("Some contribution is supported, but demand, context or mandatory compatibility still needs review.")
@@ -100,7 +230,11 @@ def assess_discovery(repository, issue, request, classification, checks, catalog
         status = "external_lead"
         reasons.append("Potential external connection with supported requirements; novelty, execution, target integration and adoption remain unverified.")
     reasons.append("No reference found in a bounded discussion is not proof that this connection is new or unknown to the author.")
+    reasons.extend(review["qualification_blockers"])
     return {"status": status, "relationship": relationship, "contribution": contribution,
+        "supported_requirement_ids": supported_ids, "conflicting_requirement_ids": conflict_ids,
+        "undetermined_requirement_ids": unknown_ids,
+        "opportunity_review": review,
         "novelty": "unverified", "eligible_for_followup": status == "external_lead",
         "references": references, "reference_count": reference_count,
         "reference_coverage_complete": reference_count <= len(references),

@@ -336,6 +336,21 @@ class ProviderContractTests(unittest.TestCase):
             request = provider.interpret_request(demand, mock.Mock())
         self.assertEqual(request["requirements"][0]["source"]["quote"], raw["requirements"][0]["quote"])
 
+    def test_deleted_incises_and_markdown_stay_invalid_with_private_safe_diagnostic(self):
+        provider = Provider({"REPOTRACTION_AI_URL": "http://localhost/v1", "REPOTRACTION_AI_MODEL": "fixture"})
+        demand = issue()
+        demand.update(body="Structural DTOs (DTOs), decoupled.\n**Cold-storage test:** yes please.", comments=[])
+        for quote in ("Structural DTOs, decoupled.", "Cold-storage test: yes please."):
+            raw = request_raw()
+            raw["requirements"] = [dict(raw["requirements"][0], quote=quote)]
+            with mock.patch.object(provider, "complete", return_value=raw) as complete:
+                with self.assertRaises(CandidateValidationError) as caught:
+                    provider.interpret_request(demand, mock.Mock())
+                self.assertIn("r0 quote is not a contiguous span", str(caught.exception))
+                self.assertNotIn(quote, str(caught.exception))
+                self.assertEqual(complete.call_count, 1)
+                self.assertIn("short exact substring", complete.call_args.args[0])
+
     def test_persisted_allowance_is_shared_by_jobs_and_survives_restart(self):
         with tempfile.TemporaryDirectory() as temp:
             path = Path(temp) / "alice.sqlite3"
