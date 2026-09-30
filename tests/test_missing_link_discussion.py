@@ -21,6 +21,46 @@ class DiscussionReviewTests(unittest.TestCase):
         return {"url": issue()["url"] + "#issuecomment-later", "body": body, "author": author,
                 "author_type": "User", "author_association": association}
 
+    def title_constraint(self):
+        demand = issue()
+        demand.update(title="Must not use Python", body="I need plain text shortened without splitting words.",
+                      comments=[])
+        raw = request_raw()
+        raw["requirements"] = raw["requirements"][:1]
+        return demand, raw
+
+    def test_omitted_title_constraint_blocks_positive(self):
+        demand, raw = self.title_constraint()
+        match = self.positive(demand, raw)
+        self.assertEqual(match["classification"], "investigate")
+        hint = match["request"]["constraint_review"]["items"][0]
+        self.assertEqual(hint["quote"], demand["title"])
+        self.assertEqual(hint["source_id"], "q0")
+        self.assertEqual(hint["authority"], "request_author")
+        self.assertEqual(hint["represented_by"], [])
+        self.assertTrue(hint["needs_review"])
+
+    def test_extracted_title_constraint_is_grounded_and_conflict_rejected(self):
+        demand, raw = self.title_constraint()
+        raw["requirements"].append({"text": "No Python runtime", "mandatory": True, "explicit": True,
+                                    "source_id": "q0", "quote": demand["title"], "inference": ""})
+        request = validate_request(raw, demand)
+        self.assertEqual(request["constraint_review"]["qualification_blockers"], [])
+        self.assertEqual(request["constraint_review"]["items"][0]["represented_by"], ["r1"])
+        self.assertEqual(self.positive(demand, raw)["classification"], "direct")
+        self.assertEqual(validate_matches([raw_match()], repository(), demand, request, "model")[0]
+                         ["classification"], "rejected")
+
+    def test_title_constraint_reaches_provider_context_but_comment_titles_are_not_evidence(self):
+        demand, _ = self.title_constraint()
+        demand["comments"] = [dict(self.comment("Additional context."), title="Must not use Node.js")]
+        data, report = build_context(None, demand, "request", 60000)
+        hints = data["potential_constraints"]["items"]
+        self.assertEqual(len(hints), 1)
+        self.assertEqual(hints[0]["quote"], demand["title"])
+        self.assertIn(hints[0]["quote"], data["sources"]["q0"]["quote"])
+        self.assertEqual(report["omitted_constraint_ids"], [])
+
     def test_middle_dependency_constraint_survives_shortening_and_keeps_authority(self):
         demand = issue()
         demand["comments"] = [self.comment("prefix\n" * 2000 + "No `p-limit` or Axios.\n" + "suffix\n" * 2000)]

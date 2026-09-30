@@ -41,7 +41,11 @@ def constraint_hints(issue):
     sources = [("q0", issue)] + [(f"q{index}", comment) for index, comment in enumerate(issue.get("comments", []), 1)]
     for source_index, (source_id, source) in enumerate(sources):
         author = authorship(source, issue.get("author"), source_id == "q0")
-        for line_number, line in enumerate(str(source.get("body") or "").splitlines(), 1):
+        source_text = str(source.get("body") or "")
+        if source_id == "q0":
+            # Match the request evidence catalog: titles are request evidence too.
+            source_text = str(source.get("title") or "") + "\n" + source_text
+        for line_number, line in enumerate(source_text.splitlines(), 1):
             marker = CONSTRAINT_MARKER.search(line)
             if not marker:
                 continue
