@@ -24,6 +24,24 @@ The UI's review checkbox is a workflow aid, not a security permission. Backend
 public-source enforcement, identity checks, budgets and package safety do not
 depend on trusting that checkbox.
 
+### How automatic discovery chooses its sample
+
+Automatic queries use short mechanism/problem phrases, removing the source
+package name rather than searching for existing references to it. Up to three
+queries cover distinct source modules where possible. They target open issues
+in title/body and exclude the source repository; a custom query or specific
+issue still allows closed discussions and same-project work. Open issue state
+is a retrieval hint, not proof that the request remains unresolved.
+
+Within the existing two-page-per-query budget, selection favors external open
+issues, then balances projects and queries before title-term overlap and GitHub
+result position. A later relevant hit can displace an early hit; no popularity
+metric enters this ranking. This deterministic lexical heuristic is not semantic
+relevance, novelty, or a probability of adoption. Queries, page limits, canonical
+candidate URLs, query attribution, upstream ranks and selection order are saved
+in `job.result.search`. Resuming keeps the selected checkpoint batch unchanged.
+Empty results and excluded candidates do not demonstrate absence of demand.
+
 ## Coding-agent mode without a provider
 
 After evaluating a selected issue, expand **Use a coding agent without configuring
