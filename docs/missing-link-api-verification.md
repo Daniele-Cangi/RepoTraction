@@ -114,3 +114,37 @@ IDs and model outputs can differ on a new run. The independent test script expec
 the recorded initial/refined example module names; inspect any new bridge before
 selecting its entry point. Runtime downloads, local reports, credentials and the
 account database are ignored by Git. Nothing was published to third-party projects.
+
+## Post-merge acceptance check — 2026-09-30
+
+PR #7 was merged, and the local checkout was fast-forwarded to `main` commit
+`bf04cd4`. Its reviewed head passed all four Windows/Linux, Python 3.10/3.13 CI
+jobs. The server was restarted without interrupting an active investigation.
+
+- Read-only browser verification of the real saved results: 15 cards, 15 ZIP
+  export links, no JavaScript errors, no mutation requests and no mobile overflow.
+- Local suite: **171 tests passed**, including an additional browser-to-HTTP-to-
+  service-to-SQLite acceptance test. This uses fictional public source fixtures
+  and a temporary account database, not new AI analysis or the user's database.
+  It covers source review, discovery, correction, invalidation, stale execution
+  rejection, a distinct reevaluation and persistence after service restart.
+- The acceptance test's fixed example also ran through the actual WASI endpoint;
+  its receipt survived restart and appeared in the browser. Its successful exit
+  does not establish the original request's criteria or any target integration.
+- Repeated WASI boundary probes passed after startup hardening: only
+  `PYTHONHOME` and `PYTHONDONTWRITEBYTECODE` are supplied, no project startup
+  `PYTHONPATH`, no inherited credentials, host filesystem/network/native
+  process access, and enforced fuel/memory/output bounds. Separate regression
+  coverage verifies that project startup hooks and stdlib shadows do not run.
+- Effective capability changes now invalidate previous matches and block old
+  examples. The UI explains interpretation changes as well as source/discussion
+  changes; immutable issue IDs preserve freshness across repository renames.
+
+No additional paid API calls were made for these acceptance checks. The
+[README screenshot](screenshots/missing-link.png) uses the built-in synthetic
+demo and deliberately shows no fabricated positive result. The live account
+screenshot stays in ignored local data, not the repository.
+
+Release preparation is documented in the 3.1.0 development changelog. Publishing
+a tag/release and testing a real application's integration are separate next
+steps; neither is implied by this local acceptance pass.

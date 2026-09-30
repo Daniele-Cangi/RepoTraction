@@ -125,6 +125,17 @@ not expose profile visitors.
 
 ![RepoTraction Network](docs/screenshots/network.png)
 
+### Missing Link
+
+Start with public code, review its capabilities, and compare them with a public
+request's requirements. Results distinguish existing functionality, proposed
+bridge work and unknowns; optional isolated examples are not target integration.
+The synthetic demo explains the workflow but deliberately does not invent
+successful matches or proofs. See the [real API verification](docs/missing-link-api-verification.md)
+for the separately recorded investigation and execution evidence.
+
+![RepoTraction Missing Link synthetic demo](docs/screenshots/missing-link.png)
+
 ## Designed for every GitHub account
 
 RepoTraction automatically runs:

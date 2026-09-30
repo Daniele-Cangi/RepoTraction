@@ -152,13 +152,19 @@ Screened unchanged blobs are reused; the default branch head is checked anew on
 a new job. Old discussion snapshots and rejection reasons remain available.
 
 Updates are **operator-triggered**: start a new analysis/evaluation when you want
-to refresh. A changed revision or newly acquired discussion fingerprint marks old
+to refresh. A changed revision, effective capability interpretation or newly acquired discussion fingerprint marks old
 results stale, including before a replacement evaluation is completed. There is
 no background Missing Link crawler. Old capability corrections require review
 at a new revision. Maintainer feedback does not overwrite original evidence.
 Refreshes atomically preserve feedback and supersession. Each result keeps its
 exact reproduction snapshot, independent of the list of recent jobs. Resuming
 with another provider/model/contract pauses rather than mixing interpretations.
+Discussion freshness uses immutable GitHub issue IDs, including older URL-keyed
+records after renames. Capability corrections invalidate previous results and
+block their isolated examples; reevaluation produces a distinct result while
+retaining the original interpretation and feedback. Recovery also runs when an
+already-open dashboard discovers that the worker lease is free: abandoned jobs
+become paused and require explicit resume, with checkpoints and budgets intact.
 
 Independent unresolved requests blocked by the same normalized requirement text
 can be grouped as extension leads. This first grouping is deliberately narrow;
@@ -231,6 +237,10 @@ An independent test can be supplied with `--reviewed-test PATH` and
 not a manual import of analysis. The API never reads arbitrary host paths.
 Only pinned public Python source, bridge text and explicitly reviewed tests enter
 a fresh temporary directory. The guest sees that copy and Python stdlib only.
+Python starts with `-S -P`, without project `PYTHONPATH`: no `sitecustomize`,
+`usercustomize` or `.pth` hooks run automatically. The reviewed entrypoint is
+started by a trusted bootstrap; project dependencies are then available behind
+the standard library rather than shadowing startup modules.
 
 [Wasmtime/WASI capabilities](https://docs.wasmtime.dev/security.html) deny host
 paths, inherited guest environment, network and native subprocesses. Limits are
@@ -261,6 +271,14 @@ server with acquired case results, the read-only browser smoke check is:
 ```sh
 python scripts/verify_missing_link.py --repo un33k/python-slugify
 ```
+
+The optional `tests/test_missing_link_e2e.py` acceptance test connects the browser
+to the actual local HTTP handler, service and temporary SQLite database. GitHub
+source acquisition is fictional and AI is off. It covers analysis, reviewed
+discovery, maintainer correction, stale-example rejection, reevaluation and
+restart persistence. If the pinned WASI runtime is installed, it also runs fixed
+fixture code through the actual example endpoint and checks the persisted receipt.
+No real account database is modified, and no target integration is claimed.
 
 Windows install/update can be tested without altering a real installation:
 
