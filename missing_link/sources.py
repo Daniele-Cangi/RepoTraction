@@ -277,7 +277,14 @@ class PublicGitHub:
         branch = str(repo.get("default_branch") or "")
         if not branch or len(branch) > 256:
             raise ValueError("The repository has no analyzable default branch.")
-        commit = self._read(f"repos/{full_name}/commits/{quote(branch, safe='')}")
+        try:
+            commit = self._read(f"repos/{full_name}/commits/{quote(branch, safe='')}")
+        except RuntimeError as exc:
+            # Only missing/empty target commits are candidate-local. Account,
+            # rate-limit, cancellation, budget and transport failures propagate.
+            if reference_paths is not None and re.search(r"\(HTTP (?:404|409)\)", str(exc)):
+                raise ValueError("The target has no available default-branch commit.") from None
+            raise
         revision = str(commit.get("sha") or "")
         tree_sha = str(commit.get("commit", {}).get("tree", {}).get("sha") or "")
         if not SHA_PATTERN.fullmatch(revision) or not SHA_PATTERN.fullmatch(tree_sha):

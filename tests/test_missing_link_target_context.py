@@ -6,6 +6,7 @@ from missing_link.analysis import validate_request, validate_matches
 from missing_link.context import build_context
 from missing_link.sources import PublicGitHub
 from missing_link.qualification import tomllib
+from missing_link.service import Paused, Cancelled
 from test_missing_link import repository, issue, request_raw, raw_match
 import test_missing_link as fixtures
 from test_missing_link_sources import GitHubFixture, REVISION
@@ -17,6 +18,22 @@ def target_file(path, value):
 
 
 class ReferenceContextTests(unittest.TestCase):
+    def test_missing_target_commit_is_unavailable_but_transport_propagates(self):
+        for status in (404, 409, 403, 429, 503):
+            with self.subTest(status=status):
+                fixture = GitHubFixture()
+                def read(endpoint, params=None):
+                    if "/commits/" in endpoint:
+                        raise RuntimeError(f"GitHub commit error (HTTP {status})")
+                    return fixture.read(endpoint, params)
+                source = PublicGitHub(read)
+                expected = ValueError if status in (404, 409) else RuntimeError
+                with self.assertRaises(expected):
+                    source.fetch_reference_context({"url": "https://github.com/sample/project/issues/8"})
+                # A source repository acquisition still fails globally.
+                with self.assertRaises(RuntimeError):
+                    source.fetch_repository("sample/project")
+
     def test_unsafe_paths_cannot_consume_reference_cap(self):
         fixture = GitHubFixture()
         fixture.add("client.py", "import tenacity\n")
@@ -144,6 +161,46 @@ class ReferenceContextTests(unittest.TestCase):
 class TargetPersistenceTests(unittest.TestCase):
     setUp = fixtures.ServiceTests.setUp
     fake_sources = fixtures.ServiceTests.fake_sources
+
+    def run_target_batch(self, error):
+        source = self.fake_sources()
+        first = issue()
+        second = dict(issue(), id=9, url=issue()["url"] + "9", fingerprint="second-discussion")
+        source.search_issues.return_value = {"items": [{"url": first["url"]}, {"url": second["url"]}]}
+        source.fetch_issue.side_effect = [first, second]
+        source.fetch_reference_context.side_effect = [error, source.fetch_reference_context.return_value]
+        with mock.patch("missing_link.service.PublicGitHub", return_value=source), \
+             mock.patch("missing_link.service.extract_structure", return_value=repository()["capabilities"]):
+            started = self.service.start({"repo": "example/words", "query": "custom request"}, background=False)
+        return self.service.store.get("jobs", started["job_id"]), source
+
+    def test_unavailable_target_is_persisted_locally_and_next_candidate_completes(self):
+        job, source = self.run_target_batch(ValueError("unsafe upstream text never stored"))
+        self.assertEqual(job["status"], "completed", job.get("error"))
+        self.assertTrue(job["result"]["partial"])
+        failure = job["result"]["candidate_errors"][0]
+        self.assertEqual(failure["code"], "target_context_unavailable")
+        self.assertNotIn("unsafe upstream", str(job))
+        self.assertEqual(job["checkpoint"]["evaluated"], ["1"])
+        self.assertNotIn("target_context", job["checkpoint"]["discussions"]["0"])
+        self.assertEqual(source.fetch_reference_context.call_count, 2)
+        self.assertTrue(job["result"]["match_ids"])
+        self.assertEqual(job["ai_calls_used"], 0)
+        snapshot = self.service.store.match_snapshot(job["result"]["match_ids"][0])
+        self.assertEqual(snapshot["issue"]["id"], 9)
+
+    def test_global_target_errors_never_become_candidate_failures(self):
+        errors = [(Paused("budget exhausted"), "paused"), (Cancelled("cancelled"), "cancelled"),
+                  (RuntimeError("Active account changed"), "paused"),
+                  (RuntimeError("GitHub rate limit (HTTP 403)"), "paused"),
+                  (RuntimeError("GitHub service unavailable (HTTP 503)"), "failed")]
+        for error, expected in errors:
+            with self.subTest(error=type(error).__name__, expected=expected):
+                job, source = self.run_target_batch(error)
+                self.assertEqual(job["status"], expected)
+                self.assertEqual(source.fetch_reference_context.call_count, 1)
+                self.assertFalse(job["checkpoint"].get("candidate_failures"))
+                self.assertFalse(job["result"]["match_ids"])
 
     def test_different_issues_in_same_target_do_not_reuse_the_wrong_cited_file_sample(self):
         source = self.fake_sources()

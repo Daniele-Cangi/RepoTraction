@@ -385,7 +385,16 @@ class Service:
                         # Different discussions can cite different target files.
                         context_key = digest({"target": target.casefold(), "discussion": issue["fingerprint"]})
                         if context_key not in contexts:
-                            contexts[context_key] = source.fetch_reference_context(issue)
+                            try:
+                                contexts[context_key] = source.fetch_reference_context(issue)
+                            except ValueError:
+                                # Unavailable/invalid public target evidence is
+                                # local to this candidate, not an empty sample
+                                # certifying absence of prior use. Never store
+                                # upstream exception text or retry implicitly.
+                                raise CandidateValidationError(
+                                    "Public target context unavailable; candidate not evaluated."
+                                ) from None
                             save()
                         context = contexts[context_key]
                         issue = dict(issue, target_context=context, fingerprint=digest({
@@ -412,7 +421,8 @@ class Service:
                     # Never catch cancellation, budget/account or upstream transport here.
                     budget.checkpoint()
                     failure = {"index": index, "url": candidate["url"], "stage": job["stage"],
-                        "code": "invalid_candidate_analysis", "error": str(exc)[:500],
+                        "code": ("target_context_unavailable" if job["stage"] == "target-context"
+                                 else "invalid_candidate_analysis"), "error": str(exc)[:500],
                         "ai_calls_used": job["ai_calls_used"] - before["ai_calls_used"],
                         "cost_reserved_usd": job["cost_reserved_usd"] - before["cost_reserved_usd"],
                         "at": now(), "retry": "No automatic retry; start a new explicit investigation after review."}
