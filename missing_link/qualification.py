@@ -47,6 +47,10 @@ def _manifest_metadata(path, value):
                 or any(not isinstance(dep, str) for dep in group) for group in optional.values())
             or not isinstance(poetry.get("dependencies", {}), dict)):
         raise ValueError("Invalid dependency fields")
+    groups = poetry.get("group", {})
+    if (not isinstance(groups, dict) or any(not isinstance(group, dict)
+            or not isinstance(group.get("dependencies", {}), dict) for group in groups.values())):
+        raise ValueError("Invalid Poetry dependency groups")
     return data
 
 
@@ -91,6 +95,8 @@ def _declared_dependencies(path, value):
             for group in project.get("optional-dependencies", {}).values():
                 deps.extend(group)
             deps.extend(data.get("tool", {}).get("poetry", {}).get("dependencies", {}).keys())
+            for group in data.get("tool", {}).get("poetry", {}).get("group", {}).values():
+                deps.extend(group.get("dependencies", {}).keys())
         elif path == "package.json":
             data = _manifest_metadata(path, value)
             deps = [name for key in ("dependencies", "devDependencies", "peerDependencies", "optionalDependencies")
@@ -328,6 +334,9 @@ def assess_discovery(repository, issue, request, classification, checks, catalog
                     raise ValueError("Truncated")
                 if path != "requirements.txt":
                     _manifest_metadata(path, file.get("text", ""))
+                elif re.search(r"(?m)^[ \t]*(?:-[rc]|--(?:requirement|constraint)(?=[=\s]|$))",
+                               file.get("text", "")):
+                    manifest_review.append(f"{role} manifest {path} includes requirements or constraints not acquired by this bounded sample; dependency review is incomplete.")
             except (ValueError, TypeError, AttributeError, RecursionError):
                 manifest_review.append(f"{role} manifest {path} could not be fully reviewed (parser unavailable, malformed or truncated); prior package/dependency use remains unknown.")
     target_acquired = (target_context.get("public") is True and bool(target_context.get("files"))

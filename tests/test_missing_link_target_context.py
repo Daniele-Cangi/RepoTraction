@@ -18,6 +18,60 @@ def target_file(path, value):
 
 
 class ReferenceContextTests(unittest.TestCase):
+    def test_requirements_includes_and_constraints_block_followup(self):
+        for directive in ("-r requirements/base.txt", "-rbase.txt", "--requirement=base.txt",
+                          "--requirement base.txt", "-c constraints.txt", "-cconstraints.txt",
+                          "--constraint=constraints.txt", "--constraint constraints.txt"):
+            with self.subTest(directive=directive):
+                demand = issue()
+                demand["target_context"] = {"public": True, "revision": REVISION,
+                    "files": [target_file("requirements.txt", directive + "\n")]}
+                assessment = self.evaluate(repository(), demand)["discovery_assessment"]
+                self.assertFalse(assessment["eligible_for_followup"])
+                self.assertTrue(any("dependency review is incomplete" in blocker
+                                    for blocker in assessment["manifest_review_blockers"]))
+                self.assertEqual(assessment["references"], [])
+
+    def test_commented_requirements_directives_do_not_add_blockers(self):
+        demand = issue()
+        demand["target_context"] = {"public": True, "revision": REVISION,
+            "files": [target_file("requirements.txt", "# -r ignored.txt\n  # --constraint=ignored.txt\nother>=1\n")]}
+        self.assertEqual(self.evaluate(repository(), demand)["discovery_assessment"]["manifest_review_blockers"], [])
+
+    @unittest.skipIf(tomllib is None, "Optional TOML backport not installed on Python 3.10")
+    def test_poetry_groups_produce_prior_reference_evidence(self):
+        repo = repository()
+        repo["full_name"] = "example/zope-interface"
+        for group in ("dev", "test", "docs"):
+            with self.subTest(group=group):
+                value = f'[tool.poetry.group.{group}]\noptional=true\n[tool.poetry.group.{group}.dependencies]\nzope_interface="^1"\n'
+                demand = issue()
+                demand["target_context"] = {"public": True, "revision": REVISION,
+                    "files": [target_file("pyproject.toml", value)]}
+                assessment = self.evaluate(repo, demand)["discovery_assessment"]
+                self.assertEqual(assessment["status"], "reference_review")
+                self.assertFalse(assessment["eligible_for_followup"])
+                self.assertIn(assessment["references"][0]["quote"], value)
+                self.assertEqual(assessment["manifest_review_blockers"], [])
+
+    @unittest.skipIf(tomllib is None, "Optional TOML backport not installed on Python 3.10")
+    def test_malformed_poetry_groups_block_review_and_prose_is_not_dependency(self):
+        repo = repository()
+        repo["full_name"] = "example/zope-interface"
+        for value, blocked in (('[tool.poetry]\ngroup="invalid"\n', True),
+                               ('[tool.poetry.group]\ndev="invalid"\n', True),
+                               ('[tool.poetry.group.dev]\ndependencies=["zope_interface"]\n', True),
+                               ('[tool.poetry.group.dev]\ndescription="zope_interface"\n', False)):
+            with self.subTest(value=value):
+                demand = issue()
+                demand["target_context"] = {"public": True, "revision": REVISION,
+                    "files": [target_file("pyproject.toml", value)]}
+                assessment = self.evaluate(repo, demand)["discovery_assessment"]
+                self.assertEqual(bool(assessment["manifest_review_blockers"]), blocked)
+                self.assertEqual(assessment["references"], [])
+                if blocked:
+                    self.assertFalse(assessment["eligible_for_followup"])
+
     def test_missing_target_commit_is_unavailable_but_transport_propagates(self):
         for status in (404, 409, 403, 429, 503):
             with self.subTest(status=status):
