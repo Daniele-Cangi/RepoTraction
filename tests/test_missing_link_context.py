@@ -192,6 +192,18 @@ class ContextSelectionTests(unittest.TestCase):
                 self.assertEqual(report["implementation_source_paths"], [])
                 self.assertEqual(report["selected_capability_roles"], {"test": 1})
 
+    def test_colocated_example_only_context_is_retained_but_not_implementation(self):
+        for path in ("example.py", "demo.ts", "Button.stories.tsx", "src/widget.example.js", "src/widget.story.jsx"):
+            with self.subTest(path=path):
+                repo = repository()
+                repo["files"] = [self.file(path, 3)]
+                repo["capabilities"] = [self.cap(path, "show")]
+                data, report = build_context(repo, None, "capabilities", 60000)
+                self.assertTrue(data["sources"])
+                self.assertTrue(report["implementation_context_missing"])
+                self.assertEqual(report["implementation_source_paths"], [])
+                self.assertEqual(report["selected_capability_roles"], {"infrastructure": 1})
+
     def test_busy_long_discussion_cannot_consume_implementation_bytes(self):
         demand = issue()
         demand["comments"] = [{"url": demand["url"] + f"#issuecomment-{i}", "body": "Old discussion " * 1300} for i in range(10)]

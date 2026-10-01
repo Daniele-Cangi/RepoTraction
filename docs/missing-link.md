@@ -123,6 +123,10 @@ a README, test, fixture, benchmark or `.d.ts` declaration. Conventional standalo
 `test`/`tests`/`spec`/`specs` filenames with supported Python/JS/TS extensions
 remain test references even at the repository root; they cannot satisfy the
 implementation preflight or independently substantiate existing behavior.
+Delimited example/demo/story filenames such as `example.py`, `demo.ts` and
+`Button.stories.tsx` remain infrastructure references even beside product code.
+They neither satisfy the implementation preflight nor prove existing behavior;
+incidental substrings such as `demographics.py` or `storybook.js` are not excluded.
 Path membership still does not validate the semantic reasoning or certify execution.
 Old imported checks without this field default to unknown, not affirmative support.
 The deterministic API-preservation override only recognizes whole, preservation-

@@ -100,6 +100,32 @@ class SourceValidationTests(unittest.TestCase):
             self.assertEqual(source_role(path), "infrastructure")
         self.assertEqual(source_role("src/PIL/Image.py:open"), "implementation")
 
+    def test_colocated_example_demo_and_story_filenames_are_not_implementation(self):
+        for extension in SUPPORTED_CODE:
+            for basename in ("example", "examples", "demo", "demos", "story", "stories", "Button.stories"):
+                for prefix in ("", "src/"):
+                    path = prefix + basename + extension
+                    with self.subTest(path=path):
+                        self.assertEqual(_kind(path), "source")
+                        self.assertEqual(source_role(path), "infrastructure")
+                        self.assertEqual(source_role(path + ":render"), "infrastructure")
+        self.assertEqual(source_role("src/BUTTON.STORIES.TSX:render"), "infrastructure")
+        for path in ("exampleParser.ts", "examplescope.py", "demographics.py", "demoGraph.ts", "storybook.js",
+                     "storyline.ts", "storiesFactory.tsx", "src/component.tsx"):
+            with self.subTest(path=path):
+                self.assertEqual(source_role(path), "implementation")
+
+    def test_colocated_examples_do_not_consume_the_product_sampling_slot(self):
+        fixture = GitHubFixture()
+        for path in ("example.py", "demo.py", "Button.stories.tsx"):
+            fixture.add(path, "def show():\n    return True\n" if path.endswith(".py") else "function show() { return true; }")
+        fixture.add("src/library.py", "def solve(value):\n    return value\n")
+        result = PublicGitHub(fixture.read).fetch_repository("sample/project", max_files=1)
+        self.assertEqual([file["path"] for file in result["files"]], ["src/library.py"])
+        self.assertEqual(sum("/git/blobs/" in call[0] for call in fixture.calls), 1)
+        self.assertEqual(result["coverage"]["eligible_source_roles"], {"infrastructure": 3, "implementation": 1})
+        self.assertEqual(result["coverage"]["acquired_source_roles"], {"implementation": 1})
+
     def test_standalone_test_and_spec_basenames_are_not_implementation(self):
         for extension in SUPPORTED_CODE:
             for name in ("test", "tests", "spec", "specs"):
