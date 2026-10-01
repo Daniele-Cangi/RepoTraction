@@ -29,6 +29,17 @@ if (Test-Path -LiteralPath $StaticDirectory -PathType Container) {
     Remove-Item -LiteralPath $StaticDirectory -Recurse -Force
 }
 
+$AnalyticsDirectory = [IO.Path]::GetFullPath((Join-Path $ExpectedDirectory "analytics"))
+if ([IO.Path]::GetDirectoryName($AnalyticsDirectory) -ne $ExpectedDirectory) {
+    throw "Refusing to remove analytics outside the installation directory."
+}
+if (Test-Path -LiteralPath $AnalyticsDirectory -PathType Container) {
+    if ((Get-Item -LiteralPath $AnalyticsDirectory -Force).Attributes -band [IO.FileAttributes]::ReparsePoint) {
+        throw "Refusing to recursively remove an analytics link or junction."
+    }
+    Remove-Item -LiteralPath $AnalyticsDirectory -Recurse -Force
+}
+
 $DataDirectory = Join-Path $ExpectedDirectory "data"
 if ($RemoveData -and (Test-Path -LiteralPath $DataDirectory -PathType Container)) {
     Remove-Item -LiteralPath $DataDirectory -Recurse -Force
