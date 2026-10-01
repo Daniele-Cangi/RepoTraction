@@ -95,6 +95,60 @@ class ReferenceContextTests(unittest.TestCase):
             demand["target_context"] = {"public": True, "files": [target_file("package.json", json.dumps({"dependencies": deps}))]}
             self.assertEqual(self.evaluate(repo, demand)["discovery_assessment"]["reference_count"], count)
 
+    def test_python_dependency_separator_variants_preserve_exact_evidence(self):
+        for name in ("zope-interface", "zope.interface", "zope_interface", "zope--interface"):
+            repo = repository()
+            repo["full_name"] = "example/" + name
+            for spelling in ("zope-interface", "zope.interface", "zope_interface", "ZoPe._-INTERFACE"):
+                with self.subTest(name=name, spelling=spelling):
+                    value = spelling + ">=1\n"
+                    demand = issue()
+                    demand["target_context"] = {"public": True, "files": [target_file("requirements.txt", value)]}
+                    assessment = self.evaluate(repo, demand)["discovery_assessment"]
+                    self.assertEqual(assessment["status"], "reference_review")
+                    self.assertFalse(assessment["eligible_for_followup"])
+                    ref = assessment["references"][0]
+                    self.assertEqual(ref["kind"], "dependency_declaration_hint")
+                    self.assertEqual(ref["source_id"], "target:requirements.txt")
+                    self.assertIn(spelling, ref["quote"])
+                    self.assertIn(ref["quote"], value)
+
+    def test_python_dependency_separator_matching_does_not_match_other_packages(self):
+        repo = repository()
+        repo["full_name"] = "example/zope-interface"
+        for value in ("zope_interface_extra>=1\n", "my_zope_interface>=1\n", "zopeinterface>=1\n",
+                      "# zope_interface>=1\nother-package>=1\n"):
+            with self.subTest(value=value):
+                demand = issue()
+                demand["target_context"] = {"public": True, "files": [target_file("requirements.txt", value)]}
+                self.assertEqual(self.evaluate(repo, demand)["discovery_assessment"]["references"], [])
+
+    def test_npm_dependency_separators_are_not_python_aliases(self):
+        import json
+        repo = repository()
+        repo["files"].append(target_file("package.json", '{"name":"@scope/actual-name"}'))
+        for name, count in (("@scope/actual_name", 0), ("@scope/actual.name", 0),
+                            ("@scope/actual--name", 0), ("@scope/actual-name", 1)):
+            with self.subTest(name=name):
+                demand = issue()
+                manifest = {"dependencies": {name: "^1"}}
+                if not count:
+                    manifest["description"] = "@scope/actual-name"
+                value = json.dumps(manifest)
+                demand["target_context"] = {"public": True, "files": [target_file("package.json", value)]}
+                self.assertEqual(self.evaluate(repo, demand)["discovery_assessment"]["reference_count"], count)
+
+    @unittest.skipIf(tomllib is None, "Optional TOML backport not installed on Python 3.10")
+    def test_python_manifest_dependency_separator_variant_is_detected(self):
+        repo = repository()
+        repo["full_name"] = "example/zope-interface"
+        value = '[project]\nname="consumer"\ndependencies=["zope._interface>=1"]\n'
+        demand = issue()
+        demand["target_context"] = {"public": True, "files": [target_file("pyproject.toml", value)]}
+        assessment = self.evaluate(repo, demand)["discovery_assessment"]
+        self.assertEqual(assessment["status"], "reference_review")
+        self.assertIn(assessment["references"][0]["quote"], value)
+
     def test_real_target_import_but_not_a_docstring_is_a_hint(self):
         repo = repository()
         repo["full_name"] = "jd/tenacity"

@@ -76,6 +76,11 @@ def package_names(repository):
     return sorted(distributions), sorted(modules)
 
 
+def _dependency_identity(path, name):
+    # Python distribution names collapse runs of -, _ and .; npm names do not.
+    return name.casefold() if path == "package.json" else re.sub(r"[-_.]+", "-", name.casefold())
+
+
 def _declared_dependencies(path, value):
     """Parse literal dependency fields only; never execute build metadata."""
     try:
@@ -94,7 +99,7 @@ def _declared_dependencies(path, value):
             deps = [line.strip() for line in value.splitlines() if not line.lstrip().startswith(("#", "-"))]
         else:
             return set()
-        return {match[0].casefold().replace("_", "-").replace(".", "-") for dep in deps
+        return {_dependency_identity(path, match[0]) for dep in deps
                 if isinstance(dep, str) and (match := re.match(r"(?:@[\w.-]+/)?[\w.-]+", dep))}
     except (ValueError, TypeError, AttributeError, RecursionError):
         return set()
@@ -248,9 +253,13 @@ def _references(repository, catalog):
         value = source.get("quote") or ""
         active_patterns = patterns
         if target:
-            dependencies = _declared_dependencies(source.get("target_path"), value)
-            declared = [name for name in names if name.casefold().replace("_", "-").replace(".", "-") in dependencies]
-            active_patterns = [("dependency_declaration_hint", re.compile(r"(?<![\w.-])" + re.escape(name) + r"(?![\w.-])", re.I))
+            path = source.get("target_path")
+            dependencies = _declared_dependencies(path, value)
+            declared = [name for name in names if _dependency_identity(path, name) in dependencies]
+            active_patterns = [("dependency_declaration_hint", re.compile(r"(?<![\w.-])" +
+                               (re.escape(name) if path == "package.json" else
+                                r"[-_.]+".join(re.escape(part) for part in re.split(r"[-_.]+", name)))
+                               + r"(?![\w.-])", re.I))
                                for name in declared]
             if source.get("target_path", "").endswith(".py"):
                 # Static imports only, not string/docstring lookalikes.

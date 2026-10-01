@@ -116,7 +116,13 @@ On Python 3.10, [Tomli](https://github.com/hukkin/tomli) is an optional backport
 review is explicitly incomplete, not negative evidence. Core analytics do not
 require this optional dependency.
 
-Contract 10 marks earlier results as historical, preserving their original
+Python distribution dependency names treat runs of hyphens, dots and underscores
+as equivalent when checking declarations and locating their original evidence.
+For example, `zope-interface` also matches `zope_interface`; npm dependency names
+retain exact separator spellings. These remain prior-reference hints, not proof
+of adoption.
+
+Contract 11 marks earlier results as historical, preserving their original
 interpretations and exports. There is no automatic migration or paid reevaluation.
 
 An empty body or a body containing only example/reference links cannot establish

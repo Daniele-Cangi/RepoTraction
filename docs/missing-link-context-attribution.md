@@ -1,6 +1,6 @@
 # Missing Link: corrections after the second held-out cohort
 
-Date: 2026-10-01. Analysis contract: **10**.
+Date: 2026-10-01. Analysis contract: **11**.
 
 The [frozen second cohort](missing-link-second-heldout-discovery.md) remains
 unchanged: five repositories, 15 selected issues, 22 comparisons and **zero
@@ -41,32 +41,42 @@ and SHA-256. No quote/prompt/key is echoed into public job errors. Stored attemp
 retain credential redaction and are excluded from polling state. Usage remains
 reserved even when semantic validation rejects an attempt.
 
-Historic contract-7/8/9 matches are retained unchanged and marked stale by contract
-10. No source review, paid reanalysis, feedback mutation or target publication
+Python distribution names use the same separator normalization for declaration
+matching and evidence lookup. Runs of `-`, `_` and `.` are equivalent; the quoted
+manifest excerpt is kept unchanged. npm names retain exact separators. These
+checks are review hints, not evidence of installation or adoption.
+
+Historic contract-7/8/9/10 matches are retained unchanged and marked stale by contract
+11. No source review, paid reanalysis, feedback mutation or target publication
 happens automatically. The original cohort and its charged allowance are not
 rewritten to improve the apparent outcome.
 
 ## Verification
 
-- Full local Python 3.13 suite: **320 tests passed**, including local browser,
+- Full local Python 3.13 suite: **329 tests passed**, including local browser,
   API/persistence and optional isolated-example regressions. Acquired repository
   code was not executed on the host.
-- Parser-unavailable simulation: **82 tests, 81 passed and one explicitly skipped**;
+- Earlier parser-unavailable simulation: **82 tests, 81 passed and one explicitly skipped**;
   follow-up qualification stays blocked for unreviewed TOML. This is not an actual
   Python 3.10 runtime test; Windows/Linux 3.10/3.13 CI remains authoritative.
-- Python 3.11 target/contribution regressions also pass with its built-in parser.
+- Python 3.11 target regressions: **20 tests passed** with its built-in parser.
+  Contribution regressions also passed in the earlier correction pass.
 - Follow-up review regressions cover compound functional/API requirements versus
   pure preservation, broader-quotation isolation, numeric discussion/timeline IDs,
   target omissions at byte/ID bounds, source-definition priority and PHP comment
   requests (line, block, docblock and inline). These are offline fixtures, not a
   new autonomous-discovery outcome.
+- Additional regressions cover safe path selection before its cap, candidate-local
+  unavailable target snapshots, Python dependency separator variants and exact
+  npm names. Budget, cancellation, account and upstream transport failures remain
+  global; no paid discovery was rerun.
 - Read-only real GitHub API target check on `googleapis/python-genai#2938`:
   revision `feef230daf9a31fe9dec433483d8e3066b33fe4d`, two manifest files,
   Tenacity dependency hints from `pyproject.toml` and `requirements.txt`, nine
   GitHub reads and zero AI calls. No analysis was imported or saved to the account.
 - Provider model and total allowance are unchanged. **No paid AI calls** were
   made for this correction pass.
-- Local server restarted and browser/API flow verified: Missing Link renders,
+- Earlier local server restart and browser/API verification: Missing Link renders,
   navigation to Overview works, no browser errors recorded, all 85 stored
   matches preserved and marked historical, checkpoint outputs absent from
   polling state. Model remains `gpt-6-luna`; total budget is $4, conservative

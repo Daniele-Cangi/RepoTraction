@@ -15,7 +15,7 @@ from .qualification import assess_discovery
 
 CLASSIFICATIONS = {"direct", "adapter", "extraction", "rejected", "investigate"}
 REQUEST_STATUSES = {"unresolved", "resolved", "duplicate", "unclear", "automated"}
-ANALYSIS_CONTRACT_VERSION = 10
+ANALYSIS_CONTRACT_VERSION = 11
 
 
 def passive_api_constraint(requirement: dict) -> bool:
