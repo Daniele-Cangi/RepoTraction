@@ -98,8 +98,10 @@ truncated or uncertain-authority constraints still prevent qualification.
 A bounded optional-field review flags omitted/bundled TypeScript-style fields
 such as `strip_ansi?: boolean`. It never adds a requirement or awards support.
 The identifier must be represented separately, and uncertain source authority
-still requires review. An optional API argument does not by itself make the
-requested implementation optional. A supported optional mechanism can be a
+still requires review. Longer identifiers such as `colorMode` do not also count
+as `mode`; explicitly naming both still flags a bundled requirement. An optional
+API argument does not by itself make the requested implementation optional.
+A supported optional mechanism can be a
 partial contribution while mandatory conflicts still reject the full request.
 
 Each check also records `contribution`: `existing_behavior`, `scope_compatible`

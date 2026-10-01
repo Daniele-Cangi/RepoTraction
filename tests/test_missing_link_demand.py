@@ -202,6 +202,62 @@ class AtomicDemandTests(unittest.TestCase):
                 self.assertEqual(review["represented_by"], [])
                 self.assertTrue(review["needs_review"])
 
+    def test_overlapping_optional_identifiers_are_independently_represented(self):
+        fields = ("mode", "colorMode", "fallback_color_mode")
+        demand = dict(issue(), body="\n".join(f"{field}?: string;" for field in fields), comments=[])
+        provider = Provider({"REPOTRACTION_AI_URL": "http://localhost/v1", "REPOTRACTION_AI_MODEL": "fixture"})
+        for names in (fields, ("mode", "color mode", "fallback color mode")):
+            with self.subTest(names=names):
+                raw = request_raw()
+                raw["requirements"] = [dict(raw["requirements"][0], text=name + " behavior", quote=f"{field}?: string;")
+                                       for field, name in zip(fields, names)]
+                with mock.patch.object(provider, "complete", side_effect=request_completion(raw)) as complete:
+                    request = provider.interpret_request(demand, mock.Mock())
+                complete.assert_called_once()
+                review = request["constraint_review"]["optional_field_review"]["items"]
+                self.assertEqual([item["represented_by"] for item in review], [["r0"], ["r1"], ["r2"]])
+                self.assertFalse(request["constraint_review"]["qualification_blockers"])
+                match = raw_match()
+                match["checks"] = [dict(requirement_id=f"r{index}", status="satisfied", contribution="existing_behavior",
+                    reason="Offline structural fixture, not a compatibility claim.", source_ids=["c0:0"])
+                    for index in range(3)]
+                self.assertEqual(validate_matches([match], repository(), demand, request, "model")[0]["classification"], "direct")
+
+    def test_overlapping_field_names_do_not_clear_bundled_or_misidentified_requirements(self):
+        demand = dict(issue(), body="mode?: string;\ncolorMode?: string;", comments=[])
+        for name in ("colorMode and mode behavior", "mode and colorMode behavior", "color mode and mode behavior"):
+            with self.subTest(name=name):
+                raw = dict(request_raw(), requirements=[dict(request_raw()["requirements"][0],
+                    text=name, quote="colorMode?: string;")])
+                review = validate_request(raw, demand)["constraint_review"]["optional_field_review"]["items"]
+                self.assertTrue(all(item["needs_review"] for item in review))
+                self.assertTrue(all(not item["represented_by"] for item in review))
+        # The short field cannot borrow the longer field's name in prose, nor
+        # can the longer field borrow a citation to only the short declaration.
+        for name, quote in (("colorMode behavior", "mode?: string;"), ("mode behavior", "colorMode?: string;")):
+            with self.subTest(name=name, quote=quote):
+                raw = dict(request_raw(), requirements=[dict(request_raw()["requirements"][0], text=name, quote=quote)])
+                review = validate_request(raw, demand)["constraint_review"]["optional_field_review"]["items"]
+                self.assertTrue(all(item["needs_review"] for item in review))
+
+    def test_repeated_field_mentions_do_not_hide_an_omitted_overlapping_field(self):
+        demand = dict(issue(), body="mode?: string;\ncolorMode?: string;", comments=[])
+        raw = dict(request_raw(), requirements=[dict(request_raw()["requirements"][0],
+            text="colorMode behavior and color mode defaults", quote="colorMode?: string;")])
+        review = validate_request(raw, demand)["constraint_review"]["optional_field_review"]["items"]
+        self.assertTrue(review[0]["needs_review"])
+        self.assertEqual(review[0]["represented_by"], [])
+        self.assertFalse(review[1]["needs_review"])
+        self.assertEqual(review[1]["represented_by"], ["r0"])
+
+    def test_identifier_without_prose_tokens_does_not_match_arbitrary_text(self):
+        demand = dict(issue(), body="_?: string;", comments=[])
+        raw = dict(request_raw(), requirements=[dict(request_raw()["requirements"][0],
+            text="arbitrary behavior", quote="_?: string;")])
+        review = validate_request(raw, demand)["constraint_review"]["optional_field_review"]["items"][0]
+        self.assertEqual(review["represented_by"], [])
+        self.assertTrue(review["needs_review"])
+
     def test_field_syntax_does_not_turn_mandatory_behavior_optional(self):
         raw = self.requirements()
         raw["requirements"][1]["mandatory"] = True

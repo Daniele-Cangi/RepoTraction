@@ -86,20 +86,32 @@ def optional_field_hints(catalog, requirements=()):
     def identity(value):
         value = re.sub(r"([a-z])([A-Z])", r"\1 \2", value)
         return tuple(re.findall(r"[a-z0-9]+", value.casefold()))
-    def contains(tokens, key):
-        return any(tokens[index:index + len(key)] == key for index in range(len(tokens) - len(key) + 1))
-    keys = {identity(item["field"]) for item in items}
+    keys = sorted(filter(None, {identity(item["field"]) for item in items}),
+                  key=lambda name: (-len(name), name))
+    def mentions(value):
+        # Consume the longest identifier at each position: colorMode is one
+        # field, not also mode. A separate "and mode" still names a second
+        # field and keeps a bundled requirement from clearing either hint.
+        tokens, found, index = identity(value), set(), 0
+        while index < len(tokens):
+            name = next((key for key in keys if tokens[index:index + len(key)] == key), None)
+            if name is None:
+                index += 1
+            else:
+                found.add(name)
+                index += len(name)
+        return found
+    interpreted = [(requirement, mentions(requirement["text"])) for requirement in requirements]
     for item in items:
         key = identity(item["field"])
         represented = []
-        for requirement in requirements:
-            prose = identity(requirement["text"])
+        for requirement, named_fields in interpreted:
             quote = requirement["source"]["quote"]
             # A sentence can be shorter than its original line; legacy manual
             # citations can include surrounding lines. Both must actually cite
             # this declaration, not merely neighboring prose on the same line.
             cites_field = re.search(r"\b" + re.escape(item["field"]) + r"\?\s*:", quote)
-            if (requirement["explicit"] and contains(prose, key) and sum(contains(prose, name) for name in keys) == 1
+            if (requirement["explicit"] and named_fields == {key}
                     and requirement["source"]["source_id"] == item["source_id"]
                     and cites_field and (quote in item["quote"] or item["quote"] in quote)):
                 represented.append(requirement["id"])
