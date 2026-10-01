@@ -3,6 +3,7 @@ import json
 import unittest
 
 from missing_link.source_hints import export_hints, MAX_EXPORT_HINTS
+from missing_link.js_lexical import MAX_LEXICAL_NESTING
 from missing_link.sources import PublicGitHub, source_role
 from test_missing_link_sources import GitHubFixture
 
@@ -62,6 +63,69 @@ class ExportHintTests(unittest.TestCase):
         targets, complete = export_hints("index.ts", value, eligible)
         self.assertEqual(targets, list(eligible)[:MAX_EXPORT_HINTS])
         self.assertFalse(complete)
+
+    def test_non_code_reexports_cannot_spend_the_implementation_blob_slot(self):
+        fake = 'export * from "./obsolete.js";'
+        real = 'export {\n parse,\n} from "./real.js";'
+        for prefix in (f"/*\n{fake}\n*/\n", f"const example = `\n{fake}\n`;\n",
+                       f"const example = `outer ${{`\n{fake}\n`}}`;\n",
+                       "const example = \"continued\\\nexport * from './obsolete.js';\\\n\";\n"):
+            with self.subTest(prefix=prefix):
+                fixture = GitHubFixture()
+                fixture.add("index.ts", prefix + real)
+                fixture.add("obsolete.ts", "export function obsolete() { return false; }")
+                fixture.add("real.ts", "export function parse(value) { return value; }")
+                snapshot = PublicGitHub(fixture.read).fetch_repository("sample/project", 2)
+                self.assertEqual([f["path"] for f in snapshot["files"]], ["index.ts", "real.ts"])
+                self.assertEqual(sum("/git/blobs/" in call[0] for call in fixture.calls), 2)
+                self.assertEqual(snapshot["coverage"]["static_export_hints"], [{"from": "index.ts", "path": "real.ts"}])
+                self.assertTrue(snapshot["coverage"]["export_hints_complete"])
+
+    def test_literal_delimiters_and_interpolation_do_not_expose_fake_exports(self):
+        eligible = {"obsolete.ts": {}, "real.ts": {}}
+        fake = 'export * from "./obsolete.js";'
+        real = 'export * from "./real.js";'
+        prefixes = ("// export * from './obsolete.js';\n", "const url = 'https://host/*not-comment*/';\n",
+                    "const pattern = /[\"'`{}]/g; const ratio = size / 2;\n",
+                    f"const sample = `escaped \\`\n{fake}\n`;\n",
+                    f"const sample = `outer ${{({{text: '}}', pattern: /[}}'`]/}})}}\n{fake}\n`;\n")
+        for prefix in prefixes:
+            with self.subTest(prefix=prefix):
+                self.assertEqual(export_hints("index.ts", prefix + real, eligible), (["real.ts"], True))
+
+    def test_comments_between_real_export_tokens_are_not_destinations(self):
+        text = 'export /* names */ {\n parse, // note\n} /* clause */ from /* module */ "./real.js";'
+        self.assertEqual(export_hints("index.ts", text, {"real.ts": {}}), (["real.ts"], True))
+
+    def test_unterminated_non_code_regions_report_incomplete_scan(self):
+        fake = 'export * from "./obsolete.js";'
+        real = 'export * from "./real.js";\n'
+        for prefix in ("/*\n", "const sample = `\n", "const sample = 'continued\\\n", "const pattern = /unfinished\n"):
+            with self.subTest(prefix=prefix):
+                self.assertEqual(export_hints("index.ts", real + prefix + fake, {"real.ts": {}, "obsolete.ts": {}}),
+                                 (["real.ts"], False))
+
+    def test_template_depth_limit_cannot_expose_tail_as_code(self):
+        real = 'export * from "./real.js";\n'
+        nested = "const sample = " + "`${" * MAX_LEXICAL_NESTING + "value" + "}`" * MAX_LEXICAL_NESTING
+        fake = '\nexport * from "./obsolete.js";'
+        self.assertEqual(export_hints("index.ts", real + nested + fake, {"real.ts": {}, "obsolete.ts": {}}),
+                         (["real.ts"], False))
+
+    def test_regexp_division_ambiguity_is_reported_without_losing_later_hint(self):
+        real = 'export * from "./real.js";'
+        for prefix in ('if (ready) /["\'`]/.test(value);\n', "const value = read() / denominator / scale;\n"):
+            with self.subTest(prefix=prefix):
+                self.assertEqual(export_hints("index.ts", prefix + real, {"real.ts": {}}), (["real.ts"], False))
+        self.assertEqual(export_hints("index.ts", "const value = read() / 2;\n" + real, {"real.ts": {}}),
+                         (["real.ts"], True))
+
+    def test_repeated_malformed_slash_probes_have_a_shared_work_bound(self):
+        real = 'export * from "./real.js";\n'
+        malformed = "read() /[x) " * 1000
+        fake = '\nexport * from "./obsolete.js";'
+        self.assertEqual(export_hints("index.ts", real + malformed + fake, {"real.ts": {}, "obsolete.ts": {}}),
+                         (["real.ts"], False))
 
     def test_only_safety_filtered_literal_relative_exports_are_followed(self):
         eligible = {"src/parse.ts": {}, "src/types.d.ts": {}}
