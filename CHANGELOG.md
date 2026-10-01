@@ -24,7 +24,7 @@
 
 ### Changed
 
-- Missing Link contract 12 separates reusable existing behavior from compatible
+- Missing Link contract 13 separates reusable existing behavior from compatible
   scope constraints; only preservation-only API requirements are forced to scope
   compatibility, never a compound functional requirement or a broader quotation.
 - Python dependency evidence uses equivalent runs of hyphens, dots and underscores
@@ -32,6 +32,10 @@
   Older assessments remain historical rather than retaining missed-reference claims.
 - Requirements include/constraint directives block complete dependency review;
   Poetry group dependencies are inspected statically, with malformed layouts blocked.
+- Poetry dependency values receive structural validation in both the main table
+  and groups; malformed scalars, table fields and alternatives block review rather
+  than producing prior-use evidence. Valid strings, tables and table alternatives
+  remain supported; this is not a dependency resolver.
 - Same-target blob links with slash-containing branches match safe pinned tree
   path suffixes without increasing the four-file acquisition budget.
 - Target reference IDs no longer enter discussion/timeline selection, shortening

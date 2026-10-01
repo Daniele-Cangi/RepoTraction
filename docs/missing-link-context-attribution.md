@@ -1,6 +1,6 @@
 # Missing Link: corrections after the second held-out cohort
 
-Date: 2026-10-01. Analysis contract: **12**.
+Date: 2026-10-01. Analysis contract: **13**.
 
 The [frozen second cohort](missing-link-second-heldout-discovery.md) remains
 unchanged: five repositories, 15 selected issues, 22 comparisons and **zero
@@ -53,22 +53,28 @@ remain blockers. Slash-containing blob refs use safe tree-path suffix matching
 within the existing two-cited-file budget. Ambiguous suffixes may sample multiple
 files; this does not resolve or fetch the linked historical ref.
 
-Historic contract-7/8/9/10/11 matches are retained unchanged and marked stale by contract
-12. No source review, paid reanalysis, feedback mutation or target publication
+Poetry dependency values are checked structurally in both main and group tables.
+Malformed scalars, table fields and multiple-constraint alternatives block review
+rather than generating reference hints. Valid strings, supported tables and table
+alternatives remain supported. This bounded check is not version/marker resolution
+or a complete Poetry validator; unknown table fields require review.
+
+Historic contract-7/8/9/10/11/12 matches are retained unchanged and marked stale by contract
+13. No source review, paid reanalysis, feedback mutation or target publication
 happens automatically. The original cohort and its charged allowance are not
 rewritten to improve the apparent outcome.
 
 ## Verification
 
-- Full local Python 3.13 suite: **335 tests passed**, including local browser,
+- Full local Python 3.13 suite: **337 tests passed**, including local browser,
   API/persistence and optional isolated-example regressions. Acquired repository
   code was not executed on the host.
 - Earlier parser-unavailable simulation: **82 tests, 81 passed and one explicitly skipped**;
   follow-up qualification stays blocked for unreviewed TOML. This is not an actual
   Python 3.10 runtime test; Windows/Linux 3.10/3.13 CI remains authoritative.
-- Python 3.11 target regressions: **26 tests passed** with its built-in parser.
+- Python 3.11 target regressions: **28 tests passed** with its built-in parser.
   Contribution regressions also passed in the earlier correction pass.
-- Target regressions with TOML imports disabled: **26 tests, 22 passed and four
+- Target regressions with TOML imports disabled: **28 tests, 22 passed and six
   explicitly skipped**. This is an import simulation, not a Python 3.10 run.
 - Follow-up review regressions cover compound functional/API requirements versus
   pure preservation, broader-quotation isolation, numeric discussion/timeline IDs,
@@ -83,6 +89,9 @@ rewritten to improve the apparent outcome.
   becoming `needs_review`. Poetry group fixtures cover optional groups, malformed
   layouts and nondependency prose. Blob fixtures cover slash-containing refs,
   ambiguous suffixes, foreign links, sensitive paths, symlinks and unchanged limits.
+- Poetry value regressions cover malformed scalars, typed fields and alternatives
+  in both main and group tables, alongside valid strings, source/path/git/url
+  tables and multiple-constraint tables. Quotes remain original acquired evidence.
 - Read-only real GitHub API target check on `googleapis/python-genai#2938`:
   revision `feef230daf9a31fe9dec433483d8e3066b33fe4d`, two manifest files,
   Tenacity dependency hints from `pyproject.toml` and `requirements.txt`, nine

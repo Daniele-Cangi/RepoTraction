@@ -130,7 +130,13 @@ with slash-containing refs are matched against safe path suffixes in the current
 pinned tree. Ambiguous suffixes may sample multiple files within the existing
 two-cited-file limit; this is not historical ref resolution or complete coverage.
 
-Contract 12 marks earlier results as historical, preserving their original
+Poetry dependency values receive bounded structural validation in the main table
+and groups, including scalar types, supported table fields and table alternatives.
+Malformed or unsupported values block review instead of generating references.
+This does not validate version expressions or prove installation. Supported shapes
+follow the [Poetry dependency specification](https://python-poetry.org/docs/dependency-specification/).
+
+Contract 13 marks earlier results as historical, preserving their original
 interpretations and exports. There is no automatic migration or paid reevaluation.
 
 An empty body or a body containing only example/reference links cannot establish

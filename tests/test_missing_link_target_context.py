@@ -18,6 +18,45 @@ def target_file(path, value):
 
 
 class ReferenceContextTests(unittest.TestCase):
+    @unittest.skipIf(tomllib is None, "Optional TOML backport not installed on Python 3.10")
+    def test_malformed_poetry_dependency_values_are_blockers_not_references(self):
+        repo = repository()
+        repo["full_name"] = "example/zope-interface"
+        for section in ("tool.poetry.dependencies", "tool.poetry.group.dev.dependencies"):
+            for malformed in ("42", "true", "1.5", "2026-10-01", "[]", "[42]", '["^1"]',
+                              '[{version="^1"}, 42]', '[[{version="^1"}]]', "{version=42}",
+                              '{version="^1", optional="yes"}', '{extras=[42]}', '{unknown="value"}'):
+                with self.subTest(section=section, malformed=malformed):
+                    value = f"[{section}]\nzope_interface = {malformed}\n"
+                    demand = issue()
+                    demand["target_context"] = {"public": True, "revision": REVISION,
+                        "files": [target_file("pyproject.toml", value)]}
+                    assessment = self.evaluate(repo, demand)["discovery_assessment"]
+                    self.assertTrue(assessment["manifest_review_blockers"])
+                    self.assertEqual(assessment["references"], [])
+                    self.assertFalse(assessment["eligible_for_followup"])
+
+    @unittest.skipIf(tomllib is None, "Optional TOML backport not installed on Python 3.10")
+    def test_valid_poetry_dependency_values_preserve_reference_evidence(self):
+        repo = repository()
+        repo["full_name"] = "example/zope-interface"
+        values = ('"^1"', '{version="^1", python=">=3.10", markers="sys_platform == \'linux\'", '
+                  'optional=true, extras=["speed"], source="internal", allow-prereleases=false}',
+                  '{git="https://example.org/code.git", branch="main", subdirectory="pkg"}',
+                  '{path="../pkg", develop=true}', '{file="pkg.whl"}',
+                  '{url="https://example.org/pkg.whl"}', '{source="internal"}',
+                  '[{version="^1", python="<3.11"}, {version="^2", python=">=3.11"}]')
+        for section in ("tool.poetry.dependencies", "tool.poetry.group.dev.dependencies"):
+            for valid in values:
+                with self.subTest(section=section, valid=valid):
+                    value = f"[{section}]\nzope_interface = {valid}\n"
+                    demand = issue()
+                    demand["target_context"] = {"public": True, "revision": REVISION,
+                        "files": [target_file("pyproject.toml", value)]}
+                    assessment = self.evaluate(repo, demand)["discovery_assessment"]
+                    self.assertEqual(assessment["manifest_review_blockers"], [])
+                    self.assertEqual(assessment["status"], "reference_review")
+                    self.assertIn(assessment["references"][0]["quote"], value)
     def test_blob_links_with_slash_branches_match_tree_path_suffixes(self):
         for branch in ("feature/foo", "release/2026/stable", "main"):
             with self.subTest(branch=branch):

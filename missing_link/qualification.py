@@ -23,6 +23,41 @@ MAX_REFERENCE_EXCERPTS = 8
 STALE_DEMAND_DAYS = 365
 
 
+def _poetry_dependency_value(value):
+    """Bounded structural check, not version/marker resolution or installation."""
+    if isinstance(value, str):
+        return True
+    if isinstance(value, list):
+        # Poetry multiple-constraint alternatives are tables, never scalars
+        # or nested arrays. Do not recurse through arbitrary untrusted arrays.
+        return bool(value) and all(isinstance(item, dict) and _poetry_dependency_value(item)
+                                   for item in value)
+    if not isinstance(value, dict):
+        return False
+    string_fields = {"version", "python", "platform", "markers", "source", "git",
+                     "branch", "tag", "rev", "subdirectory", "path", "file", "url"}
+    boolean_fields = {"optional", "develop", "allow-prereleases", "allows-prereleases"}
+    for key, item in value.items():
+        if key in string_fields:
+            if not isinstance(item, str):
+                return False
+        elif key in boolean_fields:
+            if not isinstance(item, bool):
+                return False
+        elif key == "extras":
+            if not isinstance(item, list) or any(not isinstance(extra, str) for extra in item):
+                return False
+        else:
+            return False  # Unsupported shapes require review, not prior-use evidence.
+    return True
+
+
+def _poetry_dependency_table(table):
+    return isinstance(table, dict) and all(
+        isinstance(name, str) and re.fullmatch(r"[A-Za-z0-9_.-]+", name)
+        and _poetry_dependency_value(value) for name, value in table.items())
+
+
 def _manifest_metadata(path, value):
     if path == "package.json":
         data = json.loads(value)
@@ -45,11 +80,11 @@ def _manifest_metadata(path, value):
     if (not isinstance(dependencies, list) or any(not isinstance(dep, str) for dep in dependencies)
             or not isinstance(optional, dict) or any(not isinstance(group, list)
                 or any(not isinstance(dep, str) for dep in group) for group in optional.values())
-            or not isinstance(poetry.get("dependencies", {}), dict)):
+            or not _poetry_dependency_table(poetry.get("dependencies", {}))):
         raise ValueError("Invalid dependency fields")
     groups = poetry.get("group", {})
     if (not isinstance(groups, dict) or any(not isinstance(group, dict)
-            or not isinstance(group.get("dependencies", {}), dict) for group in groups.values())):
+            or not _poetry_dependency_table(group.get("dependencies", {})) for group in groups.values())):
         raise ValueError("Invalid Poetry dependency groups")
     return data
 
