@@ -15,7 +15,7 @@ def array(items=None):
     return {"type": "array", "items": items or string()}
 
 
-def schema_for(phase, *, source_ids=None, capability_ids=None, requirement_ids=None):
+def schema_for(phase, *, source_ids=None, capability_ids=None, requirement_ids=None, citation_ids=None):
     requirement = obj(text=string(), mandatory={"type": "boolean"}, explicit={"type": "boolean"},
         source_id=string(), quote=string(), inference=string())
     request = obj(outcome=string(), status=string("unresolved", "resolved", "duplicate", "unclear", "automated"),
@@ -49,7 +49,8 @@ def schema_for(phase, *, source_ids=None, capability_ids=None, requirement_ids=N
     if source_ids is not None:
         references = choices(source_ids)
         if phase == "request":
-            requirement["properties"]["source_id"] = references
+            if citation_ids is None:
+                requirement["properties"]["source_id"] = references
             request["properties"]["status_source_ids"] = array(references)
         elif phase == "capabilities":
             capability["properties"]["source_ids"] = array(references)
@@ -62,6 +63,13 @@ def schema_for(phase, *, source_ids=None, capability_ids=None, requirement_ids=N
             match["properties"]["capability_id"] = choices(capability_ids)
     if requirement_ids is not None and phase == "matches":
         match["properties"]["checks"]["items"]["properties"]["requirement_id"] = choices(requirement_ids)
+    if citation_ids is not None:
+        if phase != "request":
+            raise ValueError("Demand spans are only valid in the request contract.")
+        # At most 400 span IDs + 400 disposition source IDs: below the
+        # structured-output limit of 1,000 enum values across the schema.
+        request["properties"]["requirements"] = array(obj(text=string(), mandatory={"type": "boolean"},
+            explicit={"type": "boolean"}, citation_id=choices(citation_ids), inference=string()))
     return schema
 
 

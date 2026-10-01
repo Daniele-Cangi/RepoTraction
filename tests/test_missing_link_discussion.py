@@ -165,7 +165,8 @@ class DiscussionReviewTests(unittest.TestCase):
         demand = issue()
         demand["comments"] = [self.comment("No p-limit or Axios.")]
         provider = Provider({"REPOTRACTION_AI_URL": "http://localhost/v1", "REPOTRACTION_AI_MODEL": "fixture"})
-        with mock.patch.object(provider, "complete", return_value=request_raw()) as complete:
+        from test_missing_link import request_completion
+        with mock.patch.object(provider, "complete", side_effect=request_completion()) as complete:
             request = provider.interpret_request(demand, mock.Mock())
         data = complete.call_args.args[1]
         self.assertNotIn("repository", data)

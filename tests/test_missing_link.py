@@ -13,7 +13,7 @@ from pathlib import Path
 from unittest import mock
 
 import app
-from missing_link.analysis import (conservative_request, extension_groups, validate_matches, validate_request)
+from missing_link.analysis import (conservative_request, extension_groups, validate_matches, validate_request, quoted_span)
 from missing_link.provider import Provider, CandidateValidationError
 from missing_link.service import Service, Paused, Cancelled
 from missing_link.store import Store
@@ -52,6 +52,20 @@ def raw_match():
             {"requirement_id": "r1", "status": "incompatible", "contribution": "not_demonstrated", "reason": "Python is not CSS", "source_ids": ["file:words.py"]}],
         "bridge": {"kind": "example", "summary": "Inspect interface", "files": [{"path": "example.txt", "content": "Not run."}],
             "success_criteria": ["Just import successfully"], "verification": {"status": "live"}}}
+
+
+def wire_request(data, raw=None):
+    """Local fixture selects supplied IDs, never invokes a model."""
+    result = copy.deepcopy(raw if raw is not None else request_raw())
+    for item in result["requirements"]:
+        source_id, quote = item.pop("source_id"), item.pop("quote")
+        item["citation_id"] = next((key for key, span in data["demand_spans"].items()
+            if span["source_id"] == source_id and quoted_span(quote, span["quote"]) is not None), "unavailable:" + quote)
+    return result
+
+
+def request_completion(raw=None):
+    return lambda instruction, data, budget, schema, phase: wire_request(data, raw)
 
 
 class AnalysisTests(unittest.TestCase):
@@ -152,7 +166,8 @@ class ProviderTests(unittest.TestCase):
         class Handler(BaseHTTPRequestHandler):
             def do_POST(self):
                 captured.append(json.loads(self.rfile.read(int(self.headers["Content-Length"]))))
-                payload = json.dumps({"choices": [{"message": {"content": json.dumps(request_raw())}}],
+                context = json.loads(captured[-1]["messages"][1]["content"].split("\nUNTRUSTED_DATA_JSON:\n")[-1])
+                payload = json.dumps({"choices": [{"message": {"content": json.dumps(wire_request(context))}}],
                     "usage": {"prompt_tokens": 100, "completion_tokens": 200}}).encode()
                 self.send_response(200)
                 self.send_header("Content-Length", str(len(payload)))
@@ -167,7 +182,7 @@ class ProviderTests(unittest.TestCase):
             provider = Provider({"REPOTRACTION_AI_URL": f"http://127.0.0.1:{server.server_port}/v1", "REPOTRACTION_AI_MODEL": "fixture"})
             budget = mock.Mock()
             extracted = provider.interpret_request(issue(), budget)
-            self.assertEqual(extracted["requirements"][0]["source"]["quote"], "without splitting words")
+            self.assertIn("without splitting words", extracted["requirements"][0]["source"]["quote"])
             messages = captured[0]["messages"]
             self.assertIn("UNTRUSTED DATA", messages[0]["content"])
             self.assertNotIn("capability_id", messages[1]["content"])

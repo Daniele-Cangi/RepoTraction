@@ -13,7 +13,7 @@ from missing_link.analysis import evidence_catalog
 from missing_link.contracts import schema_for, validate_shape
 from missing_link.provider import Provider, CandidateValidationError
 from missing_link.store import Store
-from test_missing_link import issue, repository, request_raw, raw_match
+from test_missing_link import issue, repository, request_raw, raw_match, request_completion, wire_request
 
 
 class ProviderContractTests(unittest.TestCase):
@@ -173,7 +173,7 @@ class ProviderContractTests(unittest.TestCase):
         provider = Provider({"REPOTRACTION_AI_URL": "http://localhost/v1", "REPOTRACTION_AI_MODEL": "fixture"})
         raw = request_raw()
         raw["requirements"][0]["quote"] = "Never supplied to provider"
-        with mock.patch.object(provider, "complete", return_value=raw), self.assertRaises(ValueError):
+        with mock.patch.object(provider, "complete", side_effect=request_completion(raw)), self.assertRaises(ValueError):
             provider.interpret_request(issue(), mock.Mock())
 
     def test_whitespace_only_quotes_recover_original_not_model_reformatting(self):
@@ -181,8 +181,7 @@ class ProviderContractTests(unittest.TestCase):
         demand = issue()
         demand["body"] = "I need plain text shortened without\r\n    splitting\twords. Must work in native CSS without Python."
         raw = request_raw()
-        with mock.patch.object(provider, "complete", return_value=raw):
-            result = provider.interpret_request(demand, mock.Mock())
+        result = validate_request(raw, demand)  # Human imports retain whitespace-only normalization.
         source = result["requirements"][0]["source"]
         self.assertEqual(source["quote"], "without\r\n    splitting\twords")
         self.assertEqual(source["quote_match"], "whitespace_normalized")
@@ -196,7 +195,7 @@ class ProviderContractTests(unittest.TestCase):
         for quote in ("without dividing words", "hidden requirement", "start end", " "):
             raw = request_raw()
             raw["requirements"][0]["quote"] = quote
-            with self.subTest(quote=quote), mock.patch.object(provider, "complete", return_value=raw), self.assertRaises(ValueError):
+            with self.subTest(quote=quote), mock.patch.object(provider, "complete", side_effect=request_completion(raw)), self.assertRaises(ValueError):
                 provider.interpret_request(demand, mock.Mock())
 
     def test_citation_normalization_does_not_rewrite_recorded_provider_attempt(self):
@@ -226,11 +225,11 @@ class ProviderContractTests(unittest.TestCase):
         demand["comments"] = [{"url": demand["url"] + f"#issuecomment-{i}", "body": "Short comment."} for i in range(200)]
         demand["timeline"] = [{"id": i, "event": "labeled"} for i in range(200)]
         provider = Provider({"REPOTRACTION_AI_URL": "http://localhost/v1", "REPOTRACTION_AI_MODEL": "fixture"})
-        with mock.patch.object(provider, "complete", return_value=request_raw()) as complete:
+        with mock.patch.object(provider, "complete", side_effect=request_completion()) as complete:
             request = provider.interpret_request(demand, mock.Mock())
         complete.assert_called_once()
         schema = complete.call_args.args[3]
-        validate_shape(request_raw(), schema)
+        validate_shape(wire_request(complete.call_args.args[1]), schema)
         self.assertFalse(request["context_complete"])
         self.assertEqual(request["status"], "unclear")
         self.assertEqual(request["analysis_context"]["source_id_limit_omissions"], 1)
@@ -304,11 +303,11 @@ class ProviderContractTests(unittest.TestCase):
 
     def test_interpretation_calls_supply_their_own_scoped_schemas(self):
         provider = Provider({"REPOTRACTION_AI_URL": "http://localhost/v1", "REPOTRACTION_AI_MODEL": "fixture"})
-        with mock.patch.object(provider, "complete", return_value=request_raw()) as complete:
+        with mock.patch.object(provider, "complete", side_effect=request_completion()) as complete:
             provider.interpret_request(issue(), mock.Mock())
         data = complete.call_args.args[1]
         schema = complete.call_args.args[3]
-        self.assertEqual(schema["properties"]["requirements"]["items"]["properties"]["source_id"]["enum"], list(data["sources"]))
+        self.assertEqual(schema["properties"]["requirements"]["items"]["properties"]["citation_id"]["enum"], list(data["demand_spans"]))
         self.assertIn("CONTIGUOUS", complete.call_args.args[0])
         with mock.patch.object(provider, "complete", return_value={"capabilities": []}) as complete:
             provider.interpret_capabilities(repository(), mock.Mock())
@@ -328,13 +327,13 @@ class ProviderContractTests(unittest.TestCase):
                       "Preserve x and x+1", "Keep buffers small - never merge."):
             raw = request_raw()
             raw["requirements"] = [dict(raw["requirements"][0], quote=quote)]
-            with self.subTest(quote=quote), mock.patch.object(provider, "complete", return_value=raw), self.assertRaises(CandidateValidationError):
+            with self.subTest(quote=quote), mock.patch.object(provider, "complete", side_effect=request_completion(raw)), self.assertRaises(CandidateValidationError):
                 provider.interpret_request(demand, mock.Mock())
         raw = request_raw()
         raw["requirements"] = [dict(raw["requirements"][0], quote="Preserve `x` and \\(x+1\\).")]
-        with mock.patch.object(provider, "complete", return_value=raw):
+        with mock.patch.object(provider, "complete", side_effect=request_completion(raw)):
             request = provider.interpret_request(demand, mock.Mock())
-        self.assertEqual(request["requirements"][0]["source"]["quote"], raw["requirements"][0]["quote"])
+        self.assertIn(raw["requirements"][0]["quote"], request["requirements"][0]["source"]["quote"])
 
     def test_deleted_incises_and_markdown_stay_invalid_with_private_safe_diagnostic(self):
         provider = Provider({"REPOTRACTION_AI_URL": "http://localhost/v1", "REPOTRACTION_AI_MODEL": "fixture"})
@@ -343,13 +342,13 @@ class ProviderContractTests(unittest.TestCase):
         for quote in ("Structural DTOs, decoupled.", "Cold-storage test: yes please."):
             raw = request_raw()
             raw["requirements"] = [dict(raw["requirements"][0], quote=quote)]
-            with mock.patch.object(provider, "complete", return_value=raw) as complete:
+            with mock.patch.object(provider, "complete", side_effect=request_completion(raw)) as complete:
                 with self.assertRaises(CandidateValidationError) as caught:
                     provider.interpret_request(demand, mock.Mock())
-                self.assertIn("r0 quote is not a contiguous span", str(caught.exception))
+                self.assertIn("r0 cites an unavailable demand span", str(caught.exception))
                 self.assertNotIn(quote, str(caught.exception))
                 self.assertEqual(complete.call_count, 1)
-                self.assertIn("short exact substring", complete.call_args.args[0])
+                self.assertIn("SELECT citation_id", complete.call_args.args[0])
 
     def test_persisted_allowance_is_shared_by_jobs_and_survives_restart(self):
         with tempfile.TemporaryDirectory() as temp:
