@@ -347,6 +347,48 @@ class QualificationTests(unittest.TestCase):
         self.assertEqual(match["discovery_assessment"]["novelty"], "unverified")
         self.assertEqual(match["bridge"]["verification"]["status"], "not_executed")
 
+    def test_human_requests_about_generated_content_can_pass_downstream_qualification(self):
+        from missing_link.discussion import authorship
+        for body in ("Please fix support for generated plan files.", "I need an [automation] label.",
+                     "Please add support for 🤖 characters.", "Generated plan files need a working parser."):
+            with self.subTest(body=body):
+                repo, demand, raw_request, raw_match = self.case()
+                demand.update(body=body, bot=False, author_type="User", author="human")
+                raw_request["requirements"][0].update(text="Requested behavior", quote=body)
+                author = authorship(demand, original=True)
+                self.assertEqual(author["authority"], "request_author")
+                self.assertFalse(author["generated_hint"])
+                assessment = self.evaluate(repo, demand, raw_request, raw_match)["discovery_assessment"]
+                self.assertEqual(assessment["status"], "external_lead")
+                self.assertTrue(assessment["eligible_for_followup"])
+                self.assertEqual(assessment["novelty"], "unverified")
+                self.assertEqual(demand["body"], body)
+
+    def test_bot_author_metadata_still_prevents_downstream_qualification(self):
+        for metadata in ({"bot": True, "author_type": "User"}, {"bot": False, "author_type": "Bot"}):
+            with self.subTest(metadata=metadata):
+                repo, demand, raw_request, raw_match = self.case()
+                demand.update(metadata)
+                assessment = self.evaluate(repo, demand, raw_request, raw_match)["discovery_assessment"]
+                self.assertEqual(assessment["status"], "not_actionable")
+                self.assertFalse(assessment["eligible_for_followup"])
+
+    def test_explicit_generated_artifact_label_requires_review_not_bot_identity(self):
+        from missing_link.discussion import authorship
+        for body in ("[automation] Please support parser changes.", "# Generated plan\nPlease support parser changes.",
+                     "[Orquestrador TDD] Generated plan.\nPlease support parser changes."):
+            with self.subTest(body=body):
+                repo, demand, raw_request, raw_match = self.case()
+                demand.update(body=body, bot=False, author_type="User", author="human")
+                raw_request["requirements"][0].update(text="Requested behavior", quote="Please support parser changes.")
+                author = authorship(demand, original=True)
+                self.assertTrue(author["generated_hint"])
+                self.assertFalse(author["bot_author_hint"])
+                assessment = self.evaluate(repo, demand, raw_request, raw_match)["discovery_assessment"]
+                self.assertEqual(assessment["status"], "needs_review")
+                self.assertTrue(assessment["opportunity_review"]["generated_content_hint"])
+                self.assertFalse(assessment["eligible_for_followup"])
+
     def test_same_project_uses_canonical_url_and_immutable_repo_id_after_rename(self):
         for fields in ({"url": "https://github.com/EXAMPLE/WORDS/issues/9", "repo": "untrusted/other"},
                        {"url": "https://github.com/renamed/project/issues/9", "repo_id": 42}):

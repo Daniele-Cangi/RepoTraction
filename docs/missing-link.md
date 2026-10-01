@@ -56,7 +56,10 @@ After reading each selected discussion, fully automatic discovery applies narrow
 filename/code-dump, exam-preparation-manual, reference-only-body and automated-
 author hints based on acquired bot metadata. Mentioning generated plans, automation
 or a robot emoji does not establish bot authorship or trigger that early skip;
-content-based review hints remain available during analysis.
+the same metadata-only bot distinction applies during downstream qualification.
+Explicit generated-artifact labels/headings remain content/authority review hints,
+not bot identity or maintainer approval. Neutral requests about generated content
+do not trigger them.
 A subsequent discussion keeps the candidate available for review.
 Skipped candidates remain
 in `job.result.candidate_skips`, with policy, reason, context completeness and

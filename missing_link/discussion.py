@@ -16,13 +16,17 @@ DEPENDENCY_PATTERN = (
 )
 DEPENDENCY_MARKER = re.compile(DEPENDENCY_PATTERN, re.IGNORECASE)
 CONSTRAINT_MARKER = re.compile(r"\b(?:must(?:\s+not)?|shall(?:\s+not)?|(?:do|does|should|can)\s+not)\b|" + DEPENDENCY_PATTERN, re.IGNORECASE)
-GENERATED_HINT = re.compile(r"🤖|\[(?:orchestrator|orquestrador|automation|bot)\b|"
-                            r"generated (?:master )?plan|plano mestre gerado", re.IGNORECASE)
+# Explicit artifact labels/headings remain review hints. Merely requesting a
+# parser for generated plans, an [automation] label or emoji is not such a label.
+GENERATED_HINT = re.compile(
+    r"^[ \t]*(?:#{1,6}[ \t]+)?(?:\[(?:orchestrator|orquestrador|automation|bot)\b[^\]\r\n]{0,80}\]|"
+    r"(?:🤖[ \t]*)?(?:generated (?:master )?plan|plano mestre gerado)[ \t.:#-]*$|🤖[ \t]*$)",
+    re.IGNORECASE | re.MULTILINE)
 
 
 def authorship(item, original_author=None, original=False):
-    generated = bool(item.get("bot") or item.get("author_type") == "Bot"
-                     or GENERATED_HINT.search(str(item.get("body") or "")[:1000]))
+    bot_author = bool(item.get("bot") or item.get("author_type") == "Bot")
+    generated = bool(bot_author or GENERATED_HINT.search(str(item.get("body") or "")[:1000]))
     association = item.get("author_association")
     if generated:
         authority = "automation_or_generated_text_needs_review"
@@ -33,7 +37,8 @@ def authorship(item, original_author=None, original=False):
     else:
         authority = "not_established"
     return {"author": item.get("author"), "author_type": item.get("author_type"),
-            "author_association": association, "generated_hint": generated, "authority": authority}
+            "author_association": association, "bot_author_hint": bot_author,
+            "generated_hint": generated, "authority": authority}
 
 
 def constraint_hints(issue):

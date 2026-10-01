@@ -197,6 +197,17 @@ class DiscussionReviewTests(unittest.TestCase):
         self.assertTrue(hint["needs_review"])
         self.assertEqual(match["classification"], "investigate")
 
+    def test_human_constraint_about_generated_content_keeps_acquired_authority(self):
+        demand = dict(issue(), body="Shorten plain text.", comments=[self.comment(
+            "Please fix support for generated plan files.\nNo Node.js dependencies.")])
+        raw = dict(request_raw(), requirements=[dict(request_raw()["requirements"][0],
+            text="No Node.js dependencies", source_id="q1", quote="No Node.js dependencies.")])
+        hint = validate_request(raw, demand)["constraint_review"]["items"][0]
+        self.assertEqual(hint["authority"], "repository_member")
+        self.assertFalse(hint["generated_hint"])
+        self.assertEqual(hint["represented_by"], ["r0"])
+        self.assertFalse(hint["needs_review"])
+
     def test_reference_notes_without_body_are_not_qualified_demand(self):
         demand = issue()
         demand["body"] = ""

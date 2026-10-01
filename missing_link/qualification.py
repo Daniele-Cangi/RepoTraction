@@ -270,8 +270,14 @@ def opportunity_review(issue):
     reference_only = _reference_body(issue.get("body"))
     if reference_only:
         blockers.append("The body contains only references/example links, not an independently specified adoption request.")
+    author = authorship(issue, original=True)
+    generated_content = author["generated_hint"] and not author["bot_author_hint"]
+    if generated_content:
+        blockers.append("The body labels a generated/automation artifact; confirm independent human demand. "
+                        "This content hint does not establish bot authorship.")
     return {"activity_age_days": age, "stale_after_days": STALE_DEMAND_DAYS,
-            "reference_body_hint": reference_only, "qualification_blockers": blockers,
+            "reference_body_hint": reference_only, "generated_content_hint": generated_content,
+            "qualification_blockers": blockers,
             "method": "snapshot-relative conservative review hints; not a demand or runtime compatibility proof"}
 
 
@@ -412,7 +418,7 @@ def assess_discovery(repository, issue, request, classification, checks, catalog
         status = "known_reference" if linked else "reference_review"
         reasons.append("The source is referenced in acquired discussion or bounded target manifests/imports. Verify identity, intent and prior use; a mention is not adoption or endorsement.")
     elif (request["status"] in {"resolved", "duplicate", "automated"} or issue.get("repo_archived")
-          or authorship(issue, original=True)["generated_hint"]):
+          or authorship(issue, original=True)["bot_author_hint"]):
         status = "not_actionable"
         reasons.append("An unresolved independent human demand in an active target is not established.")
     elif classification == "rejected":
