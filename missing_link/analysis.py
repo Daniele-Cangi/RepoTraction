@@ -13,6 +13,7 @@ from typing import Any
 from .discussion import authorship, constraint_hints
 from .qualification import assess_discovery
 from .demand import optional_field_hints
+from .sources import source_role
 
 CLASSIFICATIONS = {"direct", "adapter", "extraction", "rejected", "investigate"}
 REQUEST_STATUSES = {"unresolved", "resolved", "duplicate", "unclear", "automated"}
@@ -260,6 +261,12 @@ def validate_matches(raw_matches: list, repository: dict, issue: dict, request: 
             if status in {"satisfied", "incompatible"} and not any(e.get("path") for e in evidence):
                 status = "undetermined"
             if status == "satisfied" and contribution == "not_demonstrated":
+                status = "undetermined"
+            if (status == "satisfied" and contribution == "existing_behavior"
+                    and not any(entry.get("path") and source_role(entry["path"]) == "implementation" for entry in evidence)):
+                # A prompt may contain implementation elsewhere, but this
+                # particular affirmative behavior must cite it, not just docs,
+                # fixtures, benchmarks or type declarations.
                 status = "undetermined"
             if status != "satisfied":
                 contribution = "not_demonstrated"

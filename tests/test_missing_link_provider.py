@@ -269,6 +269,11 @@ class ProviderContractTests(unittest.TestCase):
             with self.subTest(values=repr(values)[:40]), self.assertRaises(ValueError):
                 schema_for("request", source_ids=values)
 
+    def test_large_enum_character_limit_is_checked_before_paid_transport(self):
+        with self.assertRaisesRegex(ValueError, "enum exceeds"):
+            schema_for("capabilities", source_ids=["file:" + "x" * 80 + str(i) for i in range(300)])
+        schema_for("request", source_ids=[f"q{i}" for i in range(400)], citation_ids=["s" + f"{i:016x}" for i in range(400)])
+
     def test_scoped_schema_reaches_actual_transport_not_just_prompt(self):
         schema = schema_for("request", source_ids=["q0"])
         response = {"status": "completed", "output": [{"type": "message", "content": [

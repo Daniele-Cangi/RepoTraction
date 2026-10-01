@@ -42,6 +42,8 @@ def export_hints(path, text, eligible):
     if len(specs) > MAX_EXPORT_HINTS:
         complete = False
     for spec in specs[:MAX_EXPORT_HINTS]:
+        if PurePosixPath(path).name == "package.json" and not spec.startswith(("/", "./", "../")):
+            spec = "./" + spec  # npm main/source paths are relative without a './' prefix too.
         if not spec.startswith(("./", "../")) or any(char in spec for char in "\\*?#\x00"):
             continue
         parts = list(PurePosixPath(path).parent.parts)

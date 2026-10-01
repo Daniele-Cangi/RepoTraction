@@ -44,6 +44,8 @@ def schema_for(phase, *, source_ids=None, capability_ids=None, requirement_ids=N
         ids = list(dict.fromkeys(ids))
         if len(ids) > MAX_SCOPED_IDS:
             raise ValueError("Analysis citation scope is empty or exceeds contract bounds.")
+        if len(ids) > 250 and sum(len(value) for value in ids) > 15000:
+            raise ValueError("Analysis citation enum exceeds structured-output character bounds; narrow the context.")
         return string(*ids)
 
     if source_ids is not None:

@@ -49,6 +49,11 @@ class ExportHintTests(unittest.TestCase):
         self.assertEqual(targets, ["index.ts"])
         self.assertFalse(complete)
 
+    def test_manifest_main_can_omit_dot_prefix_but_js_dependency_import_cannot(self):
+        eligible = {"lib/index.ts": {}}
+        self.assertEqual(export_hints("package.json", '{"main":"lib/index.js"}', eligible)[0], ["lib/index.ts"])
+        self.assertEqual(export_hints("index.ts", 'export * from "lib/index.js";', eligible)[0], [])
+
     def test_fixtures_benchmarks_specs_and_types_are_not_product_engines(self):
         for path in ("pkg/fixtures/data.ts", "pkg/bench/run.ts", "pkg/playground/demo.ts"):
             self.assertEqual(source_role(path), "infrastructure")

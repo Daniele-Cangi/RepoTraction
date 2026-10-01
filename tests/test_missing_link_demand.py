@@ -55,6 +55,16 @@ class DemandSpanTests(unittest.TestCase):
         self.assertFalse(any("[OMITTED MIDDLE]" in quote for quote in quotes))
         self.assertTrue(all(quote in demand["body"] or quote == demand["title"] for quote in quotes))
 
+    def test_selected_middle_constraint_is_citable_without_inventing_its_full_line(self):
+        demand = dict(issue(), body="prefix " * 1800 + "Must not use Node.js. " + "suffix " * 1800, comments=[])
+        data, report = build_context(None, demand, "request", 180000)
+        spans, _ = citation_spans(data["sources"], evidence_catalog({}, demand), 18000)
+        quotes = [span["quote"] for span in spans.values()]
+        self.assertTrue(any("Must not use Node.js." in quote for quote in quotes))
+        self.assertTrue(all(quote in data["sources"]["q0"]["quote"] for quote in quotes))
+        self.assertTrue(all(quote in evidence_catalog({}, demand)["q0"]["quote"] for quote in quotes))
+        self.assertFalse(report["discussion_complete"])
+
     def test_ids_stable_and_catalog_schema_bounded_with_visible_omissions(self):
         demand = dict(issue(), body="\n".join(f"Requirement number {i}." for i in range(600)), comments=[])
         data, _ = build_context(None, demand, "request", 180000)
@@ -73,6 +83,17 @@ class DemandSpanTests(unittest.TestCase):
             return sum(enum_count(item) for item in value) if isinstance(value, list) else 0
         self.assertLess(enum_count(schema), 1000)
 
+    def test_ids_are_bound_to_actual_source_text_and_issue_not_only_offsets(self):
+        original = dict(issue(), body="Keep ANSI.", comments=[])
+        keys = []
+        for demand in (original, dict(original, body="Drop ANSI."),
+                       dict(original, url="https://github.com/example/site/issues/8")):
+            data, _ = build_context(None, demand, "request", 180000)
+            spans, _ = citation_spans(data["sources"], evidence_catalog({}, demand), 18000)
+            keys.append(set(spans))
+        self.assertFalse(keys[0] & keys[2])
+        self.assertNotEqual(keys[0], keys[1])
+
     def test_free_quotes_and_invented_span_ids_fail_without_retry_or_echo(self):
         provider = Provider({"REPOTRACTION_AI_URL": "http://localhost/v1", "REPOTRACTION_AI_MODEL": "fixture"})
         for raw in (request_raw(), dict(request_raw(), requirements=[{
@@ -86,6 +107,17 @@ class DemandSpanTests(unittest.TestCase):
 
 
 class AtomicDemandTests(unittest.TestCase):
+    def test_support_text_cannot_prove_behavior_even_with_code_elsewhere_in_prompt(self):
+        for path in ("README.md", "index.d.ts", "benchmarks/example.ts", "fixtures/sample.ts"):
+            repo = repository()
+            repo["files"].append({"path": path, "text": "Describes all desired behavior.", "kind": "source",
+                "url": "https://github.com/example/words/blob/" + "a" * 40 + "/" + path})
+            raw = raw_match()
+            raw["checks"][0]["source_ids"] = ["file:" + path]
+            match = validate_matches([raw], repo, issue(), validate_request(request_raw(), issue()), "model")[0]
+            self.assertEqual(match["checks"][0]["status"], "undetermined")
+            self.assertEqual(match["discovery_assessment"]["supported_requirement_ids"], [])
+
     def demand(self):
         return dict(issue(), comments=[], body="Implement output budgets and head/tail capture.\n"
             "Optionally strip ANSI escape codes.\nstrip_ansi?: boolean;\nmax_total_bytes?: number;")
@@ -139,3 +171,18 @@ class AtomicDemandTests(unittest.TestCase):
         raw = self.requirements()
         raw["requirements"][1]["mandatory"] = True
         self.assertTrue(validate_request(raw, self.demand())["requirements"][1]["mandatory"])
+
+    def test_unestablished_comment_authority_and_model_word_are_not_field_coverage(self):
+        demand = dict(issue(), body="Keep words intact.", comments=[{"url": issue()["url"] + "#issuecomment-8",
+            "body": "mode?: string;", "author": "third-party"}])
+        raw = request_raw()
+        raw["requirements"] = [{"text": "model behavior", "mandatory": True, "explicit": True,
+            "source_id": "q1", "quote": "mode?: string;", "inference": ""}]
+        request = validate_request(raw, demand)
+        review = request["constraint_review"]["optional_field_review"]["items"][0]
+        self.assertFalse(review["represented_by"])
+        self.assertTrue(review["needs_review"])
+        raw["requirements"][0]["text"] = "mode behavior"
+        review = validate_request(raw, demand)["constraint_review"]["optional_field_review"]["items"][0]
+        self.assertEqual(review["represented_by"], ["r0"])
+        self.assertTrue(review["needs_review"])

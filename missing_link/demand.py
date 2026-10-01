@@ -19,23 +19,31 @@ def citation_spans(sources, catalog, byte_limit):
             continue
         original = catalog[ref]["quote"]
         visible = source.get("quote", "")
-        # Split at sentence boundaries as well as lines, keeping punctuation,
-        # backticks and Markdown verbatim. Very long lines remain bounded.
-        for match in re.finditer(r"[^\n]+", original):
-            for sentence in re.finditer(r".+?(?:[.!?](?=\s+[A-Z]|$)|$)", match[0]):
-                start, end = match.start() + sentence.start(), match.start() + sentence.end()
-                for first in range(start, end, 1600):
-                    quote = original[first:min(end, first + 1600)].strip()
-                    if not quote or quote not in visible:
-                        # Unsent discussion is already covered by context_coverage.
-                        continue
-                    offset = original.find(quote, first, min(end, first + 1600))
-                    key = "s" + hashlib.sha256(f"{ref}:{offset}:{offset + len(quote)}".encode()).hexdigest()[:16]
-                    entry = {"source_id": ref, "quote": quote}
-                    spans[key] = entry
-                    if len(spans) > MAX_SCOPED_IDS or len(json.dumps(spans, ensure_ascii=False).encode()) > byte_limit:
-                        spans.pop(key)
-                        omitted += 1
+        pieces = [visible] if visible == original else re.split(
+            r"\n\[(?:OMITTED MIDDLE|SELECTED CONSTRAINT EXCERPT)\]\n", visible)
+        # Selected middle constraints precede long tail filler. Each piece must
+        # itself be one original span; never join across a synthetic seam.
+        pieces = pieces[:1] + pieces[2:] + pieces[1:2]
+        for piece in pieces:
+            base = original.find(piece)
+            if base < 0:
+                omitted += 1
+                continue
+            # Split sentences/lines from actually supplied pieces: a truncated
+            # middle hint can be selected even if the original line is enormous.
+            for match in re.finditer(r"[^\n]+", piece):
+                for sentence in re.finditer(r".+?(?:[.!?](?=\s+[A-Z]|$)|$)", match[0]):
+                    start, end = match.start() + sentence.start(), match.start() + sentence.end()
+                    for first in range(start, end, 1600):
+                        quote = piece[first:min(end, first + 1600)].strip()
+                        if not quote:
+                            continue
+                        offset = base + piece.find(quote, first, min(end, first + 1600))
+                        key = "s" + hashlib.sha256(f"{source.get('url')}:{ref}:{offset}:{offset + len(quote)}:{quote}".encode()).hexdigest()[:16]
+                        spans[key] = {"source_id": ref, "quote": quote}
+                        if len(spans) > MAX_SCOPED_IDS or len(json.dumps(spans, ensure_ascii=False).encode()) > byte_limit:
+                            spans.pop(key)
+                            omitted += 1
     return spans, {"span_count": len(spans), "omitted_visible_spans": omitted,
                    "complete": not omitted, "method": "exact original spans; selection is not semantic validation"}
 
@@ -68,7 +76,8 @@ def optional_field_hints(catalog, requirements=()):
                 if len(items) == 30 or len(line) > 1600:
                     omitted += 1
                     continue
-                items.append({"field": name, "source_id": ref, "quote": line.strip()})
+                items.append({"field": name, "source_id": ref, "quote": line.strip(),
+                              "authority": source.get("authority", "not_established")})
     def identity(value):
         value = re.sub(r"([a-z])([A-Z])", r"\1 \2", value)
         return tuple(re.findall(r"[a-z0-9]+", value.casefold()))
@@ -84,6 +93,7 @@ def optional_field_hints(catalog, requirements=()):
                     and requirement["source"]["source_id"] == item["source_id"]
                     and item["quote"] in requirement["source"]["quote"]):
                 represented.append(requirement["id"])
-        item.update(represented_by=represented, needs_review=not represented)
+        item.update(represented_by=represented, needs_review=not represented or
+                    item["authority"] not in {"request_author", "repository_member"})
     return {"items": items, "complete": not omitted, "omitted_fields": omitted,
             "method": "optional-field syntax is an extraction hint, not proof of optional demand or compatibility"}
