@@ -431,7 +431,8 @@ discovery still needs established search terms or an explicit operator query.
   check, benchmark and example infrastructure within the existing file budget.
   Source-role counts and missing-implementation warnings are recorded in coverage.
   Package entrypoints and literal relative JS/TS re-exports, including multiline
-  named clauses, can prioritize eligible files without increasing file/read/byte
+  named clauses and compact forms such as `export*from"./engine.js"`, can
+  prioritize eligible files without increasing file/read/byte
   budgets. A separate lexical scan excludes comments, quoted strings and template
   literals (including nested interpolations). Unterminated/depth/work-limited regions
   and ambiguous regexp/division contexts make the hint scan explicitly incomplete.

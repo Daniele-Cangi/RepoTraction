@@ -9,6 +9,50 @@ from test_missing_link_sources import GitHubFixture
 
 
 class ExportHintTests(unittest.TestCase):
+    def test_compact_reexports_allow_adjacent_punctuation_not_joined_keywords(self):
+        for extension in (".js", ".mjs", ".cjs", ".jsx", ".ts", ".tsx"):
+            for clause in ('export*from"./engine.js";', "export{parse}from'./engine.js';",
+                           'export*as engine from"./engine.js";', 'export {parse}from"./engine.js";',
+                           'export* from"./engine.js";', 'export{parse} from"./engine.js";'):
+                with self.subTest(extension=extension, clause=clause):
+                    self.assertEqual(export_hints("index" + extension, clause, {"engine.ts": {}}),
+                                     (["engine.ts"], True))
+        for clause in ('exported{parse}from"./engine.js";', 'export{parse}fromage"./engine.js";',
+                       'export*asengine from"./engine.js";', 'export*as enginefrom"./engine.js";'):
+            with self.subTest(clause=clause):
+                self.assertEqual(export_hints("index.ts", clause, {"engine.ts": {}}), ([], True))
+
+    def test_compact_barrels_reach_engine_with_fixed_read_budget(self):
+        fixture = GitHubFixture()
+        fixture.add("index.ts", 'export*from"./src/index.js";')
+        fixture.add("src/index.ts", 'export{parse}from"./engine.js";')
+        fixture.add("src/engine.ts", "export function parse(value) { return value; }")
+        for i in range(40):
+            fixture.add(f"unrelated{i:02d}.ts", "export function helper() { return true; }")
+        snapshot = PublicGitHub(fixture.read).fetch_repository("sample/project", 3)
+        self.assertEqual([f["path"] for f in snapshot["files"]], ["index.ts", "src/index.ts", "src/engine.ts"])
+        self.assertEqual(sum("/git/blobs/" in call[0] for call in fixture.calls), 3)
+        self.assertEqual(snapshot["coverage"]["static_export_hints"],
+                         [{"from": "index.ts", "path": "src/index.ts"},
+                          {"from": "src/index.ts", "path": "src/engine.ts"}])
+        self.assertTrue(snapshot["coverage"]["export_hints_complete"])
+        self.assertFalse(snapshot["coverage"]["eligible_sample_complete"])
+
+    def test_compact_reexports_keep_lexical_and_destination_safety_guards(self):
+        fake = 'export{parse}from"./obsolete.js";'
+        real = 'export*from"./real.js";'
+        for prefix in (f"/*\n{fake}\n*/\n", f"const example = `\n{fake}\n`;\n",
+                       "const example = \"continued\\\nexport{parse}from'./obsolete.js';\\\n\";\n",
+                       "// export*from'./obsolete.js';\n"):
+            with self.subTest(prefix=prefix):
+                self.assertEqual(export_hints("index.ts", prefix + real, {"obsolete.ts": {}, "real.ts": {}}),
+                                 (["real.ts"], True))
+        for spec in ("./types.d.ts", "../../engine.js", "https://host/engine.js", "./*.ts", "./engine.js?secret"):
+            with self.subTest(spec=spec):
+                self.assertEqual(export_hints("src/index.ts", f'export{{parse}}from"{spec}";',
+                                             {"src/types.d.ts": {}, "engine.ts": {}, "src/engine.ts": {}}),
+                                 ([], True))
+
     def test_monorepo_entrypoint_and_reexports_reach_engine_with_fixed_budget(self):
         fixture = GitHubFixture()
         fixture.add("package.json", json.dumps({"source": "./packages/zod/src/index.ts"}))
@@ -59,10 +103,12 @@ class ExportHintTests(unittest.TestCase):
 
     def test_multiline_hint_overflow_remains_explicit_and_bounded(self):
         eligible = {f"source{i}.ts": {} for i in range(MAX_EXPORT_HINTS + 1)}
-        value = "\n".join(f"export {{\n item{i},\n}} from './source{i}.js';" for i in range(MAX_EXPORT_HINTS + 1))
-        targets, complete = export_hints("index.ts", value, eligible)
-        self.assertEqual(targets, list(eligible)[:MAX_EXPORT_HINTS])
-        self.assertFalse(complete)
+        for template in ("export {{\n item{i},\n}} from './source{i}.js';", "export{{item{i}}}from'./source{i}.js';"):
+            with self.subTest(template=template):
+                value = "\n".join(template.format(i=i) for i in range(MAX_EXPORT_HINTS + 1))
+                targets, complete = export_hints("index.ts", value, eligible)
+                self.assertEqual(targets, list(eligible)[:MAX_EXPORT_HINTS])
+                self.assertFalse(complete)
 
     def test_non_code_reexports_cannot_spend_the_implementation_blob_slot(self):
         fake = 'export * from "./obsolete.js";'

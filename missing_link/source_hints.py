@@ -40,8 +40,9 @@ def export_hints(path, text, eligible):
     elif PurePosixPath(path).suffix in {".js", ".mjs", ".cjs", ".jsx", ".ts", ".tsx"}:
         visible, code, literals, complete = export_view(text)
         # Named clauses can span lines. Stop at either brace so an unfinished
-        # clause cannot consume another declaration; this remains a static hint.
-        pattern = r"(?m)^[ \t]*(?P<export>export)\s+(?:\*(?:\s+as\s+\w+)?|\{[^{}]*\})\s+(?P<from>from)\s*(?P<literal>['\"])(?P<spec>[^'\"\n]{1,240})(?P=literal)"
+        # clause cannot consume another declaration. Punctuation separates tokens
+        # without whitespace, but joined keywords are not re-export hints.
+        pattern = r"(?m)^[ \t]*(?P<export>export)\b\s*(?:\*(?:\s*as\s+\w+)?|\{[^{}]*\})\s*\b(?P<from>from)\b\s*(?P<literal>['\"])(?P<spec>[^'\"\n]{1,240})(?P=literal)"
         specs = [match["spec"] for match in re.finditer(pattern, visible)
                  if code[match.start("export")] and code[match.start("from")]
                  and literals.get(match.start("literal")) == match.end()]
