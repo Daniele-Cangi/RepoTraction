@@ -9,7 +9,9 @@ from .contracts import MAX_SCOPED_IDS
 
 def sentence_spans(line):
     """Conservative original sentence spans shared by citations and review hints."""
-    return re.finditer(r".+?(?:[.!?](?=\s+[A-Z]|$)|$)", line)
+    # These abbreviation dots do not end a clause even before a capitalized
+    # example. Keep original match offsets; this is not a semantic sentence parser.
+    return re.finditer(r".+?(?:(?:(?<!\b[eE]\.[gG])(?<!\b[iI]\.[eE])\.|[!?])(?=\s+[A-Z]|$)|$)", line)
 
 
 def citation_spans(sources, catalog, byte_limit):

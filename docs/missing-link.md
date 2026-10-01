@@ -448,6 +448,8 @@ discovery still needs established search terms or an explicit operator query.
 - Imported requirement quotations may differ only in whitespace; the stored quote is
   recovered from one contiguous original source span. Paraphrases, changed
   punctuation and quotes from omitted context are not accepted.
+  Shared citation/constraint sentence spans retain `e.g.` and `i.e.` clauses before
+  capitalized examples without rewriting source text or offsets.
 - A bounded, non-exhaustive English constraint-hint scan examines acquired
   discussion before prompt shortening. Selected middle excerpts preserve likely
   dependency/runtime prohibitions; omissions and truncation remain explicit.

@@ -7,12 +7,56 @@ from unittest import mock
 from missing_link.analysis import evidence_catalog, validate_request, validate_matches
 from missing_link.context import build_context
 from missing_link.contracts import schema_for, validate_shape
-from missing_link.demand import citation_spans
+from missing_link.demand import citation_spans, sentence_spans
 from missing_link.provider import Provider, CandidateValidationError
 from test_missing_link import issue, request_raw, request_completion, repository, raw_match
 
 
 class DemandSpanTests(unittest.TestCase):
+    def test_abbreviation_guards_keep_real_punctuation_boundaries_and_original_offsets(self):
+        for line, expected in (
+                ("Must support e.g. Windows paths! Must retain i.e. URL casing?",
+                 ["Must support e.g. Windows paths!", "Must retain i.e. URL casing?"]),
+                ("Must support e.g! Must retain casing?", ["Must support e.g!", "Must retain casing?"]),
+                ("Read example.g. Windows paths follow.", ["Read example.g.", "Windows paths follow."]),
+                ("Keep the final e.g.", ["Keep the final e.g."])):
+            with self.subTest(line=line):
+                spans = list(sentence_spans(line))
+                self.assertEqual([span[0].strip() for span in spans], expected)
+                self.assertEqual("".join(span[0] for span in spans), line)
+                self.assertTrue(all(line[span.start():span.end()] == span[0] for span in spans))
+
+    def test_abbreviations_keep_complete_original_demand_clauses_citable(self):
+        for abbreviation in ("e.g.", "i.e.", "E.g.", "I.E."):
+            with self.subTest(abbreviation=abbreviation):
+                clause = f"Must support {abbreviation} Windows paths."
+                demand = dict(issue(), body=clause + " Must not use Node.js.", comments=[])
+                data, _ = build_context(None, demand, "request", 180000)
+                spans, coverage = citation_spans(data["sources"], evidence_catalog({}, demand), 18000)
+                quotes = [span["quote"] for span in spans.values()]
+                self.assertIn(clause, quotes)
+                self.assertIn("Must not use Node.js.", quotes)
+                self.assertNotIn(f"Must support {abbreviation}", quotes)
+                self.assertTrue(coverage["complete"])
+                self.assertTrue(all(quote in evidence_catalog({}, demand)["q0"]["quote"] for quote in quotes))
+
+    def test_abbreviation_citations_and_constraint_hints_share_offsets_and_full_clause(self):
+        clause = "Must support e.g. Windows paths."
+        demand = dict(issue(), body=clause + " Must not use Node.js.", comments=[])
+        raw = dict(request_raw(), requirements=[dict(request_raw()["requirements"][0],
+            text="Support Windows paths", quote=clause), dict(request_raw()["requirements"][0],
+            text="No Node.js runtime", quote="Must not use Node.js.")])
+        provider = Provider({"REPOTRACTION_AI_URL": "http://localhost/v1", "REPOTRACTION_AI_MODEL": "fixture"})
+        with mock.patch.object(provider, "complete", side_effect=request_completion(raw)) as complete:
+            request = provider.interpret_request(demand, mock.Mock())
+        complete.assert_called_once()
+        self.assertEqual([item["source"]["quote"] for item in request["requirements"]],
+                         [clause, "Must not use Node.js."])
+        hints = request["constraint_review"]["items"]
+        self.assertEqual([hint["quote"] for hint in hints], [clause, "Must not use Node.js."])
+        self.assertEqual([hint["represented_by"] for hint in hints], [["r0"], ["r1"]])
+        self.assertFalse(request["constraint_review"]["qualification_blockers"])
+
     def test_live_markdown_failures_use_original_spans_not_model_repairs(self):
         pairs = [
             ("- Use **panel-assessed `vN_severity` only** (never `body_severity`).",
