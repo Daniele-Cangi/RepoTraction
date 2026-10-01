@@ -1,9 +1,13 @@
 """Characterize event calculations without real history, GitHub or AI calls."""
 import copy
 import sqlite3
+import subprocess
+import sys
 import unittest
+from contextlib import closing
 from contextlib import nullcontext
 from datetime import date, datetime, timedelta, timezone
+from pathlib import Path
 from unittest import mock
 
 import app
@@ -246,3 +250,125 @@ class EventCharacterizationTests(unittest.TestCase):
                                       "clones": self.metric("clones", status="stale_upstream")})
         self.assertEqual(result["events"][0]["outcome_key"], "outperformed")
         self.assertEqual(result["events"][0]["confidence"], "medium")
+
+    def test_adapter_delegates_with_rows_and_explicit_profile_predicate(self):
+        from analytics import events
+        self.add_window()
+        self.controls()
+        with mock.patch.object(app, "build_event_metric_result", wraps=events.build_event_metric_result) as delegate:
+            result = self.analyze()
+        delegate.assert_called_once()
+        supplied = delegate.call_args.kwargs
+        self.assertEqual((supplied["metric"], supplied["event_day"], supplied["window_days"]),
+                         ("views", EVENT_DAY, 7))
+        self.assertEqual(len(supplied["pre_rows"]), 7)
+        self.assertEqual(len(supplied["portfolio_rows"]), 3)
+        self.assertIs(supplied["is_profile_repository_name"], app.is_profile_repository_name)
+        self.assertEqual(result["portfolio_repositories"], 3)
+        with mock.patch.object(app, "is_profile_repository_name", return_value=True):
+            self.assertEqual(self.analyze()["portfolio_repositories"], 0)
+
+
+class PureEventCalculationTests(unittest.TestCase):
+    @staticmethod
+    def calculate(*, days=7, pre=10, post=20, portfolio_rows=None):
+        from analytics import events
+        return events.build_event_metric_result(
+            metric="views", event_day=EVENT_DAY, window_days=days, latest_day="2026-08-16",
+            pre_rows=[{"value": pre}] * days, post_rows=[{"value": post}] * days,
+            portfolio_rows=[] if portfolio_rows is None else portfolio_rows,
+            is_profile_repository_name=lambda name: name == "octocat/octocat",
+        )
+
+    def test_entrypoint_exposes_same_calculation_objects(self):
+        from analytics import events
+        for name in ("_utc_date", "build_event_metric_result", "describe_event_outcome"):
+            self.assertIs(getattr(app, name), getattr(events, name))
+
+    def test_direct_results_preserve_rounding_zero_and_immutable_controls(self):
+        controls = [{"repo": "octocat/a", "pre": 3, "post": 4, "pre_days": 7, "post_days": 7},
+                    {"repo": "octocat/octocat", "pre": 1, "post": 100, "pre_days": 7, "post_days": 7},
+                    {"repo": "octocat/partial", "pre": 1, "post": 100, "pre_days": 6, "post_days": 7},
+                    {"repo": "octocat/new", "pre": 0, "post": 100, "pre_days": 7, "post_days": 7}]
+        before = copy.deepcopy(controls)
+        for pre, post, change, kind, lift in ((3, 4, 33.3, "measured", 0.0),
+                                            (0, 0, 0.0, "measured", -33.3),
+                                            (0, 5, None, "new", None),
+                                            (5, 0, -100.0, "measured", -133.3)):
+            with self.subTest(pre=pre, post=post):
+                result = self.calculate(pre=pre, post=post, portfolio_rows=controls)
+                self.assertEqual((result["change_pct"], result["change_kind"], result["lift_pct_points"]),
+                                 (change, kind, lift))
+                self.assertEqual(result["portfolio_repositories"], 1)
+                self.assertEqual(result["portfolio_change_pct"], 33.3)
+        self.assertEqual(controls, before)
+        self.assertIsNone(self.calculate()["portfolio_change_pct"])
+        self.assertIsNone(self.calculate()["lift_pct_points"])
+
+    def test_direct_confidence_preserves_thresholds(self):
+        for days, count, confidence in ((7, 3, "high"), (7, 2, "medium"),
+                                        (4, 2, "medium"), (3, 3, "low"), (4, 1, "low")):
+            with self.subTest(days=days, count=count):
+                controls = [{"repo": f"octocat/{index}", "pre": 5, "post": 5,
+                             "pre_days": days, "post_days": days} for index in range(count)]
+                self.assertEqual(self.calculate(days=days, portfolio_rows=controls)["confidence"], confidence)
+
+    def test_direct_calculation_accepts_sqlite_rows_without_storage_dependency(self):
+        from analytics import events
+        with closing(sqlite3.connect(":memory:")) as connection:
+            connection.row_factory = sqlite3.Row
+            pre = connection.execute("SELECT 2 AS value").fetchall()
+            post = connection.execute("SELECT 3 AS value").fetchall()
+            controls = connection.execute("SELECT 'octocat/a' AS repo, 2 AS pre, 2 AS post, "
+                                          "1 AS pre_days, 1 AS post_days").fetchall()
+        result = events.build_event_metric_result(
+            metric="clones", event_day=EVENT_DAY, window_days=1, latest_day="2026-08-10",
+            pre_rows=pre, post_rows=post, portfolio_rows=controls,
+            is_profile_repository_name=lambda name: False,
+        )
+        self.assertEqual((result["pre"], result["post"], result["lift_pct_points"]), (2, 3, 50.0))
+        self.assertEqual(result["status"], "collecting")
+        self.assertEqual(result["period"]["post_to"], "2026-08-10")
+
+    def test_direct_headline_preserves_weak_confidence_and_input_metrics(self):
+        from analytics import events
+        metrics = {"views": EventCharacterizationTests.metric("views", lift=100, confidence="high"),
+                   "clones": EventCharacterizationTests.metric("clones", lift=300, confidence="low")}
+        before = copy.deepcopy(metrics)
+        self.assertEqual(events.describe_event_outcome(metrics), {
+            "outcome_key": "outperformed", "outcome": "Outperformed portfolio baseline",
+            "summary": "Clone events changed +300% versus a +0% portfolio median.",
+            "confidence": "low", "important": False,
+        })
+        self.assertEqual(metrics, before)
+        self.assertEqual(events.describe_event_outcome({})["outcome_key"], "collecting")
+
+    def test_fresh_import_and_calculations_need_no_entrypoint_provider_storage_or_clock(self):
+        code = """
+import sys
+from datetime import date, datetime
+from unittest.mock import patch
+sys.path.insert(0, sys.argv[1])
+class NoClock(datetime):
+    @classmethod
+    def now(cls, *args, **kwargs):
+        raise AssertionError('wall clock access')
+with patch('sqlite3.connect', side_effect=AssertionError('database access')), \\
+     patch('threading.Thread.start', side_effect=AssertionError('thread start')), \\
+     patch('subprocess.run', side_effect=AssertionError('external command')), \\
+     patch('socket.create_connection', side_effect=AssertionError('network access')):
+    from analytics import events
+    with patch.object(events, 'datetime', NoClock):
+        assert events._utc_date('2026-08-11T01:00:00+02:00') == date(2026, 8, 10)
+        result = events.build_event_metric_result(
+            metric='views', event_day=date(2026, 8, 10), window_days=1,
+            latest_day='2026-08-10', pre_rows=[{'value': 2}], post_rows=[{'value': 3}],
+            portfolio_rows=[], is_profile_repository_name=lambda name: False)
+        assert result['change_pct'] == 50.0
+        assert events.describe_event_outcome({'views': result})['outcome_key'] == 'collecting'
+    assert 'app' not in sys.modules
+    assert not any(name == 'missing_link' or name.startswith('missing_link.') for name in sys.modules)
+"""
+        result = subprocess.run([sys.executable, "-I", "-c", code, str(Path(__file__).resolve().parents[1])],
+                                capture_output=True, text=True, timeout=20)
+        self.assertEqual(result.returncode, 0, result.stderr)
