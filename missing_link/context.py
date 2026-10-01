@@ -5,6 +5,7 @@ from collections import Counter
 
 from .analysis import evidence_catalog, resolve_evidence, quoted_span
 from .discussion import constraint_hints
+from .demand import optional_field_hints
 from .contracts import MAX_SCOPED_IDS
 from .sources import source_role
 
@@ -100,6 +101,8 @@ def build_context(repository, issue, phase, byte_limit):
         data["issue"] = {key: issue.get(key) for key in ("id", "url", "title", "state", "updated_at", "created_at",
             "labels", "author_type", "bot", "context_complete", "limitations")}
         data["potential_constraints"] = hints
+        if phase == "request":
+            data["potential_subrequirements"] = optional_field_hints({})
     candidates = []
     if repository:
         candidates = select_capabilities(repository.get("capabilities", []))
@@ -135,8 +138,16 @@ def build_context(repository, issue, phase, byte_limit):
                     entry["quote"] += "\n[SELECTED CONSTRAINT EXCERPT]\n" + hint["quote"]
             shortened.append(reference)
         sources[reference] = entry
+        previous_subrequirements = data.get("potential_subrequirements")
+        if previous_subrequirements is not None:
+            # Review hints must only repeat supplied excerpts, and their bytes
+            # share the same packing budget. Never restore omitted comments
+            # through a post-packing scan of the full acquired discussion.
+            data["potential_subrequirements"] = optional_field_hints(sources)
         if size(data) > target:
             sources.pop(reference)
+            if previous_subrequirements is not None:
+                data["potential_subrequirements"] = previous_subrequirements
             omitted.append(reference)
 
     # Request first and recent discussion before old comments: later resolution
@@ -204,6 +215,9 @@ def build_context(repository, issue, phase, byte_limit):
         "source_coverage": (repository or {}).get("coverage", {}),
         "note": "Selected evidence is not the whole repository. Missing context remains unknown; omitted discussion prevents a qualified positive."}
     if issue:
+        if phase == "request":
+            report["optional_field_hint_scan_complete"] = data["potential_subrequirements"]["complete"]
+            report["discussion_complete"] &= report["optional_field_hint_scan_complete"]
         target_context = issue.get("target_context", {})
         report["target_reference_context"] = {"revision": target_context.get("revision"),
             "source_ids": [ref for ref in sources if ref.startswith("target:")],

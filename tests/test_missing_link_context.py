@@ -30,6 +30,20 @@ class ContextSelectionTests(unittest.TestCase):
                 self.assertIn("q0", data["sources"])
                 self.assertIn("t199", data["sources"])
 
+    def test_request_packing_accounts_for_optional_hints_and_rolls_back_rejected_sources(self):
+        demand = issue()
+        demand["comments"] = [{"url": demand["url"] + f"#issuecomment-{i}",
+            "body": f"config_{i}?: string; " + "x" * 1540} for i in range(30)]
+        data, report = build_context(None, demand, "request", 60000)
+        self.assertLessEqual(len(json.dumps(data, ensure_ascii=False).encode()), 44000)
+        self.assertTrue(report["omitted_source_count"])
+        self.assertFalse(report["discussion_complete"])
+        hints = data["potential_subrequirements"]["items"]
+        self.assertTrue(hints)
+        self.assertTrue(all(hint["source_id"] in data["sources"] for hint in hints))
+        self.assertTrue(all(hint["quote"] in data["sources"][hint["source_id"]]["quote"] for hint in hints))
+        self.assertFalse({hint["source_id"] for hint in hints} & set(report["omitted_source_ids"]))
+
     def test_id_bound_preserves_later_constraint_and_explicitly_omits_old_context(self):
         demand = self.busy_issue()
         demand["comments"][-1]["body"] = "Must not use Node.js."

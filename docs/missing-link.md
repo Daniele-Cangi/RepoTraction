@@ -100,6 +100,10 @@ constraint sentences on one line remain independent review items; omitted,
 truncated or uncertain-authority constraints still prevent qualification.
 A bounded optional-field review flags omitted/bundled TypeScript-style fields
 such as `strip_ansi?: boolean`. It never adds a requirement or awards support.
+Provider hints are packed with the supplied discussion excerpts under the same
+byte budget; omitted comments cannot reappear through these hints. Overflow is
+explicit, and final validation still checks the full acquired discussion for
+unrepresented fields, so a partial prompt cannot silently clear them.
 The identifier must be represented separately, and uncertain source authority
 still requires review. Longer identifiers such as `colorMode` do not also count
 as `mode`; explicitly naming both still flags a bundled requirement. An optional

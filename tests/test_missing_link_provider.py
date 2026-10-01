@@ -62,6 +62,67 @@ class ProviderContractTests(unittest.TestCase):
         self.assertNotIn("repository", data)
         self.assertNotIn("capability_ids", report)
 
+    def test_optional_field_hints_are_packed_before_transport_without_hidden_comments(self):
+        demand = issue()
+        demand["comments"] = [{"url": demand["url"] + f"#issuecomment-{index}",
+            "body": f"config_{index}?: string; " + "x" * 1540} for index in range(30)]
+        demand["comments"] += [{"url": demand["url"] + f"#issuecomment-fill-{index}",
+            "body": "context " * 620} for index in range(15)]
+        catalog = evidence_catalog({}, demand)
+        for api_kind in ("chat", "responses"):
+            for response_format in ("json_object", "json_schema"):
+                with self.subTest(api_kind=api_kind, response_format=response_format):
+                    provider = Provider({"REPOTRACTION_AI_URL": "http://localhost/v1", "REPOTRACTION_AI_MODEL": "fixture",
+                        "REPOTRACTION_AI_API_KIND": api_kind, "REPOTRACTION_AI_RESPONSE_FORMAT": response_format,
+                        "REPOTRACTION_AI_MAX_PROMPT_BYTES": "150000"})
+                    actual_complete = provider.complete
+                    captured = []
+                    opener = mock.Mock()
+                    response = mock.MagicMock()
+                    opener.open.return_value = response
+                    def complete(instruction, data, budget, schema, phase):
+                        captured.append(copy.deepcopy(data))
+                        raw = wire_request(data)
+                        result = ({"status": "completed", "output": [{"type": "message", "content": [
+                            {"type": "output_text", "text": json.dumps(raw)}]}]} if api_kind == "responses" else
+                            {"choices": [{"finish_reason": "stop", "message": {"content": json.dumps(raw)}}]})
+                        response.__enter__.return_value.read.return_value = json.dumps(result).encode()
+                        return actual_complete(instruction, data, budget, schema, phase)
+                    budget = mock.Mock()
+                    with mock.patch.object(provider, "complete", side_effect=complete), \
+                         mock.patch("urllib.request.build_opener", return_value=opener):
+                        request = provider.interpret_request(demand, budget)
+                    opener.open.assert_called_once()
+                    budget.reserve_ai.assert_called_once()
+                    self.assertLessEqual(len(opener.open.call_args.args[0].data), provider.max_bytes)
+                    data = captured[0]
+                    self.assertTrue(data["context_coverage"]["omitted_source_count"])
+                    self.assertFalse(request["context_complete"])
+                    self.assertEqual(request["status"], "unclear")
+                    self.assertNotIn("q1", data["sources"])
+                    for hint in data["potential_subrequirements"]["items"]:
+                        self.assertIn(hint["source_id"], data["sources"])
+                        self.assertIn(hint["quote"], data["sources"][hint["source_id"]]["quote"])
+                        self.assertIn(hint["quote"], catalog[hint["source_id"]]["quote"])
+                    # The complete acquired discussion still drives validation:
+                    # omitted fields cannot be silently certified as represented.
+                    self.assertTrue(request["constraint_review"]["qualification_blockers"])
+
+    def test_optional_hint_overflow_is_explicit_even_when_sources_fit(self):
+        demand = dict(issue(), body="Need parser options.\n" + "\n".join(f"config_{i}?: string;" for i in range(35)), comments=[])
+        provider = Provider({"REPOTRACTION_AI_URL": "http://localhost/v1", "REPOTRACTION_AI_MODEL": "fixture"})
+        raw = dict(request_raw(), requirements=[dict(request_raw()["requirements"][0],
+            text="Parser options", quote="Need parser options.")])
+        with mock.patch.object(provider, "complete", side_effect=request_completion(raw)) as complete:
+            request = provider.interpret_request(demand, mock.Mock())
+        data = complete.call_args.args[1]
+        self.assertEqual(len(data["potential_subrequirements"]["items"]), 30)
+        self.assertEqual(data["potential_subrequirements"]["omitted_fields"], 5)
+        self.assertFalse(data["potential_subrequirements"]["complete"])
+        self.assertFalse(request["analysis_context"]["optional_field_hint_scan_complete"])
+        self.assertFalse(request["context_complete"])
+        self.assertTrue(request["constraint_review"]["qualification_blockers"])
+
     def test_large_repository_uses_line_spans_and_reports_omissions(self):
         repo = repository()
         repo["files"][0]["text"] += "# lots of unrelated source\n" * 10000
