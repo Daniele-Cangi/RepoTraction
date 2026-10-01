@@ -48,7 +48,7 @@ if (-not (Test-Path -LiteralPath (Join-Path $SourceDirectory "analytics\opportun
 if (-not (Test-Path -LiteralPath (Join-Path $SourceDirectory "analytics\event_evidence.py") -PathType Leaf)) {
     throw "Required event evidence analytics module is missing."
 }
-foreach ($module in @("database.py", "migrations.py")) {
+foreach ($module in @("database.py", "migrations.py", "registry.py")) {
     if (-not (Test-Path -LiteralPath (Join-Path $SourceDirectory "storage\$module") -PathType Leaf)) {
         throw "Required storage module is missing: $module"
     }

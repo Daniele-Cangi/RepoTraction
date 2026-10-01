@@ -22,6 +22,8 @@ in [AGENTS.md](../AGENTS.md) applies to future work.
     short-circuiting before extracting window eligibility decisions.
   - [x] Characterize connection lifecycle, current/legacy migrations, provenance,
     account-selected paths and schema compatibility before extracting storage.
+  - [x] Characterize registry IDs, renames, name reuse, history collisions,
+    transaction boundaries and resolver failures before extracting registry SQL.
   - [ ] Characterize remaining stateful boundaries before their extraction.
 - [ ] Extract pure calculations into `analytics/`: date windows, traffic
   comparisons, event metrics, repository health and signal calculations. Pass
@@ -44,7 +46,10 @@ in [AGENTS.md](../AGENTS.md) applies to future work.
   schemas, transactions and account isolation; do not reset stored history.
   - [x] Move explicit-path connection lifecycle to `storage/database.py` and the
     existing migration statements to `storage/migrations.py`.
-  - [ ] Extract registry reconciliation and snapshot persistence.
+  - [x] Move registry SQL and history rename/archive operations to
+    `storage/registry.py`, using supplied connections and explicit history hooks.
+  - [ ] Extract snapshot persistence. Move remaining alias-resolution network
+    orchestration with GitHub acquisition into `services/`.
 - [ ] Extract GitHub acquisition, cache and collection orchestration into
   `services/`. Give the scheduler an explicit lifecycle and shutdown behavior;
   importing a module must not start collection or network requests.
@@ -179,8 +184,38 @@ connection ownership. Fresh storage imports do not open databases, create
 directories, start services or load an AI provider. The Windows installer ships
 the package; uninstall removes its code while preserving history by default and
 refuses storage junctions. Isolated installed-module checks exercise migrations
-only on a test database. Registry reconciliation and snapshots remain planned
-work, along with acquisition, scheduling and HTTP extraction.
+only on a test database. Snapshot persistence remains planned work, along with
+acquisition, scheduling and HTTP extraction.
+
+## Repository registry boundary
+
+[`storage/registry.py`](../storage/registry.py) contains history merge/archive
+operations, current-ID reconciliation, alias persistence and active-name queries.
+Every operation uses a supplied connection; the caller retains commit, rollback
+and closure. The module does not select accounts or database paths, contact
+GitHub, start services or import the entry point.
+
+`app.py` retains input normalization, alias candidate filtering, GitHub resolution
+and account-change/rate-limit propagation. Its compatibility adapters pass the
+existing patchable history hooks explicitly. The current registry is committed
+before network resolution; each resolved alias still has its own transaction.
+SQL statements, ordering and collision precedence are unchanged, including
+case-only renames, canonical snapshot precedence and the distinction between an
+uninitialized registry and an initialized empty registry. The historical lookup
+still excludes names found only in metadata snapshots or repository events.
+
+Characterization and direct-module tests cover all five history tables, immutable
+IDs, reused names, creation/first-seen dates, independent traffic metrics, caller
+rollback, partial progress after resolver failure and account-selected databases.
+Isolated imports and installed-module checks exercise only owned test databases,
+with fake resolver replies and no paid provider calls.
+
+One pre-existing collision issue is deliberately not changed in this structural
+extraction: copying daily traffic counts and availability does not also copy the
+corresponding provenance status. For example, a canonical row marked `missing`
+can retain that status after receiving an observed value from a renamed row.
+Correcting the per-metric status transfer needs a separate regression and fix,
+not an undocumented behavior change in this refactor.
 
 ## Acceptance checks
 
