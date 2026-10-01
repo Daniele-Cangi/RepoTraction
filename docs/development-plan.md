@@ -16,6 +16,8 @@ in [AGENTS.md](../AGENTS.md) applies to future work.
     headlines before extracting their pure calculations.
   - [x] Characterize repository readiness, license interpretation and adoption
     signals before extracting their calculations.
+  - [x] Characterize opportunity categories, thresholds, stable ranking and
+    partial-evidence behavior before extracting their calculations.
   - [ ] Characterize remaining stateful boundaries before their extraction.
 - [ ] Extract pure calculations into `analytics/`: date windows, traffic
   comparisons, event metrics, repository health and signal calculations. Pass
@@ -27,8 +29,9 @@ in [AGENTS.md](../AGENTS.md) applies to future work.
   - [x] Move license metadata interpretation, repository readiness scoring and
     adoption signals to `analytics/repositories.py`, with explicit activity age
     and profile applicability for readiness calculations.
-  - [ ] Extract remaining event window/evidence orchestration and opportunity
-    calculations.
+  - [x] Move per-repository opportunity calculations and stable ranking to
+    `analytics/opportunities.py`, using supplied readiness and activity age.
+  - [ ] Extract remaining event window/evidence orchestration.
 - [ ] Extract database connections, migrations, repository registry operations
   and snapshot persistence into `storage/`. Preserve existing database paths,
   schemas, transactions and account isolation; do not reset stored history.
@@ -94,8 +97,30 @@ original one-argument readiness interface through a small adapter. The existing
 timestamp parser and profile rules still supply that adapter's dependencies.
 Tests cover those patchable dependencies, immutable inputs, unknown versus zero,
 direct calculations and isolated imports. Installation checks include the new
-module. Opportunity ranking, profile filtering and timestamp adapter extraction
-remain separate work; this step does not change HTTP, storage or acquisition.
+module. Profile filtering and timestamp adapter extraction remain separate work;
+this step does not change HTTP, storage or acquisition.
+
+## Opportunity calculation boundary
+
+[`analytics/opportunities.py`](../analytics/opportunities.py) builds suggestions
+for an eligible repository using supplied signals and readiness, then ranks the
+portfolio's opportunity and readiness rows. The five categories, thresholds,
+score caps, confidence labels, response fields and stable tie order are unchanged.
+The module does not parse activity timestamps, read the wall clock or database,
+import the entry point, collect data or load an AI provider.
+
+`app.py` retains case-insensitive signal matching, last-duplicate selection,
+repository exclusions and the existing patchable profile and readiness adapters.
+It prepares and delegates one repository at a time so invalid inputs still fail
+before evaluating later repositories. Cache, acquisition and the opportunity
+center's payload limits and summary remain in the entry point.
+
+Characterization tests cover complete results, partial traffic and star evidence,
+native clone totals, exclusions, ranking and validation order. Direct tests check
+supplied readiness, input preservation, row reference semantics and isolated
+imports. Opportunity center tests retain cache behavior, response aliases and
+the 40-item limit. The installer and CI check the new installed module. This is
+a structural extraction, not a scoring change or a Missing Link feature.
 
 ## Acceptance checks
 
