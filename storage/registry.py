@@ -21,8 +21,8 @@ def merge_repository_history(
     connection.row_factory = sqlite3.Row
     traffic_rows = connection.execute(
         """
-        SELECT day, views, unique_views, views_available, clones,
-               unique_clones, clones_available, collected_at
+        SELECT day, views, unique_views, views_available, views_status, clones,
+               unique_clones, clones_available, clones_status, collected_at
         FROM traffic_daily
         WHERE repo = ?
         """,
@@ -49,13 +49,14 @@ def merge_repository_history(
             if row["views_available"] == 1 and (
                 current["views_available"] != 1 or old_is_newer
             ):
-                updates.extend(("views = ?", "unique_views = ?", "views_available = 1"))
-                values.extend((row["views"], row["unique_views"]))
+                # Provenance belongs to the selected observation, not its old name.
+                updates.extend(("views = ?", "unique_views = ?", "views_available = 1", "views_status = ?"))
+                values.extend((row["views"], row["unique_views"], row["views_status"]))
             if row["clones_available"] == 1 and (
                 current["clones_available"] != 1 or old_is_newer
             ):
-                updates.extend(("clones = ?", "unique_clones = ?", "clones_available = 1"))
-                values.extend((row["clones"], row["unique_clones"]))
+                updates.extend(("clones = ?", "unique_clones = ?", "clones_available = 1", "clones_status = ?"))
+                values.extend((row["clones"], row["unique_clones"], row["clones_status"]))
             updates.append("collected_at = MAX(collected_at, ?)")
             values.extend((row["collected_at"], canonical_name, row["day"]))
             connection.execute(

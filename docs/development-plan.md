@@ -199,7 +199,7 @@ GitHub, start services or import the entry point.
 and account-change/rate-limit propagation. Its compatibility adapters pass the
 existing patchable history hooks explicitly. The current registry is committed
 before network resolution; each resolved alias still has its own transaction.
-SQL statements, ordering and collision precedence are unchanged, including
+Registry ordering and collision precedence are retained, including
 case-only renames, canonical snapshot precedence and the distinction between an
 uninitialized registry and an initialized empty registry. The historical lookup
 still excludes names found only in metadata snapshots or repository events.
@@ -210,12 +210,14 @@ rollback, partial progress after resolver failure and account-selected databases
 Isolated imports and installed-module checks exercise only owned test databases,
 with fake resolver replies and no paid provider calls.
 
-One pre-existing collision issue is deliberately not changed in this structural
-extraction: copying daily traffic counts and availability does not also copy the
-corresponding provenance status. For example, a canonical row marked `missing`
-can retain that status after receiving an observed value from a renamed row.
-Correcting the per-metric status transfer needs a separate regression and fix,
-not an undocumented behavior change in this refactor.
+The separate daily-traffic collision fix now copies each selected metric's
+counts, unique counts, availability and provenance together. Views and clones
+remain independent: retaining the canonical observation also retains its status.
+Unavailable legacy or missing rows are not promoted to observed evidence.
+Regressions cover observed values, explicit observed zeroes, unique-only values,
+partial metrics, rollback, registry renames and CSV/JSON exports. No retrospective
+migration is attempted: provenance already lost in earlier merges cannot reliably
+be reconstructed from stored counts alone.
 
 ## Acceptance checks
 
