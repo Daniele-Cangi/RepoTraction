@@ -15,12 +15,21 @@ allowance while raising its cumulative ceiling to $10. It found no qualified
 external lead and exposed quotation-generation failures, undercounted optional
 contributions, implementation-context gaps and source/retrieval bias.
 
-The proposed next corrections are exact-citation reliability, independently
-checkable subrequirements, public-implementation selection/context coverage, and
-problem-oriented actionable-demand retrieval. Keep those corrections separate
-from structural extractions, preserve the frozen results, and validate with a new
-held-out cohort after regression tests. These fixes are planned, not implemented
-by the evaluation; UI features and Go/Rust expansion remain deferred.
+The follow-up corrections use contract 14: deterministic demand-span selection,
+independent optional-field review, bounded static JS/TS export sampling, actual
+implementation context before later discussion, preflight before paid comparisons,
+and fragmented-name/reference-only retrieval cleanup. Implementation and offline
+regressions are separate from the frozen live experiment; they do not establish
+a higher real-model success rate. Keep structural extractions separate and verify
+discovery quality with a new frozen repository-only cohort after review/merge.
+No paid calls or historical-analysis migration are part of these fixes. UI features
+and Go/Rust expansion remain deferred.
+
+Offline replay of the retained eight-repository cohort packs all 8 enrichment,
+24 extraction and 20 comparison inputs within the existing 180,000-byte transport
+bound (maximum 164,598 bytes). It stops at a
+fixture reservation before HTTP, never calls the model and never rewrites saved
+results. This checks context feasibility, not discovery accuracy.
 
 - [ ] Establish characterization tests for existing public behavior and map
   dependencies, including test patches of globals and account-specific state.

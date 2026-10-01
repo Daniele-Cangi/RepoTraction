@@ -31,7 +31,9 @@ package name rather than searching for existing references to it. Automatic
 queries may also use specific single-word mechanisms such as `pagination` or
 `backpressure`; a second word is not mandatory. Contextual phrases are preferred
 when available, while package names and generic helpers such as `main`/`run`
-cannot create queries on their own. Up to three
+cannot create queries on their own. Fragmented terms are checked again after
+joining so they cannot reconstruct the canonical repository/package name.
+Unreviewed README/manifest summaries do not create implementation queries. Up to three
 queries cover distinct source modules within the same source/review priority
 tier where possible; diversity cannot promote weaker docs over reviewed code.
 Unreviewed declaration
@@ -51,12 +53,14 @@ in `job.result.search`. Resuming keeps the selected checkpoint batch unchanged.
 Empty results and excluded candidates do not demonstrate absence of demand.
 
 After reading each selected discussion, fully automatic discovery applies narrow
-filename/code-dump and exam-preparation-manual hints. Skipped candidates remain
+filename/code-dump, exam-preparation-manual, reference-only-body and automated-
+author hints. A subsequent discussion keeps the candidate available for review.
+Skipped candidates remain
 in `job.result.candidate_skips`, with policy, reason, context completeness and
 `proves_absence_of_demand=false`. They receive no request/match AI calls and are
 **not compatibility rejections**. The selected sample is not refilled or reranked.
 An explicit issue URL or custom query bypasses this screening. Request-like prose
-or subsequent discussion keeps a candidate eligible; this is not a general demand
+keeps a non-automated prose candidate eligible; this is not a general demand
 classifier. Language names such as JavaScript/TypeScript remain whole search terms.
 
 Python source acquisition follows top-level imports in already acquired package
@@ -70,13 +74,26 @@ are not verified exports or dependency closure. Declaration sampling prioritizes
 public top-level classes/functions before their nested mechanisms and balances
 files within source-role tiers so an early
 large helper class cannot consume all 100 capability slots. Dynamic imports,
-conditional exports, JS/TS exports and oversized/excluded modules remain limitations.
+conditional exports and oversized/excluded modules remain limitations. JS/TS
+sampling follows literal relative re-exports and package entrypoint paths, including
+eligible `.js` to `.ts` source counterparts. These hints only reorder safety-filtered
+file attempts; cycles do not duplicate reads or increase the file/read/byte budget.
+They are not full export resolution, dependency closure or a typecheck. Their
+recorded paths, omissions and bounded-scan completeness remain visible in coverage.
 
 Technical compatibility and useful partial contribution are separate. A rejected
 request can retain supported requirement IDs alongside conflicts and unknowns;
 **partial support does not satisfy the whole request or unblock a mandatory
 conflict**. It is not follow-up-ready. Proposed adapter code is new work, not
 evidence that the selected interface already implements that behavior.
+
+Extraction asks for independently checkable mandatory and optional behaviors.
+A bounded optional-field review flags omitted/bundled TypeScript-style fields
+such as `strip_ansi?: boolean`. It never adds a requirement or awards support.
+The identifier must be represented separately, and uncertain source authority
+still requires review. An optional API argument does not by itself make the
+requested implementation optional. A supported optional mechanism can be a
+partial contribution while mandatory conflicts still reject the full request.
 
 Each check also records `contribution`: `existing_behavior`, `scope_compatible`
 or `not_demonstrated`. A compatible boundary (for example keeping capture APIs
@@ -85,6 +102,9 @@ counts it separately in `scope_compatible_requirement_ids`, not in supported
 requirements. A scope-only candidate cannot qualify as a useful contribution.
 Recurring gaps without any demonstrated reusable behavior cannot form extension
 groups either; repeated passive scope compatibility is not an extension lead.
+An `existing_behavior` check must cite a supplied implementation path, not merely
+a README, fixture, benchmark or `.d.ts` declaration. Path membership still does
+not validate the semantic reasoning or certify execution.
 Old imported checks without this field default to unknown, not affirmative support.
 The deterministic API-preservation override only recognizes whole, preservation-
 only extracted requirements. Compound requirements such as "format bytes without
@@ -136,7 +156,7 @@ Malformed or unsupported values block review instead of generating references.
 This does not validate version expressions or prove installation. Supported shapes
 follow the [Poetry dependency specification](https://python-poetry.org/docs/dependency-specification/).
 
-Contract 13 marks earlier results as historical, preserving their original
+Contract 14 marks earlier results as historical, preserving their original
 interpretations and exports. There is no automatic migration or paid reevaluation.
 
 An empty body or a body containing only example/reference links cannot establish
@@ -269,7 +289,7 @@ pauses the job without automatic retry. Server restarts pause unfinished jobs,
 not restart them silently. AI-budget exhaustion requires an explicit configuration
 change/restart or another reviewed workflow, not a hidden unlimited retry.
 
-Invalid candidate analysis (for example an unsupported requirement quotation or
+Invalid candidate analysis (for example an unavailable demand-span ID or
 unsafe proposed artifact) is recorded in `result.candidate_errors`; other selected
 candidates continue. `status=completed` means processing ended, **not** that all
 candidates succeeded: `result.partial=true` and the visible warning identify
@@ -296,7 +316,7 @@ at a new revision. Maintainer feedback does not overwrite original evidence.
 Refreshes atomically preserve feedback and supersession. Each result keeps its
 exact reproduction snapshot, independent of the list of recent jobs. Resuming
 with another provider/model/contract pauses rather than mixing interpretations.
-Analysis contract version 7 also marks older assessments historical and blocks
+Analysis contract changes also mark older assessments historical and block
 their isolated examples until reevaluation; historical snapshots/exports remain
 available and are not silently rewritten as current evidence.
 Discussion freshness uses immutable GitHub issue IDs, including older URL-keyed
@@ -354,6 +374,13 @@ before broad file coverage so one large module cannot monopolize the prompt.
 Coverage records the selected capability roles and actually supplied source roles
 and implementation paths, including an explicit missing-implementation flag.
 These are path-based sampling hints, not verified exports or execution evidence.
+Comparison packing keeps the root request, then selected implementation definitions
+before later discussion. Comments cannot evict already supplied code; omitted later
+resolution/constraints still make coverage incomplete and prevent qualification.
+If no implementation is supplied, enrichment/comparison fails explicitly before
+its provider call or reservation. Documentation, fixtures, benchmarks and `.d.ts`
+declarations do not pass that implementation preflight. This is an unavailable
+analysis, not a semantic rejection or evidence of absent useful functionality.
 
 Provider schemas are scoped per call: source IDs must be exact keys actually
 supplied, and capability/requirement IDs must belong to the selected candidates.
@@ -362,12 +389,18 @@ ID-limited omissions are counted in coverage and make discussion incomplete.
 Repository comparisons reserve ID slots for selected source/support excerpts.
 Wider or fabricated line ranges are not offered as valid model outputs. This
 scope is checked locally for JSON-mode providers too; inspection/import contracts
-still accept precisely validated visible subspans. Request instructions require
-short contiguous original quotations, preserving Markdown, math and punctuation;
-only whitespace differences are tolerated by the provenance validator. Schema
-membership proves availability, not semantic support for a claim. Invalid quotes
-remain failures with no automatic paid retry; improved real-model success rates
-still require a separate experiment.
+still accept precisely validated visible subspans. Provider request requirements
+select `citation_id` from a bounded catalogue of exact original discussion spans,
+rather than copying quotations. IDs bind source URL, offsets and text; synthetic
+omission markers are never evidence. The application supplies the stored quote,
+without altering the recorded provider attempt. Catalogue omissions are explicit
+and prevent complete-discussion qualification. Its 400-span bound plus disposition
+IDs stays below the [Structured Outputs enum limits](https://developers.openai.com/api/docs/guides/structured-outputs).
+Oversized enum text is rejected before transport/reservation. Schema membership proves
+availability, not semantic support for a claim. Invalid IDs remain failures with
+no automatic paid retry. Human/coding-agent imports retain the exact-span validator,
+including whitespace-only normalization. Improved real-model discovery success
+still requires a separate fresh experiment; the frozen live report is unchanged.
 
 An analysis with no structural capability candidates completes with an empty
 list, without constructing an AI schema, calling the provider or reserving cost.
@@ -380,7 +413,7 @@ discovery still needs established search terms or an explicit operator query.
   Source-role counts and missing-implementation warnings are recorded in coverage.
   This is not exported-API discovery or proof that the sample represents the
   entire product. Unsupported/native source still remains outside the analyzer.
-- Requirement quotations may differ only in whitespace; the stored quote is
+- Imported requirement quotations may differ only in whitespace; the stored quote is
   recovered from one contiguous original source span. Paraphrases, changed
   punctuation and quotes from omitted context are not accepted.
 - A bounded, non-exhaustive English constraint-hint scan examines acquired
