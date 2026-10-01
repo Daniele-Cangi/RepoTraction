@@ -1,7 +1,10 @@
 """Characterize opportunity rules without real history, GitHub or AI calls."""
 import copy
+import subprocess
+import sys
 import unittest
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 from unittest import mock
 
 import app
@@ -256,3 +259,131 @@ class OpportunityCharacterizationTests(unittest.TestCase):
         first[1][0]["notes"].clear()
         self.assertEqual(app.analyze_opportunities(repos, rows), expected)
         self.assertEqual((repos, rows), before)
+
+
+class PureOpportunityCalculationTests(unittest.TestCase):
+    def test_entrypoint_delegates_calculation_and_ranking_with_prepared_health(self):
+        from analytics import opportunities
+        repo = repository()
+        row = signal()
+        health = {"score": 100, "gaps": [], "notes": [], "pushed_days_ago": 0, "applicable": True}
+        self.assertIs(app.build_repository_opportunities, opportunities.build_repository_opportunities)
+        self.assertIs(app.rank_opportunities, opportunities.rank_opportunities)
+        with mock.patch.object(app, "repository_health", return_value=health) as readiness, \
+             mock.patch.object(app, "build_repository_opportunities", wraps=opportunities.build_repository_opportunities) as build, \
+             mock.patch.object(app, "rank_opportunities", wraps=opportunities.rank_opportunities) as rank:
+            result = app.analyze_opportunities([repo], [row])
+        readiness.assert_called_once_with(repo)
+        build.assert_called_once_with(repo, row, health)
+        self.assertEqual(rank.call_count, 1)
+        self.assertEqual(result, opportunities.rank_opportunities(*opportunities.build_repository_opportunities(repo, row, health)))
+
+    def test_direct_calculation_uses_supplied_health_without_parsing_timestamp(self):
+        from analytics import opportunities
+        repo = repository(pushed_at="not parsed here", description="")
+        health = {"score": 100, "gaps": [], "notes": ["supplied"], "pushed_days_ago": 121, "applicable": True}
+        items, rows = opportunities.build_repository_opportunities(repo, signal(views_7d=3, previous_views=3), health)
+        self.assertEqual([item["kind"] for item in items], ["freshness"])
+        self.assertEqual(rows[0]["score"], 100)
+        self.assertEqual(rows[0]["notes"], ["supplied"])
+        self.assertIs(rows[0]["notes"], health["notes"])
+        self.assertIs(rows[0]["gaps"], health["gaps"])
+        health.update(applicable=False, pushed_days_ago=None)
+        self.assertEqual(opportunities.build_repository_opportunities(repo, {}, health), ([], []))
+
+    def test_direct_calculation_does_not_mutate_inputs_or_share_opportunity_dicts(self):
+        from analytics import opportunities
+        repo = repository()
+        row = signal(adoption_signal={"clone_events": 8, "unique_cloners": 4, "repeat_factor": 2.0})
+        health = {"score": 80, "gaps": ["description"], "notes": [], "pushed_days_ago": 0, "applicable": True}
+        before = copy.deepcopy((repo, row, health))
+        first = opportunities.build_repository_opportunities(repo, row, health)
+        expected = copy.deepcopy(first)
+        first[0][0]["metric"] = "caller mutation"
+        self.assertEqual(opportunities.build_repository_opportunities(repo, row, health), expected)
+        self.assertEqual((repo, row, health), before)
+
+    def test_ranking_preserves_input_lists_row_identity_and_stable_ties(self):
+        from analytics import opportunities
+        items = [{"priority": "low", "score": 99}, {"priority": "high", "score": 1},
+                 {"priority": "high", "score": 1}, {"priority": "medium", "score": 100}]
+        health = [{"score": 100, "name": "z"}, {"score": 100, "name": "A"},
+                  {"score": 100, "name": "a"}, {"score": 80, "name": "z"}]
+        before = copy.deepcopy((items, health))
+        ranked, readiness = opportunities.rank_opportunities(items, health)
+        self.assertEqual((items, health), before)
+        self.assertIsNot(ranked, items)
+        self.assertIsNot(readiness, health)
+        for actual, expected in zip(ranked, (items[1], items[2], items[3], items[0])):
+            self.assertIs(actual, expected)
+        for actual, expected in zip(readiness, (health[3], health[1], health[2], health[0])):
+            self.assertIs(actual, expected)
+
+    def test_fresh_import_and_calculations_need_no_entrypoint_provider_io_or_clock(self):
+        code = """
+import sys
+from datetime import datetime
+from unittest.mock import patch
+sys.path.insert(0, sys.argv[1])
+class NoClock(datetime):
+    @classmethod
+    def now(cls, *args, **kwargs):
+        raise AssertionError('wall clock access')
+with patch('sqlite3.connect', side_effect=AssertionError('database access')), \\
+     patch('threading.Thread.start', side_effect=AssertionError('thread start')), \\
+     patch('subprocess.run', side_effect=AssertionError('external command')), \\
+     patch('socket.create_connection', side_effect=AssertionError('network access')), \\
+     patch('datetime.datetime', NoClock), \\
+     patch('time.time', side_effect=AssertionError('wall clock access')):
+    from analytics import opportunities
+    repo = {'full_name': 'octocat/project', 'pushed_at': 'not parsed'}
+    signal = {'views_7d': 5, 'previous_views': 0, 'views_comparison_ready': True,
+              'adoption_signal': {'clone_events': 8, 'unique_cloners': 4}}
+    health = {'score': 100, 'gaps': [], 'notes': [], 'pushed_days_ago': 150, 'applicable': True}
+    items, readiness = opportunities.build_repository_opportunities(repo, signal, health)
+    ranked, rows = opportunities.rank_opportunities(items, readiness)
+    assert [item['kind'] for item in ranked] == ['freshness', 'developer_experience', 'momentum']
+    assert rows[0]['score'] == 100
+    assert 'app' not in sys.modules
+    assert not any(name == 'missing_link' or name.startswith('missing_link.') for name in sys.modules)
+"""
+        result = subprocess.run([sys.executable, "-I", "-c", code, str(Path(__file__).resolve().parents[1])],
+                                capture_output=True, text=True, timeout=20)
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+
+class OpportunityCenterContractTests(unittest.TestCase):
+    def test_cache_hit_does_not_collect_or_recalculate(self):
+        cached = {"cached": "opportunities"}
+        with mock.patch.object(app.CACHE, "get", return_value=cached) as cache_get, \
+             mock.patch.object(app.CACHE, "set") as cache_set, \
+             mock.patch.object(app, "build_dashboard", side_effect=AssertionError("dashboard access")), \
+             mock.patch.object(app, "get_repository_signal_rows", side_effect=AssertionError("signal access")):
+            self.assertIs(app.build_opportunity_center(), cached)
+        cache_get.assert_called_once_with("opportunities", 120)
+        cache_set.assert_not_called()
+
+    def test_forced_center_keeps_payload_limit_aliases_summary_and_cache(self):
+        repos = [repository(full_name=f"octocat/project-{i}", name=f"project-{i}") for i in range(15)]
+        repos.append(repository(full_name="octocat/octocat", name="octocat"))
+        rows = [signal(repo=repo["full_name"], name=repo["name"], archived=False,
+                       adoption_signal={"clone_events": 8, "unique_cloners": 4}) for repo in repos]
+        with mock.patch.object(app, "datetime", FrozenDateTime), \
+             mock.patch.object(app.CACHE, "get", side_effect=AssertionError("forced cache read")), \
+             mock.patch.object(app.CACHE, "set") as cache_set, \
+             mock.patch.object(app, "build_dashboard", return_value={"repositories": repos}), \
+             mock.patch.object(app, "get_repository_signal_rows", return_value=rows), \
+             mock.patch.object(app, "utc_now", return_value="2026-08-18T00:00:00Z"):
+            payload = app.build_opportunity_center(force=True)
+            expected_items, expected_health = app.analyze_opportunities(repos, rows)
+        self.assertEqual(payload["generated_at"], "2026-08-18T00:00:00Z")
+        self.assertEqual(payload["summary"], {"total": 45, "high": 15, "medium": 0,
+                                             "health_average": 100, "readiness_average": 100,
+                                             "repositories_analyzed": 15})
+        self.assertEqual(payload["opportunities"], expected_items[:40])
+        self.assertEqual(len(payload["opportunities"]), 40)
+        self.assertEqual(payload["health"], expected_health)
+        self.assertIs(payload["health"], payload["readiness"])
+        self.assertEqual(payload["repositories"], [{"repo": row["repo"], "name": row["name"]} for row in rows[:-1]])
+        self.assertEqual(payload["readiness_score"]["kind"], "local checklist")
+        cache_set.assert_called_once_with("opportunities", payload)
