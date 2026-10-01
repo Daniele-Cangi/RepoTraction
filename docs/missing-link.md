@@ -122,7 +122,15 @@ For example, `zope-interface` also matches `zope_interface`; npm dependency name
 retain exact separator spellings. These remain prior-reference hints, not proof
 of adoption.
 
-Contract 11 marks earlier results as historical, preserving their original
+Requirements include/constraint directives (`-r`, `-c`, `--requirement`,
+`--constraint`) mark dependency review incomplete: included files are not acquired
+automatically. Poetry group dependency tables are inspected, including optional
+groups; malformed group layouts block complete review. Same-target blob URLs
+with slash-containing refs are matched against safe path suffixes in the current
+pinned tree. Ambiguous suffixes may sample multiple files within the existing
+two-cited-file limit; this is not historical ref resolution or complete coverage.
+
+Contract 12 marks earlier results as historical, preserving their original
 interpretations and exports. There is no automatic migration or paid reevaluation.
 
 An empty body or a body containing only example/reference links cannot establish

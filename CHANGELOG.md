@@ -24,12 +24,16 @@
 
 ### Changed
 
-- Missing Link contract 11 separates reusable existing behavior from compatible
+- Missing Link contract 12 separates reusable existing behavior from compatible
   scope constraints; only preservation-only API requirements are forced to scope
   compatibility, never a compound functional requirement or a broader quotation.
 - Python dependency evidence uses equivalent runs of hyphens, dots and underscores
   consistently with declared-name matching; npm names retain exact separators.
   Older assessments remain historical rather than retaining missed-reference claims.
+- Requirements include/constraint directives block complete dependency review;
+  Poetry group dependencies are inspected statically, with malformed layouts blocked.
+- Same-target blob links with slash-containing branches match safe pinned tree
+  path suffixes without increasing the four-file acquisition budget.
 - Target reference IDs no longer enter discussion/timeline selection, shortening
   or completeness accounting; discussion and selected definitions precede them.
 - Request prose in PHP line/block comments remains eligible for automatic
