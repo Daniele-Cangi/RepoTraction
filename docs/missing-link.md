@@ -438,6 +438,9 @@ discovery still needs established search terms or an explicit operator query.
   and ambiguous regexp/division contexts make the hint scan explicitly incomplete.
   A bounded delimiter-scope scan excludes nested declarations; malformed or
   depth-limited scopes make the scan incomplete rather than exposing their tail.
+  Extensionless hints try eligible `.ts`, `.js`, `.tsx`, `.jsx`, `.mjs` and `.cjs`
+  files before directory index variants, with TS/JS first in each tier. Excluded
+  files and `.d.ts` declarations are not inferred as implementation targets.
   `export_hints_complete` describes the bounded hint scan, not complete
   JS/TS semantic coverage or verified exports.
   This is not exported-API discovery or proof that the sample represents the

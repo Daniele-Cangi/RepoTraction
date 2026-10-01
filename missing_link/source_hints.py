@@ -6,6 +6,7 @@ from pathlib import PurePosixPath
 from .js_lexical import export_view, top_level_code
 
 MAX_EXPORT_HINTS = 64
+JS_SOURCE_SUFFIXES = (".ts", ".js", ".tsx", ".jsx", ".mjs", ".cjs")
 
 
 def export_hints(path, text, eligible):
@@ -37,7 +38,7 @@ def export_hints(path, text, eligible):
         specs = []
         for key in ("source", "main", "module", "exports"):
             specs.extend(leaves(metadata.get(key)))
-    elif PurePosixPath(path).suffix in {".js", ".mjs", ".cjs", ".jsx", ".ts", ".tsx"}:
+    elif PurePosixPath(path).suffix in JS_SOURCE_SUFFIXES:
         visible, code, literals, complete = export_view(text)
         top_level, scopes_complete = top_level_code(visible, code)
         complete &= scopes_complete
@@ -75,7 +76,9 @@ def export_hints(path, text, eligible):
         if base.endswith(".js"):
             options += [base[:-3] + ".ts", base[:-3] + ".tsx"]
         elif not PurePosixPath(base).suffix:
-            options += [base + ext for ext in (".ts", ".js", "/index.ts", "/index.js")]
+            # Prefer files before directory indexes; keep TS/JS first in each
+            # tier. This only selects eligible tree entries, not module resolution.
+            options += [base + prefix + ext for prefix in ("", "/index") for ext in JS_SOURCE_SUFFIXES]
         selected = next((candidate for candidate in options if candidate in eligible
                          and not candidate.endswith(".d.ts")), None)
         if selected and selected not in targets:

@@ -9,6 +9,42 @@ from test_missing_link_sources import GitHubFixture
 
 
 class ExportHintTests(unittest.TestCase):
+    def test_extensionless_hints_resolve_all_supported_file_and_index_suffixes(self):
+        for suffix in (".ts", ".js", ".tsx", ".jsx", ".mjs", ".cjs"):
+            for entry in ("src/component" + suffix, "src/component/index" + suffix):
+                for path, text in (("src/index.ts", 'export*from"./component";'),
+                                   ("package.json", '{"source":"./src/component"}')):
+                    with self.subTest(entry=entry, path=path):
+                        self.assertEqual(export_hints(path, text, {entry: {}}), ([entry], True))
+
+    def test_extensionless_sampling_reaches_component_with_fixed_read_budget(self):
+        for entry in ("src/component.tsx", "src/component/index.jsx"):
+            with self.subTest(entry=entry):
+                fixture = GitHubFixture()
+                fixture.add("index.ts", 'export{Component}from"./src/component";')
+                fixture.add(entry, "export function Component() { return null; }")
+                for i in range(40):
+                    fixture.add(f"unrelated{i:02d}.ts", "export function helper() { return true; }")
+                snapshot = PublicGitHub(fixture.read).fetch_repository("sample/project", 2)
+                self.assertEqual([f["path"] for f in snapshot["files"]], ["index.ts", entry])
+                self.assertEqual(sum("/git/blobs/" in call[0] for call in fixture.calls), 2)
+                self.assertEqual(snapshot["coverage"]["static_export_hints"], [{"from": "index.ts", "path": entry}])
+                self.assertTrue(snapshot["coverage"]["export_hints_complete"])
+                self.assertFalse(snapshot["coverage"]["eligible_sample_complete"])
+
+    def test_extensionless_resolution_keeps_deterministic_existing_priorities(self):
+        entries = {"component.ts": {}, "component.js": {}, "component.tsx": {}, "component/index.ts": {}}
+        self.assertEqual(export_hints("index.ts", 'export*from"./component";', entries), (["component.ts"], True))
+        del entries["component.ts"]
+        self.assertEqual(export_hints("index.ts", 'export*from"./component";', entries), (["component.js"], True))
+        self.assertEqual(export_hints("index.ts", 'export*from"./component.js";', entries), (["component.js"], True))
+
+    def test_extensionless_hints_do_not_bypass_eligible_tree_or_declaration_filters(self):
+        eligible = {"src/component.d.ts": {}, "src/component.css": {}, "component.tsx": {}}
+        for spec in ("./component", "../../component", "https://host/component", "./component?query", "./*"):
+            with self.subTest(spec=spec):
+                self.assertEqual(export_hints("src/index.ts", f'export*from"{spec}";', eligible), ([], True))
+
     def test_same_line_top_level_exports_follow_other_statements(self):
         eligible = {"a.ts": {}, "b.ts": {}}
         exports = 'export*from"./a.js";export{parse}from"./b.js";'
