@@ -20,6 +20,8 @@ in [AGENTS.md](../AGENTS.md) applies to future work.
     partial-evidence behavior before extracting their calculations.
   - [x] Characterize event evidence boundaries, stale-data precedence and query
     short-circuiting before extracting window eligibility decisions.
+  - [x] Characterize connection lifecycle, current/legacy migrations, provenance,
+    account-selected paths and schema compatibility before extracting storage.
   - [ ] Characterize remaining stateful boundaries before their extraction.
 - [ ] Extract pure calculations into `analytics/`: date windows, traffic
   comparisons, event metrics, repository health and signal calculations. Pass
@@ -40,6 +42,9 @@ in [AGENTS.md](../AGENTS.md) applies to future work.
 - [ ] Extract database connections, migrations, repository registry operations
   and snapshot persistence into `storage/`. Preserve existing database paths,
   schemas, transactions and account isolation; do not reset stored history.
+  - [x] Move explicit-path connection lifecycle to `storage/database.py` and the
+    existing migration statements to `storage/migrations.py`.
+  - [ ] Extract registry reconciliation and snapshot persistence.
 - [ ] Extract GitHub acquisition, cache and collection orchestration into
   `services/`. Give the scheduler an explicit lifecycle and shutdown behavior;
   importing a module must not start collection or network requests.
@@ -149,6 +154,33 @@ supplied readiness, input preservation, row reference semantics and isolated
 imports. Opportunity center tests retain cache behavior, response aliases and
 the 40-item limit. The installer and CI check the new installed module. This is
 a structural extraction, not a scoring change or a Missing Link feature.
+
+## Database storage boundary
+
+[`storage/database.py`](../storage/database.py) opens the supplied SQLite path
+when its context is entered, commits on success, rolls back ordinary exceptions
+and always closes the connection. Default SQLite options and existing exception
+behavior are unchanged. [`storage/migrations.py`](../storage/migrations.py)
+applies the existing schema and migration statements to a supplied connection;
+it does not select an account, open a second database or explicitly commit,
+roll back or close the caller's connection.
+
+`app.py` retains account selection, database paths, directory creation and the
+patchable connection/migration adapters. Its connection wrapper resolves the
+current path lazily, preserving account-specific state at context entry. The
+migration SQL and its order are unchanged, including traffic provenance repairs,
+registry constraints and state initialization. Existing `executescript` and DDL
+transaction behavior is retained; this is not a new atomic-migration guarantee.
+
+Tests cover successful and failed transactions, connection closure, late path
+selection, current/legacy schema compatibility, idempotence, observed versus
+unproven zero traffic, registry constraints, account isolation and supplied
+connection ownership. Fresh storage imports do not open databases, create
+directories, start services or load an AI provider. The Windows installer ships
+the package; uninstall removes its code while preserving history by default and
+refuses storage junctions. Isolated installed-module checks exercise migrations
+only on a test database. Registry reconciliation and snapshots remain planned
+work, along with acquisition, scheduling and HTTP extraction.
 
 ## Acceptance checks
 

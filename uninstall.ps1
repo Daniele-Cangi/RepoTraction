@@ -40,6 +40,17 @@ if (Test-Path -LiteralPath $AnalyticsDirectory -PathType Container) {
     Remove-Item -LiteralPath $AnalyticsDirectory -Recurse -Force
 }
 
+$StorageDirectory = [IO.Path]::GetFullPath((Join-Path $ExpectedDirectory "storage"))
+if ([IO.Path]::GetDirectoryName($StorageDirectory) -ne $ExpectedDirectory) {
+    throw "Refusing to remove storage outside the installation directory."
+}
+if (Test-Path -LiteralPath $StorageDirectory -PathType Container) {
+    if ((Get-Item -LiteralPath $StorageDirectory -Force).Attributes -band [IO.FileAttributes]::ReparsePoint) {
+        throw "Refusing to recursively remove a storage link or junction."
+    }
+    Remove-Item -LiteralPath $StorageDirectory -Recurse -Force
+}
+
 $DataDirectory = Join-Path $ExpectedDirectory "data"
 if ($RemoveData -and (Test-Path -LiteralPath $DataDirectory -PathType Container)) {
     Remove-Item -LiteralPath $DataDirectory -Recurse -Force
