@@ -167,6 +167,41 @@ class AtomicDemandTests(unittest.TestCase):
         request = validate_request(raw, self.demand())
         self.assertTrue(request["constraint_review"]["optional_field_review"]["items"][0]["needs_review"])
 
+    def test_optional_field_sentence_citations_do_not_require_entire_line(self):
+        body = "Use strip_ansi?: boolean. This strips ANSI.\nMore context."
+        demand = dict(issue(), body=body, comments=[])
+        for quote in ("Use strip_ansi?: boolean.", body):
+            with self.subTest(quote=quote):
+                raw = request_raw()
+                raw["requirements"] = [dict(raw["requirements"][0], text="strip_ansi: ANSI cleanup", quote=quote)]
+                provider = Provider({"REPOTRACTION_AI_URL": "http://localhost/v1", "REPOTRACTION_AI_MODEL": "fixture"})
+                # The short quote is a real selectable sentence; broad manual
+                # citations retain their existing exact-span validation too.
+                if quote == body:
+                    request = validate_request(raw, demand)
+                else:
+                    with mock.patch.object(provider, "complete", side_effect=request_completion(raw)):
+                        request = provider.interpret_request(demand, mock.Mock())
+                self.assertEqual(request["requirements"][0]["source"]["quote"], quote)
+                review = request["constraint_review"]["optional_field_review"]["items"][0]
+                self.assertEqual(review["represented_by"], ["r0"])
+                self.assertFalse(review["needs_review"])
+                self.assertFalse(request["constraint_review"]["qualification_blockers"])
+
+    def test_optional_field_short_quote_keeps_identifier_source_and_atomicity_guards(self):
+        demand = dict(issue(), body="Use strip_ansi?: boolean. This strips ANSI.\nmax_total_bytes?: number;",
+                      comments=[{"url": issue()["url"] + "#issuecomment-9", "body": "Use strip_ansi?: boolean.",
+                                 "author_association": "MEMBER"}])
+        base = dict(request_raw()["requirements"][0], text="strip_ansi: ANSI cleanup", quote="Use strip_ansi?: boolean.")
+        for override in ({"quote": "This strips ANSI."}, {"source_id": "q1"}, {"explicit": False},
+                         {"text": "model behavior"}, {"text": "strip_ansi and max_total_bytes behavior"}):
+            with self.subTest(override=override):
+                raw = request_raw()
+                raw["requirements"] = [dict(base, **override)]
+                review = validate_request(raw, demand)["constraint_review"]["optional_field_review"]["items"][0]
+                self.assertEqual(review["represented_by"], [])
+                self.assertTrue(review["needs_review"])
+
     def test_field_syntax_does_not_turn_mandatory_behavior_optional(self):
         raw = self.requirements()
         raw["requirements"][1]["mandatory"] = True

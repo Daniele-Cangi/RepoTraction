@@ -89,9 +89,14 @@ def optional_field_hints(catalog, requirements=()):
         represented = []
         for requirement in requirements:
             prose = identity(requirement["text"])
+            quote = requirement["source"]["quote"]
+            # A sentence can be shorter than its original line; legacy manual
+            # citations can include surrounding lines. Both must actually cite
+            # this declaration, not merely neighboring prose on the same line.
+            cites_field = re.search(r"\b" + re.escape(item["field"]) + r"\?\s*:", quote)
             if (requirement["explicit"] and contains(prose, key) and sum(contains(prose, name) for name in keys) == 1
                     and requirement["source"]["source_id"] == item["source_id"]
-                    and item["quote"] in requirement["source"]["quote"]):
+                    and cites_field and (quote in item["quote"] or item["quote"] in quote)):
                 represented.append(requirement["id"])
         item.update(represented_by=represented, needs_review=not represented or
                     item["authority"] not in {"request_author", "repository_member"})
