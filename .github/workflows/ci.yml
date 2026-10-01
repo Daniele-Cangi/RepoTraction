@@ -57,8 +57,8 @@ jobs:
           import sys
           from pathlib import Path
           sys.path.insert(0, sys.argv[1])
-          from storage import database, migrations, registry
-          for module in (database, migrations, registry):
+          from storage import database, migrations, registry, repository_snapshots
+          for module in (database, migrations, registry, repository_snapshots):
               assert Path(module.__file__).resolve().parent == Path(sys.argv[1]).resolve() / 'storage'
           with database.database_connection(':memory:') as connection:
               migrations.migrate_database(connection)
@@ -68,5 +68,12 @@ jobs:
               assert registry.read_active_repository_rows(connection)[0][0] == 'octocat/project'
               registry.save_repository_alias(connection, 'octocat/old', 1, 'octocat/project', 'renamed', '2026-08-20')
               assert connection.execute('SELECT status FROM repository_aliases').fetchone()[0] == 'renamed'
+              repository_snapshots.save_repo_snapshots(connection, [{'full_name': 'octocat/project', 'stars': 7}], '2026-08-20')
+              assert connection.execute('SELECT stars FROM repo_snapshots').fetchone()[0] == 7
+              def record_event(connection, **event):
+                  return repository_snapshots.record_repository_event(connection, **event, validate_repo=str, utc_now=lambda: '2026-08-21')
+              assert repository_snapshots.save_repo_metadata_snapshots(connection, [{'full_name': 'octocat/project'}], '2026-08-20', validate_repo=str, record_event=record_event) == 0
+              assert repository_snapshots.save_repo_metadata_snapshots(connection, [{'full_name': 'octocat/project', 'description': 'new'}], '2026-08-21', validate_repo=str, record_event=record_event) == 1
+              assert connection.execute("SELECT COUNT(*) FROM repository_events WHERE event_type = 'metadata'").fetchone()[0] == 1
           '@
           python -I -c $storageCheck $testDestination
