@@ -2,7 +2,7 @@
 import json
 import unittest
 
-from missing_link.source_hints import export_hints
+from missing_link.source_hints import export_hints, MAX_EXPORT_HINTS
 from missing_link.sources import PublicGitHub, source_role
 from test_missing_link_sources import GitHubFixture
 
@@ -33,6 +33,35 @@ class ExportHintTests(unittest.TestCase):
         self.assertEqual(len(snapshot["files"]), 2)
         self.assertEqual(sum("/git/blobs/" in call[0] for call in fixture.calls), 2)
         self.assertFalse(snapshot["coverage"]["omitted_export_paths"])
+
+    def test_multiline_barrels_prioritize_implementation_with_fixed_read_budget(self):
+        fixture = GitHubFixture()
+        fixture.add("index.ts", "export {\n  parse as parseValue,\n}\nfrom './src/index.js';")
+        fixture.add("src/index.ts", 'export {\r\n\tparse,\r\n} from "./engine.js";')
+        fixture.add("src/engine.ts", "export function parse(value) { return value; }")
+        for i in range(40):
+            fixture.add(f"unrelated{i:02d}.ts", "export function helper() { return true; }")
+        snapshot = PublicGitHub(fixture.read).fetch_repository("sample/project", 3)
+        self.assertEqual([f["path"] for f in snapshot["files"]], ["index.ts", "src/index.ts", "src/engine.ts"])
+        self.assertEqual(sum("/git/blobs/" in call[0] for call in fixture.calls), 3)
+        self.assertEqual(len(snapshot["coverage"]["static_export_hints"]), 2)
+        self.assertTrue(snapshot["coverage"]["export_hints_complete"])
+        self.assertFalse(snapshot["coverage"]["eligible_sample_complete"])
+
+    def test_multiline_named_exports_keep_target_safety_filters(self):
+        eligible = {"src/parse.ts": {}, "src/types.d.ts": {}}
+        value = "\n".join(f'export {{\n parse as parseValue,\n}}\nfrom "{spec}";' for spec in (
+            "./parse.js", "./types.d.ts", "../../parse.js", "https://host/parse.js", "./*.ts", "./parse.js?secret"))
+        targets, complete = export_hints("src/index.ts", value, eligible)
+        self.assertEqual(targets, ["src/parse.ts"])
+        self.assertTrue(complete)
+
+    def test_multiline_hint_overflow_remains_explicit_and_bounded(self):
+        eligible = {f"source{i}.ts": {} for i in range(MAX_EXPORT_HINTS + 1)}
+        value = "\n".join(f"export {{\n item{i},\n}} from './source{i}.js';" for i in range(MAX_EXPORT_HINTS + 1))
+        targets, complete = export_hints("index.ts", value, eligible)
+        self.assertEqual(targets, list(eligible)[:MAX_EXPORT_HINTS])
+        self.assertFalse(complete)
 
     def test_only_safety_filtered_literal_relative_exports_are_followed(self):
         eligible = {"src/parse.ts": {}, "src/types.d.ts": {}}

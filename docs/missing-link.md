@@ -411,6 +411,10 @@ discovery still needs established search terms or an explicit operator query.
 - Source sampling uses a path heuristic to prioritize implementation over build,
   check, benchmark and example infrastructure within the existing file budget.
   Source-role counts and missing-implementation warnings are recorded in coverage.
+  Package entrypoints and literal relative JS/TS re-exports, including multiline
+  named clauses, can prioritize eligible files without increasing file/read/byte
+  budgets. `export_hints_complete` describes the bounded hint scan, not complete
+  JS/TS semantic coverage or verified exports.
   This is not exported-API discovery or proof that the sample represents the
   entire product. Unsupported/native source still remains outside the analyzer.
 - Imported requirement quotations may differ only in whitespace; the stored quote is

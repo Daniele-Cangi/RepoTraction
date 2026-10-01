@@ -36,7 +36,9 @@ def export_hints(path, text, eligible):
         for key in ("source", "main", "module", "exports"):
             specs.extend(leaves(metadata.get(key)))
     elif PurePosixPath(path).suffix in {".js", ".mjs", ".cjs", ".jsx", ".ts", ".tsx"}:
-        specs = re.findall(r"(?m)^[ \t]*export\s+(?:\*(?:\s+as\s+\w+)?|\{[^}\n]*\})\s+from\s*['\"]([^'\"\n]{1,240})['\"]", text)
+        # Named clauses can span lines. Stop at either brace so an unfinished
+        # clause cannot consume another declaration; this remains a static hint.
+        specs = re.findall(r"(?m)^[ \t]*export\s+(?:\*(?:\s+as\s+\w+)?|\{[^{}]*\})\s+from\s*['\"]([^'\"\n]{1,240})['\"]", text)
     else:
         return [], True
     if len(specs) > MAX_EXPORT_HINTS:
