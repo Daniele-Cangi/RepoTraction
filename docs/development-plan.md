@@ -18,6 +18,8 @@ in [AGENTS.md](../AGENTS.md) applies to future work.
     signals before extracting their calculations.
   - [x] Characterize opportunity categories, thresholds, stable ranking and
     partial-evidence behavior before extracting their calculations.
+  - [x] Characterize event evidence boundaries, stale-data precedence and query
+    short-circuiting before extracting window eligibility decisions.
   - [ ] Characterize remaining stateful boundaries before their extraction.
 - [ ] Extract pure calculations into `analytics/`: date windows, traffic
   comparisons, event metrics, repository health and signal calculations. Pass
@@ -31,7 +33,10 @@ in [AGENTS.md](../AGENTS.md) applies to future work.
     and profile applicability for readiness calculations.
   - [x] Move per-repository opportunity calculations and stable ranking to
     `analytics/opportunities.py`, using supplied readiness and activity age.
-  - [ ] Extract remaining event window/evidence orchestration.
+  - [x] Move event row eligibility, contiguous windows, comparison dates and
+    waiting/stale decisions to `analytics/event_evidence.py`.
+  - [ ] Extract remaining profile/timestamp adapters and database-backed event
+    orchestration along with their stateful dependencies.
 - [ ] Extract database connections, migrations, repository registry operations
   and snapshot persistence into `storage/`. Preserve existing database paths,
   schemas, transactions and account isolation; do not reset stored history.
@@ -73,15 +78,38 @@ and the profile-repository exclusion predicate. The module uses standard-library
 utilities and `analytics/traffic.py`; it does not read the database or wall clock,
 import the entry point or load an AI provider.
 
-`app.py` retains the existing SQLite queries and evidence eligibility checks,
-including creation-date and current-day exclusions, contiguous post-event days,
-incomplete baselines and stale upstream data. Its metric adapter delegates valid
-results to the new module; the Impact Lab builder delegates event headlines.
+`app.py` retains the existing SQLite queries and supplies eligible rows through
+the event evidence helpers described below. Its metric adapter delegates valid
+results to the calculation module; the Impact Lab builder delegates event headlines.
 SQL, response fields, thresholds and missing-versus-zero semantics are unchanged.
 Characterization tests cover the adapter and headline behavior, while direct
 module tests check immutable inputs, SQLite-row compatibility and import isolation.
-The installer and CI validate the new installed module. Database access and the
-remaining event window orchestration are still planned work.
+The installer and CI validate the installed module. Database access and the
+remaining database-backed event orchestration are still planned work.
+
+## Event evidence boundary
+
+[`analytics/event_evidence.py`](../analytics/event_evidence.py) filters supplied
+observed rows by creation/current-day boundaries, selects up to seven contiguous
+post-event days, calculates equal comparison windows and returns waiting/stale
+payloads when evidence is not usable. All dates and available-day counts are
+explicit inputs; the module does not read the clock, database or active account,
+infer missing buckets, import the entry point or load an AI provider.
+
+The metric adapter still validates the metric before touching SQLite, parses the
+creation timestamp, reads today's UTC date and executes the unchanged queries.
+It checks post-event availability before loading a baseline, then checks baseline
+completeness and partial-window staleness before loading portfolio aggregates.
+The strict two-day freshness threshold, historical complete-window exception,
+messages, fields and query short-circuiting are unchanged. Timestamp parsing and
+the existing SQL creation-date cutoff also retain their current behavior.
+
+Characterization tests distinguish unavailable zeros from observed zeros and
+cover gaps, creation/current/future days, stale-status precedence, missing
+baselines and read-only transactions. Direct tests check supplied boundaries,
+duplicate handling, input preservation, SQLite-row compatibility and isolated
+imports. Installation checks include the new module. Storage/query orchestration
+will be extracted with `storage/`; this step changes neither schema nor history.
 
 ## Repository calculation boundary
 

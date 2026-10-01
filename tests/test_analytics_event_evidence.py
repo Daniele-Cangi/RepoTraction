@@ -1,7 +1,12 @@
 """Characterize Impact Lab evidence using isolated in-memory SQLite history."""
+import copy
 import sqlite3
+import subprocess
+import sys
 import unittest
+from contextlib import closing
 from datetime import date, datetime, timedelta, timezone
+from pathlib import Path
 from unittest import mock
 
 import app
@@ -210,3 +215,162 @@ class EventEvidenceCharacterizationTests(unittest.TestCase):
         self.assertTrue(self.connection.in_transaction)
         after = [tuple(row) for row in self.connection.execute("SELECT * FROM traffic_daily ORDER BY repo, day")]
         self.assertEqual(after, before)
+
+    def test_adapter_delegates_with_explicit_clock_creation_and_baseline_counts(self):
+        from analytics import event_evidence
+        event_day = TODAY - timedelta(days=2)
+        self.window(event_day, pre=2, post=2)
+        self.connection.execute("INSERT INTO repository_registry VALUES (?, ?)",
+                                (TARGET, "2026-08-13T12:00:00Z"))
+        with mock.patch.object(app, "select_event_post_rows", wraps=event_evidence.select_event_post_rows) as select, \
+             mock.patch.object(app, "filter_event_evidence_rows", wraps=event_evidence.filter_event_evidence_rows) as filter_rows, \
+             mock.patch.object(app, "event_window_dates", wraps=event_evidence.event_window_dates) as bounds, \
+             mock.patch.object(app, "event_evidence_unavailable", wraps=event_evidence.event_evidence_unavailable) as status:
+            result = self.analyze(event_day)
+        self.assertEqual(result["status"], "collecting")
+        self.assertEqual(select.call_count, 1)
+        self.assertEqual(select.call_args.kwargs, {"event_day": event_day, "today": TODAY,
+                                                  "created_day": date(2026, 8, 13)})
+        self.assertEqual(filter_rows.call_count, 1)
+        self.assertEqual(filter_rows.call_args.kwargs, {"today": TODAY, "created_day": date(2026, 8, 13)})
+        bounds.assert_called_once_with(event_day, 2)
+        self.assertEqual(status.call_args_list, [
+            mock.call(metric="views", today=TODAY, latest_day="2026-08-17", window_days=2),
+            mock.call(metric="views", today=TODAY, latest_day="2026-08-17", window_days=2, baseline_days=2)])
+
+
+class PureEventEvidenceTests(unittest.TestCase):
+    def test_entrypoint_keeps_same_pure_helper_objects(self):
+        from analytics import event_evidence
+        for name in ("filter_event_evidence_rows", "select_event_post_rows", "event_window_dates",
+                     "event_evidence_unavailable"):
+            self.assertIs(getattr(app, name), getattr(event_evidence, name))
+
+    def test_filter_uses_supplied_boundaries_without_mutation_or_inventing_days(self):
+        from analytics import event_evidence
+        rows = [{"day": "2026-08-14", "value": 10}, {"day": "2026-08-15", "value": 0},
+                {"day": "2026-08-16", "value": None}, {"day": "2026-08-18", "value": 99},
+                {"day": "2026-08-19", "value": 100}]
+        before = copy.deepcopy(rows)
+        result = event_evidence.filter_event_evidence_rows(rows, today=TODAY, created_day=date(2026, 8, 14))
+        self.assertEqual(result, rows[1:3])
+        self.assertIs(result[0], rows[1])
+        self.assertIs(result[1], rows[2])
+        self.assertEqual(rows, before)
+        self.assertEqual(event_evidence.filter_event_evidence_rows([], today=TODAY, created_day=None), [])
+        self.assertEqual(event_evidence.filter_event_evidence_rows(rows, today=TODAY, created_day=None), rows[:3])
+
+    def test_post_selection_orders_caps_and_stops_at_first_gap_without_mutating_rows(self):
+        from analytics import event_evidence
+        event_day = date(2026, 8, 1)
+        rows = [{"day": (event_day + timedelta(days=i)).isoformat(), "value": i} for i in range(9)]
+        reversed_rows = list(reversed(rows))
+        before = copy.deepcopy(reversed_rows)
+        self.assertEqual(event_evidence.select_event_post_rows(reversed_rows, event_day=event_day,
+                                                              today=TODAY, created_day=None), rows[:7])
+        self.assertEqual(reversed_rows, before)
+        self.assertEqual(event_evidence.select_event_post_rows(rows[:2] + rows[3:], event_day=event_day,
+                                                              today=TODAY, created_day=None), rows[:2])
+        self.assertEqual(event_evidence.select_event_post_rows(rows[1:], event_day=event_day,
+                                                              today=TODAY, created_day=None), [])
+        self.assertEqual(event_evidence.select_event_post_rows(rows, event_day=event_day,
+                                                              today=TODAY, created_day=event_day), [])
+
+    def test_post_selection_preserves_last_duplicate_and_row_identity(self):
+        from analytics import event_evidence
+        first = {"day": "2026-08-16", "value": 10}
+        last = {"day": "2026-08-16", "value": 0}
+        next_day = {"day": "2026-08-17", "value": 5}
+        selected = event_evidence.select_event_post_rows([next_day, first, last], event_day=date(2026, 8, 16),
+                                                        today=TODAY, created_day=None)
+        self.assertEqual(selected, [last, next_day])
+        self.assertIs(selected[0], last)
+        self.assertIs(selected[1], next_day)
+
+    def test_window_dates_preserve_equal_before_after_windows(self):
+        from analytics import event_evidence
+        event_day = date(2026, 8, 10)
+        for days in range(1, 8):
+            with self.subTest(days=days):
+                self.assertEqual(event_evidence.event_window_dates(event_day, days),
+                                 (event_day - timedelta(days=days), event_day - timedelta(days=1),
+                                  event_day + timedelta(days=days - 1)))
+
+    def test_two_phase_status_preserves_stale_waiting_and_historical_rules(self):
+        from analytics import event_evidence
+        for latest, days, baseline, expected in (
+            (None, 0, None, "waiting"), ("2026-08-16", 0, None, "waiting"),
+            ("2026-08-15", 0, None, "stale_upstream"),
+            ("2026-08-10", 2, None, None), ("2026-08-10", 2, 2, "stale_upstream"),
+            ("2026-08-16", 2, 1, "waiting"), ("2026-08-16", 2, 2, None),
+            (None, 2, 2, None), ("2026-08-10", 7, 7, None),
+            ("2026-08-10", 7, 6, "stale_upstream"), ("2026-08-16", 7, 6, "waiting"),
+        ):
+            with self.subTest(latest=latest, days=days, baseline=baseline):
+                result = event_evidence.event_evidence_unavailable(metric="clones", today=TODAY,
+                    latest_day=latest, window_days=days, baseline_days=baseline)
+                if expected is None:
+                    self.assertIsNone(result)
+                else:
+                    self.assertEqual((result["metric"], result["status"], result["change_kind"], result["window_days"]),
+                                     ("clones", expected, expected, days))
+                    for field in ("pre", "post", "change_pct", "portfolio_change_pct", "lift_pct_points"):
+                        self.assertIsNone(result[field])
+                    self.assertNotIn("period", result)
+
+    def test_unavailable_results_are_fresh_and_never_contain_measured_zero(self):
+        from analytics import event_evidence
+        kwargs = {"metric": "views", "today": TODAY, "latest_day": None, "window_days": 0}
+        first = event_evidence.event_evidence_unavailable(**kwargs)
+        first["pre"] = 0
+        second = event_evidence.event_evidence_unavailable(**kwargs)
+        self.assertIsNone(second["pre"])
+        self.assertEqual(second["portfolio_repositories"], 0)
+        self.assertEqual(second["confidence"], "low")
+
+    def test_direct_helpers_accept_sqlite_rows_after_connection_is_closed(self):
+        from analytics import event_evidence
+        with closing(sqlite3.connect(":memory:")) as connection:
+            connection.row_factory = sqlite3.Row
+            rows = connection.execute("SELECT '2026-08-16' AS day, 0 AS value UNION ALL "
+                                      "SELECT '2026-08-17', 3").fetchall()
+        selected = event_evidence.select_event_post_rows(rows, event_day=date(2026, 8, 16),
+                                                        today=TODAY, created_day=None)
+        self.assertEqual([row["value"] for row in selected], [0, 3])
+        self.assertIs(selected[0], rows[0])
+
+    def test_fresh_import_and_decisions_need_no_entrypoint_provider_io_or_clock(self):
+        code = """
+import sys
+from datetime import date, datetime
+from unittest.mock import patch
+sys.path.insert(0, sys.argv[1])
+class NoClock(datetime):
+    @classmethod
+    def now(cls, *args, **kwargs):
+        raise AssertionError('wall clock access')
+with patch('sqlite3.connect', side_effect=AssertionError('database access')), \\
+     patch('threading.Thread.start', side_effect=AssertionError('thread start')), \\
+     patch('subprocess.run', side_effect=AssertionError('external command')), \\
+     patch('socket.create_connection', side_effect=AssertionError('network access')), \\
+     patch('datetime.datetime', NoClock), \\
+     patch('time.time', side_effect=AssertionError('wall clock access')):
+    from analytics import event_evidence
+    today = date(2026, 8, 18)
+    event = date(2026, 8, 16)
+    rows = [{'day': '2026-08-16', 'value': 0}, {'day': '2026-08-17', 'value': 3}]
+    selected = event_evidence.select_event_post_rows(rows, event_day=event, today=today, created_day=None)
+    assert selected == rows
+    assert event_evidence.event_window_dates(event, len(selected)) == (date(2026, 8, 14), date(2026, 8, 15), date(2026, 8, 17))
+    assert event_evidence.event_evidence_unavailable(metric='views', today=today,
+        latest_day='2026-08-17', window_days=2, baseline_days=2) is None
+    stale = event_evidence.event_evidence_unavailable(metric='views', today=today,
+        latest_day='2026-08-15', window_days=2, baseline_days=2)
+    assert stale['status'] == 'stale_upstream'
+    assert stale['pre'] is None and stale['post'] is None
+    assert 'app' not in sys.modules
+    assert not any(name == 'missing_link' or name.startswith('missing_link.') for name in sys.modules)
+"""
+        result = subprocess.run([sys.executable, "-I", "-c", code, str(Path(__file__).resolve().parents[1])],
+                                capture_output=True, text=True, timeout=20)
+        self.assertEqual(result.returncode, 0, result.stderr)

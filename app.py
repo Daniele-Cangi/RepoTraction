@@ -23,6 +23,12 @@ from typing import Any
 from urllib.parse import parse_qs, urlparse
 
 # Compatibility names during migration; calculation bodies live in analytics.
+from analytics.event_evidence import (
+    event_evidence_unavailable,
+    event_window_dates,
+    filter_event_evidence_rows,
+    select_event_post_rows,
+)
 from analytics.events import (
     _utc_date,
     build_event_metric_result,
@@ -1320,37 +1326,6 @@ def analyze_event_metric(
         created_day = None
     today = datetime.now(timezone.utc).date()
 
-    def after_creation(rows: Any) -> list[Any]:
-        return [
-            row
-            for row in rows
-            if str(row["day"]) < today.isoformat()
-            and (created_day is None or str(row["day"]) > created_day.isoformat())
-        ]
-
-    def unavailable(
-        status: str,
-        message: str,
-        *,
-        window_days: int = 0,
-        latest_day: str | None = None,
-    ) -> dict[str, Any]:
-        return {
-            "metric": metric,
-            "status": status,
-            "message": message,
-            "window_days": window_days,
-            "latest_day": latest_day,
-            "pre": None,
-            "post": None,
-            "change_pct": None,
-            "change_kind": status,
-            "portfolio_change_pct": None,
-            "portfolio_repositories": 0,
-            "lift_pct_points": None,
-            "confidence": "low",
-        }
-
     latest_row = connection.execute(
         f"""SELECT MAX(day) FROM traffic_daily
             WHERE repo = ? AND {available_column} = 1
@@ -1363,10 +1338,6 @@ def analyze_event_metric(
         (repo, today.isoformat(), repo),
     ).fetchone()
     latest_day = str(latest_row[0]) if latest_row and latest_row[0] else None
-    latest_is_stale = bool(
-        latest_day and latest_day < (today - timedelta(days=2)).isoformat()
-    )
-
     post_end = event_day + timedelta(days=6)
     post_rows = connection.execute(
         f"""
@@ -1377,30 +1348,18 @@ def analyze_event_metric(
         """,  # noqa: S608 - metric is validated above
         (repo, event_day.isoformat(), post_end.isoformat()),
     ).fetchall()
-    post_by_day = {str(row["day"]): row for row in after_creation(post_rows)}
-    window_days = 0
-    for offset in range(7):
-        if (event_day + timedelta(days=offset)).isoformat() not in post_by_day:
-            break
-        window_days += 1
-    if window_days == 0:
-        if latest_is_stale:
-            age_days = (today - date.fromisoformat(latest_day)).days
-            return unavailable(
-                "stale_upstream",
-                f"GitHub traffic data is stale: the latest observed bucket is {age_days} days old.",
-                latest_day=latest_day,
-            )
-        return unavailable(
-            "waiting",
-            "Waiting for GitHub traffic data; no daily bucket is available for this event yet.",
-            latest_day=latest_day,
-        )
+    post_rows = select_event_post_rows(
+        post_rows, event_day=event_day, today=today, created_day=created_day
+    )
+    window_days = len(post_rows)
+    unavailable = event_evidence_unavailable(
+        metric=metric, today=today, latest_day=latest_day, window_days=window_days
+    )
+    if unavailable is not None:
+        return unavailable
 
-    pre_start = event_day - timedelta(days=window_days)
-    pre_end = event_day - timedelta(days=1)
-    effective_post_end = event_day + timedelta(days=window_days - 1)
-    pre_rows = after_creation(
+    pre_start, pre_end, effective_post_end = event_window_dates(event_day, window_days)
+    pre_rows = filter_event_evidence_rows(
         connection.execute(
             f"""
             SELECT day, {metric} AS value
@@ -1409,27 +1368,16 @@ def analyze_event_metric(
             ORDER BY day ASC
             """,  # noqa: S608 - metric is validated above
             (repo, pre_start.isoformat(), pre_end.isoformat()),
-        ).fetchall()
+        ).fetchall(),
+        today=today,
+        created_day=created_day,
     )
-    post_rows = [
-        post_by_day[(event_day + timedelta(days=offset)).isoformat()]
-        for offset in range(window_days)
-    ]
-    if len(pre_rows) != window_days or (window_days < 7 and latest_is_stale):
-        if latest_is_stale:
-            age_days = (today - date.fromisoformat(latest_day)).days
-            return unavailable(
-                "stale_upstream",
-                f"GitHub traffic data is stale: the latest observed bucket is {age_days} days old.",
-                window_days=window_days,
-                latest_day=latest_day,
-            )
-        return unavailable(
-            "waiting",
-            "Waiting for a complete pre-event baseline; this repository does not have enough valid days yet.",
-            window_days=window_days,
-            latest_day=latest_day,
-        )
+    unavailable = event_evidence_unavailable(
+        metric=metric, today=today, latest_day=latest_day,
+        window_days=window_days, baseline_days=len(pre_rows),
+    )
+    if unavailable is not None:
+        return unavailable
 
     portfolio_rows = connection.execute(
         f"""

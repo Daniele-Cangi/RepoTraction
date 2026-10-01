@@ -44,6 +44,9 @@ if (-not (Test-Path -LiteralPath (Join-Path $SourceDirectory "analytics\reposito
 if (-not (Test-Path -LiteralPath (Join-Path $SourceDirectory "analytics\opportunities.py") -PathType Leaf)) {
     throw "Required opportunity analytics module is missing."
 }
+if (-not (Test-Path -LiteralPath (Join-Path $SourceDirectory "analytics\event_evidence.py") -PathType Leaf)) {
+    throw "Required event evidence analytics module is missing."
+}
 
 New-Item -ItemType Directory -Path $InstallDirectory -Force | Out-Null
 New-Item -ItemType Directory -Path $StaticDirectory -Force | Out-Null
