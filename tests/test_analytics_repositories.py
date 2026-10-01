@@ -1,7 +1,10 @@
 """Characterize repository readiness and adoption without GitHub or user data."""
 import copy
+import subprocess
+import sys
 import unittest
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 from unittest import mock
 
 import app
@@ -178,3 +181,92 @@ class RepositoryCharacterizationTests(unittest.TestCase):
         second = app.repository_health(repo)
         self.assertNotIn("caller-owned change", second["gaps"])
         self.assertEqual((raw, repo), before)
+
+    def test_health_adapter_supplies_profile_and_age_to_pure_calculation(self):
+        from analytics import repositories
+        repo = healthy_repository()
+        with mock.patch.object(app, "calculate_repository_health", wraps=repositories.repository_health) as delegate, \
+             mock.patch.object(app, "is_profile_repository", return_value=True) as profile, \
+             mock.patch.object(app, "days_since_timestamp", return_value=7) as age:
+            result = app.repository_health(repo)
+        delegate.assert_called_once_with(repo, is_profile=True, pushed_days_ago=7)
+        profile.assert_called_once_with(repo)
+        age.assert_called_once_with(repo["pushed_at"])
+        self.assertFalse(result["applicable"])
+        self.assertEqual(result["pushed_days_ago"], 7)
+
+
+class PureRepositoryCalculationTests(unittest.TestCase):
+    def test_entrypoint_keeps_aliases_and_health_wrapper(self):
+        from analytics import repositories
+        self.assertIs(app.build_adoption_signal, repositories.build_adoption_signal)
+        self.assertIs(app.repository_license_metadata, repositories.repository_license_metadata)
+        self.assertIs(app.calculate_repository_health, repositories.repository_health)
+        self.assertIsNot(app.repository_health, repositories.repository_health)
+
+    def test_direct_health_uses_supplied_age_and_applicability(self):
+        from analytics import repositories
+        repo = healthy_repository(pushed_at="not parsed by the calculation")
+        for days, score in ((None, 90), (0, 100), (90, 100), (91, 90), (180, 90), (181, 80)):
+            with self.subTest(days=days):
+                result = repositories.repository_health(repo, is_profile=False, pushed_days_ago=days)
+                self.assertEqual((result["score"], result["pushed_days_ago"]), (score, days))
+        result = repositories.repository_health(repo, is_profile=True, pushed_days_ago=None)
+        self.assertEqual(result, {"score": None, "gaps": [],
+                                 "notes": ["profile repository · project readiness does not apply"],
+                                 "pushed_days_ago": None, "applicable": False})
+
+    def test_direct_health_results_do_not_share_lists_or_mutate_inputs(self):
+        from analytics import repositories
+        repo = healthy_repository(topics=["python"], license="NOASSERTION", license_status="")
+        before = copy.deepcopy(repo)
+        first = repositories.repository_health(repo, is_profile=False, pushed_days_ago=0)
+        first["gaps"].append("caller mutation")
+        first["notes"].clear()
+        second = repositories.repository_health(repo, is_profile=False, pushed_days_ago=0)
+        self.assertEqual(second["score"], 85)
+        self.assertEqual(second["gaps"], ["topics"])
+        self.assertEqual(second["notes"], ["license present · GitHub does not recognize its SPDX type"])
+        self.assertEqual(repo, before)
+
+    def test_direct_license_and_adoption_preserve_unknown_not_zero(self):
+        from analytics import repositories
+        self.assertEqual(repositories.repository_license_metadata({})["status"], "missing")
+        self.assertEqual(repositories.repository_license_metadata({"license": {}})["status"], "present_unrecognized")
+        unknown = repositories.build_adoption_signal(None, 9)
+        self.assertIsNone(unknown["clone_events"])
+        self.assertEqual(unknown["unique_cloners"], 9)
+        self.assertEqual(unknown["confidence"], "unavailable")
+        zero = repositories.build_adoption_signal(0, 0)
+        self.assertEqual(zero["key"], "quiet")
+        self.assertEqual(zero["clone_events"], 0)
+        self.assertEqual(zero["confidence"], "high")
+
+    def test_fresh_import_and_calculations_need_no_entrypoint_provider_io_or_clock(self):
+        code = """
+import sys
+from datetime import datetime
+from unittest.mock import patch
+sys.path.insert(0, sys.argv[1])
+class NoClock(datetime):
+    @classmethod
+    def now(cls, *args, **kwargs):
+        raise AssertionError('wall clock access')
+with patch('sqlite3.connect', side_effect=AssertionError('database access')), \\
+     patch('threading.Thread.start', side_effect=AssertionError('thread start')), \\
+     patch('subprocess.run', side_effect=AssertionError('external command')), \\
+     patch('socket.create_connection', side_effect=AssertionError('network access')), \\
+     patch('datetime.datetime', NoClock), \\
+     patch('time.time', side_effect=AssertionError('wall clock access')):
+    from analytics import repositories
+    assert repositories.build_adoption_signal(36, 31)['key'] == 'broad'
+    assert repositories.repository_license_metadata({'license': {'spdx_id': 'NOASSERTION'}})['status'] == 'present_unrecognized'
+    result = repositories.repository_health({}, is_profile=False, pushed_days_ago=None)
+    assert result['score'] == 30
+    assert result['pushed_days_ago'] is None
+    assert 'app' not in sys.modules
+    assert not any(name == 'missing_link' or name.startswith('missing_link.') for name in sys.modules)
+"""
+        result = subprocess.run([sys.executable, "-I", "-c", code, str(Path(__file__).resolve().parents[1])],
+                                capture_output=True, text=True, timeout=20)
+        self.assertEqual(result.returncode, 0, result.stderr)
