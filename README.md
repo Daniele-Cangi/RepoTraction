@@ -92,6 +92,14 @@ those manually reviewed analyses and fictional protocol tests. The
 qualified external leads; [the resulting corrections](docs/missing-link-context-attribution.md)
 describe the fixes and what still needs fresh testing.
 
+The [1 October live Luna evaluation](docs/missing-link-live-discovery-2026-10-01.md)
+retested the current contract on eight fresh repository-only inputs: 52 real model
+calls, 24 selected issues and 34 comparisons, with no qualified external lead.
+It records useful partial mechanisms and sound rejections, four quotation failures,
+source-selection bias and a missed ANSI-cleanup contribution. Discovery quality
+remains experimental; successful API calls and passing software tests are not
+evidence of new actionable connections.
+
 ## Development plan
 
 For planned architectural work and deferred language coverage, see the
