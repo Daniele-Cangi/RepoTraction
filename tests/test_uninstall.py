@@ -10,7 +10,8 @@ from pathlib import Path
 
 @unittest.skipUnless(sys.platform == "win32", "Windows PowerShell uninstaller")
 class UninstallTests(unittest.TestCase):
-    def run_uninstall(self, remove_data, analytics_junction=False):
+    def run_uninstall(self, remove_data, analytics_junction=False, storage_junction=False):
+        junction_name = "analytics" if analytics_junction else "storage" if storage_junction else None
         shells = [path for name in ("powershell.exe", "pwsh.exe") if (path := shutil.which(name))]
         self.assertTrue(shells, "PowerShell required for Windows uninstall tests")
         for shell in shells:
@@ -33,7 +34,9 @@ class UninstallTests(unittest.TestCase):
                 shortcut.write_bytes(b"fixture shortcut")
                 for name in ("app.py", "start.ps1", "start.cmd", "README.md", "LICENSE", "uninstall.ps1"):
                     (installed / name).write_bytes(b"installer owned fixture")
-                for name in (("static",) if analytics_junction else ("static", "analytics", "analytics/__pycache__")):
+                for name in ("static", "analytics", "analytics/__pycache__", "storage", "storage/__pycache__"):
+                    if junction_name and name.split("/", 1)[0] == junction_name:
+                        continue
                     directory = installed / name
                     directory.mkdir(parents=True, exist_ok=True)
                     (directory / "fixture.txt").write_bytes(b"installer owned fixture")
@@ -55,7 +58,7 @@ $taskInstalled = [IO.Path]::GetFullPath({quoted(installed)})
 $taskPrograms = [IO.Path]::GetFullPath({quoted(programs)})
 if ([IO.Path]::GetDirectoryName($taskInstalled) -ne $taskRoot -or
     [IO.Path]::GetDirectoryName($taskPrograms) -ne $taskRoot) {{ throw 'Fixture path escaped root' }}
-{("New-Item -ItemType Junction -Path (Join-Path $taskInstalled 'analytics') -Target " + quoted(linked) + " -ErrorAction Stop | Out-Null") if analytics_junction else ''}
+{("New-Item -ItemType Junction -Path (Join-Path $taskInstalled " + quoted(junction_name) + ") -Target " + quoted(linked) + " -ErrorAction Stop | Out-Null") if junction_name else ''}
 $taskSource = Get-Content -LiteralPath {quoted(script)} -Raw
 $taskInstallAnchor = '$InstallDirectory = Join-Path ([Environment]::GetFolderPath("LocalApplicationData")) "RepoTraction"'
 $taskProgramsAnchor = '$ProgramsDirectory = [Environment]::GetFolderPath("Programs")'
@@ -69,14 +72,15 @@ $taskSource = $taskSource.Replace($taskProgramsAnchor, '$ProgramsDirectory = $ta
                 encoded = base64.b64encode(code.encode("utf-16-le")).decode("ascii")
                 result = subprocess.run([shell, "-NoProfile", "-NonInteractive", "-EncodedCommand", encoded],
                                         capture_output=True, text=True, timeout=30)
-                if analytics_junction:
+                if junction_name:
                     self.assertNotEqual(result.returncode, 0)
-                    self.assertIn("analytics link or junction", result.stderr)
+                    self.assertIn(f"{junction_name} link or junction", result.stderr)
                     self.assertEqual((linked / "keep.txt").read_bytes(), b"linked fixture must survive")
                     self.assertEqual(history.read_bytes(), b"fixture history, not a user database")
                     continue
                 self.assertEqual(result.returncode, 0, result.stderr)
                 self.assertFalse((installed / "analytics").exists())
+                self.assertFalse((installed / "storage").exists())
                 self.assertFalse((installed / "static").exists())
                 self.assertFalse((installed / "app.py").exists())
                 self.assertFalse(shortcut.exists())
@@ -96,3 +100,6 @@ $taskSource = $taskSource.Replace($taskProgramsAnchor, '$ProgramsDirectory = $ta
 
     def test_analytics_junction_is_not_followed_or_recursively_removed(self):
         self.run_uninstall(True, analytics_junction=True)
+
+    def test_storage_junction_is_not_followed_or_recursively_removed(self):
+        self.run_uninstall(True, storage_junction=True)

@@ -1,8 +1,10 @@
 """Characterize database lifecycle and migrations using owned test databases."""
 import sqlite3
+import subprocess
+import sys
 import tempfile
 import unittest
-from contextlib import closing
+from contextlib import closing, nullcontext
 from pathlib import Path
 from unittest import mock
 
@@ -283,3 +285,123 @@ class DatabaseCharacterizationTests(unittest.TestCase):
                 "WHERE name = 'relation_snapshots'").fetchone())
             columns = {row[1] for row in connection.execute("PRAGMA table_info(traffic_daily)")}
             self.assertTrue({"views_available", "clones_available"}.issubset(columns))
+
+
+class ExtractedStorageTests(unittest.TestCase):
+    def test_connection_adapter_delegates_current_path_and_lifecycle(self):
+        from storage import database
+        self.assertIs(app.open_database_connection, database.database_connection)
+        with tempfile.TemporaryDirectory() as temporary:
+            selected = Path(temporary) / "selected.sqlite3"
+            with mock.patch.object(app, "DB_PATH", selected), \
+                 mock.patch.object(app, "open_database_connection", wraps=database.database_connection) as delegate:
+                with app.database_connection() as connection:
+                    connection.execute("CREATE TABLE fixture (value TEXT)")
+                    connection.execute("INSERT INTO fixture VALUES ('committed')")
+            delegate.assert_called_once_with(selected)
+            with closing(sqlite3.connect(selected)) as reader:
+                self.assertEqual(reader.execute("SELECT value FROM fixture").fetchall(), [("committed",)])
+
+    def test_ensure_retains_patchable_connection_factory_and_supplies_connection_only(self):
+        from storage import migrations
+        self.assertIs(app.migrate_database, migrations.migrate_database)
+        connection = mock.sentinel.connection
+        with tempfile.TemporaryDirectory() as temporary:
+            data_dir = Path(temporary) / "data"
+            unused_path = data_dir / "not-opened.sqlite3"
+            with mock.patch.object(app, "DATA_DIR", data_dir), \
+                 mock.patch.object(app, "DB_PATH", unused_path), \
+                 mock.patch.object(app, "database_connection", return_value=nullcontext(connection)) as factory, \
+                 mock.patch.object(app, "migrate_database") as migrate:
+                app.ensure_database()
+            factory.assert_called_once_with()
+            migrate.assert_called_once_with(connection)
+            self.assertTrue(data_dir.is_dir())
+            self.assertFalse(unused_path.exists())
+
+    def test_direct_connection_uses_explicit_path_despite_entrypoint_state(self):
+        from storage import database
+        with tempfile.TemporaryDirectory() as temporary:
+            supplied = Path(temporary) / "supplied.sqlite3"
+            wrong = Path(temporary) / "entrypoint.sqlite3"
+            with mock.patch.object(app, "DB_PATH", wrong), database.database_connection(supplied) as connection:
+                connection.execute("CREATE TABLE fixture (value TEXT)")
+            self.assertTrue(supplied.exists())
+            self.assertFalse(wrong.exists())
+            with self.assertRaises(sqlite3.ProgrammingError):
+                connection.execute("SELECT 1")
+
+    def test_direct_connection_rollback_closes_and_does_not_commit_failed_write(self):
+        from storage import database
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "fixture.sqlite3"
+            with database.database_connection(path) as connection:
+                connection.execute("CREATE TABLE fixture (value TEXT)")
+            with self.assertRaisesRegex(ValueError, "caller failure"):
+                with database.database_connection(path) as connection:
+                    connection.execute("INSERT INTO fixture VALUES ('uncommitted')")
+                    raise ValueError("caller failure")
+            with self.assertRaises(sqlite3.ProgrammingError):
+                connection.execute("SELECT 1")
+            with closing(sqlite3.connect(path)) as reader:
+                self.assertEqual(reader.execute("SELECT * FROM fixture").fetchall(), [])
+
+    def test_migration_does_not_explicitly_manage_supplied_connection_lifecycle(self):
+        from storage import migrations
+        connection = mock.Mock()
+        connection.execute.return_value = mock.MagicMock()
+        connection.execute.return_value.fetchone.return_value = None
+        migrations.migrate_database(connection)
+        connection.executescript.assert_called_once()
+        self.assertGreater(connection.execute.call_count, 10)
+        connection.commit.assert_not_called()
+        connection.rollback.assert_not_called()
+        connection.close.assert_not_called()
+
+    def test_direct_migration_keeps_caller_row_factory_and_connection_open(self):
+        from storage import migrations
+        with closing(sqlite3.connect(":memory:")) as connection:
+            connection.row_factory = sqlite3.Row
+            migrations.migrate_database(connection)
+            self.assertIs(connection.row_factory, sqlite3.Row)
+            self.assertTrue(connection.in_transaction)
+            connection.execute("CREATE TABLE extension_history (value TEXT)")
+            connection.execute("INSERT INTO extension_history VALUES ('preserve')")
+            migrations.migrate_database(connection)
+            self.assertEqual(connection.execute("SELECT value FROM extension_history").fetchone()[0], "preserve")
+
+    def test_closed_connection_failure_never_opens_replacement_database(self):
+        from storage import migrations
+        connection = sqlite3.connect(":memory:")
+        connection.close()
+        with mock.patch.object(sqlite3, "connect", side_effect=AssertionError("unexpected reconnect")):
+            with self.assertRaises(sqlite3.ProgrammingError):
+                migrations.migrate_database(connection)
+
+    def test_fresh_storage_imports_do_not_access_disk_account_provider_clock_or_network(self):
+        code = """
+import sqlite3
+import sys
+from pathlib import Path
+from unittest.mock import patch
+sys.path.insert(0, sys.argv[1])
+connection = sqlite3.connect(':memory:')
+try:
+    with patch('sqlite3.connect', side_effect=AssertionError('implicit database open')), \\
+         patch.object(Path, 'mkdir', side_effect=AssertionError('directory creation')), \\
+         patch('threading.Thread.start', side_effect=AssertionError('thread start')), \\
+         patch('subprocess.run', side_effect=AssertionError('external command')), \\
+         patch('socket.create_connection', side_effect=AssertionError('network access')), \\
+         patch('time.time', side_effect=AssertionError('wall clock access')):
+        from storage import database, migrations
+        migrations.migrate_database(connection)
+        assert connection.execute('SELECT initialized FROM repository_registry_state').fetchone() == (0,)
+        assert connection.in_transaction
+        assert 'app' not in sys.modules
+        assert not any(name == 'missing_link' or name.startswith('missing_link.') for name in sys.modules)
+finally:
+    connection.close()
+"""
+        result = subprocess.run([sys.executable, "-I", "-c", code, str(Path(__file__).resolve().parents[1])],
+                                capture_output=True, text=True, timeout=20)
+        self.assertEqual(result.returncode, 0, result.stderr)

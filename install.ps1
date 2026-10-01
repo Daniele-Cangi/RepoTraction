@@ -14,6 +14,7 @@ $StaticDirectory = Join-Path $InstallDirectory "static"
 $DataDirectory = Join-Path $InstallDirectory "data"
 $MissingLinkDirectory = Join-Path $InstallDirectory "missing_link"
 $AnalyticsDirectory = Join-Path $InstallDirectory "analytics"
+$StorageDirectory = Join-Path $InstallDirectory "storage"
 
 if (-not (Get-Command python -ErrorAction SilentlyContinue)) {
     throw "Python 3.10 or newer is required and must be available in PATH."
@@ -47,12 +48,18 @@ if (-not (Test-Path -LiteralPath (Join-Path $SourceDirectory "analytics\opportun
 if (-not (Test-Path -LiteralPath (Join-Path $SourceDirectory "analytics\event_evidence.py") -PathType Leaf)) {
     throw "Required event evidence analytics module is missing."
 }
+foreach ($module in @("database.py", "migrations.py")) {
+    if (-not (Test-Path -LiteralPath (Join-Path $SourceDirectory "storage\$module") -PathType Leaf)) {
+        throw "Required storage module is missing: $module"
+    }
+}
 
 New-Item -ItemType Directory -Path $InstallDirectory -Force | Out-Null
 New-Item -ItemType Directory -Path $StaticDirectory -Force | Out-Null
 New-Item -ItemType Directory -Path $DataDirectory -Force | Out-Null
 New-Item -ItemType Directory -Path $MissingLinkDirectory -Force | Out-Null
 New-Item -ItemType Directory -Path $AnalyticsDirectory -Force | Out-Null
+New-Item -ItemType Directory -Path $StorageDirectory -Force | Out-Null
 
 $LegacyDataDirectory = Join-Path $LegacyInstallDirectory "data"
 if (-not $Destination -and (Test-Path -LiteralPath $LegacyDataDirectory -PathType Container) -and
@@ -73,6 +80,9 @@ Get-ChildItem -LiteralPath (Join-Path $SourceDirectory "missing_link") -Filter "
 }
 Get-ChildItem -LiteralPath (Join-Path $SourceDirectory "analytics") -Filter "*.py" -File | ForEach-Object {
     Copy-Item -LiteralPath $_.FullName -Destination (Join-Path $AnalyticsDirectory $_.Name) -Force
+}
+Get-ChildItem -LiteralPath (Join-Path $SourceDirectory "storage") -Filter "*.py" -File | ForEach-Object {
+    Copy-Item -LiteralPath $_.FullName -Destination (Join-Path $StorageDirectory $_.Name) -Force
 }
 
 # Ship optional tools and their documentation, never local .env or runtime/data.
