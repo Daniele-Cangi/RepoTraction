@@ -1,13 +1,17 @@
 """Characterize repository snapshots and event writes with owned test history."""
 import copy
 import sqlite3
+import subprocess
+import sys
 import tempfile
 import unittest
-from contextlib import closing
+from contextlib import closing, nullcontext
 from pathlib import Path
 from unittest import mock
 
 import app
+from storage import repository_snapshots
+from storage.migrations import migrate_database
 
 
 REPO = "octocat/project"
@@ -197,6 +201,131 @@ class RepositorySnapshotCharacterizationTests(unittest.TestCase):
         app.save_repo_snapshots(repositories, EARLY)
         app.save_repo_metadata_snapshots(repositories, EARLY)
         self.assertEqual(repositories, before)
+
+
+class RepositorySnapshotModuleTests(unittest.TestCase):
+    def setUp(self):
+        self.connection = sqlite3.connect(":memory:")
+        self.addCleanup(self.connection.close)
+        migrate_database(self.connection)
+        self.connection.commit()
+
+    def test_counter_writer_leaves_commit_rollback_and_closure_to_caller(self):
+        repositories = [{"full_name": REPO, "stars": 7}]
+        repository_snapshots.save_repo_snapshots(self.connection, repositories, EARLY)
+        self.assertTrue(self.connection.in_transaction)
+        self.assertEqual(repositories, [{"full_name": REPO, "stars": 7}])
+        self.connection.rollback()
+        self.assertEqual(self.connection.execute("SELECT COUNT(*) FROM repo_snapshots").fetchone(), (0,))
+
+    def test_metadata_hook_receives_same_connection_after_snapshot_write(self):
+        repository_snapshots.save_repo_metadata_snapshots(
+            self.connection, [{"full_name": REPO}], EARLY,
+            validate_repo=str.casefold, record_event=mock.Mock(),
+        )
+        self.connection.commit()
+        def record(connection, **event):
+            self.assertIs(connection, self.connection)
+            self.assertTrue(connection.in_transaction)
+            self.assertEqual(connection.execute("SELECT description FROM repo_metadata_snapshots "
+                                               "WHERE collected_at = ?", (LATE,)).fetchone()[0], "new")
+            self.assertEqual(event["metadata"], {"changed_fields": ["description"]})
+            return False
+        count = repository_snapshots.save_repo_metadata_snapshots(
+            self.connection, [{"full_name": REPO, "description": "new"}], LATE,
+            validate_repo=str.casefold, record_event=record,
+        )
+        self.assertEqual(count, 0)
+        self.connection.rollback()
+        self.assertEqual(self.connection.execute("SELECT COUNT(*) FROM repo_metadata_snapshots").fetchone()[0], 1)
+
+    def test_metadata_failure_does_not_implicitly_rollback_caller_transaction(self):
+        record = mock.Mock(side_effect=RuntimeError("event failure"))
+        repository_snapshots.save_repo_metadata_snapshots(
+            self.connection, [{"full_name": REPO}], EARLY, validate_repo=str.casefold, record_event=record,
+        )
+        record.assert_not_called()
+        self.connection.commit()
+        with self.assertRaisesRegex(RuntimeError, "event failure"):
+            repository_snapshots.save_repo_metadata_snapshots(
+                self.connection, [{"full_name": REPO, "description": "new"}], LATE,
+                validate_repo=str.casefold, record_event=record,
+            )
+        self.assertTrue(self.connection.in_transaction)
+        self.assertEqual(self.connection.execute("SELECT COUNT(*) FROM repo_metadata_snapshots").fetchone()[0], 2)
+        self.connection.rollback()
+        self.assertEqual(self.connection.execute("SELECT COUNT(*) FROM repo_metadata_snapshots").fetchone()[0], 1)
+
+    def test_metadata_uses_supplied_validation_and_preserves_input(self):
+        repositories = [{"full_name": "Octocat/Project", "topics": ["z", "a"]}]
+        before = copy.deepcopy(repositories)
+        validate = mock.Mock(side_effect=str.casefold)
+        repository_snapshots.save_repo_metadata_snapshots(
+            self.connection, repositories, EARLY, validate_repo=validate, record_event=mock.Mock(),
+        )
+        validate.assert_called_once_with("Octocat/Project")
+        row = self.connection.execute("SELECT repo, topics_json FROM repo_metadata_snapshots").fetchone()
+        self.assertEqual(tuple(row), (REPO, '["a","z"]'))
+        self.assertEqual(repositories, before)
+
+    def test_event_uses_supplied_validation_and_clock_in_existing_order(self):
+        calls = []
+        def validate(value):
+            calls.append(("validate", value))
+            return value.casefold()
+        def clock():
+            calls.append(("clock",))
+            return LATE
+        event = {"repo": "Octocat/Project", "event_type": "release", "title": "v1",
+                 "occurred_at": EARLY, "source": "test", "validate_repo": validate, "utc_now": clock}
+        self.assertTrue(repository_snapshots.record_repository_event(self.connection, **event))
+        self.assertFalse(repository_snapshots.record_repository_event(self.connection, **event))
+        self.assertEqual(calls, [("validate", "Octocat/Project"), ("clock",)] * 2)
+        self.assertTrue(self.connection.in_transaction)
+        self.connection.rollback()
+        self.assertEqual(self.connection.execute("SELECT COUNT(*) FROM repository_events").fetchone(), (0,))
+
+    def test_event_does_not_read_supplied_clock_for_explicit_time_or_validation_failure(self):
+        clock = mock.Mock(side_effect=AssertionError("unexpected clock"))
+        event = {"repo": REPO, "event_type": "release", "title": "v1", "occurred_at": EARLY,
+                 "source": "test", "validate_repo": str.casefold, "utc_now": clock, "detected_at": LATE}
+        self.assertTrue(repository_snapshots.record_repository_event(self.connection, **event))
+        event.update(detected_at=None, validate_repo=mock.Mock(side_effect=ValueError("invalid")))
+        with self.assertRaisesRegex(ValueError, "invalid"):
+            repository_snapshots.record_repository_event(self.connection, **event)
+        clock.assert_not_called()
+
+    def test_entry_point_adapters_pass_connection_and_current_patch_hooks(self):
+        repositories = [{"full_name": REPO}]
+        event = {"repo": REPO, "event_type": "release", "title": "v1", "occurred_at": EARLY, "source": "test"}
+        with mock.patch.object(app, "database_connection", return_value=nullcontext(self.connection)), \
+             mock.patch.object(app, "persist_repo_snapshots") as counters, \
+             mock.patch.object(app, "persist_repo_metadata_snapshots", return_value=2) as metadata, \
+             mock.patch.object(app, "persist_repository_event", return_value=True) as record:
+            app.save_repo_snapshots(repositories, EARLY)
+            self.assertEqual(app.save_repo_metadata_snapshots(repositories, EARLY), 2)
+            self.assertTrue(app.record_repository_event(**event))
+        counters.assert_called_once_with(self.connection, repositories, EARLY)
+        metadata.assert_called_once_with(self.connection, repositories, EARLY,
+                                         validate_repo=app.validate_repo, record_event=app._record_repository_event)
+        record.assert_called_once_with(self.connection, **event, metadata=None, detected_at=None,
+                                       validate_repo=app.validate_repo, utc_now=app.utc_now)
+
+    def test_fresh_import_opens_no_database_and_loads_no_entry_point_or_provider(self):
+        code = """
+import pathlib, sqlite3, sys, threading
+from unittest import mock
+sys.path.insert(0, sys.argv[1])
+with mock.patch.object(sqlite3, 'connect', side_effect=AssertionError('database opened')), \
+     mock.patch.object(pathlib.Path, 'mkdir', side_effect=AssertionError('directory created')), \
+     mock.patch.object(threading.Thread, 'start', side_effect=AssertionError('thread started')):
+    from storage import repository_snapshots
+assert not any(name == 'app' or name.startswith('missing_link') for name in sys.modules)
+assert pathlib.Path(repository_snapshots.__file__).resolve().parent == pathlib.Path(sys.argv[1]).resolve() / 'storage'
+"""
+        result = subprocess.run([sys.executable, "-I", "-c", code, str(Path(app.__file__).parent)],
+                                capture_output=True, text=True, check=False)
+        self.assertEqual(result.returncode, 0, result.stderr)
 
 
 if __name__ == "__main__":

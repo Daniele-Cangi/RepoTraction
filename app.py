@@ -57,6 +57,11 @@ from storage.registry import (
     reconcile_current_repositories,
     save_repository_alias,
 )
+from storage.repository_snapshots import (
+    record_repository_event as persist_repository_event,
+    save_repo_metadata_snapshots as persist_repo_metadata_snapshots,
+    save_repo_snapshots as persist_repo_snapshots,
+)
 
 
 APP_DIR = Path(__file__).resolve().parent
@@ -590,29 +595,7 @@ def save_relation_snapshot(
 
 def save_repo_snapshots(repositories: list[dict[str, Any]], collected_at: str) -> None:
     with database_connection() as connection:
-        connection.executemany(
-            """
-            INSERT OR REPLACE INTO repo_snapshots (
-                repo, collected_at, stars, forks, watchers, open_issues,
-                private, archived, language, pushed_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """,
-            (
-                (
-                    repo["full_name"],
-                    collected_at,
-                    int(repo.get("stars", 0)),
-                    int(repo.get("forks", 0)),
-                    int(repo.get("watchers", 0)),
-                    int(repo.get("open_issues", 0)),
-                    int(bool(repo.get("private"))),
-                    int(bool(repo.get("archived"))),
-                    repo.get("language") or "",
-                    repo.get("pushed_at") or "",
-                )
-                for repo in repositories
-            ),
-        )
+        persist_repo_snapshots(connection, repositories, collected_at)
 
 
 def _record_repository_event(
@@ -626,24 +609,11 @@ def _record_repository_event(
     metadata: dict[str, Any] | None = None,
     detected_at: str | None = None,
 ) -> bool:
-    cursor = connection.execute(
-        """
-        INSERT OR IGNORE INTO repository_events (
-            repo, event_type, title, occurred_at, detected_at, source,
-            metadata_json
-        ) VALUES (?, ?, ?, ?, ?, ?, ?)
-        """,
-        (
-            validate_repo(repo),
-            event_type,
-            title,
-            occurred_at,
-            detected_at or utc_now(),
-            source,
-            json.dumps(metadata or {}, sort_keys=True, separators=(",", ":")),
-        ),
+    return persist_repository_event(
+        connection, repo=repo, event_type=event_type, title=title,
+        occurred_at=occurred_at, source=source, metadata=metadata,
+        detected_at=detected_at, validate_repo=validate_repo, utc_now=utc_now,
     )
-    return cursor.rowcount > 0
 
 
 def record_repository_event(
@@ -673,57 +643,11 @@ def save_repo_metadata_snapshots(
     repositories: list[dict[str, Any]],
     collected_at: str,
 ) -> int:
-    events_created = 0
     with database_connection() as connection:
-        connection.row_factory = sqlite3.Row
-        for repo in repositories:
-            full_name = validate_repo(str(repo["full_name"]))
-            current = {
-                "description": str(repo.get("description") or ""),
-                "homepage": str(repo.get("homepage") or ""),
-                "topics_json": json.dumps(
-                    sorted(str(topic) for topic in (repo.get("topics") or [])),
-                    separators=(",", ":"),
-                ),
-                "license_id": str(repo.get("license") or ""),
-                "license_status": str(repo.get("license_status") or "missing"),
-            }
-            previous = connection.execute(
-                """
-                SELECT description, homepage, topics_json, license_id,
-                       license_status
-                FROM repo_metadata_snapshots
-                WHERE repo = ?
-                ORDER BY collected_at DESC
-                LIMIT 1
-                """,
-                (full_name,),
-            ).fetchone()
-            changes = [
-                field
-                for field, value in current.items()
-                if previous is not None and str(previous[field]) != value
-            ]
-            connection.execute(
-                """
-                INSERT OR REPLACE INTO repo_metadata_snapshots (
-                    repo, collected_at, description, homepage, topics_json,
-                    license_id, license_status
-                ) VALUES (?, ?, ?, ?, ?, ?, ?)
-                """,
-                (full_name, collected_at, *current.values()),
-            )
-            if changes and _record_repository_event(
-                connection,
-                repo=full_name,
-                event_type="metadata",
-                title="Repository metadata updated",
-                occurred_at=collected_at,
-                detected_at=collected_at,
-                source="repository_snapshot",
-                metadata={"changed_fields": changes},
-            ):
-                events_created += 1
+        events_created = persist_repo_metadata_snapshots(
+            connection, repositories, collected_at,
+            validate_repo=validate_repo, record_event=_record_repository_event,
+        )
     return events_created
 
 

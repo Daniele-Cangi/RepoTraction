@@ -24,6 +24,8 @@ in [AGENTS.md](../AGENTS.md) applies to future work.
     account-selected paths and schema compatibility before extracting storage.
   - [x] Characterize registry IDs, renames, name reuse, history collisions,
     transaction boundaries and resolver failures before extracting registry SQL.
+  - [x] Characterize repository counters, metadata changes, event deduplication,
+    validation/clock order and batch rollback before extracting snapshot writes.
   - [ ] Characterize remaining stateful boundaries before their extraction.
 - [ ] Extract pure calculations into `analytics/`: date windows, traffic
   comparisons, event metrics, repository health and signal calculations. Pass
@@ -48,8 +50,10 @@ in [AGENTS.md](../AGENTS.md) applies to future work.
     existing migration statements to `storage/migrations.py`.
   - [x] Move registry SQL and history rename/archive operations to
     `storage/registry.py`, using supplied connections and explicit history hooks.
-  - [ ] Extract snapshot persistence. Move remaining alias-resolution network
-    orchestration with GitHub acquisition into `services/`.
+  - [x] Move repository counter/metadata snapshots and their event writes to
+    `storage/repository_snapshots.py`, using supplied connections and callbacks.
+  - [ ] Extract traffic and relationship snapshot persistence. Move remaining
+    alias-resolution network orchestration with GitHub acquisition into `services/`.
 - [ ] Extract GitHub acquisition, cache and collection orchestration into
   `services/`. Give the scheduler an explicit lifecycle and shutdown behavior;
   importing a module must not start collection or network requests.
@@ -184,8 +188,8 @@ connection ownership. Fresh storage imports do not open databases, create
 directories, start services or load an AI provider. The Windows installer ships
 the package; uninstall removes its code while preserving history by default and
 refuses storage junctions. Isolated installed-module checks exercise migrations
-only on a test database. Snapshot persistence remains planned work, along with
-acquisition, scheduling and HTTP extraction.
+only on a test database. Traffic and relationship snapshot persistence remain
+planned work, along with acquisition, scheduling and HTTP extraction.
 
 ## Repository registry boundary
 
@@ -218,6 +222,31 @@ Regressions cover observed values, explicit observed zeroes, unique-only values,
 partial metrics, rollback, registry renames and CSV/JSON exports. No retrospective
 migration is attempted: provenance already lost in earlier merges cannot reliably
 be reconstructed from stored counts alone.
+
+## Repository snapshot boundary
+
+[`storage/repository_snapshots.py`](../storage/repository_snapshots.py) writes
+repository counters, metadata snapshots and repository events using a supplied
+connection. Name validation, detection-time fallback and metadata event recording
+are explicit callbacks; the module does not choose an account or path, read a
+global clock, contact GitHub or import the entry point or AI provider.
+
+`app.py` retains thin compatibility delegates and connection ownership. Existing
+patches of the validator, clock and event writer still apply. Metadata changes and
+their events share a transaction, including rollback of earlier writes when a
+later repository fails. SQL text, normalization, latest-snapshot comparison,
+replacement/deduplication rules, changed-field ordering and callback order are
+retained. The counter writer deliberately retains its existing conversions and
+does not introduce new repository-name validation.
+
+Characterization and direct-module tests cover default and malformed values,
+duplicate timestamps, topic ordering, all changed metadata fields, duplicate
+events, false/failed event callbacks, account-selected paths, input preservation
+and caller-managed rollback. Fresh imports perform no database/directory/thread
+work. The installer ships the module, and isolated installed-module checks write
+only owned fixture snapshots and metadata events. Traffic evidence rules,
+relationship membership persistence, collection orchestration and event reads
+remain outside this extraction.
 
 ## Acceptance checks
 
