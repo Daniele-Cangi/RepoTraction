@@ -90,7 +90,10 @@ class ContextSelectionTests(unittest.TestCase):
         data, report = build_context(repository(), demand, "matches", 180000)
         self.assertIn("file:words.py#L1-L3", data["sources"])
         self.assertLessEqual(len(data["sources"]), MAX_SCOPED_IDS)
-        self.assertTrue(report["target_reference_context"]["omitted_source_ids"])
+        target = report["target_reference_context"]
+        self.assertEqual(len(target["source_ids"]) + len(target["omitted_source_ids"]), 4)
+        self.assertLess(list(data["sources"]).index("file:words.py#L1-L3"),
+                        list(data["sources"]).index(target["source_ids"][0]))
         self.assertFalse(report["discussion_complete"])  # Only real discussion omissions determine this.
 
     def cap(self, path, name, first=1, last=3):
@@ -160,6 +163,26 @@ class ContextSelectionTests(unittest.TestCase):
         _, report = build_context(repo, None, "capabilities", 60000)
         self.assertTrue(report["implementation_context_missing"])
         self.assertEqual(report["selected_capability_roles"], {"support": 1})
+
+    def test_busy_long_discussion_cannot_consume_implementation_bytes(self):
+        demand = issue()
+        demand["comments"] = [{"url": demand["url"] + f"#issuecomment-{i}", "body": "Old discussion " * 1300} for i in range(10)]
+        repo = repository()
+        repo["files"] = [self.file("src/library.py", 3)]
+        repo["capabilities"] = [self.cap("src/library.py", "solve")]
+        data, report = build_context(repo, demand, "matches", 60000)
+        self.assertIn("q0", data["sources"])
+        self.assertIn("file:src/library.py#L1-L3", data["sources"])
+        self.assertFalse(report["implementation_context_missing"])
+        self.assertFalse(report["discussion_complete"])
+        self.assertTrue(report["omitted_source_count"])
+
+    def test_typescript_declaration_is_not_implementation_context(self):
+        repo = repository()
+        repo["files"] = [self.file("index.d.ts", 3)]
+        repo["capabilities"] = [self.cap("index.d.ts", "solve")]
+        _, report = build_context(repo, None, "capabilities", 60000)
+        self.assertTrue(report["implementation_context_missing"])
 
 
 if __name__ == "__main__":

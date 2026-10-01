@@ -17,6 +17,7 @@ from datetime import datetime, timezone
 from pathlib import PurePosixPath
 from typing import Any, Callable
 from urllib.parse import quote, urlsplit
+from .source_hints import export_hints, MAX_EXPORT_HINTS
 
 
 MAX_FILE_BYTES = 256 * 1024
@@ -125,7 +126,7 @@ def _kind(path: str) -> str:
     if name.startswith(("readme", "license", "copying")) or PurePosixPath(path).suffix.casefold() in {".md", ".rst"}:
         return "documentation"
     if PurePosixPath(path).suffix.casefold() in SUPPORTED_CODE:
-        if re.search(r"(?:^|/)(?:tests?|__tests__)(?:/|$)|(?:^|/)test_|[._]test\.", path, re.I):
+        if re.search(r"(?:^|/)(?:tests?|__tests__)(?:/|$)|(?:^|/)test_|[._](?:test|spec)\.", path, re.I):
             return "test"
         return "source"
     return "unsupported"
@@ -136,7 +137,7 @@ def source_role(path: str) -> str:
     parts = PurePosixPath(path.split(":", 1)[0].casefold()).parts
     if not parts:
         return "implementation"
-    if any(part in {".github", "checks", "tools", "scripts", "benchmarks", "docs", "doc", "examples",
+    if any(part in {".github", "checks", "tools", "scripts", "bench", "benchmark", "benchmarks", "fixtures", "__fixtures__", "playground", "docs", "doc", "examples",
                     "winbuild", "ci_tools", "_custom_build"}
            for part in parts[:-1]) or parts[-1] in {"setup.py", "conftest.py", "selftest.py"}:
         return "infrastructure"
@@ -144,6 +145,8 @@ def source_role(path: str) -> str:
         return "test"
     if _kind(path.split(":", 1)[0]) in {"manifest", "documentation"}:
         return "support"
+    if parts[-1].endswith(".d.ts"):
+        return "support"  # Declarations are not implementation bodies.
     return "implementation"
 
 
@@ -155,7 +158,7 @@ def _priority(entry: dict[str, Any]) -> tuple:
     # Size is only a sampling heuristic, not proof that an initializer is empty.
     # Keep tiny initializers eligible, but behind ordinary implementations.
     empty_init = name == "__init__.py" and entry.get("size", 0) < 100
-    return (source_role(path) == "infrastructure", 2 if empty_init else 0 if preferred else 1,
+    return (source_role(path) in {"infrastructure", "support"}, 2 if empty_init else 0 if preferred else 1,
             path.count("/"), path.casefold())
 
 
@@ -342,6 +345,8 @@ class PublicGitHub:
         attempted = set()
         initializer_hints = []
         initializer_hints_complete = True
+        static_export_hints = []
+        export_hints_complete = True
         # Following an initializer replaces later heuristic slots; it never
         # expands the read/file/byte budget, including failed acquisitions.
         while pending and len(attempted) < max_files:
@@ -392,6 +397,14 @@ class PublicGitHub:
                     initializer_hints_complete = False
             pending.extendleft(eligible_by_path[target] for target in reversed(targets)
                                if target not in attempted)
+            exports, export_scan_complete = export_hints(path, text, eligible_by_path) if reference_paths is None else ([], True)
+            export_hints_complete &= export_scan_complete
+            for target in exports:
+                if len(static_export_hints) < MAX_EXPORT_HINTS:
+                    static_export_hints.append({"from": path, "path": target})
+                else:
+                    export_hints_complete = False
+            pending.extendleft(eligible_by_path[target] for target in reversed(exports) if target not in attempted)
         limitations = ["Bounded source sample; declarations and test references are not execution proof."]
         if tree.get("truncated"):
             limitations.append("GitHub truncated the recursive tree; unseen paths were not analyzed.")
@@ -415,7 +428,10 @@ class PublicGitHub:
                              "bytes_scanned": total_bytes, "language_counts": dict(language_counts),
                              "tree_language_counts": dict(languages_in_tree), "excluded": dict(excluded),
                              "sampling_policy": ("Root manifests and explicitly cited source paths only; bounded prior-reference sample, not target compatibility."
-                                 if reference_paths is not None else "Path heuristic plus static initializer-import hints; bounded docs/source/test mix, not export verification."),
+                                 if reference_paths is not None else "Path heuristic plus static initializer/re-export hints; bounded docs/source/test mix, not export verification."),
+                             "static_export_hints": static_export_hints,
+                             "export_hints_complete": export_hints_complete,
+                             "omitted_export_paths": sorted({hint["path"] for hint in static_export_hints} - {f["path"] for f in files}),
                              "initializer_import_hints": initializer_hints,
                              "initializer_import_hints_complete": initializer_hints_complete,
                              "initializer_hint_limit": MAX_INITIALIZER_HINTS,

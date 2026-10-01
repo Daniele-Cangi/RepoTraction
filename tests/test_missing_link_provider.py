@@ -301,6 +301,22 @@ class ProviderContractTests(unittest.TestCase):
             budget.record_output.assert_not_called()
             self.assertEqual(repo, original)
 
+    def test_missing_implementation_is_not_a_paid_compatibility_rejection(self):
+        for path in ("README.md", "index.d.ts", "benchmarks/runner.ts", "fixtures/mock.ts"):
+            repo = repository()
+            repo["files"][0].update(path=path, kind="source", text="export declare function parse(value: string): string;")
+            repo["capabilities"][0]["evidence"][0].update(path=path, end_line=1)
+            provider = Provider({"REPOTRACTION_AI_URL": "http://localhost/v1", "REPOTRACTION_AI_MODEL": "fixture"})
+            for call in (lambda budget: provider.interpret_capabilities(repo, budget),
+                         lambda budget: provider.evaluate(repo, issue(), validate_request(request_raw(), issue()), budget)):
+                budget = mock.Mock()
+                with self.subTest(path=path), mock.patch.object(provider, "complete") as complete:
+                    with self.assertRaisesRegex(CandidateValidationError, "Implementation source unavailable"):
+                        call(budget)
+                complete.assert_not_called()
+                budget.reserve_ai.assert_not_called()
+                budget.record_output.assert_not_called()
+
     def test_interpretation_calls_supply_their_own_scoped_schemas(self):
         provider = Provider({"REPOTRACTION_AI_URL": "http://localhost/v1", "REPOTRACTION_AI_MODEL": "fixture"})
         with mock.patch.object(provider, "complete", side_effect=request_completion()) as complete:

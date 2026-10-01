@@ -144,7 +144,9 @@ def build_context(repository, issue, phase, byte_limit):
     discussion_ids = [key for key in catalog if re.fullmatch(r"[qt]\d+", key)] if issue else []
     constraint_sources = list(dict.fromkeys(hint["source_id"] for hint in reversed(hints["items"]) if hint["source_id"] != "q0"))
     order = list(dict.fromkeys(["q0"] + constraint_sources + [key for key in reversed(discussion_ids) if key != "q0"])) if issue else []
-    for reference in order:
+    # Preserve the root request, then spend actual bytes on implementation
+    # before filling them with comments. Reserving only ID slots is insufficient.
+    for reference in (order[:1] if repository else order):
         add(reference, catalog[reference], discussion=True)
     if repository:
         by_path = {file["path"]: file for file in repository.get("files", [])}
@@ -177,6 +179,11 @@ def build_context(repository, issue, phase, byte_limit):
         for path, first, last in ordered_definitions:
             reference = f"file:{path}#L{first}-L{last}"
             add(reference, resolve_evidence(reference, catalog))
+        # Definitions are now already present and cannot be evicted by a long
+        # discussion. Later constraints/resolution retain their existing order;
+        # any omission makes the comparison explicitly incomplete.
+        for reference in order[1:]:
+            add(reference, catalog[reference], discussion=True)
         # Reference-only target files follow actual discussion and selected
         # implementation spans. They neither consume reserved source IDs first
         # nor inherit comment shortening/completeness semantics.
@@ -207,7 +214,7 @@ def build_context(repository, issue, phase, byte_limit):
         report["constraint_hint_scan_complete"] = hints["complete"]
     if repository:
         supplied_paths = list(dict.fromkeys(entry["path"] for entry in sources.values() if entry.get("path")))
-        report["selection_policy"] = "Implementation first; per-file capability diversity and interleaved definition spans. Path heuristic, not verified exports."
+        report["selection_policy"] = "Request root, then implementation definitions before later discussion; per-file diversity and interleaved spans. Path heuristic, not verified exports."
         report["selected_capability_roles"] = dict(Counter(source_role(capability_path(cap)) for cap in candidates))
         report["supplied_source_roles"] = dict(Counter(source_role(path) for path in supplied_paths))
         report["implementation_source_paths"] = [path for path in supplied_paths if source_role(path) == "implementation"]

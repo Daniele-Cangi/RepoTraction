@@ -296,6 +296,8 @@ class Provider:
         if not repository.get("capabilities"):
             return []
         data, report = build_context(repository, None, "capabilities", self.max_bytes)
+        if report["implementation_context_missing"]:
+            raise CandidateValidationError("Implementation source unavailable in bounded context; enrichment not evaluated or charged.")
         data["schema"] = schema_for("capabilities", source_ids=data["sources"], capability_ids=report["capability_ids"])
         # An enrichment pass over structural candidates, not an unconstrained capability hallucination.
         raw = self.complete("Review structural capability candidates against the provided source files. Return {capabilities:[...]}. "
@@ -341,6 +343,8 @@ class Provider:
         if not repository.get("capabilities"):
             return []
         data, report = build_context(repository, issue, "matches", self.max_bytes)
+        if report["implementation_context_missing"]:
+            raise CandidateValidationError("Implementation source unavailable in bounded context; compatibility not evaluated or charged.")
         data["request"] = request
         data["schema"] = schema_for("matches", source_ids=data["sources"], capability_ids=report["capability_ids"],
                                     requirement_ids=[item["id"] for item in request["requirements"]])
