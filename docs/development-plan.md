@@ -8,6 +8,20 @@ in [AGENTS.md](../AGENTS.md) applies to future work.
 
 ## Modularization sequence
 
+Product validation currently takes priority over the next extraction and interface
+features. The [fresh live Luna evaluation](missing-link-live-discovery-2026-10-01.md)
+ran eight repository-only inputs with 52 real calls, preserving the user's existing
+allowance while raising its cumulative ceiling to $10. It found no qualified
+external lead and exposed quotation-generation failures, undercounted optional
+contributions, implementation-context gaps and source/retrieval bias.
+
+The proposed next corrections are exact-citation reliability, independently
+checkable subrequirements, public-implementation selection/context coverage, and
+problem-oriented actionable-demand retrieval. Keep those corrections separate
+from structural extractions, preserve the frozen results, and validate with a new
+held-out cohort after regression tests. These fixes are planned, not implemented
+by the evaluation; UI features and Go/Rust expansion remain deferred.
+
 - [ ] Establish characterization tests for existing public behavior and map
   dependencies, including test patches of globals and account-specific state.
   - [x] Characterize the first five pure traffic/snapshot helpers and retain
