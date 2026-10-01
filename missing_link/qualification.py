@@ -235,7 +235,11 @@ def _without_markdown_links(value):
 def _reference_body(body):
     """High-precision link-note hint; short real requests remain eligible."""
     parser = _LinkProse()
-    parser.feed(body or "")
+    # Issue bodies are Markdown/code, not processing-instruction documents.
+    # HTMLParser can silently consume <?php and its entire unterminated tail
+    # (depending on the Python patch version). Escape only this review copy;
+    # original source/evidence stays intact and HTML anchor labels stay hidden.
+    parser.feed((body or "").replace("<?", "&lt;?"))
     parser.close()
     prose = _without_markdown_links("".join(parser.parts))
     without_urls = re.sub(r"https?://[^\s<>]+", " ", prose, flags=re.I)

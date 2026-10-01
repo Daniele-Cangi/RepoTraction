@@ -256,6 +256,7 @@ class QualificationTests(unittest.TestCase):
             '[Example project](https://github.com/x/y "Project title")',
             "[Example [nested] project](https://example.org/wiki/Foo_(bar))",
             '<a href="https://github.com/x/y"><strong>Example project</strong></a>',
+            '<a href="https://github.com/x/y"><?php // I need a formatter ?></a>',
             '<p>For example: <a href="https://github.com/x/y">Useful project</a></p>',
             "![Project screenshot](https://example.org/image.png)",
             "[Example project][project]\n\n[project]: https://github.com/x/y",
@@ -295,6 +296,17 @@ class QualificationTests(unittest.TestCase):
         self.assertEqual(assessment["opportunity_review"]["activity_age_days"], 1)
         # Reassessing a saved snapshot does not age its observations using wall time.
         self.assertEqual(self.evaluate(repo, demand, raw_request, raw_match)["discovery_assessment"], assessment)
+
+    def test_php_processing_syntax_does_not_hide_demand_or_change_evidence(self):
+        for terminator in ("", "\n?>"):
+            with self.subTest(terminator=terminator):
+                repo, demand, raw_request, raw_match = self.case()
+                original = "<?php\n// " + demand["body"] + terminator
+                demand["body"] = original
+                assessment = self.evaluate(repo, demand, raw_request, raw_match)["discovery_assessment"]
+                self.assertEqual(assessment["status"], "external_lead")
+                self.assertFalse(assessment["opportunity_review"]["reference_body_hint"])
+                self.assertEqual(demand["body"], original)
 
     def test_partial_support_survives_hard_conflict_without_becoming_a_lead(self):
         match = validate_matches([fixtures.raw_match()], repository(), issue(),

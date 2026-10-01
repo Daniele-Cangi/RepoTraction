@@ -4,6 +4,7 @@ from unittest import mock
 
 from missing_link.discovery import screen_candidate, problem_queries
 from missing_link.provider import Provider
+from missing_link import qualification
 import test_missing_link as fixtures
 
 
@@ -58,6 +59,21 @@ class ScreeningTests(unittest.TestCase):
                 self.assertFalse(screen_candidate(demand)["skip"])
                 self.assertEqual(demand["body"], original)
         self.assertTrue(screen_candidate(code_dump())["skip"])  # A genuine dump still gets the bounded hint.
+
+    def test_screening_survives_parser_consuming_unterminated_processing_syntax(self):
+        class ConsumingInstructions(qualification._LinkProse):
+            def feed(self, data):
+                # Reproduce the CI parser's loss of an unterminated <?php tail
+                # on older local Python patch versions as well.
+                super().feed(data.split("<?", 1)[0])
+
+        with mock.patch("missing_link.qualification._LinkProse", ConsumingInstructions):
+            dump = code_dump()
+            self.assertEqual(screen_candidate(dump)["code"], "source_file_dump_hint")
+            demand = dict(dump, body=dump["body"] + "\n// Please fix the formatter")
+            original = demand["body"]
+            self.assertFalse(screen_candidate(demand)["skip"])
+            self.assertEqual(demand["body"], original)
 
     def test_language_name_stays_whole_while_camelcase_mechanisms_still_split(self):
         repo = fixtures.repository()
