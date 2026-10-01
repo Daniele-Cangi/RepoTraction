@@ -18,6 +18,8 @@ from missing_link.sources import (  # noqa: E402
     validate_repository,
     _select_files,
     source_role,
+    _kind,
+    SUPPORTED_CODE,
     _initializer_imports,
 )
 
@@ -97,6 +99,35 @@ class SourceValidationTests(unittest.TestCase):
         for path in ("winbuild/build_prepare.py", "ci_tools/update.py", "_custom_build/backend.py:compile"):
             self.assertEqual(source_role(path), "infrastructure")
         self.assertEqual(source_role("src/PIL/Image.py:open"), "implementation")
+
+    def test_standalone_test_and_spec_basenames_are_not_implementation(self):
+        for extension in SUPPORTED_CODE:
+            for name in ("test", "tests", "spec", "specs"):
+                for prefix in ("", "src/"):
+                    path = prefix + name + extension
+                    with self.subTest(path=path):
+                        self.assertEqual(_kind(path), "test")
+                        self.assertEqual(source_role(path), "test")
+                        self.assertEqual(source_role(path + ":test_behavior"), "test")
+        self.assertEqual(_kind("TEST.JS"), "test")
+        self.assertEqual(source_role("SPEC.TS:behavior"), "test")
+        for path in ("testimony.py", "specification.ts", "contest.js", "src/testing.py", "src/testament.py"):
+            with self.subTest(path=path):
+                self.assertEqual(_kind(path), "source")
+                self.assertEqual(source_role(path), "implementation")
+
+    def test_acquisition_keeps_root_tests_as_references_not_product_capabilities(self):
+        fixture = GitHubFixture()
+        for path in ("test.py", "spec.ts", "tests.js"):
+            fixture.add(path, "def test_transform():\n    assert transform('value') == 'value'\n" if path.endswith(".py")
+                        else "function testTransform() { return true; }\n")
+        fixture.add("src/library.py", "def transform(value):\n    return value\n")
+        result = PublicGitHub(fixture.read).fetch_repository("sample/project")
+        kinds = {file["path"]: file["kind"] for file in result["files"]}
+        self.assertEqual(kinds, {"test.py": "test", "spec.ts": "test", "tests.js": "test", "src/library.py": "source"})
+        caps = extract_structure(result)
+        self.assertTrue(any(cap["name"] == "transform" for cap in caps))
+        self.assertFalse(any(cap.get("entrypoint", "").split(":", 1)[0] in {"test.py", "spec.ts", "tests.js"} for cap in caps))
 
     def test_infrastructure_does_not_crowd_out_product_source(self):
         fixture = GitHubFixture()

@@ -119,8 +119,11 @@ requirements. A scope-only candidate cannot qualify as a useful contribution.
 Recurring gaps without any demonstrated reusable behavior cannot form extension
 groups either; repeated passive scope compatibility is not an extension lead.
 An `existing_behavior` check must cite a supplied implementation path, not merely
-a README, fixture, benchmark or `.d.ts` declaration. Path membership still does
-not validate the semantic reasoning or certify execution.
+a README, test, fixture, benchmark or `.d.ts` declaration. Conventional standalone
+`test`/`tests`/`spec`/`specs` filenames with supported Python/JS/TS extensions
+remain test references even at the repository root; they cannot satisfy the
+implementation preflight or independently substantiate existing behavior.
+Path membership still does not validate the semantic reasoning or certify execution.
 Old imported checks without this field default to unknown, not affirmative support.
 The deterministic API-preservation override only recognizes whole, preservation-
 only extracted requirements. Compound requirements such as "format bytes without

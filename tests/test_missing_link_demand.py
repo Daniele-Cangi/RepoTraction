@@ -108,7 +108,8 @@ class DemandSpanTests(unittest.TestCase):
 
 class AtomicDemandTests(unittest.TestCase):
     def test_support_text_cannot_prove_behavior_even_with_code_elsewhere_in_prompt(self):
-        for path in ("README.md", "index.d.ts", "benchmarks/example.ts", "fixtures/sample.ts"):
+        for path in ("README.md", "index.d.ts", "benchmarks/example.ts", "fixtures/sample.ts",
+                     "test.js", "test.py", "spec.ts", "tests.cjs", "specs.tsx"):
             repo = repository()
             repo["files"].append({"path": path, "text": "Describes all desired behavior.", "kind": "source",
                 "url": "https://github.com/example/words/blob/" + "a" * 40 + "/" + path})

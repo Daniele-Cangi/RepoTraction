@@ -178,6 +178,20 @@ class ContextSelectionTests(unittest.TestCase):
         self.assertTrue(report["implementation_context_missing"])
         self.assertEqual(report["selected_capability_roles"], {"support": 1})
 
+    def test_root_test_only_context_does_not_certify_implementation(self):
+        for path in ("test.js", "test.py", "spec.ts", "tests.cjs", "specs.tsx"):
+            with self.subTest(path=path):
+                repo = repository()
+                # Old/imported metadata can still call the file source; its path
+                # must independently prevent promotion to implementation.
+                repo["files"] = [self.file(path, 3)]
+                repo["capabilities"] = [self.cap(path, "test_behavior")]
+                data, report = build_context(repo, None, "capabilities", 60000)
+                self.assertTrue(data["sources"])
+                self.assertTrue(report["implementation_context_missing"])
+                self.assertEqual(report["implementation_source_paths"], [])
+                self.assertEqual(report["selected_capability_roles"], {"test": 1})
+
     def test_busy_long_discussion_cannot_consume_implementation_bytes(self):
         demand = issue()
         demand["comments"] = [{"url": demand["url"] + f"#issuecomment-{i}", "body": "Old discussion " * 1300} for i in range(10)]
