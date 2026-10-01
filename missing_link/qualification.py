@@ -244,6 +244,11 @@ def _reference_body(body):
                                         "references", "link", "links", "e", "g"}
 
 
+def reference_only_body(body):
+    """Public retrieval hint; absence of body prose is not a compatibility verdict."""
+    return _reference_body(body)
+
+
 def opportunity_review(issue):
     """Snapshot-relative review signals, never proof that old demand is gone."""
     blockers = []

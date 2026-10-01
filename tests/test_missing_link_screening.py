@@ -13,6 +13,16 @@ def code_dump():
 
 
 class ScreeningTests(unittest.TestCase):
+    def test_link_note_or_automated_author_is_skipped_not_semantically_rejected(self):
+        for demand in (dict(fixtures.issue(), body="https://example.com/video", comments=[]),
+                       dict(fixtures.issue(), bot=True, comments=[])):
+            screening = screen_candidate(demand)
+            self.assertTrue(screening["skip"])
+            self.assertFalse(screening["proves_absence_of_demand"])
+            self.assertEqual(screen_candidate(dict(demand, comments=[{"body": "I need this fixed."}]))["skip"], False)
+        real = dict(fixtures.issue(), body="Please support the parsing approach in https://example.com/video", comments=[])
+        self.assertFalse(screen_candidate(real)["skip"])
+
     def test_acquired_php_dump_gets_a_hint_not_a_rejection(self):
         screening = screen_candidate(code_dump())
         self.assertTrue(screening["skip"])
@@ -81,6 +91,20 @@ class ScreeningServiceTests(unittest.TestCase):
         self.assertEqual(len(job["checkpoint"]["candidate_screening"]), 1)
         self.assertEqual(job["result"]["match_ids"], [])
         self.assertNotIn("candidate_errors", job["result"])
+        provider.interpret_request.assert_not_called()
+        provider.evaluate.assert_not_called()
+        source.fetch_reference_context.assert_not_called()
+        self.assertEqual(job["ai_calls_used"], 0)
+
+    def test_reference_notes_do_not_spend_demand_or_comparison_calls(self):
+        provider = mock.Mock()
+        provider.describe.return_value = {"configured": True}
+        provider.interpret_capabilities.return_value = fixtures.repository()["capabilities"]
+        self.service.provider = provider
+        demand = dict(fixtures.issue(), body="See [example](https://example.com/video)", comments=[])
+        job, source = self.run_screening(demand=demand, use_ai=True)
+        self.assertEqual(job["result"]["candidate_skips"][0]["code"], "reference_only_body_hint")
+        self.assertEqual(job["result"]["match_ids"], [])
         provider.interpret_request.assert_not_called()
         provider.evaluate.assert_not_called()
         source.fetch_reference_context.assert_not_called()

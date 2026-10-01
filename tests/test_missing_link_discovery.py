@@ -51,6 +51,29 @@ class RetrievalTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "No problem-oriented"):
             problem_queries(repo)
 
+    def test_fragmented_project_names_are_removed_after_combining_terms(self):
+        repo = repository()
+        for name, terms, expected in (
+                ("chalk/strip-ansi", ["chalk", "strip", "ansi", "escape", "removal"], "escape removal"),
+                ("sindresorhus/p-limit", ["p", "limit", "promise", "concurrency"], "promise concurrency")):
+            with self.subTest(name=name):
+                repo["full_name"] = name
+                repo["capabilities"][0]["search_terms"] = terms
+                self.assertTrue(problem_queries(repo)[0].startswith(expected + " is:open"))
+        repo["full_name"] = "chalk/strip-ansi"
+        repo["capabilities"][0]["search_terms"] = ["chalk", "strip", "ansi"]
+        with self.assertRaisesRegex(ValueError, "No problem-oriented"):
+            problem_queries(repo)
+
+    def test_unreviewed_readme_filler_does_not_become_a_second_problem_query(self):
+        repo = repository()
+        cap = repo["capabilities"][0]
+        repo["full_name"] = "chalk/strip-ansi"
+        cap.update(entrypoint="index.js:stripAnsi", search_terms=["javascript ansi escape removal"])
+        repo["capabilities"].append(dict(cap, entrypoint="README.md:product", claim_source="structural",
+            search_terms=["chalk", "strip", "ansi", "documentation", "states", "escape"]))
+        self.assertEqual(problem_queries(repo), ["javascript ansi escape removal is:open in:title,body -repo:chalk/strip-ansi"])
+
     def test_diversify_modules_and_prefer_implementation(self):
         repo = repository()
         cap = repo["capabilities"][0]
