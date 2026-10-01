@@ -91,6 +91,10 @@ conflict**. It is not follow-up-ready. Proposed adapter code is new work, not
 evidence that the selected interface already implements that behavior.
 
 Extraction asks for independently checkable mandatory and optional behaviors.
+Constraint hints share the demand catalog's conservative sentence boundaries,
+so a valid constraint sentence need not quote a following explanation. Separate
+constraint sentences on one line remain independent review items; omitted,
+truncated or uncertain-authority constraints still prevent qualification.
 A bounded optional-field review flags omitted/bundled TypeScript-style fields
 such as `strip_ansi?: boolean`. It never adds a requirement or awards support.
 The identifier must be represented separately, and uncertain source authority

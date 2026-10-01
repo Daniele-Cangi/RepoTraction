@@ -7,6 +7,11 @@ import re
 from .contracts import MAX_SCOPED_IDS
 
 
+def sentence_spans(line):
+    """Conservative original sentence spans shared by citations and review hints."""
+    return re.finditer(r".+?(?:[.!?](?=\s+[A-Z]|$)|$)", line)
+
+
 def citation_spans(sources, catalog, byte_limit):
     """Bounded original lines/sentences, never the prompt's synthetic omission seams.
 
@@ -32,7 +37,7 @@ def citation_spans(sources, catalog, byte_limit):
             # Split sentences/lines from actually supplied pieces: a truncated
             # middle hint can be selected even if the original line is enormous.
             for match in re.finditer(r"[^\n]+", piece):
-                for sentence in re.finditer(r".+?(?:[.!?](?=\s+[A-Z]|$)|$)", match[0]):
+                for sentence in sentence_spans(match[0]):
                     start, end = match.start() + sentence.start(), match.start() + sentence.end()
                     for first in range(start, end, 1600):
                         quote = piece[first:min(end, first + 1600)].strip()

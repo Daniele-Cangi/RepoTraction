@@ -6,7 +6,7 @@ from missing_link.analysis import validate_request, validate_matches
 from missing_link.context import build_context
 from missing_link.discussion import constraint_hints, MAX_CONSTRAINT_HINTS
 from missing_link.provider import Provider
-from test_missing_link import issue, repository, request_raw, raw_match
+from test_missing_link import issue, repository, request_raw, raw_match, request_completion
 
 
 class DiscussionReviewTests(unittest.TestCase):
@@ -50,6 +50,93 @@ class DiscussionReviewTests(unittest.TestCase):
         self.assertEqual(self.positive(demand, raw)["classification"], "direct")
         self.assertEqual(validate_matches([raw_match()], repository(), demand, request, "model")[0]
                          ["classification"], "rejected")
+
+    def test_constraint_sentence_citation_does_not_require_following_explanation(self):
+        body = "Must preserve the API. This keeps clients working."
+        demand = dict(issue(), body=body, comments=[])
+        raw = request_raw()
+        raw["requirements"] = [dict(raw["requirements"][0], text="Preserve the API",
+                                    quote="Must preserve the API.")]
+        provider = Provider({"REPOTRACTION_AI_URL": "http://localhost/v1", "REPOTRACTION_AI_MODEL": "fixture"})
+        with mock.patch.object(provider, "complete", side_effect=request_completion(raw)) as complete:
+            request = provider.interpret_request(demand, mock.Mock())
+        complete.assert_called_once()
+        self.assertEqual(request["requirements"][0]["source"]["quote"], "Must preserve the API.")
+        hint = request["constraint_review"]["items"][0]
+        self.assertEqual(hint["quote"], "Must preserve the API.")
+        self.assertEqual(hint["represented_by"], ["r0"])
+        self.assertFalse(request["constraint_review"]["qualification_blockers"])
+        self.assertEqual(self.positive(demand, raw)["classification"], "direct")
+        # Broader legacy/manual exact citations keep their existing contract.
+        raw["requirements"][0]["quote"] = body
+        self.assertFalse(validate_request(raw, demand)["constraint_review"]["qualification_blockers"])
+
+    def test_separate_constraint_sentences_on_one_line_cannot_hide_an_omission(self):
+        demand = dict(issue(), body="Must preserve the API. This keeps clients working. No Node.js dependencies.",
+                      comments=[])
+        raw = request_raw()
+        raw["requirements"] = [dict(raw["requirements"][0], text="Preserve the API", quote="Must preserve the API."),
+            dict(raw["requirements"][0], text="No Node.js dependencies", quote="No Node.js dependencies.")]
+        provider = Provider({"REPOTRACTION_AI_URL": "http://localhost/v1", "REPOTRACTION_AI_MODEL": "fixture"})
+        with mock.patch.object(provider, "complete", side_effect=request_completion(raw)):
+            request = provider.interpret_request(demand, mock.Mock())
+        hints = request["constraint_review"]["items"]
+        self.assertEqual([hint["quote"] for hint in hints], ["Must preserve the API.", "No Node.js dependencies."])
+        self.assertEqual(len({hint["id"] for hint in hints}), 2)
+        self.assertEqual([hint["represented_by"] for hint in hints], [["r0"], ["r1"]])
+        self.assertFalse(request["constraint_review"]["qualification_blockers"])
+        self.assertEqual(self.positive(demand, raw)["classification"], "direct")
+        raw["requirements"].pop()
+        match = self.positive(demand, raw)
+        self.assertEqual(match["classification"], "investigate")
+        self.assertTrue(match["request"]["constraint_review"]["items"][1]["needs_review"])
+
+    def test_sentence_constraints_keep_source_mandatory_and_explicit_guards(self):
+        demand = dict(issue(), body="Must preserve the API. This keeps clients working.",
+                      comments=[self.comment("Must preserve the API.")])
+        base = dict(request_raw()["requirements"][0], text="Preserve the API", quote="Must preserve the API.")
+        for override in ({"quote": "This keeps clients working."}, {"source_id": "q1"},
+                         {"mandatory": False}, {"explicit": False}):
+            with self.subTest(override=override):
+                raw = dict(request_raw(), requirements=[dict(base, **override)])
+                hint = validate_request(raw, demand)["constraint_review"]["items"][0]
+                self.assertEqual(hint["represented_by"], [])
+                self.assertTrue(hint["needs_review"])
+
+    def test_later_constraint_sentence_keeps_authority_review(self):
+        for body, association, needs_review in (
+                ("No Node.js dependencies. This keeps installation small.", "OWNER", False),
+                ("No Node.js dependencies. This keeps installation small.", "NONE", True),
+                ("[automation] No Node.js dependencies. This keeps installation small.", "OWNER", True)):
+            with self.subTest(body=body, association=association):
+                demand = dict(issue(), body="Shorten plain text.", comments=[self.comment(body, association)])
+                raw = request_raw()
+                raw["requirements"] = [dict(raw["requirements"][0], text="No Node.js dependencies",
+                                            source_id="q1", quote="No Node.js dependencies.")]
+                provider = Provider({"REPOTRACTION_AI_URL": "http://localhost/v1", "REPOTRACTION_AI_MODEL": "fixture"})
+                with mock.patch.object(provider, "complete", side_effect=request_completion(raw)):
+                    request = provider.interpret_request(demand, mock.Mock())
+                hint = request["constraint_review"]["items"][0]
+                self.assertEqual(hint["represented_by"], ["r0"])
+                self.assertEqual(hint["needs_review"], needs_review)
+
+    def test_same_line_constraint_scan_stays_bounded_and_prioritizes_dependencies(self):
+        body = " ".join(f"Must preserve rule {index}." for index in range(20)) + " No Node.js dependencies."
+        hints = constraint_hints(dict(issue(), body=body, comments=[]))
+        self.assertEqual(len(hints["items"]), MAX_CONSTRAINT_HINTS)
+        self.assertEqual(hints["markers_found"], 21)
+        self.assertFalse(hints["complete"])
+        self.assertEqual(len({hint["id"] for hint in hints["items"]}), MAX_CONSTRAINT_HINTS)
+        self.assertEqual(hints["items"][-1]["quote"], "No Node.js dependencies.")
+
+    def test_short_citation_cannot_clear_truncated_or_compound_constraint(self):
+        for body in ("Must preserve " + "boundary " * 100, "Must preserve the API and must not use Node.js."):
+            with self.subTest(body=body):
+                demand = dict(issue(), body=body, comments=[])
+                raw = dict(request_raw(), requirements=[dict(request_raw()["requirements"][0],
+                    text="Preserve boundary", quote=body[:20])])
+                request = validate_request(raw, demand)
+                self.assertTrue(request["constraint_review"]["qualification_blockers"])
 
     def test_title_constraint_reaches_provider_context_but_comment_titles_are_not_evidence(self):
         demand, _ = self.title_constraint()
