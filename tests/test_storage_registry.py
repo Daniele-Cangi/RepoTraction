@@ -1,4 +1,6 @@
 """Characterize registry transactions using owned databases and fake GitHub replies."""
+import csv
+import io
 import sqlite3
 import subprocess
 import sys
@@ -110,6 +112,142 @@ class RegistryCharacterizationTests(unittest.TestCase):
             app.merge_repository_history(connection, OLD, NEW)
         for table in HISTORY_TABLES[1:]:
             self.assertEqual(self.rows(table), before[table])
+
+    def seed_daily(self, name, views, clones, timestamp=EARLY):
+        """Insert explicitly supplied metric evidence; do not infer provenance."""
+        with app.database_connection() as connection:
+            connection.execute(
+                "INSERT INTO traffic_daily (repo, day, views, unique_views, views_available, "
+                "views_status, clones, unique_clones, clones_available, clones_status, collected_at) "
+                "VALUES (?, '2026-08-20', ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                (name, *views, *clones, timestamp),
+            )
+
+    def test_collision_copies_observed_value_status_with_selected_counts(self):
+        self.seed_daily(OLD, (7, 2, 1, "observed_value"), (9, 3, 1, "observed_value"))
+        self.seed_daily(NEW, (0, 0, None, "missing"), (0, 0, None, "missing"), LATE)
+        with app.database_connection() as connection:
+            app.merge_repository_history(connection, OLD, NEW)
+        row = app.get_traffic_history(NEW)[0]
+        self.assertEqual((row["views"], row["unique_views"], row["views_available"], row["views_status"]),
+                         (7, 2, 1, "observed_value"))
+        self.assertEqual((row["clones"], row["unique_clones"], row["clones_available"], row["clones_status"]),
+                         (9, 3, 1, "observed_value"))
+
+    def test_collision_copies_explicit_observed_zero_without_inventing_missing_metric(self):
+        self.seed_daily(OLD, (0, 0, 1, "observed_zero"), (0, 0, None, "missing"))
+        self.seed_daily(NEW, (0, 0, None, "missing"), (0, 0, None, "missing"), LATE)
+        with app.database_connection() as connection:
+            app.merge_repository_history(connection, OLD, NEW)
+        row = app.get_traffic_history(NEW)[0]
+        self.assertEqual((row["views_available"], row["views_status"]), (1, "observed_zero"))
+        self.assertEqual((row["clones_available"], row["clones_status"]), (None, "missing"))
+
+    def test_collision_keeps_unique_only_observation_status_even_when_count_is_zero(self):
+        self.seed_daily(OLD, (0, 2, 1, "observed_value"), (0, 3, 1, "observed_value"))
+        self.seed_daily(NEW, (0, 0, None, "missing"), (0, 0, None, "missing"))
+        with app.database_connection() as connection:
+            app.merge_repository_history(connection, OLD, NEW)
+        row = app.get_traffic_history(NEW)[0]
+        self.assertEqual((row["views"], row["unique_views"], row["views_status"]), (0, 2, "observed_value"))
+        self.assertEqual((row["clones"], row["unique_clones"], row["clones_status"]), (0, 3, "observed_value"))
+
+    def test_collision_transfers_each_metric_status_independently(self):
+        for copied_metric in ("views", "clones"):
+            with self.subTest(metric=copied_metric):
+                with app.database_connection() as connection:
+                    connection.execute("DELETE FROM traffic_daily")
+                observed = (7, 2, 1, "observed_value")
+                missing = (0, 0, None, "missing")
+                retained = (0, 0, 1, "observed_zero")
+                self.seed_daily(OLD, observed if copied_metric == "views" else missing,
+                                observed if copied_metric == "clones" else missing)
+                self.seed_daily(NEW, missing if copied_metric == "views" else retained,
+                                missing if copied_metric == "clones" else retained, LATE)
+                with app.database_connection() as connection:
+                    app.merge_repository_history(connection, OLD, NEW)
+                row = app.get_traffic_history(NEW)[0]
+                other = "clones" if copied_metric == "views" else "views"
+                self.assertEqual((row[copied_metric], row[f"{copied_metric}_status"]), (7, "observed_value"))
+                self.assertEqual((row[other], row[f"{other}_status"]), (0, "observed_zero"))
+
+    def test_newer_selected_observation_copies_status_without_changing_precedence(self):
+        for source, target in (
+            ((7, 2, 1, "observed_value"), (0, 0, 1, "observed_zero")),
+            ((0, 0, 1, "observed_zero"), (7, 2, 1, "observed_value")),
+        ):
+            with self.subTest(source=source):
+                with app.database_connection() as connection:
+                    connection.execute("DELETE FROM traffic_daily")
+                self.seed_daily(OLD, source, source, LATE)
+                self.seed_daily(NEW, target, target)
+                with app.database_connection() as connection:
+                    app.merge_repository_history(connection, OLD, NEW)
+                row = app.get_traffic_history(NEW)[0]
+                self.assertEqual((row["views"], row["unique_views"], row["views_available"], row["views_status"]), source)
+                self.assertEqual((row["clones"], row["unique_clones"], row["clones_available"], row["clones_status"]), source)
+
+    def test_retained_canonical_observation_keeps_status_for_older_or_tied_source(self):
+        for timestamp in (EARLY, LATE):
+            with self.subTest(timestamp=timestamp):
+                with app.database_connection() as connection:
+                    connection.execute("DELETE FROM traffic_daily")
+                self.seed_daily(OLD, (7, 2, 1, "observed_value"), (9, 3, 1, "observed_value"), timestamp)
+                self.seed_daily(NEW, (0, 0, 1, "observed_zero"), (0, 0, 1, "observed_zero"), LATE)
+                with app.database_connection() as connection:
+                    app.merge_repository_history(connection, OLD, NEW)
+                row = app.get_traffic_history(NEW)[0]
+                self.assertEqual((row["views"], row["views_status"], row["clones"], row["clones_status"]),
+                                 (0, "observed_zero", 0, "observed_zero"))
+
+    def test_unavailable_legacy_or_missing_source_does_not_replace_observed_status(self):
+        for available, status in ((None, "missing"), (None, "legacy_unknown"), (0, "missing")):
+            with self.subTest(available=available, status=status):
+                with app.database_connection() as connection:
+                    connection.execute("DELETE FROM traffic_daily")
+                self.seed_daily(OLD, (7, 2, available, status), (9, 3, available, status), LATE)
+                self.seed_daily(NEW, (0, 0, 1, "observed_zero"), (0, 0, 1, "observed_zero"))
+                with app.database_connection() as connection:
+                    app.merge_repository_history(connection, OLD, NEW)
+                row = app.get_traffic_history(NEW)[0]
+                self.assertEqual((row["views"], row["views_available"], row["views_status"]), (0, 1, "observed_zero"))
+                self.assertEqual((row["clones"], row["clones_available"], row["clones_status"]), (0, 1, "observed_zero"))
+
+    def test_collision_status_update_rolls_back_with_failed_source_delete(self):
+        self.seed_daily(OLD, (7, 2, 1, "observed_value"), (0, 0, 1, "observed_zero"))
+        self.seed_daily(NEW, (0, 0, None, "missing"), (0, 0, None, "missing"))
+        before = self.rows("traffic_daily")
+        with app.database_connection() as connection:
+            connection.execute("CREATE TRIGGER fail_delete BEFORE DELETE ON traffic_daily "
+                               "BEGIN SELECT RAISE(ABORT, 'delete failure'); END")
+        with self.assertRaisesRegex(sqlite3.IntegrityError, "delete failure"):
+            with app.database_connection() as connection:
+                app.merge_repository_history(connection, OLD, NEW)
+        self.assertEqual(self.rows("traffic_daily"), before)
+
+    def test_registry_rename_exposes_correct_provenance_in_history_and_exports(self):
+        app.reconcile_repository_registry([{"id": 1, "full_name": OLD}], EARLY)
+        bucket = {"timestamp": EARLY, "count": 7, "uniques": 2}
+        app.save_traffic(OLD, {"views": [bucket]}, None, collected_at=EARLY)
+        app.save_traffic(NEW, None, {"clones": [{**bucket, "count": 0, "uniques": 0}]}, collected_at=LATE)
+        with mock.patch.object(app, "run_gh_json", side_effect=AssertionError("unexpected network")):
+            app.reconcile_repository_registry([{"id": 1, "full_name": NEW}], LATE)
+        row = app.get_traffic_history(NEW)[0]
+        self.assertEqual((row["views_status"], row["clones_status"]), ("observed_value", "observed_zero"))
+        self.assertEqual(app.get_traffic_history(OLD), [])
+        filename, content = app.build_csv_export("traffic")
+        exported = list(csv.DictReader(io.StringIO(content.decode("utf-8-sig"))))[0]
+        self.assertTrue(filename.endswith("-traffic.csv"))
+        self.assertEqual((exported["views"], exported["views_status"], exported["clones"], exported["clones_status"]),
+                         ("7", "observed_value", "0", "observed_zero"))
+        with mock.patch.object(app, "get_account_login", return_value="octocat"), \
+             mock.patch.object(app, "build_signals", return_value={}), \
+             mock.patch.object(app, "get_relation_movements", return_value=[]), \
+             mock.patch.object(app, "get_repository_events", return_value=[]), \
+             mock.patch.object(app, "get_relation_history", return_value=[]):
+            json_row = app.build_export_payload()["traffic"][0]
+        self.assertEqual((json_row["views_status"], json_row["clones_status"]),
+                         ("observed_value", "observed_zero"))
 
     def test_merge_uses_caller_transaction_without_committing(self):
         self.seed()
