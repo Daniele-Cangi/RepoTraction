@@ -12,13 +12,18 @@ in [AGENTS.md](../AGENTS.md) applies to future work.
   dependencies, including test patches of globals and account-specific state.
   - [x] Characterize the first five pure traffic/snapshot helpers and retain
     their compatibility names in the entry point.
+  - [x] Characterize event metric results, evidence availability and event
+    headlines before extracting their pure calculations.
   - [ ] Characterize remaining stateful boundaries before their extraction.
 - [ ] Extract pure calculations into `analytics/`: date windows, traffic
   comparisons, event metrics, repository health and signal calculations. Pass
   timestamps and configuration explicitly where practical.
   - [x] Move percentage changes, traffic-period labels/summaries, UTC timestamp
     parsing and snapshot comparison windows to `analytics/traffic.py`.
-  - [ ] Extract remaining event, health, adoption and opportunity calculations.
+  - [x] Move event date parsing, observed-window totals, portfolio median,
+    confidence and event headline calculations to `analytics/events.py`.
+  - [ ] Extract remaining event window/evidence orchestration, health, adoption
+    and opportunity calculations.
 - [ ] Extract database connections, migrations, repository registry operations
   and snapshot persistence into `storage/`. Preserve existing database paths,
   schemas, transactions and account isolation; do not reset stored history.
@@ -50,6 +55,25 @@ SQLite rows. Additional checks verify import isolation and compatibility names.
 The Windows installer ships the new package, and CI checks its installed location.
 This step does not move HTTP handling, persistence, scheduling or Missing Link,
 and does not change analytics contracts or trigger paid reanalysis.
+
+## Event calculation boundary
+
+[`analytics/events.py`](../analytics/events.py) calculates totals, percentage
+changes, the portfolio median, confidence and the headline for an event. Callers
+supply valid before/after rows, the observed window, per-repository aggregates
+and the profile-repository exclusion predicate. The module uses standard-library
+utilities and `analytics/traffic.py`; it does not read the database or wall clock,
+import the entry point or load an AI provider.
+
+`app.py` retains the existing SQLite queries and evidence eligibility checks,
+including creation-date and current-day exclusions, contiguous post-event days,
+incomplete baselines and stale upstream data. Its metric adapter delegates valid
+results to the new module; the Impact Lab builder delegates event headlines.
+SQL, response fields, thresholds and missing-versus-zero semantics are unchanged.
+Characterization tests cover the adapter and headline behavior, while direct
+module tests check immutable inputs, SQLite-row compatibility and import isolation.
+The installer and CI validate the new installed module. Database access and the
+remaining event window orchestration are still planned work.
 
 ## Acceptance checks
 

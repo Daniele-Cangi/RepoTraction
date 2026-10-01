@@ -49,3 +49,4 @@ jobs:
           python (Join-Path $testDestination "app.py") --help
           python -c "import sys; sys.path.insert(0, sys.argv[1]); from missing_link.service import Service" $testDestination
           python -I -c "import sys; from pathlib import Path; sys.path.insert(0, sys.argv[1]); from analytics import traffic; assert Path(traffic.__file__).resolve().parent == Path(sys.argv[1]).resolve() / 'analytics'; assert traffic.percentage_change(15, 10) == 50.0" $testDestination
+          python -I -c "import sys; from pathlib import Path; sys.path.insert(0, sys.argv[1]); from analytics import events; assert Path(events.__file__).resolve().parent == Path(sys.argv[1]).resolve() / 'analytics'; assert events._utc_date('2026-08-10').isoformat() == '2026-08-10'; assert events.describe_event_outcome({})['outcome_key'] == 'collecting'" $testDestination
