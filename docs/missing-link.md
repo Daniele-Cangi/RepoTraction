@@ -125,8 +125,12 @@ remain test references even at the repository root; they cannot satisfy the
 implementation preflight or independently substantiate existing behavior.
 Delimited example/demo/story filenames such as `example.py`, `demo.ts` and
 `Button.stories.tsx` remain infrastructure references even beside product code.
+Files in exact `example`/`examples`, `demo`/`demos`, `fixture`/`fixtures` and
+`story`/`stories` directory components have the same role, including nested or
+case-varied layouts such as `src/DEMOS/index.ts`.
 They neither satisfy the implementation preflight nor prove existing behavior;
-incidental substrings such as `demographics.py` or `storybook.js` are not excluded.
+incidental substrings such as `demographics.py`, `storybook.js` or a `storybook/`
+directory are not excluded.
 Path membership still does not validate the semantic reasoning or certify execution.
 Old imported checks without this field default to unknown, not affirmative support.
 The deterministic API-preservation override only recognizes whole, preservation-

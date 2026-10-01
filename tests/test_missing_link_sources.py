@@ -126,6 +126,33 @@ class SourceValidationTests(unittest.TestCase):
         self.assertEqual(result["coverage"]["eligible_source_roles"], {"infrastructure": 3, "implementation": 1})
         self.assertEqual(result["coverage"]["acquired_source_roles"], {"implementation": 1})
 
+    def test_auxiliary_directories_are_exact_non_implementation_components(self):
+        for directory in ("example", "examples", "demo", "demos", "fixture", "fixtures", "story", "stories"):
+            for extension in SUPPORTED_CODE:
+                for prefix in ("", "src/", "packages/library/src/"):
+                    path = prefix + directory + "/index" + extension
+                    with self.subTest(path=path):
+                        self.assertEqual(_kind(path), "source")
+                        self.assertEqual(source_role(path), "infrastructure")
+                        self.assertEqual(source_role(path + ":render"), "infrastructure")
+        self.assertEqual(source_role("SRC/DEMOS/INDEX.TS:render"), "infrastructure")
+        for path in ("src/example_parser/index.ts", "src/examplescope/core.py", "src/demographics/index.js",
+                     "src/demoGraph/index.ts", "src/fixture_loader/data.py", "src/storybook/index.js",
+                     "src/storyline/core.ts", "src/storiesFactory/index.tsx", "src/component.tsx"):
+            with self.subTest(path=path):
+                self.assertEqual(source_role(path), "implementation")
+
+    def test_auxiliary_directories_do_not_consume_the_product_sampling_slot(self):
+        fixture = GitHubFixture()
+        for directory in ("example", "demo", "demos", "fixture", "story", "stories"):
+            fixture.add(directory + "/index.ts", "function show() { return true; }")
+        fixture.add("src/library.ts", "export function solve(value) { return value; }")
+        result = PublicGitHub(fixture.read).fetch_repository("sample/project", max_files=1)
+        self.assertEqual([file["path"] for file in result["files"]], ["src/library.ts"])
+        self.assertEqual(sum("/git/blobs/" in call[0] for call in fixture.calls), 1)
+        self.assertEqual(result["coverage"]["eligible_source_roles"], {"infrastructure": 6, "implementation": 1})
+        self.assertEqual(result["coverage"]["acquired_source_roles"], {"implementation": 1})
+
     def test_standalone_test_and_spec_basenames_are_not_implementation(self):
         for extension in SUPPORTED_CODE:
             for name in ("test", "tests", "spec", "specs"):

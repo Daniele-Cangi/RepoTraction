@@ -371,7 +371,8 @@ class ProviderContractTests(unittest.TestCase):
         for path in ("README.md", "index.d.ts", "benchmarks/runner.ts", "fixtures/mock.ts",
                      "benchmark.js", "fixture.ts", "parser.bench.ts", "test.js", "test.py", "spec.ts",
                      "tests.cjs", "specs.tsx", "example.py", "demo.ts", "Button.stories.tsx",
-                     "src/widget.example.js", "src/widget.story.jsx"):
+                     "src/widget.example.js", "src/widget.story.jsx", "example/index.py", "demo/index.ts",
+                     "demos/index.js", "fixture/data.ts", "story/index.jsx", "stories/Button.tsx", "src/DEMOS/index.cjs"):
             repo = repository()
             repo["files"][0].update(path=path, kind="source", text="export declare function parse(value: string): string;")
             repo["capabilities"][0]["evidence"][0].update(path=path, end_line=1)
