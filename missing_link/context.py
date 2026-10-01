@@ -141,12 +141,11 @@ def build_context(repository, issue, phase, byte_limit):
 
     # Request first and recent discussion before old comments: later resolution
     # cannot be silently dropped by a prefix-only character cut.
-    discussion_ids = [key for key in catalog if key.startswith(("q", "t"))] if issue else []
+    discussion_ids = [key for key in catalog if re.fullmatch(r"[qt]\d+", key)] if issue else []
     constraint_sources = list(dict.fromkeys(hint["source_id"] for hint in reversed(hints["items"]) if hint["source_id"] != "q0"))
     order = list(dict.fromkeys(["q0"] + constraint_sources + [key for key in reversed(discussion_ids) if key != "q0"])) if issue else []
     for reference in order:
         add(reference, catalog[reference], discussion=True)
-
     if repository:
         by_path = {file["path"]: file for file in repository.get("files", [])}
         # Include implementation spans around selected entry points, then imports,
@@ -175,7 +174,17 @@ def build_context(repository, issue, phase, byte_limit):
                 regions.append((file["path"], 1, len(file["text"].splitlines())))
         for file in sorted(by_path.values(), key=lambda f: f.get("kind") not in {"manifest", "documentation"}):
             regions.append((file["path"], 1, len(file["text"].splitlines())))
-        for path, first, last in ordered_definitions + list(interleave_regions(regions)):
+        for path, first, last in ordered_definitions:
+            reference = f"file:{path}#L{first}-L{last}"
+            add(reference, resolve_evidence(reference, catalog))
+        # Reference-only target files follow actual discussion and selected
+        # implementation spans. They neither consume reserved source IDs first
+        # nor inherit comment shortening/completeness semantics.
+        if issue:
+            for reference, entry in catalog.items():
+                if reference.startswith("target:"):
+                    add(reference, entry)
+        for path, first, last in interleave_regions(regions):
             reference = f"file:{path}#L{first}-L{last}"
             add(reference, resolve_evidence(reference, catalog))
 
@@ -188,6 +197,11 @@ def build_context(repository, issue, phase, byte_limit):
         "source_coverage": (repository or {}).get("coverage", {}),
         "note": "Selected evidence is not the whole repository. Missing context remains unknown; omitted discussion prevents a qualified positive."}
     if issue:
+        target_context = issue.get("target_context", {})
+        report["target_reference_context"] = {"revision": target_context.get("revision"),
+            "source_ids": [ref for ref in sources if ref.startswith("target:")],
+            "omitted_source_ids": [ref for ref in omitted if ref.startswith("target:")],
+            "reference_only": True, "absence_proves_novelty": False}
         report["omitted_constraint_ids"] = [hint["id"] for hint in hints["items"]
             if hint["source_id"] not in sources or quoted_span(hint["quote"], sources[hint["source_id"]]["quote"]) is None]
         report["constraint_hint_scan_complete"] = hints["complete"]

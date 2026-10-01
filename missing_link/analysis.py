@@ -15,7 +15,29 @@ from .qualification import assess_discovery
 
 CLASSIFICATIONS = {"direct", "adapter", "extraction", "rejected", "investigate"}
 REQUEST_STATUSES = {"unresolved", "resolved", "duplicate", "unclear", "automated"}
-ANALYSIS_CONTRACT_VERSION = 7
+ANALYSIS_CONTRACT_VERSION = 13
+
+
+def passive_api_constraint(requirement: dict) -> bool:
+    """Override only an unambiguously preservation-only extracted requirement.
+
+    A compound functional requirement or a larger quotation is not passive just
+    because it also preserves an API. Unrecognized wording remains model review.
+    """
+    value = " ".join(requirement["text"].split()).rstrip(".;:!?")
+    # A bounded API noun phrase, not an arbitrary clause before the word API.
+    name = r"(?!(?:and|or|then|while|but|without|to)\b)[\w'’/-]+"
+    api = rf"(?:{name} ){{0,12}}(?:apis?|interfaces?)"
+    modal = r"(?:(?:must|should|shall) )?"
+    forms = (
+        rf"{modal}(?:keep|leave|preserve|maintain) {api} unchanged",
+        rf"{api} (?:{modal}(?:remain|stay|be) unchanged|(?:is|are) unchanged|unchanged|(?:requires?|needs?) no changes?)",
+        rf"no changes? (?:(?:are )?(?:needed|required|necessary) )?to {api}",
+        rf"(?:(?:must|should|shall) not|do not|don't) (?:change|modify) {api}",
+        rf"without (?:changing|modifying) {api}",
+        rf"(?:it (?:should|must) )?not (?:be )?necessary to (?:make changes to|change|modify) {api}",
+    )
+    return any(re.fullmatch(form, value, re.I) is not None for form in forms)
 
 
 def digest(value: Any) -> str:
@@ -69,6 +91,13 @@ def evidence_catalog(repository: dict, issue: dict) -> dict[str, dict]:
     for index, capability in enumerate(repository.get("capabilities", [])):
         for offset, evidence in enumerate(capability.get("evidence", [])):
             catalog[f"c{index}:{offset}"] = dict(evidence)
+    if repository.get("id"):
+        # Target evidence cannot satisfy an existing SOURCE-code requirement.
+        target = issue.get("target_context", {})
+        for file in target.get("files", []):
+            catalog[f"target:{file['path']}"] = {"target_path": file["path"],
+                "url": file["url"], "quote": file["text"], "kind": "target_reference_context",
+                "authority": "pinned_public_target_source", "reference_truncated": file.get("reference_truncated", False)}
     return catalog
 
 
@@ -211,6 +240,9 @@ def validate_matches(raw_matches: list, repository: dict, issue: dict, request: 
             status = item.get("status", "undetermined")
             if status not in {"satisfied", "incompatible", "undetermined"}:
                 raise ValueError("Unknown requirement verdict.")
+            contribution = item.get("contribution", "not_demonstrated")
+            if contribution not in {"existing_behavior", "scope_compatible", "not_demonstrated"}:
+                raise ValueError("Unknown requirement contribution kind.")
             evidence = []
             for reference in item.get("source_ids", []):
                 entry = resolve_evidence(reference, catalog)
@@ -220,13 +252,21 @@ def validate_matches(raw_matches: list, repository: dict, issue: dict, request: 
             # No citation => no affirmative conclusion; lexical overlap cannot satisfy a requirement.
             if status in {"satisfied", "incompatible"} and not any(e.get("path") for e in evidence):
                 status = "undetermined"
-            checks.append({"requirement_id": rid, "status": status,
+            if status == "satisfied" and contribution == "not_demonstrated":
+                status = "undetermined"
+            if status != "satisfied":
+                contribution = "not_demonstrated"
+            elif passive_api_constraint(requirement):
+                contribution = "scope_compatible"
+            checks.append({"requirement_id": rid, "status": status, "contribution": contribution,
                 "reason": text(item.get("reason", "No grounded assessment supplied.")), "evidence": evidence})
         hard = [item for item in checks if requirements[item["requirement_id"]]["mandatory"]]
         obstacles = texts(raw.get("obstacles", []))
         if any(item["status"] == "incompatible" for item in hard):
             classification = "rejected"
         elif any(item["status"] == "undetermined" for item in hard) or not hard:
+            classification = "investigate"
+        elif not any(item["contribution"] == "existing_behavior" for item in checks):
             classification = "investigate"
         if request["status"] in {"resolved", "duplicate", "automated"}:
             classification = "rejected"
@@ -262,12 +302,14 @@ def validate_matches(raw_matches: list, repository: dict, issue: dict, request: 
             classification = "extraction" if capability.get("standalone") == "no" else "investigate"
             obstacles.append("Separately usable entry point is not established.")
         key = {"repo_id": repository["id"], "revision": repository["revision"],
+            "target_context_fingerprint": issue.get("target_context", {}).get("fingerprint") or digest(issue.get("target_context", {})),
             "analysis_contract_version": ANALYSIS_CONTRACT_VERSION,
             "request": request["fingerprint"], "capability": capability_id, "source": source,
             "capability_fingerprint": capability_fingerprint(capability)}
         matches.append({"id": digest(key)[:32], "repo": repository["full_name"], "repo_id": repository["id"],
             "analysis_contract_version": ANALYSIS_CONTRACT_VERSION,
             "revision": repository["revision"], "request": request, "capability_id": capability_id,
+            "target_context_fingerprint": key["target_context_fingerprint"],
             "capability": capability, "capability_fingerprint": key["capability_fingerprint"],
             "classification": classification, "summary": text(raw.get("summary", "Investigation required.")),
             "discovery_assessment": assess_discovery(repository, issue, request, classification, checks, catalog),
@@ -298,6 +340,11 @@ def extension_groups(matches: list[dict]) -> list[dict]:
         if (match.get("stale") or match.get("superseded") or match["request"]["status"] != "unresolved"
                 or match["request"].get("constraint_review", {}).get("qualification_blockers")):
             continue
+        if not any(check.get("status") == "satisfied" and check.get("contribution") == "existing_behavior"
+                   for check in match["checks"]):
+            # A recurring gap with no reusable source behavior is not an
+            # extension of an established contribution (nor a discovery lead).
+            continue
         discovery = match.get("discovery_assessment", {})
         if (discovery.get("relationship", "external") != "external"
                 or discovery.get("status") in {"reference_only", "not_actionable"}
@@ -323,7 +370,7 @@ def analysis_contract() -> dict:
         "environment": [], "prior_attempts": [], "missing_information": []},
         "matches": [{"capability_id": "ID from repository", "classification": "investigate",
             "summary": "Problem to existing contribution", "checks": [{"requirement_id": "r0", "status": "undetermined",
-                "reason": "Explain operating conditions", "source_ids": ["file:example.py#L1-L8"]}], "obstacles": [],
+                "contribution": "not_demonstrated", "reason": "Explain operating conditions", "source_ids": ["file:example.py#L1-L8"]}], "obstacles": [],
             "bridge": {"kind": "investigation", "summary": "Smallest useful connection",
                 "steps": [], "existing_contribution": "Existing code", "new_logic": "Added code, if any", "assumptions": [], "files": [],
                 "dependencies": [], "runtime": "", "permissions": [], "coupling": "", "input": "", "expected_output": "", "ablation": ""}}]}

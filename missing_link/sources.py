@@ -270,14 +270,22 @@ class PublicGitHub:
         validate_repository(str(repo.get("full_name") or full_name))
         return repo
 
-    def fetch_repository(self, full_name: str, max_files: int = 24) -> dict[str, Any]:
+    def fetch_repository(self, full_name: str, max_files: int = 24, *, reference_paths=None,
+                         reference_blob_paths=None) -> dict[str, Any]:
         max_files = _bounded_int(max_files, 1, 80, "max_files")
         repo = self._public_repo(full_name)
         full_name = str(repo.get("full_name") or full_name)
         branch = str(repo.get("default_branch") or "")
         if not branch or len(branch) > 256:
             raise ValueError("The repository has no analyzable default branch.")
-        commit = self._read(f"repos/{full_name}/commits/{quote(branch, safe='')}")
+        try:
+            commit = self._read(f"repos/{full_name}/commits/{quote(branch, safe='')}")
+        except RuntimeError as exc:
+            # Only missing/empty target commits are candidate-local. Account,
+            # rate-limit, cancellation, budget and transport failures propagate.
+            if reference_paths is not None and re.search(r"\(HTTP (?:404|409)\)", str(exc)):
+                raise ValueError("The target has no available default-branch commit.") from None
+            raise
         revision = str(commit.get("sha") or "")
         tree_sha = str(commit.get("commit", {}).get("tree", {}).get("sha") or "")
         if not SHA_PATTERN.fullmatch(revision) or not SHA_PATTERN.fullmatch(tree_sha):
@@ -316,6 +324,21 @@ class PublicGitHub:
         language_counts: Counter[str] = Counter()
         pending = deque(_select_files(candidates, len(candidates)))
         eligible_by_path = {entry["path"]: entry for entry in candidates}
+        if reference_paths is not None:
+            # Reference review uses root manifests before explicitly cited code.
+            # Selection remains inside the same safety-filtered tree and budget.
+            manifests = sorted((path for path in eligible_by_path if "/" not in path
+                and _kind(path) == "manifest"), key=lambda path: (
+                    PurePosixPath(path).name.casefold() not in {"pyproject.toml", "package.json", "requirements.txt"}, path))
+            cited = [path for path in sorted(eligible_by_path) if any(
+                path == hint or ("/" not in hint and PurePosixPath(path).name == hint)
+                for hint in reference_paths) or (reference_blob_paths and any(
+                    tail.endswith("/" + path) for tail in reference_blob_paths))]
+            cited = [path for path in cited if _kind(path) == "source"]
+            preferred = list(dict.fromkeys(manifests[:2] + cited[:2]))
+            pending = deque(eligible_by_path[path] for path in preferred)
+            # A reference sample is not a general scan: never fill it with
+            # unrelated modules or follow initializer imports instead of citations.
         attempted = set()
         initializer_hints = []
         initializer_hints_complete = True
@@ -359,7 +382,7 @@ class PublicGitHub:
             files.append({"path": path, "sha": entry["sha"], "text": text,
                           "url": f"https://github.com/{full_name}/blob/{revision}/{quote(path, safe='/')}",
                           "kind": _kind(path), "language": language, "bytes": len(raw)})
-            targets = _initializer_imports(path, text, eligible_by_path)
+            targets = _initializer_imports(path, text, eligible_by_path) if reference_paths is None else []
             if len(targets) == MAX_INITIALIZER_HINTS:
                 initializer_hints_complete = False
             for target in targets:
@@ -391,7 +414,8 @@ class PublicGitHub:
                              "files_scanned": len(files), "file_budget": max_files,
                              "bytes_scanned": total_bytes, "language_counts": dict(language_counts),
                              "tree_language_counts": dict(languages_in_tree), "excluded": dict(excluded),
-                             "sampling_policy": "Path heuristic plus static initializer-import hints; bounded docs/source/test mix, not export verification.",
+                             "sampling_policy": ("Root manifests and explicitly cited source paths only; bounded prior-reference sample, not target compatibility."
+                                 if reference_paths is not None else "Path heuristic plus static initializer-import hints; bounded docs/source/test mix, not export verification."),
                              "initializer_import_hints": initializer_hints,
                              "initializer_import_hints_complete": initializer_hints_complete,
                              "initializer_hint_limit": MAX_INITIALIZER_HINTS,
@@ -402,6 +426,38 @@ class PublicGitHub:
                              "complete": not tree.get("truncated") and len(files) == len(candidates) and not excluded,
                              "eligible_sample_complete": not tree.get("truncated") and len(files) == len(candidates),
                              "limitations": limitations}}
+
+    def fetch_reference_context(self, issue: dict) -> dict:
+        """Pinned public target sample for prior-reference hints, not compatibility."""
+        target, _ = parse_issue_url(issue["url"])
+        prose = "\n".join([issue.get("body") or "", *[(comment.get("body") or "") for comment in issue.get("comments", [])]])
+        paths = re.findall(r"(?<![\w./-])([A-Za-z0-9_./-]+\.(?:py|js|mjs|cjs|ts|tsx|jsx))(?![\w/-])", prose)
+        blob_paths = []
+        # A complete GitHub blob URL is not a relative path. Only extract paths
+        # from this target, then constrain them to its public safety-filtered tree.
+        for name, tail in re.findall(r"https://github\.com/([\w.-]+/[\w.-]+)/blob/"
+                                    r"([A-Za-z0-9_./-]+\.(?:py|js|mjs|cjs|ts|tsx|jsx))(?![\w/-])", prose):
+            if name.casefold() == target.casefold() and _safe_path(tail) and "/" in tail:
+                path = tail.split("/", 1)[1]
+                if _safe_path(path) and not SECRET_PATH.search(path):
+                    paths.append(path)
+                    blob_paths.append(tail)
+        paths = list(dict.fromkeys(path for path in paths
+            if _safe_path(path) and not SECRET_PATH.search(path)))[:20]
+        blob_paths = list(dict.fromkeys(blob_paths))[:20]
+        context = self.fetch_repository(target, max_files=4, reference_paths=paths,
+                                        reference_blob_paths=blob_paths)
+        # Target files are separate from the source repository and its exports.
+        # Keep only a bounded prefix for reference review, preserving line numbers.
+        for file in context["files"]:
+            original = file["text"]
+            file["text"] = original[:32768]
+            file["reference_truncated"] = len(original) > len(file["text"])
+        context["reference_only"] = True
+        context["fingerprint"] = _fingerprint({"id": context["id"], "revision": context["revision"],
+            "files": [{key: file.get(key) for key in ("path", "sha", "text", "reference_truncated")}
+                      for file in context["files"]]})
+        return context
 
     def _pages(self, endpoint: str, maximum: int) -> tuple[list[dict[str, Any]], bool]:
         items: list[dict[str, Any]] = []

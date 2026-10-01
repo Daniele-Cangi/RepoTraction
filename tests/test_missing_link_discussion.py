@@ -13,7 +13,7 @@ class DiscussionReviewTests(unittest.TestCase):
     def positive(self, demand, raw=None):
         request = validate_request(raw or request_raw(), demand)
         match = raw_match()
-        match["checks"] = [{"requirement_id": r["id"], "status": "satisfied", "reason": "Fixture citation only",
+        match["checks"] = [{"requirement_id": r["id"], "status": "satisfied", "contribution": "existing_behavior", "reason": "Fixture citation only",
                             "source_ids": ["c0:0"]} for r in request["requirements"]]
         return validate_matches([match], repository(), demand, request, "model")[0]
 

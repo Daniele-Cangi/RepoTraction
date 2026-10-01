@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import ipaddress
+import hashlib
 import copy
 import json
 import math
@@ -37,6 +38,16 @@ class ResponseError(ValueError):
 
 class CandidateValidationError(ValueError):
     """Candidate-local invalid analysis, not transport, account or budget failure."""
+
+    def __init__(self, message, *, quote_failure=None):
+        super().__init__(message)
+        self.diagnostics = None
+        if quote_failure is not None:
+            # Store only computed identifiers, lengths and digest; not raw text.
+            index, quote, ref, known = quote_failure
+            self.diagnostics = {"kind": "non_contiguous_quote", "requirement_id": f"r{index}",
+                "source_id": ref if known else None, "source_available": known,
+                "quote_characters": len(quote), "quote_sha256": hashlib.sha256(quote.encode("utf-8")).hexdigest()}
 
 
 class Provider:
@@ -231,6 +242,7 @@ class Provider:
             "For each requirement copy a SHORT CONTIGUOUS substring of that source's quote field, preserving Markdown, "
             "code fences, math escaping, Unicode punctuation and original wording. Do not concatenate separated clauses, "
             "add ellipses or rewrite the quotation to match your interpretation. "
+            "Do not add backticks, quotation marks or Markdown delimiters that are absent from the original substring. "
             "For example, from 'structural DTOs (DTOs), decoupled' copy a shorter exact span such as 'structural DTOs', "
             "not 'structural DTOs, decoupled'; from '**Cold-storage test:** yes please' do not quote 'Cold-storage test: yes please'. "
             "Prefer a short exact substring over reproducing an entire sentence incorrectly. "
@@ -249,11 +261,14 @@ class Provider:
                 if ref not in data["sources"] or quoted_span(requirement["quote"], data["sources"][ref]["quote"]) is None:
                     # Identify the failed requirement, never echo untrusted text
                     # or provider response bodies into logs/public job errors.
-                    raise ValueError(f"AI requirement r{index} quote is not a contiguous span of supplied context. Copy unchanged source text; no automatic retry.")
+                    raise CandidateValidationError(f"AI requirement r{index} quote is not a contiguous span of supplied context. Copy unchanged source text; no automatic retry.",
+                        quote_failure=(index, requirement["quote"], ref, ref in data["sources"]))
             if any(ref not in data["sources"] for ref in raw["status_source_ids"]):
                 raise ValueError("AI request disposition cites unavailable context.")
             scoped_issue = dict(issue, context_complete=report["discussion_complete"])
             request = validate_request(raw, scoped_issue)
+        except CandidateValidationError:
+            raise
         except ValueError as exc:
             raise CandidateValidationError(str(exc)) from None
         request["analysis_context"] = report
@@ -322,6 +337,10 @@ class Provider:
             "Assess each requirement independently: a missing project-specific schema, CLI integration or adapter is new work, "
             "not automatically a runtime conflict or proof that the existing mechanism has no partial value. "
             "Mark only actually supported existing behavior satisfied; never credit proposed new logic as already implemented. "
+            "Each check must also distinguish contribution: existing_behavior for reusable implemented behavior, "
+            "scope_compatible for a compatible boundary/preservation constraint (for example leaving capture APIs unchanged), "
+            "or not_demonstrated for unsupported/unknown/conflicting behavior. Passive scope compatibility is not a useful "
+            "existing contribution. A candidate needs at least one source-grounded existing_behavior check to be a useful fit. "
             "Use undetermined for missing evidence and explain the remaining glue separately. Retain incompatible for a demonstrated "
             "violation or an explicitly required deliverable the compared interface does not supply. "
             "Technical compatibility is not a novel discovery: same-project issues, existing source references and reference notes "

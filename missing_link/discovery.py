@@ -7,6 +7,7 @@ from .sources import parse_issue_url, source_role
 
 
 SELECTION_POLICY = "external/open first; balance projects and queries; title overlap then upstream rank"
+SCREENING_POLICY = "bounded filename/code-dump and exam-manual hints; explicit issue/query bypass; no replacement or compatibility verdict"
 _GENERIC = {"function", "functions", "return", "returns", "class", "unknown", "method", "methods",
             "the", "and", "with", "from", "for", "this", "that", "support", "supports",
             "constructor", "declaration", "declared", "candidate", "partial", "scan"}
@@ -15,8 +16,45 @@ _GENERIC_SINGLETON = {"main", "run", "next", "result", "helper", "helpers", "uti
 
 
 def words(value):
+    # Language identifiers are whole terms, unlike ordinary camelCase symbols.
+    value = re.sub(r"\b(?:java\s*script|type\s*script)\b", lambda match: re.sub(r"\s+", "", match[0]).lower(), value, flags=re.I)
     value = re.sub(r"([a-z])([A-Z])", r"\1 \2", value)
     return re.findall(r"[a-z0-9]+", value.casefold())
+
+
+def screen_candidate(issue):
+    """High-precision retrieval hints, not proof of absent demand or a rejection.
+
+    Any discussion or recognizable request prose keeps the candidate eligible.
+    These narrowly structural hints only apply to automatic exploration.
+    """
+    body, title = issue.get("body") or "", issue.get("title") or ""
+    hint = {"skip": False, "code": "not_screened_out", "policy": SCREENING_POLICY,
+            "discussion_complete": bool(issue.get("context_complete")), "proves_absence_of_demand": False}
+    if any((comment.get("body") or "").strip() for comment in issue.get("comments", [])):
+        return hint
+    # Keep even request-like prose inside code/comments: avoiding a false skip
+    # matters more than filtering every dump, and no Markdown rewrite is needed.
+    prose = body
+    # Accept common PHP line/block comment prefixes, including inline comments.
+    # This is only a retrieval hint; original body/quotes are never rewritten.
+    prefix = r"(?:^[ \t]*(?:#+[ \t]*)?|//+[ \t]*|/\*+[ \t]*|^[ \t]*\*+[ \t]*)"
+    request_prose = re.search(r"(?im)" + prefix + r"(?:please\s+(?:fix|add|support|change|help)|"
+        r"(?:could|can|would)\s+(?:we|you)\b|i\s+(?:need|want|would like)\b|"
+        r"(?:bug|feature)\s+request\b|expected\s+(?:behavior|result)\b|steps to reproduce\b)", prose)
+    if request_prose:
+        return hint
+    code_dump = (re.fullmatch(r"[\w.-]+\.php", title.strip(), re.I)
+                 and body.lstrip().startswith("<?php") and len(body) >= 2000)
+    exam_manual = (re.fullmatch(r"(?:cloud\s+)?lab\s+(?:exam\s+)?preparation\s+manual", title.strip(), re.I)
+                   and re.search(r"(?im)^#\s+[^\n]*exam preparation manual\b", body[:512])
+                   and re.search(r"\b(?:problem sheets|syllabus)\b", body[:1024], re.I))
+    if code_dump or exam_manual:
+        hint.update(skip=True, code="source_file_dump_hint" if code_dump else "exam_manual_hint",
+            reason="Automatic retrieval found a source-file-like body, not a separate request in acquired text."
+                   if code_dump else "Automatic retrieval found an exam preparation document, not independently specified adoption demand.")
+        hint["reason"] += " This bounded hint is not a compatibility rejection; select the issue explicitly to inspect it."
+    return hint
 
 
 def project_words(repository):

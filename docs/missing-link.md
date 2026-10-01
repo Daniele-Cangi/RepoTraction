@@ -50,6 +50,15 @@ candidate URLs, query attribution, upstream ranks and selection order are saved
 in `job.result.search`. Resuming keeps the selected checkpoint batch unchanged.
 Empty results and excluded candidates do not demonstrate absence of demand.
 
+After reading each selected discussion, fully automatic discovery applies narrow
+filename/code-dump and exam-preparation-manual hints. Skipped candidates remain
+in `job.result.candidate_skips`, with policy, reason, context completeness and
+`proves_absence_of_demand=false`. They receive no request/match AI calls and are
+**not compatibility rejections**. The selected sample is not refilled or reranked.
+An explicit issue URL or custom query bypasses this screening. Request-like prose
+or subsequent discussion keeps a candidate eligible; this is not a general demand
+classifier. Language names such as JavaScript/TypeScript remain whole search terms.
+
 Python source acquisition follows top-level imports in already acquired package
 initializers to eligible local modules (including `src` layouts), within the same
 file/read/byte limits. Dotted imports prioritize eligible intermediate package
@@ -68,6 +77,67 @@ request can retain supported requirement IDs alongside conflicts and unknowns;
 **partial support does not satisfy the whole request or unblock a mandatory
 conflict**. It is not follow-up-ready. Proposed adapter code is new work, not
 evidence that the selected interface already implements that behavior.
+
+Each check also records `contribution`: `existing_behavior`, `scope_compatible`
+or `not_demonstrated`. A compatible boundary (for example keeping capture APIs
+unchanged) can satisfy a constraint but is not a reusable behavior. Qualification
+counts it separately in `scope_compatible_requirement_ids`, not in supported
+requirements. A scope-only candidate cannot qualify as a useful contribution.
+Recurring gaps without any demonstrated reusable behavior cannot form extension
+groups either; repeated passive scope compatibility is not an extension lead.
+Old imported checks without this field default to unknown, not affirmative support.
+The deterministic API-preservation override only recognizes whole, preservation-
+only extracted requirements. Compound requirements such as "format bytes without
+changing the public API" retain source-supported functional behavior. A passive
+clause in a larger quotation cannot relabel a functional extracted requirement.
+
+Independent demand extraction does not receive candidate source or target files.
+After extraction, prior-reference review reads a pinned public target sample:
+up to two root manifests and two discussion-cited Python/JS/TS paths, at most
+four file attempts through the same safety filters. Target excerpts are capped at
+32,768 characters per file; truncation is recorded. `target:PATH` evidence is
+reference-only and cannot satisfy a source implementation check. Literal dependency
+fields, static Python imports and package/import aliases provide review hints,
+not adoption or endorsement evidence. Different discussions do not reuse each
+other's cited-file sample. Revision, fingerprints, coverage and acquired files
+are saved with matches and included in handoffs. No target code is executed.
+Only numeric `qN`/`tN` IDs count as discussion/timeline. Reference-only target
+files are not head/tail-shortened as comments and cannot make an otherwise complete
+discussion appear incomplete. Actual discussion and selected source definitions
+are supplied before target references; omitted target context is reported separately.
+Paths in same-target GitHub blob links are sampled from the target's current
+pinned default-branch tree, not automatically from the linked historical revision.
+
+Missing target context and malformed/truncated acquired manifests block follow-up
+qualification. An absence of references in this bounded sample never proves
+novelty. Python 3.11+ uses the built-in [TOML parser](https://docs.python.org/3/library/tomllib.html).
+On Python 3.10, [Tomli](https://github.com/hukkin/tomli) is an optional backport:
+`python -m pip install tomli`. It is never installed implicitly; without it, TOML
+review is explicitly incomplete, not negative evidence. Core analytics do not
+require this optional dependency.
+
+Python distribution dependency names treat runs of hyphens, dots and underscores
+as equivalent when checking declarations and locating their original evidence.
+For example, `zope-interface` also matches `zope_interface`; npm dependency names
+retain exact separator spellings. These remain prior-reference hints, not proof
+of adoption.
+
+Requirements include/constraint directives (`-r`, `-c`, `--requirement`,
+`--constraint`) mark dependency review incomplete: included files are not acquired
+automatically. Poetry group dependency tables are inspected, including optional
+groups; malformed group layouts block complete review. Same-target blob URLs
+with slash-containing refs are matched against safe path suffixes in the current
+pinned tree. Ambiguous suffixes may sample multiple files within the existing
+two-cited-file limit; this is not historical ref resolution or complete coverage.
+
+Poetry dependency values receive bounded structural validation in the main table
+and groups, including scalar types, supported table fields and table alternatives.
+Malformed or unsupported values block review instead of generating references.
+This does not validate version expressions or prove installation. Supported shapes
+follow the [Poetry dependency specification](https://python-poetry.org/docs/dependency-specification/).
+
+Contract 13 marks earlier results as historical, preserving their original
+interpretations and exports. There is no automatic migration or paid reevaluation.
 
 An empty body or a body containing only example/reference links cannot establish
 independent adoption demand from its title. Markdown link/image labels and HTML
