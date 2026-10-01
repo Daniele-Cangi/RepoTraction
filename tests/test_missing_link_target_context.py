@@ -18,15 +18,55 @@ def target_file(path, value):
 
 
 class ReferenceContextTests(unittest.TestCase):
+    def test_blob_links_with_slash_branches_match_tree_path_suffixes(self):
+        for branch in ("feature/foo", "release/2026/stable", "main"):
+            with self.subTest(branch=branch):
+                fixture = GitHubFixture()
+                fixture.add("pyproject.toml", '[project]\nname="target"\n')
+                fixture.add("src/client.py", "import tenacity\n")
+                fixture.add("foreign.py", "import tenacity\n")
+                fixture.add(".env/secret.py", "should not read")
+                fixture.add("linked.py", "should not read", mode="120000")
+                context = PublicGitHub(fixture.read).fetch_reference_context({
+                    "url": "https://github.com/sample/project/issues/8", "body":
+                    f"https://github.com/sample/project/blob/{branch}/src/client.py#L1 "
+                    f"https://github.com/other/project/blob/{branch}/foreign.py "
+                    f"https://github.com/sample/project/blob/{branch}/.env/secret.py "
+                    f"https://github.com/sample/project/blob/{branch}/linked.py"})
+                self.assertEqual({f["path"] for f in context["files"]}, {"pyproject.toml", "src/client.py"})
+                self.assertEqual(context["revision"], REVISION)
+                self.assertLessEqual(len([call for call in fixture.calls if "/git/blobs/" in call[0]]), 4)
+
+    def test_ambiguous_blob_suffixes_stay_inside_safe_bounded_tree(self):
+        fixture = GitHubFixture()
+        fixture.add("client.py", "import tenacity\n")
+        fixture.add("foo/client.py", "import tenacity\n")
+        fixture.add("other.py", "should not read")
+        context = PublicGitHub(fixture.read).fetch_reference_context({
+            "url": "https://github.com/sample/project/issues/8",
+            "body": "https://github.com/sample/project/blob/feature/foo/client.py"})
+        self.assertEqual({f["path"] for f in context["files"]}, {"client.py", "foo/client.py"})
+        self.assertLessEqual(len(context["files"]), 4)
+
     def test_requirements_includes_and_constraints_block_followup(self):
+        def supported_assessment(value):
+            demand = issue()
+            demand.update(body="I need plain text shortened without splitting words.", comments=[])
+            demand["target_context"] = {"public": True, "revision": REVISION,
+                "files": [target_file("requirements.txt", value)]}
+            raw_request, match = request_raw(), raw_match()
+            raw_request["requirements"] = raw_request["requirements"][:1]
+            match["checks"] = match["checks"][:1]
+            return validate_matches([match], repository(), demand,
+                validate_request(raw_request, demand), "model")[0]["discovery_assessment"]
+
+        self.assertEqual(supported_assessment("other>=1\n")["status"], "external_lead")
         for directive in ("-r requirements/base.txt", "-rbase.txt", "--requirement=base.txt",
                           "--requirement base.txt", "-c constraints.txt", "-cconstraints.txt",
                           "--constraint=constraints.txt", "--constraint constraints.txt"):
             with self.subTest(directive=directive):
-                demand = issue()
-                demand["target_context"] = {"public": True, "revision": REVISION,
-                    "files": [target_file("requirements.txt", directive + "\n")]}
-                assessment = self.evaluate(repository(), demand)["discovery_assessment"]
+                assessment = supported_assessment(directive + "\n")
+                self.assertEqual(assessment["status"], "needs_review")
                 self.assertFalse(assessment["eligible_for_followup"])
                 self.assertTrue(any("dependency review is incomplete" in blocker
                                     for blocker in assessment["manifest_review_blockers"]))

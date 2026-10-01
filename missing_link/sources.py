@@ -270,7 +270,8 @@ class PublicGitHub:
         validate_repository(str(repo.get("full_name") or full_name))
         return repo
 
-    def fetch_repository(self, full_name: str, max_files: int = 24, *, reference_paths=None) -> dict[str, Any]:
+    def fetch_repository(self, full_name: str, max_files: int = 24, *, reference_paths=None,
+                         reference_blob_paths=None) -> dict[str, Any]:
         max_files = _bounded_int(max_files, 1, 80, "max_files")
         repo = self._public_repo(full_name)
         full_name = str(repo.get("full_name") or full_name)
@@ -331,7 +332,9 @@ class PublicGitHub:
                     PurePosixPath(path).name.casefold() not in {"pyproject.toml", "package.json", "requirements.txt"}, path))
             cited = [path for path in sorted(eligible_by_path) if any(
                 path == hint or ("/" not in hint and PurePosixPath(path).name == hint)
-                for hint in reference_paths) and _kind(path) == "source"]
+                for hint in reference_paths) or (reference_blob_paths and any(
+                    tail.endswith("/" + path) for tail in reference_blob_paths))]
+            cited = [path for path in cited if _kind(path) == "source"]
             preferred = list(dict.fromkeys(manifests[:2] + cited[:2]))
             pending = deque(eligible_by_path[path] for path in preferred)
             # A reference sample is not a general scan: never fill it with
@@ -429,15 +432,21 @@ class PublicGitHub:
         target, _ = parse_issue_url(issue["url"])
         prose = "\n".join([issue.get("body") or "", *[(comment.get("body") or "") for comment in issue.get("comments", [])]])
         paths = re.findall(r"(?<![\w./-])([A-Za-z0-9_./-]+\.(?:py|js|mjs|cjs|ts|tsx|jsx))(?![\w/-])", prose)
+        blob_paths = []
         # A complete GitHub blob URL is not a relative path. Only extract paths
         # from this target, then constrain them to its public safety-filtered tree.
-        for name, path in re.findall(r"https://github\.com/([\w.-]+/[\w.-]+)/blob/[^/\s]+/"
+        for name, tail in re.findall(r"https://github\.com/([\w.-]+/[\w.-]+)/blob/"
                                     r"([A-Za-z0-9_./-]+\.(?:py|js|mjs|cjs|ts|tsx|jsx))(?![\w/-])", prose):
-            if name.casefold() == target.casefold():
-                paths.append(path)
+            if name.casefold() == target.casefold() and _safe_path(tail) and "/" in tail:
+                path = tail.split("/", 1)[1]
+                if _safe_path(path) and not SECRET_PATH.search(path):
+                    paths.append(path)
+                    blob_paths.append(tail)
         paths = list(dict.fromkeys(path for path in paths
             if _safe_path(path) and not SECRET_PATH.search(path)))[:20]
-        context = self.fetch_repository(target, max_files=4, reference_paths=paths)
+        blob_paths = list(dict.fromkeys(blob_paths))[:20]
+        context = self.fetch_repository(target, max_files=4, reference_paths=paths,
+                                        reference_blob_paths=blob_paths)
         # Target files are separate from the source repository and its exports.
         # Keep only a bounded prefix for reference review, preserving line numbers.
         for file in context["files"]:
