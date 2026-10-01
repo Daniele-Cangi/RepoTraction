@@ -1,12 +1,16 @@
 """Characterize registry transactions using owned databases and fake GitHub replies."""
 import sqlite3
+import subprocess
+import sys
 import tempfile
 import unittest
-from contextlib import closing
+from contextlib import closing, nullcontext
 from pathlib import Path
 from unittest import mock
 
 import app
+from storage import registry
+from storage.migrations import migrate_database
 
 
 OLD = "octocat/old"
@@ -304,6 +308,98 @@ class RegistryCharacterizationTests(unittest.TestCase):
             app.reconcile_repository_registry([{"id": 2, "full_name": NEW}], LATE)
             self.assertEqual(app.get_active_repository_names(), {NEW})
         self.assertEqual(app.get_active_repository_names(), {OLD})
+
+
+class RegistryModuleTests(unittest.TestCase):
+    def setUp(self):
+        self.connection = sqlite3.connect(":memory:")
+        self.addCleanup(self.connection.close)
+        migrate_database(self.connection)
+        self.connection.commit()
+
+    def test_current_registry_uses_supplied_data_without_mutating_inputs(self):
+        names = {1: NEW}
+        created = {1: EARLY}
+        folded = {NEW}
+        result = registry.reconcile_current_repositories(self.connection, names, created, folded, LATE)
+        self.assertEqual(result, (set(), set()))
+        self.assertEqual((names, created, folded), ({1: NEW}, {1: EARLY}, {NEW}))
+        self.assertTrue(self.connection.in_transaction)
+        self.connection.rollback()
+        self.assertIsNone(registry.read_active_repository_rows(self.connection))
+        self.assertEqual(self.connection.execute("SELECT COUNT(*) FROM repository_registry").fetchone()[0], 0)
+
+    def test_current_registry_returns_existing_historical_names_and_folded_aliases(self):
+        self.connection.execute("INSERT INTO traffic_snapshots (repo, collected_at) VALUES (?, ?)", (OLD, EARLY))
+        self.connection.execute("INSERT INTO repository_aliases VALUES (?, NULL, ?, 'inactive', ?)",
+                                ("Octocat/Alias", OLD, EARLY))
+        self.assertEqual(registry.reconcile_current_repositories(self.connection, {}, {}, set(), LATE),
+                         ({OLD}, {"octocat/alias"}))
+
+    def test_active_rows_respect_caller_row_factory_and_empty_initialization(self):
+        self.assertIsNone(registry.read_active_repository_rows(self.connection))
+        registry.reconcile_current_repositories(self.connection, {}, {}, set(), EARLY)
+        self.assertEqual(registry.read_active_repository_rows(self.connection), [])
+        registry.reconcile_current_repositories(self.connection, {1: NEW}, {}, {NEW}, LATE)
+        self.connection.row_factory = None
+        self.assertEqual(registry.read_active_repository_rows(self.connection), [(NEW,)])
+        self.connection.row_factory = sqlite3.Row
+        self.assertEqual(registry.read_active_repository_rows(self.connection)[0]["full_name"], NEW)
+
+    def test_alias_writer_does_not_own_connection_lifecycle(self):
+        registry.save_repository_alias(self.connection, OLD, 0, OLD, "inactive", LATE)
+        self.assertTrue(self.connection.in_transaction)
+        self.assertEqual(self.connection.execute("SELECT repo_id FROM repository_aliases").fetchone(), (None,))
+        self.connection.rollback()
+        self.assertEqual(self.connection.execute("SELECT COUNT(*) FROM repository_aliases").fetchone(), (0,))
+
+    def test_alias_writer_uses_explicit_merge_delegate_only_for_rename(self):
+        merge = mock.Mock()
+        registry.save_repository_alias(self.connection, OLD, 1, NEW, "renamed", LATE, merge_history=merge)
+        merge.assert_called_once_with(self.connection, OLD, NEW)
+        merge.reset_mock()
+        registry.save_repository_alias(self.connection, OLD, 1, NEW, "inactive", LATE, merge_history=merge)
+        merge.assert_not_called()
+
+    def test_legacy_archiver_uses_explicit_history_delegate(self):
+        self.connection.execute("INSERT INTO repository_aliases VALUES (?, NULL, ?, 'inactive', ?)", (OLD, OLD, EARLY))
+        archive = mock.Mock()
+        registry.archive_reused_legacy_aliases(self.connection, {OLD}, LATE, archive_history=archive)
+        archive.assert_called_once_with(self.connection, OLD, f"{OLD} (archived legacy history)")
+
+    def test_entry_point_reexports_history_functions_and_passes_patch_hooks(self):
+        self.assertIs(app.merge_repository_history, registry.merge_repository_history)
+        self.assertIs(app.archive_repository_history, registry.archive_repository_history)
+        with mock.patch.object(app, "archive_repository_history") as archive:
+            self.connection.execute("INSERT INTO repository_aliases VALUES (?, NULL, ?, 'inactive', ?)", (OLD, OLD, EARLY))
+            app.archive_reused_legacy_aliases(self.connection, {OLD}, LATE)
+        archive.assert_called_once_with(self.connection, OLD, f"{OLD} (archived legacy history)")
+
+    def test_entry_point_passes_connection_and_history_hooks_to_storage(self):
+        with mock.patch.object(app, "database_connection", return_value=nullcontext(self.connection)), \
+             mock.patch.object(app, "reconcile_current_repositories", return_value=(set(), set())) as reconcile:
+            app.reconcile_repository_registry([{"id": 1, "full_name": NEW, "created_at": EARLY}], LATE)
+        reconcile.assert_called_once_with(
+            self.connection, {1: NEW}, {1: EARLY}, {NEW}, LATE,
+            merge_history=app.merge_repository_history,
+            archive_history=app.archive_repository_history,
+            archive_legacy_aliases=app.archive_reused_legacy_aliases,
+        )
+    def test_fresh_import_performs_no_io_and_loads_no_entry_point_or_provider(self):
+        code = """
+import pathlib, sqlite3, sys, threading
+from unittest import mock
+sys.path.insert(0, sys.argv[1])
+with mock.patch.object(sqlite3, 'connect', side_effect=AssertionError('database opened')), \
+     mock.patch.object(pathlib.Path, 'mkdir', side_effect=AssertionError('directory created')), \
+     mock.patch.object(threading.Thread, 'start', side_effect=AssertionError('thread started')):
+    from storage import registry
+assert not any(name == 'app' or name.startswith('missing_link') for name in sys.modules)
+assert pathlib.Path(registry.__file__).resolve().parent == pathlib.Path(sys.argv[1]).resolve() / 'storage'
+"""
+        result = subprocess.run([sys.executable, "-I", "-c", code, str(Path(app.__file__).parent)],
+                                capture_output=True, text=True, check=False)
+        self.assertEqual(result.returncode, 0, result.stderr)
 
 
 if __name__ == "__main__":

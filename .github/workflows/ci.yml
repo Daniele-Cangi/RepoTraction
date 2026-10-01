@@ -57,11 +57,16 @@ jobs:
           import sys
           from pathlib import Path
           sys.path.insert(0, sys.argv[1])
-          from storage import database, migrations
-          for module in (database, migrations):
+          from storage import database, migrations, registry
+          for module in (database, migrations, registry):
               assert Path(module.__file__).resolve().parent == Path(sys.argv[1]).resolve() / 'storage'
           with database.database_connection(':memory:') as connection:
               migrations.migrate_database(connection)
               assert connection.execute('SELECT initialized FROM repository_registry_state').fetchone() == (0,)
+              assert registry.read_active_repository_rows(connection) is None
+              registry.reconcile_current_repositories(connection, {1: 'octocat/project'}, {}, {'octocat/project'}, '2026-08-20')
+              assert registry.read_active_repository_rows(connection)[0][0] == 'octocat/project'
+              registry.save_repository_alias(connection, 'octocat/old', 1, 'octocat/project', 'renamed', '2026-08-20')
+              assert connection.execute('SELECT status FROM repository_aliases').fetchone()[0] == 'renamed'
           '@
           python -I -c $storageCheck $testDestination
