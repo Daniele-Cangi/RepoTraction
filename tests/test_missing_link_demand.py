@@ -151,6 +151,102 @@ class DemandSpanTests(unittest.TestCase):
 
 
 class AtomicDemandTests(unittest.TestCase):
+    def test_identical_author_repetitions_share_one_atomic_review_with_all_sources(self):
+        declaration = "strip_ansi?: boolean;"
+        demand = dict(issue(), author="requester", body=declaration, comments=[
+            {"url": issue()["url"] + f"#issuecomment-{index}", "body": declaration, "author": "requester"}
+            for index in (8, 9)])
+        provider = Provider({"REPOTRACTION_AI_URL": "http://localhost/v1", "REPOTRACTION_AI_MODEL": "fixture"})
+        for reference in ("q0", "q1", "q2"):
+            with self.subTest(reference=reference):
+                raw = dict(request_raw(), requirements=[dict(request_raw()["requirements"][0],
+                    text="strip_ansi behavior", source_id=reference, quote=declaration)])
+                with mock.patch.object(provider, "complete", side_effect=request_completion(raw)) as complete:
+                    request = provider.interpret_request(demand, mock.Mock())
+                complete.assert_called_once()
+                review = request["constraint_review"]["optional_field_review"]
+                self.assertEqual(len(review["items"]), 1)
+                self.assertEqual(review["items"][0]["source_ids"], ["q0", "q1", "q2"])
+                self.assertEqual(review["items"][0]["represented_by"], ["r0"])
+                self.assertFalse(request["constraint_review"]["qualification_blockers"])
+                for hint in complete.call_args.args[1]["potential_subrequirements"]["items"]:
+                    for ref in hint["source_ids"]:
+                        self.assertIn(hint["quote"], complete.call_args.args[1]["sources"][ref]["quote"])
+                match = raw_match()
+                match["checks"] = [dict(requirement_id="r0", status="satisfied", contribution="existing_behavior",
+                    reason="Offline citation fixture, not a real compatibility judgment.", source_ids=["c0:0"])]
+                self.assertEqual(validate_matches([match], repository(), demand, request, "model")[0]["classification"], "direct")
+
+    def test_duplicate_fields_keep_changed_text_and_distinct_authority_separate(self):
+        declaration = "strip_ansi?: boolean;"
+        variants = ({"author": "other", "author_association": "MEMBER"},
+                    {"author": "requester", "author_type": "Bot"},
+                    {"author": "requester", "body": "[automation]\n" + declaration},
+                    {"author": "requester", "body": "strip_ansi?: string;"},
+                    {"author": "requester", "body": "Use strip_ansi?: boolean; for defaults."},
+                    {"author": None, "author_association": "NONE"})
+        for variant in variants:
+            with self.subTest(variant=variant):
+                comment = {"url": issue()["url"] + "#issuecomment-8", "body": declaration, **variant}
+                demand = dict(issue(), author="requester", body=declaration, comments=[comment])
+                raw = dict(request_raw(), requirements=[dict(request_raw()["requirements"][0],
+                    text="strip_ansi behavior", quote=declaration)])
+                review = validate_request(raw, demand)["constraint_review"]["optional_field_review"]
+                self.assertEqual(len(review["items"]), 2)
+                self.assertEqual([item["source_ids"] for item in review["items"]], [["q0"], ["q1"]])
+                self.assertFalse(review["items"][0]["needs_review"])
+                self.assertTrue(review["items"][1]["needs_review"])
+
+    def test_member_repetitions_deduplicate_only_for_the_same_identified_member(self):
+        declaration = "strip_ansi?: boolean;"
+        demand = dict(issue(), author="requester", body="Need parser options.", comments=[
+            {"url": issue()["url"] + f"#issuecomment-{index}", "body": declaration,
+             "author": "maintainer", "author_association": "MEMBER"} for index in (8, 9)])
+        raw = dict(request_raw(), requirements=[dict(request_raw()["requirements"][0],
+            text="strip_ansi behavior", quote=declaration, source_id="q2")])
+        review = validate_request(raw, demand)["constraint_review"]["optional_field_review"]
+        self.assertEqual(len(review["items"]), 1)
+        self.assertEqual(review["items"][0]["source_ids"], ["q1", "q2"])
+        self.assertFalse(review["items"][0]["needs_review"])
+        demand["comments"][0]["author"] = "another-maintainer"
+        review = validate_request(raw, demand)["constraint_review"]["optional_field_review"]
+        self.assertEqual(len(review["items"]), 2)
+        self.assertTrue(review["items"][0]["needs_review"])
+
+    def test_repetition_does_not_clear_additional_constraints_or_implicit_extraction(self):
+        declaration = "strip_ansi?: boolean;"
+        demand = dict(issue(), author="requester", body=declaration, comments=[{
+            "url": issue()["url"] + "#issuecomment-8", "author": "requester",
+            "body": declaration + "\nMust not use Node.js."}])
+        raw = dict(request_raw(), requirements=[dict(request_raw()["requirements"][0],
+            text="strip_ansi behavior", quote=declaration)])
+        request = validate_request(raw, demand)
+        self.assertEqual(len(request["constraint_review"]["optional_field_review"]["items"]), 1)
+        self.assertFalse(request["constraint_review"]["optional_field_review"]["items"][0]["needs_review"])
+        self.assertTrue(request["constraint_review"]["qualification_blockers"])
+        raw["requirements"][0]["explicit"] = False
+        self.assertTrue(validate_request(raw, demand)["constraint_review"]["optional_field_review"]["items"][0]["needs_review"])
+
+    def test_repeated_field_provenance_stays_bounded_and_overflow_is_explicit(self):
+        declaration = "strip_ansi?: boolean;"
+        demand = dict(issue(), author="requester", body=declaration, comments=[
+            {"url": issue()["url"] + f"#issuecomment-{index}", "body": declaration, "author": "requester"}
+            for index in range(31)])
+        raw = dict(request_raw(), requirements=[dict(request_raw()["requirements"][0],
+            text="strip_ansi behavior", quote=declaration)])
+        request = validate_request(raw, demand)
+        review = request["constraint_review"]["optional_field_review"]
+        self.assertEqual(len(review["items"]), 1)
+        self.assertEqual(len(review["items"][0]["source_ids"]), 30)
+        self.assertEqual(review["omitted_fields"], 2)
+        self.assertFalse(review["complete"])
+        self.assertTrue(request["constraint_review"]["qualification_blockers"])
+        demand.update(body=(declaration + "\n") * 100, comments=[], author=None)
+        review = validate_request(raw, demand)["constraint_review"]["optional_field_review"]
+        self.assertEqual(len(review["items"]), 1)
+        self.assertEqual(review["items"][0]["source_ids"], ["q0"])
+        self.assertTrue(review["complete"])
+
     def test_support_text_cannot_prove_behavior_even_with_code_elsewhere_in_prompt(self):
         for path in ("README.md", "index.d.ts", "benchmarks/example.ts", "fixtures/sample.ts",
                      "test.js", "test.py", "spec.ts", "tests.cjs", "specs.tsx"):

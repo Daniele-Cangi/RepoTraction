@@ -450,6 +450,11 @@ discovery still needs established search terms or an explicit operator query.
   punctuation and quotes from omitted context are not accepted.
   Shared citation/constraint sentence spans retain `e.g.` and `i.e.` clauses before
   capitalized examples without rewriting source text or offsets.
+  Identical optional-field lines from the same identified, authoritative author
+  share one review item with their retained source IDs; one atomic requirement
+  citing any of those sources can represent it. Changed text, different authors
+  and uncertain authority stay separate. The 30-reference bound and explicit
+  omission reporting still apply; repetition does not imply optional adoption.
 - A bounded, non-exhaustive English constraint-hint scan examines acquired
   discussion before prompt shortening. Selected middle excerpts preserve likely
   dependency/runtime prohibitions; omissions and truncation remain explicit.

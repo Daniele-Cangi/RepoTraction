@@ -72,19 +72,42 @@ def optional_field_hints(catalog, requirements=()):
     A TypeScript optional argument does not prove that implementing the requested
     feature is optional. Only the independent interpretation assigns mandatory.
     The bounded syntactic scan can flag omissions, never add requirements/support.
+    Identical lines by the same trusted author share one item with all retained
+    source IDs; changed text and authority-uncertain sources remain independent.
     """
-    items, omitted = [], 0
+    items, groups, omitted, references = [], {}, 0, 0
     for ref, source in catalog.items():
         if not re.fullmatch(r"q\d+", ref):
             continue
         for line in source["quote"].splitlines():
             names = re.findall(r"\b([A-Za-z_]\w{0,79})\?\s*:", line)
             for name in dict.fromkeys(names):
-                if len(items) == 30 or len(line) > 1600:
+                if len(line) > 1600:
                     omitted += 1
                     continue
-                items.append({"field": name, "source_id": ref, "quote": line.strip(),
-                              "authority": source.get("authority", "not_established")})
+                quote, authority = line.strip(), source.get("authority", "not_established")
+                author = source.get("author")
+                # Only identical declarations by the same identified, trusted
+                # author share review across sources. Uncertain authorship stays
+                # source-scoped; changed wording/types remain independent items.
+                owner = ("author", author) if isinstance(author, str) and author and authority in {
+                    "request_author", "repository_member"} else ("source", ref)
+                key = (name, quote, authority, owner)
+                item = groups.get(key)
+                if item is not None and ref in item["source_ids"]:
+                    continue
+                # Preserve the original 30-occurrence provenance budget even
+                # when several source references share one field-level item.
+                if references == 30:
+                    omitted += 1
+                    continue
+                references += 1
+                if item is None:
+                    item = {"field": name, "source_id": ref, "source_ids": [], "quote": quote,
+                            "authority": authority}
+                    groups[key] = item
+                    items.append(item)
+                item["source_ids"].append(ref)
     def identity(value):
         value = re.sub(r"([a-z])([A-Z])", r"\1 \2", value)
         return tuple(re.findall(r"[a-z0-9]+", value.casefold()))
@@ -114,7 +137,7 @@ def optional_field_hints(catalog, requirements=()):
             # this declaration, not merely neighboring prose on the same line.
             cites_field = re.search(r"\b" + re.escape(item["field"]) + r"\?\s*:", quote)
             if (requirement["explicit"] and named_fields == {key}
-                    and requirement["source"]["source_id"] == item["source_id"]
+                    and requirement["source"]["source_id"] in item["source_ids"]
                     and cites_field and (quote in item["quote"] or item["quote"] in quote)):
                 represented.append(requirement["id"])
         item.update(represented_by=represented, needs_review=not represented or
