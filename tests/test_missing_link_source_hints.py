@@ -9,6 +9,50 @@ from test_missing_link_sources import GitHubFixture
 
 
 class ExportHintTests(unittest.TestCase):
+    def test_same_line_top_level_exports_follow_other_statements(self):
+        eligible = {"a.ts": {}, "b.ts": {}}
+        exports = 'export*from"./a.js";export{parse}from"./b.js";'
+        for prefix in ("", "const version=1;", "import './setup.js';", "function setup(){}", "class Setup{}"):
+            with self.subTest(prefix=prefix):
+                self.assertEqual(export_hints("index.ts", prefix + exports, eligible), (["a.ts", "b.ts"], True))
+
+    def test_same_line_hints_keep_nested_and_non_code_exports_out(self):
+        fake = 'export*from"./obsolete.js";'
+        real = 'export{parse}from"./real.js";'
+        for prefix in (f"/*{fake}*/", f"const sample='{fake}';", f"const sample=`{fake}`;",
+                       f"const sample=`outer ${{`{fake}`}}`;", f"function sample(){{;{fake}}}",
+                       f"const sample=()=>{{;{fake}}};", f"const sample={{method(){{;{fake}}}}};"):
+            with self.subTest(prefix=prefix):
+                self.assertEqual(export_hints("index.ts", prefix + real, {"obsolete.ts": {}, "real.ts": {}}),
+                                 (["real.ts"], True))
+
+    def test_same_line_exports_reach_second_target_with_fixed_read_budget(self):
+        fixture = GitHubFixture()
+        fixture.add("index.ts", 'const version=1;export*from"./a.js";export{parse}from"./src/engine.js";')
+        fixture.add("a.ts", "export const version=1;")
+        fixture.add("src/engine.ts", "export function parse(value) { return value; }")
+        for i in range(40):
+            fixture.add(f"unrelated{i:02d}.ts", "export function helper() { return true; }")
+        snapshot = PublicGitHub(fixture.read).fetch_repository("sample/project", 3)
+        self.assertEqual([f["path"] for f in snapshot["files"]], ["index.ts", "a.ts", "src/engine.ts"])
+        self.assertEqual(sum("/git/blobs/" in call[0] for call in fixture.calls), 3)
+        self.assertEqual(len(snapshot["coverage"]["static_export_hints"]), 2)
+        self.assertTrue(snapshot["coverage"]["export_hints_complete"])
+        self.assertFalse(snapshot["coverage"]["eligible_sample_complete"])
+
+    def test_same_line_export_hint_overflow_remains_bounded(self):
+        eligible = {f"source{i}.ts": {} for i in range(MAX_EXPORT_HINTS + 1)}
+        text = "".join(f'export*from"./source{i}.js";' for i in range(MAX_EXPORT_HINTS + 1))
+        self.assertEqual(export_hints("index.ts", text, eligible), (list(eligible)[:MAX_EXPORT_HINTS], False))
+
+    def test_delimiter_nesting_limit_and_malformed_scopes_report_incomplete(self):
+        real = 'export*from"./real.js";'
+        fake = 'export*from"./obsolete.js";'
+        for prefix in ("{" * MAX_LEXICAL_NESTING + "{", "(", "}"):
+            with self.subTest(prefix=prefix):
+                self.assertEqual(export_hints("index.ts", real + prefix + fake, {"real.ts": {}, "obsolete.ts": {}}),
+                                 (["real.ts"], False))
+
     def test_compact_reexports_allow_adjacent_punctuation_not_joined_keywords(self):
         for extension in (".js", ".mjs", ".cjs", ".jsx", ".ts", ".tsx"):
             for clause in ('export*from"./engine.js";', "export{parse}from'./engine.js';",

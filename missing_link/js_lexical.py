@@ -164,3 +164,29 @@ def export_view(text):
             frame.update(operand=char in "=([{,:;!?&|+-*%^~<>/", previous=char)
         index += 1
     return "".join(visible), code, literals, bool(complete and len(stack) == 1)
+
+
+def top_level_code(text, code):
+    """Bound delimiter scopes using the lexical mask, not JS/TS grammar.
+
+    Only code delimiters affect nesting; strings, comments, templates and regexp
+    candidates stay excluded. Malformed/depth-limited scopes hide their tail and
+    cannot certify a complete hint scan. This pass is linear in the supplied text.
+    """
+    visible = bytearray(len(text))
+    stack = []
+    closing = {")": "(", "]": "[", "}": "{"}
+    for offset, char in enumerate(text):
+        if not code[offset]:
+            continue
+        if not stack:
+            visible[offset] = 1
+        if char in "([{":
+            if len(stack) == MAX_LEXICAL_NESTING:
+                return visible, False
+            stack.append(char)
+        elif char in closing:
+            if not stack or stack[-1] != closing[char]:
+                return visible, False
+            stack.pop()
+    return visible, not stack

@@ -3,7 +3,7 @@ import json
 import re
 from pathlib import PurePosixPath
 
-from .js_lexical import export_view
+from .js_lexical import export_view, top_level_code
 
 MAX_EXPORT_HINTS = 64
 
@@ -39,12 +39,15 @@ def export_hints(path, text, eligible):
             specs.extend(leaves(metadata.get(key)))
     elif PurePosixPath(path).suffix in {".js", ".mjs", ".cjs", ".jsx", ".ts", ".tsx"}:
         visible, code, literals, complete = export_view(text)
+        top_level, scopes_complete = top_level_code(visible, code)
+        complete &= scopes_complete
         # Named clauses can span lines. Stop at either brace so an unfinished
         # clause cannot consume another declaration. Punctuation separates tokens
-        # without whitespace, but joined keywords are not re-export hints.
-        pattern = r"(?m)^[ \t]*(?P<export>export)\b\s*(?:\*(?:\s*as\s+\w+)?|\{[^{}]*\})\s*\b(?P<from>from)\b\s*(?P<literal>['\"])(?P<spec>[^'\"\n]{1,240})(?P=literal)"
+        # without whitespace, but joined keywords are not re-export hints. Scan
+        # statement boundaries throughout a line, only outside delimiter scopes.
+        pattern = r"(?m)(?:^[ \t]*|(?<=[;}])[ \t]*)(?P<export>export)\b\s*(?:\*(?:\s*as\s+\w+)?|\{[^{}]*\})\s*\b(?P<from>from)\b\s*(?P<literal>['\"])(?P<spec>[^'\"\n]{1,240})(?P=literal)"
         specs = [match["spec"] for match in re.finditer(pattern, visible)
-                 if code[match.start("export")] and code[match.start("from")]
+                 if top_level[match.start("export")] and code[match.start("from")]
                  and literals.get(match.start("literal")) == match.end()]
     else:
         return [], True

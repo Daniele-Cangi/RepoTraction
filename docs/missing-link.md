@@ -431,11 +431,13 @@ discovery still needs established search terms or an explicit operator query.
   check, benchmark and example infrastructure within the existing file budget.
   Source-role counts and missing-implementation warnings are recorded in coverage.
   Package entrypoints and literal relative JS/TS re-exports, including multiline
-  named clauses and compact forms such as `export*from"./engine.js"`, can
+  named clauses and multiple compact declarations on the same line, can
   prioritize eligible files without increasing file/read/byte
   budgets. A separate lexical scan excludes comments, quoted strings and template
   literals (including nested interpolations). Unterminated/depth/work-limited regions
   and ambiguous regexp/division contexts make the hint scan explicitly incomplete.
+  A bounded delimiter-scope scan excludes nested declarations; malformed or
+  depth-limited scopes make the scan incomplete rather than exposing their tail.
   `export_hints_complete` describes the bounded hint scan, not complete
   JS/TS semantic coverage or verified exports.
   This is not exported-API discovery or proof that the sample represents the
