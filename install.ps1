@@ -13,6 +13,7 @@ $LegacyInstallDirectory = Join-Path ([Environment]::GetFolderPath("LocalApplicat
 $StaticDirectory = Join-Path $InstallDirectory "static"
 $DataDirectory = Join-Path $InstallDirectory "data"
 $MissingLinkDirectory = Join-Path $InstallDirectory "missing_link"
+$AnalyticsDirectory = Join-Path $InstallDirectory "analytics"
 
 if (-not (Get-Command python -ErrorAction SilentlyContinue)) {
     throw "Python 3.10 or newer is required and must be available in PATH."
@@ -31,11 +32,15 @@ foreach ($file in $requiredFiles) {
 if (-not (Test-Path -LiteralPath (Join-Path $SourceDirectory "missing_link\service.py") -PathType Leaf)) {
     throw "Required Missing Link module directory is missing."
 }
+if (-not (Test-Path -LiteralPath (Join-Path $SourceDirectory "analytics\traffic.py") -PathType Leaf)) {
+    throw "Required analytics module directory is missing."
+}
 
 New-Item -ItemType Directory -Path $InstallDirectory -Force | Out-Null
 New-Item -ItemType Directory -Path $StaticDirectory -Force | Out-Null
 New-Item -ItemType Directory -Path $DataDirectory -Force | Out-Null
 New-Item -ItemType Directory -Path $MissingLinkDirectory -Force | Out-Null
+New-Item -ItemType Directory -Path $AnalyticsDirectory -Force | Out-Null
 
 $LegacyDataDirectory = Join-Path $LegacyInstallDirectory "data"
 if (-not $Destination -and (Test-Path -LiteralPath $LegacyDataDirectory -PathType Container) -and
@@ -53,6 +58,9 @@ Get-ChildItem -LiteralPath (Join-Path $SourceDirectory "static") -File | ForEach
 }
 Get-ChildItem -LiteralPath (Join-Path $SourceDirectory "missing_link") -Filter "*.py" -File | ForEach-Object {
     Copy-Item -LiteralPath $_.FullName -Destination (Join-Path $MissingLinkDirectory $_.Name) -Force
+}
+Get-ChildItem -LiteralPath (Join-Path $SourceDirectory "analytics") -Filter "*.py" -File | ForEach-Object {
+    Copy-Item -LiteralPath $_.FullName -Destination (Join-Path $AnalyticsDirectory $_.Name) -Force
 }
 
 # Ship optional tools and their documentation, never local .env or runtime/data.

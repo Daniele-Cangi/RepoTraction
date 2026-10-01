@@ -10,9 +10,15 @@ in [AGENTS.md](../AGENTS.md) applies to future work.
 
 - [ ] Establish characterization tests for existing public behavior and map
   dependencies, including test patches of globals and account-specific state.
+  - [x] Characterize the first five pure traffic/snapshot helpers and retain
+    their compatibility names in the entry point.
+  - [ ] Characterize remaining stateful boundaries before their extraction.
 - [ ] Extract pure calculations into `analytics/`: date windows, traffic
   comparisons, event metrics, repository health and signal calculations. Pass
   timestamps and configuration explicitly where practical.
+  - [x] Move percentage changes, traffic-period labels/summaries, UTC timestamp
+    parsing and snapshot comparison windows to `analytics/traffic.py`.
+  - [ ] Extract remaining event, health, adoption and opportunity calculations.
 - [ ] Extract database connections, migrations, repository registry operations
   and snapshot persistence into `storage/`. Preserve existing database paths,
   schemas, transactions and account isolation; do not reset stored history.
@@ -27,6 +33,23 @@ Each extraction should have explicit dependencies, avoid circular imports and be
 small enough to review in a separate commit. Use thin compatibility delegates only
 when needed during migration; modules must not import the entry point to obtain
 mutable global state.
+
+## First extraction boundary
+
+[`analytics/traffic.py`](../analytics/traffic.py) depends only on standard-library
+date/time and typing utilities. Its functions consume supplied rows, timestamps
+and window parameters, not the active account, database, cache, GitHub client or
+wall clock. The five function bodies are unchanged from the merged implementation.
+[`app.py`](../app.py) re-exports the same function objects during migration, so
+existing event, repository and community calculations retain their entry-point
+names without duplicating their implementation.
+
+Characterization tests cover zero baselines, absent and partial periods, timezone
+normalization, cutoff selection, early/long-window labels, immutable inputs and
+SQLite rows. Additional checks verify import isolation and compatibility names.
+The Windows installer ships the new package, and CI checks its installed location.
+This step does not move HTTP handling, persistence, scheduling or Missing Link,
+and does not change analytics contracts or trigger paid reanalysis.
 
 ## Acceptance checks
 

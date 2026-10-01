@@ -1,13 +1,41 @@
 """Characterization of traffic calculations before and after modular extraction."""
 import copy
 import sqlite3
+import subprocess
+import sys
 import unittest
 from datetime import datetime, timezone
+from contextlib import closing
+from pathlib import Path
 
-import app as traffic
+from analytics import traffic
 
 
 class TrafficCalculationTests(unittest.TestCase):
+    def test_app_preserves_compatibility_names_without_duplicate_logic(self):
+        import app
+        for name in ("percentage_change", "traffic_period_label", "summarize_traffic_period",
+                     "parse_utc_timestamp", "select_comparison_window"):
+            self.assertIs(getattr(app, name), getattr(traffic, name))
+
+    def test_fresh_import_does_not_load_entrypoint_provider_or_start_services(self):
+        code = """
+import sys
+from unittest.mock import patch
+sys.path.insert(0, sys.argv[1])
+with patch('sqlite3.connect', side_effect=AssertionError('database access')), \\
+     patch('threading.Thread.start', side_effect=AssertionError('thread start')), \\
+     patch('subprocess.run', side_effect=AssertionError('external command')), \\
+     patch('socket.create_connection', side_effect=AssertionError('network access')):
+    from analytics import traffic
+    assert traffic.percentage_change(15, 10) == 50.0
+    assert 'app' not in sys.modules
+    assert not any(name == 'missing_link' or name.startswith('missing_link.') for name in sys.modules)
+"""
+        result = subprocess.run([sys.executable, "-I", "-c", code, str(Path(__file__).resolve().parents[1])],
+                                capture_output=True, text=True, timeout=20)
+        self.assertEqual(result.returncode, 0, result.stderr)
+
     def test_percentage_change_preserves_zero_baselines_and_rounding(self):
         for current, previous, expected in ((0, 0, 0.0), (5, 0, None), (0, 5, -100.0),
                                              (15, 10, 50.0), (4, 3, 33.3), (3, 4, -25.0)):
@@ -100,7 +128,7 @@ class TrafficCalculationTests(unittest.TestCase):
         self.assertTrue(period["is_full_window"])
 
     def test_comparison_accepts_sqlite_rows(self):
-        with sqlite3.connect(":memory:") as connection:
+        with closing(sqlite3.connect(":memory:")) as connection:
             connection.row_factory = sqlite3.Row
             rows = connection.execute("SELECT '2026-08-18' AS collected_at, 3 AS stars "
                                       "UNION ALL SELECT '2026-08-25', 5").fetchall()
