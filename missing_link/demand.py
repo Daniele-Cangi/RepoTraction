@@ -49,3 +49,41 @@ def resolve_citations(raw, spans):
             raise ValueError("AI requirement cites an unavailable demand span.")
         requirement.update(spans[ref])
     return normalized
+
+
+def optional_field_hints(catalog, requirements=()):
+    """Review optional API fields independently; '?' is not an adoption verdict.
+
+    A TypeScript optional argument does not prove that implementing the requested
+    feature is optional. Only the independent interpretation assigns mandatory.
+    The bounded syntactic scan can flag omissions, never add requirements/support.
+    """
+    items, omitted = [], 0
+    for ref, source in catalog.items():
+        if not re.fullmatch(r"q\d+", ref):
+            continue
+        for line in source["quote"].splitlines():
+            names = re.findall(r"\b([A-Za-z_]\w{0,79})\?\s*:", line)
+            for name in dict.fromkeys(names):
+                if len(items) == 30 or len(line) > 1600:
+                    omitted += 1
+                    continue
+                items.append({"field": name, "source_id": ref, "quote": line.strip()})
+    def identity(value):
+        value = re.sub(r"([a-z])([A-Z])", r"\1 \2", value)
+        return tuple(re.findall(r"[a-z0-9]+", value.casefold()))
+    def contains(tokens, key):
+        return any(tokens[index:index + len(key)] == key for index in range(len(tokens) - len(key) + 1))
+    keys = {identity(item["field"]) for item in items}
+    for item in items:
+        key = identity(item["field"])
+        represented = []
+        for requirement in requirements:
+            prose = identity(requirement["text"])
+            if (requirement["explicit"] and contains(prose, key) and sum(contains(prose, name) for name in keys) == 1
+                    and requirement["source"]["source_id"] == item["source_id"]
+                    and item["quote"] in requirement["source"]["quote"]):
+                represented.append(requirement["id"])
+        item.update(represented_by=represented, needs_review=not represented)
+    return {"items": items, "complete": not omitted, "omitted_fields": omitted,
+            "method": "optional-field syntax is an extraction hint, not proof of optional demand or compatibility"}

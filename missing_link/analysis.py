@@ -12,6 +12,7 @@ import re
 from typing import Any
 from .discussion import authorship, constraint_hints
 from .qualification import assess_discovery
+from .demand import optional_field_hints
 
 CLASSIFICATIONS = {"direct", "adapter", "extraction", "rejected", "investigate"}
 REQUEST_STATUSES = {"unresolved", "resolved", "duplicate", "unclear", "automated"}
@@ -107,6 +108,7 @@ def request_catalog(issue: dict) -> dict[str, dict]:
 
 def review_constraints(issue: dict, requirements: list) -> dict:
     review = constraint_hints(issue)
+    review["optional_field_review"] = optional_field_hints(request_catalog(issue), requirements)
     blockers = []
     for hint in review["items"]:
         represented = [r["id"] for r in requirements if r["source"]["source_id"] == hint["source_id"]
@@ -122,6 +124,11 @@ def review_constraints(issue: dict, requirements: list) -> dict:
         blockers.append("Empty issue body: independent actionable demand is not established; discussion may be reference notes.")
     if issue.get("repo_archived"):
         blockers.append("Target repository is archived; current actionable adoption is not established.")
+    for item in review["optional_field_review"]["items"]:
+        if item["needs_review"]:
+            blockers.append("Named optional field needs independent subrequirement extraction/authority review: " + item["field"])
+    if not review["optional_field_review"]["complete"]:
+        blockers.append("Optional-field hint scan is bounded/incomplete.")
     review["qualification_blockers"] = blockers
     return review
 
