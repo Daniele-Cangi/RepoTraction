@@ -14,6 +14,8 @@ in [AGENTS.md](../AGENTS.md) applies to future work.
     their compatibility names in the entry point.
   - [x] Characterize event metric results, evidence availability and event
     headlines before extracting their pure calculations.
+  - [x] Characterize repository readiness, license interpretation and adoption
+    signals before extracting their calculations.
   - [ ] Characterize remaining stateful boundaries before their extraction.
 - [ ] Extract pure calculations into `analytics/`: date windows, traffic
   comparisons, event metrics, repository health and signal calculations. Pass
@@ -22,8 +24,11 @@ in [AGENTS.md](../AGENTS.md) applies to future work.
     parsing and snapshot comparison windows to `analytics/traffic.py`.
   - [x] Move event date parsing, observed-window totals, portfolio median,
     confidence and event headline calculations to `analytics/events.py`.
-  - [ ] Extract remaining event window/evidence orchestration, health, adoption
-    and opportunity calculations.
+  - [x] Move license metadata interpretation, repository readiness scoring and
+    adoption signals to `analytics/repositories.py`, with explicit activity age
+    and profile applicability for readiness calculations.
+  - [ ] Extract remaining event window/evidence orchestration and opportunity
+    calculations.
 - [ ] Extract database connections, migrations, repository registry operations
   and snapshot persistence into `storage/`. Preserve existing database paths,
   schemas, transactions and account isolation; do not reset stored history.
@@ -74,6 +79,23 @@ Characterization tests cover the adapter and headline behavior, while direct
 module tests check immutable inputs, SQLite-row compatibility and import isolation.
 The installer and CI validate the new installed module. Database access and the
 remaining event window orchestration are still planned work.
+
+## Repository calculation boundary
+
+[`analytics/repositories.py`](../analytics/repositories.py) interprets license
+metadata and calculates repository readiness and same-window cloning signals.
+Readiness receives profile applicability and the age of the last push explicitly;
+the module does not read the wall clock, database or active account, import the
+entry point or load an AI provider. Scoring weights, thresholds, gap order,
+license-present versus license-missing rules and cloning labels are unchanged.
+
+`app.py` preserves the metadata and adoption compatibility names and keeps the
+original one-argument readiness interface through a small adapter. The existing
+timestamp parser and profile rules still supply that adapter's dependencies.
+Tests cover those patchable dependencies, immutable inputs, unknown versus zero,
+direct calculations and isolated imports. Installation checks include the new
+module. Opportunity ranking, profile filtering and timestamp adapter extraction
+remain separate work; this step does not change HTTP, storage or acquisition.
 
 ## Acceptance checks
 
