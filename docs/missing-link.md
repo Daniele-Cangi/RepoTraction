@@ -54,7 +54,10 @@ Empty results and excluded candidates do not demonstrate absence of demand.
 
 After reading each selected discussion, fully automatic discovery applies narrow
 filename/code-dump, exam-preparation-manual, reference-only-body and automated-
-author hints. A subsequent discussion keeps the candidate available for review.
+author hints based on acquired bot metadata. Mentioning generated plans, automation
+or a robot emoji does not establish bot authorship or trigger that early skip;
+content-based review hints remain available during analysis.
+A subsequent discussion keeps the candidate available for review.
 Skipped candidates remain
 in `job.result.candidate_skips`, with policy, reason, context completeness and
 `proves_absence_of_demand=false`. They receive no request/match AI calls and are

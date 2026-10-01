@@ -5,7 +5,6 @@ from itertools import groupby
 
 from .sources import parse_issue_url, source_role
 from .qualification import reference_only_body
-from .discussion import authorship
 
 
 SELECTION_POLICY = "external/open first; balance projects and queries; title overlap then upstream rank"
@@ -27,7 +26,8 @@ def words(value):
 def screen_candidate(issue):
     """High-precision retrieval hints, not proof of absent demand or a rejection.
 
-    Any discussion or recognizable request prose keeps the candidate eligible.
+    Discussion or human request prose keeps the candidate eligible. Bot author
+    metadata remains a hint; words about generated content are not bot identity.
     These narrowly structural hints only apply to automatic exploration.
     """
     body, title = issue.get("body") or "", issue.get("title") or ""
@@ -36,7 +36,7 @@ def screen_candidate(issue):
     if any((comment.get("body") or "").strip() for comment in issue.get("comments", [])):
         return hint
     reference_only = reference_only_body(body)
-    automated = issue.get("bot") or authorship(issue, original=True)["generated_hint"]
+    automated = bool(issue.get("bot") or issue.get("author_type") == "Bot")
     if reference_only or automated:
         hint.update(skip=True, code="reference_only_body_hint" if reference_only else "automated_author_hint",
             reason="No independently specified human demand in the acquired body; explicit selection remains available for review.")

@@ -24,6 +24,23 @@ class ScreeningTests(unittest.TestCase):
         real = dict(fixtures.issue(), body="Please support the parsing approach in https://example.com/video", comments=[])
         self.assertFalse(screen_candidate(real)["skip"])
 
+    def test_human_content_markers_are_not_bot_author_metadata(self):
+        for body in ("Please fix support for generated plan files.", "I need an [automation] label.",
+                     "Please add support for 🤖 characters.", "Generated plan describing parser changes."):
+            with self.subTest(body=body):
+                demand = dict(fixtures.issue(), body=body, comments=[], bot=False, author_type="User", author="human")
+                self.assertFalse(screen_candidate(demand)["skip"])
+                self.assertEqual(demand["body"], body)
+
+    def test_actual_bot_metadata_still_skips_request_like_bodies(self):
+        for metadata in ({"bot": True, "author_type": "User"}, {"bot": False, "author_type": "Bot"}):
+            with self.subTest(metadata=metadata):
+                demand = dict(fixtures.issue(), body="Please fix the formatter.", comments=[], **metadata)
+                screening = screen_candidate(demand)
+                self.assertTrue(screening["skip"])
+                self.assertEqual(screening["code"], "automated_author_hint")
+                self.assertFalse(screening["proves_absence_of_demand"])
+
     def test_acquired_php_dump_gets_a_hint_not_a_rejection(self):
         screening = screen_candidate(code_dump())
         self.assertTrue(screening["skip"])
@@ -143,6 +160,17 @@ class ScreeningServiceTests(unittest.TestCase):
         self.assertNotIn("candidate_skips", job["result"])
         self.assertTrue(job["result"]["match_ids"])
         self.assertEqual(job["checkpoint"]["evaluated"], ["0"])
+        source.fetch_issue.assert_called_once()
+        source.fetch_reference_context.assert_called_once()
+        self.assertEqual(job["ai_calls_used"], 0)
+
+    def test_human_request_about_generated_content_reaches_analysis(self):
+        demand = dict(fixtures.issue(), body="Please fix support for generated plan files.", comments=[],
+                      bot=False, author_type="User", author="human")
+        job, source = self.run_screening(demand=demand)
+        self.assertEqual(job["status"], "completed")
+        self.assertNotIn("candidate_skips", job["result"])
+        self.assertTrue(job["result"]["match_ids"])
         source.fetch_issue.assert_called_once()
         source.fetch_reference_context.assert_called_once()
         self.assertEqual(job["ai_calls_used"], 0)
