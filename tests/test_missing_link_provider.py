@@ -307,7 +307,8 @@ class ProviderContractTests(unittest.TestCase):
             self.assertEqual(repo, original)
 
     def test_missing_implementation_is_not_a_paid_compatibility_rejection(self):
-        for path in ("README.md", "index.d.ts", "benchmarks/runner.ts", "fixtures/mock.ts"):
+        for path in ("README.md", "index.d.ts", "benchmarks/runner.ts", "fixtures/mock.ts",
+                     "benchmark.js", "fixture.ts", "parser.bench.ts"):
             repo = repository()
             repo["files"][0].update(path=path, kind="source", text="export declare function parse(value: string): string;")
             repo["capabilities"][0]["evidence"][0].update(path=path, end_line=1)

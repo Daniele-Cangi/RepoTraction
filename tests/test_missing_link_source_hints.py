@@ -60,3 +60,12 @@ class ExportHintTests(unittest.TestCase):
         self.assertEqual(source_role("pkg/parse.spec.ts"), "test")
         self.assertEqual(source_role("pkg/index.d.ts"), "support")
         self.assertEqual(source_role("pkg/src/parse.ts"), "implementation")
+
+    def test_auxiliary_file_names_are_not_implementation_outside_auxiliary_directories(self):
+        for path in ("benchmark.js", "bench.mjs", "benchmarks.ts", "fixture.ts", "fixtures.tsx",
+                     "benchmark-runner.py", "parser.bench.ts", "data.fixture.js", "src/BENCHMARK.JS:run"):
+            with self.subTest(path=path):
+                self.assertEqual(source_role(path), "infrastructure")
+        for path in ("src/parse.ts", "benchmarking.py", "benchpress.ts", "fixtureFactory.js", "fixturescope.ts"):
+            with self.subTest(path=path):
+                self.assertEqual(source_role(path), "implementation")

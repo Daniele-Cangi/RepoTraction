@@ -63,6 +63,30 @@ class ContributionTests(unittest.TestCase):
         self.assertEqual(match["classification"], "rejected")
         self.assertEqual(match["discovery_assessment"]["status"], "partial_contribution")
 
+    def test_auxiliary_evidence_cannot_substantiate_behavior_even_with_implementation_elsewhere(self):
+        for path in ("benchmark.js", "fixture.ts", "parser.bench.ts", "data.fixture.js", "src/trim.ts"):
+            repo, issue = fixtures.repository(), fixtures.issue()
+            implementation = copy.deepcopy(repo["files"][0])
+            url = implementation["url"].rsplit("/", 1)[0] + "/" + path
+            repo["files"][0].update(path=path, url=url, text="export function trim(value) { return value; }")
+            repo["files"].append(implementation)
+            repo["capabilities"][0]["evidence"][0].update(path=path, url=url, line=1, end_line=1,
+                                                       quote="function trim(value)")
+            issue.update(body="I need plain text shortened without splitting words.", comments=[])
+            raw_request = fixtures.request_raw()
+            raw_request["requirements"] = raw_request["requirements"][:1]
+            request = validate_request(raw_request, issue)
+            for reference in ("c0:0", "file:" + path):
+                with self.subTest(path=path, reference=reference):
+                    raw = fixtures.raw_match()
+                    raw["checks"] = [dict(raw["checks"][0], source_ids=[reference])]
+                    match = validate_matches([raw], repo, issue, request, "model")[0]
+                    is_implementation = path == "src/trim.ts"
+                    self.assertEqual(match["checks"][0]["status"], "satisfied" if is_implementation else "undetermined")
+                    self.assertEqual(match["checks"][0]["contribution"],
+                                     "existing_behavior" if is_implementation else "not_demonstrated")
+                    self.assertEqual(match["classification"], "direct" if is_implementation else "investigate")
+
     def test_old_import_without_contribution_is_unknown_not_a_positive_default(self):
         raw = fixtures.raw_match()
         del raw["checks"][0]["contribution"]
