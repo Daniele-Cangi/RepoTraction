@@ -9,6 +9,58 @@ from test_missing_link_sources import GitHubFixture
 
 
 class ExportHintTests(unittest.TestCase):
+    def test_literal_commonjs_reexports_follow_whole_module_and_named_assignments(self):
+        for extension in (".js", ".cjs", ".ts"):
+            for text in ("module.exports = require('./engine');", 'exports.parse=require("./engine");',
+                         "module.exports.parse = require('./engine');",
+                         "module /* name */ . exports = require /* target */ ('./engine');"):
+                with self.subTest(extension=extension, text=text):
+                    self.assertEqual(export_hints("index" + extension, text, {"engine.cjs": {}}),
+                                     (["engine.cjs"], True))
+
+    def test_commonjs_hints_reach_engine_with_fixed_read_budget(self):
+        fixture = GitHubFixture()
+        fixture.add("package.json", '{"main":"index.cjs"}')
+        fixture.add("index.cjs", "module.exports=require('./src/index');")
+        fixture.add("src/index.cjs", "exports.parse=require('./engine');")
+        fixture.add("src/engine.cjs", "function parse(value) { return value; } module.exports={parse};")
+        for i in range(40):
+            fixture.add(f"unrelated{i:02d}.cjs", "function helper() { return true; }")
+        snapshot = PublicGitHub(fixture.read).fetch_repository("sample/project", 4)
+        self.assertEqual([f["path"] for f in snapshot["files"]],
+                         ["package.json", "index.cjs", "src/index.cjs", "src/engine.cjs"])
+        self.assertEqual(sum("/git/blobs/" in call[0] for call in fixture.calls), 4)
+        self.assertEqual(len(snapshot["coverage"]["static_export_hints"]), 3)
+        self.assertTrue(snapshot["coverage"]["export_hints_complete"])
+        self.assertFalse(snapshot["coverage"]["eligible_sample_complete"])
+
+    def test_commonjs_hints_keep_lexical_scope_and_literal_assignment_guards(self):
+        fake = 'module.exports=require("./obsolete");'
+        real = 'exports.parse=require("./real");'
+        for prefix in (f"/*{fake}*/", f"const sample='{fake}';", f"const sample=`{fake}`;",
+                       f"function sample(){{{fake}}}", f"if(ready){{{fake}}}"):
+            with self.subTest(prefix=prefix):
+                self.assertEqual(export_hints("index.cjs", prefix + real, {"obsolete.cjs": {}, "real.cjs": {}}),
+                                 (["real.cjs"], True))
+        for text in ("module.exports=require(name);", "module.exports=require('./real'+suffix);",
+                     "module.exports=require('./real', options);", "exports=require('./real');",
+                     "other.exports=require('./real');", "module.exports=requireOther('./real');"):
+            with self.subTest(text=text):
+                self.assertEqual(export_hints("index.cjs", text, {"real.cjs": {}}), ([], True))
+        for spec in ("../../real", "https://host/real", "./*.cjs", "./real?query", "./types.d.ts"):
+            with self.subTest(spec=spec):
+                self.assertEqual(export_hints("src/index.cjs", f"module.exports=require('{spec}');",
+                                             {"src/real.cjs": {}, "real.cjs": {}, "src/types.d.ts": {}}), ([], True))
+
+    def test_commonjs_and_esm_hints_share_text_order_and_overflow_limit(self):
+        text = 'exports.a=require("./a");export*from"./b.js";module.exports.c=require("./c");'
+        self.assertEqual(export_hints("index.js", text, {"a.cjs": {}, "b.ts": {}, "c.jsx": {}}),
+                         (["a.cjs", "b.ts", "c.jsx"], True))
+        eligible = {f"source{i}.js": {} for i in range(MAX_EXPORT_HINTS + 1)}
+        text = "".join(f'exports.item{i}=require("./source{i}");' if i % 2 else
+                       f'export*from"./source{i}.js";' for i in range(MAX_EXPORT_HINTS + 1))
+        self.assertEqual(export_hints("index.js", text, eligible), (list(eligible)[:MAX_EXPORT_HINTS], False))
+
     def test_extensionless_hints_resolve_all_supported_file_and_index_suffixes(self):
         for suffix in (".ts", ".js", ".tsx", ".jsx", ".mjs", ".cjs"):
             for entry in ("src/component" + suffix, "src/component/index" + suffix):

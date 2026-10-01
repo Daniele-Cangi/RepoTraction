@@ -441,6 +441,10 @@ discovery still needs established search terms or an explicit operator query.
   Extensionless hints try eligible `.ts`, `.js`, `.tsx`, `.jsx`, `.mjs` and `.cjs`
   files before directory index variants, with TS/JS first in each tier. Excluded
   files and `.d.ts` declarations are not inferred as implementation targets.
+  Direct top-level CommonJS assignments such as `module.exports = require('./engine')`
+  and `exports.parse = require('./engine')` share the ESM hint order, cap and safety
+  filters. Dynamic/computed require expressions and general CommonJS export
+  resolution are not supported; no module is executed.
   `export_hints_complete` describes the bounded hint scan, not complete
   JS/TS semantic coverage or verified exports.
   This is not exported-API discovery or proof that the sample represents the

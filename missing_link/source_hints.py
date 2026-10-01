@@ -1,6 +1,7 @@
 """Bounded static JS/TS entry/re-export sampling hints, never export verification."""
 import json
 import re
+from heapq import merge
 from pathlib import PurePosixPath
 
 from .js_lexical import export_view, top_level_code
@@ -46,10 +47,23 @@ def export_hints(path, text, eligible):
         # clause cannot consume another declaration. Punctuation separates tokens
         # without whitespace, but joined keywords are not re-export hints. Scan
         # statement boundaries throughout a line, only outside delimiter scopes.
-        pattern = r"(?m)(?:^[ \t]*|(?<=[;}])[ \t]*)(?P<export>export)\b\s*(?:\*(?:\s*as\s+\w+)?|\{[^{}]*\})\s*\b(?P<from>from)\b\s*(?P<literal>['\"])(?P<spec>[^'\"\n]{1,240})(?P=literal)"
-        specs = [match["spec"] for match in re.finditer(pattern, visible)
-                 if top_level[match.start("export")] and code[match.start("from")]
-                 and literals.get(match.start("literal")) == match.end()]
+        boundary = r"(?m)(?:^[ \t]*|(?<=[;}])[ \t]*)"
+        literal = r"(?P<module_literal>(?P<literal>['\"])(?P<spec>[^'\"\n]{1,240})(?P=literal))"
+        esm = boundary + r"(?P<export>export)\b\s*(?:\*(?:\s*as\s+\w+)?|\{[^{}]*\})\s*\b(?P<from>from)\b\s*" + literal
+        member = r"[A-Za-z_$][\w$]*"
+        commonjs = (boundary + rf"(?P<assignment>module\s*\.\s*exports\b(?:\s*\.\s*{member})?|exports\s*\.\s*{member})"
+                    + r"\s*=\s*(?P<require>require)\b\s*\(\s*" + literal + r"\s*\)")
+
+        def declarations(pattern, start, keyword):
+            for match in re.finditer(pattern, visible):
+                if (top_level[match.start(start)] and code[match.start(keyword)]
+                        and literals.get(match.start("literal")) == match.end("module_literal")):
+                    yield match.start(), match["spec"]
+
+        # Merge the two ordered scans: one shared hint cap and original text order,
+        # not separate CJS/ESM budgets. Only direct literal assignments are hints.
+        specs = [spec for _, spec in merge(declarations(esm, "export", "from"),
+                                          declarations(commonjs, "assignment", "require"))]
     else:
         return [], True
     if len(specs) > MAX_EXPORT_HINTS:
