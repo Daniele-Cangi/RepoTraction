@@ -8,7 +8,7 @@ from .discussion import constraint_hints
 from .demand import optional_field_hints, supplied_optional_field_hints
 from .contracts import MAX_SCOPED_IDS
 from .sources import source_role, runtime_bin_entrypoints
-from .public_api import public_api_hints
+from .public_api import public_api_hints, public_api_report
 
 
 def size(value):
@@ -124,6 +124,12 @@ def build_context(repository, issue, phase, byte_limit):
             cap["public_api_hint"] = cap.get("entrypoint") in public_hints["entrypoints"]
     if size(data) > target // 2:
         raise ValueError("Analysis metadata exceeds context bound; narrow the selected context.")
+    if repository:
+        # All hints still rank candidates; only the displayed ledger is byte
+        # bounded, with explicit omissions, so long paths cannot displace all
+        # implementation evidence. Its bytes share the source packing budget.
+        hint_report = public_api_report(public_hints)
+        data["context_coverage"] = {"public_api_hints": hint_report}
 
     # Match the schema's ID bound, independently of the byte bound. Leave some
     # slots for selected definitions/support files when comparing a discussion
@@ -248,7 +254,7 @@ def build_context(repository, issue, phase, byte_limit):
     if repository:
         supplied_paths = list(dict.fromkeys(entry["path"] for entry in sources.values() if entry.get("path")))
         report["selection_policy"] = "Request root, then implementation definitions before later discussion; literal public API hints within each source-role tier, per-file diversity and interleaved spans. Path heuristic with exact acquired-manifest bin targets, not verified exports or execution."
-        report["public_api_hints"] = public_hints
+        report["public_api_hints"] = hint_report
         report["selected_capability_roles"] = dict(Counter(source_role(capability_path(cap), runtime_entrypoints=runtime_entrypoints) for cap in candidates))
         report["supplied_source_roles"] = dict(Counter(source_role(path, runtime_entrypoints=runtime_entrypoints) for path in supplied_paths))
         report["implementation_source_paths"] = [path for path in supplied_paths if source_role(path, runtime_entrypoints=runtime_entrypoints) == "implementation"]

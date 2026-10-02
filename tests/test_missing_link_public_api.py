@@ -3,11 +3,12 @@ import copy
 import unittest
 from unittest import mock
 
-from missing_link.context import build_context, select_capabilities
+from missing_link.context import build_context, select_capabilities, size
 from missing_link.discovery import problem_queries
 from missing_link.provider import Provider
-from missing_link.public_api import public_api_hints, MAX_PUBLIC_API_HINTS, MAX_INITIALIZERS, MAX_INITIALIZER_CHARS
-from missing_link.sources import extract_structure
+from missing_link.public_api import (public_api_hints, public_api_report, MAX_PUBLIC_API_HINTS,
+    MAX_INITIALIZERS, MAX_INITIALIZER_CHARS, MAX_PUBLIC_API_REPORT_BYTES)
+from missing_link.sources import extract_structure, _safe_path, MAX_FILE_BYTES
 import test_missing_link as fixtures
 
 
@@ -47,6 +48,100 @@ class PublicApiTests(unittest.TestCase):
             self.assertIn(f'file:{definition["path"]}#L{definition["line"]}-L{definition["end_line"]}', data["sources"])
         self.assertEqual(report["public_api_hints"]["entrypoints"], public_api_hints(repo["files"])["entrypoints"])
         self.assertEqual(repo, before)
+
+    def long_path_repository(self):
+        repo = fixtures.repository()
+        prefix = "/".join(["package" + "x" * 67] * 12)
+        names = [f"function_{i}" for i in range(MAX_PUBLIC_API_HINTS)]
+        repo["files"] = [self.file(prefix + "/__init__.py",
+            "from .api import " + ", ".join(names) + "\n__all__ = " + repr(names)),
+            self.file(prefix + "/api.py", "\n".join(f"def {name}():\n    return 1" for name in names))]
+        repo["files"] += [self.file(f"src/ordinary{i}.py", ("# " + "x" * 197 + "\n") * 300) for i in range(2)]
+        repo["capabilities"] = extract_structure(repo)
+        self.assertTrue(all(_safe_path(file["path"]) for file in repo["files"]))
+        self.assertTrue(all(len(file["text"].encode("utf-8")) <= MAX_FILE_BYTES for file in repo["files"]))
+        return repo
+
+    def test_long_public_api_metadata_shares_source_packing_budget(self):
+        repo = self.long_path_repository()
+        original = copy.deepcopy(repo)
+        expected = public_api_hints(repo["files"])
+        self.assertEqual(len(expected["entrypoints"]), MAX_PUBLIC_API_HINTS)
+        for phase, demand in (("capabilities", None), ("matches", fixtures.issue())):
+            with self.subTest(phase=phase):
+                data, report = build_context(repo, demand, phase, 180000)
+                self.assertLessEqual(size(data), 180000 - 16000)
+                shown = report["public_api_hints"]
+                self.assertLessEqual(size(shown), MAX_PUBLIC_API_REPORT_BYTES)
+                self.assertEqual(shown["entrypoints"], expected["entrypoints"][:len(shown["entrypoints"])])
+                self.assertEqual(shown["omitted_entrypoint_count"], MAX_PUBLIC_API_HINTS - len(shown["entrypoints"]))
+                self.assertGreater(shown["omitted_entrypoint_count"], 0)
+                self.assertFalse(shown["entrypoint_list_complete"])
+                self.assertTrue(shown["scan_complete"])
+                self.assertEqual(len(data["repository"]["capabilities"]), 30)
+                # Reporting omissions cannot remove hints from candidate ranking.
+                self.assertTrue(all(cap["public_api_hint"] for cap in data["repository"]["capabilities"]))
+                self.assertFalse(report["implementation_context_missing"])
+                self.assertTrue(any(entry.get("path", "").endswith("/api.py") for entry in data["sources"].values()))
+                self.assertGreater(report["omitted_source_count"], 0)
+                if demand:
+                    self.assertIn("q0", data["sources"])
+        self.assertEqual(repo, original)
+
+    def test_report_bound_counts_utf8_and_json_escaping_not_only_characters(self):
+        for prefix in ("x", "é", '"'):
+            with self.subTest(prefix=prefix):
+                hints = {"entrypoints": [prefix * 900 + f"/api.py:function_{i}" for i in range(64)],
+                         "scan_complete": True, "method": "fixture"}
+                original = copy.deepcopy(hints)
+                report = public_api_report(hints)
+                self.assertLessEqual(size(report), MAX_PUBLIC_API_REPORT_BYTES)
+                self.assertGreater(report["omitted_entrypoint_count"], 0)
+                self.assertFalse(report["entrypoint_list_complete"])
+                self.assertEqual(len(report["entrypoints"]) + report["omitted_entrypoint_count"], 64)
+                self.assertEqual(hints, original)
+
+    def test_small_and_empty_reports_keep_all_scanned_hints(self):
+        for repo in (self.dotenv_shaped(), {"files": []}):
+            hints = public_api_hints(repo["files"])
+            report = public_api_report(hints)
+            self.assertEqual(report["entrypoints"], hints["entrypoints"])
+            self.assertTrue(report["entrypoint_list_complete"])
+            self.assertEqual(report["omitted_entrypoint_count"], 0)
+            self.assertEqual(report["scan_complete"], hints["scan_complete"])
+
+    def test_long_api_reports_pass_real_transport_preflight_without_http_or_spend(self):
+        repo = self.long_path_repository()
+        # Keep this transport fixture's declaration sample small; all 64 API
+        # hints still participate. The 30-candidate packing boundary is tested
+        # above, separately from repeated long source-ID schema overhead.
+        repo["capabilities"] = repo["capabilities"][:8]
+        demand = fixtures.issue()
+        request = fixtures.validate_request(fixtures.request_raw(), demand)
+        original = copy.deepcopy((repo, demand, request))
+        for api in ("chat", "responses"):
+            for response_format in ("json_object", "json_schema"):
+                for phase in ("capabilities", "matches"):
+                    with self.subTest(api=api, response_format=response_format, phase=phase):
+                        provider = Provider({"REPOTRACTION_AI_URL": "http://localhost/v1",
+                            "REPOTRACTION_AI_MODEL": "fixture", "REPOTRACTION_AI_API_KIND": api,
+                            "REPOTRACTION_AI_RESPONSE_FORMAT": response_format,
+                            "REPOTRACTION_AI_INPUT_USD_PER_MILLION": "1",
+                            "REPOTRACTION_AI_OUTPUT_USD_PER_MILLION": "1"})
+                        budget = mock.Mock()
+                        budget.reserve_ai.side_effect = RuntimeError("fixture reservation stop")
+                        with mock.patch("missing_link.provider.urllib.request.build_opener") as opener:
+                            with self.assertRaisesRegex(RuntimeError, "fixture reservation stop"):
+                                if phase == "capabilities":
+                                    provider.interpret_capabilities(repo, budget)
+                                else:
+                                    provider.evaluate(repo, demand, request, budget)
+                            opener.assert_not_called()
+                        budget.reserve_ai.assert_called_once()
+                        budget.checkpoint.assert_not_called()
+                        input_bytes = round(budget.reserve_ai.call_args.args[0] * 1000000 - provider.max_tokens - 2048)
+                        self.assertLessEqual(input_bytes, provider.max_bytes)
+        self.assertEqual((repo, demand, request), original)
 
     def test_public_apis_rank_before_reviewed_internal_cli_queries_without_raising_query_limit(self):
         repo = self.dotenv_shaped()

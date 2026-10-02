@@ -1,10 +1,28 @@
 """Bounded literal Python API declaration hints, not runtime export verification."""
 import ast
+import json
 from pathlib import PurePosixPath
 
 MAX_PUBLIC_API_HINTS = 64
 MAX_INITIALIZERS = 32
 MAX_INITIALIZER_CHARS = 32768
+MAX_PUBLIC_API_REPORT_BYTES = 8192
+
+
+def public_api_report(hints):
+    """Bound displayed hints in bytes without changing the full ranking input."""
+    entries = hints["entrypoints"]
+    report = dict(hints, entrypoints=[], omitted_entrypoint_count=len(entries), entrypoint_list_complete=not entries)
+    for entry in entries:
+        report["entrypoints"].append(entry)
+        report["omitted_entrypoint_count"] = len(entries) - len(report["entrypoints"])
+        report["entrypoint_list_complete"] = not report["omitted_entrypoint_count"]
+        if len(json.dumps(report, ensure_ascii=False).encode("utf-8")) > MAX_PUBLIC_API_REPORT_BYTES:
+            report["entrypoints"].pop()
+            report["omitted_entrypoint_count"] += 1
+            report["entrypoint_list_complete"] = False
+            break
+    return report
 
 
 def public_api_hints(files):

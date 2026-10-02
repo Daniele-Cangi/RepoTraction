@@ -319,13 +319,22 @@ exports, import chains, star/absolute/parent imports and missing targets are not
 resolved. The scan is capped at 32 initializers, 32,768 characters per initializer
 and 64 hints, with visible scan limits; the candidate/file/query bounds do not grow.
 These are ranking hints, not runtime export verification or broader parser coverage.
+The displayed API-hint ledger is capped at 8,192 serialized UTF-8 JSON bytes and
+shares the source packing budget. `omitted_entrypoint_count` and
+`entrypoint_list_complete` describe reporting omissions, separately from the
+original `scan_complete` flag. All scanned hints still participate in ranking;
+long paths cannot expand the report after source packing or consume all of the
+implementation context just to repeat those hints.
 
-Offline contract-19 verification passes **779 tests**, including 22 browser fixtures
-and 26 new Python fixtures for partial support, gap review and public API ranking.
+Offline contract-19 verification passes **783 tests**, including 22 browser fixtures
+and 30 new Python fixtures for partial support, gap review, public API ranking and
+hint-report packing. The review regression covers valid 906-character paths,
+64 hints, two 60 KB files, UTF-8/JSON escaping, unchanged ranking and a bounded
+eight-declaration sample through both provider API/format modes before HTTP.
 Read-only replay of the retained 2 October cohort packs all **78 contexts** (13
 enrichment, 34 extraction and 31 comparison) through the Responses schema/framing
 preflight, stopping at a fake reservation before HTTP. Maximum transport size is
-**174,637 bytes** under the existing 180,000-byte bound. `load_dotenv` and
+**174,273 bytes** under the existing 180,000-byte bound. `load_dotenv` and
 `dotenv_values` now reach their supplied definition context. No model calls,
 stored-result updates or account-ledger changes occurred: 251 reservations remain
 USD 3.844534 under the same USD 10 ceiling. This tests context feasibility and

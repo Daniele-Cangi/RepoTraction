@@ -98,11 +98,15 @@ protected. Narrow descriptive gap hints do not create dependency prohibitions;
 directive/ambiguous negatives retain review. Literal acquired Python `__all__` API
 hints prioritize primary definitions within the same role, 30-candidate, file and
 query bounds, without adding recursive import/export resolution.
+The review fix reserves serialized hint-report bytes before packing sources and
+bounds that report to 8,192 bytes with explicit omission counts/completeness.
+The full scanned list still ranks candidates; reporting limits do not become
+parser or candidate-selection limits.
 
-The final offline run passes **779 tests**, including 22 browser fixtures and 26
+The final offline run passes **783 tests**, including 22 browser fixtures and 30
 new Python regressions. All 78 retained cohort contexts (13 enrichment, 34
 extraction, 31 comparison) pass current Responses transport preflight at a maximum
-174,637 bytes under 180,000, stopping at a fake reservation before HTTP. The two
+174,273 bytes under 180,000, stopping at a fake reservation before HTTP. The two
 core python-dotenv APIs are now offered with definition evidence. The 251 original
 reservations, USD 3.844534 allowance total, frozen analyses and account history
 are unchanged. These results establish offline contracts/context feasibility, not
