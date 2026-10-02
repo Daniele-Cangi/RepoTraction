@@ -92,6 +92,14 @@ The manifest scan also includes executable paths from `bin`, in string or
 command-to-path form ([npm specification](https://docs.npmjs.com/cli/v11/configuring-npm/package-json/#bin)).
 They share the existing manifest hint cap and safety-filtered file/read budget;
 following a path does not prove that an executable is installed or runnable.
+Lexical exclusions hide JSX element/fragment text, attributes and embedded
+expressions in JSX/TSX and transform-enabled JavaScript source files, so rendered
+declaration examples cannot spend an implementation read slot. Balanced supported
+markup preserves real re-exports later in the module. This is not a JSX/TypeScript
+grammar parser: component type arguments, constrained generic-arrow ambiguity,
+unterminated/mismatched markup and shared nesting overflow make the scan explicitly
+incomplete instead of exposing ambiguous text as code. Plain `.ts` assertions and
+generics do not enter JSX mode.
 
 Technical compatibility and useful partial contribution are separate. A rejected
 request can retain supported requirement IDs alongside conflicts and unknowns;

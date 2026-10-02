@@ -40,7 +40,9 @@ def export_hints(path, text, eligible):
         for key in ("source", "main", "module", "exports", "bin"):
             specs.extend(leaves(metadata.get(key)))
     elif PurePosixPath(path).suffix.casefold() in JS_SOURCE_SUFFIXES:
-        visible, code, literals, complete = export_view(text)
+        # JSX may also live in transform-enabled .js/.mjs/.cjs sources. Keep
+        # plain .ts assertions/generics out of JSX mode.
+        visible, code, literals, complete = export_view(text, jsx=PurePosixPath(path).suffix.casefold() != ".ts")
         top_level, scopes_complete = top_level_code(visible, code)
         complete &= scopes_complete
         # Named clauses can span lines. Stop at either brace so an unfinished

@@ -44,13 +44,42 @@ def _regexp_end(text, start, work):
     return None
 
 
-def export_view(text):
+def _jsx_open(text, start):
+    """Recognize a simple JSX name/fragment, not TS type argument grammar."""
+    index = start + 1
+    if text.startswith("<>", start):
+        return index + 1, ""
+    if index == len(text) or not (text[index].isalpha() or text[index] in "_$"):
+        return None
+    index += 1
+    while index < len(text) and (text[index].isalnum() or text[index] in "_$.-:"):
+        index += 1
+    if index < len(text) and not (text[index].isspace() or text[index] in "/><"):
+        return None  # E.g. TSX's unambiguous generic arrow prefix <T,>.
+    # A following '<' may introduce JSX component type arguments. Tag mode
+    # treats that unsupported syntax as incomplete, never as rendered code.
+    return index, text[start + 1:index]
+
+
+def _jsx_close(text, start, name):
+    index = start + 2
+    if not text.startswith(name, index):
+        return None
+    index += len(name)
+    while index < len(text) and text[index].isspace():
+        index += 1
+    return index + 1 if index < len(text) and text[index] == ">" else None
+
+
+def export_view(text, *, jsx=False):
     """Preserve offsets/module literals while hiding comments and templates.
 
     Code-position flags exclude declaration keywords inside quoted strings.
     Template interpolation is also hidden, including nested templates, strings,
     comments and expression braces. Unterminated/depth-limited regions do not
     expose their tail as code. No repository source is changed or executed.
+    JSX mode hides entire named elements/fragments, including attributes and
+    embedded expressions. Unsupported/ambiguous markup cannot certify coverage.
     """
     visible = list(text)
     code = bytearray(len(text))
@@ -70,8 +99,71 @@ def export_view(text):
         else:
             hide(first, last)
 
+    def nest(frame, first, last):
+        nonlocal complete
+        if len(stack) >= MAX_LEXICAL_NESTING:
+            hide(first, len(text))
+            complete = False
+            return False
+        hide(first, last)
+        stack.append(frame)
+        return True
+
     while index < len(text):
         frame, char = stack[-1], text[index]
+        if frame["mode"] in {"jsx_tag", "jsx_text"}:
+            if char == "{":
+                if not nest({"mode": "code", "depth": 1, "operand": True, "previous": ""}, index, index + 1):
+                    break
+                index += 1
+            elif frame["mode"] == "jsx_tag":
+                if char in "'\"":
+                    # Quoted JSX attributes are raw text, not JS escape strings.
+                    closing = text.find(char, index + 1)
+                    if closing < 0:
+                        hide(index, len(text))
+                        complete = False
+                        break
+                    hide(index, closing + 1)
+                    index = closing + 1
+                elif text.startswith("/>", index):
+                    hide(index, index + 2)
+                    stack.pop()
+                    index += 2
+                elif char == ">":
+                    hide(index, index + 1)
+                    frame["mode"] = "jsx_text"
+                    index += 1
+                elif char in "<`,}":
+                    hide(index, len(text))
+                    complete = False
+                    break
+                else:
+                    hide(index, index + 1)
+                    index += 1
+            elif text.startswith("</", index):
+                end = _jsx_close(text, index, frame["name"])
+                if end is None:
+                    hide(index, len(text))
+                    complete = False
+                    break
+                hide(index, end)
+                stack.pop()
+                index = end
+            elif char == "<":
+                opening = _jsx_open(text, index)
+                if opening is None:
+                    hide(index, len(text))
+                    complete = False
+                    break
+                end, name = opening
+                if not nest({"mode": "jsx_text" if not name else "jsx_tag", "name": name}, index, end):
+                    break
+                index = end
+            else:
+                hide(index, index + 1)
+                index += 1
+            continue
         if frame["mode"] == "template":
             end = min(len(text), index + (2 if char == "\\" else 1))
             if char == "`":
@@ -86,6 +178,18 @@ def export_view(text):
             hide(index, end)
             index = end
             continue
+        if jsx and char == "<" and (frame["operand"] or frame["previous"] == "}"):
+            opening = _jsx_open(text, index)
+            if opening is not None:
+                end, name = opening
+                # A block-ending statement and an object comparison need grammar
+                # to distinguish. Hide balanced JSX, but expose the ambiguity.
+                complete &= frame["operand"]
+                frame.update(operand=False, previous="literal")
+                if not nest({"mode": "jsx_text" if not name else "jsx_tag", "name": name}, index, end):
+                    break
+                index = end
+                continue
         if text.startswith("//", index):
             end = index + 2
             while end < len(text) and text[end] not in "\r\n":
