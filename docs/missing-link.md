@@ -365,6 +365,32 @@ API recall remain unverified in this incomplete sample.
 
 ## Coding-agent mode without a provider
 
+### Contract 20: post-retest corrections
+
+The [contract-20 correction report](missing-link-contract20-corrections-2026-10-02.md)
+documents the three offline fixes following the incomplete live cohort. Context
+packing measures actual final provider transport and locally rebuilds excerpts
+and citation scopes before any reservation/HTTP. It never truncates interpreted
+requirements or increases the prompt limit. Citation spans share their fixed
+budget across discussion after a small root opening; exact provenance and visible
+incompleteness remain required.
+
+Wire matches now include `partial_support: []`. For a proposed `partial_behavior`,
+add a review with `requirement_id`, `basis`, `operation`, `requirement_part`,
+`remaining_work` and `source_ids`. `basis` is `candidate_implementation`,
+`target_context`, `analogy` or `not_established`. Retaining partial credit requires
+nonempty operation/request-part/remaining-work and only candidate implementation
+anchors also cited by that check. Other bases and missing reviews cannot create
+partial support. The review is exported with its normalized check. This validates
+attribution/provenance, not semantic truth; real model-quality verification remains
+pending. Stored older analyses are unchanged and remain historical.
+
+800 local tests pass. Exact acquired-context replay keeps Zod's 27 requirements
+within the byte limit and makes Babel's later feedback request citable, without
+paid calls, imports or host execution of acquired code.
+
+### Handoff and import
+
 After evaluating a selected issue, expand **Use a coding agent without configuring
 a provider** in the jobs section. Download that job's source context. It includes
 the acquired source/discussion, coverage, source IDs and the analysis contract.
