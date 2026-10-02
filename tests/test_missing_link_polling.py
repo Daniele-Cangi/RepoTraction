@@ -17,7 +17,9 @@ from missing_link.service import Service
 
 class IdentityPollingTests(unittest.TestCase):
     def setUp(self):
-        stack = self.enterContext(ExitStack())
+        # TestCase.enterContext is unavailable on supported Python 3.10.
+        stack = ExitStack()
+        self.addCleanup(stack.close)
         directory = stack.enter_context(tempfile.TemporaryDirectory())
         self.path = Path(directory) / "history.sqlite3"
         self.verify = mock.Mock(return_value="alice")
