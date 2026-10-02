@@ -207,6 +207,18 @@ job and its USD 0.0208524 reservation stay counted; no automated retry/resume or
 allowance reset is introduced. Inspect the new attempt before starting the other
 12 sources. The VPN hypothesis remains unconfirmed.
 
+That explicit retry completed without code/settings changes: seven reservations,
+seven completed responses, seven retained JSON outputs, no transport/polling or
+candidate-validation failures. Three automatically selected issues produced four
+evaluations: source-supported chunking, one bounded cardinality partial and two
+uncredited superficial similarities. None qualifies for follow-up execution.
+The ledger is **310 reservations / USD 4.8190698**, preserving the first failed
+attempt and all older records/reports. Model attribution gaps were caught by the
+existing ownership gate; omitted context and runtime deployment limits remain
+visible. Continue the other 12 prescribed sources before generalizing quality or
+claiming new discovery. The diagnostic/polling fixes remain deferred as requested;
+this successful repeat alone does not prove the VPN caused the first failure.
+
 The prior contract-14 offline replay of the retained eight-repository cohort packed
 all 8 enrichment, 24 extraction and 20 comparison inputs within the existing
 180,000-byte transport bound (maximum 164,598 bytes). The contract-16 no-spend
