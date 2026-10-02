@@ -341,15 +341,27 @@ USD 3.844534 under the same USD 10 ceiling. This tests context feasibility and
 offline contracts, not improved live-model accuracy; fresh Luna verification is
 still pending. Frozen contract-16 results remain unchanged.
 
-The subsequent [contract-19 live attempt](missing-link-live-discovery-contract19-2026-10-02.md)
-was interrupted on its first source by an account-verification failure. Four
-completed model responses and two pinned comparisons are retained; a fifth
-reservation has no completed response receipt and remains charged conservatively.
-The full 13-source retest is not complete. Current cumulative reservations are
-USD 3.9319899 across 256 entries under the same USD 10 cap. Useful partial support
-and a defensible as-is rejection do not establish a qualified connection; one
-invalid-option/invalid-size partial credit is semantically questionable. No model
-retry or isolated execution was forced, and earlier results remain unchanged.
+The subsequent [contract-19 live retest](missing-link-live-discovery-contract19-2026-10-02.md)
+initially stopped on an account-verification failure; one explicitly approved
+checkpoint resume then completed that job and continued the frozen cohort. Seven
+jobs completed (one partial), and input eight failed locally because its final
+comparison transport was 185,562 bytes against the 180,000-byte cap. Five sources
+remain unstarted. The full 13-source retest is **not complete**.
+
+Fifty completed responses and 31 pinned comparisons are retained from 51
+reservations. The initial unknown attempt is still charged conservatively; the
+oversized comparison added no reservation/network call. Cumulative reserved cost
+is **USD 4.6737541 across 302 entries**, under the unchanged USD 10 cap; this is
+not a provider invoice. Exports and historical results are identical after restart.
+No match is eligible for follow-up, so no isolated execution was forced.
+
+Independent inspection finds three necessary follow-ups: final-transport-aware
+packing, citation-budget coverage for later human requests, and candidate-owned
+partial support rather than target-side work/analogy. Useful mechanisms and sound
+as-is rejections remain distinct from a qualified connection; raw partial labels
+are not a verified utility count. Product code remained frozen. No further paid
+resume is automatic, and typed model non-demand handling plus fresh python-dotenv
+API recall remain unverified in this incomplete sample.
 
 ## Coding-agent mode without a provider
 
