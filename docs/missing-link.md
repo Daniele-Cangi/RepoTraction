@@ -451,6 +451,9 @@ discovery still needs established search terms or an explicit operator query.
   Extensionless hints try eligible `.ts`, `.js`, `.tsx`, `.jsx`, `.mjs` and `.cjs`
   files before directory index variants, with TS/JS first in each tier. Excluded
   files and `.d.ts` declarations are not inferred as implementation targets.
+  An exact eligible target remains preferred; `.js` hints can fall back to
+  `.ts`/`.tsx`, and `.jsx` hints to `.tsx`/`.ts`. These are bounded source-sampling
+  fallbacks, not a full [TypeScript module resolver](https://www.typescriptlang.org/docs/handbook/modules/reference.html#file-extension-substitution).
   Direct top-level CommonJS assignments such as `module.exports = require('./engine')`
   and `exports.parse = require('./engine')` share the ESM hint order, cap and safety
   filters. Dynamic/computed require expressions and general CommonJS export

@@ -9,6 +9,53 @@ from test_missing_link_sources import GitHubFixture
 
 
 class ExportHintTests(unittest.TestCase):
+    def test_jsx_reexports_follow_eligible_tsx_and_ts_sources(self):
+        for target in ("component.tsx", "component.ts"):
+            for extension in (".js", ".mjs", ".cjs", ".jsx", ".ts", ".tsx"):
+                for text in ('export * from "./component.jsx";', "export {render} from './component.jsx';",
+                             "export {\n render,\n} from './component.jsx';",
+                             "module.exports = require('./component.jsx');", "exports.render = require('./component.jsx');"):
+                    with self.subTest(target=target, extension=extension, text=text):
+                        self.assertEqual(export_hints("index" + extension, text, {target: {}}), ([target], True))
+        for key in ("source", "main", "module", "exports"):
+            with self.subTest(key=key):
+                self.assertEqual(export_hints("package.json", json.dumps({key: "./src/component.jsx"}),
+                                             {"src/component.tsx": {}}), (["src/component.tsx"], True))
+
+    def test_jsx_hints_keep_exact_target_preference_and_safety_filters(self):
+        text = 'export * from "./component.jsx";'
+        self.assertEqual(export_hints("index.ts", text, {"component.jsx": {}, "component.tsx": {}, "component.ts": {}}),
+                         (["component.jsx"], True))
+        self.assertEqual(export_hints("index.ts", text, {"component.tsx": {}, "component.ts": {}}),
+                         (["component.tsx"], True))
+        self.assertEqual(export_hints("index.ts", text, {"component.d.ts": {}}), ([], True))
+        for spec in ("../../component.jsx", "./component.jsx?query", "./component.jsx#fragment",
+                     "./*.jsx", "package/component.jsx", "https://host/component.jsx", "./types.d.ts"):
+            with self.subTest(spec=spec):
+                self.assertEqual(export_hints("src/index.ts", f'export * from "{spec}";',
+                                             {"component.tsx": {}, "src/component.tsx": {}, "src/types.d.ts": {}}),
+                                 ([], True))
+        fake = 'export * from "./component.jsx";'
+        for text in (f"/*{fake}*/", f"const sample = `{fake}`;", f"function sample() {{{fake}}}"):
+            with self.subTest(text=text):
+                self.assertEqual(export_hints("index.ts", text, {"component.tsx": {}}), ([], True))
+
+    def test_jsx_barrels_reach_component_with_fixed_read_budget(self):
+        fixture = GitHubFixture()
+        fixture.add("index.ts", 'export * from "./src/index.jsx";')
+        fixture.add("src/index.tsx", 'export {render} from "./component.jsx";')
+        fixture.add("src/component.tsx", "export function render(value) { return value; }")
+        for i in range(40):
+            fixture.add(f"unrelated{i:02d}.ts", "export function helper() { return true; }")
+        snapshot = PublicGitHub(fixture.read).fetch_repository("sample/project", 3)
+        self.assertEqual([file["path"] for file in snapshot["files"]], ["index.ts", "src/index.tsx", "src/component.tsx"])
+        self.assertEqual(sum("/git/blobs/" in call[0] for call in fixture.calls), 3)
+        self.assertEqual(snapshot["coverage"]["static_export_hints"],
+                         [{"from": "index.ts", "path": "src/index.tsx"},
+                          {"from": "src/index.tsx", "path": "src/component.tsx"}])
+        self.assertTrue(snapshot["coverage"]["export_hints_complete"])
+        self.assertFalse(snapshot["coverage"]["eligible_sample_complete"])
+
     def test_literal_commonjs_reexports_follow_whole_module_and_named_assignments(self):
         for extension in (".js", ".cjs", ".ts"):
             for text in ("module.exports = require('./engine');", 'exports.parse=require("./engine");',

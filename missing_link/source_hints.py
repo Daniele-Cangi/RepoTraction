@@ -89,6 +89,8 @@ def export_hints(path, text, eligible):
         options = [base]
         if base.endswith(".js"):
             options += [base[:-3] + ".ts", base[:-3] + ".tsx"]
+        elif base.endswith(".jsx"):
+            options += [base[:-4] + ".tsx", base[:-4] + ".ts"]
         elif not PurePosixPath(base).suffix:
             # Prefer files before directory indexes; keep TS/JS first in each
             # tier. This only selects eligible tree entries, not module resolution.
