@@ -396,13 +396,16 @@ def assess_discovery(repository, issue, request, classification, checks, catalog
                     "reference_hint" if reference_count else "external" if target else "unknown")
     supported_ids = [check["requirement_id"] for check in checks
                      if check["status"] == "satisfied" and check.get("contribution") == "existing_behavior"]
+    partial_ids = [check["requirement_id"] for check in checks
+                   if check["status"] == "undetermined" and check.get("contribution") == "partial_behavior"]
     scope_ids = [check["requirement_id"] for check in checks
                  if check["status"] == "satisfied" and check.get("contribution") == "scope_compatible"]
     conflict_ids = [check["requirement_id"] for check in checks if check["status"] == "incompatible"]
     unknown_ids = [check["requirement_id"] for check in checks if check["status"] == "undetermined"]
     supported = bool(supported_ids)
     contribution = ("supported_with_conflicts" if supported and conflict_ids else
-                    "supported" if supported else "conflict" if conflict_ids else "not_demonstrated")
+                    "supported" if supported else "partial_with_conflicts" if partial_ids and conflict_ids else
+                    "partial" if partial_ids else "conflict" if conflict_ids else "not_demonstrated")
     hard_ids = {r["id"] for r in request["requirements"] if r["mandatory"]}
     verdicts = {check["requirement_id"]: check["status"] for check in checks}
     complete_hard = (bool(hard_ids) and all(verdicts.get(rid) == "satisfied" for rid in hard_ids)
@@ -422,9 +425,12 @@ def assess_discovery(repository, issue, request, classification, checks, catalog
         status = "not_actionable"
         reasons.append("An unresolved independent human demand in an active target is not established.")
     elif classification == "rejected":
-        status = "partial_contribution" if supported else "not_a_fit"
-        reasons.append("Some requirements have existing code support, but the complete request is rejected; supported parts do not remove mandatory conflicts or establish an actionable connection."
-                       if supported else "Compatibility assessment rejected this contribution; lexical resemblance is not a usable connection.")
+        status = "partial_contribution" if supported or partial_ids else "not_a_fit"
+        reasons.append("Existing code can contribute, but the complete request is rejected; reusable parts do not remove mandatory conflicts or establish an actionable connection."
+                       if supported or partial_ids else "Compatibility assessment rejected this contribution; lexical resemblance is not a usable connection.")
+    elif not supported and partial_ids:
+        status = "partial_contribution"
+        reasons.append("A source-cited primitive can contribute, but no complete requirement is established. Integration, full fulfillment and a new actionable connection remain unverified.")
     elif not supported:
         status = "similarity_only"
         reasons.append("No requirement has a supported existing contribution. Retrieval or all-undetermined checks are not a discovered solution.")
@@ -441,6 +447,8 @@ def assess_discovery(repository, issue, request, classification, checks, catalog
         reasons.append("Potential external connection with supported requirements; novelty, execution, target integration and adoption remain unverified.")
     if scope_ids:
         reasons.append("Scope-compatible constraints (such as leaving an API unchanged) are not reusable existing behavior and do not count as a useful contribution.")
+    if partial_ids:
+        reasons.append("Partial primitives are not satisfied requirements and do not by themselves qualify a lead or authorize follow-up execution.")
     reasons.append("No reference found in bounded discussion/target samples is not proof that this connection is new or unknown to the author.")
     if not target_acquired:
         reasons.append("No pinned public target reference context was acquired; prior dependency/use remains unknown.")
@@ -448,6 +456,7 @@ def assess_discovery(repository, issue, request, classification, checks, catalog
     reasons.extend(manifest_review)
     return {"status": status, "relationship": relationship, "contribution": contribution,
         "supported_requirement_ids": supported_ids, "conflicting_requirement_ids": conflict_ids,
+        "partial_requirement_ids": partial_ids,
         "scope_compatible_requirement_ids": scope_ids,
         "undetermined_requirement_ids": unknown_ids,
         "opportunity_review": review,

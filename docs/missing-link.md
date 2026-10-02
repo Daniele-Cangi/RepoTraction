@@ -291,6 +291,18 @@ later frames or treating partial deltas as completed output.
 Contract 18 does not rewrite historical results or validate fresh real-model
 behavior by itself.
 
+Contract 19 additionally distinguishes `partial_behavior`: a source-cited reusable
+primitive that can help an independently extracted requirement, while integration
+or policy remains new work. Its requirement stays `undetermined`, not `satisfied`.
+An explicit nonempty explanation and cited implementation are required; documentation,
+tests, type declarations, target code and passive API preservation do not substantiate
+partial runtime support. A hard conflict remains a rejection. Partial primitives
+are counted separately from fully supported requirements, cannot by themselves
+qualify an external lead or extension group, and do not execute code automatically.
+Existing ambiguous/historical outputs are not promoted or rewritten. Project-specific
+documentation, test and integration work is distinguished from a demonstrated hard
+runtime or dependency incompatibility in the comparison prompt.
+
 ## Coding-agent mode without a provider
 
 After evaluating a selected issue, expand **Use a coding agent without configuring

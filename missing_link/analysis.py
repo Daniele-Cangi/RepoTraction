@@ -16,10 +16,11 @@ from .demand import optional_field_hints
 from .sources import source_role, runtime_bin_entrypoints
 from .contracts import validate_requirement_count
 from .non_demands import NON_DEMAND_STATUS, is_non_demand, validate_non_demand
+from .contributions import normalize_support
 
 CLASSIFICATIONS = {"direct", "adapter", "extraction", "rejected", "investigate"}
 REQUEST_STATUSES = {"unresolved", "resolved", "duplicate", "unclear", "automated", NON_DEMAND_STATUS}
-ANALYSIS_CONTRACT_VERSION = 18
+ANALYSIS_CONTRACT_VERSION = 19
 
 
 def passive_api_constraint(requirement: dict) -> bool:
@@ -257,34 +258,19 @@ def validate_matches(raw_matches: list, repository: dict, issue: dict, request: 
         for rid, requirement in requirements.items():
             item = supplied.get(rid, {})
             status = item.get("status", "undetermined")
-            if status not in {"satisfied", "incompatible", "undetermined"}:
-                raise ValueError("Unknown requirement verdict.")
             contribution = item.get("contribution", "not_demonstrated")
-            if contribution not in {"existing_behavior", "scope_compatible", "not_demonstrated"}:
-                raise ValueError("Unknown requirement contribution kind.")
             evidence = []
             for reference in item.get("source_ids", []):
                 entry = resolve_evidence(reference, catalog)
                 entry["quote"] = entry["quote"][:1600]
                 entry["source_id"] = reference
                 evidence.append(entry)
-            # No citation => no affirmative conclusion; lexical overlap cannot satisfy a requirement.
-            if status in {"satisfied", "incompatible"} and not any(e.get("path") for e in evidence):
-                status = "undetermined"
-            if status == "satisfied" and contribution == "not_demonstrated":
-                status = "undetermined"
-            if (status == "satisfied" and contribution == "existing_behavior"
-                    and not any(entry.get("path") and source_role(entry["path"], runtime_entrypoints=runtime_entrypoints) == "implementation" for entry in evidence)):
-                # A prompt may contain implementation elsewhere, but this
-                # particular affirmative behavior must cite it, not just docs,
-                # fixtures, benchmarks or type declarations.
-                status = "undetermined"
-            if status != "satisfied":
-                contribution = "not_demonstrated"
-            elif passive_api_constraint(requirement):
-                contribution = "scope_compatible"
+            reason = text(item.get("reason", "No grounded assessment supplied."))
+            status, contribution = normalize_support(status, contribution, evidence,
+                passive=passive_api_constraint(requirement), reason=reason if "reason" in item else "",
+                runtime_entrypoints=runtime_entrypoints)
             checks.append({"requirement_id": rid, "status": status, "contribution": contribution,
-                "reason": text(item.get("reason", "No grounded assessment supplied.")), "evidence": evidence})
+                "reason": reason, "evidence": evidence})
         hard = [item for item in checks if requirements[item["requirement_id"]]["mandatory"]]
         obstacles = texts(raw.get("obstacles", []))
         if any(item["status"] == "incompatible" for item in hard):
