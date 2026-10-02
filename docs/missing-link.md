@@ -31,7 +31,9 @@ package name rather than searching for existing references to it. Automatic
 queries may also use specific single-word mechanisms such as `pagination` or
 `backpressure`; a second word is not mandatory. Contextual phrases are preferred
 when available, while package names and generic helpers such as `main`/`run`
-cannot create queries on their own. Up to three
+cannot create queries on their own. Fragmented terms are checked again after
+joining so they cannot reconstruct the canonical repository/package name.
+Unreviewed README/manifest summaries do not create implementation queries. Up to three
 queries cover distinct source modules within the same source/review priority
 tier where possible; diversity cannot promote weaker docs over reviewed code.
 Unreviewed declaration
@@ -51,12 +53,20 @@ in `job.result.search`. Resuming keeps the selected checkpoint batch unchanged.
 Empty results and excluded candidates do not demonstrate absence of demand.
 
 After reading each selected discussion, fully automatic discovery applies narrow
-filename/code-dump and exam-preparation-manual hints. Skipped candidates remain
+filename/code-dump, exam-preparation-manual, reference-only-body and automated-
+author hints based on acquired bot metadata. Mentioning generated plans, automation
+or a robot emoji does not establish bot authorship or trigger that early skip;
+the same metadata-only bot distinction applies during downstream qualification.
+Explicit generated-artifact labels/headings remain content/authority review hints,
+not bot identity or maintainer approval. Neutral requests about generated content
+do not trigger them.
+A subsequent discussion keeps the candidate available for review.
+Skipped candidates remain
 in `job.result.candidate_skips`, with policy, reason, context completeness and
 `proves_absence_of_demand=false`. They receive no request/match AI calls and are
 **not compatibility rejections**. The selected sample is not refilled or reranked.
 An explicit issue URL or custom query bypasses this screening. Request-like prose
-or subsequent discussion keeps a candidate eligible; this is not a general demand
+keeps a non-automated prose candidate eligible; this is not a general demand
 classifier. Language names such as JavaScript/TypeScript remain whole search terms.
 
 Python source acquisition follows top-level imports in already acquired package
@@ -70,13 +80,63 @@ are not verified exports or dependency closure. Declaration sampling prioritizes
 public top-level classes/functions before their nested mechanisms and balances
 files within source-role tiers so an early
 large helper class cannot consume all 100 capability slots. Dynamic imports,
-conditional exports, JS/TS exports and oversized/excluded modules remain limitations.
+conditional exports and oversized/excluded modules remain limitations. JS/TS
+sampling follows literal relative re-exports and package entrypoint paths, including
+eligible `.js` to `.ts` source counterparts. These hints only reorder safety-filtered
+file attempts; cycles do not duplicate reads or increase the file/read/byte budget.
+Source suffix classification is case-insensitive, consistent with acquisition
+eligibility; repository paths and destination matching retain their original case.
+They are not full export resolution, dependency closure or a typecheck. Their
+recorded paths, omissions and bounded-scan completeness remain visible in coverage.
+The manifest scan also includes executable paths from `bin`, in string or
+command-to-path form ([npm specification](https://docs.npmjs.com/cli/v11/configuring-npm/package-json/#bin)).
+They share the existing manifest hint cap and safety-filtered file/read budget;
+following a path does not prove that an executable is installed or runnable.
+Lexical exclusions hide JSX element/fragment text, attributes and embedded
+expressions in JSX/TSX and transform-enabled JavaScript source files, so rendered
+declaration examples cannot spend an implementation read slot. Balanced supported
+markup preserves real re-exports later in the module. This is not a JSX/TypeScript
+grammar parser: component type arguments, constrained generic-arrow ambiguity,
+unterminated/mismatched markup and shared nesting overflow make the scan explicitly
+incomplete instead of exposing ambiguous text as code. Plain `.ts` assertions and
+generics do not enter JSX mode.
 
 Technical compatibility and useful partial contribution are separate. A rejected
 request can retain supported requirement IDs alongside conflicts and unknowns;
 **partial support does not satisfy the whole request or unblock a mandatory
 conflict**. It is not follow-up-ready. Proposed adapter code is new work, not
 evidence that the selected interface already implements that behavior.
+
+Extraction asks for independently checkable mandatory and optional behaviors.
+Constraint hints share the demand catalog's conservative sentence boundaries,
+so a valid constraint sentence need not quote a following explanation. Separate
+constraint sentences on one line remain independent review items; omitted,
+truncated or uncertain-authority constraints still prevent qualification.
+A bounded optional-field review flags omitted/bundled TypeScript-style fields
+such as `strip_ansi?: boolean`. It never adds a requirement or awards support.
+Provider hints are packed with the supplied discussion excerpts under the same
+byte budget; omitted comments cannot reappear through these hints. Overflow is
+explicit, and final validation still checks the full acquired discussion for
+unrepresented fields, so a partial prompt cannot silently clear them.
+Hint IDs come from the bounded original discussion scan, not shortened prompt
+lines. Only whole original declaration lines actually supplied to the provider
+are offered for review, with only their visible source references. Clipped lines
+and fields outside the original scan cap cannot create new dismissal citations;
+unoffered fields remain unknown and incomplete discussion cannot qualify.
+Requested fields must be represented separately. An unrelated example/context
+field can instead receive an explicit `optional_field_dispositions` decision:
+the offered `hint_id`, `not_requested`, and a nonempty, bounded reason grounded
+in its original context. The hint supplies source provenance, not a model-written
+quotation. Decisions are saved with the request and checked again on comparison;
+they do not create requirements or award support. A reason is an interpretation,
+not semantic proof of irrelevance. Omitted decisions and `needs_review` remain
+blockers, as do uncertain source authority, mandatory constraints, scan overflow
+and incomplete discussion. Contradictory requirement/dismissal decisions are
+rejected, including bundled requirements. Longer identifiers such as `colorMode`
+do not also count as `mode`; explicitly naming both still flags a bundled requirement. An optional
+API argument does not by itself make the requested implementation optional.
+A supported optional mechanism can be a
+partial contribution while mandatory conflicts still reject the full request.
 
 Each check also records `contribution`: `existing_behavior`, `scope_compatible`
 or `not_demonstrated`. A compatible boundary (for example keeping capture APIs
@@ -85,6 +145,34 @@ counts it separately in `scope_compatible_requirement_ids`, not in supported
 requirements. A scope-only candidate cannot qualify as a useful contribution.
 Recurring gaps without any demonstrated reusable behavior cannot form extension
 groups either; repeated passive scope compatibility is not an extension lead.
+An `existing_behavior` check must cite a supplied implementation path, not merely
+a README, test, fixture, benchmark or `.d.ts` declaration. An exact safe source
+target declared by an acquired `package.json` `bin` (string or bounded command map)
+can override the `scripts/` or `tools/` directory heuristic. The existing literal
+path resolver is reused; only the actual acquired target gains that role, not its
+neighbors, imported helpers, re-exports or other package entrypoint fields.
+The bounded target-to-manifest mapping is rederived from pinned files for context
+selection and each compatibility check, rather than trusting cached role claims.
+Test/mock/example/build-helper and type-declaration exclusions remain in force;
+a declared executable is still not proof of a callable interface or execution.
+Conventional standalone
+`test`/`tests`/`spec`/`specs` filenames with supported Python/JS/TS extensions
+remain test references even at the repository root; they cannot satisfy the
+implementation preflight or independently substantiate existing behavior.
+Supported code in exact `spec`/`specs` directory components has the same test-only
+role, including nested or case-varied paths such as `src/SPECS/parser.ts`.
+Similar directory names such as `specification/` are not excluded.
+Delimited example/demo/story filenames such as `example.py`, `demo.ts` and
+`Button.stories.tsx` remain infrastructure references even beside product code.
+Files in exact `example`/`examples`, `demo`/`demos`, `fixture`/`fixtures` and
+`story`/`stories` directory components have the same role, including nested or
+case-varied layouts such as `src/DEMOS/index.ts`.
+Jest's conventional `__mocks__` directory also retains infrastructure-only
+references: simulated behavior is not product implementation evidence.
+They neither satisfy the implementation preflight nor prove existing behavior;
+incidental substrings such as `demographics.py`, `storybook.js` or a `storybook/`
+directory are not excluded.
+Path membership still does not validate the semantic reasoning or certify execution.
 Old imported checks without this field default to unknown, not affirmative support.
 The deterministic API-preservation override only recognizes whole, preservation-
 only extracted requirements. Compound requirements such as "format bytes without
@@ -136,7 +224,7 @@ Malformed or unsupported values block review instead of generating references.
 This does not validate version expressions or prove installation. Supported shapes
 follow the [Poetry dependency specification](https://python-poetry.org/docs/dependency-specification/).
 
-Contract 13 marks earlier results as historical, preserving their original
+Contract 16 marks earlier results as historical, preserving their original
 interpretations and exports. There is no automatic migration or paid reevaluation.
 
 An empty body or a body containing only example/reference links cannot establish
@@ -269,7 +357,7 @@ pauses the job without automatic retry. Server restarts pause unfinished jobs,
 not restart them silently. AI-budget exhaustion requires an explicit configuration
 change/restart or another reviewed workflow, not a hidden unlimited retry.
 
-Invalid candidate analysis (for example an unsupported requirement quotation or
+Invalid candidate analysis (for example an unavailable demand-span ID or
 unsafe proposed artifact) is recorded in `result.candidate_errors`; other selected
 candidates continue. `status=completed` means processing ended, **not** that all
 candidates succeeded: `result.partial=true` and the visible warning identify
@@ -296,7 +384,7 @@ at a new revision. Maintainer feedback does not overwrite original evidence.
 Refreshes atomically preserve feedback and supersession. Each result keeps its
 exact reproduction snapshot, independent of the list of recent jobs. Resuming
 with another provider/model/contract pauses rather than mixing interpretations.
-Analysis contract version 7 also marks older assessments historical and blocks
+Analysis contract changes also mark older assessments historical and block
 their isolated examples until reevaluation; historical snapshots/exports remain
 available and are not silently rewritten as current evidence.
 Discussion freshness uses immutable GitHub issue IDs, including older URL-keyed
@@ -353,21 +441,39 @@ sample distributes candidates across files; definition chunks are interleaved
 before broad file coverage so one large module cannot monopolize the prompt.
 Coverage records the selected capability roles and actually supplied source roles
 and implementation paths, including an explicit missing-implementation flag.
-These are path-based sampling hints, not verified exports or execution evidence.
+These are path-based sampling hints with an exact acquired-manifest `bin` exception,
+not verified exports or execution evidence. `runtime_bin_entrypoints` records at
+most 64 target-to-manifest paths; the context report includes only supplied targets.
+Comparison packing keeps the root request, then selected implementation definitions
+before later discussion. Comments cannot evict already supplied code; omitted later
+resolution/constraints still make coverage incomplete and prevent qualification.
+If no implementation is supplied, enrichment/comparison fails explicitly before
+its provider call or reservation. Documentation, fixtures, benchmarks and `.d.ts`
+declarations do not pass that implementation preflight. This is an unavailable
+analysis, not a semantic rejection or evidence of absent useful functionality.
 
 Provider schemas are scoped per call: source IDs must be exact keys actually
 supplied, and capability/requirement IDs must belong to the selected candidates.
 Context packing shares the schema's 400-ID bound, in addition to the byte bound;
 ID-limited omissions are counted in coverage and make discussion incomplete.
 Repository comparisons reserve ID slots for selected source/support excerpts.
+Only retained discussion IDs spend the discussion quota; definitions already
+supplied are not charged again, and byte-rejected comments spend no ID slots.
+The shared 400-ID limit still applies to the whole packed context.
 Wider or fabricated line ranges are not offered as valid model outputs. This
 scope is checked locally for JSON-mode providers too; inspection/import contracts
-still accept precisely validated visible subspans. Request instructions require
-short contiguous original quotations, preserving Markdown, math and punctuation;
-only whitespace differences are tolerated by the provenance validator. Schema
-membership proves availability, not semantic support for a claim. Invalid quotes
-remain failures with no automatic paid retry; improved real-model success rates
-still require a separate experiment.
+still accept precisely validated visible subspans. Provider request requirements
+select `citation_id` from a bounded catalogue of exact original discussion spans,
+rather than copying quotations. IDs bind source URL, offsets and text; synthetic
+omission markers are never evidence. The application supplies the stored quote,
+without altering the recorded provider attempt. Catalogue omissions are explicit
+and prevent complete-discussion qualification. Its 400-span bound plus disposition
+IDs stays below the [Structured Outputs enum limits](https://developers.openai.com/api/docs/guides/structured-outputs).
+Oversized enum text is rejected before transport/reservation. Schema membership proves
+availability, not semantic support for a claim. Invalid IDs remain failures with
+no automatic paid retry. Human/coding-agent imports retain the exact-span validator,
+including whitespace-only normalization. Improved real-model discovery success
+still requires a separate fresh experiment; the frozen live report is unchanged.
 
 An analysis with no structural capability candidates completes with an empty
 list, without constructing an AI schema, calling the provider or reserving cost.
@@ -378,11 +484,40 @@ discovery still needs established search terms or an explicit operator query.
 - Source sampling uses a path heuristic to prioritize implementation over build,
   check, benchmark and example infrastructure within the existing file budget.
   Source-role counts and missing-implementation warnings are recorded in coverage.
+  Package entrypoints and literal relative JS/TS re-exports, including multiline
+  named clauses and multiple compact declarations on the same line, can
+  prioritize eligible files without increasing file/read/byte
+  budgets. A separate lexical scan excludes comments, quoted strings and template
+  literals (including nested interpolations). Unterminated/depth/work-limited regions
+  and ambiguous regexp/division contexts make the hint scan explicitly incomplete.
+  A bounded delimiter-scope scan excludes nested declarations; malformed or
+  depth-limited scopes make the scan incomplete rather than exposing their tail.
+  Extensionless hints try eligible `.ts`, `.js`, `.tsx`, `.jsx`, `.mjs` and `.cjs`
+  files before directory index variants, with TS/JS first in each tier. Excluded
+  files and `.d.ts` declarations are not inferred as implementation targets.
+  An exact eligible target remains preferred; `.js` hints can fall back to
+  `.ts`/`.tsx`, and `.jsx` hints to `.tsx`/`.ts`. These are bounded source-sampling
+  fallbacks, not a full [TypeScript module resolver](https://www.typescriptlang.org/docs/handbook/modules/reference.html#file-extension-substitution).
+  Direct top-level CommonJS assignments such as `module.exports = require('./engine')`
+  and `exports.parse = require('./engine')` share the ESM hint order, cap and safety
+  filters. Dynamic/computed require expressions and general CommonJS export
+  resolution are not supported; no module is executed.
+  `export_hints_complete` describes the bounded hint scan, not complete
+  JS/TS semantic coverage or verified exports.
   This is not exported-API discovery or proof that the sample represents the
   entire product. Unsupported/native source still remains outside the analyzer.
-- Requirement quotations may differ only in whitespace; the stored quote is
+- Imported requirement quotations may differ only in whitespace; the stored quote is
   recovered from one contiguous original source span. Paraphrases, changed
   punctuation and quotes from omitted context are not accepted.
+  Shared citation/constraint sentence spans retain `e.g.` and `i.e.` clauses before
+  capitalized examples without rewriting source text or offsets.
+  Identical optional-field lines from the same identified, authoritative author
+  share one review item with their retained source IDs; one atomic requirement
+  citing any of those sources can represent it, or an explicit, reasoned
+  `not_requested` decision can dismiss unrelated context. Review IDs bind to the
+  original discussion, declaration and authority. Changed text, different authors
+  and uncertain authority stay separate. The 30-reference bound and explicit
+  omission reporting still apply; repetition does not imply optional adoption.
 - A bounded, non-exhaustive English constraint-hint scan examines acquired
   discussion before prompt shortening. Selected middle excerpts preserve likely
   dependency/runtime prohibitions; omissions and truncation remain explicit.

@@ -2,8 +2,9 @@
 import copy
 import json
 import unittest
+from unittest import mock
 
-from missing_link.context import build_context, select_capabilities
+from missing_link.context import build_context, select_capabilities, size
 from missing_link.contracts import MAX_SCOPED_IDS, schema_for
 from test_missing_link import repository, issue
 
@@ -30,6 +31,20 @@ class ContextSelectionTests(unittest.TestCase):
                 self.assertIn("q0", data["sources"])
                 self.assertIn("t199", data["sources"])
 
+    def test_request_packing_accounts_for_optional_hints_and_rolls_back_rejected_sources(self):
+        demand = issue()
+        demand["comments"] = [{"url": demand["url"] + f"#issuecomment-{i}",
+            "body": f"config_{i}?: string; " + "x" * 1540} for i in range(30)]
+        data, report = build_context(None, demand, "request", 60000)
+        self.assertLessEqual(len(json.dumps(data, ensure_ascii=False).encode()), 44000)
+        self.assertTrue(report["omitted_source_count"])
+        self.assertFalse(report["discussion_complete"])
+        hints = data["potential_subrequirements"]["items"]
+        self.assertTrue(hints)
+        self.assertTrue(all(hint["source_id"] in data["sources"] for hint in hints))
+        self.assertTrue(all(hint["quote"] in data["sources"][hint["source_id"]]["quote"] for hint in hints))
+        self.assertFalse({hint["source_id"] for hint in hints} & set(report["omitted_source_ids"]))
+
     def test_id_bound_preserves_later_constraint_and_explicitly_omits_old_context(self):
         demand = self.busy_issue()
         demand["comments"][-1]["body"] = "Must not use Node.js."
@@ -48,6 +63,72 @@ class ContextSelectionTests(unittest.TestCase):
         self.assertTrue(report["source_id_limit_omissions"])
         self.assertFalse(report["discussion_complete"])
         schema_for("matches", source_ids=data["sources"], capability_ids=report["capability_ids"], requirement_ids=["r0"])
+
+    def definition_repository(self, paths_per_capability=1):
+        repo = repository()
+        repo.update(files=[], capabilities=[])
+        for index in range(30):
+            paths = [f"src/module_{index}_{offset}.py" for offset in range(paths_per_capability)]
+            repo["files"].extend(self.file(path, lines=1, width=0) for path in paths)
+            cap = self.cap(paths[0], f"function_{index}", first=1, last=1)
+            cap["evidence"] = [self.cap(path, f"function_{index}", first=1, last=1)["evidence"][0] for path in paths]
+            repo["capabilities"].append(cap)
+        return repo
+
+    def test_repository_definitions_do_not_consume_discussion_id_reservation(self):
+        repo = self.definition_repository()
+        for comments in (299, 300):
+            with self.subTest(comments=comments):
+                demand = self.busy_issue(comments)
+                demand["timeline"] = []
+                original = copy.deepcopy((repo, demand))
+                data, report = build_context(repo, demand, "matches", 180000)
+                self.assertEqual(sum(ref.startswith("file:") for ref in data["sources"]), 30)
+                self.assertEqual(sum(ref.startswith("q") for ref in data["sources"]), 300)
+                self.assertEqual(len(data["sources"]), 330)
+                self.assertEqual(report["source_id_limit_omissions"], comments - 299)
+                self.assertEqual(report["omitted_source_count"], comments - 299)
+                self.assertEqual(report["discussion_complete"], comments == 299)
+                self.assertEqual("q1" in data["sources"], comments == 299)
+                self.assertIn(f"q{comments}", data["sources"])
+                self.assertLess(list(data["sources"]).index("file:src/module_29_0.py#L1-L1"),
+                                list(data["sources"]).index(f"q{comments}"))
+                schema_for("matches", source_ids=data["sources"], capability_ids=report["capability_ids"], requirement_ids=["r0"])
+                self.assertEqual((repo, demand), original)
+
+    def test_discussion_reservation_also_obeys_global_id_limit(self):
+        # A larger byte bound isolates ID accounting from byte omissions here.
+        repo = self.definition_repository(paths_per_capability=4)
+        demand = self.busy_issue(400)
+        demand["timeline"] = []
+        data, report = build_context(repo, demand, "matches", 240000)
+        self.assertEqual(sum(ref.startswith("file:") for ref in data["sources"]), 120)
+        self.assertEqual(sum(ref.startswith("q") for ref in data["sources"]), 280)
+        self.assertEqual(len(data["sources"]), MAX_SCOPED_IDS)
+        self.assertEqual(report["source_id_limit_omissions"], 121)
+        self.assertFalse(report["discussion_complete"])
+        self.assertIn("q0", data["sources"])
+        self.assertIn("q400", data["sources"])
+        schema_for("matches", source_ids=data["sources"], capability_ids=report["capability_ids"], requirement_ids=["r0"])
+
+    def test_byte_rejected_comment_does_not_consume_discussion_id_quota(self):
+        repo = self.definition_repository()
+        demand = self.busy_issue(300)
+        demand["timeline"] = []
+
+        def measured_size(value):
+            # Force one otherwise-small comment to exceed the packing bound.
+            return 180000 if "q2" in value.get("sources", {}) else size(value)
+
+        with mock.patch("missing_link.context.size", side_effect=measured_size):
+            data, report = build_context(repo, demand, "matches", 180000)
+        self.assertNotIn("q2", data["sources"])
+        self.assertIn("q1", data["sources"])
+        self.assertEqual(sum(ref.startswith("q") for ref in data["sources"]), 300)
+        self.assertEqual(len(data["sources"]), 330)
+        self.assertEqual(report["source_id_limit_omissions"], 0)
+        self.assertEqual(report["omitted_source_ids"], ["q2"])
+        self.assertFalse(report["discussion_complete"])
 
     def target(self, path, value):
         return {"path": path, "text": value,
@@ -90,7 +171,10 @@ class ContextSelectionTests(unittest.TestCase):
         data, report = build_context(repository(), demand, "matches", 180000)
         self.assertIn("file:words.py#L1-L3", data["sources"])
         self.assertLessEqual(len(data["sources"]), MAX_SCOPED_IDS)
-        self.assertTrue(report["target_reference_context"]["omitted_source_ids"])
+        target = report["target_reference_context"]
+        self.assertEqual(len(target["source_ids"]) + len(target["omitted_source_ids"]), 4)
+        self.assertLess(list(data["sources"]).index("file:words.py#L1-L3"),
+                        list(data["sources"]).index(target["source_ids"][0]))
         self.assertFalse(report["discussion_complete"])  # Only real discussion omissions determine this.
 
     def cap(self, path, name, first=1, last=3):
@@ -160,6 +244,69 @@ class ContextSelectionTests(unittest.TestCase):
         _, report = build_context(repo, None, "capabilities", 60000)
         self.assertTrue(report["implementation_context_missing"])
         self.assertEqual(report["selected_capability_roles"], {"support": 1})
+
+    def test_root_and_spec_directory_tests_do_not_certify_implementation(self):
+        for path in ("test.js", "test.py", "spec.ts", "tests.cjs", "specs.tsx", "spec/parser.js",
+                     "specs/parser.ts", "src/spec/parser.py", "src/SPECS/parser.tsx", "packages/sdk/specs/parser.cjs"):
+            with self.subTest(path=path):
+                repo = repository()
+                # Old/imported metadata can still call the file source; its path
+                # must independently prevent promotion to implementation.
+                repo["files"] = [self.file(path, 3)]
+                repo["capabilities"] = [self.cap(path, "test_behavior")]
+                data, report = build_context(repo, None, "capabilities", 60000)
+                self.assertTrue(data["sources"])
+                self.assertTrue(report["implementation_context_missing"])
+                self.assertEqual(report["implementation_source_paths"], [])
+                self.assertEqual(report["selected_capability_roles"], {"test": 1})
+
+    def test_colocated_example_only_context_is_retained_but_not_implementation(self):
+        for path in ("example.py", "demo.ts", "Button.stories.tsx", "src/widget.example.js", "src/widget.story.jsx"):
+            with self.subTest(path=path):
+                repo = repository()
+                repo["files"] = [self.file(path, 3)]
+                repo["capabilities"] = [self.cap(path, "show")]
+                data, report = build_context(repo, None, "capabilities", 60000)
+                self.assertTrue(data["sources"])
+                self.assertTrue(report["implementation_context_missing"])
+                self.assertEqual(report["implementation_source_paths"], [])
+                self.assertEqual(report["selected_capability_roles"], {"infrastructure": 1})
+
+    def test_auxiliary_directory_only_context_is_retained_but_not_implementation(self):
+        for path in ("example/index.py", "demo/index.ts", "demos/index.js", "fixture/data.ts",
+                     "story/index.jsx", "stories/Button.tsx", "src/DEMOS/index.cjs", "__mocks__/fs.js",
+                     "src/__mocks__/client.ts", "packages/sdk/src/__MOCKS__/client.tsx"):
+            with self.subTest(path=path):
+                repo = repository()
+                repo["files"] = [self.file(path, 3)]
+                repo["capabilities"] = [self.cap(path, "show")]
+                for demand in (None, issue()):
+                    data, report = build_context(repo, demand, "matches" if demand else "capabilities", 60000)
+                    self.assertTrue(any(source_id.startswith("file:" + path) for source_id in data["sources"]))
+                    self.assertTrue(report["implementation_context_missing"])
+                    self.assertEqual(report["implementation_source_paths"], [])
+                    self.assertEqual(report["selected_capability_roles"], {"infrastructure": 1})
+                    self.assertEqual(report["supplied_source_roles"], {"infrastructure": 1})
+
+    def test_busy_long_discussion_cannot_consume_implementation_bytes(self):
+        demand = issue()
+        demand["comments"] = [{"url": demand["url"] + f"#issuecomment-{i}", "body": "Old discussion " * 1300} for i in range(10)]
+        repo = repository()
+        repo["files"] = [self.file("src/library.py", 3)]
+        repo["capabilities"] = [self.cap("src/library.py", "solve")]
+        data, report = build_context(repo, demand, "matches", 60000)
+        self.assertIn("q0", data["sources"])
+        self.assertIn("file:src/library.py#L1-L3", data["sources"])
+        self.assertFalse(report["implementation_context_missing"])
+        self.assertFalse(report["discussion_complete"])
+        self.assertTrue(report["omitted_source_count"])
+
+    def test_typescript_declaration_is_not_implementation_context(self):
+        repo = repository()
+        repo["files"] = [self.file("index.d.ts", 3)]
+        repo["capabilities"] = [self.cap("index.d.ts", "solve")]
+        _, report = build_context(repo, None, "capabilities", 60000)
+        self.assertTrue(report["implementation_context_missing"])
 
 
 if __name__ == "__main__":

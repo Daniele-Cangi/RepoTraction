@@ -15,11 +15,13 @@ def array(items=None):
     return {"type": "array", "items": items or string()}
 
 
-def schema_for(phase, *, source_ids=None, capability_ids=None, requirement_ids=None):
+def schema_for(phase, *, source_ids=None, capability_ids=None, requirement_ids=None, citation_ids=None, optional_field_ids=None):
     requirement = obj(text=string(), mandatory={"type": "boolean"}, explicit={"type": "boolean"},
         source_id=string(), quote=string(), inference=string())
+    field_disposition = obj(hint_id=string(), disposition=string("not_requested", "needs_review"), reason=string())
     request = obj(outcome=string(), status=string("unresolved", "resolved", "duplicate", "unclear", "automated"),
         status_source_ids=array(), status_reason=string(), requirements=array(requirement),
+        optional_field_dispositions=array(field_disposition),
         environment=array(), prior_attempts=array(), missing_information=array())
     capability = obj(id=string(), name=string(), summary=string(), outcome=string(), inputs=array(), outputs=array(),
         preconditions=array(), dependencies=array(), limitations=array(), standalone=string("yes", "no", "unknown"),
@@ -44,12 +46,15 @@ def schema_for(phase, *, source_ids=None, capability_ids=None, requirement_ids=N
         ids = list(dict.fromkeys(ids))
         if len(ids) > MAX_SCOPED_IDS:
             raise ValueError("Analysis citation scope is empty or exceeds contract bounds.")
+        if len(ids) > 250 and sum(len(value) for value in ids) > 15000:
+            raise ValueError("Analysis citation enum exceeds structured-output character bounds; narrow the context.")
         return string(*ids)
 
     if source_ids is not None:
         references = choices(source_ids)
         if phase == "request":
-            requirement["properties"]["source_id"] = references
+            if citation_ids is None:
+                requirement["properties"]["source_id"] = references
             request["properties"]["status_source_ids"] = array(references)
         elif phase == "capabilities":
             capability["properties"]["source_ids"] = array(references)
@@ -62,6 +67,24 @@ def schema_for(phase, *, source_ids=None, capability_ids=None, requirement_ids=N
             match["properties"]["capability_id"] = choices(capability_ids)
     if requirement_ids is not None and phase == "matches":
         match["properties"]["checks"]["items"]["properties"]["requirement_id"] = choices(requirement_ids)
+    if citation_ids is not None:
+        if phase != "request":
+            raise ValueError("Demand spans are only valid in the request contract.")
+        # At most 400 span IDs + 400 status source IDs + 30 optional-field IDs:
+        # below the structured-output limit of 1,000 values across the schema.
+        request["properties"]["requirements"] = array(obj(text=string(), mandatory={"type": "boolean"},
+            explicit={"type": "boolean"}, citation_id=choices(citation_ids), inference=string()))
+    if optional_field_ids is not None:
+        if phase != "request":
+            raise ValueError("Optional-field decisions are only valid in the request contract.")
+        ids = list(optional_field_ids)
+        if ids:
+            references = choices(ids)
+            if len(references["enum"]) > 30:
+                raise ValueError("Optional-field citation scope exceeds contract bounds.")
+            field_disposition["properties"]["hint_id"] = references
+        # With no offered hints the provider must return []; local scope checking
+        # also rejects every nonempty decision rather than using an empty enum.
     return schema
 
 

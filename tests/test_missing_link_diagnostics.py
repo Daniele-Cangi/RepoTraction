@@ -15,14 +15,13 @@ class QuoteDiagnosticTests(unittest.TestCase):
         raw = fixtures.request_raw()
         raw["requirements"][0]["quote"] = "`" + raw["requirements"][0]["quote"]
         provider = Provider({"REPOTRACTION_AI_URL": "http://localhost/v1", "REPOTRACTION_AI_MODEL": "fixture"})
-        with mock.patch.object(provider, "complete", return_value=raw) as complete:
+        with mock.patch.object(provider, "complete", side_effect=fixtures.request_completion(raw)) as complete:
             with self.assertRaises(CandidateValidationError) as raised:
                 provider.interpret_request(fixtures.issue(), mock.Mock())
         diagnostic = raised.exception.diagnostics
-        self.assertEqual(diagnostic["kind"], "non_contiguous_quote")
+        self.assertEqual(diagnostic["kind"], "unavailable_demand_span")
         self.assertEqual(diagnostic["requirement_id"], "r0")
-        self.assertEqual(diagnostic["source_id"], "q0")
-        self.assertEqual(diagnostic["quote_sha256"], hashlib.sha256(raw["requirements"][0]["quote"].encode()).hexdigest())
+        self.assertEqual(diagnostic["citation_sha256"], hashlib.sha256(("unavailable:" + raw["requirements"][0]["quote"]).encode()).hexdigest())
         self.assertNotIn(raw["requirements"][0]["quote"], json.dumps(diagnostic))
         self.assertEqual(complete.call_count, 1)
         self.assertTrue(raw["requirements"][0]["quote"].startswith("`"))
@@ -31,11 +30,10 @@ class QuoteDiagnosticTests(unittest.TestCase):
         raw = fixtures.request_raw()
         raw["requirements"][0]["source_id"] = "untrusted-private-label"
         provider = Provider({"REPOTRACTION_AI_URL": "http://localhost/v1", "REPOTRACTION_AI_MODEL": "fixture"})
-        with mock.patch.object(provider, "complete", return_value=raw):
+        with mock.patch.object(provider, "complete", side_effect=fixtures.request_completion(raw)):
             with self.assertRaises(CandidateValidationError) as raised:
                 provider.interpret_request(fixtures.issue(), mock.Mock())
-        self.assertIsNone(raised.exception.diagnostics["source_id"])
-        self.assertFalse(raised.exception.diagnostics["source_available"])
+        self.assertEqual(raised.exception.diagnostics["kind"], "unavailable_demand_span")
         self.assertNotIn("untrusted-private-label", str(raised.exception.diagnostics))
 
 
@@ -54,8 +52,9 @@ class DiagnosticPersistenceTests(unittest.TestCase):
         def saved_attempt(instruction, data, budget, schema, phase):
             budget.reserve_ai(.10, 8, 2)
             budget.record_call({"phase": phase, "context_coverage": {}})
-            budget.record_output(phase, copy.deepcopy(raw))
-            return copy.deepcopy(raw)
+            output = fixtures.wire_request(data, raw)
+            budget.record_output(phase, copy.deepcopy(output))
+            return copy.deepcopy(output)
         source = self.fake_sources()
         with mock.patch("missing_link.service.PublicGitHub", return_value=source), \
              mock.patch("missing_link.service.extract_structure", return_value=fixtures.repository()["capabilities"]), \
@@ -72,10 +71,10 @@ class DiagnosticPersistenceTests(unittest.TestCase):
         self.assertEqual(failure["attempt_id"], attempt["attempt_id"])
         self.assertEqual(job["ai_trace"][0]["attempt_id"], attempt["attempt_id"])
         self.assertEqual(failure["call_number"], 1)
-        self.assertEqual(failure["validation_diagnostics"]["quote_characters"], len(quote))
+        self.assertEqual(failure["validation_diagnostics"]["citation_characters"], len("unavailable:" + quote))
         self.assertAlmostEqual(job["cost_reserved_usd"], .10)
         self.assertEqual(job["ai_calls_used"], 1)
-        self.assertIn("[REDACTED]", attempt["output"]["requirements"][0]["quote"])
+        self.assertIn("[REDACTED]", attempt["output"]["requirements"][0]["citation_id"])
         self.assertNotIn("ghp_", json.dumps(job))
         public = next(item for item in self.service.state()["jobs"] if item["id"] == job["id"])
         self.assertNotIn("checkpoint", public)

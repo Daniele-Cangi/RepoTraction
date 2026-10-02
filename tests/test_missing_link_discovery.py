@@ -51,6 +51,29 @@ class RetrievalTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "No problem-oriented"):
             problem_queries(repo)
 
+    def test_fragmented_project_names_are_removed_after_combining_terms(self):
+        repo = repository()
+        for name, terms, expected in (
+                ("chalk/strip-ansi", ["chalk", "strip", "ansi", "escape", "removal"], "escape removal"),
+                ("sindresorhus/p-limit", ["p", "limit", "promise", "concurrency"], "promise concurrency")):
+            with self.subTest(name=name):
+                repo["full_name"] = name
+                repo["capabilities"][0]["search_terms"] = terms
+                self.assertTrue(problem_queries(repo)[0].startswith(expected + " is:open"))
+        repo["full_name"] = "chalk/strip-ansi"
+        repo["capabilities"][0]["search_terms"] = ["chalk", "strip", "ansi"]
+        with self.assertRaisesRegex(ValueError, "No problem-oriented"):
+            problem_queries(repo)
+
+    def test_unreviewed_readme_filler_does_not_become_a_second_problem_query(self):
+        repo = repository()
+        cap = repo["capabilities"][0]
+        repo["full_name"] = "chalk/strip-ansi"
+        cap.update(entrypoint="index.js:stripAnsi", search_terms=["javascript ansi escape removal"])
+        repo["capabilities"].append(dict(cap, entrypoint="README.md:product", claim_source="structural",
+            search_terms=["chalk", "strip", "ansi", "documentation", "states", "escape"]))
+        self.assertEqual(problem_queries(repo), ["javascript ansi escape removal is:open in:title,body -repo:chalk/strip-ansi"])
+
     def test_diversify_modules_and_prefer_implementation(self):
         repo = repository()
         cap = repo["capabilities"][0]
@@ -233,6 +256,7 @@ class QualificationTests(unittest.TestCase):
             '[Example project](https://github.com/x/y "Project title")',
             "[Example [nested] project](https://example.org/wiki/Foo_(bar))",
             '<a href="https://github.com/x/y"><strong>Example project</strong></a>',
+            '<a href="https://github.com/x/y"><?php // I need a formatter ?></a>',
             '<p>For example: <a href="https://github.com/x/y">Useful project</a></p>',
             "![Project screenshot](https://example.org/image.png)",
             "[Example project][project]\n\n[project]: https://github.com/x/y",
@@ -273,6 +297,17 @@ class QualificationTests(unittest.TestCase):
         # Reassessing a saved snapshot does not age its observations using wall time.
         self.assertEqual(self.evaluate(repo, demand, raw_request, raw_match)["discovery_assessment"], assessment)
 
+    def test_php_processing_syntax_does_not_hide_demand_or_change_evidence(self):
+        for terminator in ("", "\n?>"):
+            with self.subTest(terminator=terminator):
+                repo, demand, raw_request, raw_match = self.case()
+                original = "<?php\n// " + demand["body"] + terminator
+                demand["body"] = original
+                assessment = self.evaluate(repo, demand, raw_request, raw_match)["discovery_assessment"]
+                self.assertEqual(assessment["status"], "external_lead")
+                self.assertFalse(assessment["opportunity_review"]["reference_body_hint"])
+                self.assertEqual(demand["body"], original)
+
     def test_partial_support_survives_hard_conflict_without_becoming_a_lead(self):
         match = validate_matches([fixtures.raw_match()], repository(), issue(),
                                  validate_request(fixtures.request_raw(), issue()), "model")[0]
@@ -311,6 +346,48 @@ class QualificationTests(unittest.TestCase):
         self.assertTrue(match["discovery_assessment"]["eligible_for_followup"])
         self.assertEqual(match["discovery_assessment"]["novelty"], "unverified")
         self.assertEqual(match["bridge"]["verification"]["status"], "not_executed")
+
+    def test_human_requests_about_generated_content_can_pass_downstream_qualification(self):
+        from missing_link.discussion import authorship
+        for body in ("Please fix support for generated plan files.", "I need an [automation] label.",
+                     "Please add support for 🤖 characters.", "Generated plan files need a working parser."):
+            with self.subTest(body=body):
+                repo, demand, raw_request, raw_match = self.case()
+                demand.update(body=body, bot=False, author_type="User", author="human")
+                raw_request["requirements"][0].update(text="Requested behavior", quote=body)
+                author = authorship(demand, original=True)
+                self.assertEqual(author["authority"], "request_author")
+                self.assertFalse(author["generated_hint"])
+                assessment = self.evaluate(repo, demand, raw_request, raw_match)["discovery_assessment"]
+                self.assertEqual(assessment["status"], "external_lead")
+                self.assertTrue(assessment["eligible_for_followup"])
+                self.assertEqual(assessment["novelty"], "unverified")
+                self.assertEqual(demand["body"], body)
+
+    def test_bot_author_metadata_still_prevents_downstream_qualification(self):
+        for metadata in ({"bot": True, "author_type": "User"}, {"bot": False, "author_type": "Bot"}):
+            with self.subTest(metadata=metadata):
+                repo, demand, raw_request, raw_match = self.case()
+                demand.update(metadata)
+                assessment = self.evaluate(repo, demand, raw_request, raw_match)["discovery_assessment"]
+                self.assertEqual(assessment["status"], "not_actionable")
+                self.assertFalse(assessment["eligible_for_followup"])
+
+    def test_explicit_generated_artifact_label_requires_review_not_bot_identity(self):
+        from missing_link.discussion import authorship
+        for body in ("[automation] Please support parser changes.", "# Generated plan\nPlease support parser changes.",
+                     "[Orquestrador TDD] Generated plan.\nPlease support parser changes."):
+            with self.subTest(body=body):
+                repo, demand, raw_request, raw_match = self.case()
+                demand.update(body=body, bot=False, author_type="User", author="human")
+                raw_request["requirements"][0].update(text="Requested behavior", quote="Please support parser changes.")
+                author = authorship(demand, original=True)
+                self.assertTrue(author["generated_hint"])
+                self.assertFalse(author["bot_author_hint"])
+                assessment = self.evaluate(repo, demand, raw_request, raw_match)["discovery_assessment"]
+                self.assertEqual(assessment["status"], "needs_review")
+                self.assertTrue(assessment["opportunity_review"]["generated_content_hint"])
+                self.assertFalse(assessment["eligible_for_followup"])
 
     def test_same_project_uses_canonical_url_and_immutable_repo_id_after_rename(self):
         for fields in ({"url": "https://github.com/EXAMPLE/WORDS/issues/9", "repo": "untrusted/other"},

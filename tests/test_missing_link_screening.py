@@ -4,6 +4,7 @@ from unittest import mock
 
 from missing_link.discovery import screen_candidate, problem_queries
 from missing_link.provider import Provider
+from missing_link import qualification
 import test_missing_link as fixtures
 
 
@@ -13,6 +14,33 @@ def code_dump():
 
 
 class ScreeningTests(unittest.TestCase):
+    def test_link_note_or_automated_author_is_skipped_not_semantically_rejected(self):
+        for demand in (dict(fixtures.issue(), body="https://example.com/video", comments=[]),
+                       dict(fixtures.issue(), bot=True, comments=[])):
+            screening = screen_candidate(demand)
+            self.assertTrue(screening["skip"])
+            self.assertFalse(screening["proves_absence_of_demand"])
+            self.assertEqual(screen_candidate(dict(demand, comments=[{"body": "I need this fixed."}]))["skip"], False)
+        real = dict(fixtures.issue(), body="Please support the parsing approach in https://example.com/video", comments=[])
+        self.assertFalse(screen_candidate(real)["skip"])
+
+    def test_human_content_markers_are_not_bot_author_metadata(self):
+        for body in ("Please fix support for generated plan files.", "I need an [automation] label.",
+                     "Please add support for 🤖 characters.", "Generated plan describing parser changes."):
+            with self.subTest(body=body):
+                demand = dict(fixtures.issue(), body=body, comments=[], bot=False, author_type="User", author="human")
+                self.assertFalse(screen_candidate(demand)["skip"])
+                self.assertEqual(demand["body"], body)
+
+    def test_actual_bot_metadata_still_skips_request_like_bodies(self):
+        for metadata in ({"bot": True, "author_type": "User"}, {"bot": False, "author_type": "Bot"}):
+            with self.subTest(metadata=metadata):
+                demand = dict(fixtures.issue(), body="Please fix the formatter.", comments=[], **metadata)
+                screening = screen_candidate(demand)
+                self.assertTrue(screening["skip"])
+                self.assertEqual(screening["code"], "automated_author_hint")
+                self.assertFalse(screening["proves_absence_of_demand"])
+
     def test_acquired_php_dump_gets_a_hint_not_a_rejection(self):
         screening = screen_candidate(code_dump())
         self.assertTrue(screening["skip"])
@@ -48,6 +76,21 @@ class ScreeningTests(unittest.TestCase):
                 self.assertFalse(screen_candidate(demand)["skip"])
                 self.assertEqual(demand["body"], original)
         self.assertTrue(screen_candidate(code_dump())["skip"])  # A genuine dump still gets the bounded hint.
+
+    def test_screening_survives_parser_consuming_unterminated_processing_syntax(self):
+        class ConsumingInstructions(qualification._LinkProse):
+            def feed(self, data):
+                # Reproduce the CI parser's loss of an unterminated <?php tail
+                # on older local Python patch versions as well.
+                super().feed(data.split("<?", 1)[0])
+
+        with mock.patch("missing_link.qualification._LinkProse", ConsumingInstructions):
+            dump = code_dump()
+            self.assertEqual(screen_candidate(dump)["code"], "source_file_dump_hint")
+            demand = dict(dump, body=dump["body"] + "\n// Please fix the formatter")
+            original = demand["body"]
+            self.assertFalse(screen_candidate(demand)["skip"])
+            self.assertEqual(demand["body"], original)
 
     def test_language_name_stays_whole_while_camelcase_mechanisms_still_split(self):
         repo = fixtures.repository()
@@ -86,6 +129,20 @@ class ScreeningServiceTests(unittest.TestCase):
         source.fetch_reference_context.assert_not_called()
         self.assertEqual(job["ai_calls_used"], 0)
 
+    def test_reference_notes_do_not_spend_demand_or_comparison_calls(self):
+        provider = mock.Mock()
+        provider.describe.return_value = {"configured": True}
+        provider.interpret_capabilities.return_value = fixtures.repository()["capabilities"]
+        self.service.provider = provider
+        demand = dict(fixtures.issue(), body="See [example](https://example.com/video)", comments=[])
+        job, source = self.run_screening(demand=demand, use_ai=True)
+        self.assertEqual(job["result"]["candidate_skips"][0]["code"], "reference_only_body_hint")
+        self.assertEqual(job["result"]["match_ids"], [])
+        provider.interpret_request.assert_not_called()
+        provider.evaluate.assert_not_called()
+        source.fetch_reference_context.assert_not_called()
+        self.assertEqual(job["ai_calls_used"], 0)
+
     def test_manual_issue_or_query_bypasses_automatic_screening(self):
         for override in ({"issue_url": fixtures.issue()["url"]}, {"query": "custom functions.php"}):
             with self.subTest(override=override):
@@ -103,6 +160,17 @@ class ScreeningServiceTests(unittest.TestCase):
         self.assertNotIn("candidate_skips", job["result"])
         self.assertTrue(job["result"]["match_ids"])
         self.assertEqual(job["checkpoint"]["evaluated"], ["0"])
+        source.fetch_issue.assert_called_once()
+        source.fetch_reference_context.assert_called_once()
+        self.assertEqual(job["ai_calls_used"], 0)
+
+    def test_human_request_about_generated_content_reaches_analysis(self):
+        demand = dict(fixtures.issue(), body="Please fix support for generated plan files.", comments=[],
+                      bot=False, author_type="User", author="human")
+        job, source = self.run_screening(demand=demand)
+        self.assertEqual(job["status"], "completed")
+        self.assertNotIn("candidate_skips", job["result"])
+        self.assertTrue(job["result"]["match_ids"])
         source.fetch_issue.assert_called_once()
         source.fetch_reference_context.assert_called_once()
         self.assertEqual(job["ai_calls_used"], 0)

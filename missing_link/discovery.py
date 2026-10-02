@@ -3,11 +3,12 @@ import re
 from collections import Counter
 from itertools import groupby
 
-from .sources import parse_issue_url, source_role
+from .sources import parse_issue_url, source_role, runtime_bin_entrypoints
+from .qualification import reference_only_body
 
 
 SELECTION_POLICY = "external/open first; balance projects and queries; title overlap then upstream rank"
-SCREENING_POLICY = "bounded filename/code-dump and exam-manual hints; explicit issue/query bypass; no replacement or compatibility verdict"
+SCREENING_POLICY = "bounded code-dump/manual, reference-only and automated-author hints; explicit issue/query bypass; no replacement or compatibility verdict"
 _GENERIC = {"function", "functions", "return", "returns", "class", "unknown", "method", "methods",
             "the", "and", "with", "from", "for", "this", "that", "support", "supports",
             "constructor", "declaration", "declared", "candidate", "partial", "scan"}
@@ -25,13 +26,20 @@ def words(value):
 def screen_candidate(issue):
     """High-precision retrieval hints, not proof of absent demand or a rejection.
 
-    Any discussion or recognizable request prose keeps the candidate eligible.
+    Discussion or human request prose keeps the candidate eligible. Bot author
+    metadata remains a hint; words about generated content are not bot identity.
     These narrowly structural hints only apply to automatic exploration.
     """
     body, title = issue.get("body") or "", issue.get("title") or ""
     hint = {"skip": False, "code": "not_screened_out", "policy": SCREENING_POLICY,
             "discussion_complete": bool(issue.get("context_complete")), "proves_absence_of_demand": False}
     if any((comment.get("body") or "").strip() for comment in issue.get("comments", [])):
+        return hint
+    reference_only = reference_only_body(body)
+    automated = bool(issue.get("bot") or issue.get("author_type") == "Bot")
+    if reference_only or automated:
+        hint.update(skip=True, code="reference_only_body_hint" if reference_only else "automated_author_hint",
+            reason="No independently specified human demand in the acquired body; explicit selection remains available for review.")
         return hint
     # Keep even request-like prose inside code/comments: avoiding a false skip
     # matters more than filtering every dump, and no Markdown rewrite is needed.
@@ -64,11 +72,14 @@ def project_words(repository):
 def _problem_terms(value, repository):
     tokens = words(value)
     name = project_words(repository)
+    full_name = words(repository["full_name"])
     # Drop only the whole package name (p-limit / pLimit / p limit), not
     # individual words such as 'limit' that also describe a useful mechanism.
     result, index = [], 0
     while index < len(tokens):
-        if name and tokens[index:index + len(name)] == name:
+        if full_name and tokens[index:index + len(full_name)] == full_name:
+            index += len(full_name)
+        elif name and tokens[index:index + len(name)] == name:
             index += len(name)
         elif name and tokens[index] == "".join(name):
             index += 1
@@ -92,14 +103,20 @@ def problem_queries(repository):
     These are lexical hints from reviewed capabilities, not inferred demands.
     An explicit query/issue remains available for closed or same-project work.
     """
+    runtime_entrypoints = runtime_bin_entrypoints(repository.get("files", []))
     def quality(cap):
-        return ({"implementation": 0, "support": 1, "test": 2, "infrastructure": 3}[source_role(_path(cap))],
+        return ({"implementation": 0, "support": 1, "test": 2, "infrastructure": 3}[source_role(_path(cap), runtime_entrypoints=runtime_entrypoints)],
                 0 if cap.get("maintainer_correction") else 1 if cap.get("claim_source") == "model" else 2)
     candidates = sorted(repository.get("capabilities", []), key=lambda cap: (*quality(cap),
         cap.get("level") != "mechanism" or cap.get("name", "").startswith("_"),
         cap.get("summary", "").startswith(("Declared ", "Declaration candidate"))))
     phrases = []
     for cap in candidates:
+        if (source_role(_path(cap), runtime_entrypoints=runtime_entrypoints) == "support" and cap.get("claim_source", "structural") == "structural"
+                and not cap.get("maintainer_correction")):
+            # Unreviewed README/manifest descriptions are retrieval filler,
+            # not an independently established implementation mechanism.
+            continue
         if (cap.get("summary", "").startswith(("Declared ", "Declaration candidate"))
                 and not cap.get("maintainer_correction") and cap.get("claim_source") != "model"):
             # A scanner's description of itself is not a reusable mechanism.
@@ -118,8 +135,12 @@ def problem_queries(repository):
         # as pagination/backpressure need no invented second word to be searched.
         # Package names and generic helpers are filtered before this selection.
         phrase = next((term for term in clean if len(term) >= 2), None)
-        if not phrase:
-            combined = list(dict.fromkeys(token for term in clean for token in term))
+        if not phrase and clean:
+            # Filtering each atomic term alone cannot recognize a fragmented
+            # package name. Re-clean the original joined terms before deduping.
+            combined = _problem_terms(" ".join(term for term in cap.get("search_terms", [])
+                if isinstance(term, str) and "constructor" not in words(term)), repository)
+            combined = [token for token in combined if token not in _GENERIC_SINGLETON and len(token) >= 2 and token[0].isalpha()]
             phrase = combined or None
         if phrase:
             value = " ".join(phrase[:6])[:100]

@@ -5,8 +5,9 @@ from collections import Counter
 
 from .analysis import evidence_catalog, resolve_evidence, quoted_span
 from .discussion import constraint_hints
+from .demand import optional_field_hints, supplied_optional_field_hints
 from .contracts import MAX_SCOPED_IDS
-from .sources import source_role
+from .sources import source_role, runtime_bin_entrypoints
 
 
 def size(value):
@@ -53,17 +54,17 @@ def capability_path(capability):
     return path or next((e["path"] for e in capability.get("evidence", []) if e.get("path")), "unknown")
 
 
-def select_capabilities(capabilities, limit=30):
+def select_capabilities(capabilities, limit=30, *, runtime_entrypoints=()):
     """Prefer product implementation with bounded per-file diversity, not export proof."""
     ranked = sorted(capabilities, key=lambda cap: (
-        {"implementation": 0, "support": 1, "test": 2, "infrastructure": 3}[source_role(capability_path(cap))],
+        {"implementation": 0, "support": 1, "test": 2, "infrastructure": 3}[source_role(capability_path(cap), runtime_entrypoints=runtime_entrypoints)],
         cap.get("level") != "mechanism", cap.get("name", "").startswith("_"), cap.get("standalone") != "yes"))
     selected = []
     for role in ("implementation", "support", "test", "infrastructure"):
         groups = {}
         for cap in ranked:
             path = capability_path(cap)
-            if source_role(path) == role:
+            if source_role(path, runtime_entrypoints=runtime_entrypoints) == role:
                 groups.setdefault(path, []).append(cap)
         # One definition from each file before a second one from a large module.
         for offset in range(max((len(group) for group in groups.values()), default=0)):
@@ -96,13 +97,17 @@ def build_context(repository, issue, phase, byte_limit):
     sources, omitted, shortened, id_limited = {}, [], [], set()
     data = {"sources": sources}
     hints = constraint_hints(issue) if issue else {"items": [], "complete": True}
+    optional_review = optional_field_hints(catalog) if issue and phase == "request" else None
     if issue:
         data["issue"] = {key: issue.get(key) for key in ("id", "url", "title", "state", "updated_at", "created_at",
             "labels", "author_type", "bot", "context_complete", "limitations")}
         data["potential_constraints"] = hints
+        if phase == "request":
+            data["potential_subrequirements"] = supplied_optional_field_hints(optional_review, sources)
     candidates = []
+    runtime_entrypoints = runtime_bin_entrypoints((repository or {}).get("files", []))
     if repository:
-        candidates = select_capabilities(repository.get("capabilities", []))
+        candidates = select_capabilities(repository.get("capabilities", []), runtime_entrypoints=runtime_entrypoints)
         data["repository"] = {key: repository.get(key) for key in ("id", "full_name", "revision", "license", "coverage")}
         # Do not duplicate source snippets, raw files, snapshots or account data.
         data["repository"]["capabilities"] = [{key: cap.get(key) for key in ("id", "name", "level", "entrypoint",
@@ -116,11 +121,13 @@ def build_context(repository, issue, phase, byte_limit):
     # to a repository, rather than filling the entire scope with discussion IDs.
     repository_slots = min(MAX_SCOPED_IDS // 4, len(candidates) * 3 + len((repository or {}).get("files", [])))
     discussion_id_limit = MAX_SCOPED_IDS - repository_slots
+    discussion_count = 0
 
     def add(reference, entry, discussion=False):
+        nonlocal discussion_count
         if reference in sources:
             return
-        if len(sources) >= (discussion_id_limit if discussion else MAX_SCOPED_IDS):
+        if len(sources) >= MAX_SCOPED_IDS or (discussion and discussion_count >= discussion_id_limit):
             omitted.append(reference)
             id_limited.add(reference)
             return
@@ -135,16 +142,32 @@ def build_context(repository, issue, phase, byte_limit):
                     entry["quote"] += "\n[SELECTED CONSTRAINT EXCERPT]\n" + hint["quote"]
             shortened.append(reference)
         sources[reference] = entry
+        previous_subrequirements = data.get("potential_subrequirements")
+        if previous_subrequirements is not None:
+            # Review hints must only repeat supplied excerpts, and their bytes
+            # share the same packing budget. Never restore omitted comments
+            # through a post-packing scan of the full acquired discussion. Select
+            # canonical IDs only when their whole original line is visible;
+            # clipped lines and scan overflow cannot create unknown citations.
+            data["potential_subrequirements"] = supplied_optional_field_hints(optional_review, sources)
         if size(data) > target:
             sources.pop(reference)
+            if previous_subrequirements is not None:
+                data["potential_subrequirements"] = previous_subrequirements
             omitted.append(reference)
+        elif discussion:
+            # Count only retained discussion IDs. Definitions already inserted
+            # have their own slots; byte-rejected entries do not spend ID quota.
+            discussion_count += 1
 
     # Request first and recent discussion before old comments: later resolution
     # cannot be silently dropped by a prefix-only character cut.
     discussion_ids = [key for key in catalog if re.fullmatch(r"[qt]\d+", key)] if issue else []
     constraint_sources = list(dict.fromkeys(hint["source_id"] for hint in reversed(hints["items"]) if hint["source_id"] != "q0"))
     order = list(dict.fromkeys(["q0"] + constraint_sources + [key for key in reversed(discussion_ids) if key != "q0"])) if issue else []
-    for reference in order:
+    # Preserve the root request, then spend actual bytes on implementation
+    # before filling them with comments. Reserving only ID slots is insufficient.
+    for reference in (order[:1] if repository else order):
         add(reference, catalog[reference], discussion=True)
     if repository:
         by_path = {file["path"]: file for file in repository.get("files", [])}
@@ -165,10 +188,10 @@ def build_context(repository, issue, phase, byte_limit):
         ordered_definitions = []
         for role in ("implementation", "support", "test", "infrastructure"):
             ordered_definitions.extend(interleave_regions([region for region in definition_regions
-                                                          if source_role(region[0]) == role]))
+                                                          if source_role(region[0], runtime_entrypoints=runtime_entrypoints) == role]))
         regions = []
         for file in sorted(by_path.values(), key=lambda f: (
-            0 if f.get("kind") == "source" and source_role(f["path"]) == "implementation"
+            0 if f.get("kind") == "source" and source_role(f["path"], runtime_entrypoints=runtime_entrypoints) == "implementation"
             else 1 if f.get("kind") == "manifest" else 2 if f["path"].lower().startswith("readme") else 3)):
             if file.get("kind") in {"source", "manifest"} or file["path"].lower().startswith("readme"):
                 regions.append((file["path"], 1, len(file["text"].splitlines())))
@@ -177,6 +200,11 @@ def build_context(repository, issue, phase, byte_limit):
         for path, first, last in ordered_definitions:
             reference = f"file:{path}#L{first}-L{last}"
             add(reference, resolve_evidence(reference, catalog))
+        # Definitions are now already present and cannot be evicted by a long
+        # discussion. Later constraints/resolution retain their existing order;
+        # any omission makes the comparison explicitly incomplete.
+        for reference in order[1:]:
+            add(reference, catalog[reference], discussion=True)
         # Reference-only target files follow actual discussion and selected
         # implementation spans. They neither consume reserved source IDs first
         # nor inherit comment shortening/completeness semantics.
@@ -197,6 +225,9 @@ def build_context(repository, issue, phase, byte_limit):
         "source_coverage": (repository or {}).get("coverage", {}),
         "note": "Selected evidence is not the whole repository. Missing context remains unknown; omitted discussion prevents a qualified positive."}
     if issue:
+        if phase == "request":
+            report["optional_field_hint_scan_complete"] = data["potential_subrequirements"]["complete"]
+            report["discussion_complete"] &= report["optional_field_hint_scan_complete"]
         target_context = issue.get("target_context", {})
         report["target_reference_context"] = {"revision": target_context.get("revision"),
             "source_ids": [ref for ref in sources if ref.startswith("target:")],
@@ -207,10 +238,11 @@ def build_context(repository, issue, phase, byte_limit):
         report["constraint_hint_scan_complete"] = hints["complete"]
     if repository:
         supplied_paths = list(dict.fromkeys(entry["path"] for entry in sources.values() if entry.get("path")))
-        report["selection_policy"] = "Implementation first; per-file capability diversity and interleaved definition spans. Path heuristic, not verified exports."
-        report["selected_capability_roles"] = dict(Counter(source_role(capability_path(cap)) for cap in candidates))
-        report["supplied_source_roles"] = dict(Counter(source_role(path) for path in supplied_paths))
-        report["implementation_source_paths"] = [path for path in supplied_paths if source_role(path) == "implementation"]
+        report["selection_policy"] = "Request root, then implementation definitions before later discussion; per-file diversity and interleaved spans. Path heuristic with exact acquired-manifest bin targets, not verified exports or execution."
+        report["selected_capability_roles"] = dict(Counter(source_role(capability_path(cap), runtime_entrypoints=runtime_entrypoints) for cap in candidates))
+        report["supplied_source_roles"] = dict(Counter(source_role(path, runtime_entrypoints=runtime_entrypoints) for path in supplied_paths))
+        report["implementation_source_paths"] = [path for path in supplied_paths if source_role(path, runtime_entrypoints=runtime_entrypoints) == "implementation"]
+        report["runtime_bin_entrypoints"] = {path: manifest for path, manifest in runtime_entrypoints.items() if path in supplied_paths}
         report["implementation_context_missing"] = not report["implementation_source_paths"]
     # Lists themselves are bounded; do not let reporting thousands of skipped
     # source chunks consume the context that it is supposed to protect.
