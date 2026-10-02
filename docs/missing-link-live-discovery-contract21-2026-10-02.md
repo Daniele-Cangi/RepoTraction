@@ -177,3 +177,7 @@ The six prespecified semantic questions above remain **unevaluated** by this
 attempt. No autonomous useful match, correct rejection, primary-API recall gain,
 novel discovery or isolated connection is claimed. UI/key-entry features and
 parser expansion remain deferred.
+
+The user subsequently requested a [single VPN-off retry before fixes](missing-link-contract21-vpn-off-retry-2026-10-02.md).
+That explicit amendment does not change the failed attempt, its unknown receipt
+or its accounting above; the proposed fixes are deferred during that new test.

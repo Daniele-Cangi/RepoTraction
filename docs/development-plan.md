@@ -200,6 +200,13 @@ transport observability and explicit polling-failure/job-continuation handling,
 with no-spend regressions. Any paid continuation needs a documented explicit
 decision; semantic-quality evaluation and isolated connection remain pending.
 
+The user then reported disabling the VPN and explicitly authorized a
+[one-job connectivity retry before fixes](missing-link-contract21-vpn-off-retry-2026-10-02.md).
+Production code and all provider/input limits remain unchanged. The prior failed
+job and its USD 0.0208524 reservation stay counted; no automated retry/resume or
+allowance reset is introduced. Inspect the new attempt before starting the other
+12 sources. The VPN hypothesis remains unconfirmed.
+
 The prior contract-14 offline replay of the retained eight-repository cohort packed
 all 8 enrichment, 24 extraction and 20 comparison inputs within the existing
 180,000-byte transport bound (maximum 164,598 bytes). The contract-16 no-spend
