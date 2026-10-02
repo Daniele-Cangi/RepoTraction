@@ -91,11 +91,11 @@ def interleave_regions(regions):
                 yield group[offset]
 
 
-def build_context(repository, issue, phase, byte_limit):
+def build_context(repository, issue, phase, byte_limit, *, packing_target=None):
     # Leave room for instructions, the JSON schema and protocol framing.
     # Reserve for the coverage ledger, interpreted requirements and the schema
     # appearing both in JSON-mode instructions and structured transport framing.
-    target = int(byte_limit * 0.60)
+    target = min(int(byte_limit * 0.60), packing_target) if packing_target is not None else int(byte_limit * 0.60)
     if target < 12000:
         raise ValueError("AI prompt bound is too small for grounded investigation.")
     catalog = evidence_catalog(repository or {"files": [], "capabilities": []}, issue or {"url": ""})
