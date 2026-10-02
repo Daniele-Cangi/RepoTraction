@@ -37,7 +37,7 @@ def export_hints(path, text, eligible):
                 return result[:64]
             return []
         specs = []
-        for key in ("source", "main", "module", "exports"):
+        for key in ("source", "main", "module", "exports", "bin"):
             specs.extend(leaves(metadata.get(key)))
     elif PurePosixPath(path).suffix.casefold() in JS_SOURCE_SUFFIXES:
         visible, code, literals, complete = export_view(text)

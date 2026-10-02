@@ -88,6 +88,10 @@ Source suffix classification is case-insensitive, consistent with acquisition
 eligibility; repository paths and destination matching retain their original case.
 They are not full export resolution, dependency closure or a typecheck. Their
 recorded paths, omissions and bounded-scan completeness remain visible in coverage.
+The manifest scan also includes executable paths from `bin`, in string or
+command-to-path form ([npm specification](https://docs.npmjs.com/cli/v11/configuring-npm/package-json/#bin)).
+They share the existing manifest hint cap and safety-filtered file/read budget;
+following a path does not prove that an executable is installed or runnable.
 
 Technical compatibility and useful partial contribution are separate. A rejected
 request can retain supported requirement IDs alongside conflicts and unknowns;
