@@ -269,10 +269,21 @@ state. Cold unbound startup, ambiguous/changed accounts, exports and mutations
 stay blocked. The UI clears full evidence and opt-ins, keeps polling for recovery
 and never auto-resumes. Historical stops and charges are not modified.
 
-All **839 offline tests pass**, including partial-stream and completed-response
+The second review found another P1: the new identity-verification exception was
+still swallowed by six older endpoint fallbacks. This could certify an
+unresolved historical repository as `inactive` and suppress its later resolution.
+Localized catch changes now propagate every typed identity failure before
+ordinary endpoint defaults, preventing failed-alias/event/traffic writes and
+further automatic-collector stages. Earlier verified commits and normal endpoint
+fallbacks remain intact; no broad extraction, retry policy or historical repair
+is included.
+
+All **848 offline tests pass**, including partial-stream and completed-response
 identity interruption, retained charges/receipts, target-error propagation and
 Windows uninstall fixtures, ten guarded HTTP polling regressions and two browser
-outage/recovery regressions. A separate installed-module smoke check passed;
+outage/recovery regressions, plus nine endpoint-fallback regressions exercising
+all seven identity error categories and resolution after recovery.
+A separate installed-module smoke check passed;
 the polling UI was checked against a fictional temporary-store HTTP fixture.
 Read-only HTTP/export/ledger and historical integrity reconciliation also passed:
 **328 reservations / USD 5.1150975**, with no real job resumed or AI call made.

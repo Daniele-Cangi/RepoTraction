@@ -223,7 +223,30 @@ restricted diagnostic view; actions/downloads are unavailable. It polls every
 normal checks succeed. Capability review and AI opt-in are cleared; recovery
 does not resume a job or make a provider request.
 
-Validation: **839 tests passed** with fake HTTP/CLI replies and owned temporary
+### Identity failures are not endpoint failures
+
+The second PR review found another P1: introducing a separate typed identity
+exception left six existing endpoint-fallback catches unaware of that type.
+An unavailable/ambiguous identity or CLI timeout could therefore become a
+failed repository lookup and persist a false `inactive` alias. That alias could
+then suppress resolution after recovery. These were reproducible regressions,
+not an extension of the discovery/parser contract.
+
+All six catches now propagate `GitHubAccountVerificationError` before the
+generic `GitHubCLIError` fallback: registry reconciliation, safe traffic reads,
+parallel traffic/event collection and both automatic-collector stages. The
+same exception instance/code reaches the caller; no new exception hierarchy or
+retry policy is introduced. Identity failure cannot become empty/partial
+endpoint data, cached traffic, a newly written event or a failed-lookup alias.
+The collector does not count the failed repository as completed or advance to
+another repository/stage; it retains its existing failed-run diagnostic.
+
+Already submitted bounded requests may finish. Previously committed, verified
+registry/history work is not rolled back. Ordinary endpoint errors still have
+the existing defaults/partial-result behavior, and rate-limit handling remains
+unchanged. Historical aliases/errors are not retroactively repaired or relabeled.
+
+Validation: **848 tests passed** with fake HTTP/CLI replies and owned temporary
 databases. Target-error, partial-stream, post-terminal-response, restart, explicit
 fixture resume/cancellation, cache and malformed-output regressions pass. Ten
 real-handler HTTP regressions additionally cover persistent failed checks,
@@ -232,8 +255,13 @@ byte-identical DB/unchanged reservations. Two browser regressions cover evidence
 replacement, disabled actions, continued polling and recovery without POSTs.
 A separate browser smoke used the actual HTTP route with a fictional account,
 temporary database and injected failed verifier; no live credentials/provider.
-Windows
-installation includes the standalone module; isolated installed imports and a
+Nine additional regressions cover all seven typed identity categories across
+the six fallback boundaries, unchanged owned history, resolution after recovery,
+prior successful alias commits, stopped collection, retained exception identity,
+no endpoint subprocess after guard failure and ordinary-error compatibility.
+The alias regression first failed on the reviewed HEAD for all seven categories
+and passed after the localized catch correction.
+Windows installation includes the standalone module; isolated installed imports and a
 simulated identity check passed. These startup/installation checks did not start
 a production server or invoke a paid provider.
 
