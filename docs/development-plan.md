@@ -183,6 +183,67 @@ the updated retained Zod transport remains below 180,000 bytes with all requirem
 Keep structural extractions separate. UI/key-entry features and Go/Rust expansion
 remain deferred until the core discovery outcomes are adequately validated.
 
+After PR #36's clean final review and merge, the user authorized the
+[fresh contract-21 retest](missing-link-live-discovery-contract21-2026-10-02.md).
+The same 13 repository-only inputs are prescribed again, with no supplied issues,
+queries, imports or replacement sources. Implementation and limits are frozen;
+old jobs are not resumed and their failures/charges remain in the prior report.
+The starting allowance was 302 reservations / USD 4.6737541 under the original
+cumulative USD 10 cap. The first HTTP driver lost polling with a 30-second timeout;
+its backend subsequently failed during one reserved capabilities call, with no
+terminal response receipt. The cohort stopped: 1 attempted, 0 completed and 12
+unstarted inputs. No paid retry/resume or replacement was started. The ledger is
+now **303 reservations / USD 4.6946065**, and older jobs/results/reports remain
+unchanged. The no-spend reconstructed payload fits at 146,476 bytes; this does
+not establish a received request or semantic improvement. First address safe
+transport observability and explicit polling-failure/job-continuation handling,
+with no-spend regressions. Any paid continuation needs a documented explicit
+decision; semantic-quality evaluation and isolated connection remain pending.
+
+The user then reported disabling the VPN and explicitly authorized a
+[one-job connectivity retry before fixes](missing-link-contract21-vpn-off-retry-2026-10-02.md).
+Production code and all provider/input limits remain unchanged. The prior failed
+job and its USD 0.0208524 reservation stay counted; no automated retry/resume or
+allowance reset is introduced. Inspect the new attempt before starting the other
+12 sources. The VPN hypothesis remains unconfirmed.
+
+That explicit retry completed without code/settings changes: seven reservations,
+seven completed responses, seven retained JSON outputs, no transport/polling or
+candidate-validation failures. Three automatically selected issues produced four
+evaluations: source-supported chunking, one bounded cardinality partial and two
+uncredited superficial similarities. None qualifies for follow-up execution.
+The ledger is **310 reservations / USD 4.8190698**, preserving the first failed
+attempt and all older records/reports. Model attribution gaps were caught by the
+existing ownership gate; omitted context and runtime deployment limits remain
+visible. Continue the other 12 prescribed sources before generalizing quality or
+claiming new discovery. The diagnostic/polling fixes remain deferred as requested;
+this successful repeat alone does not prove the VPN caused the first failure.
+
+The user authorized the [remaining 12-source continuation](missing-link-contract21-continuation-2026-10-02.md).
+Keep the same code, model, limits and serial repository-only selection; do not
+rerun the successful source or resume old jobs. Starting baseline is 310
+reservations / USD 4.8190698 under the existing cumulative USD 10 ceiling.
+The maximum 96 new calls reserve USD 2.3236608. Preserve failures and stop on
+another non-completed paid/transport/account/budget or observer failure, without
+automatic paid retry or changing limits mid-sample. The continuation stopped on
+Babel: **3/12 attempted, 2 completed, 1 paused and 9 unstarted**. Eighteen new
+reservations produced seventeen completed receipts/JSON outputs; the remaining
+charged Babel call has an unknown outcome. Eleven evaluations qualify for no
+follow-up; one Marshmallow field-hook partial is explicitly incomplete, already
+referenced by the target, and blocked by a version mismatch. Several superficially
+related candidates were correctly denied behavior credit, but selection relevance,
+unfetched discussion references and full public-API recall remain unproven.
+
+Post-stop CLI and authenticated API checks still report active `Daniele-Cangi`.
+The saved generic account error cannot identify the original failure; do not
+infer expired credentials, an account switch or a proven VPN cause. The original
+history/reservation/report integrity audit passed. The cumulative ledger is now
+**328 reservations / USD 5.1150975**, with both unknown outcomes preserved.
+Keep the fail-closed identity boundary. Proposed non-secret timeout/CLI/mismatch
+diagnostics and polling handling remain separate no-spend work, not changes to
+this frozen test. Another paid continuation/resume needs an explicit documented
+decision; no isolation is forced without an eligible grounded match.
+
 The prior contract-14 offline replay of the retained eight-repository cohort packed
 all 8 enrichment, 24 extraction and 20 comparison inputs within the existing
 180,000-byte transport bound (maximum 164,598 bytes). The contract-16 no-spend
