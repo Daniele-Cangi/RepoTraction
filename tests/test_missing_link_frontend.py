@@ -178,6 +178,56 @@ class MissingLinkFrontendTests(unittest.TestCase):
         self.assertIn("<script>", detail.inner_text())
         self.assertEqual(card.locator("script, img, a[href^='javascript:']").count(), 0)
 
+    def test_non_demand_is_not_a_failed_or_rejected_match_and_reason_is_escaped(self):
+        fixture = source_fixture()
+        fixture["matches"] = []
+        fixture["jobs"][0]["result"] = {"non_demands": [{"status": "not_a_request",
+            "url": "https://github.com/fixture/request/issues/1",
+            "reason": "Article only <img src=x onerror=alert(1)>"}]}
+        self.fixture_page(fixture)
+        warning = self.page.locator(".ml-job .ml-callout").filter(has_text="no established actionable request")
+        warning.wait_for()
+        self.assertIn("not a compatibility rejection", warning.inner_text())
+        self.assertIn("Article only <img", warning.inner_text())
+        self.assertEqual(warning.locator("img").count(), 0)
+        self.assertEqual(self.page.locator(".ml-match").count(), 0)
+
+    def test_non_demand_body_and_later_comment_provenance_are_visible_and_attributed(self):
+        fixture = source_fixture()
+        fixture["matches"] = []
+        url = "https://github.com/fixture/request/issues/1"
+        fixture["jobs"][0]["result"] = {"non_demands": [
+            {"url": url, "reason": "Body is reference material", "analysis_source": "model",
+             "status_evidence": [{"url": url, "source_id": "q0"}]},
+            {"url": url, "reason": "Later comment establishes reference intent", "analysis_source": "coding_agent_import",
+             "status_evidence": [{"url": url + "#issuecomment-9", "source_id": "q1"}]}]}
+        self.fixture_page(fixture)
+        warning = self.page.locator(".ml-job .ml-callout").filter(has_text="no established actionable request")
+        warning.wait_for()
+        body_source = warning.get_by_role("link", name="q0", exact=False)
+        comment_source = warning.get_by_role("link", name="q1", exact=False)
+        self.assertEqual(body_source.get_attribute("href"), url)
+        self.assertEqual(comment_source.get_attribute("href"), url + "#issuecomment-9")
+        self.assertEqual(comment_source.get_attribute("target"), "_blank")
+        self.assertEqual(comment_source.get_attribute("rel"), "noreferrer")
+        self.assertIn("Provider interpretation", warning.inner_text())
+        self.assertIn("Coding-agent import", warning.inner_text())
+        self.assertEqual(self.page.locator(".ml-match").count(), 0)
+
+    def test_non_demand_provenance_uses_safe_links_and_escapes_labels(self):
+        fixture = source_fixture()
+        fixture["matches"] = []
+        fixture["jobs"][0]["result"] = {"non_demands": [{"url": "javascript:alert(1)", "reason": "Fixture review",
+            "status_evidence": [{"url": "javascript:alert(1)", "source_id": "<img src=x onerror=alert(1)>"},
+                {"url": "https://github.com@evil.example/issue", "source_id": "q_unsafe"},
+                {"url": "https://user:secret@github.com/fixture/repo/issues/1", "source_id": "q_credentials"}]}]}
+        self.fixture_page(fixture)
+        warning = self.page.locator(".ml-job .ml-callout").filter(has_text="no established actionable request")
+        warning.wait_for()
+        self.assertIn("<img src=x", warning.inner_text())
+        self.assertIn("q_unsafe", warning.inner_text())
+        self.assertEqual(warning.locator("a, img, script").count(), 0)
+
     def test_historical_result_without_discovery_assessment_does_not_claim_novelty(self):
         self.fixture_page()
         card = self.page.locator(".ml-match")

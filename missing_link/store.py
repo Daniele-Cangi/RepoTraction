@@ -16,7 +16,22 @@ def redact_payload(value):
     if isinstance(value, list):
         return [redact_payload(item) for item in value]
     if isinstance(value, dict):
-        return {key: redact_payload(item) for key, item in value.items()}
+        entries = [(key, redact_payload(key), item) for key, item in value.items()]
+        # Reserve unchanged names so redacted keys cannot shadow genuine fields.
+        # Distinct credential keys can redact identically; retain every value
+        # under deterministic, secret-free names rather than silently overwrite.
+        used = {safe for original, safe, _ in entries if safe == original}
+        suffixes, result = {}, {}
+        for original, safe, item in entries:
+            if safe != original:
+                base, suffix = safe, suffixes.get(safe, 0)
+                while safe in used:
+                    suffix += 1
+                    safe = f"{base} [redacted-key {suffix}]"
+                suffixes[base] = suffix
+                used.add(safe)
+            result[safe] = redact_payload(item)
+        return result
     return value
 
 
@@ -86,10 +101,20 @@ class Store:
                 payload["superseded"] = True
         return payload
 
-    def save_matches(self, matches, repository):
+    def save_matches(self, matches, repository, *, job=None, non_demand=None):
         """Commit results, pinned reproduction context and supersession atomically."""
         with self.connection() as db:
             db.execute("BEGIN IMMEDIATE")
+            if non_demand is not None:
+                # Reviewed zero-match imports supersede only structural placeholders
+                # for this exact pinned context, just like other reviewed imports.
+                for peer_id, raw in db.execute("SELECT id,payload FROM ml_matches").fetchall():
+                    peer = json.loads(raw)
+                    same = (peer.get("repo_id"), peer.get("revision"), peer.get("source_fingerprint"), peer.get("request", {}).get("id")) == (
+                        repository["id"], repository["revision"], non_demand["fingerprint"], non_demand["id"])
+                    if same and peer.get("analysis_source") == "structural":
+                        peer["superseded"] = True
+                        db.execute("UPDATE ml_matches SET payload=? WHERE id=?", (json.dumps(peer), peer_id))
             for incoming in matches:
                 match = self._merge_annotations(db, incoming["id"], incoming)
                 # A previously reviewed interpretation continues to supersede a
@@ -113,6 +138,9 @@ class Store:
                 snapshot = {"repository": repository, "issue": match.get("source_issue", {})}
                 db.execute("INSERT INTO ml_match_snapshots VALUES (?,?) ON CONFLICT(match_id) DO UPDATE SET payload=excluded.payload",
                     (match["id"], json.dumps(redact_payload(snapshot), ensure_ascii=False)))
+            if job is not None:
+                db.execute("UPDATE ml_jobs SET payload=? WHERE id=?",
+                    (json.dumps(redact_payload(job), ensure_ascii=False), job["id"]))
 
     def match_snapshot(self, match_id):
         with self.connection() as db:

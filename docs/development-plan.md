@@ -43,12 +43,12 @@ settings stayed frozen throughout this evaluation.
 
 Next validation work, in narrow modules rather than `app.py`:
 
-- [ ] Align the existing 1..30 request requirement bound across provider schema,
+- [x] Align the existing 1..30 request requirement bound across provider schema,
   prompt and local validation; distinguish underflow/overflow diagnostics. Two
   live outputs contained 35 and 33 requirements. Add offline boundary fixtures
   before explicitly scoped paid verification; no truncation, limit increase,
   provenance relaxation or automatic paid retries.
-- [ ] Represent an explicitly source-grounded non-demand/reference outcome without
+- [x] Represent an explicitly source-grounded non-demand/reference outcome without
   inventing requirements or compatibility comparisons. A model correctly returned
   zero requirements for an article, but local validation rejected it; another
   article became seven inferred mandatory outline criteria. Keep strict validation
@@ -56,6 +56,33 @@ Next validation work, in narrow modules rather than `app.py`:
 - [ ] Separately investigate contribution granularity, gap-versus-prohibition
   hints and bounded source/retrieval ranking using retained fixtures. These are
   recall/qualification questions, not authorization for universal parser expansion.
+
+Contract 18 implements the first two items with offline regressions. Actual
+demands remain bounded to 1..30 requirements. The wire schema allows 0..30 so a
+typed `not_a_request` disposition can use exactly zero; local validation enforces
+that status-dependent rule in both schema and JSON modes. Such dispositions need
+complete supplied discussion, known discussion source IDs and a nonempty reason.
+They are model interpretations, not proof of absent demand or compatibility
+rejections. They persist separately, stop before target/comparison acquisition,
+and do not trigger replacement candidates, implicit retries or budget refunds.
+Completed JSON outputs are audited before wire/semantic validation, including
+charged invalid outputs; malformed, refused or incomplete responses are not
+accepted as completed JSON evidence. Historical evaluations are unchanged and
+older contracts remain historical. Fresh real-model verification of these fixes
+is still pending; implementation and offline tests make no paid calls. The local
+Windows run passes 752 tests, including 21 browser fixtures and 26 typed-outcome
+tests covering provider/import persistence, resume, mixed samples, atomic rollback
+and comparison short-circuiting. Review corrections preserve valid non-object
+JSON attempts before shape rejection, attribute and atomically persist coding-agent
+non-demand imports, and expose safe source links in the dashboard. These remain
+offline checks, not a fresh model-quality experiment.
+Eight cancellation-audit fixtures additionally cover completed object/non-object
+JSON, terminal versus partial streams, key/value redaction and captured-account isolation.
+Completed output is retained before a cancellation checkpoint, without accepting
+analysis or starting further calls after cancellation.
+Eight dedicated redaction fixtures cover nested credential-shaped keys,
+collision-safe retention, repeated storage and rejection of invalid original output.
+This is a privacy-contract correction, not an expansion of parser/provider scope.
 
 Keep structural extractions separate. UI/key-entry features and Go/Rust expansion
 remain deferred until the core discovery outcomes are adequately validated.

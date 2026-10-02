@@ -239,6 +239,58 @@ collection time, not today's clock, and is reproducible in historical exports.
 An open/non-archived target alone does not verify runtime versions, acceptance
 criteria, current demand, integration or adoption.
 
+## Request bounds and reference-only outcomes
+
+Actual requests require 1..30 independently checkable, source-grounded
+requirements. Extraction must not silently discard constraints or combine
+independent behaviors to fit this bound; coverage gaps remain explicit. Too many
+requirements are a validation failure, not a truncated success.
+
+An interpreter may instead return `status: "not_a_request"` with
+`requirements: []` when the complete supplied discussion is reference material
+and establishes no requested change or deliverable. This needs known discussion
+source IDs and a grounded, nonempty reason. Incomplete context or uncertain intent
+does not establish this disposition; a genuine request to write/explain something
+or a later requested behavior is still a demand.
+
+In provider investigations and reviewed coding-agent imports, these outcomes
+appear separately in
+`result.non_demands`, with reason, provenance, fingerprint and charged usage.
+They stop before target-context acquisition and compatibility comparison, create
+no match or rejection, and never refill the selected candidate sample. Persistence
+and resume preserve the outcome and charge. Imports are attributed to the coding
+agent, make no provider call and do not refund earlier job charges. Reimports
+replace only that discussion's outcome; a later actual-request import removes the
+non-demand marker. Import writes use the account's worker lease and commit the
+job outcome with structural-placeholder supersession in one transaction. As with
+other reviewed imports, only structural placeholders for the exact pinned
+repository revision and discussion are superseded, not other reviewed analyses.
+The interpretation remains reviewable:
+source membership does not prove semantic truth or absence of demand elsewhere.
+The dashboard identifies provider versus coding-agent interpretations and links
+each retained discussion source, including later comments, through safe GitHub URLs.
+
+The [Structured Outputs array bounds](https://developers.openai.com/api/docs/guides/structured-outputs)
+allow a wire bound of 0..30. Local validation additionally enforces exactly zero
+only for the typed non-demand status and 1..30 for other statuses, including
+JSON-mode providers and coding-agent imports. Completed JSON attempts are retained
+in redacted private checkpoints before schema/semantic validation, including
+invalid outputs; failed extraction is not retried or refunded automatically.
+Credential-shape redaction covers object keys as well as values. Unchanged field
+names are preserved; colliding redacted keys receive deterministic, secret-free
+suffixes so audit entries are not overwritten. Only the retained audit is redacted:
+the original output still undergoes strict validation and invalid shapes remain rejected.
+This includes valid JSON arrays/scalars before rejecting their top-level shape;
+successful analysis still requires an object. Incomplete, refused or undecodable
+responses are not recorded as completed JSON output.
+If cancellation arrives while a response is in flight, already received completed
+JSON is saved to the original account/job's private audit before stopping; it is
+not validated or accepted as analysis after cancellation. This also applies to a
+received terminal streaming response. Partial streams still stop without reading
+later frames or treating partial deltas as completed output.
+Contract 18 does not rewrite historical results or validate fresh real-model
+behavior by itself.
+
 ## Coding-agent mode without a provider
 
 After evaluating a selected issue, expand **Use a coding agent without configuring

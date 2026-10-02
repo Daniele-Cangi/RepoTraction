@@ -11,10 +11,11 @@ from pathlib import Path
 from .analysis import (analysis_contract, conservative_matches, conservative_request, digest,
     evidence_catalog, extension_groups, text, texts, validate_matches, validate_request, capability_fingerprint, ANALYSIS_CONTRACT_VERSION)
 from .provider import Provider, CandidateValidationError
-from .store import Store
+from .store import Store, redact_payload
 from .lease import WorkerLease
 from .sources import PublicGitHub, extract_structure, parse_issue_url
 from .discovery import problem_queries, select_candidates, screen_candidate, SELECTION_POLICY, SCREENING_POLICY
+from .non_demands import is_non_demand, disposition_record, record_disposition, clear_disposition
 
 
 def now():
@@ -69,8 +70,8 @@ class Budget:
         self.save()
 
     def record_output(self, phase, output):
-        # Keep schema-valid attempts for provenance/debugging, including failed
-        # semantic validation. Hidden from polling state, redacted by Store.
+        # Keep completed JSON attempts for provenance/debugging, including failed
+        # wire/semantic validation. Hidden from polling state, redacted by Store.
         self.job["checkpoint"].setdefault("ai_outputs", []).append({"phase": phase,
             "call_number": self.job["ai_calls_used"], "attempt_id": f"{self.job['id']}:{self.job['ai_calls_used']}", "output": output})
         self.save()
@@ -351,7 +352,7 @@ class Service:
             for index, candidate in enumerate(checkpoints["candidates"]):
                 key = str(index)
                 if (key in checkpoints.get("evaluated", []) or key in checkpoints.get("candidate_failures", {})
-                        or key in checkpoints.get("candidate_skips", {})):
+                        or key in checkpoints.get("candidate_skips", {}) or key in checkpoints.get("non_demands", {})):
                     continue
                 stage("discussion", f"Reading public discussion {index + 1}/{len(checkpoints['candidates'])}.")
                 discussions = checkpoints.setdefault("discussions", {})
@@ -378,6 +379,14 @@ class Service:
                         requests[key] = self.provider.interpret_request(issue, budget) if job["input"]["use_ai"] else conservative_request(issue)
                         save()
                     request = requests[key]
+                    if is_non_demand(request):
+                        budget.checkpoint()
+                        record = disposition_record(index, request, collected_at=now(),
+                            ai_calls_used=job["ai_calls_used"] - before["ai_calls_used"],
+                            cost_reserved_usd=job["cost_reserved_usd"] - before["cost_reserved_usd"])
+                        record_disposition(job, index, request, record)
+                        save()
+                        continue
                     if "target_context" not in issue:
                         stage("target-context", "Checking bounded public target manifests and cited files for prior use.")
                         target, _ = parse_issue_url(issue["url"])
@@ -437,8 +446,10 @@ class Service:
                 save()
             failed_count = len(checkpoints.get("candidate_failures", {}))
             skipped_count = len(checkpoints.get("candidate_skips", {}))
+            non_demand_count = len(checkpoints.get("non_demands", {}))
             stage("completed", f"Investigation finished with {failed_count} candidate validation failure(s); results are partial."
-                  if failed_count else f"Investigation finished; {skipped_count} retrieval hint(s) skipped; inspect evidence and unexecuted bridges.")
+                  if failed_count else f"Investigation finished; {skipped_count} retrieval hint(s) skipped; "
+                  f"{non_demand_count} non-demand discussion(s); inspect evidence and unexecuted bridges.")
             with self.lock:
                 budget.checkpoint()
                 job["status"] = "completed"
@@ -484,6 +495,18 @@ class Service:
 
     def import_analysis(self, data):
         self._verify()
+        with self.lock:
+            # Outcome imports now update a job as well as matches. Serialize them
+            # with resume/workers across processes so counters/checkpoints cannot
+            # be overwritten from a stale job snapshot.
+            if not self.lease.acquire():
+                raise ValueError("Wait for the active investigation to finish before importing analysis.")
+            try:
+                return self._import_analysis(data)
+            finally:
+                self.lease.release()
+
+    def _import_analysis(self, data):
         job, repository = self.repository_for_job(text(data.get("job_id", ""), 40))
         if job["status"] not in {"completed", "paused", "cancelled", "failed"}:
             raise ValueError("Wait for acquisition to finish before importing analysis.")
@@ -493,11 +516,25 @@ class Service:
             raise ValueError("Selected discussion is not in this job's public evidence context.")
         raw = data.get("analysis", {})
         request = validate_request(raw.get("request", {}), issue)
+        request["analysis_source"] = "coding_agent_import"
         matches = validate_matches(raw.get("matches", []), repository, issue, request, "coding_agent_import")
         for match in matches:
             self.validate_proposal(match, repository)
-        self.store.save_matches(matches, repository)
-        return {"match_ids": [match["id"] for match in matches], "analysis_source": "coding_agent_import"}
+        result = {"match_ids": [match["id"] for match in matches], "analysis_source": "coding_agent_import"}
+        changed = False
+        if is_non_demand(request):
+            record = disposition_record(int(index), request, collected_at=now(), ai_calls_used=0,
+                cost_reserved_usd=0, analysis_source="coding_agent_import")
+            record_disposition(job, index, request, record)
+            result["non_demands"] = [redact_payload(record)]
+            changed = True
+        else:
+            changed = clear_disposition(job, index, request)
+        if changed:
+            job["updated_at"] = now()
+        self.store.save_matches(matches, repository, job=job if changed else None,
+            non_demand=request if is_non_demand(request) else None)
+        return result
 
     @staticmethod
     def validate_proposal(match, repository):
