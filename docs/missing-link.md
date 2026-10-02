@@ -276,6 +276,10 @@ only for the typed non-demand status and 1..30 for other statuses, including
 JSON-mode providers and coding-agent imports. Completed JSON attempts are retained
 in redacted private checkpoints before schema/semantic validation, including
 invalid outputs; failed extraction is not retried or refunded automatically.
+Credential-shape redaction covers object keys as well as values. Unchanged field
+names are preserved; colliding redacted keys receive deterministic, secret-free
+suffixes so audit entries are not overwritten. Only the retained audit is redacted:
+the original output still undergoes strict validation and invalid shapes remain rejected.
 This includes valid JSON arrays/scalars before rejecting their top-level shape;
 successful analysis still requires an object. Incomplete, refused or undecodable
 responses are not recorded as completed JSON output.

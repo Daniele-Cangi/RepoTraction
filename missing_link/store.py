@@ -16,7 +16,22 @@ def redact_payload(value):
     if isinstance(value, list):
         return [redact_payload(item) for item in value]
     if isinstance(value, dict):
-        return {key: redact_payload(item) for key, item in value.items()}
+        entries = [(key, redact_payload(key), item) for key, item in value.items()]
+        # Reserve unchanged names so redacted keys cannot shadow genuine fields.
+        # Distinct credential keys can redact identically; retain every value
+        # under deterministic, secret-free names rather than silently overwrite.
+        used = {safe for original, safe, _ in entries if safe == original}
+        suffixes, result = {}, {}
+        for original, safe, item in entries:
+            if safe != original:
+                base, suffix = safe, suffixes.get(safe, 0)
+                while safe in used:
+                    suffix += 1
+                    safe = f"{base} [redacted-key {suffix}]"
+                suffixes[base] = suffix
+                used.add(safe)
+            result[safe] = redact_payload(item)
+        return result
     return value
 
 

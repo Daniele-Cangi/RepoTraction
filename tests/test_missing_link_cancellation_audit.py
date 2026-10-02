@@ -112,6 +112,19 @@ class CancellationAuditTests(unittest.TestCase):
         self.assert_completed_audit(job, output)
         self.assertEqual(len(output["requirements"]), 35)
 
+    def test_cancelled_invalid_output_redacts_colliding_credential_keys_without_loss(self):
+        first, second = "ghp_" + "A" * 36, "github_pat_" + "B" * 36
+        value = {first: {second: "fixture"}, second: 2, "[REDACTED]": "literal"}
+        for streaming in (False, True):
+            with self.subTest(streaming=streaming):
+                job, output, _ = self.cancelled_response(streaming=streaming, value=value)
+                self.assert_completed_audit(job, output)
+                saved = job["checkpoint"]["ai_outputs"][0]["output"]
+                self.assertEqual(len(saved), len(value))
+                self.assertEqual(saved["[REDACTED]"], "literal")
+                self.assertNotIn(first, json.dumps(job))
+                self.assertNotIn(second, json.dumps(job))
+
     def test_cancellation_during_partial_stream_does_not_read_or_audit_the_terminal_response(self):
         job, _, response = self.cancelled_response(streaming=True, cancel_at="partial")
         self.assertEqual(response.__enter__.return_value.readline.call_count, 2)

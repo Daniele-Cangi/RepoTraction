@@ -70,16 +70,19 @@ charged invalid outputs; malformed, refused or incomplete responses are not
 accepted as completed JSON evidence. Historical evaluations are unchanged and
 older contracts remain historical. Fresh real-model verification of these fixes
 is still pending; implementation and offline tests make no paid calls. The local
-Windows run passes 743 tests, including 21 browser fixtures and 26 typed-outcome
+Windows run passes 752 tests, including 21 browser fixtures and 26 typed-outcome
 tests covering provider/import persistence, resume, mixed samples, atomic rollback
 and comparison short-circuiting. Review corrections preserve valid non-object
 JSON attempts before shape rejection, attribute and atomically persist coding-agent
 non-demand imports, and expose safe source links in the dashboard. These remain
 offline checks, not a fresh model-quality experiment.
-Seven cancellation-audit fixtures additionally cover completed object/non-object
-JSON, terminal versus partial streams, redaction and captured-account isolation.
+Eight cancellation-audit fixtures additionally cover completed object/non-object
+JSON, terminal versus partial streams, key/value redaction and captured-account isolation.
 Completed output is retained before a cancellation checkpoint, without accepting
 analysis or starting further calls after cancellation.
+Eight dedicated redaction fixtures cover nested credential-shaped keys,
+collision-safe retention, repeated storage and rejection of invalid original output.
+This is a privacy-contract correction, not an expansion of parser/provider scope.
 
 Keep structural extractions separate. UI/key-entry features and Go/Rust expansion
 remain deferred until the core discovery outcomes are adequately validated.
