@@ -5,6 +5,7 @@ from itertools import groupby
 
 from .sources import parse_issue_url, source_role, runtime_bin_entrypoints
 from .qualification import reference_only_body
+from .public_api import public_api_hints
 
 
 SELECTION_POLICY = "external/open first; balance projects and queries; title overlap then upstream rank"
@@ -104,9 +105,12 @@ def problem_queries(repository):
     An explicit query/issue remains available for closed or same-project work.
     """
     runtime_entrypoints = runtime_bin_entrypoints(repository.get("files", []))
+    public_entrypoints = set(public_api_hints(repository.get("files", []))["entrypoints"])
     def quality(cap):
         return ({"implementation": 0, "support": 1, "test": 2, "infrastructure": 3}[source_role(_path(cap), runtime_entrypoints=runtime_entrypoints)],
-                0 if cap.get("maintainer_correction") else 1 if cap.get("claim_source") == "model" else 2)
+                0 if cap.get("maintainer_correction") else 1,
+                0 if cap.get("entrypoint") in public_entrypoints else 1,
+                0 if cap.get("claim_source") == "model" else 1)
     candidates = sorted(repository.get("capabilities", []), key=lambda cap: (*quality(cap),
         cap.get("level") != "mechanism" or cap.get("name", "").startswith("_"),
         cap.get("summary", "").startswith(("Declared ", "Declaration candidate"))))

@@ -320,7 +320,7 @@ class MissingLinkFrontendTests(unittest.TestCase):
         self.page.get_by_text("Partial code support · full request still rejected", exact=True).wait_for()
         self.assertIn("Not a fit", self.page.locator("#mlMatches").inner_text())
         self.page.locator('[data-ml-detail="discovery-match-fixture"]').evaluate("node => node.open = true")
-        self.assertIn("Existing behavior: 1 requirements · Scope-compatible constraints: 0 · Conflicts: 1", self.page.locator("#mlMatches").inner_text())
+        self.assertIn("Existing behavior: 1 requirements fully supported · Partial primitives: 0 · Scope-compatible constraints: 0 · Conflicts: 1", self.page.locator("#mlMatches").inner_text())
         self.assertEqual(self.page.locator("#mlMatches script").count(), 0)
         self.assertIn("Not executed", self.page.locator("#mlMatches").inner_text())
 
@@ -358,6 +358,20 @@ class MissingLinkFrontendTests(unittest.TestCase):
         self.assertEqual(self.page.evaluate(
             'window.mlCalls.filter(call => call.path === "/api/missing-link/jobs").length'
         ), 1)
+
+    def test_partial_primitive_is_not_displayed_as_a_fulfilled_requirement(self):
+        fixture = source_fixture()
+        match = fixture["matches"][0]
+        match["checks"][0].update(contribution="partial_behavior", reason="Reusable operation; wiring unverified.")
+        match["discovery_assessment"] = {"status": "partial_contribution", "supported_requirement_ids": [],
+            "partial_requirement_ids": ["r1"], "undetermined_requirement_ids": ["r1"], "eligible_for_followup": False}
+        self.fixture_page(fixture)
+        self.assertIn("Partial code support · full request not established", self.page.locator("#mlMatches").inner_text())
+        self.page.locator('summary').filter(has_text="Discovery qualification").click()
+        self.assertIn("0 requirements fully supported · Partial primitives: 1", self.page.locator("#mlMatches").inner_text())
+        self.page.locator('summary').filter(has_text="Every requirement").click()
+        self.assertIn("Reusable primitive only · integration unverified", self.page.locator("#mlMatches").inner_text())
+        self.assertIn("mandatory requirement is not supported", self.page.locator("#mlMatches").inner_text())
 
     def test_untrusted_evidence_remains_text_and_mobile_fits(self):
         fixture = source_fixture()

@@ -1,5 +1,6 @@
 """Machine-readable interpretation schemas, distinct from human examples."""
 from .non_demands import NON_DEMAND_STATUS
+from .contributions import CONTRIBUTION_KINDS
 
 MAX_SCOPED_IDS = 400
 MAX_REQUEST_REQUIREMENTS = 30
@@ -52,7 +53,7 @@ def schema_for(phase, *, source_ids=None, capability_ids=None, requirement_ids=N
         expected_output=string(), ablation=string(), files=array(obj(path=string(), content=string())))
     match = obj(capability_id=string(), classification=string("direct", "adapter", "extraction", "rejected", "investigate"),
         summary=string(), checks=array(obj(requirement_id=string(), status=string("satisfied", "incompatible", "undetermined"),
-            contribution=string("existing_behavior", "scope_compatible", "not_demonstrated"),
+            contribution=string(*CONTRIBUTION_KINDS),
             reason=string(), source_ids=array())), obstacles=array(), bridge=bridge)
     schema = {"request": request, "capabilities": obj(capabilities=array(capability)),
               "matches": obj(matches=array(match))}[phase]

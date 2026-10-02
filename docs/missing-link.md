@@ -291,6 +291,56 @@ later frames or treating partial deltas as completed output.
 Contract 18 does not rewrite historical results or validate fresh real-model
 behavior by itself.
 
+Contract 19 additionally distinguishes `partial_behavior`: a source-cited reusable
+primitive that can help an independently extracted requirement, while integration
+or policy remains new work. Its requirement stays `undetermined`, not `satisfied`.
+An explicit nonempty explanation and cited implementation are required; documentation,
+tests, type declarations, target code and passive API preservation do not substantiate
+partial runtime support. A hard conflict remains a rejection. Partial primitives
+are counted separately from fully supported requirements, cannot by themselves
+qualify an external lead or extension group, and do not execute code automatically.
+Existing ambiguous/historical outputs are not promoted or rewritten. Project-specific
+documentation, test and integration work is distinguished from a demonstrated hard
+runtime or dependency incompatibility in the comparison prompt.
+
+Constraint review also retains narrowly recognized `current_gap` hints separately
+from potential prohibitions: for example, a missing built-in operation or an existing
+logging path that does not sanitize text. Those descriptive observations alone do
+not invent a dependency ban or block qualification. Mixed directives, ambiguous
+negatives, explicit prohibitions and uncertain constraint authority still require
+review. Gap hints cannot displace real constraints in the bounded ledger; their
+omissions are reported separately and do not imply complete demand coverage.
+
+Bounded context/query ranking now prioritizes literal Python `__all__` declaration
+hints with direct relative imports to acquired files. Public API hints remain
+inside the existing source-role tiers and per-file diversity policy; they cannot
+promote neighboring scripts, tests or documentation into implementation. Dynamic
+exports, import chains, star/absolute/parent imports and missing targets are not
+resolved. The scan is capped at 32 initializers, 32,768 characters per initializer
+and 64 hints, with visible scan limits; the candidate/file/query bounds do not grow.
+These are ranking hints, not runtime export verification or broader parser coverage.
+The displayed API-hint ledger is capped at 8,192 serialized UTF-8 JSON bytes and
+shares the source packing budget. `omitted_entrypoint_count` and
+`entrypoint_list_complete` describe reporting omissions, separately from the
+original `scan_complete` flag. All scanned hints still participate in ranking;
+long paths cannot expand the report after source packing or consume all of the
+implementation context just to repeat those hints.
+
+Offline contract-19 verification passes **783 tests**, including 22 browser fixtures
+and 30 new Python fixtures for partial support, gap review, public API ranking and
+hint-report packing. The review regression covers valid 906-character paths,
+64 hints, two 60 KB files, UTF-8/JSON escaping, unchanged ranking and a bounded
+eight-declaration sample through both provider API/format modes before HTTP.
+Read-only replay of the retained 2 October cohort packs all **78 contexts** (13
+enrichment, 34 extraction and 31 comparison) through the Responses schema/framing
+preflight, stopping at a fake reservation before HTTP. Maximum transport size is
+**174,273 bytes** under the existing 180,000-byte bound. `load_dotenv` and
+`dotenv_values` now reach their supplied definition context. No model calls,
+stored-result updates or account-ledger changes occurred: 251 reservations remain
+USD 3.844534 under the same USD 10 ceiling. This tests context feasibility and
+offline contracts, not improved live-model accuracy; fresh Luna verification is
+still pending. Frozen contract-16 results remain unchanged.
+
 ## Coding-agent mode without a provider
 
 After evaluating a selected issue, expand **Use a coding agent without configuring

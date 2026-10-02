@@ -6,6 +6,7 @@ They flag text needing review, not verified requirements or maintainer approval.
 import re
 
 from .demand import sentence_spans
+from .gap_hints import current_gap_hint
 
 MAX_CONSTRAINT_HINTS = 16
 MAX_HINT_QUOTE = 600
@@ -45,6 +46,7 @@ def constraint_hints(issue):
     """Inspect full acquired text before prompt shortening; retain exact spans."""
     items = []
     found = 0
+    gaps_found = 0
     sources = [("q0", issue)] + [(f"q{index}", comment) for index, comment in enumerate(issue.get("comments", []), 1)]
     for source_index, (source_id, source) in enumerate(sources):
         author = authorship(source, issue.get("author"), source_id == "q0")
@@ -62,14 +64,17 @@ def constraint_hints(issue):
                 # constraints on one line remain independently reviewable;
                 # neighboring explanations cannot stand in for a constraint.
                 quote = sentence[0][marker.start():].strip()
-                found += 1
+                is_gap = current_gap_hint(sentence[0])
+                found += not is_gap
+                gaps_found += is_gap
                 line_hints += 1
                 hint_id = f"constraint:{source_id}:{line_number}"
                 if line_hints > 1:
                     hint_id += f":{line_hints}"
                 items.append({"id": hint_id, "source_id": source_id,
                               "quote": quote[:MAX_HINT_QUOTE], "quote_truncated": len(quote) > MAX_HINT_QUOTE,
-                              **author, "_rank": (not bool(DEPENDENCY_MARKER.search(quote)),
+                              "kind": "current_gap" if is_gap else "potential_constraint",
+                              **author, "_rank": (2 if is_gap else int(not bool(DEPENDENCY_MARKER.search(quote))),
                                                   -source_index, line_number, sentence.start())})
                 # Keep the bounded ledger, but continue scanning so a late
                 # dependency prohibition cannot disappear behind a checklist.
@@ -79,5 +84,7 @@ def constraint_hints(issue):
     for item in items:
         item.pop("_rank")
     return {"items": items, "complete": found <= MAX_CONSTRAINT_HINTS,
-            "markers_found": found,
+            "markers_found": found + gaps_found, "constraint_markers_found": found,
+            "gap_markers_found": gaps_found,
+            "gap_hints_complete": sum(item["kind"] == "current_gap" for item in items) == gaps_found,
             "note": "Non-exhaustive English constraint markers; no marker does not prove all requirements were extracted."}
