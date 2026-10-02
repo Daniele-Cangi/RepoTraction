@@ -17,7 +17,7 @@ from .sources import source_role
 
 CLASSIFICATIONS = {"direct", "adapter", "extraction", "rejected", "investigate"}
 REQUEST_STATUSES = {"unresolved", "resolved", "duplicate", "unclear", "automated"}
-ANALYSIS_CONTRACT_VERSION = 14
+ANALYSIS_CONTRACT_VERSION = 15
 
 
 def passive_api_constraint(requirement: dict) -> bool:
@@ -107,9 +107,9 @@ def request_catalog(issue: dict) -> dict[str, dict]:
     return evidence_catalog({"files": [], "capabilities": []}, issue)
 
 
-def review_constraints(issue: dict, requirements: list) -> dict:
+def review_constraints(issue: dict, requirements: list, optional_dispositions=()) -> dict:
     review = constraint_hints(issue)
-    review["optional_field_review"] = optional_field_hints(request_catalog(issue), requirements)
+    review["optional_field_review"] = optional_field_hints(request_catalog(issue), requirements, optional_dispositions)
     blockers = []
     for hint in review["items"]:
         represented = [r["id"] for r in requirements if r["source"]["source_id"] == hint["source_id"]
@@ -190,13 +190,15 @@ def validate_request(raw: dict, issue: dict) -> dict:
         status = "unclear"
     if issue.get("bot"):
         status = "automated"
+    constraint_review = review_constraints(issue, requirements, raw.get("optional_field_dispositions", []))
     return {"id": issue["id"], "title": issue["title"], "url": issue["url"],
         "outcome": text(raw.get("outcome", issue["title"])), "status": status,
         "status_reason": text(raw.get("status_reason", "")), "status_evidence": status_evidence,
         "requirements": requirements, "environment": texts(raw.get("environment", [])),
         "prior_attempts": texts(raw.get("prior_attempts", [])),
         "missing_information": texts(raw.get("missing_information", [])),
-        "constraint_review": review_constraints(issue, requirements),
+        "optional_field_dispositions": constraint_review["optional_field_review"]["dispositions"],
+        "constraint_review": constraint_review,
         "context_complete": bool(issue.get("context_complete")),
         "updated_at": issue.get("updated_at"), "fingerprint": issue.get("fingerprint", digest(issue))}
 
@@ -217,7 +219,8 @@ def validate_matches(raw_matches: list, repository: dict, issue: dict, request: 
     if not isinstance(raw_matches, list) or len(raw_matches) > 12:
         raise ValueError("At most 12 evaluated capabilities per discussion.")
     # Recompute from acquired discussion even for imported/older request objects.
-    request = dict(request, constraint_review=review_constraints(issue, request["requirements"]))
+    request = dict(request, constraint_review=review_constraints(issue, request["requirements"],
+                   request.get("optional_field_dispositions", [])))
     catalog = evidence_catalog(repository, issue)
     capabilities = {item["id"]: item for item in repository["capabilities"]}
     requirements = {item["id"]: item for item in request["requirements"]}
@@ -381,7 +384,7 @@ def analysis_contract() -> dict:
     return {"request": {"outcome": "Desired outcome independent of the candidate", "status": "unclear",
         "status_source_ids": ["q0"], "status_reason": "Read later comments, do not use issue state alone.",
         "requirements": [{"text": "Requirement", "mandatory": True, "explicit": True, "source_id": "q0", "quote": "verbatim source text", "inference": ""}],
-        "environment": [], "prior_attempts": [], "missing_information": []},
+        "environment": [], "prior_attempts": [], "missing_information": [], "optional_field_dispositions": []},
         "matches": [{"capability_id": "ID from repository", "classification": "investigate",
             "summary": "Problem to existing contribution", "checks": [{"requirement_id": "r0", "status": "undetermined",
                 "contribution": "not_demonstrated", "reason": "Explain operating conditions", "source_ids": ["file:example.py#L1-L8"]}], "obstacles": [],

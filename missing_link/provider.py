@@ -247,7 +247,8 @@ class Provider:
         data["demand_spans"] = spans
         report["demand_span_coverage"] = coverage
         report["discussion_complete"] &= coverage["complete"]
-        data["schema"] = schema_for("request", source_ids=data["sources"], citation_ids=spans)
+        optional_ids = [item["id"] for item in data["potential_subrequirements"]["items"]]
+        data["schema"] = schema_for("request", source_ids=data["sources"], citation_ids=spans, optional_field_ids=optional_ids)
         raw = self.complete("Independently extract this public demand without considering ANY candidate repository. "
             "Read subsequent comments for satisfied needs, duplicates, changed requirements, rejected approaches and automation. "
             "Open/closed is insufficient. Return the request object defined by the supplied JSON schema; status_source_ids refer to supplied discussion. "
@@ -260,6 +261,11 @@ class Provider:
             "Review potential_subrequirements: preserve each named field (include its identifier in text) in its own requirement "
             "when it describes requested behavior. The '?' syntax makes an API argument optional, not necessarily the requested "
             "implementation: read narrative/authority before assigning mandatory. An explicitly optional behavior has mandatory=false. "
+            "For a named field that is only unrelated context/an example and is not requested, return an "
+            "optional_field_dispositions entry with its exact hint_id, disposition=not_requested and a reason grounded "
+            "in the quoted context. Do not manufacture a requirement for it. Use disposition=needs_review when uncertain; "
+            "never dismiss an actually requested field or a mandatory constraint. Omitted decisions remain unreviewed. "
+            "Copy hint_id only from potential_subrequirements items; when there are no such items, return an empty array. "
             "Do not invent behavior or weaken the whole request's mandatory criteria to improve a candidate's fit. "
             "If you cannot ground a requirement in supplied text, record the gap in missing_information instead of fabricating "
             "a quotation. Distinguish explicit constraints from inference. When context_coverage says "
@@ -278,6 +284,8 @@ class Provider:
             validate_shape(raw, data["schema"])
             if any(ref not in data["sources"] for ref in raw["status_source_ids"]):
                 raise ValueError("AI request disposition cites unavailable context.")
+            if any(item["hint_id"] not in optional_ids for item in raw["optional_field_dispositions"]):
+                raise ValueError("AI optional-field disposition cites unavailable context.")
             scoped_issue = dict(issue, context_complete=report["discussion_complete"])
             request = validate_request(resolve_citations(raw, spans), scoped_issue)
         except CandidateValidationError:

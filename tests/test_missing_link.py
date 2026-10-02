@@ -41,7 +41,7 @@ def issue():
 
 def request_raw():
     return {"outcome": "Shorten text", "status": "unresolved", "status_source_ids": ["q0"], "status_reason": "Fixture only",
-        "environment": [], "prior_attempts": [], "missing_information": [], "requirements": [
+        "environment": [], "prior_attempts": [], "missing_information": [], "optional_field_dispositions": [], "requirements": [
         {"text": "Do not split words", "mandatory": True, "explicit": True, "source_id": "q0", "quote": "without splitting words", "inference": ""},
         {"text": "No Python runtime; native CSS", "mandatory": True, "explicit": True, "source_id": "q0", "quote": "Must work in native CSS without Python.", "inference": ""}]}
 

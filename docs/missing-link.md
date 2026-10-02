@@ -104,9 +104,17 @@ Provider hints are packed with the supplied discussion excerpts under the same
 byte budget; omitted comments cannot reappear through these hints. Overflow is
 explicit, and final validation still checks the full acquired discussion for
 unrepresented fields, so a partial prompt cannot silently clear them.
-The identifier must be represented separately, and uncertain source authority
-still requires review. Longer identifiers such as `colorMode` do not also count
-as `mode`; explicitly naming both still flags a bundled requirement. An optional
+Requested fields must be represented separately. An unrelated example/context
+field can instead receive an explicit `optional_field_dispositions` decision:
+the offered `hint_id`, `not_requested`, and a nonempty, bounded reason grounded
+in its original context. The hint supplies source provenance, not a model-written
+quotation. Decisions are saved with the request and checked again on comparison;
+they do not create requirements or award support. A reason is an interpretation,
+not semantic proof of irrelevance. Omitted decisions and `needs_review` remain
+blockers, as do uncertain source authority, mandatory constraints, scan overflow
+and incomplete discussion. Contradictory requirement/dismissal decisions are
+rejected, including bundled requirements. Longer identifiers such as `colorMode`
+do not also count as `mode`; explicitly naming both still flags a bundled requirement. An optional
 API argument does not by itself make the requested implementation optional.
 A supported optional mechanism can be a
 partial contribution while mandatory conflicts still reject the full request.
@@ -188,7 +196,7 @@ Malformed or unsupported values block review instead of generating references.
 This does not validate version expressions or prove installation. Supported shapes
 follow the [Poetry dependency specification](https://python-poetry.org/docs/dependency-specification/).
 
-Contract 14 marks earlier results as historical, preserving their original
+Contract 15 marks earlier results as historical, preserving their original
 interpretations and exports. There is no automatic migration or paid reevaluation.
 
 An empty body or a body containing only example/reference links cannot establish
@@ -475,7 +483,9 @@ discovery still needs established search terms or an explicit operator query.
   capitalized examples without rewriting source text or offsets.
   Identical optional-field lines from the same identified, authoritative author
   share one review item with their retained source IDs; one atomic requirement
-  citing any of those sources can represent it. Changed text, different authors
+  citing any of those sources can represent it, or an explicit, reasoned
+  `not_requested` decision can dismiss unrelated context. Review IDs bind to the
+  original discussion, declaration and authority. Changed text, different authors
   and uncertain authority stay separate. The 30-reference bound and explicit
   omission reporting still apply; repetition does not imply optional adoption.
 - A bounded, non-exhaustive English constraint-hint scan examines acquired

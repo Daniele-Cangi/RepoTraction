@@ -66,7 +66,7 @@ def resolve_citations(raw, spans):
     return normalized
 
 
-def optional_field_hints(catalog, requirements=()):
+def optional_field_hints(catalog, requirements=(), dispositions=()):
     """Review optional API fields independently; '?' is not an adoption verdict.
 
     A TypeScript optional argument does not prove that implementing the requested
@@ -92,7 +92,10 @@ def optional_field_hints(catalog, requirements=()):
                 # source-scoped; changed wording/types remain independent items.
                 owner = ("author", author) if isinstance(author, str) and author and authority in {
                     "request_author", "repository_member"} else ("source", ref)
-                key = (name, quote, authority, owner)
+                # Bind review IDs to this discussion, even when the same author
+                # repeats a declaration in another issue or a packed subset.
+                origin = str(source.get("url") or "").split("#", 1)[0]
+                key = (name, quote, authority, owner, origin)
                 item = groups.get(key)
                 if item is not None and ref in item["source_ids"]:
                     continue
@@ -103,11 +106,13 @@ def optional_field_hints(catalog, requirements=()):
                     continue
                 references += 1
                 if item is None:
-                    item = {"field": name, "source_id": ref, "source_ids": [], "quote": quote,
+                    hint_id = "o" + hashlib.sha256(json.dumps(key, ensure_ascii=False).encode()).hexdigest()[:16]
+                    item = {"id": hint_id, "field": name, "source_id": ref, "source_ids": [], "quote": quote,
                             "authority": authority}
                     groups[key] = item
                     items.append(item)
                 item["source_ids"].append(ref)
+    decisions = _field_dispositions(dispositions, {item["id"] for item in items})
     def identity(value):
         value = re.sub(r"([a-z])([A-Z])", r"\1 \2", value)
         return tuple(re.findall(r"[a-z0-9]+", value.casefold()))
@@ -129,18 +134,51 @@ def optional_field_hints(catalog, requirements=()):
     interpreted = [(requirement, mentions(requirement["text"])) for requirement in requirements]
     for item in items:
         key = identity(item["field"])
-        represented = []
+        represented, requested = [], []
         for requirement, named_fields in interpreted:
             quote = requirement["source"]["quote"]
             # A sentence can be shorter than its original line; legacy manual
             # citations can include surrounding lines. Both must actually cite
             # this declaration, not merely neighboring prose on the same line.
             cites_field = re.search(r"\b" + re.escape(item["field"]) + r"\?\s*:", quote)
-            if (requirement["explicit"] and named_fields == {key}
+            if (requirement["explicit"] and key in named_fields
                     and requirement["source"]["source_id"] in item["source_ids"]
                     and cites_field and (quote in item["quote"] or item["quote"] in quote)):
-                represented.append(requirement["id"])
-        item.update(represented_by=represented, needs_review=not represented or
-                    item["authority"] not in {"request_author", "repository_member"})
+                requested.append(requirement["id"])
+                if named_fields == {key}:
+                    represented.append(requirement["id"])
+        decision = decisions.get(item["id"])
+        disposition = decision["disposition"] if decision else "unreviewed"
+        if requested and disposition == "not_requested":
+            raise ValueError("An optional field cannot be both a requirement and dismissed as not requested.")
+        item.update(represented_by=represented, disposition=disposition,
+                    disposition_reason=decision["reason"] if decision else "",
+                    needs_review=(not represented and disposition != "not_requested")
+                    or disposition == "needs_review"
+                    or item["authority"] not in {"request_author", "repository_member"})
     return {"items": items, "complete": not omitted, "omitted_fields": omitted,
+            "dispositions": list(decisions.values()),
             "method": "optional-field syntax is an extraction hint, not proof of optional demand or compatibility"}
+
+
+def _field_dispositions(dispositions, known_ids):
+    """Validate explicit interpretation decisions, never synthesize requirements.
+
+    The referenced hint supplies original text/provenance; a model's reason is
+    still an interpretation, not semantic proof that the field is irrelevant.
+    """
+    if not isinstance(dispositions, (list, tuple)) or len(dispositions) > 30:
+        raise ValueError("Optional-field dispositions must be a bounded list.")
+    decisions = {}
+    for item in dispositions:
+        if not isinstance(item, dict) or set(item) != {"hint_id", "disposition", "reason"}:
+            raise ValueError("Invalid optional-field disposition fields.")
+        hint_id, disposition, reason = item["hint_id"], item["disposition"], item["reason"]
+        if not isinstance(hint_id, str) or hint_id not in known_ids or hint_id in decisions:
+            raise ValueError("Optional-field disposition references an unknown or repeated hint.")
+        if disposition not in ("not_requested", "needs_review"):
+            raise ValueError("Unknown optional-field disposition.")
+        if not isinstance(reason, str) or not reason.strip() or len(reason) > 2000:
+            raise ValueError("Optional-field disposition requires a bounded nonempty reason.")
+        decisions[hint_id] = {"hint_id": hint_id, "disposition": disposition, "reason": reason.strip()}
+    return decisions
