@@ -20,12 +20,13 @@ def citation_spans(sources, catalog, byte_limit):
     IDs depend on original source offsets, not model spelling or packing order.
     Overflow is explicit: selected spans do not certify complete discussion.
     """
-    spans, omitted = {}, 0
+    spans, omitted, groups = {}, 0, []
     for ref, source in sources.items():
         if not re.fullmatch(r"q\d+", ref):
             continue
         original = catalog[ref]["quote"]
         visible = source.get("quote", "")
+        candidates, seen = [], set()
         pieces = [visible] if visible == original else re.split(
             r"\n\[(?:OMITTED MIDDLE|SELECTED CONSTRAINT EXCERPT)\]\n", visible)
         # Selected middle constraints precede long tail filler. Each piece must
@@ -47,12 +48,35 @@ def citation_spans(sources, catalog, byte_limit):
                             continue
                         offset = base + piece.find(quote, first, min(end, first + 1600))
                         key = "s" + hashlib.sha256(f"{source.get('url')}:{ref}:{offset}:{offset + len(quote)}:{quote}".encode()).hexdigest()[:16]
-                        spans[key] = {"source_id": ref, "quote": quote}
-                        if len(spans) > MAX_SCOPED_IDS or len(json.dumps(spans, ensure_ascii=False).encode()) > byte_limit:
-                            spans.pop(key)
-                            omitted += 1
+                        if key not in seen:
+                            candidates.append((key, {"source_id": ref, "quote": quote}))
+                            seen.add(key)
+        groups.append((ref, candidates))
+    # Keep a small root opening (title and up to two opening clauses), not an
+    # entire report. Then share the remaining budget across discussion sources.
+    # This preserves short root demands without starving later human requests.
+    opening = next((group[:3] for ref, group in groups if ref == "q0"), [])
+    remainder = [(ref, group[3:] if ref == "q0" else group) for ref, group in groups]
+    ordered = list(opening)
+    for offset in range(max((len(group) for _, group in remainder), default=0)):
+        for _, group in remainder:
+            if offset >= len(group):
+                continue
+            ordered.append(group[offset])
+    for key, entry in ordered:
+        if len(spans) >= MAX_SCOPED_IDS:
+            omitted += 1
+            continue
+        spans[key] = entry
+        if len(json.dumps(spans, ensure_ascii=False).encode()) > byte_limit:
+            spans.pop(key)
+            omitted += 1
+    represented = {entry["source_id"] for entry in spans.values()}
+    missing = [ref for ref, group in groups if group and ref not in represented]
     return spans, {"span_count": len(spans), "omitted_visible_spans": omitted,
-                   "complete": not omitted, "method": "exact original spans; selection is not semantic validation"}
+                   "complete": not omitted, "sources_without_spans": missing[:60],
+                   "source_count_without_spans": len(missing),
+                   "method": "exact original spans; bounded root opening then round-robin discussion coverage, not semantic validation"}
 
 
 def resolve_citations(raw, spans):
