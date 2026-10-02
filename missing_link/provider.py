@@ -130,9 +130,8 @@ class Provider:
         return digest({"url": self.url, "model": self.model, "api_kind": self.api_kind,
             "format": self.response_format, "contract": ANALYSIS_CONTRACT_VERSION})
 
-    def complete(self, instruction: str, data: dict, budget, schema=None, phase="analysis") -> dict:
-        if not self.describe()["configured"]:
-            raise ValueError(self.error or "Configure an interpretive provider or import a reviewed coding-agent analysis.")
+    def _encode_prompt(self, instruction, data, schema, phase):
+        """One serialization path for both packing preflight and the sent body."""
         prompt = instruction + "\nUNTRUSTED_DATA_JSON:\n" + json.dumps(data, ensure_ascii=False)
         messages = [{"role": "system", "content": SYSTEM}, {"role": "user", "content": prompt}]
         format_value = {"type": "json_object"}
@@ -152,6 +151,12 @@ class Provider:
             endpoint = "/chat/completions"
         # Include JSON escaping, schema and framing, not just concatenated content.
         body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+        return endpoint, payload, body
+
+    def complete(self, instruction: str, data: dict, budget, schema=None, phase="analysis") -> dict:
+        if not self.describe()["configured"]:
+            raise ValueError(self.error or "Configure an interpretive provider or import a reviewed coding-agent analysis.")
+        endpoint, payload, body = self._encode_prompt(instruction, data, schema, phase)
         input_bytes = len(body)
         if input_bytes > self.max_bytes:
             raise ValueError("Source context exceeds AI prompt bound. Select a smaller source subset or use a coding-agent handoff.")
@@ -260,18 +265,42 @@ class Provider:
         budget.checkpoint()
         return parsed
 
+    def _bounded_context(self, repository, issue, phase, instruction, request=None):
+        """Repack locally before any paid call; rebuild all source-bound scopes."""
+        target = int(self.max_bytes * 0.60)
+        for _ in range(8):
+            data, report = build_context(repository, issue, phase, self.max_bytes, packing_target=target)
+            if phase in {"capabilities", "matches"} and report["implementation_context_missing"]:
+                raise CandidateValidationError("Implementation source unavailable in bounded context; analysis not evaluated or charged.")
+            if phase == "request":
+                spans, coverage = citation_spans(data["sources"], evidence_catalog({}, issue), self.max_bytes // 10)
+                if not spans:
+                    raise CandidateValidationError("No visible demand spans; request not evaluated.")
+                data["demand_spans"] = spans
+                report["demand_span_coverage"] = coverage
+                report["discussion_complete"] &= coverage["complete"]
+                data["schema"] = schema_for(phase, source_ids=data["sources"], citation_ids=spans,
+                    optional_field_ids=[item["id"] for item in data["potential_subrequirements"]["items"]])
+            elif phase == "capabilities":
+                data["schema"] = schema_for(phase, source_ids=data["sources"], capability_ids=report["capability_ids"])
+            else:
+                # The interpreted request remains intact, even when large. It
+                # and the schema/framing are measured before choosing source bytes.
+                data["request"] = request
+                data["schema"] = schema_for(phase, source_ids=data["sources"], capability_ids=report["capability_ids"],
+                    requirement_ids=[item["id"] for item in request["requirements"]])
+            wire_bytes = len(self._encode_prompt(instruction, data, data["schema"], phase)[2])
+            if wire_bytes <= self.max_bytes:
+                return data, report
+            # A strictly decreasing local packing target bounds work even when
+            # metadata/reporting dominates or JSON escaping is adversarial.
+            target = min(target - 1000, int(target * self.max_bytes / wire_bytes * 0.95))
+            if target < 12000:
+                break
+        raise ValueError("Source context exceeds AI prompt bound. Select a smaller source subset or use a coding-agent handoff.")
+
     def interpret_request(self, issue: dict, budget) -> dict:
-        data, report = build_context(None, issue, "request", self.max_bytes)
-        spans, coverage = citation_spans(data["sources"], evidence_catalog({"files": [], "capabilities": []}, issue),
-                                        self.max_bytes // 10)
-        if not spans:
-            raise CandidateValidationError("No visible demand spans; request not evaluated.")
-        data["demand_spans"] = spans
-        report["demand_span_coverage"] = coverage
-        report["discussion_complete"] &= coverage["complete"]
-        optional_ids = [item["id"] for item in data["potential_subrequirements"]["items"]]
-        data["schema"] = schema_for("request", source_ids=data["sources"], citation_ids=spans, optional_field_ids=optional_ids)
-        raw = self.complete("Independently extract this public demand without considering ANY candidate repository. "
+        instruction = ("Independently extract this public demand without considering ANY candidate repository. "
             "Read subsequent comments for satisfied needs, duplicates, changed requirements, rejected approaches and automation. "
             "Open/closed is insufficient. Return the request object defined by the supplied JSON schema; status_source_ids refer to supplied discussion. "
             "For each requirement SELECT citation_id from demand_spans keys. The application supplies the original quote; "
@@ -306,7 +335,11 @@ class Provider:
             "to ignore other constraints. Do not invent a ban on dependencies from a statement that a built-in operation is absent. "
             "Record uncertain authorship, generated plans, superseded constraints and prior adoption in missing_information/prior_attempts; "
             "do not silently omit them or treat automation as maintainer approval. Reference notes or an already named package are not "
-            "evidence of new unresolved adoption demand.", data, budget, data["schema"], "request")
+            "evidence of new unresolved adoption demand.")
+        data, report = self._bounded_context(None, issue, "request", instruction)
+        spans = data["demand_spans"]
+        optional_ids = [item["id"] for item in data["potential_subrequirements"]["items"]]
+        raw = self.complete(instruction, data, budget, data["schema"], "request")
         try:
             validate_requirement_count(raw.get("requirements"), minimum=0 if is_non_demand(raw) else 1)
             for index, requirement in enumerate(raw["requirements"]):
@@ -335,12 +368,8 @@ class Provider:
         # a valid result, not an invalid enum or permission to spend a paid call.
         if not repository.get("capabilities"):
             return []
-        data, report = build_context(repository, None, "capabilities", self.max_bytes)
-        if report["implementation_context_missing"]:
-            raise CandidateValidationError("Implementation source unavailable in bounded context; enrichment not evaluated or charged.")
-        data["schema"] = schema_for("capabilities", source_ids=data["sources"], capability_ids=report["capability_ids"])
         # An enrichment pass over structural candidates, not an unconstrained capability hallucination.
-        raw = self.complete("Review structural capability candidates against the provided source files. Return {capabilities:[...]}. "
+        instruction = ("Review structural capability candidates against the provided source files. Return {capabilities:[...]}. "
             "Interpret at most 8 important product/subsystem/mechanism candidates. Use existing IDs only. For each provide name,summary,outcome,inputs,outputs,preconditions,dependencies,limitations,"
             "Prefer source-backed declared public API hints over lower-level helpers when selecting important mechanisms. "
             "A public_api_hint is a static declaration hint, not proof of exports, execution or compatibility; inspect its supplied implementation. "
@@ -350,7 +379,9 @@ class Provider:
             "Copy exact source IDs from sources keys and capability IDs from the supplied candidates. Never create a wider "
             "line range or join two IDs to span an unseen gap; cite multiple supplied IDs separately when needed. "
             "Omitted source IDs are not available evidence. Standalone=yes requires an actual importable/exported or callable "
-            "interface. Test references are not executed tests.", data, budget, data["schema"], "capabilities")
+            "interface. Test references are not executed tests.")
+        data, report = self._bounded_context(repository, None, "capabilities", instruction)
+        raw = self.complete(instruction, data, budget, data["schema"], "capabilities")
         candidates = {item["id"]: item for item in repository["capabilities"]}
         catalog = evidence_catalog(repository, {"url": "", "title": "", "body": ""})
         from .analysis import text, texts
@@ -387,13 +418,7 @@ class Provider:
         validate_requirement_count(request["requirements"])
         if not repository.get("capabilities"):
             return []
-        data, report = build_context(repository, issue, "matches", self.max_bytes)
-        if report["implementation_context_missing"]:
-            raise CandidateValidationError("Implementation source unavailable in bounded context; compatibility not evaluated or charged.")
-        data["request"] = request
-        data["schema"] = schema_for("matches", source_ids=data["sources"], capability_ids=report["capability_ids"],
-                                    requirement_ids=[item["id"] for item in request["requirements"]])
-        raw = self.complete("Assess this independently extracted request against existing capability candidates. "
+        instruction = ("Assess this independently extracted request against existing capability candidates. "
             "Return {matches:[...]}, at most 3 most defensible candidates including rejection when deceptively similar. "
             "Assess EVERY extracted requirement, mandatory and optional, independently as satisfied, incompatible or undetermined; "
             "cite source IDs from actual code. A supported optional behavior is still worth recording when mandatory conflicts reject the full request. "
@@ -406,6 +431,19 @@ class Provider:
             "Each check must also distinguish contribution: existing_behavior for reusable implemented behavior, "
             "partial_behavior for a source-cited primitive that helps only part of a requirement while project wiring or policy remains new work; "
             "keep that requirement undetermined and explain the exact reusable operation and remaining work separately in reason. "
+            "For EACH partial_behavior check add a partial_support review for its requirement_id: basis, operation, "
+            "requirement_part, remaining_work and source_ids. Use basis=candidate_implementation ONLY for a concretely "
+            "reusable operation in THIS candidate that implements part of THAT requested behavior. Its source_ids must "
+            "cite only implementation paths in the SELECTED capability's evidence or definition, also cited in the check. "
+            "Other capabilities' files do not grant partial credit. Name the operation, the precise requested suboperation "
+            "it implements and the remaining project work. For other checks use no review unless useful to explain a rejected "
+            "partial proposal. Target-side Jest/ESLint/TypeScript/CI configuration is basis=target_context, not candidate support; "
+            "an unrelated candidate global-config function cannot launder those target citations into implementation credit. "
+            "Runtime caching as an analogy for static AST diagnostics is basis=analogy, not analyzer implementation. "
+            "Rejecting an invalid option is not validation of an invalid size, nor implementation of requested project tests. "
+            "For target_context, analogy or not_established use contribution=not_demonstrated; never partial_behavior. "
+            "An implementation citation proves ownership/provenance, not semantic relevance. If that specific suboperation "
+            "cannot be established, use not_established, undetermined and not_demonstrated rather than generic similarity. "
             "Partial primitives do not certify a complete requirement, resolve a security report or prove adoption. "
             "scope_compatible for a compatible boundary/preservation constraint (for example leaving capture APIs unchanged), "
             "or not_demonstrated for unsupported/unknown/conflicting behavior. Passive scope compatibility is not a useful "
@@ -422,8 +460,9 @@ class Provider:
             "Capability and requirement IDs must also be copied from this call. For a defensible non-rejected candidate with an existing runnable "
             "mechanism, include a small runnable example and test as bridge files even if adoption remains undetermined. "
             "The example must distinguish assumed fixture inputs/outputs from original request criteria. Do not invent dependencies "
-            "or implement the entire capability anew. Keep files small and runnable without network; identify any missing dependency.",
-            data, budget, data["schema"], "matches")
+            "or implement the entire capability anew. Keep files small and runnable without network; identify any missing dependency.")
+        data, report = self._bounded_context(repository, issue, "matches", instruction, request)
+        raw = self.complete(instruction, data, budget, data["schema"], "matches")
         # Citation normalization must not mutate the stored schema-valid attempt.
         raw = copy.deepcopy(raw)
         try:
@@ -432,6 +471,8 @@ class Provider:
                     raise ValueError("AI selected a capability not included in this call.")
                 for check in match["checks"]:
                     check["source_ids"] = normalize_references(check["source_ids"], data["sources"], evidence_catalog(repository, issue))
+                for review in match.get("partial_support", []):
+                    review["source_ids"] = normalize_references(review["source_ids"], data["sources"], evidence_catalog(repository, issue))
             scoped = dict(request)
             if not report["discussion_complete"]:
                 scoped["context_complete"] = False

@@ -62,15 +62,15 @@ Next validation work, in narrow modules rather than `app.py`:
 - [ ] Verify contracts 18/19 with fresh Luna calls under a separately frozen
   protocol and the unchanged cumulative allowance. The cohort remains incomplete
   after the input-8 stop described below; no universal parser expansion.
-- [ ] Budget source packing against actual final provider transport, including
+- [x] Budget source packing against actual final provider transport, including
   interpreted request, schema, instructions, framing and JSON escaping. Reproduce
   the 185,562-byte Zod failure offline, preserve the 180,000-byte bound, implementation
   evidence and explicit omissions; no limit increases or paid automatic retries.
-- [ ] Prevent a long root report from monopolizing citation IDs/bytes at the
+- [x] Prevent a long root report from monopolizing citation IDs/bytes at the
   expense of supplied later requests. Add the QuantEcon feedback-comment regression
   with exact quotes, bounded coverage and visible omissions; retain strict request
   and non-demand validation.
-- [ ] Tighten candidate-owned partial contribution semantics: relevant reusable
+- [x] Tighten candidate-owned partial contribution semantics: relevant reusable
   implementation, not target-side tooling or conceptual analogy. Add the Zod
   tooling, Cachetools/Ruff and invalid-option/invalid-size cases offline, preserving
   real partial primitives, hard conflicts, unknown integration and lead gates.
@@ -153,6 +153,32 @@ Partial labels are not a verified utility count, and no isolation is forced.
 Typed model non-demand handling and fresh python-dotenv API recall remain unverified
 in this sample. Fix and test offline first; another paid continuation needs explicit
 direction and a frozen protocol retaining all failures, charges and historical data.
+
+The [contract-20 corrections](missing-link-contract20-corrections-2026-10-02.md)
+implement those three follow-ups separately from the frozen run. Actual wire-body
+measurement drives bounded local excerpt repacking; a small root opening plus
+round-robin citations preserves later requests; structured partial reviews separate
+candidate implementation, target context, analogy and unestablished relevance.
+Only explicitly attributed, check-bound candidate implementation can retain partial
+credit, and it remains undetermined rather than an execution/lead certificate.
+All 800 local tests pass. The exact retained Zod comparison fits at 178,554 bytes
+with its 27 requirements intact; Babel's actual feedback comment now has 10
+citations while discussion remains incomplete. These are no-spend offline results,
+not fresh Luna judgments or proof of semantic truth. Historical data and the
+USD 4.6737541 cumulative reservation total are preserved. Paid continuation is
+still pending explicit direction.
+
+The PR review found one concrete attribution gap: any repository implementation
+could receive partial credit for another selected capability. Contract **21**
+binds every partial anchor to the selected capability's exact structural evidence
+or definition paths, in addition to implementation role and check membership.
+Model interpretation citations cannot broaden ownership. Missing ownership paths
+fail closed; valid selected definitions/wrappers retain partial support. This is a
+narrow contract correction, not expanded parser or dependency-closure coverage.
+Older contract-20 results remain stored unchanged and are marked historical by
+the existing freshness mechanism; no budget reset or implicit retry is introduced.
+All **807 local tests** pass, including seven new selected-capability regressions;
+the updated retained Zod transport remains below 180,000 bytes with all requirements.
 
 Keep structural extractions separate. UI/key-entry features and Go/Rust expansion
 remain deferred until the core discovery outcomes are adequately validated.

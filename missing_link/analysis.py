@@ -16,11 +16,11 @@ from .demand import optional_field_hints
 from .sources import source_role, runtime_bin_entrypoints
 from .contracts import validate_requirement_count
 from .non_demands import NON_DEMAND_STATUS, is_non_demand, validate_non_demand
-from .contributions import normalize_support
+from .contributions import normalize_support, partial_reviews
 
 CLASSIFICATIONS = {"direct", "adapter", "extraction", "rejected", "investigate"}
 REQUEST_STATUSES = {"unresolved", "resolved", "duplicate", "unclear", "automated", NON_DEMAND_STATUS}
-ANALYSIS_CONTRACT_VERSION = 19
+ANALYSIS_CONTRACT_VERSION = 21
 
 
 def passive_api_constraint(requirement: dict) -> bool:
@@ -256,6 +256,7 @@ def validate_matches(raw_matches: list, repository: dict, issue: dict, request: 
             raise ValueError("Duplicate requirement assessment.")
         if set(supplied) - set(requirements):
             raise ValueError("Unknown requirement in compatibility matrix.")
+        partial = partial_reviews(raw.get("partial_support", []), requirements)
         for rid, requirement in requirements.items():
             item = supplied.get(rid, {})
             status = item.get("status", "undetermined")
@@ -267,11 +268,17 @@ def validate_matches(raw_matches: list, repository: dict, issue: dict, request: 
                 entry["source_id"] = reference
                 evidence.append(entry)
             reason = text(item.get("reason", "No grounded assessment supplied."))
+            review = partial.get(rid)
+            # Every review citation is validated, even for an analogy or target
+            # context. Candidate anchors must also occur in this check's evidence.
+            if review:
+                for reference in review["source_ids"]:
+                    resolve_evidence(reference, catalog)
             status, contribution = normalize_support(status, contribution, evidence,
-                passive=passive_api_constraint(requirement), reason=reason if "reason" in item else "",
-                runtime_entrypoints=runtime_entrypoints)
+                capability=capability, passive=passive_api_constraint(requirement), reason=reason if "reason" in item else "",
+                runtime_entrypoints=runtime_entrypoints, partial=review)
             checks.append({"requirement_id": rid, "status": status, "contribution": contribution,
-                "reason": reason, "evidence": evidence})
+                "reason": reason, "evidence": evidence, **({"partial_support": review} if review else {})})
         hard = [item for item in checks if requirements[item["requirement_id"]]["mandatory"]]
         obstacles = texts(raw.get("obstacles", []))
         if any(item["status"] == "incompatible" for item in hard):
@@ -382,7 +389,8 @@ def analysis_contract() -> dict:
         "environment": [], "prior_attempts": [], "missing_information": [], "optional_field_dispositions": []},
         "matches": [{"capability_id": "ID from repository", "classification": "investigate",
             "summary": "Problem to existing contribution", "checks": [{"requirement_id": "r0", "status": "undetermined",
-                "contribution": "not_demonstrated", "reason": "Explain operating conditions", "source_ids": ["file:example.py#L1-L8"]}], "obstacles": [],
+                "contribution": "not_demonstrated", "reason": "Explain operating conditions", "source_ids": ["file:example.py#L1-L8"]}],
+            "partial_support": [], "obstacles": [],
             "bridge": {"kind": "investigation", "summary": "Smallest useful connection",
                 "steps": [], "existing_contribution": "Existing code", "new_logic": "Added code, if any", "assumptions": [], "files": [],
                 "dependencies": [], "runtime": "", "permissions": [], "coupling": "", "input": "", "expected_output": "", "ablation": ""}}]}
