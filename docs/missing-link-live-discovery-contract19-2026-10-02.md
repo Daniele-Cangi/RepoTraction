@@ -169,3 +169,24 @@ forced from this incomplete sample. Explicit approval is needed to resume the
 checkpoint/retry the unreceipted comparison and then start the remaining 12 inputs,
 while retaining this interrupted segment and its charges separately. No product
 code, prompts, provider settings or selection policy changed during the run.
+
+## Explicit continuation amendment (before further paid calls)
+
+On 2 October, after inspecting the interruption, the user explicitly approved
+one checkpoint resume of job `0e9003dd7b314f1cbcebf6b39c6dcf2a`, retrying its
+unreceipted comparison, then starting the remaining 12 frozen repository inputs.
+This is a separately authorized continuation, not an automatic retry policy.
+
+The original paused report and its accounting remain immutable in the initial
+segment. Continuation reports are saved separately. Existing completed outputs
+and all five original reservations are retained; the unknown fifth attempt is
+not refunded or treated as a completed response. The continuation starts at
+256 reservations / USD 3.9319899, keeping the same allowance and USD 10 ceiling.
+The original job's eight-call limit includes its existing five reservations.
+
+Implementation stays frozen at `12e9c30`, contract 19, with identical provider,
+discovery inputs and selection limits. No issue, custom query or manual analysis
+is supplied. Another non-completed paid/account/transport/budget outcome stops
+the cohort for inspection, without further automatic resume or code changes.
+Final observations will be appended separately; approval itself is not evidence
+of a completed cohort, improved discovery or an eligible isolated experiment.
