@@ -21,7 +21,7 @@ class RequirementBoundTests(unittest.TestCase):
         for options in ({}, {"source_ids": ["q0"], "citation_ids": ["s1"]}):
             with self.subTest(options=options):
                 requirements = schema_for("request", **options)["properties"]["requirements"]
-                self.assertEqual(requirements["minItems"], 1)
+                self.assertEqual(requirements["minItems"], 0)  # Only typed non-demands may use zero locally.
                 self.assertEqual(requirements["maxItems"], MAX_REQUEST_REQUIREMENTS)
 
     def test_local_and_json_mode_accept_one_and_thirty_without_truncation(self):
@@ -45,8 +45,9 @@ class RequirementBoundTests(unittest.TestCase):
                 with self.assertRaises(ValueError) as raised:
                     validate_request(raw, fixtures.issue())
                 self.assertIn(message, str(raised.exception))
-                with self.assertRaises(ValueError):
-                    validate_shape(raw, schema_for("request"))
+                if value != []:  # Wire permits zero; semantic status-dependent validation remains strict.
+                    with self.assertRaises(ValueError):
+                        validate_shape(raw, schema_for("request"))
 
     def test_provider_prompt_and_payload_state_the_same_bound(self):
         provider = Provider({"REPOTRACTION_AI_URL": "http://localhost/v1", "REPOTRACTION_AI_MODEL": "fixture"})
@@ -72,7 +73,7 @@ class RequirementBoundTests(unittest.TestCase):
                 self.assertEqual(len(raw["requirements"]), count)
 
     def test_completed_transport_output_is_audited_before_bounds_rejection(self):
-        for count in (0, 33, 35):
+        for count in (33, 35):
             with self.subTest(count=count):
                 provider = Provider({"REPOTRACTION_AI_URL": "http://localhost/v1", "REPOTRACTION_AI_MODEL": "fixture",
                     "REPOTRACTION_AI_API_KIND": "responses"})

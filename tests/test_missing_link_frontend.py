@@ -178,6 +178,20 @@ class MissingLinkFrontendTests(unittest.TestCase):
         self.assertIn("<script>", detail.inner_text())
         self.assertEqual(card.locator("script, img, a[href^='javascript:']").count(), 0)
 
+    def test_non_demand_is_not_a_failed_or_rejected_match_and_reason_is_escaped(self):
+        fixture = source_fixture()
+        fixture["matches"] = []
+        fixture["jobs"][0]["result"] = {"non_demands": [{"status": "not_a_request",
+            "url": "https://github.com/fixture/request/issues/1",
+            "reason": "Article only <img src=x onerror=alert(1)>"}]}
+        self.fixture_page(fixture)
+        warning = self.page.locator(".ml-job .ml-callout").filter(has_text="no established actionable request")
+        warning.wait_for()
+        self.assertIn("not a compatibility rejection", warning.inner_text())
+        self.assertIn("Article only <img", warning.inner_text())
+        self.assertEqual(warning.locator("img").count(), 0)
+        self.assertEqual(self.page.locator(".ml-match").count(), 0)
+
     def test_historical_result_without_discovery_assessment_does_not_claim_novelty(self):
         self.fixture_page()
         card = self.page.locator(".ml-match")

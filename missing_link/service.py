@@ -15,6 +15,7 @@ from .store import Store
 from .lease import WorkerLease
 from .sources import PublicGitHub, extract_structure, parse_issue_url
 from .discovery import problem_queries, select_candidates, screen_candidate, SELECTION_POLICY, SCREENING_POLICY
+from .non_demands import is_non_demand, disposition_record
 
 
 def now():
@@ -351,7 +352,7 @@ class Service:
             for index, candidate in enumerate(checkpoints["candidates"]):
                 key = str(index)
                 if (key in checkpoints.get("evaluated", []) or key in checkpoints.get("candidate_failures", {})
-                        or key in checkpoints.get("candidate_skips", {})):
+                        or key in checkpoints.get("candidate_skips", {}) or key in checkpoints.get("non_demands", {})):
                     continue
                 stage("discussion", f"Reading public discussion {index + 1}/{len(checkpoints['candidates'])}.")
                 discussions = checkpoints.setdefault("discussions", {})
@@ -378,6 +379,15 @@ class Service:
                         requests[key] = self.provider.interpret_request(issue, budget) if job["input"]["use_ai"] else conservative_request(issue)
                         save()
                     request = requests[key]
+                    if is_non_demand(request):
+                        budget.checkpoint()
+                        record = disposition_record(index, request, collected_at=now(),
+                            ai_calls_used=job["ai_calls_used"] - before["ai_calls_used"],
+                            cost_reserved_usd=job["cost_reserved_usd"] - before["cost_reserved_usd"])
+                        checkpoints.setdefault("non_demands", {})[key] = record
+                        job["result"].setdefault("non_demands", []).append(record)
+                        save()
+                        continue
                     if "target_context" not in issue:
                         stage("target-context", "Checking bounded public target manifests and cited files for prior use.")
                         target, _ = parse_issue_url(issue["url"])
@@ -437,8 +447,10 @@ class Service:
                 save()
             failed_count = len(checkpoints.get("candidate_failures", {}))
             skipped_count = len(checkpoints.get("candidate_skips", {}))
+            non_demand_count = len(checkpoints.get("non_demands", {}))
             stage("completed", f"Investigation finished with {failed_count} candidate validation failure(s); results are partial."
-                  if failed_count else f"Investigation finished; {skipped_count} retrieval hint(s) skipped; inspect evidence and unexecuted bridges.")
+                  if failed_count else f"Investigation finished; {skipped_count} retrieval hint(s) skipped; "
+                  f"{non_demand_count} non-demand discussion(s); inspect evidence and unexecuted bridges.")
             with self.lock:
                 budget.checkpoint()
                 job["status"] = "completed"

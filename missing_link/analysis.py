@@ -15,10 +15,11 @@ from .qualification import assess_discovery
 from .demand import optional_field_hints
 from .sources import source_role, runtime_bin_entrypoints
 from .contracts import validate_requirement_count
+from .non_demands import NON_DEMAND_STATUS, is_non_demand, validate_non_demand
 
 CLASSIFICATIONS = {"direct", "adapter", "extraction", "rejected", "investigate"}
-REQUEST_STATUSES = {"unresolved", "resolved", "duplicate", "unclear", "automated"}
-ANALYSIS_CONTRACT_VERSION = 17
+REQUEST_STATUSES = {"unresolved", "resolved", "duplicate", "unclear", "automated", NON_DEMAND_STATUS}
+ANALYSIS_CONTRACT_VERSION = 18
 
 
 def passive_api_constraint(requirement: dict) -> bool:
@@ -156,9 +157,13 @@ def validate_request(raw: dict, issue: dict) -> dict:
     if not isinstance(raw, dict):
         raise ValueError("Request interpretation must be an object.")
     catalog = request_catalog(issue)
+    status = raw.get("status", "unclear")
+    if status not in REQUEST_STATUSES:
+        raise ValueError("Unknown request disposition.")
+    validate_non_demand(raw, issue, catalog)
     requirements = []
     raw_requirements = raw.get("requirements", [])
-    validate_requirement_count(raw_requirements)
+    validate_requirement_count(raw_requirements, minimum=0 if is_non_demand(raw) else 1)
     for index, item in enumerate(raw_requirements):
         if not isinstance(item, dict):
             raise ValueError("Each requirement must be an object.")
@@ -175,9 +180,6 @@ def validate_request(raw: dict, issue: dict) -> dict:
             "source": {"url": catalog[source_id]["url"], "quote": original, "source_id": source_id,
                 "quote_match": "exact" if original == quote else "whitespace_normalized"},
             "inference": text(item.get("inference", ""))})
-    status = raw.get("status", "unclear")
-    if status not in REQUEST_STATUSES:
-        raise ValueError("Unknown request disposition.")
     status_evidence = []
     for reference in raw.get("status_source_ids", []):
         if reference not in catalog:
@@ -188,7 +190,7 @@ def validate_request(raw: dict, issue: dict) -> dict:
         status = "unclear"
     if not issue.get("context_complete", False) and status == "unresolved":
         status = "unclear"
-    if issue.get("bot"):
+    if issue.get("bot") and status != NON_DEMAND_STATUS:
         status = "automated"
     constraint_review = review_constraints(issue, requirements, raw.get("optional_field_dispositions", []))
     return {"id": issue["id"], "title": issue["title"], "url": issue["url"],
@@ -218,6 +220,11 @@ def conservative_request(issue: dict) -> dict:
 def validate_matches(raw_matches: list, repository: dict, issue: dict, request: dict, source: str) -> list[dict]:
     if not isinstance(raw_matches, list) or len(raw_matches) > 12:
         raise ValueError("At most 12 evaluated capabilities per discussion.")
+    if is_non_demand(request):
+        if raw_matches:
+            raise ValueError("A non-demand disposition cannot have compatibility matches.")
+        return []
+    validate_requirement_count(request["requirements"])
     # Recompute from acquired discussion even for imported/older request objects.
     request = dict(request, constraint_review=review_constraints(issue, request["requirements"],
                    request.get("optional_field_dispositions", [])))

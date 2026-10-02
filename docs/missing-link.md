@@ -239,6 +239,36 @@ collection time, not today's clock, and is reproducible in historical exports.
 An open/non-archived target alone does not verify runtime versions, acceptance
 criteria, current demand, integration or adoption.
 
+## Request bounds and reference-only outcomes
+
+Actual requests require 1..30 independently checkable, source-grounded
+requirements. Extraction must not silently discard constraints or combine
+independent behaviors to fit this bound; coverage gaps remain explicit. Too many
+requirements are a validation failure, not a truncated success.
+
+An interpreter may instead return `status: "not_a_request"` with
+`requirements: []` when the complete supplied discussion is reference material
+and establishes no requested change or deliverable. This needs known discussion
+source IDs and a grounded, nonempty reason. Incomplete context or uncertain intent
+does not establish this disposition; a genuine request to write/explain something
+or a later requested behavior is still a demand.
+
+In provider investigations, these outcomes appear separately in
+`result.non_demands`, with reason, provenance, fingerprint and charged usage.
+They stop before target-context acquisition and compatibility comparison, create
+no match or rejection, and never refill the selected candidate sample. Persistence
+and resume preserve the outcome and charge. The interpretation remains reviewable:
+source membership does not prove semantic truth or absence of demand elsewhere.
+
+The [Structured Outputs array bounds](https://developers.openai.com/api/docs/guides/structured-outputs)
+allow a wire bound of 0..30. Local validation additionally enforces exactly zero
+only for the typed non-demand status and 1..30 for other statuses, including
+JSON-mode providers and coding-agent imports. Completed JSON attempts are retained
+in redacted private checkpoints before schema/semantic validation, including
+invalid outputs; failed extraction is not retried or refunded automatically.
+Contract 18 does not rewrite historical results or validate fresh real-model
+behavior by itself.
+
 ## Coding-agent mode without a provider
 
 After evaluating a selected issue, expand **Use a coding agent without configuring

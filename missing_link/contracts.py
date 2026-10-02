@@ -1,4 +1,5 @@
 """Machine-readable interpretation schemas, distinct from human examples."""
+from .non_demands import NON_DEMAND_STATUS
 
 MAX_SCOPED_IDS = 400
 MAX_REQUEST_REQUIREMENTS = 30
@@ -21,11 +22,11 @@ def array(items=None, *, minimum=None, maximum=None):
     return {"type": "array", "items": items or string(), **bounds}
 
 
-def validate_requirement_count(requirements):
-    """Keep wire, JSON-mode and imported demand bounds identical."""
+def validate_requirement_count(requirements, *, minimum=1):
+    """Enforce local demand bounds; callers allow zero only for typed non-demands."""
     if not isinstance(requirements, list):
         raise ValueError("Request requirements must be a list.")
-    if not requirements:
+    if len(requirements) < minimum:
         raise ValueError("Extract at least one source-grounded requirement.")
     if len(requirements) > MAX_REQUEST_REQUIREMENTS:
         raise ValueError(f"Request requirements exceed maximum {MAX_REQUEST_REQUIREMENTS} (received {len(requirements)}).")
@@ -35,9 +36,11 @@ def schema_for(phase, *, source_ids=None, capability_ids=None, requirement_ids=N
     requirement = obj(text=string(), mandatory={"type": "boolean"}, explicit={"type": "boolean"},
         source_id=string(), quote=string(), inference=string())
     field_disposition = obj(hint_id=string(), disposition=string("not_requested", "needs_review"), reason=string())
-    request = obj(outcome=string(), status=string("unresolved", "resolved", "duplicate", "unclear", "automated"),
+    request = obj(outcome=string(), status=string("unresolved", "resolved", "duplicate", "unclear", "automated", NON_DEMAND_STATUS),
         status_source_ids=array(), status_reason=string(),
-        requirements=array(requirement, minimum=1, maximum=MAX_REQUEST_REQUIREMENTS),
+        # Zero is legal only for the typed non-demand disposition. Cross-field
+        # consistency is checked locally; normal demands still require 1..30.
+        requirements=array(requirement, minimum=0, maximum=MAX_REQUEST_REQUIREMENTS),
         optional_field_dispositions=array(field_disposition),
         environment=array(), prior_attempts=array(), missing_information=array())
     capability = obj(id=string(), name=string(), summary=string(), outcome=string(), inputs=array(), outputs=array(),
@@ -91,7 +94,7 @@ def schema_for(phase, *, source_ids=None, capability_ids=None, requirement_ids=N
         # below the structured-output limit of 1,000 values across the schema.
         request["properties"]["requirements"] = array(obj(text=string(), mandatory={"type": "boolean"},
             explicit={"type": "boolean"}, citation_id=choices(citation_ids), inference=string()),
-            minimum=1, maximum=MAX_REQUEST_REQUIREMENTS)
+            minimum=0, maximum=MAX_REQUEST_REQUIREMENTS)
     if optional_field_ids is not None:
         if phase != "request":
             raise ValueError("Optional-field decisions are only valid in the request contract.")
