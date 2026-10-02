@@ -8,6 +8,7 @@ from missing_link.analysis import validate_matches, validate_request
 from missing_link.contracts import schema_for, validate_shape
 from missing_link.provider import CandidateValidationError, Provider
 from missing_link.store import Store
+from missing_link.lease import WorkerLease
 import test_missing_link as fixtures
 
 
@@ -246,3 +247,149 @@ class NonDemandServiceTests(unittest.TestCase):
         job, _, _, _ = self.run_disposition(raw=raw)
         self.assertIn("[REDACTED]", job["result"]["non_demands"][0]["reason"])
         self.assertNotIn("ghp_", json.dumps(job))
+
+
+class NonDemandImportTests(unittest.TestCase):
+    setUp = fixtures.ServiceTests.setUp
+    fake_sources = fixtures.ServiceTests.fake_sources
+
+    def acquired_job(self):
+        source = self.fake_sources()
+        source.fetch_issue.return_value = article()
+        with mock.patch("missing_link.service.PublicGitHub", return_value=source), \
+             mock.patch("missing_link.service.extract_structure", return_value=fixtures.repository()["capabilities"]):
+            started = self.service.start({"repo": "example/words", "issue_url": article()["url"]}, background=False)
+        return self.service.store.get("jobs", started["job_id"])
+
+    def import_non_demand(self, job, raw=None, **options):
+        return self.service.import_analysis({"job_id": job["id"], **options,
+            "analysis": {"request": raw or non_demand_raw(), "matches": []}})
+
+    def test_import_is_persisted_attributed_and_visible_without_provider_or_charge(self):
+        job = self.acquired_job()
+        before_matches = self.service.store.list("matches")
+        with mock.patch.object(self.service.provider, "complete") as paid:
+            response = self.import_non_demand(job)
+        paid.assert_not_called()
+        self.assertEqual(response["match_ids"], [])
+        stored = Store(self.path, "alice").get("jobs", job["id"])
+        record = stored["result"]["non_demands"][0]
+        self.assertEqual(record, response["non_demands"][0])
+        self.assertEqual(record, stored["checkpoint"]["non_demands"]["0"])
+        self.assertEqual(stored["checkpoint"]["requests"]["0"]["status"], "not_a_request")
+        self.assertEqual(record["analysis_source"], "coding_agent_import")
+        self.assertIn("Coding-agent interpretation", record["note"])
+        self.assertFalse(record["compatibility_evaluated"])
+        self.assertEqual(record["ai_calls_used"], 0)
+        self.assertEqual(record["cost_reserved_usd"], 0)
+        for key in ("ai_calls_used", "cost_reserved_usd", "requests_used", "status"):
+            self.assertEqual(stored[key], job[key])
+        self.assertEqual(len(self.service.store.list("matches")), len(before_matches))
+        self.assertTrue(all(item["superseded"] for item in self.service.store.list("matches")))
+        public = next(item for item in self.service.state()["jobs"] if item["id"] == job["id"])
+        self.assertEqual(public["result"]["non_demands"], [record])
+        self.assertNotIn("checkpoint", public)
+
+    def test_reimport_updates_one_outcome_preserves_other_discussions_and_redacts(self):
+        job = self.acquired_job()
+        other = dict(article(), id=77, url="https://github.com/example/site/issues/77", fingerprint="other-discussion")
+        job["checkpoint"]["discussions"]["1"] = other
+        self.service.store.put("jobs", job["id"], job)
+        self.import_non_demand(job, discussion_index=1)
+        self.import_non_demand(job)
+        raw = dict(non_demand_raw(), status_reason="Updated agent review. ghp_" + "A" * 36)
+        response = self.import_non_demand(job, raw)
+        stored = self.service.store.get("jobs", job["id"])
+        self.assertEqual(len(stored["result"]["non_demands"]), 2)
+        self.assertEqual(set(stored["checkpoint"]["non_demands"]), {"0", "1"})
+        self.assertEqual(stored["checkpoint"]["non_demands"]["1"]["url"], other["url"])
+        self.assertIn("[REDACTED]", stored["checkpoint"]["non_demands"]["0"]["reason"])
+        self.assertNotIn("ghp_", json.dumps(stored))
+        self.assertNotIn("ghp_", json.dumps(response))
+
+    def test_import_preserves_prior_charged_outputs_and_resume_does_not_retry(self):
+        job = self.acquired_job()
+        job.update(status="paused", ai_calls_used=1, cost_reserved_usd=.10,
+            ai_trace=[{"phase": "request", "call_number": 1}], reported_usage=[{"input_tokens": 10, "output_tokens": 20}])
+        job["checkpoint"]["ai_outputs"] = [{"phase": "request", "output": {"requirements": []}}]
+        # Force a resume to rely on the typed checkpoint, not an old evaluated flag.
+        job["checkpoint"].pop("evaluated", None)
+        self.service.store.put("jobs", job["id"], job)
+        self.import_non_demand(job)
+        stored = self.service.store.get("jobs", job["id"])
+        for key in ("ai_calls_used", "cost_reserved_usd", "ai_trace", "reported_usage"):
+            self.assertEqual(stored[key], job[key])
+        self.assertEqual(stored["checkpoint"]["ai_outputs"], job["checkpoint"]["ai_outputs"])
+        source = self.fake_sources()
+        source.fetch_issue.side_effect = AssertionError("No refetch")
+        source.search_issues.side_effect = AssertionError("No refill")
+        with mock.patch("missing_link.service.PublicGitHub", return_value=source), \
+             mock.patch.object(self.service.provider, "complete", side_effect=AssertionError("No paid retry")):
+            self.service.resume({"job_id": job["id"]}, background=False)
+        resumed = self.service.store.get("jobs", job["id"])
+        self.assertEqual(resumed["result"]["non_demands"], stored["result"]["non_demands"])
+        self.assertEqual(resumed["cost_reserved_usd"], .10)
+        self.assertEqual(resumed["status"], "completed")
+
+    def test_actual_request_reimport_removes_non_demand_and_cannot_resurrect_on_resume(self):
+        job = self.acquired_job()
+        self.import_non_demand(job)
+        # An explicit agent review establishes an actual request in the same supplied text.
+        raw = dict(fixtures.request_raw(), requirements=[{"text": "Explain Promise chaining", "mandatory": True,
+            "explicit": False, "source_id": "q0", "quote": "This article demonstrates callbacks and chaining.", "inference": "Agent hypothesis"}])
+        response = self.service.import_analysis({"job_id": job["id"], "analysis": {"request": raw, "matches": []}})
+        self.assertEqual(response["match_ids"], [])
+        stored = self.service.store.get("jobs", job["id"])
+        self.assertEqual(stored["result"]["non_demands"], [])
+        self.assertNotIn("0", stored["checkpoint"]["non_demands"])
+        self.assertEqual(stored["checkpoint"]["requests"]["0"]["status"], "unresolved")
+        self.assertIn("0", stored["checkpoint"]["evaluated"])
+
+    def test_invalid_import_leaves_existing_outcome_and_matches_unchanged(self):
+        job = self.acquired_job()
+        self.import_non_demand(job)
+        before = self.service.store.get("jobs", job["id"])
+        matches = self.service.store.list("matches")
+        for raw in (dict(non_demand_raw(), status_source_ids=["missing"]), dict(non_demand_raw(), status="unclear")):
+            with self.subTest(raw=raw), self.assertRaises(ValueError):
+                self.import_non_demand(job, raw)
+        self.assertEqual(self.service.store.get("jobs", job["id"]), before)
+        self.assertEqual(self.service.store.list("matches"), matches)
+        self.assertIsNone(self.service.lease.file)
+
+    def test_structural_supersession_is_limited_to_the_exact_pinned_discussion(self):
+        job = self.acquired_job()
+        original = self.service.store.list("matches")[0]
+        variations = ({"repo_id": 99}, {"revision": "b" * 40}, {"source_fingerprint": "other-snapshot"},
+            {"request": dict(original["request"], id=99)}, {"analysis_source": "model"})
+        for index, changes in enumerate(variations):
+            peer = dict(copy.deepcopy(original), id="peer-" + str(index), **changes)
+            self.service.store.put("matches", peer["id"], peer)
+        self.import_non_demand(job)
+        self.assertTrue(self.service.store.get("matches", original["id"])["superseded"])
+        for index in range(len(variations)):
+            self.assertFalse(self.service.store.get("matches", "peer-" + str(index)).get("superseded", False))
+
+    def test_import_cannot_race_another_process_worker_or_resume(self):
+        job = self.acquired_job()
+        lease = WorkerLease(self.path)
+        self.assertTrue(lease.acquire())
+        try:
+            with self.assertRaisesRegex(ValueError, "active investigation"):
+                self.import_non_demand(job)
+            self.assertEqual(self.service.store.get("jobs", job["id"]), job)
+        finally:
+            lease.release()
+        self.import_non_demand(job)
+
+    def test_job_outcome_and_structural_supersession_rollback_together(self):
+        job = self.acquired_job()
+        matches = self.service.store.list("matches")
+        # A fixture trigger fails the final job write, after peer updates.
+        with self.service.store.connection() as db:
+            db.execute("CREATE TRIGGER fail_outcome BEFORE UPDATE ON ml_jobs BEGIN SELECT RAISE(ABORT, 'Fixture write failure'); END")
+        with self.assertRaisesRegex(Exception, "Fixture write failure"):
+            self.import_non_demand(job)
+        self.assertEqual(self.service.store.get("jobs", job["id"]), job)
+        self.assertEqual(self.service.store.list("matches"), matches)
+        self.assertIsNone(self.service.lease.file)

@@ -253,11 +253,18 @@ source IDs and a grounded, nonempty reason. Incomplete context or uncertain inte
 does not establish this disposition; a genuine request to write/explain something
 or a later requested behavior is still a demand.
 
-In provider investigations, these outcomes appear separately in
+In provider investigations and reviewed coding-agent imports, these outcomes appear separately in
 `result.non_demands`, with reason, provenance, fingerprint and charged usage.
 They stop before target-context acquisition and compatibility comparison, create
 no match or rejection, and never refill the selected candidate sample. Persistence
-and resume preserve the outcome and charge. The interpretation remains reviewable:
+and resume preserve the outcome and charge. Imports are attributed to the coding
+agent, make no provider call and do not refund earlier job charges. Reimports
+replace only that discussion's outcome; a later actual-request import removes the
+non-demand marker. Import writes use the account's worker lease and commit the
+job outcome with structural-placeholder supersession in one transaction. As with
+other reviewed imports, only structural placeholders for the exact pinned
+repository revision and discussion are superseded, not other reviewed analyses.
+The interpretation remains reviewable:
 source membership does not prove semantic truth or absence of demand elsewhere.
 
 The [Structured Outputs array bounds](https://developers.openai.com/api/docs/guides/structured-outputs)

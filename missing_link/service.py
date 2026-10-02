@@ -11,11 +11,11 @@ from pathlib import Path
 from .analysis import (analysis_contract, conservative_matches, conservative_request, digest,
     evidence_catalog, extension_groups, text, texts, validate_matches, validate_request, capability_fingerprint, ANALYSIS_CONTRACT_VERSION)
 from .provider import Provider, CandidateValidationError
-from .store import Store
+from .store import Store, redact_payload
 from .lease import WorkerLease
 from .sources import PublicGitHub, extract_structure, parse_issue_url
 from .discovery import problem_queries, select_candidates, screen_candidate, SELECTION_POLICY, SCREENING_POLICY
-from .non_demands import is_non_demand, disposition_record
+from .non_demands import is_non_demand, disposition_record, record_disposition, clear_disposition
 
 
 def now():
@@ -384,8 +384,7 @@ class Service:
                         record = disposition_record(index, request, collected_at=now(),
                             ai_calls_used=job["ai_calls_used"] - before["ai_calls_used"],
                             cost_reserved_usd=job["cost_reserved_usd"] - before["cost_reserved_usd"])
-                        checkpoints.setdefault("non_demands", {})[key] = record
-                        job["result"].setdefault("non_demands", []).append(record)
+                        record_disposition(job, index, request, record)
                         save()
                         continue
                     if "target_context" not in issue:
@@ -496,6 +495,18 @@ class Service:
 
     def import_analysis(self, data):
         self._verify()
+        with self.lock:
+            # Outcome imports now update a job as well as matches. Serialize them
+            # with resume/workers across processes so counters/checkpoints cannot
+            # be overwritten from a stale job snapshot.
+            if not self.lease.acquire():
+                raise ValueError("Wait for the active investigation to finish before importing analysis.")
+            try:
+                return self._import_analysis(data)
+            finally:
+                self.lease.release()
+
+    def _import_analysis(self, data):
         job, repository = self.repository_for_job(text(data.get("job_id", ""), 40))
         if job["status"] not in {"completed", "paused", "cancelled", "failed"}:
             raise ValueError("Wait for acquisition to finish before importing analysis.")
@@ -505,11 +516,25 @@ class Service:
             raise ValueError("Selected discussion is not in this job's public evidence context.")
         raw = data.get("analysis", {})
         request = validate_request(raw.get("request", {}), issue)
+        request["analysis_source"] = "coding_agent_import"
         matches = validate_matches(raw.get("matches", []), repository, issue, request, "coding_agent_import")
         for match in matches:
             self.validate_proposal(match, repository)
-        self.store.save_matches(matches, repository)
-        return {"match_ids": [match["id"] for match in matches], "analysis_source": "coding_agent_import"}
+        result = {"match_ids": [match["id"] for match in matches], "analysis_source": "coding_agent_import"}
+        changed = False
+        if is_non_demand(request):
+            record = disposition_record(int(index), request, collected_at=now(), ai_calls_used=0,
+                cost_reserved_usd=0, analysis_source="coding_agent_import")
+            record_disposition(job, index, request, record)
+            result["non_demands"] = [redact_payload(record)]
+            changed = True
+        else:
+            changed = clear_disposition(job, index, request)
+        if changed:
+            job["updated_at"] = now()
+        self.store.save_matches(matches, repository, job=job if changed else None,
+            non_demand=request if is_non_demand(request) else None)
+        return result
 
     @staticmethod
     def validate_proposal(match, repository):
