@@ -244,6 +244,32 @@ diagnostics and polling handling remain separate no-spend work, not changes to
 this frozen test. Another paid continuation/resume needs an explicit documented
 decision; no isolation is forced without an eligible grounded match.
 
+The user authorized a separate **3 October no-spend identity-diagnostic fix**.
+[`github_cli.py`](../github_cli.py) now owns the injected, bounded CLI identity
+check and shared exception types; `app.py` keeps its cache/lock and thin delegate.
+[`missing_link/job_errors.py`](../missing_link/job_errors.py) maps typed identity
+failures to fixed safe job messages and an additive `error_diagnostic` field.
+Unavailable, timed-out, malformed and ambiguous identity are not reported as a
+confirmed account switch. Only one verified different active login establishes
+that category; all unsuccessful checks still stop processing without refreshing
+the success cache or automatically retrying.
+
+The service's own mismatch guard now uses the same typed runtime exception, so
+candidate-local validation and provider JSON catches cannot absorb it. Legacy
+injected account-error text remains fail-closed but explicitly unclassified.
+Explicit resume/cancellation clears the current diagnostic; restart preserves it.
+No raw CLI stdout/stderr, credential, response body or exception cause is added
+to public diagnostics. Windows installation ships the new standalone module.
+
+All **827 offline tests pass**, including partial-stream and completed-response
+identity interruption, retained charges/receipts, target-error propagation and
+Windows uninstall fixtures. A separate installed-module smoke check passed.
+Read-only HTTP/export/ledger and historical integrity reconciliation also passed:
+**328 reservations / USD 5.1150975**, with no real job resumed or AI call made.
+The previous live cause remains unknown and old records are not relabeled. This
+fix improves observability, not transport resilience or discovery accuracy;
+polling robustness and the unfinished paid sample remain separate decisions.
+
 The prior contract-14 offline replay of the retained eight-repository cohort packed
 all 8 enrichment, 24 extraction and 20 comparison inputs within the existing
 180,000-byte transport bound (maximum 164,598 bytes). The contract-16 no-spend

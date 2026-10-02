@@ -148,3 +148,62 @@ screenshot stays in ignored local data, not the repository.
 Release preparation is documented in the 3.1.0 development changelog. Publishing
 a tag/release and testing a real application's integration are separate next
 steps; neither is implied by this local acceptance pass.
+
+## Identity-stop diagnostics — 2026-10-03 (offline)
+
+This is a no-spend fix following the [stopped contract-21 continuation](missing-link-contract21-continuation-2026-10-02.md),
+not another live AI evaluation. The older recorded Babel error cannot be
+retrospectively classified; its unknown charged call stays unknown.
+
+The CLI guard still executes one `gh auth status --json hosts` read with a
+ten-second timeout. `app.py` retains the same five-second success cache, forced
+checks, account-selected history and lock. The runner is injected into the new
+standalone `github_cli.py`; imports do not contact GitHub, select an account,
+open a database, start a thread or load an AI provider.
+
+Paused jobs now expose the optional `error_diagnostic` object alongside the
+existing readable `error` string. Its category is `github_identity`:
+
+| Code | What the current failure establishes |
+| --- | --- |
+| `github_identity_cli_missing` | The CLI executable is unavailable. |
+| `github_identity_cli_timeout` | The ten-second CLI check timed out; `timeout_seconds` is 10. |
+| `github_identity_cli_error` | The identity subprocess could not run because of an OS error. |
+| `github_identity_cli_failed` | The CLI returned a nonzero exit, without proof of token expiration or account change. |
+| `github_identity_invalid_response` | JSON or active-login structure is invalid; identity remains unverified. |
+| `github_identity_unavailable` | No verified active GitHub login was supplied. |
+| `github_identity_ambiguous` | Multiple verified active GitHub logins were supplied. |
+| `github_identity_changed` | Exactly one verified active login differs from the expected identity. |
+| `github_identity_unclassified` | A legacy/injected verifier raised an account-related error without a typed cause. |
+
+The fields use fixed bounded values, not CLI stdout/stderr, credentials, response
+bodies or arbitrary exception details. A failed check does not advance the
+success cache or authorize further processing. A typed mismatch cannot become
+a candidate-local validation failure or a malformed-provider-output error.
+Existing `app.GitHubCLIError`, `app.ActiveAccountChangedError` and
+`app.GitHubRateLimitError` names remain aliases for compatibility. The service's
+own mismatch now raises the shared runtime exception instead of `ValueError`;
+HTTP handling and account isolation remain intact.
+
+The current diagnostic persists through restart and polling; explicit resume or
+cancellation clears it, just as it clears/replaces the current error. This is
+not a new immutable per-attempt history. Existing job JSON needs no migration,
+and old records without diagnostics are not rewritten. No automatic retry,
+resume, reservation refund, budget reset or credentials change is introduced.
+Incomplete streams retain their reserved unknown outcome; completed receipts
+and JSON remain auditable without being accepted as analysis after an identity
+failure.
+
+Validation: **827 tests passed** with fake HTTP/CLI replies and owned temporary
+databases. Target-error, partial-stream, post-terminal-response, restart, explicit
+fixture resume/cancellation, cache and malformed-output regressions pass. Windows
+installation includes the standalone module; isolated installed imports and a
+simulated identity check passed. These startup/installation checks did not start
+a production server or invoke a paid provider.
+
+A read-only audit of the unchanged running server and saved live cohort passed:
+old job/match/snapshot/report hashes, pinned exports and reservation rows remain
+unchanged, with no queued/running job. The real allowance remains **328
+reservations / USD 5.1150975 of USD 10**. This improves future diagnostic evidence;
+it does not identify the earlier outage's cause, improve connection resilience,
+complete the remaining cohort or prove better discovery quality.
