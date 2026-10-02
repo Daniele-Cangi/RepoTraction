@@ -183,6 +183,14 @@ the updated retained Zod transport remains below 180,000 bytes with all requirem
 Keep structural extractions separate. UI/key-entry features and Go/Rust expansion
 remain deferred until the core discovery outcomes are adequately validated.
 
+After PR #36's clean final review and merge, the user authorized the
+[fresh contract-21 retest](missing-link-live-discovery-contract21-2026-10-02.md).
+The same 13 repository-only inputs are prescribed again, with no supplied issues,
+queries, imports or replacement sources. Implementation and limits are frozen;
+old jobs are not resumed and their failures/charges remain in the prior report.
+The starting allowance is 302 reservations / USD 4.6737541 under the original
+cumulative USD 10 cap. Results and live semantic-quality inspection are pending.
+
 The prior contract-14 offline replay of the retained eight-repository cohort packed
 all 8 enrichment, 24 extraction and 20 comparison inputs within the existing
 180,000-byte transport bound (maximum 164,598 bytes). The contract-16 no-spend
