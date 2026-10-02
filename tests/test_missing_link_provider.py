@@ -373,7 +373,8 @@ class ProviderContractTests(unittest.TestCase):
                      "tests.cjs", "specs.tsx", "example.py", "demo.ts", "Button.stories.tsx",
                      "src/widget.example.js", "src/widget.story.jsx", "example/index.py", "demo/index.ts",
                      "demos/index.js", "fixture/data.ts", "story/index.jsx", "stories/Button.tsx", "src/DEMOS/index.cjs",
-                     "__mocks__/fs.js", "src/__mocks__/client.ts", "packages/sdk/src/__MOCKS__/client.tsx"):
+                     "__mocks__/fs.js", "src/__mocks__/client.ts", "packages/sdk/src/__MOCKS__/client.tsx",
+                     "spec/parser.js", "specs/parser.ts", "src/spec/parser.py", "src/SPECS/parser.tsx", "packages/sdk/specs/parser.cjs"):
             repo = repository()
             repo["files"][0].update(path=path, kind="source", text="export declare function parse(value: string): string;")
             repo["capabilities"][0]["evidence"][0].update(path=path, end_line=1)

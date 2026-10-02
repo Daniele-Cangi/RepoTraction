@@ -123,6 +123,9 @@ a README, test, fixture, benchmark or `.d.ts` declaration. Conventional standalo
 `test`/`tests`/`spec`/`specs` filenames with supported Python/JS/TS extensions
 remain test references even at the repository root; they cannot satisfy the
 implementation preflight or independently substantiate existing behavior.
+Supported code in exact `spec`/`specs` directory components has the same test-only
+role, including nested or case-varied paths such as `src/SPECS/parser.ts`.
+Similar directory names such as `specification/` are not excluded.
 Delimited example/demo/story filenames such as `example.py`, `demo.ts` and
 `Button.stories.tsx` remain infrastructure references even beside product code.
 Files in exact `example`/`examples`, `demo`/`demos`, `fixture`/`fixtures` and

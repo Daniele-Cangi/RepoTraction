@@ -245,8 +245,9 @@ class ContextSelectionTests(unittest.TestCase):
         self.assertTrue(report["implementation_context_missing"])
         self.assertEqual(report["selected_capability_roles"], {"support": 1})
 
-    def test_root_test_only_context_does_not_certify_implementation(self):
-        for path in ("test.js", "test.py", "spec.ts", "tests.cjs", "specs.tsx"):
+    def test_root_and_spec_directory_tests_do_not_certify_implementation(self):
+        for path in ("test.js", "test.py", "spec.ts", "tests.cjs", "specs.tsx", "spec/parser.js",
+                     "specs/parser.ts", "src/spec/parser.py", "src/SPECS/parser.tsx", "packages/sdk/specs/parser.cjs"):
             with self.subTest(path=path):
                 repo = repository()
                 # Old/imported metadata can still call the file source; its path

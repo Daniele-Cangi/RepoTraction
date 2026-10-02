@@ -184,6 +184,42 @@ class SourceValidationTests(unittest.TestCase):
         self.assertTrue(any(cap["name"] == "transform" for cap in caps))
         self.assertFalse(any(cap.get("entrypoint", "").split(":", 1)[0] in {"test.py", "spec.ts", "tests.js"} for cap in caps))
 
+    def test_spec_directories_are_exact_test_components(self):
+        for extension in SUPPORTED_CODE:
+            for directory in ("spec", "specs"):
+                for prefix in ("", "src/", "packages/library/"):
+                    path = prefix + directory + "/parser" + extension
+                    with self.subTest(path=path):
+                        self.assertEqual(_kind(path), "test")
+                        self.assertEqual(source_role(path), "test")
+                        self.assertEqual(source_role(path + ":parse"), "test")
+        self.assertEqual(_kind("SRC/SPECS/PARSER.TS"), "test")
+        self.assertEqual(source_role("SRC/SPECS/PARSER.TS:parse"), "test")
+        for path in ("specification/parser.ts", "specs_api/parser.js", "specimen/parser.py",
+                     "src/inspect/parser.tsx", "src/spectrum/parser.mjs", "src/aspect/parser.cjs"):
+            with self.subTest(path=path):
+                self.assertEqual(_kind(path), "source")
+                self.assertEqual(source_role(path), "implementation")
+
+    def test_acquisition_keeps_spec_directory_tests_as_references_not_implementation(self):
+        fixture = GitHubFixture()
+        test_paths = ("spec/parser.js", "specs/parser.ts", "src/spec/engine.py", "packages/sdk/specs/client.tsx")
+        for path in test_paths:
+            fixture.add(path, "def parse(value):\n    return value\n" if path.endswith(".py")
+                        else "function parse(value) { return value; }\n")
+        fixture.add("src/library.py", "def transform(value):\n    return value\n")
+        result = PublicGitHub(fixture.read).fetch_repository("sample/project", max_files=1)
+        self.assertEqual([file["path"] for file in result["files"]], ["src/library.py"])
+        self.assertEqual(sum("/git/blobs/" in call[0] for call in fixture.calls), 1)
+        self.assertEqual(result["coverage"]["eligible_source_roles"], {"implementation": 1})
+        fixture.calls.clear()
+        result = PublicGitHub(fixture.read).fetch_repository("sample/project")
+        self.assertEqual({file["path"]: file["kind"] for file in result["files"]},
+                         {**dict.fromkeys(test_paths, "test"), "src/library.py": "source"})
+        self.assertEqual(sum("/git/blobs/" in call[0] for call in fixture.calls), 5)
+        self.assertEqual(result["coverage"]["acquired_source_roles"], {"implementation": 1})
+        self.assertEqual({cap["name"] for cap in extract_structure(result)}, {"transform"})
+
     def test_infrastructure_does_not_crowd_out_product_source(self):
         fixture = GitHubFixture()
         for index in range(40):

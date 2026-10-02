@@ -129,7 +129,7 @@ def _kind(path: str) -> str:
         # Conventional standalone test/spec files need no directory or dotted
         # prefix. Match whole basenames, not product names like testimony.py.
         if (PurePosixPath(path).stem.casefold() in {"test", "tests", "spec", "specs"}
-                or re.search(r"(?:^|/)(?:tests?|__tests__)(?:/|$)|(?:^|/)test_|[._](?:test|spec)\.", path, re.I)):
+                or re.search(r"(?:^|/)(?:tests?|specs?|__tests__)(?:/|$)|(?:^|/)test_|[._](?:test|spec)\.", path, re.I)):
             return "test"
         return "source"
     return "unsupported"
