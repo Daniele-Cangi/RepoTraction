@@ -225,7 +225,24 @@ rerun the successful source or resume old jobs. Starting baseline is 310
 reservations / USD 4.8190698 under the existing cumulative USD 10 ceiling.
 The maximum 96 new calls reserve USD 2.3236608. Preserve failures and stop on
 another non-completed paid/transport/account/budget or observer failure, without
-automatic paid retry or changing limits mid-sample. Results are pending.
+automatic paid retry or changing limits mid-sample. The continuation stopped on
+Babel: **3/12 attempted, 2 completed, 1 paused and 9 unstarted**. Eighteen new
+reservations produced seventeen completed receipts/JSON outputs; the remaining
+charged Babel call has an unknown outcome. Eleven evaluations qualify for no
+follow-up; one Marshmallow field-hook partial is explicitly incomplete, already
+referenced by the target, and blocked by a version mismatch. Several superficially
+related candidates were correctly denied behavior credit, but selection relevance,
+unfetched discussion references and full public-API recall remain unproven.
+
+Post-stop CLI and authenticated API checks still report active `Daniele-Cangi`.
+The saved generic account error cannot identify the original failure; do not
+infer expired credentials, an account switch or a proven VPN cause. The original
+history/reservation/report integrity audit passed. The cumulative ledger is now
+**328 reservations / USD 5.1150975**, with both unknown outcomes preserved.
+Keep the fail-closed identity boundary. Proposed non-secret timeout/CLI/mismatch
+diagnostics and polling handling remain separate no-spend work, not changes to
+this frozen test. Another paid continuation/resume needs an explicit documented
+decision; no isolation is forced without an eligible grounded match.
 
 The prior contract-14 offline replay of the retained eight-repository cohort packed
 all 8 enrichment, 24 extraction and 20 comparison inputs within the existing
