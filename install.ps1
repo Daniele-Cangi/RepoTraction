@@ -23,7 +23,7 @@ if (-not (Get-Command gh -ErrorAction SilentlyContinue)) {
     throw "GitHub CLI (gh) is required and must be available in PATH."
 }
 
-$requiredFiles = @("app.py", "start.ps1", "start.cmd", "README.md", "LICENSE", "uninstall.ps1", ".env.example")
+$requiredFiles = @("app.py", "github_cli.py", "start.ps1", "start.cmd", "README.md", "LICENSE", "uninstall.ps1", ".env.example")
 foreach ($file in $requiredFiles) {
     $source = Join-Path $SourceDirectory $file
     if (-not (Test-Path -LiteralPath $source -PathType Leaf)) {

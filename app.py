@@ -22,6 +22,14 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import parse_qs, urlparse
 
+from github_cli import (
+    ActiveAccountChangedError,
+    GitHubAccountVerificationError,
+    GitHubCLIError,
+    GitHubRateLimitError,
+    verify_cli_account,
+)
+
 # Compatibility names during migration; calculation bodies live in analytics.
 from analytics.event_evidence import (
     event_evidence_unavailable,
@@ -101,18 +109,6 @@ def missing_link_service() -> Any:
                 DB_PATH, account, run_gh_json, verify_active_account
             )
         return _MISSING_LINK_SERVICES[key]
-
-
-class GitHubCLIError(RuntimeError):
-    pass
-
-
-class ActiveAccountChangedError(GitHubCLIError):
-    pass
-
-
-class GitHubRateLimitError(GitHubCLIError):
-    pass
 
 
 def validate_local_host(host: str) -> str:
@@ -293,41 +289,10 @@ def verify_active_account(*, force: bool = False) -> str | None:
         now = time.monotonic()
         if not force and now - _ACCOUNT_CHECKED_AT < ACCOUNT_CHECK_INTERVAL_SECONDS:
             return expected
-        try:
-            result = subprocess.run(
-                ["gh", "auth", "status", "--json", "hosts"],
-                capture_output=True,
-                text=True,
-                encoding="utf-8",
-                errors="replace",
-                timeout=10,
-                check=False,
-                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
-            )
-        except (FileNotFoundError, subprocess.TimeoutExpired) as exc:
-            raise GitHubCLIError(
-                "Unable to verify the active GitHub CLI account; restart RepoTraction after checking gh auth status."
-            ) from exc
-        if result.returncode != 0:
-            raise GitHubCLIError(
-                "Unable to verify the active GitHub CLI account; restart RepoTraction after checking gh auth status."
-            )
-        try:
-            hosts = json.loads(result.stdout).get("hosts", {})
-            active_logins = [
-                str(host.get("login") or "")
-                for host in hosts.get("github.com", [])
-                if host.get("active") and host.get("state") == "success"
-            ]
-        except (json.JSONDecodeError, AttributeError, TypeError):
-            raise GitHubCLIError(
-                "GitHub CLI could not report its active account. Update gh and restart RepoTraction."
-            ) from None
-        if len(active_logins) != 1 or active_logins[0].casefold() != expected.casefold():
-            raise ActiveAccountChangedError(
-                f"RepoTraction is scoped to @{expected}, but GitHub CLI's active account changed. "
-                "Switch back or restart RepoTraction to use the new account's separate history."
-            )
+        verify_cli_account(
+            expected, run=subprocess.run,
+            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
+        )
         _ACCOUNT_CHECKED_AT = now
         return expected
 

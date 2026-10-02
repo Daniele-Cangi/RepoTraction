@@ -16,7 +16,7 @@ if (Test-Path -LiteralPath $ShortcutPath) {
     Remove-Item -LiteralPath $ShortcutPath -Force
 }
 
-$installedFiles = @("app.py", "start.ps1", "start.cmd", "README.md", "LICENSE", "uninstall.ps1")
+$installedFiles = @("app.py", "github_cli.py", "start.ps1", "start.cmd", "README.md", "LICENSE", "uninstall.ps1")
 foreach ($file in $installedFiles) {
     $target = Join-Path $ExpectedDirectory $file
     if (Test-Path -LiteralPath $target -PathType Leaf) {

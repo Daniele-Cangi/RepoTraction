@@ -32,7 +32,7 @@ class UninstallTests(unittest.TestCase):
                 sibling.write_bytes(b"outside installation")
                 shortcut = programs / "RepoTraction.lnk"
                 shortcut.write_bytes(b"fixture shortcut")
-                for name in ("app.py", "start.ps1", "start.cmd", "README.md", "LICENSE", "uninstall.ps1"):
+                for name in ("app.py", "github_cli.py", "start.ps1", "start.cmd", "README.md", "LICENSE", "uninstall.ps1"):
                     (installed / name).write_bytes(b"installer owned fixture")
                 for name in ("static", "analytics", "analytics/__pycache__", "storage", "storage/__pycache__"):
                     if junction_name and name.split("/", 1)[0] == junction_name:
@@ -83,6 +83,7 @@ $taskSource = $taskSource.Replace($taskProgramsAnchor, '$ProgramsDirectory = $ta
                 self.assertFalse((installed / "storage").exists())
                 self.assertFalse((installed / "static").exists())
                 self.assertFalse((installed / "app.py").exists())
+                self.assertFalse((installed / "github_cli.py").exists())
                 self.assertFalse(shortcut.exists())
                 self.assertEqual(config.read_bytes(), b"# fixture configuration")
                 self.assertEqual(unrelated.read_bytes(), b"not installer owned")
