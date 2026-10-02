@@ -371,7 +371,7 @@ def reconcile_repository_registry(
     for old_name in unresolved:
         try:
             resolved = run_gh_json(f"repos/{old_name}")
-        except (ActiveAccountChangedError, GitHubRateLimitError):
+        except (ActiveAccountChangedError, GitHubAccountVerificationError, GitHubRateLimitError):
             raise
         except GitHubCLIError:
             resolved = {}
@@ -653,7 +653,7 @@ def collect_repository_events(repo: str) -> dict[str, Any]:
                 for pending in future_map:
                     pending.cancel()
                 raise
-            except ActiveAccountChangedError:
+            except (ActiveAccountChangedError, GitHubAccountVerificationError):
                 raise
             except GitHubCLIError as exc:
                 payloads[name] = []
@@ -1089,7 +1089,7 @@ def validate_repo(repo: str) -> str:
 def _safe_traffic_call(endpoint: str, default: Any) -> Any:
     try:
         return run_gh_json(endpoint)
-    except (ActiveAccountChangedError, GitHubRateLimitError):
+    except (ActiveAccountChangedError, GitHubAccountVerificationError, GitHubRateLimitError):
         raise
     except GitHubCLIError:
         return default
@@ -2089,7 +2089,7 @@ def build_traffic(repo: str, *, force: bool = False) -> dict[str, Any]:
                 for pending in future_map:
                     pending.cancel()
                 raise
-            except ActiveAccountChangedError:
+            except (ActiveAccountChangedError, GitHubAccountVerificationError):
                 raise
             except GitHubCLIError as exc:
                 data[name] = defaults[name]
@@ -2334,7 +2334,7 @@ def collect_all_data() -> dict[str, Any]:
                     f"{repo} traffic: {detail}"
                     for detail in traffic_result.get("partial_errors", [])
                 )
-            except ActiveAccountChangedError:
+            except (ActiveAccountChangedError, GitHubAccountVerificationError):
                 raise
             except GitHubRateLimitError as exc:
                 errors.append(f"{repo}: {exc}")
@@ -2348,7 +2348,7 @@ def collect_all_data() -> dict[str, Any]:
                     f"{repo} events: {detail}"
                     for detail in event_result.get("errors", [])
                 )
-            except ActiveAccountChangedError:
+            except (ActiveAccountChangedError, GitHubAccountVerificationError):
                 raise
             except GitHubRateLimitError as exc:
                 errors.append(f"{repo} events: {exc}")
