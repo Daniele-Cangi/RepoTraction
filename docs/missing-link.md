@@ -128,6 +128,8 @@ Delimited example/demo/story filenames such as `example.py`, `demo.ts` and
 Files in exact `example`/`examples`, `demo`/`demos`, `fixture`/`fixtures` and
 `story`/`stories` directory components have the same role, including nested or
 case-varied layouts such as `src/DEMOS/index.ts`.
+Jest's conventional `__mocks__` directory also retains infrastructure-only
+references: simulated behavior is not product implementation evidence.
 They neither satisfy the implementation preflight nor prove existing behavior;
 incidental substrings such as `demographics.py`, `storybook.js` or a `storybook/`
 directory are not excluded.

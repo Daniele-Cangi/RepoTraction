@@ -206,7 +206,8 @@ class ContextSelectionTests(unittest.TestCase):
 
     def test_auxiliary_directory_only_context_is_retained_but_not_implementation(self):
         for path in ("example/index.py", "demo/index.ts", "demos/index.js", "fixture/data.ts",
-                     "story/index.jsx", "stories/Button.tsx", "src/DEMOS/index.cjs"):
+                     "story/index.jsx", "stories/Button.tsx", "src/DEMOS/index.cjs", "__mocks__/fs.js",
+                     "src/__mocks__/client.ts", "packages/sdk/src/__MOCKS__/client.tsx"):
             with self.subTest(path=path):
                 repo = repository()
                 repo["files"] = [self.file(path, 3)]

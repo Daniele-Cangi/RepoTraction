@@ -144,7 +144,7 @@ def source_role(path: str) -> str:
     # directories. Match delimited name tokens, not incidental substrings.
     auxiliary_file = re.search(r"(?:^|[._-])(?:bench|benchmarks?|fixtures?|examples?|demos?|stor(?:y|ies))(?:[._-]|$)", parts[-1])
     if any(part in {".github", "checks", "tools", "scripts", "bench", "benchmark", "benchmarks",
-                    "fixture", "fixtures", "__fixtures__", "playground", "docs", "doc",
+                    "fixture", "fixtures", "__fixtures__", "__mocks__", "playground", "docs", "doc",
                     "example", "examples", "demo", "demos", "story", "stories",
                     "winbuild", "ci_tools", "_custom_build"}
            for part in parts[:-1]) or parts[-1] in {"setup.py", "conftest.py", "selftest.py"} or auxiliary_file:
