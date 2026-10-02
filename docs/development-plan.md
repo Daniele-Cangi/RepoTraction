@@ -188,8 +188,17 @@ After PR #36's clean final review and merge, the user authorized the
 The same 13 repository-only inputs are prescribed again, with no supplied issues,
 queries, imports or replacement sources. Implementation and limits are frozen;
 old jobs are not resumed and their failures/charges remain in the prior report.
-The starting allowance is 302 reservations / USD 4.6737541 under the original
-cumulative USD 10 cap. Results and live semantic-quality inspection are pending.
+The starting allowance was 302 reservations / USD 4.6737541 under the original
+cumulative USD 10 cap. The first HTTP driver lost polling with a 30-second timeout;
+its backend subsequently failed during one reserved capabilities call, with no
+terminal response receipt. The cohort stopped: 1 attempted, 0 completed and 12
+unstarted inputs. No paid retry/resume or replacement was started. The ledger is
+now **303 reservations / USD 4.6946065**, and older jobs/results/reports remain
+unchanged. The no-spend reconstructed payload fits at 146,476 bytes; this does
+not establish a received request or semantic improvement. First address safe
+transport observability and explicit polling-failure/job-continuation handling,
+with no-spend regressions. Any paid continuation needs a documented explicit
+decision; semantic-quality evaluation and isolated connection remain pending.
 
 The prior contract-14 offline replay of the retained eight-repository cohort packed
 all 8 enrichment, 24 extraction and 20 comparison inputs within the existing
