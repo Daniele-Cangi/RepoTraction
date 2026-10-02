@@ -70,8 +70,12 @@ charged invalid outputs; malformed, refused or incomplete responses are not
 accepted as completed JSON evidence. Historical evaluations are unchanged and
 older contracts remain historical. Fresh real-model verification of these fixes
 is still pending; implementation and offline tests make no paid calls. The local
-Windows run passes 723 tests, including 19 browser fixtures and 18 typed-outcome
-tests covering persistence, resume, mixed samples and comparison short-circuiting.
+Windows run passes 736 tests, including 21 browser fixtures and 26 typed-outcome
+tests covering provider/import persistence, resume, mixed samples, atomic rollback
+and comparison short-circuiting. Review corrections preserve valid non-object
+JSON attempts before shape rejection, attribute and atomically persist coding-agent
+non-demand imports, and expose safe source links in the dashboard. These remain
+offline checks, not a fresh model-quality experiment.
 
 Keep structural extractions separate. UI/key-entry features and Go/Rust expansion
 remain deferred until the core discovery outcomes are adequately validated.

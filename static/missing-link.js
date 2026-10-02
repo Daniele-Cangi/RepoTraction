@@ -74,6 +74,11 @@ export function initMissingLink({ api, escapeHtml, demoMode, getDashboard }) {
       return `<li>${link(item.url, label)}${item.kind ? `<small>${e(item.kind)}</small>` : ""}${item.quote ? `<blockquote>${e(item.quote)}</blockquote>` : ""}</li>`;
     }).join("")}</ul>`
     : '<p class="ml-muted">No supporting source supplied.</p>';
+  const nonDemandOutcomes = (values) => `<ul>${array(values).map((item) => `<li>
+    ${link(item.url, "Discussion")} · ${e(item.reason || "Reference material; no requested behavior established")}
+    <small>${item.analysis_source === "coding_agent_import" ? "Coding-agent import" : "Provider interpretation"}</small>
+    ${evidence(array(item.status_evidence).map((ref) => ({ ...ref, kind: text(ref?.source_id) || "Discussion source" })))}
+    </li>`).join("")}</ul>`;
   const note = (message, isError = false) => {
     const target = find("mlNotice");
     if (!target) return;
@@ -243,7 +248,7 @@ export function initMissingLink({ api, escapeHtml, demoMode, getDashboard }) {
         ${job.error ? `<p class="ml-error">${e(job.error)}</p>` : ""}
         ${result.partial ? `<div class="ml-callout"><strong>Partial investigation · ${array(result.candidate_errors).length} candidate validation failure(s)</strong><p>Other candidates were processed. Invalid analysis was not accepted; charged usage is retained. No automatic retry.</p>${list(array(result.candidate_errors).map((failure) => `${failure.url || "Candidate"} · ${failure.stage || "analysis"}: ${failure.error || "Validation failed"}`))}</div>` : ""}
         ${array(result.candidate_skips).length ? `<div class="ml-callout"><strong>${array(result.candidate_skips).length} retrieval candidate(s) skipped by bounded screening</strong><p>Not evaluated for compatibility; not a rejection or proof of no demand. Select an issue explicitly to inspect it. No replacement candidates were added.</p>${list(array(result.candidate_skips).map((skip) => `${skip.url || "Candidate"} · ${skip.code || "Retrieval hint"}: ${skip.reason || "Manual review available"}`))}</div>` : ""}
-        ${array(result.non_demands).length ? `<div class="ml-callout"><strong>${array(result.non_demands).length} discussion(s) with no established actionable request</strong><p>Source-grounded model interpretation, not a compatibility rejection. No comparison or replacement candidate was added; review the retained discussion and reason.</p>${list(array(result.non_demands).map((item) => `${item.url || "Discussion"} · ${item.reason || "Reference material; no requested behavior established"}`))}</div>` : ""}
+        ${array(result.non_demands).length ? `<div class="ml-callout"><strong>${array(result.non_demands).length} discussion(s) with no established actionable request</strong><p>Source-grounded interpretation, not a compatibility rejection. No comparison or replacement candidate was added; review the retained discussion and reason.</p>${nonDemandOutcomes(result.non_demands)}</div>` : ""}
         ${result.warning || result.incompleteness ? `<p class="ml-callout">${e(text(result.warning || result.incompleteness))}</p>` : ""}
         ${array(result.warnings).length ? `<div class="ml-callout">${list(result.warnings)}</div>` : ""}
         ${exhausted && ["cancelled", "paused", "failed"].includes(status) ? `<p class="ml-callout">This job used its ${limit}-request budget. ${limit >= 200 ? "The per-job maximum is reached; start a separate, smaller investigation." : "To resume, explicitly increase the request limit in the controls above. The higher limit is the total job budget, not an additional allowance."}</p>` : ""}

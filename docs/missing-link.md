@@ -253,7 +253,8 @@ source IDs and a grounded, nonempty reason. Incomplete context or uncertain inte
 does not establish this disposition; a genuine request to write/explain something
 or a later requested behavior is still a demand.
 
-In provider investigations and reviewed coding-agent imports, these outcomes appear separately in
+In provider investigations and reviewed coding-agent imports, these outcomes
+appear separately in
 `result.non_demands`, with reason, provenance, fingerprint and charged usage.
 They stop before target-context acquisition and compatibility comparison, create
 no match or rejection, and never refill the selected candidate sample. Persistence
@@ -266,6 +267,8 @@ other reviewed imports, only structural placeholders for the exact pinned
 repository revision and discussion are superseded, not other reviewed analyses.
 The interpretation remains reviewable:
 source membership does not prove semantic truth or absence of demand elsewhere.
+The dashboard identifies provider versus coding-agent interpretations and links
+each retained discussion source, including later comments, through safe GitHub URLs.
 
 The [Structured Outputs array bounds](https://developers.openai.com/api/docs/guides/structured-outputs)
 allow a wire bound of 0..30. Local validation additionally enforces exactly zero
@@ -273,6 +276,9 @@ only for the typed non-demand status and 1..30 for other statuses, including
 JSON-mode providers and coding-agent imports. Completed JSON attempts are retained
 in redacted private checkpoints before schema/semantic validation, including
 invalid outputs; failed extraction is not retried or refunded automatically.
+This includes valid JSON arrays/scalars before rejecting their top-level shape;
+successful analysis still requires an object. Incomplete, refused or undecodable
+responses are not recorded as completed JSON output.
 Contract 18 does not rewrite historical results or validate fresh real-model
 behavior by itself.
 
