@@ -161,6 +161,24 @@ def optional_field_hints(catalog, requirements=(), dispositions=()):
             "method": "optional-field syntax is an extraction hint, not proof of optional demand or compatibility"}
 
 
+def supplied_optional_field_hints(review, sources):
+    """Pack only original, bounded hints whose whole declaration was supplied.
+
+    Never rescan synthetic shortening seams or hash a clipped line. Canonical
+    IDs must resolve in the full discussion after the provider call. A partial
+    line remains source context, not an offered field-dismissal citation.
+    """
+    items = []
+    for item in review["items"]:
+        references = [ref for ref in item["source_ids"] if ref in sources
+                      and item["quote"] in sources[ref].get("quote", "")]
+        if references:
+            items.append(dict(item, source_id=references[0], source_ids=references))
+    missing = len(review["items"]) - len(items)
+    return dict(review, items=items, complete=review["complete"] and not missing,
+                omitted_fields=review["omitted_fields"] + missing)
+
+
 def _field_dispositions(dispositions, known_ids):
     """Validate explicit interpretation decisions, never synthesize requirements.
 

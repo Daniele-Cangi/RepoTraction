@@ -104,6 +104,11 @@ Provider hints are packed with the supplied discussion excerpts under the same
 byte budget; omitted comments cannot reappear through these hints. Overflow is
 explicit, and final validation still checks the full acquired discussion for
 unrepresented fields, so a partial prompt cannot silently clear them.
+Hint IDs come from the bounded original discussion scan, not shortened prompt
+lines. Only whole original declaration lines actually supplied to the provider
+are offered for review, with only their visible source references. Clipped lines
+and fields outside the original scan cap cannot create new dismissal citations;
+unoffered fields remain unknown and incomplete discussion cannot qualify.
 Requested fields must be represented separately. An unrelated example/context
 field can instead receive an explicit `optional_field_dispositions` decision:
 the offered `hint_id`, `not_requested`, and a nonempty, bounded reason grounded

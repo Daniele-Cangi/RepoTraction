@@ -5,7 +5,7 @@ from collections import Counter
 
 from .analysis import evidence_catalog, resolve_evidence, quoted_span
 from .discussion import constraint_hints
-from .demand import optional_field_hints
+from .demand import optional_field_hints, supplied_optional_field_hints
 from .contracts import MAX_SCOPED_IDS
 from .sources import source_role
 
@@ -97,12 +97,13 @@ def build_context(repository, issue, phase, byte_limit):
     sources, omitted, shortened, id_limited = {}, [], [], set()
     data = {"sources": sources}
     hints = constraint_hints(issue) if issue else {"items": [], "complete": True}
+    optional_review = optional_field_hints(catalog) if issue and phase == "request" else None
     if issue:
         data["issue"] = {key: issue.get(key) for key in ("id", "url", "title", "state", "updated_at", "created_at",
             "labels", "author_type", "bot", "context_complete", "limitations")}
         data["potential_constraints"] = hints
         if phase == "request":
-            data["potential_subrequirements"] = optional_field_hints({})
+            data["potential_subrequirements"] = supplied_optional_field_hints(optional_review, sources)
     candidates = []
     if repository:
         candidates = select_capabilities(repository.get("capabilities", []))
@@ -144,8 +145,10 @@ def build_context(repository, issue, phase, byte_limit):
         if previous_subrequirements is not None:
             # Review hints must only repeat supplied excerpts, and their bytes
             # share the same packing budget. Never restore omitted comments
-            # through a post-packing scan of the full acquired discussion.
-            data["potential_subrequirements"] = optional_field_hints(sources)
+            # through a post-packing scan of the full acquired discussion. Select
+            # canonical IDs only when their whole original line is visible;
+            # clipped lines and scan overflow cannot create unknown citations.
+            data["potential_subrequirements"] = supplied_optional_field_hints(optional_review, sources)
         if size(data) > target:
             sources.pop(reference)
             if previous_subrequirements is not None:
