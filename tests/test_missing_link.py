@@ -370,7 +370,7 @@ class ServiceTests(unittest.TestCase):
         job = self.run_fixture()
         self.account = "bob"
         for method in (self.service.state, lambda: self.service.context(job["id"]), lambda: self.service.start({"repo": "example/words"})):
-            with self.assertRaisesRegex(ValueError, "account changed"):
+            with self.assertRaisesRegex(app.ActiveAccountChangedError, "account changed"):
                 method()
         with self.assertRaises(ValueError):
             Store(self.path, "bob")
