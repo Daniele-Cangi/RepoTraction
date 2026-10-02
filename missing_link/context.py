@@ -119,11 +119,13 @@ def build_context(repository, issue, phase, byte_limit):
     # to a repository, rather than filling the entire scope with discussion IDs.
     repository_slots = min(MAX_SCOPED_IDS // 4, len(candidates) * 3 + len((repository or {}).get("files", [])))
     discussion_id_limit = MAX_SCOPED_IDS - repository_slots
+    discussion_count = 0
 
     def add(reference, entry, discussion=False):
+        nonlocal discussion_count
         if reference in sources:
             return
-        if len(sources) >= (discussion_id_limit if discussion else MAX_SCOPED_IDS):
+        if len(sources) >= MAX_SCOPED_IDS or (discussion and discussion_count >= discussion_id_limit):
             omitted.append(reference)
             id_limited.add(reference)
             return
@@ -149,6 +151,10 @@ def build_context(repository, issue, phase, byte_limit):
             if previous_subrequirements is not None:
                 data["potential_subrequirements"] = previous_subrequirements
             omitted.append(reference)
+        elif discussion:
+            # Count only retained discussion IDs. Definitions already inserted
+            # have their own slots; byte-rejected entries do not spend ID quota.
+            discussion_count += 1
 
     # Request first and recent discussion before old comments: later resolution
     # cannot be silently dropped by a prefix-only character cut.

@@ -416,6 +416,9 @@ supplied, and capability/requirement IDs must belong to the selected candidates.
 Context packing shares the schema's 400-ID bound, in addition to the byte bound;
 ID-limited omissions are counted in coverage and make discussion incomplete.
 Repository comparisons reserve ID slots for selected source/support excerpts.
+Only retained discussion IDs spend the discussion quota; definitions already
+supplied are not charged again, and byte-rejected comments spend no ID slots.
+The shared 400-ID limit still applies to the whole packed context.
 Wider or fabricated line ranges are not offered as valid model outputs. This
 scope is checked locally for JSON-mode providers too; inspection/import contracts
 still accept precisely validated visible subspans. Provider request requirements

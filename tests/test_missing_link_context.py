@@ -2,8 +2,9 @@
 import copy
 import json
 import unittest
+from unittest import mock
 
-from missing_link.context import build_context, select_capabilities
+from missing_link.context import build_context, select_capabilities, size
 from missing_link.contracts import MAX_SCOPED_IDS, schema_for
 from test_missing_link import repository, issue
 
@@ -62,6 +63,72 @@ class ContextSelectionTests(unittest.TestCase):
         self.assertTrue(report["source_id_limit_omissions"])
         self.assertFalse(report["discussion_complete"])
         schema_for("matches", source_ids=data["sources"], capability_ids=report["capability_ids"], requirement_ids=["r0"])
+
+    def definition_repository(self, paths_per_capability=1):
+        repo = repository()
+        repo.update(files=[], capabilities=[])
+        for index in range(30):
+            paths = [f"src/module_{index}_{offset}.py" for offset in range(paths_per_capability)]
+            repo["files"].extend(self.file(path, lines=1, width=0) for path in paths)
+            cap = self.cap(paths[0], f"function_{index}", first=1, last=1)
+            cap["evidence"] = [self.cap(path, f"function_{index}", first=1, last=1)["evidence"][0] for path in paths]
+            repo["capabilities"].append(cap)
+        return repo
+
+    def test_repository_definitions_do_not_consume_discussion_id_reservation(self):
+        repo = self.definition_repository()
+        for comments in (299, 300):
+            with self.subTest(comments=comments):
+                demand = self.busy_issue(comments)
+                demand["timeline"] = []
+                original = copy.deepcopy((repo, demand))
+                data, report = build_context(repo, demand, "matches", 180000)
+                self.assertEqual(sum(ref.startswith("file:") for ref in data["sources"]), 30)
+                self.assertEqual(sum(ref.startswith("q") for ref in data["sources"]), 300)
+                self.assertEqual(len(data["sources"]), 330)
+                self.assertEqual(report["source_id_limit_omissions"], comments - 299)
+                self.assertEqual(report["omitted_source_count"], comments - 299)
+                self.assertEqual(report["discussion_complete"], comments == 299)
+                self.assertEqual("q1" in data["sources"], comments == 299)
+                self.assertIn(f"q{comments}", data["sources"])
+                self.assertLess(list(data["sources"]).index("file:src/module_29_0.py#L1-L1"),
+                                list(data["sources"]).index(f"q{comments}"))
+                schema_for("matches", source_ids=data["sources"], capability_ids=report["capability_ids"], requirement_ids=["r0"])
+                self.assertEqual((repo, demand), original)
+
+    def test_discussion_reservation_also_obeys_global_id_limit(self):
+        # A larger byte bound isolates ID accounting from byte omissions here.
+        repo = self.definition_repository(paths_per_capability=4)
+        demand = self.busy_issue(400)
+        demand["timeline"] = []
+        data, report = build_context(repo, demand, "matches", 240000)
+        self.assertEqual(sum(ref.startswith("file:") for ref in data["sources"]), 120)
+        self.assertEqual(sum(ref.startswith("q") for ref in data["sources"]), 280)
+        self.assertEqual(len(data["sources"]), MAX_SCOPED_IDS)
+        self.assertEqual(report["source_id_limit_omissions"], 121)
+        self.assertFalse(report["discussion_complete"])
+        self.assertIn("q0", data["sources"])
+        self.assertIn("q400", data["sources"])
+        schema_for("matches", source_ids=data["sources"], capability_ids=report["capability_ids"], requirement_ids=["r0"])
+
+    def test_byte_rejected_comment_does_not_consume_discussion_id_quota(self):
+        repo = self.definition_repository()
+        demand = self.busy_issue(300)
+        demand["timeline"] = []
+
+        def measured_size(value):
+            # Force one otherwise-small comment to exceed the packing bound.
+            return 180000 if "q2" in value.get("sources", {}) else size(value)
+
+        with mock.patch("missing_link.context.size", side_effect=measured_size):
+            data, report = build_context(repo, demand, "matches", 180000)
+        self.assertNotIn("q2", data["sources"])
+        self.assertIn("q1", data["sources"])
+        self.assertEqual(sum(ref.startswith("q") for ref in data["sources"]), 300)
+        self.assertEqual(len(data["sources"]), 330)
+        self.assertEqual(report["source_id_limit_omissions"], 0)
+        self.assertEqual(report["omitted_source_ids"], ["q2"])
+        self.assertFalse(report["discussion_complete"])
 
     def target(self, path, value):
         return {"path": path, "text": value,
