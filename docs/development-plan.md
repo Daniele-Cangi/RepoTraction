@@ -15,11 +15,13 @@ allowance while raising its cumulative ceiling to $10. It found no qualified
 external lead and exposed quotation-generation failures, undercounted optional
 contributions, implementation-context gaps and source/retrieval bias.
 
-The follow-up corrections use contract 15: deterministic demand-span selection,
+The follow-up corrections use contract 16: deterministic demand-span selection,
 independent optional-field review with source-bound, explicit non-requirement
 decisions for unrelated context, bounded static JS/TS export sampling, actual
 implementation context before later discussion, preflight before paid comparisons,
-and fragmented-name/reference-only retrieval cleanup. Implementation and offline
+and fragmented-name/reference-only retrieval cleanup. Exact acquired npm `bin`
+targets can override only the `scripts/`/`tools/` directory role heuristic, without
+promoting neighboring scripts, tests, mocks or build helpers. Implementation and offline
 regressions are separate from the frozen live experiment; they do not establish
 a higher real-model success rate. Keep structural extractions separate and verify
 discovery quality with a new frozen repository-only cohort after review/merge.
@@ -31,7 +33,7 @@ all 8 enrichment, 24 extraction and 20 comparison inputs within the existing
 180,000-byte transport bound (maximum 164,598 bytes). It stopped at a fixture
 reservation before HTTP, without calling the model or rewriting saved results.
 This checked context feasibility, not discovery accuracy; it has not been rerun
-under contract 15.
+under contract 16.
 
 - [ ] Establish characterization tests for existing public behavior and map
   dependencies, including test patches of globals and account-specific state.

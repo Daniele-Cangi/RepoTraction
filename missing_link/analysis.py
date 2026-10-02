@@ -13,11 +13,11 @@ from typing import Any
 from .discussion import authorship, constraint_hints
 from .qualification import assess_discovery
 from .demand import optional_field_hints
-from .sources import source_role
+from .sources import source_role, runtime_bin_entrypoints
 
 CLASSIFICATIONS = {"direct", "adapter", "extraction", "rejected", "investigate"}
 REQUEST_STATUSES = {"unresolved", "resolved", "duplicate", "unclear", "automated"}
-ANALYSIS_CONTRACT_VERSION = 15
+ANALYSIS_CONTRACT_VERSION = 16
 
 
 def passive_api_constraint(requirement: dict) -> bool:
@@ -222,6 +222,7 @@ def validate_matches(raw_matches: list, repository: dict, issue: dict, request: 
     request = dict(request, constraint_review=review_constraints(issue, request["requirements"],
                    request.get("optional_field_dispositions", [])))
     catalog = evidence_catalog(repository, issue)
+    runtime_entrypoints = runtime_bin_entrypoints(repository.get("files", []))
     capabilities = {item["id"]: item for item in repository["capabilities"]}
     requirements = {item["id"]: item for item in request["requirements"]}
     matches = []
@@ -266,7 +267,7 @@ def validate_matches(raw_matches: list, repository: dict, issue: dict, request: 
             if status == "satisfied" and contribution == "not_demonstrated":
                 status = "undetermined"
             if (status == "satisfied" and contribution == "existing_behavior"
-                    and not any(entry.get("path") and source_role(entry["path"]) == "implementation" for entry in evidence)):
+                    and not any(entry.get("path") and source_role(entry["path"], runtime_entrypoints=runtime_entrypoints) == "implementation" for entry in evidence)):
                 # A prompt may contain implementation elsewhere, but this
                 # particular affirmative behavior must cite it, not just docs,
                 # fixtures, benchmarks or type declarations.

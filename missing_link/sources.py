@@ -135,19 +135,27 @@ def _kind(path: str) -> str:
     return "unsupported"
 
 
-def source_role(path: str) -> str:
-    """Path-only sampling hint, never a claim about functionality or exports."""
-    parts = PurePosixPath(path.split(":", 1)[0].casefold()).parts
+def source_role(path: str, *, runtime_entrypoints=()) -> str:
+    """Path sampling hint with exact acquired-bin scope, never executable proof."""
+    source_path = path.split(":", 1)[0]
+    parts = PurePosixPath(source_path.casefold()).parts
     if not parts:
         return "implementation"
     # Benchmarks/fixtures/examples can live beside entrypoints, not just in dedicated
     # directories. Match delimited name tokens, not incidental substrings.
     auxiliary_file = re.search(r"(?:^|[._-])(?:bench|benchmarks?|fixtures?|examples?|demos?|stor(?:y|ies))(?:[._-]|$)", parts[-1])
-    if any(part in {".github", "checks", "tools", "scripts", "bench", "benchmark", "benchmarks",
+    auxiliary_dirs = {".github", "checks", "tools", "scripts", "bench", "benchmark", "benchmarks",
                     "fixture", "fixtures", "__fixtures__", "__mocks__", "playground", "docs", "doc",
                     "example", "examples", "demo", "demos", "story", "stories",
                     "winbuild", "ci_tools", "_custom_build"}
-           for part in parts[:-1]) or parts[-1] in {"setup.py", "conftest.py", "selftest.py"} or auxiliary_file:
+    if (source_path in runtime_entrypoints and _kind(source_path) == "source"
+            and not parts[-1].endswith(".d.ts") and not auxiliary_file
+            and parts[-1] not in {"setup.py", "conftest.py", "selftest.py"}
+            and not any(part in auxiliary_dirs - {"scripts", "tools"} for part in parts[:-1])):
+        # Exact acquired manifest bin targets can override only script/tool
+        # directory heuristics, never test/mock/example/build/type exclusions.
+        return "implementation"
+    if any(part in auxiliary_dirs for part in parts[:-1]) or parts[-1] in {"setup.py", "conftest.py", "selftest.py"} or auxiliary_file:
         return "infrastructure"
     if _kind(path.split(":", 1)[0]) == "test":
         return "test"
@@ -156,6 +164,43 @@ def source_role(path: str) -> str:
     if parts[-1].endswith(".d.ts"):
         return "support"  # Declarations are not implementation bodies.
     return "implementation"
+
+
+def runtime_bin_entrypoints(files):
+    """Derive a bounded role exception from acquired manifests, not cached claims.
+
+    Use the existing literal bin-path resolver and actual safe source files.
+    No dependency traversal, new read, executable/interface or adoption proof.
+    """
+    acquired = {}
+    for file in files:
+        if not isinstance(file, dict) or not _safe_path(file.get("path")) or not isinstance(file.get("text"), str):
+            continue
+        if (SECRET_PATH.search(file["path"]) or SECRET_TEXT.search(file["text"]) or PRIVATE_KEY_HEADER.search(file["text"])
+                or len(file["text"].encode("utf-8")) > MAX_FILE_BYTES or file.get("mode") == "120000"):
+            continue
+        acquired[file["path"]] = file
+    entrypoints = {}
+    for path, manifest in acquired.items():
+        if PurePosixPath(path).name != "package.json":
+            continue
+        try:
+            metadata = json.loads(manifest["text"])
+        except (ValueError, RecursionError):
+            continue
+        value = metadata.get("bin") if isinstance(metadata, dict) else None
+        if not (isinstance(value, str) or isinstance(value, dict) and len(value) <= MAX_EXPORT_HINTS
+                and all(isinstance(item, str) for item in value.values())):
+            continue
+        targets, _ = export_hints(path, json.dumps({"bin": value}), acquired)
+        for target in targets:
+            file = acquired[target]
+            if (_kind(target) == "source" and file.get("kind") not in {"test", "documentation", "manifest"}
+                    and source_role(target, runtime_entrypoints={target}) == "implementation"):
+                entrypoints.setdefault(target, path)
+                if len(entrypoints) == MAX_EXPORT_HINTS:
+                    return entrypoints
+    return entrypoints
 
 
 def _priority(entry: dict[str, Any]) -> tuple:
@@ -420,8 +465,10 @@ class PublicGitHub:
             limitations.append(f"File budget sampled {max_files} of {len(candidates)} eligible files.")
         if excluded:
             limitations.append("Some files were excluded for safety, size, encoding or unsupported type.")
-        eligible_roles = Counter(source_role(e["path"]) for e in candidates if _kind(e["path"]) == "source")
-        acquired_roles = Counter(source_role(f["path"]) for f in files if f["kind"] == "source")
+        runtime_entrypoints = runtime_bin_entrypoints(files)
+        eligible_roles = Counter(source_role(e["path"], runtime_entrypoints=runtime_entrypoints)
+                                 for e in candidates if _kind(e["path"]) == "source")
+        acquired_roles = Counter(source_role(f["path"], runtime_entrypoints=runtime_entrypoints) for f in files if f["kind"] == "source")
         if eligible_roles["implementation"] and not acquired_roles["implementation"]:
             limitations.append("No implementation source was acquired; this sample cannot represent product capabilities.")
         description, redacted, description_truncated = _redact(repo.get("description"))
@@ -446,6 +493,7 @@ class PublicGitHub:
                              "omitted_initializer_imports": sorted({hint["path"] for hint in initializer_hints}
                                  - {file["path"] for file in files}),
                              "eligible_source_roles": dict(eligible_roles), "acquired_source_roles": dict(acquired_roles),
+                             "runtime_bin_entrypoints": runtime_entrypoints,
                              "metadata_redacted": redacted, "metadata_truncated": description_truncated,
                              "complete": not tree.get("truncated") and len(files) == len(candidates) and not excluded,
                              "eligible_sample_complete": not tree.get("truncated") and len(files) == len(candidates),
@@ -804,8 +852,9 @@ def extract_structure(snapshot: dict[str, Any]) -> list[dict[str, Any]]:
                            limitations=["Partial declaration scan, not a JS/TS parser, typecheck or execution proof."])
     # No large first module may consume the entire declaration budget before
     # later public engines. Keep role priority and round-robin file diversity.
+    runtime_entrypoints = runtime_bin_entrypoints(files)
     for role in ("implementation", "support", "test", "infrastructure"):
-        groups = [group for path, group in per_file.items() if source_role(path) == role]
+        groups = [group for path, group in per_file.items() if source_role(path, runtime_entrypoints=runtime_entrypoints) == role]
         for offset in range(max((len(group) for group in groups), default=0)):
             for group in groups:
                 if offset < len(group) and len(capabilities) < MAX_CAPABILITIES:

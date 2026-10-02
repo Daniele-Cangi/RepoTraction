@@ -146,7 +146,16 @@ requirements. A scope-only candidate cannot qualify as a useful contribution.
 Recurring gaps without any demonstrated reusable behavior cannot form extension
 groups either; repeated passive scope compatibility is not an extension lead.
 An `existing_behavior` check must cite a supplied implementation path, not merely
-a README, test, fixture, benchmark or `.d.ts` declaration. Conventional standalone
+a README, test, fixture, benchmark or `.d.ts` declaration. An exact safe source
+target declared by an acquired `package.json` `bin` (string or bounded command map)
+can override the `scripts/` or `tools/` directory heuristic. The existing literal
+path resolver is reused; only the actual acquired target gains that role, not its
+neighbors, imported helpers, re-exports or other package entrypoint fields.
+The bounded target-to-manifest mapping is rederived from pinned files for context
+selection and each compatibility check, rather than trusting cached role claims.
+Test/mock/example/build-helper and type-declaration exclusions remain in force;
+a declared executable is still not proof of a callable interface or execution.
+Conventional standalone
 `test`/`tests`/`spec`/`specs` filenames with supported Python/JS/TS extensions
 remain test references even at the repository root; they cannot satisfy the
 implementation preflight or independently substantiate existing behavior.
@@ -215,7 +224,7 @@ Malformed or unsupported values block review instead of generating references.
 This does not validate version expressions or prove installation. Supported shapes
 follow the [Poetry dependency specification](https://python-poetry.org/docs/dependency-specification/).
 
-Contract 15 marks earlier results as historical, preserving their original
+Contract 16 marks earlier results as historical, preserving their original
 interpretations and exports. There is no automatic migration or paid reevaluation.
 
 An empty body or a body containing only example/reference links cannot establish
@@ -432,7 +441,9 @@ sample distributes candidates across files; definition chunks are interleaved
 before broad file coverage so one large module cannot monopolize the prompt.
 Coverage records the selected capability roles and actually supplied source roles
 and implementation paths, including an explicit missing-implementation flag.
-These are path-based sampling hints, not verified exports or execution evidence.
+These are path-based sampling hints with an exact acquired-manifest `bin` exception,
+not verified exports or execution evidence. `runtime_bin_entrypoints` records at
+most 64 target-to-manifest paths; the context report includes only supplied targets.
 Comparison packing keeps the root request, then selected implementation definitions
 before later discussion. Comments cannot evict already supplied code; omitted later
 resolution/constraints still make coverage incomplete and prevent qualification.
