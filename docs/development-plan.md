@@ -60,8 +60,20 @@ Next validation work, in narrow modules rather than `app.py`:
 - [x] Prioritize literal public Python API declarations within bounded source-role
   tiers so internal helpers cannot evict acquired primary entry points.
 - [ ] Verify contracts 18/19 with fresh Luna calls under a separately frozen
-  protocol and the unchanged cumulative allowance. Separately investigate remaining
-  demand-span coverage and retrieval ranking; no universal parser expansion.
+  protocol and the unchanged cumulative allowance. The cohort remains incomplete
+  after the input-8 stop described below; no universal parser expansion.
+- [ ] Budget source packing against actual final provider transport, including
+  interpreted request, schema, instructions, framing and JSON escaping. Reproduce
+  the 185,562-byte Zod failure offline, preserve the 180,000-byte bound, implementation
+  evidence and explicit omissions; no limit increases or paid automatic retries.
+- [ ] Prevent a long root report from monopolizing citation IDs/bytes at the
+  expense of supplied later requests. Add the QuantEcon feedback-comment regression
+  with exact quotes, bounded coverage and visible omissions; retain strict request
+  and non-demand validation.
+- [ ] Tighten candidate-owned partial contribution semantics: relevant reusable
+  implementation, not target-side tooling or conceptual analogy. Add the Zod
+  tooling, Cachetools/Ruff and invalid-option/invalid-size cases offline, preserving
+  real partial primitives, hard conflicts, unknown integration and lead gates.
 
 Contract 18 implements the first two items with offline regressions. Actual
 demands remain bounded to 1..30 requirements. The wire schema allows 0..30 so a
@@ -74,8 +86,9 @@ and do not trigger replacement candidates, implicit retries or budget refunds.
 Completed JSON outputs are audited before wire/semantic validation, including
 charged invalid outputs; malformed, refused or incomplete responses are not
 accepted as completed JSON evidence. Historical evaluations are unchanged and
-older contracts remain historical. Fresh real-model verification of these fixes
-is still pending; implementation and offline tests make no paid calls. The local
+older contracts remain historical. Fresh real-model verification of the typed
+non-demand outcome is still pending; the incomplete follow-up produced no such
+outcome. Implementation and offline tests make no paid calls. The local
 Windows contract-18 run passed 752 tests, including 21 browser fixtures and 26 typed-outcome
 tests covering provider/import persistence, resume, mixed samples, atomic rollback
 and comparison short-circuiting. Review corrections preserve valid non-object
@@ -111,6 +124,35 @@ core python-dotenv APIs are now offered with definition evidence. The 251 origin
 reservations, USD 3.844534 allowance total, frozen analyses and account history
 are unchanged. These results establish offline contracts/context feasibility, not
 live-model discovery quality; fresh verification remains the next priority.
+
+The [contract-19 live retest](missing-link-live-discovery-contract19-2026-10-02.md)
+froze protocol `35d47ec` and initially stopped on an account-verification failure,
+with five reservations but four completed receipts. The account was subsequently
+verified unchanged and rate limits were not exhausted; the exact probe failure is
+not recorded. User-approved amendment `4967485` allowed one checkpoint resume
+without refunding that unknown attempt. Seven jobs then completed, one partially;
+the eighth (Zod) failed locally at final transport preflight. The five final sources
+were not started. There were no automatic paid retries, imports or product changes.
+
+Including both segments once, the incomplete cohort retains 50 completed outputs
+from 51 reservations / USD 0.8292201, 24 selected issues and 31 saved comparisons.
+The unchanged cumulative USD 10 allowance is now **USD 4.6737541 / 302 reservations**,
+leaving USD 5.3262459. The original unknown attempt remains conservatively charged;
+Zod's oversized comparison was rejected before another reservation/HTTP request.
+All 31 exports, completed receipts and original history remain identical after
+restart, and no job resumes implicitly.
+
+Useful source-backed `chunked`, LRU and public `makeRetriable` mechanisms plus
+defensible as-is rejections exist, but no match is eligible for follow-up. Zod's
+final 185,562-byte transport defeats fixed context-packing margins; QuantEcon's
+actual later feedback request has no offered citation IDs because its long root
+report consumes the span budget. Other answers credit target-side tooling and
+runtime analogies as candidate implementation contributions. These are the three
+narrow core corrections above, not a reason to pursue universal parser coverage.
+Partial labels are not a verified utility count, and no isolation is forced.
+Typed model non-demand handling and fresh python-dotenv API recall remain unverified
+in this sample. Fix and test offline first; another paid continuation needs explicit
+direction and a frozen protocol retaining all failures, charges and historical data.
 
 Keep structural extractions separate. UI/key-entry features and Go/Rust expansion
 remain deferred until the core discovery outcomes are adequately validated.
