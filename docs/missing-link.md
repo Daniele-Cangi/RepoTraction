@@ -84,6 +84,8 @@ conditional exports and oversized/excluded modules remain limitations. JS/TS
 sampling follows literal relative re-exports and package entrypoint paths, including
 eligible `.js` to `.ts` source counterparts. These hints only reorder safety-filtered
 file attempts; cycles do not duplicate reads or increase the file/read/byte budget.
+Source suffix classification is case-insensitive, consistent with acquisition
+eligibility; repository paths and destination matching retain their original case.
 They are not full export resolution, dependency closure or a typecheck. Their
 recorded paths, omissions and bounded-scan completeness remain visible in coverage.
 

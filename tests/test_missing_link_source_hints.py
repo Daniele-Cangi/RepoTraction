@@ -9,6 +9,60 @@ from test_missing_link_sources import GitHubFixture
 
 
 class ExportHintTests(unittest.TestCase):
+    def test_case_varied_source_suffixes_scan_esm_and_commonjs_hints(self):
+        for extension in (".TS", ".Ts", ".JS", ".jS", ".TSX", ".TsX", ".JSX", ".JsX", ".MJS", ".mJs", ".CJS", ".CjS"):
+            for text in ('export * from "./Engine.js";', "export {\n parse,\n} from './Engine.js';",
+                         "module.exports = require('./Engine.js');", "exports.parse=require('./Engine.js');"):
+                with self.subTest(extension=extension, text=text):
+                    self.assertEqual(export_hints("pkg/INDEX" + extension, text, {"pkg/Engine.ts": {}}),
+                                     (["pkg/Engine.ts"], True))
+
+    def test_case_varied_suffixes_do_not_fold_paths_or_relax_destination_safety(self):
+        self.assertEqual(export_hints("pkg/INDEX.TS", 'export * from "./Engine.js";', {"pkg/engine.ts": {}}), ([], True))
+        for spec in ("../../Engine.js", "./Engine.js?query", "./Engine.js#fragment", "./*.js",
+                     "package/Engine.js", "https://host/Engine.js", "./types.d.ts"):
+            with self.subTest(spec=spec):
+                self.assertEqual(export_hints("pkg/INDEX.TS", f'export * from "{spec}";',
+                    {"Engine.ts": {}, "pkg/Engine.ts": {}, "pkg/types.d.ts": {}}), ([], True))
+        for extension in (".PY", ".TXT", ".CSS", ".JSS", ".TS.BAK"):
+            with self.subTest(extension=extension):
+                self.assertEqual(export_hints("INDEX" + extension, 'export * from "./Engine.js";',
+                                             {"Engine.ts": {}}), ([], True))
+
+    def test_case_varied_suffixes_keep_lexical_and_scan_bounds(self):
+        fake = 'export * from "./obsolete.js";'
+        real = 'export * from "./Engine.js";'
+        for extension in (".TS", ".JS", ".TSX", ".JSX", ".MJS", ".CJS"):
+            for prefix in (f"/*{fake}*/", f"const sample=`{fake}`;", f"function sample(){{{fake}}}"):
+                with self.subTest(extension=extension, prefix=prefix):
+                    self.assertEqual(export_hints("INDEX" + extension, prefix + real,
+                        {"obsolete.ts": {}, "Engine.ts": {}}), (["Engine.ts"], True))
+            with self.subTest(extension=extension):
+                self.assertEqual(export_hints("INDEX" + extension, real + "/*unfinished",
+                                             {"Engine.ts": {}}), (["Engine.ts"], False))
+                eligible = {f"source{i}.ts": {} for i in range(MAX_EXPORT_HINTS + 1)}
+                value = "".join(f'export * from "./source{i}.js";' for i in range(MAX_EXPORT_HINTS + 1))
+                self.assertEqual(export_hints("INDEX" + extension, value, eligible),
+                                 (list(eligible)[:MAX_EXPORT_HINTS], False))
+
+    def test_case_varied_barrels_reach_implementation_with_fixed_read_budget(self):
+        for extension in (".TS", ".Ts", ".JS", ".JSX", ".TsX", ".MJS", ".CjS"):
+            with self.subTest(extension=extension):
+                fixture = GitHubFixture()
+                barrel = "INDEX" + extension
+                fixture.add("package.json", json.dumps({"source": "./" + barrel}))
+                fixture.add(barrel, 'export * from "./src/Engine.js";')
+                fixture.add("src/Engine.ts", "export function parse(value) { return value; }")
+                for index in range(40):
+                    fixture.add(f"aaa_unrelated{index:02d}.ts", "export function helper() { return true; }")
+                snapshot = PublicGitHub(fixture.read).fetch_repository("sample/project", 3)
+                self.assertEqual([file["path"] for file in snapshot["files"]], ["package.json", barrel, "src/Engine.ts"])
+                self.assertEqual(sum("/git/blobs/" in call[0] for call in fixture.calls), 3)
+                self.assertEqual(snapshot["coverage"]["static_export_hints"],
+                                 [{"from": "package.json", "path": barrel}, {"from": barrel, "path": "src/Engine.ts"}])
+                self.assertTrue(snapshot["coverage"]["export_hints_complete"])
+                self.assertFalse(snapshot["coverage"]["eligible_sample_complete"])
+
     def test_jsx_reexports_follow_eligible_tsx_and_ts_sources(self):
         for target in ("component.tsx", "component.ts"):
             for extension in (".js", ".mjs", ".cjs", ".jsx", ".ts", ".tsx"):
