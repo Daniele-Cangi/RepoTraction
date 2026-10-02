@@ -1,6 +1,6 @@
 """Machine-readable interpretation schemas, distinct from human examples."""
 from .non_demands import NON_DEMAND_STATUS
-from .contributions import CONTRIBUTION_KINDS
+from .contributions import CONTRIBUTION_KINDS, PARTIAL_BASES
 
 MAX_SCOPED_IDS = 400
 MAX_REQUEST_REQUIREMENTS = 30
@@ -51,10 +51,13 @@ def schema_for(phase, *, source_ids=None, capability_ids=None, requirement_ids=N
         steps=array(), existing_contribution=string(), new_logic=string(), assumptions=array(),
         dependencies=array(), runtime=string(), permissions=array(), coupling=string(), input=string(),
         expected_output=string(), ablation=string(), files=array(obj(path=string(), content=string())))
+    partial = obj(requirement_id=string(), basis=string(*PARTIAL_BASES), operation=string(),
+        requirement_part=string(), remaining_work=string(), source_ids=array())
     match = obj(capability_id=string(), classification=string("direct", "adapter", "extraction", "rejected", "investigate"),
         summary=string(), checks=array(obj(requirement_id=string(), status=string("satisfied", "incompatible", "undetermined"),
             contribution=string(*CONTRIBUTION_KINDS),
-            reason=string(), source_ids=array())), obstacles=array(), bridge=bridge)
+            reason=string(), source_ids=array())), partial_support=array(partial, maximum=MAX_REQUEST_REQUIREMENTS),
+        obstacles=array(), bridge=bridge)
     schema = {"request": request, "capabilities": obj(capabilities=array(capability)),
               "matches": obj(matches=array(match))}[phase]
 
@@ -81,6 +84,7 @@ def schema_for(phase, *, source_ids=None, capability_ids=None, requirement_ids=N
             capability["properties"]["source_ids"] = array(references)
         else:
             match["properties"]["checks"]["items"]["properties"]["source_ids"] = array(references)
+            partial["properties"]["source_ids"] = array(references)
     if capability_ids is not None:
         if phase == "capabilities":
             capability["properties"]["id"] = choices(capability_ids)
@@ -88,6 +92,7 @@ def schema_for(phase, *, source_ids=None, capability_ids=None, requirement_ids=N
             match["properties"]["capability_id"] = choices(capability_ids)
     if requirement_ids is not None and phase == "matches":
         match["properties"]["checks"]["items"]["properties"]["requirement_id"] = choices(requirement_ids)
+        partial["properties"]["requirement_id"] = choices(requirement_ids)
     if citation_ids is not None:
         if phase != "request":
             raise ValueError("Demand spans are only valid in the request contract.")

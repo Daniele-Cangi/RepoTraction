@@ -24,6 +24,9 @@ class PartialSupportTests(unittest.TestCase):
         raw = fixtures.raw_match()
         raw["checks"] = [dict(raw["checks"][0], status=status, contribution=contribution,
                               reason=reason, source_ids=[reference])]
+        raw["partial_support"] = [{"requirement_id": "r0", "basis": "candidate_implementation",
+            "operation": "String operation", "requirement_part": "Sanitize logger text",
+            "remaining_work": "Wire both logger entry points", "source_ids": [reference]}]
         request = validate_request(demand, issue)
         return repo, issue, request, raw
 
@@ -70,6 +73,7 @@ class PartialSupportTests(unittest.TestCase):
                 repo, issue, request, raw = self.case()
                 repo["files"][0]["path"] = path
                 raw["checks"][0]["source_ids"] = ["file:" + path]
+                raw["partial_support"][0]["source_ids"] = ["file:" + path]
                 result = validate_matches([raw], repo, issue, request, "model")[0]
                 self.assertEqual(result["checks"][0]["contribution"], "not_demonstrated")
 

@@ -431,6 +431,18 @@ class Provider:
             "Each check must also distinguish contribution: existing_behavior for reusable implemented behavior, "
             "partial_behavior for a source-cited primitive that helps only part of a requirement while project wiring or policy remains new work; "
             "keep that requirement undetermined and explain the exact reusable operation and remaining work separately in reason. "
+            "For EACH partial_behavior check add a partial_support review for its requirement_id: basis, operation, "
+            "requirement_part, remaining_work and source_ids. Use basis=candidate_implementation ONLY for a concretely "
+            "reusable operation in THIS candidate that implements part of THAT requested behavior. Its source_ids must "
+            "cite only candidate implementation also cited in the check. Name the operation, the precise requested suboperation "
+            "it implements and the remaining project work. For other checks use no review unless useful to explain a rejected "
+            "partial proposal. Target-side Jest/ESLint/TypeScript/CI configuration is basis=target_context, not candidate support; "
+            "an unrelated candidate global-config function cannot launder those target citations into implementation credit. "
+            "Runtime caching as an analogy for static AST diagnostics is basis=analogy, not analyzer implementation. "
+            "Rejecting an invalid option is not validation of an invalid size, nor implementation of requested project tests. "
+            "For target_context, analogy or not_established use contribution=not_demonstrated; never partial_behavior. "
+            "An implementation citation proves ownership/provenance, not semantic relevance. If that specific suboperation "
+            "cannot be established, use not_established, undetermined and not_demonstrated rather than generic similarity. "
             "Partial primitives do not certify a complete requirement, resolve a security report or prove adoption. "
             "scope_compatible for a compatible boundary/preservation constraint (for example leaving capture APIs unchanged), "
             "or not_demonstrated for unsupported/unknown/conflicting behavior. Passive scope compatibility is not a useful "
@@ -458,6 +470,8 @@ class Provider:
                     raise ValueError("AI selected a capability not included in this call.")
                 for check in match["checks"]:
                     check["source_ids"] = normalize_references(check["source_ids"], data["sources"], evidence_catalog(repository, issue))
+                for review in match.get("partial_support", []):
+                    review["source_ids"] = normalize_references(review["source_ids"], data["sources"], evidence_catalog(repository, issue))
             scoped = dict(request)
             if not report["discussion_complete"]:
                 scoped["context_complete"] = False
