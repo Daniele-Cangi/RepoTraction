@@ -185,7 +185,7 @@ Existing `app.GitHubCLIError`, `app.ActiveAccountChangedError` and
 own mismatch now raises the shared runtime exception instead of `ValueError`;
 HTTP handling and account isolation remain intact.
 
-The current diagnostic persists through restart and polling; explicit resume or
+The current diagnostic persists through restart; explicit resume or
 cancellation clears it, just as it clears/replaces the current error. This is
 not a new immutable per-attempt history. Existing job JSON needs no migration,
 and old records without diagnostics are not rewritten. No automatic retry,
@@ -194,9 +194,45 @@ Incomplete streams retain their reserved unknown outcome; completed receipts
 and JSON remain auditable without being accepted as analysis after an identity
 failure.
 
-Validation: **827 tests passed** with fake HTTP/CLI replies and owned temporary
+### Polling while identity remains unavailable
+
+The PR review found that the blanket API identity guard returned HTTP 409 before
+the saved stop could be read. `missing_link/polling.py` now handles just
+`GET /api/missing-link`: a typed identity-verification outage can return HTTP 200
+with `diagnostic_only: true`, `identity_verified: false` and
+`actions_available: false`. The current poll's `identity_diagnostic` is distinct
+from each job's persisted `error_diagnostic`.
+
+This view requires a service already bound to the expected account and database
+during verified operation in this process. It checks the database's identity in
+the same read-only SQLite transaction as the job read. It exposes only opaque
+job IDs, paused status and fixed, allowlisted identity-stop messages/codes, plus
+the previously bound account and current verification failure. It never creates
+a Store/service/provider or reconciles worker leases. Source, input, results,
+provider configuration, checkpoints, receipts and arbitrary stored error text
+are not returned. Old untyped stops are not retroactively classified.
+
+No existing binding, missing/mismatched storage, confirmed account changes,
+ambiguous identities and unclassified failures still deny the poll. Cold startup
+does not use this view to bypass identity verification. All mutations, exports,
+packages, source-context downloads and other APIs keep their original guard.
+
+The UI replaces full evidence, including focused edit forms, with a clearly
+restricted diagnostic view; actions/downloads are unavailable. It polls every
+15 seconds while this view is active and restores full state only after the
+normal checks succeed. Capability review and AI opt-in are cleared; recovery
+does not resume a job or make a provider request.
+
+Validation: **839 tests passed** with fake HTTP/CLI replies and owned temporary
 databases. Target-error, partial-stream, post-terminal-response, restart, explicit
-fixture resume/cancellation, cache and malformed-output regressions pass. Windows
+fixture resume/cancellation, cache and malformed-output regressions pass. Ten
+real-handler HTTP regressions additionally cover persistent failed checks,
+binding/identity mismatch, mutation/download denial, recovery, redaction and
+byte-identical DB/unchanged reservations. Two browser regressions cover evidence
+replacement, disabled actions, continued polling and recovery without POSTs.
+A separate browser smoke used the actual HTTP route with a fictional account,
+temporary database and injected failed verifier; no live credentials/provider.
+Windows
 installation includes the standalone module; isolated installed imports and a
 simulated identity check passed. These startup/installation checks did not start
 a production server or invoke a paid provider.

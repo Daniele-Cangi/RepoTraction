@@ -261,14 +261,24 @@ Explicit resume/cancellation clears the current diagnostic; restart preserves it
 No raw CLI stdout/stderr, credential, response body or exception cause is added
 to public diagnostics. Windows installation ships the new standalone module.
 
-All **827 offline tests pass**, including partial-stream and completed-response
+The first PR review identified a P1 polling gap: the blanket identity guard
+prevented the saved diagnostic from being read while CLI verification continued
+to fail. [`missing_link/polling.py`](../missing_link/polling.py) now provides a
+minimal read-only view for the already-bound account/store, not unverified full
+state. Cold unbound startup, ambiguous/changed accounts, exports and mutations
+stay blocked. The UI clears full evidence and opt-ins, keeps polling for recovery
+and never auto-resumes. Historical stops and charges are not modified.
+
+All **839 offline tests pass**, including partial-stream and completed-response
 identity interruption, retained charges/receipts, target-error propagation and
-Windows uninstall fixtures. A separate installed-module smoke check passed.
+Windows uninstall fixtures, ten guarded HTTP polling regressions and two browser
+outage/recovery regressions. A separate installed-module smoke check passed;
+the polling UI was checked against a fictional temporary-store HTTP fixture.
 Read-only HTTP/export/ledger and historical integrity reconciliation also passed:
 **328 reservations / USD 5.1150975**, with no real job resumed or AI call made.
 The previous live cause remains unknown and old records are not relabeled. This
-fix improves observability, not transport resilience or discovery accuracy;
-polling robustness and the unfinished paid sample remain separate decisions.
+fix improves observability and restricted polling, not transport resilience or
+discovery accuracy; the unfinished paid sample remains a separate decision.
 
 The prior contract-14 offline replay of the retained eight-repository cohort packed
 all 8 enrichment, 24 extraction and 20 comparison inputs within the existing
