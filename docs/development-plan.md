@@ -53,9 +53,15 @@ Next validation work, in narrow modules rather than `app.py`:
   zero requirements for an article, but local validation rejected it; another
   article became seven inferred mandatory outline criteria. Keep strict validation
   for actual requests and preserve charged traces on empty/non-demand outcomes.
-- [ ] Separately investigate contribution granularity, gap-versus-prohibition
-  hints and bounded source/retrieval ranking using retained fixtures. These are
-  recall/qualification questions, not authorization for universal parser expansion.
+- [x] Retain an explicitly source-cited partial primitive separately from full
+  requirement fulfillment; preserve conflicts, unknown integration and lead gates.
+- [x] Distinguish narrowly descriptive current gaps from potential prohibitions;
+  ambiguous/mixed directives remain reviewable and real constraints retain priority.
+- [x] Prioritize literal public Python API declarations within bounded source-role
+  tiers so internal helpers cannot evict acquired primary entry points.
+- [ ] Verify contracts 18/19 with fresh Luna calls under a separately frozen
+  protocol and the unchanged cumulative allowance. Separately investigate remaining
+  demand-span coverage and retrieval ranking; no universal parser expansion.
 
 Contract 18 implements the first two items with offline regressions. Actual
 demands remain bounded to 1..30 requirements. The wire schema allows 0..30 so a
@@ -70,7 +76,7 @@ charged invalid outputs; malformed, refused or incomplete responses are not
 accepted as completed JSON evidence. Historical evaluations are unchanged and
 older contracts remain historical. Fresh real-model verification of these fixes
 is still pending; implementation and offline tests make no paid calls. The local
-Windows run passes 752 tests, including 21 browser fixtures and 26 typed-outcome
+Windows contract-18 run passed 752 tests, including 21 browser fixtures and 26 typed-outcome
 tests covering provider/import persistence, resume, mixed samples, atomic rollback
 and comparison short-circuiting. Review corrections preserve valid non-object
 JSON attempts before shape rejection, attribute and atomically persist coding-agent
@@ -83,6 +89,24 @@ analysis or starting further calls after cancellation.
 Eight dedicated redaction fixtures cover nested credential-shaped keys,
 collision-safe retention, repeated storage and rejection of invalid original output.
 This is a privacy-contract correction, not an expansion of parser/provider scope.
+
+Contract 19 adds `partial_behavior` with cited implementation and an explicit reason;
+the requirement stays undetermined and neither a qualified lead nor full integration
+is established by that primitive alone. Passive constraints, docs/tests/type-only
+evidence, hard conflicts, account isolation and historic-output boundaries remain
+protected. Narrow descriptive gap hints do not create dependency prohibitions;
+directive/ambiguous negatives retain review. Literal acquired Python `__all__` API
+hints prioritize primary definitions within the same role, 30-candidate, file and
+query bounds, without adding recursive import/export resolution.
+
+The final offline run passes **779 tests**, including 22 browser fixtures and 26
+new Python regressions. All 78 retained cohort contexts (13 enrichment, 34
+extraction, 31 comparison) pass current Responses transport preflight at a maximum
+174,637 bytes under 180,000, stopping at a fake reservation before HTTP. The two
+core python-dotenv APIs are now offered with definition evidence. The 251 original
+reservations, USD 3.844534 allowance total, frozen analyses and account history
+are unchanged. These results establish offline contracts/context feasibility, not
+live-model discovery quality; fresh verification remains the next priority.
 
 Keep structural extractions separate. UI/key-entry features and Go/Rust expansion
 remain deferred until the core discovery outcomes are adequately validated.

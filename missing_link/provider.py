@@ -342,6 +342,8 @@ class Provider:
         # An enrichment pass over structural candidates, not an unconstrained capability hallucination.
         raw = self.complete("Review structural capability candidates against the provided source files. Return {capabilities:[...]}. "
             "Interpret at most 8 important product/subsystem/mechanism candidates. Use existing IDs only. For each provide name,summary,outcome,inputs,outputs,preconditions,dependencies,limitations,"
+            "Prefer source-backed declared public API hints over lower-level helpers when selecting important mechanisms. "
+            "A public_api_hint is a static declaration hint, not proof of exports, execution or compatibility; inspect its supplied implementation. "
             "standalone (yes/no/unknown),search_terms and source_ids. Describe internal mechanisms, not just product marketing. "
             "Search terms must be short problem/mechanism phrases, with relevant domain or runtime when grounded; "
             "do not use the source project/package name as a search term. "

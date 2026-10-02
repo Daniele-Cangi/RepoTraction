@@ -8,6 +8,7 @@ from .discussion import constraint_hints
 from .demand import optional_field_hints, supplied_optional_field_hints
 from .contracts import MAX_SCOPED_IDS
 from .sources import source_role, runtime_bin_entrypoints
+from .public_api import public_api_hints
 
 
 def size(value):
@@ -54,25 +55,29 @@ def capability_path(capability):
     return path or next((e["path"] for e in capability.get("evidence", []) if e.get("path")), "unknown")
 
 
-def select_capabilities(capabilities, limit=30, *, runtime_entrypoints=()):
+def select_capabilities(capabilities, limit=30, *, runtime_entrypoints=(), public_entrypoints=()):
     """Prefer product implementation with bounded per-file diversity, not export proof."""
     ranked = sorted(capabilities, key=lambda cap: (
         {"implementation": 0, "support": 1, "test": 2, "infrastructure": 3}[source_role(capability_path(cap), runtime_entrypoints=runtime_entrypoints)],
+        cap.get("entrypoint") not in public_entrypoints,
         cap.get("level") != "mechanism", cap.get("name", "").startswith("_"), cap.get("standalone") != "yes"))
     selected = []
     for role in ("implementation", "support", "test", "infrastructure"):
-        groups = {}
-        for cap in ranked:
-            path = capability_path(cap)
-            if source_role(path, runtime_entrypoints=runtime_entrypoints) == role:
-                groups.setdefault(path, []).append(cap)
-        # One definition from each file before a second one from a large module.
-        for offset in range(max((len(group) for group in groups.values()), default=0)):
-            for group in groups.values():
-                if offset < len(group):
-                    selected.append(group[offset])
-                    if len(selected) == limit:
-                        return selected
+        for public in (True, False):
+            groups = {}
+            for cap in ranked:
+                path = capability_path(cap)
+                if (source_role(path, runtime_entrypoints=runtime_entrypoints) == role
+                        and (cap.get("entrypoint") in public_entrypoints) == public):
+                    groups.setdefault(path, []).append(cap)
+            # Keep per-file diversity inside each role/API tier, without letting
+            # many internal declarations evict acquired public entry points.
+            for offset in range(max((len(group) for group in groups.values()), default=0)):
+                for group in groups.values():
+                    if offset < len(group):
+                        selected.append(group[offset])
+                        if len(selected) == limit:
+                            return selected
     return selected
 
 
@@ -106,13 +111,17 @@ def build_context(repository, issue, phase, byte_limit):
             data["potential_subrequirements"] = supplied_optional_field_hints(optional_review, sources)
     candidates = []
     runtime_entrypoints = runtime_bin_entrypoints((repository or {}).get("files", []))
+    public_hints = public_api_hints((repository or {}).get("files", []))
     if repository:
-        candidates = select_capabilities(repository.get("capabilities", []), runtime_entrypoints=runtime_entrypoints)
+        candidates = select_capabilities(repository.get("capabilities", []), runtime_entrypoints=runtime_entrypoints,
+                                         public_entrypoints=public_hints["entrypoints"])
         data["repository"] = {key: repository.get(key) for key in ("id", "full_name", "revision", "license", "coverage")}
         # Do not duplicate source snippets, raw files, snapshots or account data.
         data["repository"]["capabilities"] = [{key: cap.get(key) for key in ("id", "name", "level", "entrypoint",
             "summary", "outcome", "inputs", "outputs", "preconditions", "dependencies", "standalone", "limitations")}
             for cap in candidates]
+        for cap in data["repository"]["capabilities"]:
+            cap["public_api_hint"] = cap.get("entrypoint") in public_hints["entrypoints"]
     if size(data) > target // 2:
         raise ValueError("Analysis metadata exceeds context bound; narrow the selected context.")
 
@@ -238,7 +247,8 @@ def build_context(repository, issue, phase, byte_limit):
         report["constraint_hint_scan_complete"] = hints["complete"]
     if repository:
         supplied_paths = list(dict.fromkeys(entry["path"] for entry in sources.values() if entry.get("path")))
-        report["selection_policy"] = "Request root, then implementation definitions before later discussion; per-file diversity and interleaved spans. Path heuristic with exact acquired-manifest bin targets, not verified exports or execution."
+        report["selection_policy"] = "Request root, then implementation definitions before later discussion; literal public API hints within each source-role tier, per-file diversity and interleaved spans. Path heuristic with exact acquired-manifest bin targets, not verified exports or execution."
+        report["public_api_hints"] = public_hints
         report["selected_capability_roles"] = dict(Counter(source_role(capability_path(cap), runtime_entrypoints=runtime_entrypoints) for cap in candidates))
         report["supplied_source_roles"] = dict(Counter(source_role(path, runtime_entrypoints=runtime_entrypoints) for path in supplied_paths))
         report["implementation_source_paths"] = [path for path in supplied_paths if source_role(path, runtime_entrypoints=runtime_entrypoints) == "implementation"]

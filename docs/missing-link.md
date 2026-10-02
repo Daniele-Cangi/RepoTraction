@@ -311,6 +311,27 @@ negatives, explicit prohibitions and uncertain constraint authority still requir
 review. Gap hints cannot displace real constraints in the bounded ledger; their
 omissions are reported separately and do not imply complete demand coverage.
 
+Bounded context/query ranking now prioritizes literal Python `__all__` declaration
+hints with direct relative imports to acquired files. Public API hints remain
+inside the existing source-role tiers and per-file diversity policy; they cannot
+promote neighboring scripts, tests or documentation into implementation. Dynamic
+exports, import chains, star/absolute/parent imports and missing targets are not
+resolved. The scan is capped at 32 initializers, 32,768 characters per initializer
+and 64 hints, with visible scan limits; the candidate/file/query bounds do not grow.
+These are ranking hints, not runtime export verification or broader parser coverage.
+
+Offline contract-19 verification passes **779 tests**, including 22 browser fixtures
+and 26 new Python fixtures for partial support, gap review and public API ranking.
+Read-only replay of the retained 2 October cohort packs all **78 contexts** (13
+enrichment, 34 extraction and 31 comparison) through the Responses schema/framing
+preflight, stopping at a fake reservation before HTTP. Maximum transport size is
+**174,637 bytes** under the existing 180,000-byte bound. `load_dotenv` and
+`dotenv_values` now reach their supplied definition context. No model calls,
+stored-result updates or account-ledger changes occurred: 251 reservations remain
+USD 3.844534 under the same USD 10 ceiling. This tests context feasibility and
+offline contracts, not improved live-model accuracy; fresh Luna verification is
+still pending. Frozen contract-16 results remain unchanged.
+
 ## Coding-agent mode without a provider
 
 After evaluating a selected issue, expand **Use a coding agent without configuring
