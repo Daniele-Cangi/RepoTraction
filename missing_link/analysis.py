@@ -14,10 +14,11 @@ from .discussion import authorship, constraint_hints
 from .qualification import assess_discovery
 from .demand import optional_field_hints
 from .sources import source_role, runtime_bin_entrypoints
+from .contracts import validate_requirement_count
 
 CLASSIFICATIONS = {"direct", "adapter", "extraction", "rejected", "investigate"}
 REQUEST_STATUSES = {"unresolved", "resolved", "duplicate", "unclear", "automated"}
-ANALYSIS_CONTRACT_VERSION = 16
+ANALYSIS_CONTRACT_VERSION = 17
 
 
 def passive_api_constraint(requirement: dict) -> bool:
@@ -157,8 +158,7 @@ def validate_request(raw: dict, issue: dict) -> dict:
     catalog = request_catalog(issue)
     requirements = []
     raw_requirements = raw.get("requirements", [])
-    if not isinstance(raw_requirements, list) or not 1 <= len(raw_requirements) <= 30:
-        raise ValueError("Extract at least one source-grounded requirement (maximum 30).")
+    validate_requirement_count(raw_requirements)
     for index, item in enumerate(raw_requirements):
         if not isinstance(item, dict):
             raise ValueError("Each requirement must be an object.")

@@ -69,8 +69,8 @@ class Budget:
         self.save()
 
     def record_output(self, phase, output):
-        # Keep schema-valid attempts for provenance/debugging, including failed
-        # semantic validation. Hidden from polling state, redacted by Store.
+        # Keep completed JSON attempts for provenance/debugging, including failed
+        # wire/semantic validation. Hidden from polling state, redacted by Store.
         self.job["checkpoint"].setdefault("ai_outputs", []).append({"phase": phase,
             "call_number": self.job["ai_calls_used"], "attempt_id": f"{self.job['id']}:{self.job['ai_calls_used']}", "output": output})
         self.save()

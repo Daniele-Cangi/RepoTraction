@@ -13,7 +13,7 @@ from urllib.parse import urlparse
 
 from .analysis import digest, evidence_catalog, resolve_evidence, validate_request, validate_matches, ANALYSIS_CONTRACT_VERSION
 from .config import provider_environment
-from .contracts import schema_for, validate_shape
+from .contracts import schema_for, validate_shape, validate_requirement_count, MAX_REQUEST_REQUIREMENTS
 from .context import build_context, normalize_references
 from .demand import citation_spans, resolve_citations
 
@@ -228,14 +228,21 @@ class Provider:
             parsed = json.loads(content)
             if not isinstance(parsed, dict):
                 raise ValueError("AI must return a JSON object.")
-            if schema:
-                validate_shape(parsed, schema)
         except (KeyError, IndexError, TypeError, AttributeError, json.JSONDecodeError):
             raise CandidateValidationError("AI returned malformed structured output; no partial analysis is accepted.") from None
         except ValueError as exc:
             raise CandidateValidationError(str(exc)) from None
+        # Completed JSON is audit data, not accepted analysis. Keep it redacted
+        # even on wire-bound failures; refusal/incomplete/transport bodies never
+        # reach here. Budget/account exceptions stay outside candidate catches.
         budget.checkpoint()
         budget.record_output(phase, parsed)
+        try:
+            if schema:
+                validate_shape(parsed, schema)
+        except ValueError as exc:
+            raise CandidateValidationError(str(exc)) from None
+        budget.checkpoint()
         return parsed
 
     def interpret_request(self, issue: dict, budget) -> dict:
@@ -257,6 +264,8 @@ class Provider:
             "A CONTIGUOUS original span establishes provenance, not the correctness of your interpretation. "
             "Put paraphrases/inferences in text/inference. Source IDs for disposition must come from sources keys. "
             "Extract atomic independently checkable behaviors, including optional preprocessing, separately from the overall deliverable. "
+            f"Return between 1 and {MAX_REQUEST_REQUIREMENTS} source-grounded requirements, never more. "
+            "Do not silently drop constraints or merge independent behaviors to fit the bound; record any extraction coverage gaps in missing_information. "
             "Do not combine independently requested preprocessing, configuration and lifecycle behaviors into a single all-or-nothing requirement. "
             "Review potential_subrequirements: preserve each named field (include its identifier in text) in its own requirement "
             "when it describes requested behavior. The '?' syntax makes an API argument optional, not necessarily the requested "
@@ -276,6 +285,7 @@ class Provider:
             "do not silently omit them or treat automation as maintainer approval. Reference notes or an already named package are not "
             "evidence of new unresolved adoption demand.", data, budget, data["schema"], "request")
         try:
+            validate_requirement_count(raw.get("requirements"))
             for index, requirement in enumerate(raw["requirements"]):
                 ref = requirement.get("citation_id", "")
                 if ref not in spans:
