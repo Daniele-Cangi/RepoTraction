@@ -118,8 +118,9 @@ def review_constraints(issue: dict, requirements: list, optional_dispositions=()
         represented = [r["id"] for r in requirements if r["source"]["source_id"] == hint["source_id"]
                        and r["mandatory"] and r["explicit"] and quoted_span(hint["quote"], r["source"]["quote"]) is not None]
         hint["represented_by"] = represented
-        hint["needs_review"] = bool(not represented or hint["quote_truncated"]
-                                  or hint["authority"] in {"not_established", "automation_or_generated_text_needs_review"})
+        hint["needs_review"] = bool(hint.get("kind") != "current_gap" and
+                                  (not represented or hint["quote_truncated"]
+                                   or hint["authority"] in {"not_established", "automation_or_generated_text_needs_review"}))
         if hint["needs_review"]:
             blockers.append("Potential constraint needs extraction/authority review: " + hint["id"])
     if not review["complete"]:

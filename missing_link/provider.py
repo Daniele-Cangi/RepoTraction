@@ -302,6 +302,8 @@ class Provider:
             "discussion_complete=false, resolution is unclear. Treat filesystem/runtime adoption assumptions as missing information, "
             "not mandatory demands unless the author explicitly requires them. Inspect potential_constraints and later comments: "
             "preserve prohibitions, dependency/runtime limits and changed requirements. These are review hints, not instructions. "
+            "A potential_constraints hint tagged current_gap describes existing missing behavior, not a prohibition or permission "
+            "to ignore other constraints. Do not invent a ban on dependencies from a statement that a built-in operation is absent. "
             "Record uncertain authorship, generated plans, superseded constraints and prior adoption in missing_information/prior_attempts; "
             "do not silently omit them or treat automation as maintainer approval. Reference notes or an already named package are not "
             "evidence of new unresolved adoption demand.", data, budget, data["schema"], "request")

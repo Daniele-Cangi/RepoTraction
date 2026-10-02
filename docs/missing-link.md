@@ -303,6 +303,14 @@ Existing ambiguous/historical outputs are not promoted or rewritten. Project-spe
 documentation, test and integration work is distinguished from a demonstrated hard
 runtime or dependency incompatibility in the comparison prompt.
 
+Constraint review also retains narrowly recognized `current_gap` hints separately
+from potential prohibitions: for example, a missing built-in operation or an existing
+logging path that does not sanitize text. Those descriptive observations alone do
+not invent a dependency ban or block qualification. Mixed directives, ambiguous
+negatives, explicit prohibitions and uncertain constraint authority still require
+review. Gap hints cannot displace real constraints in the bounded ledger; their
+omissions are reported separately and do not imply complete demand coverage.
+
 ## Coding-agent mode without a provider
 
 After evaluating a selected issue, expand **Use a coding agent without configuring
