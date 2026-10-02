@@ -146,6 +146,11 @@ export function initMissingLink({ api, escapeHtml, demoMode, getDashboard }) {
     <p class="ml-safety">Only public material is acquired. Jobs and feedback stay in this account's local store. Public text cannot authorize actions. Proof packages preserve source provenance; without an isolated runner, generated or acquired code is not executed.</p>`;
 
   function updateRepositoryChoices() {
+    if (state.data?.diagnostic_only === true) {
+      find("mlPublicRepositories").innerHTML = "";
+      updateControls();
+      return;
+    }
     const options = new Set();
     for (const repo of array(getDashboard()?.repositories)) {
       if (repo.private) continue;
@@ -162,23 +167,24 @@ export function initMissingLink({ api, escapeHtml, demoMode, getDashboard }) {
   }
 
   function updateControls() {
+    const readOnly = state.data?.diagnostic_only === true;
     const repo = matchingRepo();
     const hasCapabilities = Boolean(repo?.capabilities?.length);
-    find("mlReviewed").disabled = state.pending || !hasCapabilities;
+    find("mlReviewed").disabled = readOnly || state.pending || !hasCapabilities;
     find("mlReviewed").checked = reviewed();
-    find("mlAnalyzeButton").disabled = state.pending || !selectedRepo();
-    find("mlDiscoverButton").disabled = state.pending || !selectedRepo() || !reviewed();
+    find("mlAnalyzeButton").disabled = readOnly || state.pending || !selectedRepo();
+    find("mlDiscoverButton").disabled = readOnly || state.pending || !selectedRepo() || !reviewed();
     find("mlDiscoverButton").textContent = find("mlIssue").value.trim() ? "Evaluate this request" : "Find relevant requests";
     find("mlAnalyzeHint").textContent = hasCapabilities ? `${repo.capabilities.length} capabilities at ${String(repo.revision || "unpinned").slice(0, 12)} · review below` : "Analyze source, then review capabilities before matching.";
     const configured = Boolean(state.data?.provider?.configured);
-    find("mlUseAI").disabled = state.pending || !configured;
+    find("mlUseAI").disabled = readOnly || state.pending || !configured;
     if (!configured) find("mlUseAI").checked = false;
-    find("mlImportButton").disabled = state.pending || !find("mlImportJob").value || !find("mlImportFile").files?.length;
+    find("mlImportButton").disabled = readOnly || state.pending || !find("mlImportJob").value || !find("mlImportFile").files?.length;
     for (const button of root.querySelectorAll('[data-ml-action="cancel"], [data-ml-action="resume"]')) {
       const job = array(state.data?.jobs).find((item) => item.id === button.dataset.jobId);
       const limit = Number(job?.input?.max_requests || 80);
       const exhausted = job && Number(job.requests_used) >= limit;
-      button.disabled = state.pending || (button.dataset.mlAction === "resume" && exhausted && Number(find("mlMaxRequests").value) <= limit);
+      button.disabled = readOnly || state.pending || (button.dataset.mlAction === "resume" && exhausted && Number(find("mlMaxRequests").value) <= limit);
     }
   }
 
@@ -228,6 +234,10 @@ export function initMissingLink({ api, escapeHtml, demoMode, getDashboard }) {
   }
 
   function renderProvider() {
+    if (state.data?.diagnostic_only === true) {
+      find("mlProvider").innerHTML = '<strong>Identity unverified · diagnostic-only view</strong><p>Only saved identity-stop diagnostics are available. New jobs, changes, AI calls and downloads stay blocked. Recovery never resumes a job automatically.</p>';
+      return;
+    }
     const provider = state.data?.provider || {};
     find("mlProvider").innerHTML = provider.configured
       ? `<strong>Optional AI · ${e(provider.kind || "configured provider")}${provider.model ? ` / ${e(provider.model)}` : ""}</strong><p>${e(provider.remote ? "Remote provider: public source excerpts and discussion context leave your machine only when you opt in." : "Provider configuration is available. Review its endpoint and outbound data before opting in.")}</p><p>${e(provider.outbound_description || "Only selected public source excerpts and issue context are sent; never GitHub credentials.")}</p><small>Configured limits: ${e(text(provider.limits) || "See local provider configuration")}</small>`
@@ -236,6 +246,12 @@ export function initMissingLink({ api, escapeHtml, demoMode, getDashboard }) {
 
   function renderJobs() {
     const jobs = array(state.data?.jobs);
+    if (state.data?.diagnostic_only === true) {
+      find("mlAccount").textContent = `Previously bound account: ${state.account || "unknown"} · identity unverified`;
+      find("mlJobs").innerHTML = jobs.length ? jobs.map((job) => `<article class="ml-job"><div class="ml-card-top"><strong>Saved job ${e(String(job.id).slice(0, 8))}</strong><span class="ml-pill paused">paused</span></div><p class="ml-error">${e(job.error)}</p><small>Saved stop code: ${e(job.error_diagnostic?.code || "unknown")}</small></article>`).join("") : '<div class="data-empty">No saved typed identity-stop diagnostic is available. Full job history is withheld until identity verification succeeds.</div>';
+      find("mlImportJob").innerHTML = '<option value="">Identity verification required</option>';
+      return;
+    }
     find("mlAccount").textContent = state.account ? `Local account: ${state.account}` : "Local account";
     const html = jobs.length ? jobs.map((job) => {
       const status = ["queued", "running", "completed", "cancelled", "failed", "paused"].includes(job.status) ? job.status : "unknown";
@@ -330,6 +346,19 @@ export function initMissingLink({ api, escapeHtml, demoMode, getDashboard }) {
   function render() {
     updateRepositoryChoices();
     renderProvider();
+    if (state.data?.diagnostic_only === true) {
+      // Replace even focused forms: stale full evidence must not survive this
+      // restricted response through replacePreservingDetails().
+      find("mlCapabilityCount").textContent = "Source evidence withheld";
+      find("mlMatchCount").textContent = "Results withheld";
+      for (const id of ["mlCapabilities", "mlMatches"]) {
+        find(id).innerHTML = '<div class="data-empty">Waiting for GitHub account verification. This is not an empty investigation result.</div>';
+      }
+      renderJobs();
+      renderExtensions();
+      updateControls();
+      return;
+    }
     renderCapabilities();
     renderJobs();
     renderMatches();
@@ -340,8 +369,8 @@ export function initMissingLink({ api, escapeHtml, demoMode, getDashboard }) {
   function schedule() {
     clearTimeout(state.timer);
     state.timer = null;
-    if (state.active && array(state.data?.jobs).some((job) => ACTIVE_JOBS.has(job.status))) {
-      state.timer = setTimeout(() => refresh(), 4500);
+    if (state.active && (state.data?.diagnostic_only === true || array(state.data?.jobs).some((job) => ACTIVE_JOBS.has(job.status)))) {
+      state.timer = setTimeout(() => refresh(), state.data?.diagnostic_only === true ? 15000 : 4500);
     }
   }
 
@@ -361,6 +390,8 @@ export function initMissingLink({ api, escapeHtml, demoMode, getDashboard }) {
     state.loading = true;
     try {
       const data = await api("/api/missing-link");
+      const wasDiagnostic = state.data?.diagnostic_only === true;
+      if (data.diagnostic_only === true && !wasDiagnostic) clearAccountState();
       const account = text(data.account?.login || data.account);
       if (state.account && state.account !== account) {
         clearAccountState();
@@ -369,6 +400,8 @@ export function initMissingLink({ api, escapeHtml, demoMode, getDashboard }) {
       state.account = account;
       state.data = data;
       render();
+      if (data.diagnostic_only === true) note(data.identity_error || "GitHub identity is unverified. Only saved stop diagnostics are available.", true);
+      else if (wasDiagnostic) note("GitHub identity verified again. Saved jobs remain stopped until you explicitly resume them.");
     } catch (error) {
       note(error.message, true);
     } finally {
@@ -378,6 +411,10 @@ export function initMissingLink({ api, escapeHtml, demoMode, getDashboard }) {
   }
 
   async function post(path, body, successMessage) {
+    if (state.data?.diagnostic_only === true) {
+      note("GitHub identity is unverified. Changes and new jobs are blocked.", true);
+      return;
+    }
     if (state.pending) return;
     state.pending = true;
     note("");

@@ -111,6 +111,16 @@ def missing_link_service() -> Any:
         return _MISSING_LINK_SERVICES[key]
 
 
+def missing_link_state() -> Any:
+    from missing_link.polling import poll_state
+
+    return poll_state(
+        verify=verify_active_account, get_service=missing_link_service,
+        account=ACCOUNT_LOGIN, database=DB_PATH,
+        services=_MISSING_LINK_SERVICES, binding_lock=_MISSING_LINK_LOCK,
+    )
+
+
 def validate_local_host(host: str) -> str:
     """Reject non-loopback bind addresses; RepoTraction has no remote auth layer."""
     if host.casefold() == "localhost":
@@ -2557,6 +2567,10 @@ class DashboardHandler(BaseHTTPRequestHandler):
         parsed = urlparse(self.path)
         query = parse_qs(parsed.query)
 
+        if parsed.path == "/api/missing-link":
+            self.handle_api(missing_link_state, github_error_status=HTTPStatus.CONFLICT)
+            return
+
         if parsed.path.startswith("/api/"):
             try:
                 verify_active_account()
@@ -2568,9 +2582,6 @@ class DashboardHandler(BaseHTTPRequestHandler):
             self.send_json(
                 {"ok": True, "app": APP_NAME, "account": get_account_login()}
             )
-            return
-        if parsed.path == "/api/missing-link":
-            self.handle_api(lambda: missing_link_service().state())
             return
         if parsed.path in {"/api/missing-link/export", "/api/missing-link/package", "/api/missing-link/context"}:
             try:
@@ -2731,10 +2742,12 @@ class DashboardHandler(BaseHTTPRequestHandler):
             {"error": "Endpoint not found."}, status=HTTPStatus.NOT_FOUND
         )
 
-    def handle_api(self, callback: Any) -> None:
+    def handle_api(self, callback: Any, *, github_error_status=HTTPStatus.BAD_GATEWAY) -> None:
         try:
             self.send_json(callback())
-        except (GitHubCLIError, ValueError) as exc:
+        except GitHubCLIError as exc:
+            self.send_json({"error": str(exc)}, status=github_error_status)
+        except ValueError as exc:
             self.send_json(
                 {"error": str(exc)}, status=HTTPStatus.BAD_GATEWAY
             )
