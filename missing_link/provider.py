@@ -227,8 +227,6 @@ class Provider:
                     raise ValueError("AI response is refused or incomplete; no partial analysis is accepted.")
                 content = choice["message"]["content"]
             parsed = json.loads(content)
-            if not isinstance(parsed, dict):
-                raise ValueError("AI must return a JSON object.")
         except (KeyError, IndexError, TypeError, AttributeError, json.JSONDecodeError):
             raise CandidateValidationError("AI returned malformed structured output; no partial analysis is accepted.") from None
         except ValueError as exc:
@@ -239,6 +237,8 @@ class Provider:
         budget.checkpoint()
         budget.record_output(phase, parsed)
         try:
+            if not isinstance(parsed, dict):
+                raise ValueError("AI must return a JSON object.")
             if schema:
                 validate_shape(parsed, schema)
         except ValueError as exc:
