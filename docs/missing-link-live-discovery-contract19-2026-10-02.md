@@ -75,4 +75,97 @@ entry work and new parser features remain deferred.
 
 ## Results
 
-Pending. No results or improved-discovery claims were written before the cohort.
+**Interrupted on the first source; the 13-source evaluation is not complete.**
+Protocol commit `35d47ec` was pushed before any paid job. All 13 inputs passed
+metadata-only preflight. The initial More Itertools job
+`0e9003dd7b314f1cbcebf6b39c6dcf2a` stopped at 17:58:47 UTC on 2 October with
+`status=paused`, during comparison of its second selected issue. The error was
+`Active GitHub account could not be verified. Switch back or restart for separate history.`
+No paid retry, resume, replacement input, import or isolation run followed. The
+remaining 12 sources were not started, and none of the 13 jobs completed.
+
+### Interruption and accounting
+
+Read-only checks immediately afterward confirmed GitHub CLI's active keyring
+account was still `Daniele-Cangi` with `state=success`; `gh api user` returned the
+same login. Core API capacity was 4,671/5,000 remaining, and search capacity was
+30/30. This is not evidence of an expired token, a changed account or exhausted
+rate limits. The precise probe failure/timeout is not captured: the worker stores
+a generic account-verification error. Do not weaken the identity safety check or
+claim a definitive upstream root cause without further evidence.
+
+| Measurement | Observed value |
+| --- | --- |
+| Initial source jobs started / completed / paused | 1 / 0 / 1 |
+| Selected issues / completed issue comparisons | 3 / 1 |
+| Retained capability-to-issue comparisons | 2 |
+| Application AI reservations | 5 |
+| Completed response traces, reported usage entries, retained JSON outputs | 4 each |
+| Reservation without a completed response receipt | 1 |
+| GitHub acquisition/search requests charged to the job | 24 |
+| Additional conservative reserved cost | USD 0.0874559 |
+| Token estimate for the four known responses only | USD 0.0183797 |
+| Cumulative reservations / reserved cost | 256 / USD 3.9319899 |
+| Remaining conservative allowance under USD 10 | USD 6.0680101 |
+
+The fifth attempt has a reservation but no completed trace, usage or JSON output.
+It is not certified as a fifth completed model response, a zero-cost request or
+a refundable reservation. Its provider-side outcome/cost is unknown. All original
+charges remain counted, and no allowance is reset. The maximum request size among
+the four completed traces is 160,324 bytes; the unknown attempt is not assigned
+an invented trace size. Request extraction returned 10 and 30 requirements;
+the latter is at the bound and still needs a coverage audit.
+
+### Independent source inspection of the saved comparison
+
+Autonomous retrieval selected [ml-pipes issue 42](https://github.com/trained-by-humans/ml-pipes/issues/42),
+which requests a pipeline chunking operator with list-valued groups and explicit
+validation, documentation and test work. Neither the issue nor a tailored query
+was supplied. All three selected issue URLs also appeared in the earlier cohort;
+there is no new-target or novelty claim from this interrupted sample.
+
+- **Useful partial contribution:** the pinned
+  [`chunked` implementation](https://github.com/more-itertools/more-itertools/blob/1ea82a711c69f590054987b5cb194157f8ce8ac4/more_itertools/more.py#L215-L250)
+  returns an iterator yielding lists, retains a short final list by default and
+  explicitly rejects negative sizes. These source claims are supported. The
+  normalized match keeps two satisfied behaviors and three implementation-cited
+  partial checks; target operator registration, validation, docs and project tests
+  are not presented as existing implementation. It is `investigate / needs_review`,
+  not a qualified external lead. A missing documentation example is now unknown
+  new work rather than the hard incompatibility assigned in the earlier answer.
+- **Defensible as-is rejection:** the pinned
+  [`grouper` implementation](https://github.com/more-itertools/more-itertools/blob/1ea82a711c69f590054987b5cb194157f8ce8ac4/more_itertools/recipes.py#L351-L389)
+  yields tuples and fills, drops or rejects incomplete groups instead of preserving
+  a short list. It remains rejected for that requested output shape/edge behavior.
+  This is rejection of the existing operation as-is, not proof that no newly written
+  adapter could ever work. Its lazy grouping contribution is retained separately.
+- **Remaining questionable partial credit:** `grouper` check `r9` credits rejection
+  of an invalid `incomplete` option toward the request's invalid-*size* tests.
+  Those are different properties; the cited source does not establish size validation
+  or the required tests. This is a semantic over-credit in the model answer, despite
+  an overall correct rejection and valid citations. It needs further evaluation,
+  not a parser expansion or a claim that every partial label is trustworthy.
+- **Safety normalization still holds:** proposed partial credit backed only by
+  test references becomes `not_demonstrated`. Test presence is not executed
+  coverage. Generated example files are retained as unexecuted proposals only.
+
+The earlier and current answers split the request into nine and ten requirements,
+respectively; do not compare raw check counts as a measured improvement rate. One
+completed issue comparison cannot establish cohort-level gains, public-API recall
+for python-dotenv, non-demand handling, extraction coverage or discovery accuracy.
+
+### Persistence and next step
+
+Read-only integrity checks before and after a server restart confirm both pinned
+HTTP exports are identical to their saved reports, four completed JSON outputs
+remain retained, and all earlier job payloads, model matches, pinned snapshots
+and 13 frozen reports remain byte-identical. The job stays paused after restart:
+there is no implicit resume. The server remains available on loopback port 8765.
+Browser verification found meaningful Missing Link content and no captured console
+errors; missing `agent-browser` CLI was handled with the in-app browser.
+
+Neither saved match is eligible for follow-up execution. No isolated proof is
+forced from this incomplete sample. Explicit approval is needed to resume the
+checkpoint/retry the unreceipted comparison and then start the remaining 12 inputs,
+while retaining this interrupted segment and its charges separately. No product
+code, prompts, provider settings or selection policy changed during the run.

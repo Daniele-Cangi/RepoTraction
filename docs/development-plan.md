@@ -112,6 +112,20 @@ reservations, USD 3.844534 allowance total, frozen analyses and account history
 are unchanged. These results establish offline contracts/context feasibility, not
 live-model discovery quality; fresh verification remains the next priority.
 
+The [contract-19 live attempt](missing-link-live-discovery-contract19-2026-10-02.md)
+froze protocol `35d47ec` and started the first of the same 13 source inputs. It
+stopped on an account-verification failure during comparison, with five reserved
+attempts but only four completed response receipts. The account was subsequently
+verified unchanged and rate limits were not exhausted; the exact probe failure
+is not recorded. No automatic retry occurred. Reservations now total USD 3.9319899
+across 256 entries; the unchanged USD 10 cap leaves USD 6.0680101.
+Two saved comparisons show useful `chunked` support and an as-is `grouper`
+rejection, but invalid-option versus invalid-size partial credit remains dubious.
+Pinned exports and original history survive restart unchanged. Neither result
+qualifies for isolated execution. The 12 remaining inputs and full model-quality
+verification are still pending explicit continuation; no new feature or parser
+extension replaces the interrupted test.
+
 Keep structural extractions separate. UI/key-entry features and Go/Rust expansion
 remain deferred until the core discovery outcomes are adequately validated.
 

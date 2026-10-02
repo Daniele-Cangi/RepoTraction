@@ -341,6 +341,16 @@ USD 3.844534 under the same USD 10 ceiling. This tests context feasibility and
 offline contracts, not improved live-model accuracy; fresh Luna verification is
 still pending. Frozen contract-16 results remain unchanged.
 
+The subsequent [contract-19 live attempt](missing-link-live-discovery-contract19-2026-10-02.md)
+was interrupted on its first source by an account-verification failure. Four
+completed model responses and two pinned comparisons are retained; a fifth
+reservation has no completed response receipt and remains charged conservatively.
+The full 13-source retest is not complete. Current cumulative reservations are
+USD 3.9319899 across 256 entries under the same USD 10 cap. Useful partial support
+and a defensible as-is rejection do not establish a qualified connection; one
+invalid-option/invalid-size partial credit is semantically questionable. No model
+retry or isolated execution was forced, and earlier results remain unchanged.
+
 ## Coding-agent mode without a provider
 
 After evaluating a selected issue, expand **Use a coding agent without configuring
