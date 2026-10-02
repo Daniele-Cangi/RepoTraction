@@ -106,3 +106,44 @@ in place. Contract identity changes normally mark those results historical.
 Further paid discovery/resume requires an explicitly authorized frozen continuation
 under the existing cumulative USD 10 allowance. UI/key-entry, new languages and
 broader parser/resolver coverage remain deferred. No merge is performed here.
+
+## PR review follow-up: selected-capability ownership (contract 21)
+
+The [Codex P2 finding](https://github.com/Daniele-Cangi/RepoTraction/pull/36#discussion_r4169349099)
+was reproduced in provider normalization and coding-agent imports: a `trim`
+match citing another capability's `other.py` implementation retained partial
+credit, including whole-file, line-span and `c1:0` aliases. It did not become an
+eligible lead, but its partial attribution was incorrect.
+
+The narrow correction now requires every partial anchor's exact path to belong
+to the **selected capability's structural evidence or definition paths**, as well
+as to be implementation-role evidence cited by the same check. Mixed own/foreign
+partial anchors fail closed; model interpretation references cannot grant extra
+ownership. Missing ownership paths and owned docs/tests/types/infrastructure also
+cannot retain partial credit. Valid selected evidence and a separately pinned
+implementation definition remain accepted. Other compatibility gates are unchanged.
+
+This is path-level provenance, not universal dependency closure or semantic proof
+for separate operations sharing one file. The wire shape and budget limits are
+unchanged. Contract **21** produces distinct new result identities and uses the
+existing historical-result mechanism; stored contract-20 results are not rewritten
+or reinterpreted, and no job is resumed or allowance reset.
+
+Seven new regressions cover imports and mocked provider output, positive ownership,
+foreign/mixed anchors, model-citation scope, missing paths, source roles and retained
+contract-20 history. The focused partial-support suite passes **25 tests**. Read-only
+replay with the updated instruction keeps Zod's exact failed comparison at
+**178,658 / 180,000 bytes**, all 27 requirements intact, with implementation and
+explicit omissions preserved. Babel's 10 later-comment citations are unchanged.
+No HTTP request, paid reservation or acquired-code execution occurs.
+
+The complete local suite passes **807 tests** (Windows, Python 3.13); source
+startup options also pass. This adds seven tests to the original 800-test
+contract-20 verification above. No server restart or paid discovery is needed
+for this correction's offline verification.
+
+Both retained cohorts also pass the updated no-spend transport audit: **132
+contexts per API/format configuration** (21 capability, 59 request, 52 comparison),
+all four chat/Responses × JSON/schema combinations, maximum **179,738 / 180,000
+bytes**. Stored job payloads and the cumulative reservation ledger are identical
+before/after replay. These are retained inputs, not fresh model responses.

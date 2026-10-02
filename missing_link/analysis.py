@@ -20,7 +20,7 @@ from .contributions import normalize_support, partial_reviews
 
 CLASSIFICATIONS = {"direct", "adapter", "extraction", "rejected", "investigate"}
 REQUEST_STATUSES = {"unresolved", "resolved", "duplicate", "unclear", "automated", NON_DEMAND_STATUS}
-ANALYSIS_CONTRACT_VERSION = 20
+ANALYSIS_CONTRACT_VERSION = 21
 
 
 def passive_api_constraint(requirement: dict) -> bool:
@@ -275,7 +275,7 @@ def validate_matches(raw_matches: list, repository: dict, issue: dict, request: 
                 for reference in review["source_ids"]:
                     resolve_evidence(reference, catalog)
             status, contribution = normalize_support(status, contribution, evidence,
-                passive=passive_api_constraint(requirement), reason=reason if "reason" in item else "",
+                capability=capability, passive=passive_api_constraint(requirement), reason=reason if "reason" in item else "",
                 runtime_entrypoints=runtime_entrypoints, partial=review)
             checks.append({"requirement_id": rid, "status": status, "contribution": contribution,
                 "reason": reason, "evidence": evidence, **({"partial_support": review} if review else {})})

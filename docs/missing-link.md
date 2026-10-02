@@ -365,7 +365,7 @@ API recall remain unverified in this incomplete sample.
 
 ## Coding-agent mode without a provider
 
-### Contract 20: post-retest corrections
+### Contracts 20–21: post-retest corrections
 
 The [contract-20 correction report](missing-link-contract20-corrections-2026-10-02.md)
 documents the three offline fixes following the incomplete live cohort. Context
@@ -380,13 +380,19 @@ add a review with `requirement_id`, `basis`, `operation`, `requirement_part`,
 `remaining_work` and `source_ids`. `basis` is `candidate_implementation`,
 `target_context`, `analogy` or `not_established`. Retaining partial credit requires
 nonempty operation/request-part/remaining-work and only candidate implementation
-anchors also cited by that check. Other bases and missing reviews cannot create
-partial support. The review is exported with its normalized check. This validates
+anchors also cited by that check. Contract **21** additionally binds each anchor's
+exact repository path to the selected capability's structural evidence or
+definition paths. An unrelated capability's implementation or model interpretation
+citation cannot expand that scope. Source-role exclusions still apply, and absent
+ownership paths fail closed. This is path-level provenance, not dependency-closure
+resolution or semantic proof within a shared file. Other bases and missing reviews
+cannot create partial support. The review is exported with its normalized check. This validates
 attribution/provenance, not semantic truth; real model-quality verification remains
 pending. Stored older analyses are unchanged and remain historical.
 
-800 local tests pass. Exact acquired-context replay keeps Zod's 27 requirements
-within the byte limit and makes Babel's later feedback request citable, without
+807 local tests pass, including seven selected-capability regressions. Exact
+acquired-context replay keeps Zod's 27 requirements within the byte limit and
+makes Babel's later feedback request citable, without
 paid calls, imports or host execution of acquired code.
 
 ### Handoff and import

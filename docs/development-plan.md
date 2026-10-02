@@ -168,6 +168,18 @@ not fresh Luna judgments or proof of semantic truth. Historical data and the
 USD 4.6737541 cumulative reservation total are preserved. Paid continuation is
 still pending explicit direction.
 
+The PR review found one concrete attribution gap: any repository implementation
+could receive partial credit for another selected capability. Contract **21**
+binds every partial anchor to the selected capability's exact structural evidence
+or definition paths, in addition to implementation role and check membership.
+Model interpretation citations cannot broaden ownership. Missing ownership paths
+fail closed; valid selected definitions/wrappers retain partial support. This is a
+narrow contract correction, not expanded parser or dependency-closure coverage.
+Older contract-20 results remain stored unchanged and are marked historical by
+the existing freshness mechanism; no budget reset or implicit retry is introduced.
+All **807 local tests** pass, including seven new selected-capability regressions;
+the updated retained Zod transport remains below 180,000 bytes with all requirements.
+
 Keep structural extractions separate. UI/key-entry features and Go/Rust expansion
 remain deferred until the core discovery outcomes are adequately validated.
 

@@ -32,7 +32,7 @@ def partial_reviews(values, requirement_ids):
     return reviews
 
 
-def normalize_support(status, contribution, evidence, *, passive, reason, runtime_entrypoints=(), partial=None):
+def normalize_support(status, contribution, evidence, *, capability, passive, reason, runtime_entrypoints=(), partial=None):
     """Provenance gates, not semantic proof or permission to run/adopt source code."""
     if status not in {"satisfied", "incompatible", "undetermined"}:
         raise ValueError("Unknown requirement verdict.")
@@ -48,9 +48,17 @@ def normalize_support(status, contribution, evidence, *, passive, reason, runtim
         if status == "satisfied":
             status = "undetermined"
         anchors = {entry.get("source_id"): entry for entry in evidence}
+        # Repository ownership is not ownership by this selected capability.
+        # Only its pinned structural evidence/definition paths grant scope;
+        # model interpretation citations cannot expand it to other subsystems.
+        candidate_paths = {entry["path"] for entry in capability.get("evidence", []) if entry.get("path")}
+        definition_path = capability.get("definition", {}).get("path")
+        if definition_path:
+            candidate_paths.add(definition_path)
         attributed = bool(partial and partial["basis"] == "candidate_implementation"
             and all(partial[key] for key in ("operation", "requirement_part", "remaining_work"))
             and partial["source_ids"] and all(ref in anchors and anchors[ref].get("path")
+                and anchors[ref]["path"] in candidate_paths
                 and source_role(anchors[ref]["path"], runtime_entrypoints=runtime_entrypoints) == "implementation"
                 for ref in partial["source_ids"]))
         return status, ("partial_behavior" if status == "undetermined" and implemented and attributed and not passive and reason
