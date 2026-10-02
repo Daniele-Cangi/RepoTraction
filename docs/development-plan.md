@@ -9,7 +9,7 @@ in [AGENTS.md](../AGENTS.md) applies to future work.
 ## Modularization sequence
 
 Product validation currently takes priority over the next extraction and interface
-features. The [fresh live Luna evaluation](missing-link-live-discovery-2026-10-01.md)
+features. The [1 October live Luna evaluation](missing-link-live-discovery-2026-10-01.md)
 ran eight repository-only inputs with 52 real calls, preserving the user's existing
 allowance while raising its cumulative ceiling to $10. It found no qualified
 external lead and exposed quotation-generation failures, undercounted optional
@@ -21,19 +21,52 @@ decisions for unrelated context, bounded static JS/TS export sampling, actual
 implementation context before later discussion, preflight before paid comparisons,
 and fragmented-name/reference-only retrieval cleanup. Exact acquired npm `bin`
 targets can override only the `scripts/`/`tools/` directory role heuristic, without
-promoting neighboring scripts, tests, mocks or build helpers. Implementation and offline
-regressions are separate from the frozen live experiment; they do not establish
-a higher real-model success rate. Keep structural extractions separate and verify
-discovery quality with a new frozen repository-only cohort after review/merge.
-No paid calls or historical-analysis migration are part of these fixes. UI features
-and Go/Rust expansion remain deferred.
+promoting neighboring scripts, tests, mocks or build helpers. Implementation and
+offline regressions were separate from the frozen live experiments; the fixes
+themselves made no paid calls or historical-analysis migrations.
+
+After PR #31 merged, the [2 October contract-16 retest](missing-link-live-discovery-2026-10-02.md)
+ran the same eight source inputs plus five new, prespecified inputs, through the
+real API without supplied issues, custom queries, imports or paid retries. It
+made 78 calls, selected 36 distinct issues and saved 57 comparisons. All 57 exports
+remain identical after server restart, traces/usage/reservations reconcile, and
+697 offline tests pass. The cohort reserves $1.2226658 (token estimate $0.3163063),
+bringing the unchanged $10 cumulative allowance to $3.844534 reserved.
+
+No quotation-validation or missing-implementation-context failures occurred in
+this sample, but no qualified new external lead is demonstrated. Useful partial
+mechanisms and sound rejections remain distinct from complete request fulfillment.
+Most Group A issues changed, so this is not causal proof of higher model accuracy.
+Isolation was not forced: useful candidates were rejected whole matches, unresolved
+or not reproducible with the current Python/WASI runner. Product code and provider
+settings stayed frozen throughout this evaluation.
+
+Next validation work, in narrow modules rather than `app.py`:
+
+- [ ] Align the existing 1..30 request requirement bound across provider schema,
+  prompt and local validation; distinguish underflow/overflow diagnostics. Two
+  live outputs contained 35 and 33 requirements. Add offline boundary fixtures
+  before explicitly scoped paid verification; no truncation, limit increase,
+  provenance relaxation or automatic paid retries.
+- [ ] Represent an explicitly source-grounded non-demand/reference outcome without
+  inventing requirements or compatibility comparisons. A model correctly returned
+  zero requirements for an article, but local validation rejected it; another
+  article became seven inferred mandatory outline criteria. Keep strict validation
+  for actual requests and preserve charged traces on empty/non-demand outcomes.
+- [ ] Separately investigate contribution granularity, gap-versus-prohibition
+  hints and bounded source/retrieval ranking using retained fixtures. These are
+  recall/qualification questions, not authorization for universal parser expansion.
+
+Keep structural extractions separate. UI/key-entry features and Go/Rust expansion
+remain deferred until the core discovery outcomes are adequately validated.
 
 The prior contract-14 offline replay of the retained eight-repository cohort packed
 all 8 enrichment, 24 extraction and 20 comparison inputs within the existing
-180,000-byte transport bound (maximum 164,598 bytes). It stopped at a fixture
-reservation before HTTP, without calling the model or rewriting saved results.
-This checked context feasibility, not discovery accuracy; it has not been rerun
-under contract 16.
+180,000-byte transport bound (maximum 164,598 bytes). The contract-16 no-spend
+replay repeated all 8 enrichment, 24 extraction and 20 comparison inputs, with a
+maximum of 164,617 bytes. Both stopped at a fixture reservation before HTTP,
+without calling the model or rewriting saved results. These checked context
+feasibility, not discovery accuracy or full repository coverage.
 
 - [ ] Establish characterization tests for existing public behavior and map
   dependencies, including test patches of globals and account-specific state.
