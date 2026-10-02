@@ -279,6 +279,11 @@ invalid outputs; failed extraction is not retried or refunded automatically.
 This includes valid JSON arrays/scalars before rejecting their top-level shape;
 successful analysis still requires an object. Incomplete, refused or undecodable
 responses are not recorded as completed JSON output.
+If cancellation arrives while a response is in flight, already received completed
+JSON is saved to the original account/job's private audit before stopping; it is
+not validated or accepted as analysis after cancellation. This also applies to a
+received terminal streaming response. Partial streams still stop without reading
+later frames or treating partial deltas as completed output.
 Contract 18 does not rewrite historical results or validate fresh real-model
 behavior by itself.
 

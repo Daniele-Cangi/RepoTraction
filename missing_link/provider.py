@@ -177,15 +177,27 @@ class Provider:
                             raise ResponseError("AI response size exceeded.")
                         if time.monotonic() > deadline:
                             raise ResponseError("AI stream time limit exceeded; partial analysis is discarded.")
-                        budget.checkpoint()
                         if not line.startswith(b"data: "):
+                            budget.checkpoint()
                             continue
-                        event = json.loads(line[6:])
-                        if not isinstance(event, dict):
-                            raise ResponseError("AI stream event must be an object.")
-                        if event.get("type") in {"response.completed", "response.failed", "response.incomplete"}:
-                            result = event["response"]
-                            break
+                        try:
+                            event = json.loads(line[6:])
+                            if not isinstance(event, dict):
+                                raise ResponseError("AI stream event must be an object.")
+                            if event.get("type") in {"response.completed", "response.failed", "response.incomplete"}:
+                                # A received terminal response can be audited before
+                                # stopping for cancellation. Partial streams still
+                                # stop at each nonterminal frame.
+                                result = event["response"]
+                                if not isinstance(result, dict):
+                                    budget.checkpoint()
+                                break
+                        except (KeyError, ValueError, TypeError):
+                            # Malformed/partial frames must not bypass an already
+                            # requested cancellation just because parsing is first.
+                            budget.checkpoint()
+                            raise
+                        budget.checkpoint()
                     if result is None:
                         raise ResponseError("AI stream ended without a complete response; partial analysis is discarded.")
                 else:
@@ -234,8 +246,10 @@ class Provider:
         # Completed JSON is audit data, not accepted analysis. Keep it redacted
         # even on wire-bound failures; refusal/incomplete/transport bodies never
         # reach here. Budget/account exceptions stay outside candidate catches.
-        budget.checkpoint()
         budget.record_output(phase, parsed)
+        # Save completed output to the captured account/job even if cancellation
+        # arrived in flight; never accept/process it after this checkpoint fails.
+        budget.checkpoint()
         try:
             if not isinstance(parsed, dict):
                 raise ValueError("AI must return a JSON object.")
