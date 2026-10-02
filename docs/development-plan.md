@@ -219,6 +219,14 @@ visible. Continue the other 12 prescribed sources before generalizing quality or
 claiming new discovery. The diagnostic/polling fixes remain deferred as requested;
 this successful repeat alone does not prove the VPN caused the first failure.
 
+The user authorized the [remaining 12-source continuation](missing-link-contract21-continuation-2026-10-02.md).
+Keep the same code, model, limits and serial repository-only selection; do not
+rerun the successful source or resume old jobs. Starting baseline is 310
+reservations / USD 4.8190698 under the existing cumulative USD 10 ceiling.
+The maximum 96 new calls reserve USD 2.3236608. Preserve failures and stop on
+another non-completed paid/transport/account/budget or observer failure, without
+automatic paid retry or changing limits mid-sample. Results are pending.
+
 The prior contract-14 offline replay of the retained eight-repository cohort packed
 all 8 enrichment, 24 extraction and 20 comparison inputs within the existing
 180,000-byte transport bound (maximum 164,598 bytes). The contract-16 no-spend
