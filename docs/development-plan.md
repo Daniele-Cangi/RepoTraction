@@ -660,8 +660,10 @@ force an isolated demonstration from a merely partial primitive.
   not complete the five-input gate or establish improved live discovery accuracy.
 - [x] Probe bounded CLI identity-check latency without spending. Three checks
   succeeded in 0.728–0.760 seconds; the historical timeout's cause remains unknown.
-  Fix the reproduced success-cache timestamp defect without increasing timeout,
-  weakening isolation, resuming jobs or refunding unknown attempts.
+  Fix the reproduced success-cache timestamp defect and invalidate cached success
+  before actual verification, so a failed forced check cannot unlock the next
+  normal request. Do not increase timeout, weaken isolation, resume jobs or
+  refund unknown attempts.
 - [x] Guide class-level interpretations to available method IDs/body evidence and
   explain discarded contribution claims; contract 24 retains the strict gate.
   The retained-output replay leaves all six verdicts/contribution kinds unchanged.

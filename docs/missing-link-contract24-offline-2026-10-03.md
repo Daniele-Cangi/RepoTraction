@@ -21,8 +21,19 @@ The successful cache timestamp previously preceded the subprocess. A six-second
 successful check therefore already exceeded the five-second cache interval at
 return, inviting another immediate check. The localized correction timestamps
 success at completion, under the existing lock. Offline fixtures reproduce that
-timing and verify expiry at five seconds after completion, forced checks and
-unchanged last-success time after a failed forced check.
+timing and verify expiry at five seconds after completion and forced checks.
+
+The [targeted review](https://github.com/Daniele-Cangi/RepoTraction/pull/47#discussion_r4173936544)
+then found a real fail-closed gap: a failed forced verification left a fresh
+success cache usable by the next ordinary request. Before every actual CLI
+verification, the correction now invalidates the timestamp under the same lock;
+only a new verified success restores it. This uses an always-expired marker,
+not zero, so a failure cannot appear fresh near the monotonic clock's origin.
+Fixtures cover immediate ordinary requests after timeout/account-switch,
+ambiguous/malformed/unavailable identity and CLI failures, successful recovery,
+slow success followed by timeout, and a waiting concurrent ordinary request.
+The earlier fixture preserving the timestamp on failure was incorrect and is
+replaced by the next-request failure/recovery assertions.
 
 The ten-second subprocess bound, five-second success cache, fail-closed identity
 validation, ambiguous-account rejection and explicit resume requirement remain.
@@ -100,7 +111,9 @@ are identical before/after the replay. Freezegun and Babel remain paused, no job
 is queued/running, and unknown reservations are not refunded. The existing live
 server is not restarted onto unreviewed code.
 
-The final full Windows offline suite passes **935 tests** (15 new regressions).
+The initial full Windows offline suite passed **935 tests** (15 new regressions).
+The post-review full suite passes **938 tests**: three additional regressions and
+two corrected failure-cache fixtures, including next-request and concurrent checks.
 Source CLI and investigation-driver `--help` startup checks also pass. Focused
 identity, attribution, packaging, historical-freshness and service checks pass.
 No universal parser coverage, UI/key entry or forced integration is included. After targeted

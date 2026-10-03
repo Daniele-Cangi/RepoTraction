@@ -2,6 +2,7 @@
 import json
 import subprocess
 import sys
+import threading
 import unittest
 from pathlib import Path
 from unittest import mock
@@ -86,7 +87,7 @@ class IdentityTests(unittest.TestCase):
         self.assertIs(app.ActiveAccountChangedError, ActiveAccountChangedError)
         self.assertIs(app.GitHubRateLimitError, GitHubRateLimitError)
 
-    def test_failed_check_never_advances_success_cache_or_bypasses_force(self):
+    def test_failed_forced_check_invalidates_success_cache_for_the_next_normal_check(self):
         with mock.patch.object(app, "ACCOUNT_LOGIN", "alice"), \
              mock.patch.object(app, "_ACCOUNT_CHECKED_AT", 100), \
              mock.patch.object(app.time, "monotonic", return_value=102), \
@@ -95,11 +96,10 @@ class IdentityTests(unittest.TestCase):
             runner.assert_not_called()
             with self.assertRaises(GitHubAccountVerificationError):
                 app.verify_active_account(force=True)
-            self.assertEqual(app._ACCOUNT_CHECKED_AT, 100)
-            with mock.patch.object(app.time, "monotonic", return_value=110):
-                with self.assertRaises(GitHubAccountVerificationError):
-                    app.verify_active_account()
-            self.assertEqual(app._ACCOUNT_CHECKED_AT, 100)
+            self.assertEqual(app._ACCOUNT_CHECKED_AT, float("-inf"))
+            with self.assertRaises(GitHubAccountVerificationError):
+                app.verify_active_account()
+            self.assertEqual(app._ACCOUNT_CHECKED_AT, float("-inf"))
             self.assertEqual(runner.call_count, 2)
 
     def test_app_only_caches_a_successful_check(self):
@@ -131,15 +131,89 @@ class IdentityTests(unittest.TestCase):
                 self.assertEqual(runner.call_count, 2)
                 self.assertEqual(app._ACCOUNT_CHECKED_AT, 117)
 
-    def test_forced_timeout_after_slow_success_keeps_last_verified_timestamp(self):
+    def test_forced_timeout_after_slow_success_invalidates_fresh_timestamp(self):
         with mock.patch.object(app, "ACCOUNT_LOGIN", "alice"), \
              mock.patch.object(app, "_ACCOUNT_CHECKED_AT", 0), \
-             mock.patch.object(app.time, "monotonic", side_effect=[100, 106, 106]), \
-             mock.patch.object(app.subprocess, "run", side_effect=[response(), subprocess.TimeoutExpired("gh", 10)]):
+             mock.patch.object(app.time, "monotonic", side_effect=[100, 106, 106, 106]), \
+             mock.patch.object(app.subprocess, "run", side_effect=[response(), subprocess.TimeoutExpired("gh", 10),
+                 subprocess.TimeoutExpired("gh", 10)]) as runner:
             self.assertEqual(app.verify_active_account(), "alice")
             with self.assertRaises(GitHubAccountVerificationError):
                 app.verify_active_account(force=True)
-            self.assertEqual(app._ACCOUNT_CHECKED_AT, 106)
+            self.assertEqual(app._ACCOUNT_CHECKED_AT, float("-inf"))
+            with self.assertRaises(GitHubAccountVerificationError):
+                app.verify_active_account()
+            self.assertEqual(runner.call_count, 3)
+
+    def test_every_failed_forced_verification_requires_a_new_success_before_caching(self):
+        changed = response([{"active": True, "state": "success", "login": "bob"}])
+        ambiguous = response([{"active": True, "state": "success", "login": name} for name in ("alice", "bob")])
+        failures = [subprocess.TimeoutExpired("gh", 10), changed, ambiguous, response([]),
+            subprocess.CompletedProcess([], 0, "not JSON", ""),
+            subprocess.CompletedProcess([], 1, "", "private-fixture"),
+            PermissionError("private-fixture"), FileNotFoundError("private-fixture")]
+        for failure in failures:
+            with self.subTest(failure=type(failure).__name__), \
+                 mock.patch.object(app, "ACCOUNT_LOGIN", "alice"), \
+                 mock.patch.object(app, "_ACCOUNT_CHECKED_AT", 100), \
+                 mock.patch.object(app.time, "monotonic", return_value=102), \
+                 mock.patch.object(app.subprocess, "run", side_effect=[failure, failure, response()]) as runner:
+                for forced in (True, False):
+                    with self.assertRaises(GitHubCLIError):
+                        app.verify_active_account(force=forced)
+                    self.assertEqual(app._ACCOUNT_CHECKED_AT, float("-inf"))
+                    self.assertEqual(app.ACCOUNT_LOGIN, "alice")
+                self.assertEqual(app.verify_active_account(), "alice")
+                self.assertEqual(app._ACCOUNT_CHECKED_AT, 102)
+                self.assertEqual(app.verify_active_account(), "alice")
+                self.assertEqual(runner.call_count, 3)
+
+    def test_invalidated_cache_cannot_look_fresh_near_monotonic_clock_origin(self):
+        with mock.patch.object(app, "ACCOUNT_LOGIN", "alice"), \
+             mock.patch.object(app, "_ACCOUNT_CHECKED_AT", 0.1), \
+             mock.patch.object(app.time, "monotonic", return_value=0.2), \
+             mock.patch.object(app.subprocess, "run", side_effect=subprocess.TimeoutExpired("gh", 10)) as runner:
+            with self.assertRaises(GitHubAccountVerificationError):
+                app.verify_active_account(force=True)
+            with self.assertRaises(GitHubAccountVerificationError):
+                app.verify_active_account()
+            self.assertEqual(runner.call_count, 2)
+
+    def test_waiting_normal_check_cannot_reuse_success_after_forced_failure(self):
+        started, release, following = threading.Event(), threading.Event(), threading.Event()
+        errors = []
+        def verify(forced):
+            if not forced:
+                following.set()
+            try:
+                app.verify_active_account(force=forced)
+            except GitHubAccountVerificationError:
+                errors.append(forced)
+        def failed_cli(*args, **kwargs):
+            started.set()
+            if not release.wait(5):
+                raise AssertionError("Fixture did not release the verification.")
+            raise subprocess.TimeoutExpired("gh", 10)
+        with mock.patch.object(app, "ACCOUNT_LOGIN", "alice"), \
+             mock.patch.object(app, "_ACCOUNT_CHECKED_AT", 100), \
+             mock.patch.object(app.time, "monotonic", return_value=102), \
+             mock.patch.object(app.subprocess, "run", side_effect=failed_cli) as runner:
+            first, second = threading.Thread(target=verify, args=(True,)), threading.Thread(target=verify, args=(False,))
+            first.start()
+            try:
+                self.assertTrue(started.wait(5))
+                second.start()
+                self.assertTrue(following.wait(5))
+            finally:
+                release.set()
+                first.join(5)
+                if second.ident is not None:
+                    second.join(5)
+            self.assertFalse(first.is_alive())
+            self.assertFalse(second.is_alive())
+            self.assertCountEqual(errors, [True, False])
+            self.assertEqual(runner.call_count, 2)
+            self.assertEqual(app._ACCOUNT_CHECKED_AT, float("-inf"))
 
     def test_fresh_module_import_has_no_network_disk_account_or_provider_work(self):
         code = '''
