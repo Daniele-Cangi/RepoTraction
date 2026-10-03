@@ -609,6 +609,32 @@ selected operation's body evidence. Inner functions/methods retain their own
 evidence; outer control flow and forwarding remain available without borrowed
 implementation credit. Eight additional regressions cover these bounded fixes.
 
+The fixes were merged in PR #41 after a clean final targeted review. A separately
+[frozen contract-22 retest](missing-link-contract22-focused-protocol-2026-10-03.md)
+then attempted one of three prescribed inputs and stopped under its failure rule.
+The [partial live result](missing-link-contract22-focused-2026-10-03.md) records
+two operation-grounded escaping primitives, a documentation-only non-contribution
+and no eligible lead. An empty public target repository caused a candidate-local
+acquisition failure; no automatic retry or remaining input was started. The
+original USD 10 allowance now has 395 reservations / USD 6.089778 reserved, with
+history/report hashes intact and Babel still paused. The fresh offline suite
+passes 902 tests. This is not evidence that the full three-input gate is complete.
+
+Remaining bounded validation work:
+
+- [ ] Freeze a separate segment for Zod and python-dotenv, the two unstarted
+  prescribed inputs; retain the same cumulative allowance and no manual cases.
+- [ ] Review explicit `rejected` assessments becoming `investigate` when all
+  mandatory checks are unknown. The observed similarity-only case remains
+  ineligible; do not conflate provenance, semantic rejection and UI labels.
+- [ ] Check generated-example runtime assumptions separately from a package's
+  declared minimum before any eligible isolated execution. Fixtures are not
+  target integration or original-request compliance.
+
+No universal parser/resolver expansion or UI/key-entry feature is included in
+this report-only follow-up. First establish an eligible grounded match; do not
+force an isolated demonstration from a merely partial primitive.
+
 ## Acceptance checks
 
 - Preserve CLI flags, defaults, response shapes, status codes and local-only
