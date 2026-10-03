@@ -701,13 +701,25 @@ force an isolated demonstration from a merely partial primitive.
   verify; the original allowance is 461 reservations / USD7.2123066. Browser rendering
   of the new cohort remains unconfirmed after a socket timeout; do not label the
   entire UI flow a clean pass or retroactively repair the older identity failure.
-- [ ] Turn the retained D3 `group` citation mistake into a bounded no-spend precision
+- [x] Turn the retained D3 `group` citation mistake into a bounded no-spend precision
   regression: its supplied 4–6 wrapper span establishes delegation, while the broad
   mixed-function citation must remain rejected. Do not launder recursive helper
   behavior into the wrapper or upgrade the frozen stored comparison.
-- [ ] Diagnose the observed browser refresh/new-result boundary read-only, separating
+- [x] Diagnose the observed browser refresh/new-result boundary read-only, separating
   frontend state, HTTP acquisition and browser-tool transport. Preserve the failed
   check and safe diagnostics; no paid retry or automatic job resumption.
+  The [fresh no-spend follow-up](missing-link-precision-refresh-2026-10-03.md)
+  adds six citation regressions and two browser fixtures. The exact wrapper ID
+  was already supplied; production code and contract 25 remain unchanged.
+  Four live D3 cards render and a trusted keyboard refresh completes with HTTP
+  200 and no page errors. Previous failed checks remain failed/unexplained;
+  all 12 JSON/ZIP exports, 12 table hashes and 343 prior artifacts are unchanged.
+  The full local suite passes 959 tests, including 27 Chromium browser fixtures;
+  spending remains 461 reservations / USD7.2123066 with no new AI calls.
+- [ ] Reduce the measured 31.3 MB polling state payload in a separate bounded
+  projection/lazy-detail change, preserving full downloads, provenance, history
+  access and identity isolation. Its size is an observed performance problem,
+  not an established cause of the previous browser-tool socket timeout.
 - [ ] Scope typed callable JS/TS exports omitted from the acquired Zod sample as
   a separate coverage task with positive/negative fixtures, not universal module
   resolution or an implicit expansion of this retrieval fix.
