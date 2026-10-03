@@ -112,6 +112,35 @@ class IdentityTests(unittest.TestCase):
             self.assertEqual(app.verify_active_account(), "alice")
             runner.assert_called_once()
 
+    def test_slow_success_has_a_full_cache_interval_from_completion(self):
+        with mock.patch.object(app, "ACCOUNT_LOGIN", "alice"), \
+             mock.patch.object(app, "_ACCOUNT_CHECKED_AT", 0), \
+             mock.patch.object(app.time, "monotonic", return_value=100) as clock:
+            def slow_success(*args, **kwargs):
+                clock.return_value += 6
+                return response()
+            with mock.patch.object(app.subprocess, "run", side_effect=slow_success) as runner:
+                self.assertEqual(app.verify_active_account(), "alice")
+                self.assertEqual(app._ACCOUNT_CHECKED_AT, 106)
+                self.assertEqual(app.verify_active_account(), "alice")
+                clock.return_value = 110.99
+                self.assertEqual(app.verify_active_account(), "alice")
+                runner.assert_called_once()
+                clock.return_value = 111
+                self.assertEqual(app.verify_active_account(), "alice")
+                self.assertEqual(runner.call_count, 2)
+                self.assertEqual(app._ACCOUNT_CHECKED_AT, 117)
+
+    def test_forced_timeout_after_slow_success_keeps_last_verified_timestamp(self):
+        with mock.patch.object(app, "ACCOUNT_LOGIN", "alice"), \
+             mock.patch.object(app, "_ACCOUNT_CHECKED_AT", 0), \
+             mock.patch.object(app.time, "monotonic", side_effect=[100, 106, 106]), \
+             mock.patch.object(app.subprocess, "run", side_effect=[response(), subprocess.TimeoutExpired("gh", 10)]):
+            self.assertEqual(app.verify_active_account(), "alice")
+            with self.assertRaises(GitHubAccountVerificationError):
+                app.verify_active_account(force=True)
+            self.assertEqual(app._ACCOUNT_CHECKED_AT, 106)
+
     def test_fresh_module_import_has_no_network_disk_account_or_provider_work(self):
         code = '''
 import subprocess, sqlite3, threading, urllib.request

@@ -303,7 +303,8 @@ def verify_active_account(*, force: bool = False) -> str | None:
             expected, run=subprocess.run,
             creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
         )
-        _ACCOUNT_CHECKED_AT = now
+        # CLI/keyring latency must not consume the successful check's cache TTL.
+        _ACCOUNT_CHECKED_AT = time.monotonic()
         return expected
 
 
