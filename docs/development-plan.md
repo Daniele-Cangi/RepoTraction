@@ -244,6 +244,53 @@ diagnostics and polling handling remain separate no-spend work, not changes to
 this frozen test. Another paid continuation/resume needs an explicit documented
 decision; no isolation is forced without an eligible grounded match.
 
+The user authorized a separate **3 October no-spend identity-diagnostic fix**.
+[`github_cli.py`](../github_cli.py) now owns the injected, bounded CLI identity
+check and shared exception types; `app.py` keeps its cache/lock and thin delegate.
+[`missing_link/job_errors.py`](../missing_link/job_errors.py) maps typed identity
+failures to fixed safe job messages and an additive `error_diagnostic` field.
+Unavailable, timed-out, malformed and ambiguous identity are not reported as a
+confirmed account switch. Only one verified different active login establishes
+that category; all unsuccessful checks still stop processing without refreshing
+the success cache or automatically retrying.
+
+The service's own mismatch guard now uses the same typed runtime exception, so
+candidate-local validation and provider JSON catches cannot absorb it. Legacy
+injected account-error text remains fail-closed but explicitly unclassified.
+Explicit resume/cancellation clears the current diagnostic; restart preserves it.
+No raw CLI stdout/stderr, credential, response body or exception cause is added
+to public diagnostics. Windows installation ships the new standalone module.
+
+The first PR review identified a P1 polling gap: the blanket identity guard
+prevented the saved diagnostic from being read while CLI verification continued
+to fail. [`missing_link/polling.py`](../missing_link/polling.py) now provides a
+minimal read-only view for the already-bound account/store, not unverified full
+state. Cold unbound startup, ambiguous/changed accounts, exports and mutations
+stay blocked. The UI clears full evidence and opt-ins, keeps polling for recovery
+and never auto-resumes. Historical stops and charges are not modified.
+
+The second review found another P1: the new identity-verification exception was
+still swallowed by six older endpoint fallbacks. This could certify an
+unresolved historical repository as `inactive` and suppress its later resolution.
+Localized catch changes now propagate every typed identity failure before
+ordinary endpoint defaults, preventing failed-alias/event/traffic writes and
+further automatic-collector stages. Earlier verified commits and normal endpoint
+fallbacks remain intact; no broad extraction, retry policy or historical repair
+is included.
+
+All **848 offline tests pass**, including partial-stream and completed-response
+identity interruption, retained charges/receipts, target-error propagation and
+Windows uninstall fixtures, ten guarded HTTP polling regressions and two browser
+outage/recovery regressions, plus nine endpoint-fallback regressions exercising
+all seven identity error categories and resolution after recovery.
+A separate installed-module smoke check passed;
+the polling UI was checked against a fictional temporary-store HTTP fixture.
+Read-only HTTP/export/ledger and historical integrity reconciliation also passed:
+**328 reservations / USD 5.1150975**, with no real job resumed or AI call made.
+The previous live cause remains unknown and old records are not relabeled. This
+fix improves observability and restricted polling, not transport resilience or
+discovery accuracy; the unfinished paid sample remains a separate decision.
+
 The prior contract-14 offline replay of the retained eight-repository cohort packed
 all 8 enrichment, 24 extraction and 20 comparison inputs within the existing
 180,000-byte transport bound (maximum 164,598 bytes). The contract-16 no-spend

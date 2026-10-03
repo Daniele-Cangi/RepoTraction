@@ -22,6 +22,14 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import parse_qs, urlparse
 
+from github_cli import (
+    ActiveAccountChangedError,
+    GitHubAccountVerificationError,
+    GitHubCLIError,
+    GitHubRateLimitError,
+    verify_cli_account,
+)
+
 # Compatibility names during migration; calculation bodies live in analytics.
 from analytics.event_evidence import (
     event_evidence_unavailable,
@@ -103,16 +111,14 @@ def missing_link_service() -> Any:
         return _MISSING_LINK_SERVICES[key]
 
 
-class GitHubCLIError(RuntimeError):
-    pass
+def missing_link_state() -> Any:
+    from missing_link.polling import poll_state
 
-
-class ActiveAccountChangedError(GitHubCLIError):
-    pass
-
-
-class GitHubRateLimitError(GitHubCLIError):
-    pass
+    return poll_state(
+        verify=verify_active_account, get_service=missing_link_service,
+        account=ACCOUNT_LOGIN, database=DB_PATH,
+        services=_MISSING_LINK_SERVICES, binding_lock=_MISSING_LINK_LOCK,
+    )
 
 
 def validate_local_host(host: str) -> str:
@@ -293,41 +299,10 @@ def verify_active_account(*, force: bool = False) -> str | None:
         now = time.monotonic()
         if not force and now - _ACCOUNT_CHECKED_AT < ACCOUNT_CHECK_INTERVAL_SECONDS:
             return expected
-        try:
-            result = subprocess.run(
-                ["gh", "auth", "status", "--json", "hosts"],
-                capture_output=True,
-                text=True,
-                encoding="utf-8",
-                errors="replace",
-                timeout=10,
-                check=False,
-                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
-            )
-        except (FileNotFoundError, subprocess.TimeoutExpired) as exc:
-            raise GitHubCLIError(
-                "Unable to verify the active GitHub CLI account; restart RepoTraction after checking gh auth status."
-            ) from exc
-        if result.returncode != 0:
-            raise GitHubCLIError(
-                "Unable to verify the active GitHub CLI account; restart RepoTraction after checking gh auth status."
-            )
-        try:
-            hosts = json.loads(result.stdout).get("hosts", {})
-            active_logins = [
-                str(host.get("login") or "")
-                for host in hosts.get("github.com", [])
-                if host.get("active") and host.get("state") == "success"
-            ]
-        except (json.JSONDecodeError, AttributeError, TypeError):
-            raise GitHubCLIError(
-                "GitHub CLI could not report its active account. Update gh and restart RepoTraction."
-            ) from None
-        if len(active_logins) != 1 or active_logins[0].casefold() != expected.casefold():
-            raise ActiveAccountChangedError(
-                f"RepoTraction is scoped to @{expected}, but GitHub CLI's active account changed. "
-                "Switch back or restart RepoTraction to use the new account's separate history."
-            )
+        verify_cli_account(
+            expected, run=subprocess.run,
+            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
+        )
         _ACCOUNT_CHECKED_AT = now
         return expected
 
@@ -396,7 +371,7 @@ def reconcile_repository_registry(
     for old_name in unresolved:
         try:
             resolved = run_gh_json(f"repos/{old_name}")
-        except (ActiveAccountChangedError, GitHubRateLimitError):
+        except (ActiveAccountChangedError, GitHubAccountVerificationError, GitHubRateLimitError):
             raise
         except GitHubCLIError:
             resolved = {}
@@ -678,7 +653,7 @@ def collect_repository_events(repo: str) -> dict[str, Any]:
                 for pending in future_map:
                     pending.cancel()
                 raise
-            except ActiveAccountChangedError:
+            except (ActiveAccountChangedError, GitHubAccountVerificationError):
                 raise
             except GitHubCLIError as exc:
                 payloads[name] = []
@@ -1114,7 +1089,7 @@ def validate_repo(repo: str) -> str:
 def _safe_traffic_call(endpoint: str, default: Any) -> Any:
     try:
         return run_gh_json(endpoint)
-    except (ActiveAccountChangedError, GitHubRateLimitError):
+    except (ActiveAccountChangedError, GitHubAccountVerificationError, GitHubRateLimitError):
         raise
     except GitHubCLIError:
         return default
@@ -2114,7 +2089,7 @@ def build_traffic(repo: str, *, force: bool = False) -> dict[str, Any]:
                 for pending in future_map:
                     pending.cancel()
                 raise
-            except ActiveAccountChangedError:
+            except (ActiveAccountChangedError, GitHubAccountVerificationError):
                 raise
             except GitHubCLIError as exc:
                 data[name] = defaults[name]
@@ -2359,7 +2334,7 @@ def collect_all_data() -> dict[str, Any]:
                     f"{repo} traffic: {detail}"
                     for detail in traffic_result.get("partial_errors", [])
                 )
-            except ActiveAccountChangedError:
+            except (ActiveAccountChangedError, GitHubAccountVerificationError):
                 raise
             except GitHubRateLimitError as exc:
                 errors.append(f"{repo}: {exc}")
@@ -2373,7 +2348,7 @@ def collect_all_data() -> dict[str, Any]:
                     f"{repo} events: {detail}"
                     for detail in event_result.get("errors", [])
                 )
-            except ActiveAccountChangedError:
+            except (ActiveAccountChangedError, GitHubAccountVerificationError):
                 raise
             except GitHubRateLimitError as exc:
                 errors.append(f"{repo} events: {exc}")
@@ -2592,6 +2567,10 @@ class DashboardHandler(BaseHTTPRequestHandler):
         parsed = urlparse(self.path)
         query = parse_qs(parsed.query)
 
+        if parsed.path == "/api/missing-link":
+            self.handle_api(missing_link_state, github_error_status=HTTPStatus.CONFLICT)
+            return
+
         if parsed.path.startswith("/api/"):
             try:
                 verify_active_account()
@@ -2603,9 +2582,6 @@ class DashboardHandler(BaseHTTPRequestHandler):
             self.send_json(
                 {"ok": True, "app": APP_NAME, "account": get_account_login()}
             )
-            return
-        if parsed.path == "/api/missing-link":
-            self.handle_api(lambda: missing_link_service().state())
             return
         if parsed.path in {"/api/missing-link/export", "/api/missing-link/package", "/api/missing-link/context"}:
             try:
@@ -2766,10 +2742,12 @@ class DashboardHandler(BaseHTTPRequestHandler):
             {"error": "Endpoint not found."}, status=HTTPStatus.NOT_FOUND
         )
 
-    def handle_api(self, callback: Any) -> None:
+    def handle_api(self, callback: Any, *, github_error_status=HTTPStatus.BAD_GATEWAY) -> None:
         try:
             self.send_json(callback())
-        except (GitHubCLIError, ValueError) as exc:
+        except GitHubCLIError as exc:
+            self.send_json({"error": str(exc)}, status=github_error_status)
+        except ValueError as exc:
             self.send_json(
                 {"error": str(exc)}, status=HTTPStatus.BAD_GATEWAY
             )

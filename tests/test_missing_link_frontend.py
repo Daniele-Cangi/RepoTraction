@@ -474,6 +474,53 @@ class MissingLinkFrontendTests(unittest.TestCase):
         self.assertEqual(self.page.locator(".ml-capability").count(), 0)
         self.assertEqual(self.page.locator("#mlRepo").input_value(), "")
 
+    def test_identity_outage_clears_full_evidence_even_with_focused_form_and_blocks_actions(self):
+        self.fixture_page()
+        self.page.locator('#mlReviewed').check()
+        self.page.locator('details[data-ml-detail="feedback-match-fixture"] summary').click()
+        self.page.locator('.ml-feedback-form textarea').focus()
+        diagnostic = {"account": "fixture-user", "diagnostic_only": True,
+            "identity_verified": False, "actions_available": False,
+            "identity_error": "Current GitHub verification failed; no account change is confirmed.",
+            "jobs": [{"id": "a" * 32, "status": "paused", "error": "Saved GitHub verification timed out.",
+                "error_diagnostic": {"category": "github_identity", "code": "github_identity_cli_timeout"}}]}
+        self.page.evaluate("fixture => {window.mlFixture = fixture;}", diagnostic)
+        self.page.get_by_role("button", name="Refresh results", exact=True).click()
+        self.page.get_by_text("Identity unverified · diagnostic-only view", exact=True).wait_for()
+        self.assertEqual(self.page.locator('.ml-match, .ml-capability, .ml-feedback-form').count(), 0)
+        self.assertIn('Saved stop code: github_identity_cli_timeout', self.page.locator('#mlJobs').inner_text())
+        self.assertIn('Current GitHub verification failed', self.page.locator('#mlNotice').inner_text())
+        self.assertEqual(self.page.locator('a[href^="/api/missing-link/"]').count(), 0)
+        self.assertEqual(self.page.locator('[data-ml-action="resume"], [data-ml-action="cancel"]').count(), 0)
+        self.page.locator('#mlRepo').fill('fixture-user/public-repo')
+        self.assertTrue(self.page.locator('#mlAnalyzeButton').is_disabled())
+        self.assertTrue(self.page.locator('#mlDiscoverButton').is_disabled())
+        self.assertTrue(self.page.locator('#mlImportButton').is_disabled())
+        self.page.locator('#mlStartForm').dispatch_event('submit')
+        self.page.locator('#mlImportForm').dispatch_event('submit')
+        self.assertFalse(self.page.evaluate("window.mlCalls.some(call => call.options.method === 'POST')"))
+
+    def test_identity_diagnostic_keeps_polling_then_recovers_without_post_or_review_opt_in(self):
+        self.fixture_page()
+        self.page.locator('#mlReviewed').check()
+        self.page.evaluate("""() => {
+            window.mlTimers = [];
+            window.setTimeout = (callback, delay) => {window.mlTimers.push({callback, delay}); return window.mlTimers.length;};
+            window.clearTimeout = () => {};
+            window.mlFixture = {account: 'fixture-user', diagnostic_only: true,
+                identity_error: 'Identity unavailable', jobs: []};
+        }""")
+        self.page.get_by_role("button", name="Refresh results", exact=True).click()
+        self.page.get_by_text("Identity unverified · diagnostic-only view", exact=True).wait_for()
+        self.assertEqual(self.page.evaluate("window.mlTimers.at(-1).delay"), 15000)
+        self.page.evaluate("fixture => {window.mlFixture = fixture; window.mlTimers.at(-1).callback();}", source_fixture())
+        self.page.get_by_text("GitHub identity verified again.", exact=False).wait_for()
+        self.assertEqual(self.page.locator('.ml-match').count(), 1)
+        self.assertEqual(self.page.locator('.ml-capability').count(), 1)
+        self.assertFalse(self.page.locator('#mlReviewed').is_checked())
+        self.assertTrue(self.page.locator('#mlDiscoverButton').is_disabled())
+        self.assertFalse(self.page.evaluate("window.mlCalls.some(call => call.options.method === 'POST')"))
+
     def test_results_precede_capabilities_and_expansion_survives_refresh(self):
         fixture = source_fixture()
         original = fixture["repositories"][0]["capabilities"][0]

@@ -8,6 +8,8 @@ import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
+from github_cli import ActiveAccountChangedError
+
 from .analysis import (analysis_contract, conservative_matches, conservative_request, digest,
     evidence_catalog, extension_groups, text, texts, validate_matches, validate_request, capability_fingerprint, ANALYSIS_CONTRACT_VERSION)
 from .provider import Provider, CandidateValidationError
@@ -16,6 +18,7 @@ from .lease import WorkerLease
 from .sources import PublicGitHub, extract_structure, parse_issue_url
 from .discovery import problem_queries, select_candidates, screen_candidate, SELECTION_POLICY, SCREENING_POLICY
 from .non_demands import is_non_demand, disposition_record, record_disposition, clear_disposition
+from .job_errors import job_failure
 
 
 def now():
@@ -102,7 +105,7 @@ class Service:
     def _verify(self):
         actual = self.verify()
         if actual and actual.casefold() != self.account.casefold():
-            raise ValueError("GitHub account changed. Restart for its separate investigation history.")
+            raise ActiveAccountChangedError("GitHub account changed. Restart for its separate investigation history.")
 
     def state(self):
         self._verify()
@@ -180,7 +183,8 @@ class Service:
             job = {"id": uuid.uuid4().hex, "account": self.account, "input": normalized,
                 "status": "queued", "stage": "queued", "progress": "Waiting to acquire public sources.",
                 "created_at": now(), "updated_at": now(), "requests_used": 0, "ai_calls_used": 0,
-                "cost_reserved_usd": 0.0, "cache_hits": 0, "error": None, "checkpoint": {}, "result": {"match_ids": []}}
+                "cost_reserved_usd": 0.0, "cache_hits": 0, "error": None, "error_diagnostic": None,
+                "checkpoint": {}, "result": {"match_ids": []}}
             try:
                 self.store.pause_abandoned_jobs(now())
                 self.store.put("jobs", job["id"], job)
@@ -210,6 +214,7 @@ class Service:
             self.store.request_cancel(job_id)
             job["status"] = "cancelled"
             job["error"] = "Cancellation requested. An in-flight read may finish, but no new calls start."
+            job["error_diagnostic"] = None
             self.store.put("jobs", job_id, job)
         return {"job": {k: v for k, v in job.items() if k != "checkpoint"}}
 
@@ -227,7 +232,7 @@ class Service:
                     raise ValueError("Only paused, cancelled or failed investigations can resume.")
                 if data.get("max_requests") is not None:
                     job["input"]["max_requests"] = self._bounded_integer(data["max_requests"], 80, job["requests_used"] + 1, 200)
-                job.update(status="queued", error=None)
+                job.update(status="queued", error=None, error_diagnostic=None)
                 self.store.clear_cancel(job["id"])
                 self.store.put("jobs", job["id"], job)
                 self._dispatch(job, background)
@@ -455,18 +460,11 @@ class Service:
                 job["status"] = "completed"
                 save()
         except Cancelled as exc:
-            job.update(status="cancelled", error=str(exc))
+            job.update(status="cancelled", error=str(exc), error_diagnostic=None)
         except Paused as exc:
-            job.update(status="paused", error=str(exc))
+            job.update(status="paused", error=str(exc), error_diagnostic=None)
         except Exception as exc:
-            # gh errors contain no credentials normally; do not dump model/input bodies.
-            message = str(exc)
-            if "rate limit" in message.casefold():
-                job.update(status="paused", error="GitHub rate limit. No automatic retry. Resume after the upstream reset.")
-            elif "account" in message.casefold():
-                job.update(status="paused", error="Active GitHub account could not be verified. Switch back or restart for separate history.")
-            else:
-                job.update(status="failed", error=message[:500])
+            job.update(**job_failure(exc))
         save()
 
     @staticmethod

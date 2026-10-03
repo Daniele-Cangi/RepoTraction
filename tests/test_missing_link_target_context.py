@@ -377,7 +377,11 @@ class TargetPersistenceTests(unittest.TestCase):
         self.assertEqual(snapshot["issue"]["id"], 9)
 
     def test_global_target_errors_never_become_candidate_failures(self):
+        from github_cli import ActiveAccountChangedError, GitHubAccountVerificationError
         errors = [(Paused("budget exhausted"), "paused"), (Cancelled("cancelled"), "cancelled"),
+                  (ActiveAccountChangedError("GitHub account changed"), "paused"),
+                  (GitHubAccountVerificationError("github_identity_cli_timeout"), "paused"),
+                  (GitHubAccountVerificationError("github_identity_invalid_response"), "paused"),
                   (RuntimeError("Active account changed"), "paused"),
                   (RuntimeError("GitHub rate limit (HTTP 403)"), "paused"),
                   (RuntimeError("GitHub service unavailable (HTTP 503)"), "failed")]

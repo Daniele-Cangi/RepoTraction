@@ -3,6 +3,7 @@ import json
 import unittest
 from unittest import mock
 
+from github_cli import ActiveAccountChangedError, GitHubAccountVerificationError
 from missing_link.provider import Provider
 from missing_link.store import Store, redact_payload
 import test_missing_link as fixtures
@@ -14,7 +15,7 @@ class CancellationAuditTests(unittest.TestCase):
 
     def cancelled_response(self, *, kind="responses", streaming=False, value=...,
                            cancel_at="complete", account_change=False, terminal_status="completed",
-                           refusal=False, undecodable=False, malformed_partial=False):
+                           refusal=False, undecodable=False, malformed_partial=False, identity_error=None):
         provider = Provider({"REPOTRACTION_AI_URL": "http://localhost/v1", "REPOTRACTION_AI_MODEL": "fixture",
             "REPOTRACTION_AI_API_KIND": kind, "REPOTRACTION_AI_STREAMING": "1" if streaming else "0",
             "REPOTRACTION_AI_INPUT_USD_PER_MILLION": "1", "REPOTRACTION_AI_OUTPUT_USD_PER_MILLION": "1"})
@@ -23,7 +24,9 @@ class CancellationAuditTests(unittest.TestCase):
         retained = {}
 
         def stop():
-            if account_change:
+            if identity_error:
+                self.service.verify = mock.Mock(side_effect=identity_error)
+            elif account_change:
                 self.account = "bob"
             else:
                 current = self.service.store.list("jobs")[0]
@@ -70,7 +73,7 @@ class CancellationAuditTests(unittest.TestCase):
              mock.patch.object(provider, "evaluate") as evaluate:
             started = self.service.start({"repo": "example/words", "issue_url": fixtures.issue()["url"], "use_ai": True}, background=False)
         stored = Store(self.path, "alice").get("jobs", started["job_id"])
-        self.assertEqual(stored["status"], "paused" if account_change else "cancelled")
+        self.assertEqual(stored["status"], "paused" if account_change or identity_error else "cancelled")
         self.assertEqual(stored["ai_calls_used"], 1)
         self.assertGreater(stored["cost_reserved_usd"], 0)
         self.assertEqual(stored["result"]["match_ids"], [])
@@ -150,5 +153,29 @@ class CancellationAuditTests(unittest.TestCase):
         job, output, _ = self.cancelled_response(account_change=True)
         self.assert_completed_audit(job, output)
         self.assertEqual(job["account"], "alice")
-        with self.assertRaisesRegex(ValueError, "account changed"):
+        with self.assertRaisesRegex(ActiveAccountChangedError, "account changed"):
             self.service.state()
+
+    def test_account_change_during_partial_stream_is_not_a_provider_validation_error(self):
+        job, _, response = self.cancelled_response(account_change=True, streaming=True, cancel_at="partial")
+        self.assertEqual(job["error_diagnostic"]["code"], "github_identity_changed")
+        self.assertEqual(response.__enter__.return_value.readline.call_count, 2)
+        self.assertFalse(job.get("ai_trace"))
+        self.assertFalse(job["checkpoint"].get("ai_outputs"))
+
+    def test_identity_timeout_during_partial_stream_preserves_unknown_charge_and_category(self):
+        error = GitHubAccountVerificationError("github_identity_cli_timeout")
+        job, _, response = self.cancelled_response(identity_error=error, streaming=True, cancel_at="partial")
+        self.assertEqual(job["error_diagnostic"]["code"], "github_identity_cli_timeout")
+        self.assertEqual(response.__enter__.return_value.readline.call_count, 2)
+        self.assertFalse(job.get("ai_trace"))
+        self.assertFalse(job["checkpoint"].get("ai_outputs"))
+
+    def test_identity_timeout_after_terminal_response_preserves_audit_not_analysis(self):
+        for streaming in (False, True):
+            with self.subTest(streaming=streaming):
+                error = GitHubAccountVerificationError("github_identity_cli_timeout")
+                self.service.verify = lambda: self.account
+                job, output, _ = self.cancelled_response(identity_error=error, streaming=streaming)
+                self.assert_completed_audit(job, output)
+                self.assertEqual(job["error_diagnostic"]["code"], "github_identity_cli_timeout")
