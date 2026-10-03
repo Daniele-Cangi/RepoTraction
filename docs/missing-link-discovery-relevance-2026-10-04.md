@@ -59,7 +59,7 @@ D3's histogram query returns three titles, also with zero title overlap.
 D3's bisector query returns 38 candidates; only the selected hosted-help issue
 has any title overlap, through the single word `search`.
 
-Across the three separately deduplicated pools, 211 of 279 candidate hints have
+Across the three separately deduplicated pools, 211 of 277 candidate hints have
 zero title overlap with their retrieving query. **This is not a 75.6% irrelevance
 rate**: searches include issue bodies, and those bodies are not retained for
 unselected candidates. Zero-overlap titles may conceal relevant demand.
