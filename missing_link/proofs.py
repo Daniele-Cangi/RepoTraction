@@ -194,6 +194,39 @@ def _json_bytes(value: Any) -> bytes:
     return (json.dumps(value, indent=2, ensure_ascii=False, allow_nan=False) + "\n").encode("utf-8")
 
 
+def _add_handoff(handoff: dict[str, Any], add) -> bool:
+    """Lossless multipart metadata, not larger limits or truncated evidence."""
+    payload = _json_bytes(handoff)
+    if len(payload) <= MAX_FILE_BYTES:
+        add("handoff.json", payload)
+        return False
+    if len(payload) > MAX_PACKAGE_BYTES:
+        raise PackageLimitError("Package size exceeds the supported limit.")
+    parts = []
+    offset = 0
+    while offset < len(payload):
+        end = min(offset + MAX_FILE_BYTES, len(payload))
+        # Keep each fragment readable as UTF-8; fragments are not standalone JSON.
+        while end < len(payload) and payload[end] & 0xC0 == 0x80:
+            end -= 1
+        data = payload[offset:end]
+        path = f"handoff-parts/{len(parts) + 1:04d}.json.part"
+        add(path, data)
+        parts.append({"path": path, "bytes": len(data), "sha256": hashlib.sha256(data).hexdigest()})
+        offset = end
+    add("handoff.json", _json_bytes({
+        "schema_version": 2,
+        "format": "chunked_handoff",
+        "payload_schema_version": handoff["schema_version"],
+        "encoding": "utf-8",
+        "bytes": len(payload), "sha256": hashlib.sha256(payload).hexdigest(),
+        "parts": parts,
+        "verification": handoff["verification"],
+        "reconstruction": "Concatenate the raw bytes of parts in the listed order, verify every part and the complete byte count/SHA-256, then parse the UTF-8 JSON. Fragments are not standalone JSON. This index is not the complete handoff or an execution receipt.",
+    }))
+    return True
+
+
 def _source_files(repository: dict[str, Any]) -> dict[str, str]:
     files = repository.get("files", {})
     if isinstance(files, list):
@@ -319,8 +352,16 @@ def build_package(match: dict[str, Any], repository: dict[str, Any]) -> bytes:
             safe_relative_path(path)
             add("licenses/" + path, _redact(content, handoff["warnings"]))
     handoff["packaged_evidence"] = snippets
-    add("HANDOFF.md", _handoff_markdown(handoff))
-    add("handoff.json", _json_bytes(handoff))
+    chunked = _add_handoff(handoff, add)
+    markdown = _handoff_markdown(handoff)
+    if chunked:
+        markdown += ("\n## Complete handoff JSON\n\n"
+            "`handoff.json` is a schema-version-2 multipart index, not the complete handoff. "
+            "Concatenate the raw bytes in `parts` order; verify each part's byte count/SHA-256 "
+            "and the complete byte count/SHA-256 before decoding UTF-8 and parsing JSON. "
+            "The fragments in `handoff-parts/` are not standalone JSON. No evidence is discarded. "
+            "The separate JSON export still returns the complete handoff. NOT EXECUTED.\n")
+    add("HANDOFF.md", markdown)
     manifest = {
         "schema_version": 1,
         "verification": handoff["verification"],
@@ -328,6 +369,7 @@ def build_package(match: dict[str, Any], repository: dict[str, Any]) -> bytes:
         "revision": handoff["revision"],
         "request": _select(handoff["request"], ("id", "url", "updated_at", "fingerprint", "context_complete")),
         "license": handoff["repository"].get("license_metadata", handoff["repository"].get("license")),
+        "handoff_format": "chunked_handoff" if chunked else "inline_handoff",
         "files": [{"path": path, "bytes": len(data), "sha256": hashlib.sha256(data).hexdigest()} for path, data in sorted(contents.items())],
         "note": "The manifest does not hash itself. Hashes establish integrity, not executable safety or proof of compatibility.",
     }

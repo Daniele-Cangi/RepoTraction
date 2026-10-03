@@ -650,14 +650,21 @@ class ServiceTests(unittest.TestCase):
         self.assertNotIn("capabilities", request_arguments[0])
         self.assertEqual(self.service.state()["matches"][0]["classification"], "rejected")
 
-    def test_large_public_context_keeps_valid_result_with_explicit_zip_block(self):
+    def test_large_public_context_keeps_valid_result_with_lossless_multipart_zip(self):
         job = self.run_fixture()
         job["checkpoint"]["discussions"]["0"]["comments"] += [{"id": index, "url": issue()["url"] + "#large",
             "body": "x" * 50000} for index in range(3)]
         self.service.store.put("jobs", job["id"], job)
         result = self.service.import_analysis({"job_id": job["id"], "analysis": {"request": request_raw(), "matches": [raw_match()]}})
         match = self.service.store.get("matches", result["match_ids"][0])
-        self.assertEqual(match["bridge"]["package_status"]["status"], "blocked")
+        self.assertNotIn("package_status", match["bridge"])
+        import io
+        import zipfile
+        with zipfile.ZipFile(io.BytesIO(self.service.export(match["id"], package=True))) as archive:
+            index = json.loads(archive.read("handoff.json"))
+            self.assertEqual(index["format"], "chunked_handoff")
+            handoff = json.loads(b"".join(archive.read(part["path"]) for part in index["parts"]))
+            self.assertEqual(handoff["request"]["source_issue"]["comments"], job["checkpoint"]["discussions"]["0"]["comments"])
         self.assertEqual(self.service.export(match["id"])["verification"]["status"], "not_executed")
 
 
