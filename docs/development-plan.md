@@ -724,6 +724,10 @@ force an isolated demonstration from a merely partial primitive.
   including 35 Chromium fixtures. Server-side full-state reads remain; this is
   not a latency benchmark or an explanation of prior browser-tool timeouts.
   Intermittent live identity/export failures remain documented separately.
+  The 2026-10-04 review follow-up fixes the reproduced first-response account-epoch
+  P1 with a dashboard-login baseline and late/consecutive identity regressions;
+  980 local tests pass, including 37 browser fixtures. It does not change backend
+  identity verification, provider behavior or frozen investigation results.
 - [ ] Scope typed callable JS/TS exports omitted from the acquired Zod sample as
   a separate coverage task with positive/negative fixtures, not universal module
   resolution or an implicit expansion of this retrieval fix.

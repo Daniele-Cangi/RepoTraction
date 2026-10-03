@@ -117,3 +117,36 @@ amounts are not an invoice; unknown earlier attempts remain charged.
 Private observations and screenshots stay in the ignored local data directory,
 not the README/public assets. The current-code local server remains available for
 manual tests without a collector or scheduler.
+
+## 2026-10-04: first-response account epoch review correction
+
+The bounded Codex review on `6d8fcfe` found a genuine P1: during the initial
+Missing Link GET, `state.account` was still null. A main-dashboard account change
+therefore skipped epoch invalidation; the first stale response could restore the
+previous account's identity and jobs. The added browser regression failed on the
+old code with `Local account: fixture-user` instead of the newly observed account.
+The preceding green CI did not cover this initial-state race.
+
+The frontend now seeds its baseline from the already available dashboard login,
+invalidates an in-flight response when the first dashboard identity arrives late,
+and retains the latest observed account while waiting. This also handles multiple
+account changes before the first response. The fix is three localized state lines
+plus a module cache-version update; backend/storage/provider behavior is unchanged.
+
+Two new Chromium tests cover an initial known account, a late initial login and
+consecutive changes. They verify that old jobs/capabilities/comparisons remain
+absent, a fresh index is read for the latest account, the new response is rendered,
+and no POST, AI opt-in or capability-review opt-in occurs. The complete local suite
+was rerun successfully: **980 tests, including 37 browser fixtures**.
+
+Following the verification skill's response-to-render boundary, a separately
+owned browser session reproduced the corrected transition using **fictional
+accounts and a controlled API callback**, not a real GitHub account switch. The
+old job stayed hidden, exactly two simulated GETs occurred, and only the fresh
+account's job rendered. Page-error inspection was empty; the browser closed.
+This fixture verifies client-side isolation, not live identity-service reliability.
+
+All 12 Missing Link table hashes, 364 protected prior artifacts and the allowance
+(461 reservations / USD7.2123066) remained unchanged. No paid calls, actual account
+switch, source acquisition, investigation resume or historical repair occurred.
+The previous live identity/CDP failures remain recorded above, not relabeled.
