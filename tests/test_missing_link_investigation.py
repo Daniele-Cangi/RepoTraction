@@ -85,6 +85,7 @@ class InvestigationTests(unittest.TestCase):
 
     def test_failed_resume_acknowledgement_keeps_original_id(self):
         self.args.resume = self.job["id"]
+        self.job.update(status="paused", error="Fixture stop", error_diagnostic={"code": "fixture"})
         initial = dict(self.initial, jobs=[self.job])
         for response in (socket.timeout("private resume"), {}, {"job_id": "b" * 32}):
             with self.subTest(response=type(response).__name__):
@@ -93,9 +94,43 @@ class InvestigationTests(unittest.TestCase):
                 _, report, request = self.execute([initial, response])
                 self.assertEqual(report["observation_failure"]["job_id"], self.job["id"])
                 self.assertEqual(report["jobs"][0]["job_id"], self.job["id"])
+                self.assertEqual(report["jobs"][0]["job"], self.job)
                 self.assertEqual(request.call_args_list[1].args[0], "/api/missing-link/resume")
                 self.assertTrue(report["observation_failure"]["backend_may_be_running"])
                 self.assert_no_replacement(request)
+
+    def test_resume_snapshot_is_on_disk_before_post_and_remains_unknown_after_failed_poll(self):
+        self.args.resume = self.job["id"]
+        self.job.update(status="paused", error="Fixture stop", error_diagnostic={"code": "fixture"})
+        previous = copy.deepcopy(self.job)
+        calls = []
+        def request(path, body=None):
+            calls.append((path, body))
+            if len(calls) == 1:
+                return dict(self.initial, jobs=[self.job])
+            if body is not None:
+                saved = json.loads(self.path.read_text())
+                self.assertEqual(saved["jobs"][0]["job"], previous)
+                # The captured snapshot cannot become the mutable post-resume state.
+                self.job.update(status="running", error=None, cost_reserved_usd=.2)
+                return {"job_id": previous["id"]}
+            raise socket.timeout("private poll")
+        self.assertEqual(run_investigation(self.args, request, emit=self.messages.append, monotonic=lambda: 0), 1)
+        report = json.loads(self.path.read_text())
+        self.assertEqual(report["jobs"][0]["job"], previous)
+        self.assertTrue(report["observation_failure"]["backend_may_be_running"])
+        self.assertEqual(report["observation_failure"]["phase"], "poll")
+        self.assertEqual(sum(body is not None for _, body in calls), 1)
+
+    def test_fresh_post_resume_observation_replaces_preflight_snapshot(self):
+        self.args.resume = self.job["id"]
+        self.job.update(status="paused", error="Fixture stop")
+        resumed = dict(self.job, status="completed", error=None, stage="completed", ai_calls_used=2, cost_reserved_usd=.2)
+        result, report, request = self.execute([dict(self.initial, jobs=[self.job]),
+            {"job_id": self.job["id"]}, {"jobs": [resumed]}])
+        self.assertEqual(result, 0)
+        self.assertEqual(report["jobs"][0]["job"], resumed)
+        self.assert_no_replacement(request)
 
     def test_resume_mismatch_does_not_mutate(self):
         self.args.resume = self.job["id"]

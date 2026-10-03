@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import http.client
+import copy
 import json
 import os
 from pathlib import Path
@@ -90,7 +91,7 @@ def run_investigation(args, request, *, emit=print, monotonic=time.monotonic, sl
     payload = {"context": "real_public_github_and_provider_api" if args.use_ai else "real_public_github_structural",
         "manual_analysis_imported": False, "repository": args.repo, "provider": None, "jobs": []}
     report = Report(args.report, payload)
-    job_id, entry, phase = None, None, "preflight"
+    job_id, entry, phase, last_poll_terminal = None, None, "preflight", False
 
     def output(value):
         emit(json.dumps(value, ensure_ascii=False))
@@ -105,7 +106,7 @@ def run_investigation(args, request, *, emit=print, monotonic=time.monotonic, sl
         report.save()
         resume = args.resume
         for issue_url in args.issue or [""]:
-            phase, job_id = "start", None
+            phase, job_id, last_poll_terminal = "start", None, False
             entry = {"job_id": None, "job": None, "matches": []}
             payload["jobs"].append(entry)
             report.save()
@@ -117,6 +118,7 @@ def run_investigation(args, request, *, emit=print, monotonic=time.monotonic, sl
                     raise ObservationError("observer_resume_input_mismatch")
                 job_id = resume
                 entry["job_id"] = job_id
+                entry["job"] = copy.deepcopy(previous_job)
                 report.save()
                 started = _call(request, "/api/missing-link/resume", {"job_id": resume})
                 resume = None
@@ -147,6 +149,7 @@ def run_investigation(args, request, *, emit=print, monotonic=time.monotonic, sl
                         or any(not isinstance(value, str) or not value for value in result["match_ids"])):
                     raise ObservationError("observer_protocol_error")
                 entry["job"] = job
+                last_poll_terminal = job["status"] not in {"queued", "running"}
                 report.save()
                 update = (job["status"], job.get("stage"), job.get("ai_calls_used"))
                 if update != previous:
@@ -182,9 +185,8 @@ def run_investigation(args, request, *, emit=print, monotonic=time.monotonic, sl
         return 0
     except (ObservationError, KeyError, TypeError, AttributeError) as exc:
         code = exc.code if isinstance(exc, ObservationError) else "observer_protocol_error"
-        terminal = entry and entry.get("job") and entry["job"]["status"] not in {"queued", "running"}
         payload["observation_failure"] = {"code": code, "phase": phase, "job_id": job_id,
-            "backend_may_be_running": phase in {"start", "poll"} and not bool(terminal),
+            "backend_may_be_running": phase in {"start", "poll"} and not last_poll_terminal,
             "cancellation": payload.get("cancellation", "not_requested"), "automatic_retry": False,
             "message": "Observation is not a backend outcome. Inspect the known job before any explicit retry; no replacement was started."}
         if isinstance(exc, ObservationError) and exc.http_status is not None:
