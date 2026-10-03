@@ -124,10 +124,11 @@ def run_investigation(args, request, *, emit=print, monotonic=time.monotonic, sl
                 started = _call(request, "/api/missing-link/jobs", {"repo": args.repo, "action": "discover",
                     "issue_url": issue_url, "query": args.query, "max_candidates": args.max_candidates,
                     "max_requests": 80, "use_ai": args.use_ai})
-            job_id = started.get("job_id")
-            if not isinstance(job_id, str) or not re.fullmatch(r"[0-9a-f]{32}", job_id):
-                job_id = None
+            acknowledged_id = started.get("job_id")
+            if (not isinstance(acknowledged_id, str) or not re.fullmatch(r"[0-9a-f]{32}", acknowledged_id)
+                    or (job_id is not None and acknowledged_id != job_id)):
                 raise ObservationError("observer_protocol_error")
+            job_id = acknowledged_id
             entry["job_id"] = job_id
             phase = "poll"
             output({"job_id": job_id, "issue": issue_url, "status": "started"})

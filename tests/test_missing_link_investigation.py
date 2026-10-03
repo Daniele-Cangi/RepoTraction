@@ -83,13 +83,19 @@ class InvestigationTests(unittest.TestCase):
                 self.assertTrue(report["observation_failure"]["backend_may_be_running"])
                 self.assert_no_replacement(request)
 
-    def test_resume_acknowledgement_timeout_keeps_original_id(self):
+    def test_failed_resume_acknowledgement_keeps_original_id(self):
         self.args.resume = self.job["id"]
         initial = dict(self.initial, jobs=[self.job])
-        _, report, request = self.execute([initial, socket.timeout("private resume")])
-        self.assertEqual(report["observation_failure"]["job_id"], self.job["id"])
-        self.assertEqual(request.call_args_list[1].args[0], "/api/missing-link/resume")
-        self.assert_no_replacement(request)
+        for response in (socket.timeout("private resume"), {}, {"job_id": "b" * 32}):
+            with self.subTest(response=type(response).__name__):
+                self.path = self.path.with_name(self.path.stem + "-next.json")
+                self.args.report = self.path
+                _, report, request = self.execute([initial, response])
+                self.assertEqual(report["observation_failure"]["job_id"], self.job["id"])
+                self.assertEqual(report["jobs"][0]["job_id"], self.job["id"])
+                self.assertEqual(request.call_args_list[1].args[0], "/api/missing-link/resume")
+                self.assertTrue(report["observation_failure"]["backend_may_be_running"])
+                self.assert_no_replacement(request)
 
     def test_resume_mismatch_does_not_mutate(self):
         self.args.resume = self.job["id"]
