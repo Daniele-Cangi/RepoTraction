@@ -111,13 +111,14 @@ def missing_link_service() -> Any:
         return _MISSING_LINK_SERVICES[key]
 
 
-def missing_link_state() -> Any:
+def missing_link_state(query=None) -> Any:
     from missing_link.polling import poll_state
 
     return poll_state(
         verify=verify_active_account, get_service=missing_link_service,
         account=ACCOUNT_LOGIN, database=DB_PATH,
         services=_MISSING_LINK_SERVICES, binding_lock=_MISSING_LINK_LOCK,
+        query=query,
     )
 
 
@@ -2572,7 +2573,7 @@ class DashboardHandler(BaseHTTPRequestHandler):
         query = parse_qs(parsed.query)
 
         if parsed.path == "/api/missing-link":
-            self.handle_api(missing_link_state, github_error_status=HTTPStatus.CONFLICT)
+            self.handle_api(lambda: missing_link_state(query), github_error_status=HTTPStatus.CONFLICT)
             return
 
         if parsed.path.startswith("/api/"):

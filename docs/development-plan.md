@@ -716,10 +716,18 @@ force an isolated demonstration from a merely partial primitive.
   all 12 JSON/ZIP exports, 12 table hashes and 343 prior artifacts are unchanged.
   The full local suite passes 959 tests, including 27 Chromium browser fixtures;
   spending remains 461 reservations / USD7.2123066 with no new AI calls.
-- [ ] Reduce the measured 31.3 MB polling state payload in a separate bounded
+- [x] Reduce the measured 31.3 MB polling state payload in a separate bounded
   projection/lazy-detail change, preserving full downloads, provenance, history
-  access and identity isolation. Its size is an observed performance problem,
-  not an established cause of the previous browser-tool socket timeout.
+  access and identity isolation. The [scoped polling verification](missing-link-scoped-polling-2026-10-03.md)
+  measures 833,960 bytes for complete selected D3 evidence (97.3% smaller), exact
+  legacy/API/export equality, unchanged history/spending and 978 passing tests,
+  including 35 Chromium fixtures. Server-side full-state reads remain; this is
+  not a latency benchmark or an explanation of prior browser-tool timeouts.
+  Intermittent live identity/export failures remain documented separately.
+  The 2026-10-04 review follow-up fixes the reproduced first-response account-epoch
+  P1 with a dashboard-login baseline and late/consecutive identity regressions;
+  980 local tests pass, including 37 browser fixtures. It does not change backend
+  identity verification, provider behavior or frozen investigation results.
 - [ ] Scope typed callable JS/TS exports omitted from the acquired Zod sample as
   a separate coverage task with positive/negative fixtures, not universal module
   resolution or an implicit expansion of this retrieval fix.
