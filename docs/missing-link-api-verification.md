@@ -341,3 +341,36 @@ A read-only before/after check preserves all 12 real Missing Link table hashes
 and all 64 frozen JSON report hashes. The ledger remains **328 reservations /
 USD 5.1150975 of USD 10**, with zero queued/running jobs. No production server was
 started, and no real job was resumed/cancelled or model call made by this work.
+
+### PR #39 targeted review corrections
+
+The review of `0c099cf` found two concrete gaps in these declared contracts.
+Both were reproduced with no-spend fixtures before correction.
+
+- A terminal SSE event's `type` must agree exactly with the embedded response
+  `status`. Inconsistent completed/failed/incomplete pairs and missing status
+  now fail as `ai_stream_invalid_event` before usage, trace or JSON accounting.
+  The reservation remains charged and later candidates/calls stop. Consistent
+  terminal responses keep their existing receipt and candidate-validation rules;
+  valid completed JSON is still auditable before post-terminal cancellation.
+  Malformed/inconsistent events retain cancellation and identity-check precedence
+  at their checkpoint and cannot become auditable completed output.
+- Explicit Resume now freezes the verified preflight job snapshot and saves it
+  before its POST, preserving status, stage, error, counters and reservations if
+  acknowledgement is missing, mismatched or times out. A copied preflight paused
+  state is **not** proof that the backend stayed paused after the POST: failed
+  acknowledgement or first polling still says it may be running. Only a new
+  post-start observation replaces that snapshot or establishes a terminal state.
+
+Six added regressions cover all terminal-status disagreements, consistent receipt
+compatibility, global stop/retained unknown charge/restart, cancellation/identity
+precedence, snapshot persistence before POST and post-resume replacement. The
+existing acknowledgement regression also covers a paused snapshot's retention
+and uncertainty. There is no broader SSE parser/resolver expansion, new retry,
+historical reclassification or analysis-contract change.
+
+Final validation after both corrections: **877 tests pass**. Source and isolated
+installed-driver startup checks also pass. All 12 real Missing Link table hashes
+and 64 frozen report hashes remain unchanged; the ledger still contains **328
+reservations / USD 5.1150975**, with zero queued/running jobs. No real provider
+call, job resume/cancel or production-server restart was performed.

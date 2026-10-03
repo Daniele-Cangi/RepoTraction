@@ -322,6 +322,20 @@ driver startup and installed-module imports. All 12 real Missing Link tables and
 64 frozen report hashes stay unchanged; the original ledger remains **328 /
 USD 5.1150975**, with no active job or paid call. No production server is started.
 
+PR #39's targeted review found two bounded contract bugs, reproduced offline:
+an inconsistent terminal SSE event/status pair could be treated as completed
+analysis, and an ambiguous Resume acknowledgement retained the ID but not the
+last verified job snapshot. The corrections check exact terminal agreement before
+usage/trace/output accounting and persist a frozen preflight snapshot before the
+Resume POST. That prior paused state never certifies post-resume inactivity;
+first-poll failure remains unknown, and a fresh observation replaces the snapshot.
+Consistent terminal audit rules, cancellation/account precedence, retained
+reservations, selection and limits remain unchanged. No paid run or historical
+repair is part of these fixes; six regressions were added to the existing suite.
+Final local verification passes **877 tests**, source/installed startup checks and
+the same read-only integrity audit: all 12 real table hashes and 64 frozen report
+hashes are unchanged, with **328 reservations / USD 5.1150975** and no active job.
+
 The prior contract-14 offline replay of the retained eight-repository cohort packed
 all 8 enrichment, 24 extraction and 20 comparison inputs within the existing
 180,000-byte transport bound (maximum 164,598 bytes). The contract-16 no-spend
