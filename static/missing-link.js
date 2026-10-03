@@ -51,7 +51,7 @@ export function initMissingLink({ api, escapeHtml, demoMode, getDashboard }) {
   const e = escapeHtml;
   const state = {
     active: false, data: null, account: null, loading: false, pending: false,
-    timer: null, filter: "all", includeSuperseded: false, reviewedRevision: null, importJob: "", lastRendered: {},
+    timer: null, repoTimer: null, epoch: 0, filter: "all", includeSuperseded: false, reviewedRevision: null, importJob: "", lastRendered: {},
   };
   const find = (id) => root.querySelector(`#${id}`);
   const array = (value) => Array.isArray(value) ? value : [];
@@ -60,8 +60,10 @@ export function initMissingLink({ api, escapeHtml, demoMode, getDashboard }) {
   const selectedRepo = () => normalizeRepository(find("mlRepo")?.value);
   const matchingRepo = () => array(state.data?.repositories).find((repo) =>
     String(repo.full_name || repo.repo || "").toLowerCase() === selectedRepo().toLowerCase());
+  const sourceViewReady = () => !state.data?.dashboard || (Boolean(selectedRepo())
+    && selectedRepo().toLowerCase() === text(state.data.dashboard.selected_repo).toLowerCase());
   const repoKey = () => `${selectedRepo().toLowerCase()}:${matchingRepo()?.revision || ""}:${JSON.stringify(matchingRepo()?.capabilities || [])}`;
-  const reviewed = () => state.reviewedRevision === repoKey() && Boolean(matchingRepo()?.capabilities?.length);
+  const reviewed = () => sourceViewReady() && state.reviewedRevision === repoKey() && Boolean(matchingRepo()?.capabilities?.length);
   const link = (url, label) => safeGithubUrl(url)
     ? `<a href="${e(safeGithubUrl(url))}" target="_blank" rel="noreferrer">${e(label)} ↗</a>`
     : `<span>${e(label)}</span>`;
@@ -135,6 +137,7 @@ export function initMissingLink({ api, escapeHtml, demoMode, getDashboard }) {
     <section class="ml-section" aria-label="Discovery jobs">
       <div class="card-heading"><div><p class="eyebrow">Bounded local jobs</p><h3>Progress &amp; source coverage</h3></div><span id="mlAccount" class="ml-muted"></span></div>
       <div id="mlJobs"><div class="data-empty">No Missing Link jobs yet.</div></div>
+      <p class="ml-muted"><a id="mlFullStateLink" href="/api/missing-link" download="missing-link-state.json">Download full local state and provider traces</a> · Complete evidence for other repositories loads when selected; nothing is deleted from history.</p>
       <article class="panel-card ml-handoff">
       <details><summary>Use a coding agent without configuring a provider</summary>
         <p>Download a job's source context and analysis contract below. Give that package to your coding agent, then import its reviewed JSON analysis here. Imported claims are separate from source evidence, and are not execution results.</p>
@@ -169,7 +172,8 @@ export function initMissingLink({ api, escapeHtml, demoMode, getDashboard }) {
   function updateControls() {
     const readOnly = state.data?.diagnostic_only === true;
     const repo = matchingRepo();
-    const hasCapabilities = Boolean(repo?.capabilities?.length);
+    const hasCapabilities = sourceViewReady() && Boolean(repo?.capabilities?.length);
+    find("mlFullStateLink").classList.toggle("hidden", readOnly);
     find("mlReviewed").disabled = readOnly || state.pending || !hasCapabilities;
     find("mlReviewed").checked = reviewed();
     find("mlAnalyzeButton").disabled = readOnly || state.pending || !selectedRepo();
@@ -199,6 +203,13 @@ export function initMissingLink({ api, escapeHtml, demoMode, getDashboard }) {
   }
 
   function renderCapabilities() {
+    if (!sourceViewReady()) {
+      find("mlCapabilityCount").textContent = "Source evidence not loaded";
+      find("mlCapabilities").innerHTML = `<div class="data-empty">${selectedRepo() ? "Loading pinned source evidence for the selected repository…" : "Choose a public repository to load its complete saved evidence."}</div>`;
+      delete state.lastRendered.mlCapabilities;
+      updateControls();
+      return;
+    }
     const repo = matchingRepo();
     const capabilities = array(repo?.capabilities);
     find("mlCapabilityCount").textContent = `${capabilities.length} capabilities`;
@@ -279,6 +290,12 @@ export function initMissingLink({ api, escapeHtml, demoMode, getDashboard }) {
   }
 
   function renderMatches() {
+    if (!sourceViewReady()) {
+      find("mlMatchCount").textContent = "Results not loaded";
+      find("mlMatches").innerHTML = `<div class="data-empty">${selectedRepo() ? "Loading saved results for the selected repository… This is not an empty investigation." : "Choose a public repository to load its complete result history."}</div>`;
+      delete state.lastRendered.mlMatches;
+      return;
+    }
     const selected = matchingRepo();
     const all = array(state.data?.matches).filter((match) =>
       (!selectedRepo() || (selected?.id != null && match.repo_id != null && String(match.repo_id) === String(selected.id)))
@@ -375,6 +392,9 @@ export function initMissingLink({ api, escapeHtml, demoMode, getDashboard }) {
   }
 
   function clearAccountState() {
+    state.epoch += 1;
+    clearTimeout(state.repoTimer);
+    state.repoTimer = null;
     state.reviewedRevision = null;
     state.lastRendered = {};
     state.data = null;
@@ -387,9 +407,20 @@ export function initMissingLink({ api, escapeHtml, demoMode, getDashboard }) {
 
   async function refresh() {
     if (!state.active || state.loading) return;
+    clearTimeout(state.repoTimer);
+    state.repoTimer = null;
+    const repository = selectedRepo();
+    const epoch = state.epoch;
+    let followSelection = false;
     state.loading = true;
     try {
-      const data = await api("/api/missing-link");
+      const query = new URLSearchParams({view: "dashboard"});
+      if (repository) query.set("repo", repository);
+      const data = await api(`/api/missing-link?${query}`);
+      if (epoch !== state.epoch) { followSelection = true; return; }
+      if (data.dashboard && text(data.dashboard.selected_repo).toLowerCase() !== repository.toLowerCase()) {
+        throw new Error("Saved source response does not match the requested repository. Refresh results to try again.");
+      }
       const wasDiagnostic = state.data?.diagnostic_only === true;
       if (data.diagnostic_only === true && !wasDiagnostic) clearAccountState();
       const account = text(data.account?.login || data.account);
@@ -400,13 +431,24 @@ export function initMissingLink({ api, escapeHtml, demoMode, getDashboard }) {
       state.account = account;
       state.data = data;
       render();
+      followSelection = Boolean(data.dashboard) && data.diagnostic_only !== true
+        && selectedRepo().toLowerCase() !== repository.toLowerCase();
       if (data.diagnostic_only === true) note(data.identity_error || "GitHub identity is unverified. Only saved stop diagnostics are available.", true);
       else if (wasDiagnostic) note("GitHub identity verified again. Saved jobs remain stopped until you explicitly resume them.");
     } catch (error) {
-      note(error.message, true);
+      if (epoch === state.epoch) note(error.message, true);
     } finally {
       state.loading = false;
       schedule();
+      if (followSelection && state.active) queueRepositoryRead(0, true);
+    }
+  }
+
+  function queueRepositoryRead(delay = 250, force = false) {
+    clearTimeout(state.repoTimer);
+    state.repoTimer = null;
+    if (state.active && (force || (state.data?.dashboard && selectedRepo()))) {
+      state.repoTimer = setTimeout(() => refresh(), delay);
     }
   }
 
@@ -464,6 +506,7 @@ export function initMissingLink({ api, escapeHtml, demoMode, getDashboard }) {
       state.reviewedRevision = null;
       renderCapabilities();
       renderMatches();
+      queueRepositoryRead();
     }
     updateControls();
   });
@@ -540,7 +583,10 @@ export function initMissingLink({ api, escapeHtml, demoMode, getDashboard }) {
     setActive(active) {
       const changed = state.active !== active;
       state.active = active;
-      if (!active) { clearTimeout(state.timer); state.timer = null; }
+      if (!active) {
+        clearTimeout(state.timer); state.timer = null;
+        clearTimeout(state.repoTimer); state.repoTimer = null;
+      }
       else if (changed || !state.data) refresh();
     },
     updateDashboard(dashboard) {
