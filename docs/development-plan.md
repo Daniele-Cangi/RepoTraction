@@ -670,9 +670,23 @@ force an isolated demonstration from a merely partial primitive.
 - [x] Handle large inspection handoffs losslessly with a multipart index and
   fragments, preserving file/total limits and full JSON exports. All six asttokens
   ZIPs reconstruct offline; no stored result or historical block is rewritten.
-- [ ] Review and merge the [contract-24 no-spend corrections](missing-link-contract24-offline-2026-10-03.md),
+- [x] Review and merge the [contract-24 no-spend corrections](missing-link-contract24-offline-2026-10-03.md),
   then freeze a new separately scoped live segment for the three unstarted sources.
   Freezegun/Babel remain paused and all unknown reservations remain charged.
+- [x] Complete the [contract-24 three-source model test](missing-link-contract24-remaining-result-2026-10-03.md)
+  under its pushed protocol: 21 calls/receipts, nine discussions and 15 comparisons,
+  with four grounded partials but no eligible lead. The original allowance is now
+  440 reservations / USD6.8468383; history and all pre-restart JSON/ZIP exports verify.
+  A later post-restart verified-state assertion failed and was not rerun; later
+  account recovery does not turn the whole operational check into a clean pass.
+- [ ] Correct the two reproduced attribution cases offline: unrelated class
+  assignments must not certify a nested method's behavior, and body-focused
+  citations must not stop before the acquired operation's executable body.
+  Preserve bounded ownership/transport and explicit omissions; no universal parser
+  expansion, gate relaxation, old-result rewrite or automatic paid retest.
+- [ ] Preserve the safe diagnostic response before a restart-check assertion and
+  investigate transient verified-state loss without weakening account checks,
+  claiming an expired key or resuming either old paused investigation.
 - [ ] Scope typed callable JS/TS exports omitted from the acquired Zod sample as
   a separate coverage task with positive/negative fixtures, not universal module
   resolution or an implicit expansion of this retrieval fix.
