@@ -363,6 +363,40 @@ are not a verified utility count. Product code remained frozen. No further paid
 resume is automatic, and typed model non-demand handling plus fresh python-dotenv
 API recall remain unverified in this incomplete sample.
 
+## Contract 24: operation guidance and evidence-gate explanations
+
+Method-level claims should select a supplied method capability ID and cite that
+method's implementation body. A class declaration cannot borrow nested methods'
+behavior. If that ID/body is not supplied, the behavior stays unestablished;
+neither enrichment nor comparison may invent an ID or transfer ownership.
+
+Checks changed by the evidence gate retain their original status, contribution
+and reason in `support_normalization`, with fixed codes/messages explaining the
+change. The displayed reason includes the explanation. This does not weaken
+provenance, prove semantic relevance, qualify partial primitives or execute code.
+Old contract results and original charged outputs remain unchanged. See the
+[bounded offline correction report](missing-link-contract24-offline-2026-10-03.md)
+for retained-output validation and limits; fresh model behavior is not yet tested.
+
+## Inspection ZIP format and bounds
+
+Every package is **NOT EXECUTED**. Files are limited to 128,000 bytes and the total
+uncompressed package, including metadata, is limited to 2,000,000 bytes. Oversized
+bridge files remain rejected; packaging is not an execution or safety certificate.
+
+Small ZIPs contain the complete schema-version-1 `handoff.json`. For larger
+handoff metadata, `handoff.json` is a schema-version-2 `chunked_handoff` index,
+not the complete document. Concatenate raw bytes from its `parts` in listed order,
+verify every part's byte count/SHA-256 and the complete byte count/SHA-256, then
+decode UTF-8 and parse JSON. `handoff-parts/*.json.part` files are readable UTF-8
+fragments, not standalone JSON; `HANDOFF.md` documents reconstruction. The
+manifest hashes the index and every fragment. Bounds and original evidence are
+preserved without silently truncating the handoff. The separate `.json` export
+still returns the complete document. Consumers that expect a full `match` in
+`handoff.json` must distinguish the index format before reading larger packages.
+Historical packaging-block annotations are not rewritten; downloads regenerate
+the inspection package from the stored pinned snapshot using the current format.
+
 ## Coding-agent mode without a provider
 
 ### Contracts 20–21: post-retest corrections

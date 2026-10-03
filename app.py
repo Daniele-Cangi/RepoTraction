@@ -299,11 +299,15 @@ def verify_active_account(*, force: bool = False) -> str | None:
         now = time.monotonic()
         if not force and now - _ACCOUNT_CHECKED_AT < ACCOUNT_CHECK_INTERVAL_SECONDS:
             return expected
+        # This attempt supersedes cached success, including a fresh forced check.
+        # A failure must not let subsequent requests reuse an unverified identity.
+        _ACCOUNT_CHECKED_AT = float("-inf")
         verify_cli_account(
             expected, run=subprocess.run,
             creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
         )
-        _ACCOUNT_CHECKED_AT = now
+        # CLI/keyring latency must not consume the successful check's cache TTL.
+        _ACCOUNT_CHECKED_AT = time.monotonic()
         return expected
 
 
