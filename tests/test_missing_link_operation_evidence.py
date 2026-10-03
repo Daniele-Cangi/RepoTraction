@@ -77,6 +77,54 @@ class OperationEvidenceTests(unittest.TestCase):
         self.result(self.case(source, name="forward", path="core.py"), ["file:core.py#L1-L4"], "partial_behavior")
         self.result(self.case(source, name="forward", path="core.py"), ["file:core.py#L6-L7"], "not_demonstrated")
 
+    def nested_cases(self):
+        return (
+            ("def failure():\n    def nested():\n        return behavior()\n", "failure.nested", 3),
+            ("def failure():\n    async def nested():\n        return behavior()\n", "failure.nested", 3),
+            ("async def failure():\n    async def nested():\n        return behavior()\n", "failure.nested", 3),
+            ("def failure():\n    class Inner:\n        def run(self):\n            return behavior()\n", "failure.Inner.run", 4))
+
+    def test_nested_python_scopes_do_not_grant_partial_credit_to_outer_function(self):
+        for source, _, last in self.nested_cases():
+            for refs in ([f"file:core.py#L2-L{last}"], [f"file:core.py#L{last}-L{last}"], ["file:core.py"]):
+                with self.subTest(source=source, refs=refs):
+                    self.result(self.case(source, path="core.py"), refs, "not_demonstrated")
+
+    def test_full_support_cannot_borrow_nested_python_operation(self):
+        for source, _, last in self.nested_cases():
+            for reference in (f"file:core.py#L2-L{last}", "file:core.py"):
+                with self.subTest(source=source, reference=reference):
+                    repo, issue, request, raw = self.case(source, path="core.py")
+                    raw["checks"][0].update(status="satisfied", contribution="existing_behavior", source_ids=[reference])
+                    raw["partial_support"] = []
+                    before = copy.deepcopy((repo, issue, request, raw))
+                    for provenance in ("model", "coding_agent_import"):
+                        result = validate_matches([raw], repo, issue, request, provenance)[0]
+                        self.assertEqual(result["checks"][0]["status"], "undetermined")
+                        self.assertEqual(result["checks"][0]["contribution"], "not_demonstrated")
+                        self.assertFalse(result["discovery_assessment"]["eligible_for_followup"])
+                    self.assertEqual((repo, issue, request, raw), before)
+
+    def test_nested_function_and_method_keep_their_own_body_credit(self):
+        for source, selected, last in self.nested_cases():
+            with self.subTest(selected=selected, source=source):
+                self.result(self.case(source, name=selected, path="core.py"),
+                    [f"file:core.py#L{last}-L{last}"], "partial_behavior")
+
+    def test_outer_function_keeps_own_control_flow_and_forwarding_after_nested_definition(self):
+        for source, _, last in self.nested_cases():
+            source += "    if ready():\n        return delegate()\n"
+            with self.subTest(source=source):
+                self.result(self.case(source, path="core.py"), [f"file:core.py#L{last+2}-L{last+2}"], "partial_behavior")
+                self.result(self.case(source, path="core.py"), [f"file:core.py#L{last}-L{last}"], "not_demonstrated")
+
+    def test_class_keeps_own_initialization_without_borrowing_method_body(self):
+        source = "class Worker:\n    def run(self):\n        return delegate()\n"
+        for refs in (["file:core.py#L3-L3"], ["file:core.py"]):
+            self.result(self.case(source, name="Worker", path="core.py"), refs, "not_demonstrated")
+        source += "    shared = configure()\n"
+        self.result(self.case(source, name="Worker", path="core.py"), ["file:core.py#L4-L4"], "partial_behavior")
+
     def test_lexical_lookalikes_and_unclosed_javascript_are_not_body_proof(self):
         for source in ("/*\nfunction failure(issues) {\n return issues;\n}\n*/\n",
                        "function failure(issues) {\n return issues;\n",

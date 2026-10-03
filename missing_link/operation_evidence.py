@@ -16,6 +16,17 @@ _FUNCTION = re.compile(r"[ \t]*(?:export\s+(?:default\s+)?)?(?:async\s+)?functio
 _BODY_OPEN = re.compile(r"\s*(?::[\w$.<>\[\]|,& \t\r\n]+)?\{")
 
 
+def _owned_python_nodes(node):
+    """Traverse the selected body without borrowing a nested operation's body."""
+    pending = list(reversed(node.body))
+    while pending:
+        current = pending.pop()
+        if isinstance(current, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef, ast.Lambda)):
+            continue  # Nested declarations retain their own separately scanned regions.
+        yield current
+        pending.extend(reversed(list(ast.iter_child_nodes(current))))
+
+
 def _scan(file):
     source, path = file.get("text"), file["path"]
     if not isinstance(source, str) or len(source.encode("utf-8")) > MAX_FILE_BYTES:
@@ -31,9 +42,8 @@ def _scan(file):
             if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
                 continue
             body = []
-            for statement in ast.walk(node):
-                if (not isinstance(statement, ast.stmt) or isinstance(statement,
-                    (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef, ast.Pass))):
+            for statement in _owned_python_nodes(node):
+                if not isinstance(statement, ast.stmt) or isinstance(statement, ast.Pass):
                     continue
                 if isinstance(statement, ast.Expr) and isinstance(statement.value, ast.Constant):
                     continue  # Docstrings and ellipsis stubs are not implementation.
