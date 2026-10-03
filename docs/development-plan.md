@@ -291,6 +291,51 @@ The previous live cause remains unknown and old records are not relabeled. This
 fix improves observability and restricted polling, not transport resilience or
 discovery accuracy; the unfinished paid sample remains a separate decision.
 
+After PR #38 merged, the user authorized proceeding with the remaining bounded
+operational work before the next live segment. Provider transport failures now
+have fixed typed diagnostics (timeout, network/I/O, HTTP status, malformed JSON
+or SSE, missing terminal response, redirect and existing size/deadline bounds).
+They remain global failed-job stops, not candidate-local model validation. The
+captured job adds phase/call/attempt identity without copying raw exceptions,
+headers, bodies or credentials. Unknown responses retain their reservations;
+completed/refused/invalid model responses keep the existing receipt/audit rules.
+No retries, price/timeout/byte-limit changes or semantic contract bump are made.
+
+The opt-in HTTP driver now delegates to `missing_link/investigation.py`. It owns
+a new report before POSTs, persists the acknowledged job ID before polling and
+stops on observer failure without another Discover/resume or automatic cancel.
+The report explicitly says the backend may still be running. The existing
+15-minute deadline requests cancellation once, distinguishing acknowledgement,
+failure and unconfirmed response from actual worker termination. Completed job
+and partial export observations are retained; existing frozen reports cannot
+be overwritten. The 30-second socket bound is unchanged.
+
+These are no-spend operational corrections, not completion of the frozen cohort
+or evidence of better Luna answers. Babel remains paused and both unknown paid
+outcomes stay charged. Resume is not automatic. The next live segment must name
+the nine unstarted inputs, freeze merged executable code/settings anew and keep
+the original cumulative USD 10 allowance. UI/key-entry and parser expansion
+remain deferred; isolation still needs a genuinely eligible grounded match.
+
+The final no-spend run passes **871 tests** (23 new regressions), source/installed
+driver startup and installed-module imports. All 12 real Missing Link tables and
+64 frozen report hashes stay unchanged; the original ledger remains **328 /
+USD 5.1150975**, with no active job or paid call. No production server is started.
+
+PR #39's targeted review found two bounded contract bugs, reproduced offline:
+an inconsistent terminal SSE event/status pair could be treated as completed
+analysis, and an ambiguous Resume acknowledgement retained the ID but not the
+last verified job snapshot. The corrections check exact terminal agreement before
+usage/trace/output accounting and persist a frozen preflight snapshot before the
+Resume POST. That prior paused state never certifies post-resume inactivity;
+first-poll failure remains unknown, and a fresh observation replaces the snapshot.
+Consistent terminal audit rules, cancellation/account precedence, retained
+reservations, selection and limits remain unchanged. No paid run or historical
+repair is part of these fixes; six regressions were added to the existing suite.
+Final local verification passes **877 tests**, source/installed startup checks and
+the same read-only integrity audit: all 12 real table hashes and 64 frozen report
+hashes are unchanged, with **328 reservations / USD 5.1150975** and no active job.
+
 The prior contract-14 offline replay of the retained eight-repository cohort packed
 all 8 enrichment, 24 extraction and 20 comparison inputs within the existing
 180,000-byte transport bound (maximum 164,598 bytes). The contract-16 no-spend

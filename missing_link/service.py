@@ -464,7 +464,7 @@ class Service:
         except Paused as exc:
             job.update(status="paused", error=str(exc), error_diagnostic=None)
         except Exception as exc:
-            job.update(**job_failure(exc))
+            job.update(**job_failure(exc, job=job))
         save()
 
     @staticmethod

@@ -271,3 +271,106 @@ unchanged, with no queued/running job. The real allowance remains **328
 reservations / USD 5.1150975 of USD 10**. This improves future diagnostic evidence;
 it does not identify the earlier outage's cause, improve connection resilience,
 complete the remaining cohort or prove better discovery quality.
+
+## Provider transport and HTTP observer diagnostics — 3 October 2026
+
+This separate no-spend correction follows merged PR #38. It does not resume any
+live job, replace an old report or explain either historical unknown outcome.
+
+`missing_link/provider_errors.py` defines fixed global transport stops. The job's
+additive `error_diagnostic` contains category `ai_transport`, a bounded code,
+interpretation phase, captured call/attempt identity, `reservation_retained=true`
+and `response_receipt=unavailable` (no complete model response receipt, not a
+claim that the HTTP request never reached the provider). An observed HTTP error
+adds only its numeric status. Raw exception reasons, headers, bodies, SSE content,
+prompts and keys are not copied into diagnostics.
+
+| Codes | Meaning |
+| --- | --- |
+| `ai_transport_timeout` | Direct or wrapped socket timeout. |
+| `ai_transport_network_error`, `ai_transport_io_error` | Network failure versus other transport I/O failure; no invented DNS/VPN cause. |
+| `ai_transport_http_error`, `ai_transport_redirect` | Numeric HTTP failure or locally denied redirect. |
+| `ai_transport_invalid_json`, `ai_transport_invalid_response`, `ai_transport_protocol_error` | Invalid transport JSON, non-object envelope or another bounded protocol failure. |
+| `ai_transport_size_exceeded`, `ai_stream_deadline_exceeded` | Existing response/stream size or time bound reached. |
+| `ai_stream_invalid_event`, `ai_stream_missing_terminal` | Malformed SSE event or stream without a terminal response. |
+
+These failures stop the job before another candidate/call, keep charged unknown
+attempts and do not fabricate usage, terminal traces or accepted JSON. They are
+not `CandidateValidationError`: a received completed model answer still follows
+the existing refusal/shape/semantic validation and output-audit contracts.
+Cancellation and typed GitHub identity failures retain priority at partial-frame
+checkpoints; completed JSON remains auditable before a post-terminal stop.
+Limits remain 55 seconds per provider socket, 240 seconds per stream,
+512,000 bytes per response/frame and 8,000,000 aggregate SSE bytes. Model,
+schema, packing, budgets, automatic-retry policy and analysis contract 21 do not
+change. This is observability, not a network-resilience guarantee.
+
+`scripts/investigate_missing_link.py` remains explicitly opt-in and delegates
+observation to `missing_link/investigation.py`. Its report path must be new; it
+is created before mutation and updated atomically. On GET failure it retains
+the known job ID and last observed state, returns nonzero and does not cancel,
+resume or start a replacement. A failed start acknowledgement is also unknown:
+the request may have started a backend job, so it is never repeated implicitly.
+An explicit resume's original ID is retained even if its acknowledgement fails.
+Observer diagnostics distinguish timeout, network/I/O, HTTP status, protocol,
+identity-only polling, missing job, report-write failure and the job deadline.
+No raw HTTP/exception body is added to the failure record. If report persistence
+itself fails, the known ID and safe diagnostic remain in stdout.
+
+The existing 30-second socket and 15-minute job deadline are not increased. On
+the deadline only, cancellation is requested once. `acknowledged` means the local
+API returned the correct cancelled job, **not** that an in-flight worker/provider
+call has exited or that its reservation was refunded. Failure/unconfirmed reply
+is not called successful cancellation. Export failure retains terminal job state
+and already received exports without re-running analysis. The cohort wrapper must
+stop on a nonzero driver result and separately inspect the known backend job.
+
+Fixtures use mocked provider HTTP, fictional owned stores and one actual
+loopback HTTP test server; no paid model, real account job or acquired-code
+execution is invoked. Provider failures were reproduced as untyped diagnostics
+before the fix. Regression coverage includes per-call reservation retention,
+restart, no later candidate, safe messages, partial-stream cancellation/identity
+priority, report ownership, persisted IDs, ambiguous POST outcome, GET failure,
+deadline cancellation and partial exports. Historical live samples are still
+incomplete; the nine unstarted repositories require a separately frozen segment.
+
+Final local validation: **871 tests pass**, including the 23 new provider,
+observer and cancellation regressions and the existing browser/account/history
+suite. Source and installed driver `--help` and isolated installed imports pass.
+A read-only before/after check preserves all 12 real Missing Link table hashes
+and all 64 frozen JSON report hashes. The ledger remains **328 reservations /
+USD 5.1150975 of USD 10**, with zero queued/running jobs. No production server was
+started, and no real job was resumed/cancelled or model call made by this work.
+
+### PR #39 targeted review corrections
+
+The review of `0c099cf` found two concrete gaps in these declared contracts.
+Both were reproduced with no-spend fixtures before correction.
+
+- A terminal SSE event's `type` must agree exactly with the embedded response
+  `status`. Inconsistent completed/failed/incomplete pairs and missing status
+  now fail as `ai_stream_invalid_event` before usage, trace or JSON accounting.
+  The reservation remains charged and later candidates/calls stop. Consistent
+  terminal responses keep their existing receipt and candidate-validation rules;
+  valid completed JSON is still auditable before post-terminal cancellation.
+  Malformed/inconsistent events retain cancellation and identity-check precedence
+  at their checkpoint and cannot become auditable completed output.
+- Explicit Resume now freezes the verified preflight job snapshot and saves it
+  before its POST, preserving status, stage, error, counters and reservations if
+  acknowledgement is missing, mismatched or times out. A copied preflight paused
+  state is **not** proof that the backend stayed paused after the POST: failed
+  acknowledgement or first polling still says it may be running. Only a new
+  post-start observation replaces that snapshot or establishes a terminal state.
+
+Six added regressions cover all terminal-status disagreements, consistent receipt
+compatibility, global stop/retained unknown charge/restart, cancellation/identity
+precedence, snapshot persistence before POST and post-resume replacement. The
+existing acknowledgement regression also covers a paused snapshot's retention
+and uncertainty. There is no broader SSE parser/resolver expansion, new retry,
+historical reclassification or analysis-contract change.
+
+Final validation after both corrections: **877 tests pass**. Source and isolated
+installed-driver startup checks also pass. All 12 real Missing Link table hashes
+and 64 frozen report hashes remain unchanged; the ledger still contains **328
+reservations / USD 5.1150975**, with zero queued/running jobs. No real provider
+call, job resume/cancel or production-server restart was performed.
