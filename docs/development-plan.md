@@ -679,14 +679,21 @@ force an isolated demonstration from a merely partial primitive.
   440 reservations / USD6.8468383; history and all pre-restart JSON/ZIP exports verify.
   A later post-restart verified-state assertion failed and was not rerun; later
   account recovery does not turn the whole operational check into a clean pass.
-- [ ] Correct the two reproduced attribution cases offline: unrelated class
+- [x] Correct the two reproduced attribution cases offline: unrelated class
   assignments must not certify a nested method's behavior, and body-focused
   citations must not stop before the acquired operation's executable body.
   Preserve bounded ownership/transport and explicit omissions; no universal parser
   expansion, gate relaxation, old-result rewrite or automatic paid retest.
-- [ ] Preserve the safe diagnostic response before a restart-check assertion and
-  investigate transient verified-state loss without weakening account checks,
-  claiming an expired key or resuming either old paused investigation.
+  The [contract-25 no-spend replay](missing-link-contract25-offline-2026-10-03.md)
+  downgrades the mixed class claim and preserves supplied descriptor body text;
+  all 15 overall assessments remain unchanged and no eligible lead is created.
+- [x] Provide safe identity-observation persistence before verification guards or
+  an owned assertion. The HTTP driver retains typed diagnostics without raw
+  account/provider data, retries or replacement jobs. Fixture assertions retain
+  the diagnostic subtype; the lost old response is not retrospectively recovered.
+- [ ] Investigate transient verified-state loss through a separately scoped fresh
+  read-only check after review, without weakening account checks, claiming an
+  expired key, rerunning the frozen helper or resuming paused investigations.
 - [ ] Scope typed callable JS/TS exports omitted from the acquired Zod sample as
   a separate coverage task with positive/negative fixtures, not universal module
   resolution or an implicit expansion of this retrieval fix.

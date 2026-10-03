@@ -463,6 +463,8 @@ class Provider:
             "implementation_bounds are bounded structural hints, not proof of behavior, exports or semantic relevance. "
             "For method-level behavior select an available method capability ID and cite that method's own body; "
             "do not select its enclosing class and borrow nested-method citations. If the needed method ID or body is "
+            "unavailable, do not infer it from class attributes. A class-owned initialization claim needs a precise "
+            "initializer citation that does not mix in nested method bodies. If the needed operation is "
             "not supplied, mark the behavior not_demonstrated rather than inventing an ID or transferring ownership. "
             "Name the operation, the precise requested suboperation "
             "it implements and the remaining project work. For other checks use no review unless useful to explain a rejected "

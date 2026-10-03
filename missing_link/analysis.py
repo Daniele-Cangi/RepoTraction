@@ -17,11 +17,11 @@ from .sources import source_role, runtime_bin_entrypoints
 from .contracts import validate_requirement_count
 from .non_demands import NON_DEMAND_STATUS, is_non_demand, validate_non_demand
 from .contributions import normalize_support, partial_reviews, SUPPORT_MESSAGES
-from .operation_evidence import operation_regions
+from .operation_evidence import bounded_operation_evidence, operation_regions
 
 CLASSIFICATIONS = {"direct", "adapter", "extraction", "rejected", "investigate"}
 REQUEST_STATUSES = {"unresolved", "resolved", "duplicate", "unclear", "automated", NON_DEMAND_STATUS}
-ANALYSIS_CONTRACT_VERSION = 24
+ANALYSIS_CONTRACT_VERSION = 25
 
 
 def passive_api_constraint(requirement: dict) -> bool:
@@ -266,8 +266,7 @@ def validate_matches(raw_matches: list, repository: dict, issue: dict, request: 
             contribution = item.get("contribution", "not_demonstrated")
             evidence = []
             for reference in item.get("source_ids", []):
-                entry = resolve_evidence(reference, catalog)
-                entry["quote"] = entry["quote"][:1600]
+                entry = bounded_operation_evidence(resolve_evidence(reference, catalog), regions)
                 entry["source_id"] = reference
                 evidence.append(entry)
             reason = text(item.get("reason", "No grounded assessment supplied."))
