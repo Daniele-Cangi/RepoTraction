@@ -8,6 +8,7 @@ import sqlite3
 
 from github_cli import ActiveAccountChangedError, GitHubAccountVerificationError
 from .job_errors import job_failure
+from .dashboard_state import dashboard_selection, project_dashboard
 
 
 def _saved_stop(record_id, raw):
@@ -52,16 +53,18 @@ def _read_saved_stops(database, account):
         db.close()
 
 
-def poll_state(*, verify, get_service, account, database, services, binding_lock):
+def poll_state(*, verify, get_service, account, database, services, binding_lock, query=None):
     """Keep full-state verification; only typed outages admit a minimal view.
 
     An existing service must have been bound during verified operation in this
     process. Never initialize a service/provider/Store to satisfy a failed poll.
     Confirmed switches, ambiguous identities and unknown exceptions still fail.
     """
+    selection = dashboard_selection(query)
     try:
         verify()
-        return get_service().state()
+        state = get_service().state()
+        return state if selection is None else project_dashboard(state, selection)
     except GitHubAccountVerificationError as exc:
         if exc.code == "github_identity_ambiguous" or not account:
             raise
