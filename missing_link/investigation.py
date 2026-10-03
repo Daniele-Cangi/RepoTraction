@@ -13,6 +13,8 @@ import urllib.error
 import urllib.request
 from urllib.parse import urlencode
 
+from .identity_observation import safe_identity_observation
+
 
 class ObservationError(RuntimeError):
     def __init__(self, code, *, http_status=None):
@@ -85,6 +87,11 @@ class Report:
                 except OSError:
                     pass  # Only an owned incomplete report temp may remain.
 
+    def observe_identity(self, state):
+        """Persist the safe received subtype before a verification guard/assertion."""
+        self.payload["identity_observation"] = safe_identity_observation(state)
+        self.save()
+
 
 def run_investigation(args, request, *, emit=print, monotonic=time.monotonic, sleep=time.sleep):
     """GET failure leaves the known backend alone; deadline requests cancellation once."""
@@ -99,6 +106,7 @@ def run_investigation(args, request, *, emit=print, monotonic=time.monotonic, sl
     try:
         state = _call(request, "/api/missing-link")
         if state.get("diagnostic_only") or not isinstance(state.get("provider"), dict):
+            report.observe_identity(state)
             raise ObservationError("observer_identity_unverified")
         if args.use_ai and not state["provider"].get("configured"):
             raise ObservationError("observer_provider_unconfigured")
@@ -140,6 +148,7 @@ def run_investigation(args, request, *, emit=print, monotonic=time.monotonic, sl
             while monotonic() < deadline:
                 state = _call(request, "/api/missing-link")
                 if state.get("diagnostic_only"):
+                    report.observe_identity(state)
                     raise ObservationError("observer_identity_unverified")
                 job = next((item for item in state.get("jobs", []) if item.get("id") == job_id), None)
                 if not isinstance(job, dict) or job.get("status") not in {"queued", "running", "completed", "failed", "paused", "cancelled"}:

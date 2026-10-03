@@ -13,6 +13,7 @@ import urllib.error
 from unittest import mock
 
 from missing_link.investigation import ObservationError, Report, local_request, run_investigation
+from missing_link.identity_observation import safe_identity_observation
 
 
 class InvestigationTests(unittest.TestCase):
@@ -177,6 +178,65 @@ class InvestigationTests(unittest.TestCase):
         self.assertEqual(report["observation_failure"]["http_status"], 409)
         self.assertFalse(report["observation_failure"]["backend_may_be_running"])
         self.assert_no_replacement(request, mutations=0)
+
+    def diagnostic_state(self, code="github_identity_cli_timeout"):
+        return {"diagnostic_only": True, "identity_verified": False, "actions_available": False,
+            "identity_diagnostic": {"category": "private", "code": code, "timeout_seconds": 999,
+                "stderr": "private credentials", "nested": {"token": "private"}},
+            "identity_error": "private exception", "provider": {"key": "private"},
+            "jobs": [{"id": "private"}], "account": "private"}
+
+    def test_preflight_identity_failure_preserves_safe_subtype_before_stopping(self):
+        state = self.diagnostic_state()
+        before = copy.deepcopy(state)
+        result, report, request = self.execute([state])
+        self.assertEqual(result, 1)
+        self.assertEqual(report["identity_observation"], {"diagnostic_only": True,
+            "identity_verified": False, "actions_available": False,
+            "identity_diagnostic": {"category": "github_identity", "code": "github_identity_cli_timeout",
+                "timeout_seconds": 10}})
+        self.assertEqual(report["observation_failure"]["code"], "observer_identity_unverified")
+        self.assertEqual(report["observation_failure"]["phase"], "preflight")
+        self.assertIsNone(report["provider"])
+        self.assertEqual(report["jobs"], [])
+        self.assertNotIn("private", json.dumps(report))
+        self.assertEqual(state, before)
+        self.assert_no_replacement(request, mutations=0)
+
+    def test_poll_identity_diagnostic_preserves_last_job_not_unverified_payload(self):
+        _, report, request = self.execute([self.initial, {"job_id": self.job["id"]},
+            {"jobs": [self.job]}, self.diagnostic_state("github_identity_ambiguous")])
+        self.assertEqual(report["jobs"][0]["job"], self.job)
+        self.assertEqual(report["provider"], self.initial["provider"])
+        self.assertEqual(report["identity_observation"]["identity_diagnostic"],
+            {"category": "github_identity", "code": "github_identity_ambiguous"})
+        self.assertEqual(report["observation_failure"]["phase"], "poll")
+        self.assertTrue(report["observation_failure"]["backend_may_be_running"])
+        self.assertFalse(report["observation_failure"]["automatic_retry"])
+        self.assertNotIn("private", json.dumps(report))
+        self.assert_no_replacement(request)
+
+    def test_identity_projection_drops_unknown_codes_untyped_flags_and_raw_fields(self):
+        for code in ("private arbitrary failure", None, [], {}):
+            with self.subTest(code=code):
+                state = self.diagnostic_state(code)
+                state.update(identity_verified="private", actions_available=1)
+                self.assertEqual(safe_identity_observation(state), {"diagnostic_only": True,
+                    "identity_verified": None, "actions_available": None, "identity_diagnostic": None})
+        for code in ("github_identity_cli_missing", "github_identity_cli_error", "github_identity_cli_failed",
+                "github_identity_invalid_response", "github_identity_unavailable"):
+            self.assertEqual(safe_identity_observation(self.diagnostic_state(code))["identity_diagnostic"],
+                {"category": "github_identity", "code": code})
+
+    def test_owned_assertion_report_preserves_observed_diagnostic_before_failure(self):
+        report = Report(self.path, {"check": "fixture_restart_identity"})
+        state = self.diagnostic_state()
+        with self.assertRaises(AssertionError):
+            report.observe_identity(state)
+            assert state.get("identity_verified") is True
+        saved = json.loads(self.path.read_text(encoding="utf-8"))
+        self.assertEqual(saved["identity_observation"]["identity_diagnostic"]["code"], "github_identity_cli_timeout")
+        self.assertNotIn("private", json.dumps(saved))
 
     def test_export_failure_keeps_terminal_job_and_previous_exports(self):
         job = copy.deepcopy(self.job)
