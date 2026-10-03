@@ -694,6 +694,20 @@ force an isolated demonstration from a merely partial primitive.
 - [ ] Investigate transient verified-state loss through a separately scoped fresh
   read-only check after review, without weakening account checks, claiming an
   expired key, rerunning the frozen helper or resuming paused investigations.
+- [x] Complete the [contract-25 new repository-only Luna segment](missing-link-contract25-three-repo-result-2026-10-03.md)
+  under its pushed protocol: 21 calls/receipts, nine discussions and 12 comparisons;
+  three retained grounded partials, eight non-fits, one citation-downgraded similarity
+  and no eligible lead. All pre/post-restart JSON/ZIP exports and historical records
+  verify; the original allowance is 461 reservations / USD7.2123066. Browser rendering
+  of the new cohort remains unconfirmed after a socket timeout; do not label the
+  entire UI flow a clean pass or retroactively repair the older identity failure.
+- [ ] Turn the retained D3 `group` citation mistake into a bounded no-spend precision
+  regression: its supplied 4–6 wrapper span establishes delegation, while the broad
+  mixed-function citation must remain rejected. Do not launder recursive helper
+  behavior into the wrapper or upgrade the frozen stored comparison.
+- [ ] Diagnose the observed browser refresh/new-result boundary read-only, separating
+  frontend state, HTTP acquisition and browser-tool transport. Preserve the failed
+  check and safe diagnostics; no paid retry or automatic job resumption.
 - [ ] Scope typed callable JS/TS exports omitted from the acquired Zod sample as
   a separate coverage task with positive/negative fixtures, not universal module
   resolution or an implicit expansion of this retrieval fix.
