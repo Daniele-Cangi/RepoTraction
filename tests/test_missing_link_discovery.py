@@ -40,6 +40,40 @@ class RetrievalTests(unittest.TestCase):
         repo["capabilities"][0]["search_terms"] = ["pagination", "cursor pagination"]
         self.assertTrue(problem_queries(repo)[0].startswith("cursor pagination is:open"))
 
+    def test_source_free_context_survives_compound_package_name_removal(self):
+        for terms, expected in (
+                (["Python dotenv environment loading", "environment variable override", "dotenv stream interpolation"],
+                 "environment variable override"),
+                (["Python dotenv parse to dictionary", "dotenv stream parsing", "environment variable interpolation"],
+                 "dotenv stream parsing")):
+            with self.subTest(terms=terms):
+                repo = repository()
+                repo["full_name"] = "theskumar/python-dotenv"
+                repo["capabilities"][0].update(claim_source="model", search_terms=terms)
+                before = copy.deepcopy(repo)
+                self.assertEqual(problem_queries(repo), [expected + " is:open in:title,body -repo:theskumar/python-dotenv"])
+                self.assertEqual(repo, before)
+
+    def test_source_free_phrase_preference_handles_source_name_spellings(self):
+        for source in ("runtime-config", "runtimeConfig", "runtime config", "example/runtime-config"):
+            for metadata in ({"claim_source": "model"}, {"maintainer_correction": {"revision": "a" * 40}}):
+                with self.subTest(source=source, metadata=metadata):
+                    repo = repository()
+                    repo["full_name"] = "example/runtime-config"
+                    repo["capabilities"][0].update(metadata,
+                        search_terms=[source + " parse dictionary", "environment variable parsing"])
+                    self.assertTrue(problem_queries(repo)[0].startswith("environment variable parsing is:open"))
+
+    def test_source_stripped_context_remains_fallback_before_singletons(self):
+        repo = repository()
+        repo["capabilities"][0]["search_terms"] = ["words cursor pagination", "pagination", "words", "function"]
+        self.assertEqual(problem_queries(repo), ["cursor pagination is:open in:title,body -repo:example/words"])
+
+    def test_generic_word_cleanup_does_not_demote_first_source_free_context(self):
+        repo = repository()
+        repo["capabilities"][0]["search_terms"] = ["functions with cursor pagination", "unicode word boundary detection"]
+        self.assertTrue(problem_queries(repo)[0].startswith("cursor pagination is:open"))
+
     def test_remove_package_tokens_but_keep_problem_words(self):
         repo = repository()
         repo["full_name"] = "sindresorhus/p-limit"
@@ -160,6 +194,22 @@ class DiscoveryServiceTests(unittest.TestCase):
         self.assertEqual(job["status"], "completed")
         source.search_issues.assert_called_once_with("pagination is:open in:title,body -repo:example/words", max_pages=2, page_size=20)
         self.assertTrue(job["result"]["search"]["automatic_query"])
+        self.assertEqual(job["ai_calls_used"], 0)
+
+    def test_source_free_query_reaches_search_and_is_checkpointed_without_ai(self):
+        repo = repository()
+        repo["capabilities"][0]["search_terms"] = ["words parse dictionary", "environment variable parsing"]
+        source = self.fake_sources()
+        source.fetch_repository.return_value = repo
+        with mock.patch("missing_link.service.PublicGitHub", return_value=source), \
+             mock.patch("missing_link.service.extract_structure", return_value=repo["capabilities"]):
+            result = self.service.start({"repo": "example/words"}, background=False)
+        query = "environment variable parsing is:open in:title,body -repo:example/words"
+        source.search_issues.assert_called_once_with(query, max_pages=2, page_size=20)
+        job = self.service.store.get("jobs", result["job_id"])
+        self.assertEqual(job["status"], "completed")
+        self.assertEqual(job["result"]["search"]["queries"], [query])
+        self.assertEqual(job["checkpoint"]["candidates"], job["result"]["search"]["selected_candidates"])
         self.assertEqual(job["ai_calls_used"], 0)
 
     def test_query_override_and_candidate_decision_are_persisted(self):

@@ -70,8 +70,7 @@ def project_words(repository):
     return words(repository["full_name"].split("/")[-1])
 
 
-def _problem_terms(value, repository):
-    tokens = words(value)
+def _strip_project_name(tokens, repository):
     name = project_words(repository)
     full_name = words(repository["full_name"])
     # Drop only the whole package name (p-limit / pLimit / p limit), not
@@ -85,10 +84,14 @@ def _problem_terms(value, repository):
         elif name and tokens[index] == "".join(name):
             index += 1
         else:
-            if tokens[index] not in _GENERIC:
-                result.append(tokens[index])
+            result.append(tokens[index])
             index += 1
-    return list(dict.fromkeys(result))
+    return result
+
+
+def _problem_terms(value, repository):
+    return list(dict.fromkeys(token for token in _strip_project_name(words(value), repository)
+                             if token not in _GENERIC))
 
 
 def _path(capability):
@@ -134,11 +137,18 @@ def problem_queries(repository):
             if len(tokens) == 1 and (tokens[0] in _GENERIC_SINGLETON or len(tokens[0]) < 2
                     or not tokens[0][0].isalpha() or "constructor" in words(term)):
                 continue
-            clean.append(tokens)
+            original = words(term)
+            clean.append((tokens, _strip_project_name(original, repository) == original))
         # Prefer contextual phrases, but specific single-word mechanisms such
         # as pagination/backpressure need no invented second word to be searched.
         # Package names and generic helpers are filtered before this selection.
-        phrase = next((term for term in clean if len(term) >= 2), None)
+        # Stripping a compound package name can also erase domain/runtime words
+        # (e.g. "Python dotenv parse to dictionary"). Prefer a supplied contextual
+        # alternative that needs no source-name stripping; invent no replacement
+        # terms. Preserve provider order and the stripped phrase as a fallback.
+        phrase = next((term for term, source_free in clean if source_free and len(term) >= 2), None)
+        if not phrase:
+            phrase = next((term for term, _ in clean if len(term) >= 2), None)
         if not phrase and clean:
             # Filtering each atomic term alone cannot recognize a fragmented
             # package name. Re-clean the original joined terms before deduping.

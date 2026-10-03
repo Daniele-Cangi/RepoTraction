@@ -628,9 +628,11 @@ Remaining bounded validation work:
   completed both jobs with 14 calls, eight assessments, two partial mechanisms,
   no acquisition/validation errors and no eligible lead. The ledger is 409
   reservations / USD 6.3181696; prior history and 102 report hashes are unchanged.
-- [ ] Review explicit `rejected` assessments becoming `investigate` when all
-  mandatory checks are unknown. The observed similarity-only case remains
-  ineligible; do not conflate provenance, semantic rejection and UI labels.
+- [x] Review explicit `rejected` assessments becoming `investigate` when all
+  mandatory checks are unknown. PR #44 preserves explicit rejections under
+  [contract 23](missing-link-contract23-explicit-rejection-2026-10-03.md), with
+  915 offline tests and an ephemeral retained-output replay. Historical records
+  and spending remain unchanged; semantic rejection does not invent hard conflicts.
 - [ ] Check generated-example runtime assumptions separately from a package's
   declared minimum before any eligible isolated execution. Fixtures are not
   target integration or original-request compliance.
@@ -638,6 +640,26 @@ Remaining bounded validation work:
 No universal parser/resolver expansion or UI/key-entry feature is included in
 this report-only follow-up. First establish an eligible grounded match; do not
 force an isolated demonstration from a merely partial primitive.
+
+### Offline discovery-quality follow-up
+
+- [x] Audit the three retained source-only jobs without new GitHub/AI requests.
+  The [query and selection audit](missing-link-discovery-selection-audit-2026-10-03.md)
+  reproduces the offered capability IDs and a compound-source-name phrase defect.
+  Prefer an already supplied contextual alternative before a weakened stripped
+  phrase; keep legacy fallback, scope/bounds and ranking. The narrow correction
+  has 920 passing offline tests and awaits its own review/merge, not a live-quality
+  endorsement. No new logic belongs in `app.py`.
+- [ ] Freeze a separate five-repository repository-only experiment after that
+  review: no preselected issues, new paid calls only within the original allowance,
+  and explicit failure/stop rules. Retain sanitized bounded retrieval pools in the
+  owned harness so selected and unselected candidates can actually be compared.
+- [ ] Scope typed callable JS/TS exports omitted from the acquired Zod sample as
+  a separate coverage task with positive/negative fixtures, not universal module
+  resolution or an implicit expansion of this retrieval fix.
+
+No full-pool ranking improvement can be inferred from selected-only history.
+First establish a grounded eligible lead before isolation, UI or key-entry work.
 
 ## Acceptance checks
 
