@@ -234,15 +234,15 @@ class MissingLinkFrontendTests(unittest.TestCase):
         card.wait_for()
         self.assertIn("Discovery not assessed · novelty unverified", card.inner_text())
 
-    def fixture_page(self, fixture=None, *, capability_name="Synthetic fixture capability", dashboard=None, scoped_responses=None):
+    def fixture_page(self, fixture=None, *, capability_name="Synthetic fixture capability", dashboard=None, scoped_responses=None, defer_initial=False):
         self.page.route("**/ui-fixture", lambda route: route.fulfill(
             content_type="text/html",
             body='<html><head><link rel="stylesheet" href="/styles.css"></head>'
                  '<body><main><div id="missingLinkRoot"></div></main></body></html>',
         ))
         self.page.goto(self.origin + "/ui-fixture")
-        self.page.evaluate("""async ({fixture, dashboard, scopedResponses}) => {
-          window.mlFixture = fixture;
+        self.page.evaluate("""async ({fixture, dashboard, scopedResponses, deferInitial}) => {
+          window.mlFixture = deferInitial ? new Promise(resolve => {window.mlInitialResolve = resolve;}) : fixture;
           window.mlScopedResponses = scopedResponses;
           window.mlCalls = [];
           window.mlDashboard = dashboard || {repositories: [
@@ -262,7 +262,10 @@ class MissingLinkFrontendTests(unittest.TestCase):
             }, escapeHtml, demoMode: false, getDashboard: () => window.mlDashboard
           });
           window.mlController.setActive(true);
-        }""", {'fixture': fixture or source_fixture(), 'dashboard': dashboard, 'scopedResponses': scoped_responses})
+        }""", {'fixture': fixture or source_fixture(), 'dashboard': dashboard, 'scopedResponses': scoped_responses,
+            'deferInitial': defer_initial})
+        if defer_initial:
+            return
         if capability_name != "Synthetic fixture capability":
             self.page.locator("#mlRepo").fill(fixture["repositories"][0]["full_name"])
             self.page.locator("#mlRepo").dispatch_event("change")
@@ -756,6 +759,71 @@ class MissingLinkFrontendTests(unittest.TestCase):
         self.assertEqual(self.page.locator('.ml-capability').count(), 0)
         self.assertFalse(self.page.locator('#mlUseAI').is_checked())
         self.assertFalse(self.page.evaluate("window.mlCalls.some(call => call.options.method === 'POST')"))
+
+    def test_initial_account_change_discards_first_response_before_any_evidence_is_loaded(self):
+        self.fixture_page(dashboard={'profile': {'login': 'fixture-user'}, 'repositories': []}, defer_initial=True)
+        self.assertEqual(self.page.evaluate('window.mlCalls.length'), 1)
+        self.page.evaluate('''() => {
+            window.mlDashboard = {profile: {login: 'other-fixture-user'}, repositories: []};
+            window.mlController.updateDashboard(window.mlDashboard);
+            window.mlFixture = new Promise(resolve => {window.mlFreshResolve = resolve;});
+        }''')
+        old = source_fixture()
+        old['dashboard'] = {'version': 1, 'selected_repo': '', 'selected_repo_id': None}
+        self.page.evaluate('''async fixture => {
+            window.mlInitialResolve(fixture);
+            await new Promise(resolve => setTimeout(resolve, 0));
+        }''', old)
+        self.assertEqual(self.page.locator('.ml-match').count(), 0, 'First response must not restore the previous account')
+        self.assertEqual(self.page.locator('.ml-capability').count(), 0)
+        self.assertEqual(self.page.locator('.ml-job').count(), 0, 'Old jobs must not reappear either')
+        self.assertEqual(self.page.locator('#mlAccount').inner_text(), 'Local account: other-fixture-user')
+        self.page.wait_for_function('window.mlCalls.length === 2')
+        self.assertEqual(self.page.evaluate('window.mlCalls[1].path'), '/api/missing-link?view=dashboard')
+        fresh = {'account': 'other-fixture-user', 'repositories': [], 'matches': [],
+            'jobs': [{'id': 'fresh-job', 'status': 'completed', 'stage': 'Fresh initial-account read',
+                'input': {'repo': 'other-fixture-user/source'}}],
+            'dashboard': {'version': 1, 'selected_repo': '', 'selected_repo_id': None}}
+        self.page.evaluate('fixture => {window.mlFreshResolve(fixture); window.mlFixture = fixture;}', fresh)
+        self.page.get_by_text('Fresh initial-account read', exact=True).wait_for()
+        self.assertEqual(self.page.locator('#mlAccount').inner_text(), 'Local account: other-fixture-user')
+        self.assertFalse(self.page.locator('#mlUseAI').is_checked())
+        self.assertFalse(self.page.locator('#mlReviewed').is_checked())
+        self.assertFalse(self.page.evaluate("window.mlCalls.some(call => call.options.method === 'POST')"))
+
+    def test_initial_epoch_tracks_a_late_dashboard_login_and_consecutive_account_changes(self):
+        cases = [(None, ['fixture-user', 'other-fixture-user']),
+            ('fixture-user', ['other-fixture-user', 'third-fixture-user'])]
+        for initial, updates in cases:
+            with self.subTest(initial=initial):
+                self.fixture_page(dashboard={'profile': {'login': initial}, 'repositories': []}, defer_initial=True)
+                self.page.evaluate('''accounts => {
+                    for (const account of accounts) {
+                        window.mlDashboard = {profile: {login: account}, repositories: []};
+                        window.mlController.updateDashboard(window.mlDashboard);
+                    }
+                    window.mlFixture = new Promise(resolve => {window.mlFreshResolve = resolve;});
+                }''', updates)
+                old = source_fixture()
+                old['dashboard'] = {'version': 1, 'selected_repo': '', 'selected_repo_id': None}
+                self.page.evaluate('''async fixture => {
+                    window.mlInitialResolve(fixture);
+                    await new Promise(resolve => setTimeout(resolve, 0));
+                }''', old)
+                latest = updates[-1]
+                self.assertEqual(self.page.locator('#mlAccount').inner_text(), 'Local account: ' + latest)
+                self.assertEqual(self.page.locator('.ml-job, .ml-match, .ml-capability').count(), 0)
+                self.page.wait_for_function('window.mlCalls.length === 2')
+                self.assertEqual(self.page.evaluate('window.mlCalls[1].path'), '/api/missing-link?view=dashboard')
+                fresh = {'account': latest, 'repositories': [], 'matches': [],
+                    'jobs': [{'id': 'fresh-job', 'status': 'completed', 'stage': 'Fresh late-account read',
+                        'input': {'repo': latest + '/source'}}],
+                    'dashboard': {'version': 1, 'selected_repo': '', 'selected_repo_id': None}}
+                self.page.evaluate('fixture => {window.mlFreshResolve(fixture); window.mlFixture = fixture;}', fresh)
+                self.page.get_by_text('Fresh late-account read', exact=True).wait_for()
+                self.assertFalse(self.page.locator('#mlUseAI').is_checked())
+                self.assertFalse(self.page.locator('#mlReviewed').is_checked())
+                self.assertFalse(self.page.evaluate("window.mlCalls.some(call => call.options.method === 'POST')"))
 
     def test_scoped_index_loads_the_automatically_selected_source_without_opt_ins(self):
         complete = source_fixture()

@@ -18,7 +18,7 @@ let missingLinkController = null;
 
 async function openMissingLink() {
   try {
-    missingLinkModule ||= import("/missing-link.js?v=3.1.0-scoped-polling");
+    missingLinkModule ||= import("/missing-link.js?v=3.1.0-initial-account");
     const module = await missingLinkModule;
     missingLinkController ||= module.initMissingLink({
       api,

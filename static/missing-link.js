@@ -50,7 +50,7 @@ export function initMissingLink({ api, escapeHtml, demoMode, getDashboard }) {
   const root = document.querySelector("#missingLinkRoot");
   const e = escapeHtml;
   const state = {
-    active: false, data: null, account: null, loading: false, pending: false,
+    active: false, data: null, account: getDashboard()?.profile?.login || null, loading: false, pending: false,
     timer: null, repoTimer: null, epoch: 0, filter: "all", includeSuperseded: false, reviewedRevision: null, importJob: "", lastRendered: {},
   };
   const find = (id) => root.querySelector(`#${id}`);
@@ -591,9 +591,9 @@ export function initMissingLink({ api, escapeHtml, demoMode, getDashboard }) {
     },
     updateDashboard(dashboard) {
       const account = dashboard?.profile?.login;
-      if (account && state.account && account.toLowerCase() !== state.account.toLowerCase()) {
+      if (account && account.toLowerCase() !== state.account?.toLowerCase()) {
         clearAccountState();
-        state.account = null;
+        state.account = account;
         render();
         note("GitHub account changed. Previous account results have been cleared; reload this account's Missing Link data.");
         if (state.active) refresh();
