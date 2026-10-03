@@ -584,6 +584,31 @@ only owned fixture snapshots and metadata events. Traffic evidence rules,
 relationship membership persistence, collection orchestration and event reads
 remain outside this extraction.
 
+## Selected-operation evidence gate
+
+The [contract-22 offline corrections](missing-link-contract22-operation-evidence-2026-10-03.md)
+address two attribution problems from the frozen
+[contract-21 evaluation (PR #40)](https://github.com/Daniele-Cangi/RepoTraction/pull/40):
+type declarations offered as runtime candidate IDs, and signature/shared-file
+citations credited as the selected operation's behavior. Declaration sources remain
+context; actual implementation IDs keep their ownership. A dedicated module bounds
+selected bodies and requires cited body presence without claiming semantic proof.
+Full-support claims cannot bypass that gate, while real partial primitives, passive
+constraints, hard conflicts and unknown integration retain their existing rules.
+
+The final 902-test offline run, two retained Zod-output checks and 61-context no-spend
+transport replay verify the correction without rewriting historical analyses or
+charging the real ledger. The original USD 10 allowance remains 389 reservations /
+USD 6.0337989 and Babel stays paused. A targeted review and merge precede any
+separately scoped fresh Luna retest. No universal parser/resolver expansion, new
+interface/key-entry feature or forced isolation is part of this gate.
+
+The targeted review's two P2 corrections preserve colon-bearing acquired paths
+through selection/role classification and prune nested Python scopes from the
+selected operation's body evidence. Inner functions/methods retain their own
+evidence; outer control flow and forwarding remain available without borrowed
+implementation credit. Eight additional regressions cover these bounded fixes.
+
 ## Acceptance checks
 
 - Preserve CLI flags, defaults, response shapes, status codes and local-only

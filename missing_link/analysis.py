@@ -17,10 +17,11 @@ from .sources import source_role, runtime_bin_entrypoints
 from .contracts import validate_requirement_count
 from .non_demands import NON_DEMAND_STATUS, is_non_demand, validate_non_demand
 from .contributions import normalize_support, partial_reviews
+from .operation_evidence import operation_regions
 
 CLASSIFICATIONS = {"direct", "adapter", "extraction", "rejected", "investigate"}
 REQUEST_STATUSES = {"unresolved", "resolved", "duplicate", "unclear", "automated", NON_DEMAND_STATUS}
-ANALYSIS_CONTRACT_VERSION = 21
+ANALYSIS_CONTRACT_VERSION = 22
 
 
 def passive_api_constraint(requirement: dict) -> bool:
@@ -236,6 +237,7 @@ def validate_matches(raw_matches: list, repository: dict, issue: dict, request: 
     requirements = {item["id"]: item for item in request["requirements"]}
     matches = []
     used = set()
+    operation_cache = {}
     for raw in raw_matches:
         if not isinstance(raw, dict):
             raise ValueError("Each compatibility assessment must be an object.")
@@ -244,6 +246,7 @@ def validate_matches(raw_matches: list, repository: dict, issue: dict, request: 
             raise ValueError("Unknown or duplicate capability in compatibility analysis.")
         used.add(capability_id)
         capability = capabilities[capability_id]
+        regions = operation_regions(capability, repository.get("files", []), cache=operation_cache)
         classification = raw.get("classification", "investigate")
         if classification not in CLASSIFICATIONS:
             raise ValueError("Unknown compatibility classification.")
@@ -276,7 +279,7 @@ def validate_matches(raw_matches: list, repository: dict, issue: dict, request: 
                     resolve_evidence(reference, catalog)
             status, contribution = normalize_support(status, contribution, evidence,
                 capability=capability, passive=passive_api_constraint(requirement), reason=reason if "reason" in item else "",
-                runtime_entrypoints=runtime_entrypoints, partial=review)
+                runtime_entrypoints=runtime_entrypoints, partial=review, operation_regions=regions)
             checks.append({"requirement_id": rid, "status": status, "contribution": contribution,
                 "reason": reason, "evidence": evidence, **({"partial_support": review} if review else {})})
         hard = [item for item in checks if requirements[item["requirement_id"]]["mandatory"]]

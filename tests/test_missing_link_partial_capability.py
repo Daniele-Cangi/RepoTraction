@@ -6,7 +6,7 @@ import unittest
 from unittest import mock
 
 from missing_link.analysis import ANALYSIS_CONTRACT_VERSION, validate_matches
-from missing_link.provider import Provider
+from missing_link.provider import Provider, CandidateValidationError
 from missing_link.service import Service
 from missing_link.store import Store
 import test_missing_link_partial_support as partial_fixtures
@@ -22,12 +22,12 @@ class PartialCapabilityTests(unittest.TestCase):
         other.update(id="hash_blob", name="hash_blob", summary="Hash a blob",
             definition={"path": "other.py", "line": 1, "end_line": 2},
             evidence=[{"path": "other.py", "line": 1, "end_line": 2,
-                "quote": "def hash_blob(value)", "url": file["url"], "kind": "declaration"}])
+                "quote": file["text"].rstrip(), "url": file["url"], "kind": "declaration"}])
         repo["capabilities"].append(other)
         raw.setdefault("obstacles", [])
         return repo, issue, request, raw
 
-    def assert_contribution(self, case, expected):
+    def assert_contribution(self, case, expected, *, provider_excluded=False):
         repo, issue, request, raw = case
         original = copy.deepcopy(case)
         results = [validate_matches([copy.deepcopy(raw)], repo, issue, request, source)[0]
@@ -36,7 +36,11 @@ class PartialCapabilityTests(unittest.TestCase):
         budget = mock.Mock()
         with mock.patch.object(provider, "complete", return_value={"matches": [copy.deepcopy(raw)]}), \
              mock.patch("urllib.request.build_opener", side_effect=AssertionError("No live model calls")) as network:
-            results.append(provider.evaluate(repo, issue, request, budget)[0])
+            if provider_excluded:
+                with self.assertRaisesRegex(CandidateValidationError, "not included in this call"):
+                    provider.evaluate(repo, issue, request, budget)
+            else:
+                results.append(provider.evaluate(repo, issue, request, budget)[0])
         network.assert_not_called()
         budget.reserve_ai.assert_not_called()
         for match in results:
@@ -100,14 +104,14 @@ class PartialCapabilityTests(unittest.TestCase):
                 repo["capabilities"][0]["definition"] = {"path": path, "line": 1, "end_line": 3}
                 raw["checks"][0]["source_ids"] = ["file:" + path]
                 raw["partial_support"][0]["source_ids"] = ["file:" + path]
-                self.assert_contribution(case, "not_demonstrated")
+                self.assert_contribution(case, "not_demonstrated", provider_excluded=path.endswith(".d.ts"))
 
-    def test_contract20_history_is_preserved_but_not_current(self):
+    def test_contract21_history_is_preserved_but_not_current(self):
         repo, issue, request, raw = self.case()
-        with mock.patch("missing_link.analysis.ANALYSIS_CONTRACT_VERSION", 20):
+        with mock.patch("missing_link.analysis.ANALYSIS_CONTRACT_VERSION", 21):
             historical = validate_matches([copy.deepcopy(raw)], repo, issue, request, "model")[0]
         current = validate_matches([raw], repo, issue, request, "model")[0]
-        self.assertEqual(ANALYSIS_CONTRACT_VERSION, 21)
+        self.assertEqual(ANALYSIS_CONTRACT_VERSION, 22)
         self.assertNotEqual(historical["id"], current["id"])
         with tempfile.TemporaryDirectory() as directory:
             store = Store(Path(directory) / "fixture.sqlite3", "fixture")

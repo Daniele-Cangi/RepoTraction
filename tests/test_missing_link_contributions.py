@@ -81,7 +81,7 @@ class ContributionTests(unittest.TestCase):
                     raw = fixtures.raw_match()
                     raw["checks"] = [dict(raw["checks"][0], source_ids=[reference])]
                     match = validate_matches([raw], repo, issue, request, "model")[0]
-                    is_implementation = path == "src/trim.ts"
+                    is_implementation = path == "src/trim.ts" and reference.startswith("file:")
                     self.assertEqual(match["checks"][0]["status"], "satisfied" if is_implementation else "undetermined")
                     self.assertEqual(match["checks"][0]["contribution"],
                                      "existing_behavior" if is_implementation else "not_demonstrated")

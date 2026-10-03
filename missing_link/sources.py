@@ -137,7 +137,9 @@ def _kind(path: str) -> str:
 
 def source_role(path: str, *, runtime_entrypoints=()) -> str:
     """Path sampling hint with exact acquired-bin scope, never executable proof."""
-    source_path = path.split(":", 1)[0]
+    # Supported acquired file paths can themselves contain colons. Keep them
+    # intact; legacy path:name inputs are decoded at their final separator.
+    source_path = path if _kind(path) != "unsupported" else path.rsplit(":", 1)[0]
     parts = PurePosixPath(source_path.casefold()).parts
     if not parts:
         return "implementation"
@@ -157,9 +159,9 @@ def source_role(path: str, *, runtime_entrypoints=()) -> str:
         return "implementation"
     if any(part in auxiliary_dirs for part in parts[:-1]) or parts[-1] in {"setup.py", "conftest.py", "selftest.py"} or auxiliary_file:
         return "infrastructure"
-    if _kind(path.split(":", 1)[0]) == "test":
+    if _kind(source_path) == "test":
         return "test"
-    if _kind(path.split(":", 1)[0]) in {"manifest", "documentation"}:
+    if _kind(source_path) in {"manifest", "documentation"}:
         return "support"
     if parts[-1].endswith(".d.ts"):
         return "support"  # Declarations are not implementation bodies.

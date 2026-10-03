@@ -9,6 +9,7 @@ from .demand import optional_field_hints, supplied_optional_field_hints
 from .contracts import MAX_SCOPED_IDS
 from .sources import source_role, runtime_bin_entrypoints
 from .public_api import public_api_hints, public_api_report
+from .operation_evidence import operation_regions
 
 
 def size(value):
@@ -51,13 +52,17 @@ def normalize_references(references, sources, catalog):
 
 
 def capability_path(capability):
-    path = (capability.get("entrypoint") or "").split(":", 1)[0]
+    # Structural entrypoints end with :name; acquired paths may contain colons.
+    path = (capability.get("entrypoint") or "").rsplit(":", 1)[0]
     return path or next((e["path"] for e in capability.get("evidence", []) if e.get("path")), "unknown")
 
 
 def select_capabilities(capabilities, limit=30, *, runtime_entrypoints=(), public_entrypoints=()):
     """Prefer product implementation with bounded per-file diversity, not export proof."""
-    ranked = sorted(capabilities, key=lambda cap: (
+    # Type declarations remain supplied context and structural coverage, but
+    # never become the identity of a runtime implementation. Do not merge IDs
+    # or transfer ownership based on matching names across files.
+    ranked = sorted((cap for cap in capabilities if not capability_path(cap).casefold().endswith(".d.ts")), key=lambda cap: (
         {"implementation": 0, "support": 1, "test": 2, "infrastructure": 3}[source_role(capability_path(cap), runtime_entrypoints=runtime_entrypoints)],
         cap.get("entrypoint") not in public_entrypoints,
         cap.get("level") != "mechanism", cap.get("name", "").startswith("_"), cap.get("standalone") != "yes"))
@@ -110,6 +115,7 @@ def build_context(repository, issue, phase, byte_limit, *, packing_target=None):
         if phase == "request":
             data["potential_subrequirements"] = supplied_optional_field_hints(optional_review, sources)
     candidates = []
+    operation_cache = {}
     runtime_entrypoints = runtime_bin_entrypoints((repository or {}).get("files", []))
     public_hints = public_api_hints((repository or {}).get("files", []))
     if repository:
@@ -120,8 +126,13 @@ def build_context(repository, issue, phase, byte_limit, *, packing_target=None):
         data["repository"]["capabilities"] = [{key: cap.get(key) for key in ("id", "name", "level", "entrypoint",
             "summary", "outcome", "inputs", "outputs", "preconditions", "dependencies", "standalone", "limitations")}
             for cap in candidates]
-        for cap in data["repository"]["capabilities"]:
+        for cap, candidate in zip(data["repository"]["capabilities"], candidates):
             cap["public_api_hint"] = cap.get("entrypoint") in public_hints["entrypoints"]
+            # The entrypoint already names the file. Avoid duplicating long
+            # paths in metadata; include a path only for a separate definition.
+            cap["implementation_bounds"] = [dict(line=region["line"], end_line=region["end_line"],
+                **({"path": region["path"]} if region["path"] != capability_path(candidate) else {}))
+                for region in operation_regions(candidate, repository.get("files", []), cache=operation_cache)]
     if size(data) > target // 2:
         raise ValueError("Analysis metadata exceeds context bound; narrow the selected context.")
     if repository:
@@ -192,6 +203,8 @@ def build_context(repository, issue, phase, byte_limit, *, packing_target=None):
         # Selected definitions must precede broad file prefixes: a large
         # manifest or unrelated early code can otherwise consume their budget.
         for cap in candidates:
+            for region in operation_regions(cap, repository.get("files", []), cache=operation_cache):
+                definition_regions.append((region["path"], region["line"], min(region["end_line"], region["line"] + 179)))
             for evidence in cap.get("evidence", []):
                 if evidence.get("path") in by_path:
                     start = max(1, evidence.get("line", 1))
@@ -255,6 +268,8 @@ def build_context(repository, issue, phase, byte_limit, *, packing_target=None):
         supplied_paths = list(dict.fromkeys(entry["path"] for entry in sources.values() if entry.get("path")))
         report["selection_policy"] = "Request root, then implementation definitions before later discussion; literal public API hints within each source-role tier, per-file diversity and interleaved spans. Path heuristic with exact acquired-manifest bin targets, not verified exports or execution."
         report["public_api_hints"] = hint_report
+        report["declaration_context_only_capability_ids"] = [cap["id"] for cap in repository.get("capabilities", [])
+            if capability_path(cap).casefold().endswith(".d.ts")]
         report["selected_capability_roles"] = dict(Counter(source_role(capability_path(cap), runtime_entrypoints=runtime_entrypoints) for cap in candidates))
         report["supplied_source_roles"] = dict(Counter(source_role(path, runtime_entrypoints=runtime_entrypoints) for path in supplied_paths))
         report["implementation_source_paths"] = [path for path in supplied_paths if source_role(path, runtime_entrypoints=runtime_entrypoints) == "implementation"]

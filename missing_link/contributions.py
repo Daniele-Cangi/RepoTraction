@@ -1,5 +1,6 @@
 """Keep reusable primitives separate from fulfillment of target requirements."""
 from .sources import source_role
+from .operation_evidence import cites_operation_body, in_operation
 
 CONTRIBUTION_KINDS = ("existing_behavior", "partial_behavior", "scope_compatible", "not_demonstrated")
 PARTIAL_BASES = ("candidate_implementation", "target_context", "analogy", "not_established")
@@ -32,7 +33,7 @@ def partial_reviews(values, requirement_ids):
     return reviews
 
 
-def normalize_support(status, contribution, evidence, *, capability, passive, reason, runtime_entrypoints=(), partial=None):
+def normalize_support(status, contribution, evidence, *, capability, passive, reason, runtime_entrypoints=(), partial=None, operation_regions=()):
     """Provenance gates, not semantic proof or permission to run/adopt source code."""
     if status not in {"satisfied", "incompatible", "undetermined"}:
         raise ValueError("Unknown requirement verdict.")
@@ -42,6 +43,8 @@ def normalize_support(status, contribution, evidence, *, capability, passive, re
         status = "undetermined"
     implemented = any(entry.get("path") and source_role(entry["path"], runtime_entrypoints=runtime_entrypoints)
                       == "implementation" for entry in evidence)
+    selected_body = any(entry.get("path") and source_role(entry["path"], runtime_entrypoints=runtime_entrypoints)
+        == "implementation" and cites_operation_body(entry, operation_regions) for entry in evidence)
     if contribution == "partial_behavior":
         # A primitive cannot certify a compound/end-to-end requirement. Require
         # an explicit bounded claim citing implementation, not only docs/tests.
@@ -60,11 +63,14 @@ def normalize_support(status, contribution, evidence, *, capability, passive, re
             and partial["source_ids"] and all(ref in anchors and anchors[ref].get("path")
                 and anchors[ref]["path"] in candidate_paths
                 and source_role(anchors[ref]["path"], runtime_entrypoints=runtime_entrypoints) == "implementation"
+                and in_operation(anchors[ref], operation_regions)
                 for ref in partial["source_ids"]))
-        return status, ("partial_behavior" if status == "undetermined" and implemented and attributed and not passive and reason
+        cited_body = bool(partial and any(ref in anchors and cites_operation_body(anchors[ref], operation_regions)
+            for ref in partial["source_ids"]))
+        return status, ("partial_behavior" if status == "undetermined" and implemented and attributed and cited_body and not passive and reason
                         else "not_demonstrated")
     if status == "satisfied" and (contribution == "not_demonstrated"
-                                   or (contribution == "existing_behavior" and not implemented)):
+                                   or (contribution == "existing_behavior" and not passive and not selected_body)):
         status = "undetermined"
     if status != "satisfied":
         contribution = "not_demonstrated"
