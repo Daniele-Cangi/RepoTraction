@@ -54,7 +54,7 @@ explicit omissions and the 180,000-byte final transport bound are unchanged.
 
 ## Offline verification
 
-- The full Windows suite passes **894 tests**. Seventeen dedicated new regressions
+- The initial full Windows suite passed **894 tests**. Seventeen dedicated new regressions
   cover declaration selection and operation evidence, alongside the existing
   provider, persistence, account, history and transport tests.
 - Two retained Zod comparisons are revalidated ephemerally: the `failure` helper
@@ -71,6 +71,35 @@ explicit omissions and the 180,000-byte final transport bound are unchanged.
   report hashes and the previous evaluation's 64 prior-report hash checks. The
   original cumulative USD 10 allowance remains **389 reservations / USD 6.0337989**;
   Babel remains paused and unknown paid outcomes remain charged.
+
+## Targeted review corrections
+
+The review of `ec83694` found two reproducible P2 contract violations, not new
+parser-completeness requirements:
+
+- Acquired paths can contain `:`. Both capability-path decoders now use the final
+  `path:name` separator, and role classification preserves supported acquired
+  file paths before decoding legacy entrypoint strings. A colon-bearing `.d.ts`
+  stays context-only and cannot certify available implementation context. Actual
+  runtime IDs, source paths and the existing exact-manifest `bin` exception remain
+  intact; filenames are not rejected or normalized away.
+- Python body collection now prunes nested function, coroutine, class and lambda
+  scopes instead of descending through them with `ast.walk`. Nested declarations
+  still have independently scanned regions and their own capability evidence.
+  A selected outer operation cannot borrow an inner return as partial or full
+  behavior. Its own control flow, forwarding and class-scope initialization still
+  count as body presence, without proving their relevance or semantics.
+
+Eight additional regressions cover both model/import attribution, full-support
+bypass, nested-operation ownership, actual acquired colon paths, existing legacy role
+compatibility, type-only coverage and retained runtime/bin behavior. The two
+dedicated files now contain 25 tests. The final Windows suite passes **902 tests**.
+The repeat 61-context preflight still peaks at 178,000 bytes; both retained Zod
+downgrades and the runtime/declaration selection checks pass without HTTP or real
+reservations. All four changed installed modules match source, CLI startup passes,
+and owned data/config fixture hashes are unchanged. The same 12 real table hashes,
+70 frozen reports, 64 prior-report checks, paused Babel state and original
+389-reservation / USD 6.0337989 ledger remain unchanged after verification.
 
 New evaluations use contract **22**. Earlier contracts stay historical/stale under
 the existing freshness rules; no migration silently reclassifies saved outcomes.

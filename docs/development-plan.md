@@ -596,12 +596,18 @@ selected bodies and requires cited body presence without claiming semantic proof
 Full-support claims cannot bypass that gate, while real partial primitives, passive
 constraints, hard conflicts and unknown integration retain their existing rules.
 
-The 894-test offline run, two retained Zod-output checks and 61-context no-spend
+The final 902-test offline run, two retained Zod-output checks and 61-context no-spend
 transport replay verify the correction without rewriting historical analyses or
 charging the real ledger. The original USD 10 allowance remains 389 reservations /
 USD 6.0337989 and Babel stays paused. A targeted review and merge precede any
 separately scoped fresh Luna retest. No universal parser/resolver expansion, new
 interface/key-entry feature or forced isolation is part of this gate.
+
+The targeted review's two P2 corrections preserve colon-bearing acquired paths
+through selection/role classification and prune nested Python scopes from the
+selected operation's body evidence. Inner functions/methods retain their own
+evidence; outer control flow and forwarding remain available without borrowed
+implementation credit. Eight additional regressions cover these bounded fixes.
 
 ## Acceptance checks
 
