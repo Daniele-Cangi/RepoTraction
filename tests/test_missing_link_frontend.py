@@ -567,6 +567,56 @@ class MissingLinkFrontendTests(unittest.TestCase):
         self.assertTrue(self.page.locator(".ml-more-capabilities").evaluate("node => node.open"))
         self.assertEqual(self.page.locator(".ml-capability:visible").count(), 8)
 
+    def test_refresh_reads_new_external_results_without_discovery_or_review_opt_in(self):
+        self.fixture_page()
+        selected_repo = "fixture-source/new-repo"
+        self.page.locator("#mlRepo").fill(selected_repo)
+        self.assertEqual(self.page.locator(".ml-match").count(), 0)
+        self.assertIn("0 results", self.page.locator("#mlMatchCount").inner_text())
+        fixture = source_fixture()
+        fixture["repositories"][0]["full_name"] = selected_repo
+        fixture["matches"][0]["repo"] = selected_repo
+        fixture["jobs"][0]["input"]["repo"] = selected_repo
+        fixture["matches"][0]["request"]["title"] = "New externally completed fixture result"
+        # Emulates a CLI job completing after the browser's first state response.
+        self.page.evaluate("fixture => {window.mlFixture = fixture; window.mlCalls = [];}", fixture)
+        self.page.get_by_role("button", name="Refresh results", exact=True).click()
+        self.page.get_by_text("New externally completed fixture result", exact=True).wait_for()
+        self.assertEqual(self.page.locator("#mlRepo").input_value(), selected_repo)
+        self.assertEqual(self.page.locator(".ml-match").count(), 1)
+        self.assertIn("1 results for selected repository", self.page.locator("#mlMatchCount").inner_text())
+        self.assertFalse(self.page.locator("#mlReviewed").is_checked())
+        self.assertFalse(self.page.locator("#mlUseAI").is_checked())
+        self.assertTrue(self.page.locator("#mlDiscoverButton").is_disabled())
+        calls = self.page.evaluate("window.mlCalls")
+        self.assertEqual(len(calls), 1)
+        self.assertEqual(calls[0]["path"], "/api/missing-link")
+        self.assertNotIn("method", calls[0]["options"])
+
+    def test_delayed_refresh_keeps_selected_repository_and_does_not_start_another_job(self):
+        self.fixture_page()
+        self.page.evaluate("""() => {
+            window.mlDeferred = {};
+            window.mlFixture = new Promise(resolve => {window.mlDeferred.resolve = resolve;});
+            window.mlCalls = [];
+        }""")
+        refresh_button = self.page.get_by_role("button", name="Refresh results", exact=True)
+        refresh_button.click()
+        self.page.wait_for_function("window.mlCalls.length === 1")
+        self.page.locator("#mlRepo").fill("fixture-source/new-repo")
+        refresh_button.click()
+        self.assertEqual(self.page.evaluate("window.mlCalls.length"), 1, "No overlapping state reads")
+        fixture = source_fixture()
+        fixture["repositories"][0]["full_name"] = "fixture-source/new-repo"
+        fixture["matches"][0]["repo"] = "fixture-source/new-repo"
+        fixture["matches"][0]["request"]["title"] = "Completed delayed fixture result"
+        self.page.evaluate("fixture => {window.mlDeferred.resolve(fixture); window.mlFixture = fixture;}", fixture)
+        self.page.get_by_text("Completed delayed fixture result", exact=True).wait_for()
+        self.assertEqual(self.page.locator("#mlRepo").input_value(), "fixture-source/new-repo")
+        self.assertFalse(self.page.locator("#mlReviewed").is_checked())
+        self.assertFalse(self.page.locator("#mlUseAI").is_checked())
+        self.assertFalse(self.page.evaluate("window.mlCalls.some(call => call.options.method === 'POST')"))
+
 
 if __name__ == "__main__":
     unittest.main()
