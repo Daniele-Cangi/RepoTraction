@@ -75,8 +75,9 @@ inactive account changes. All use fictional evidence and temporary stores; none
 can acquire GitHub repositories or reserve provider funds.
 
 A separate browser session selected the retained D3, ItsDangerous and Path results
-and displayed 4, 5 and 3 cards. D3 requirement/bridge/file disclosures opened with
-keyboard activation. A manual D3 refresh completed a scoped GET with HTTP 200;
+and displayed 4, 5 and 3 cards. D3 requirement/bridge disclosures opened with
+keyboard activation; file disclosure activation was attempted but its open state
+was not independently confirmed. A manual D3 refresh completed a scoped GET with HTTP 200;
 selection and expansion survived. Navigation to Overview and back preserved Path
 and its three cards. No browser-observed POST, AI opt-in or review opt-in occurred;
 the owned session closed and page-error inspection was empty.
@@ -85,7 +86,9 @@ The live session was **not uniformly successful**: two additional observer expor
 reads returned HTTP 409 during intermittent identity checks; an intervening read
 returned 200. One awaited browser evaluation exceeded its own CDP timeout. A
 read-only `gh auth status` and the offline browser diagnostic also stalled and
-were stopped without changing credentials or repairing the browser. Pointer
+were stopped without changing credentials or repairing the browser. A subsequent
+bounded authentication recheck confirmed active `Daniele-Cangi` via the keyring.
+Pointer
 acknowledgements alone did not establish disclosure activation; keyboard checks
 did. These failures are not counted as passes or attributed to the projection.
 Live rendered-quote equality from that failed observer is not established;
