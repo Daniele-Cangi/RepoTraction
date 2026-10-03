@@ -52,7 +52,8 @@ def normalize_references(references, sources, catalog):
 
 
 def capability_path(capability):
-    path = (capability.get("entrypoint") or "").split(":", 1)[0]
+    # Structural entrypoints end with :name; acquired paths may contain colons.
+    path = (capability.get("entrypoint") or "").rsplit(":", 1)[0]
     return path or next((e["path"] for e in capability.get("evidence", []) if e.get("path")), "unknown")
 
 

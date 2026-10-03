@@ -3,9 +3,10 @@ import copy
 import unittest
 from unittest import mock
 
-from missing_link.context import build_context
+from missing_link.context import build_context, capability_path
+from missing_link.discovery import _path
 from missing_link.provider import Provider
-from missing_link.sources import extract_structure
+from missing_link.sources import extract_structure, _safe_path, source_role
 import test_missing_link as fixtures
 
 
@@ -59,6 +60,50 @@ class ImplementationSelectionTests(unittest.TestCase):
         budget.reserve_ai.assert_not_called()
         self.assertEqual(repo, before)
 
+    def test_colon_paths_keep_runtime_identity_and_exclude_declarations_in_both_phases(self):
+        repo = self.repository()
+        repo["files"] = repo["files"][:2]
+        for file, path in zip(repo["files"], ("src:legacy:compat/index.js", "types:legacy/index.d.ts")):
+            self.assertTrue(_safe_path(path))
+            file.update(path=path, url=file["url"].rsplit("/", 1)[0] + "/" + path)
+        repo["capabilities"] = extract_structure(repo)
+        before = copy.deepcopy(repo)
+        runtime, declared = repo["capabilities"]
+        self.assertEqual(capability_path(runtime), "src:legacy:compat/index.js")
+        self.assertEqual(capability_path(declared), "types:legacy/index.d.ts")
+        for phase, issue in (("capabilities", None), ("matches", fixtures.issue())):
+            with self.subTest(phase=phase):
+                data, report = build_context(repo, issue, phase, 180000)
+                self.assertEqual(report["capability_ids"], [runtime["id"]])
+                self.assertIn(declared["id"], report["declaration_context_only_capability_ids"])
+                self.assertIn(declared["id"], report["omitted_capability_ids"])
+                self.assertTrue(any(source.get("path") == "types:legacy/index.d.ts" for source in data["sources"].values()))
+                self.assertFalse(report["implementation_context_missing"])
+        self.assertEqual(repo, before)
+
+    def test_path_decoding_preserves_colons_and_existing_evidence_fallback(self):
+        for capability, expected in (
+            ({"entrypoint": "types:legacy:compat/index.d.ts:onlyType"}, "types:legacy:compat/index.d.ts"),
+            ({"entrypoint": "index.js:runtime"}, "index.js"),
+            ({"entrypoint": "", "evidence": [{"path": "src:legacy/index.js"}]}, "src:legacy/index.js"),
+            ({}, "unknown")):
+            with self.subTest(capability=capability):
+                self.assertEqual(capability_path(capability), expected)
+                if capability:
+                    self.assertEqual(_path(capability), expected)
+
+    def test_source_roles_preserve_supported_colon_paths_and_legacy_entrypoints(self):
+        for path, role in (("types:legacy/index.d.ts", "support"),
+                           ("src:legacy/index.js", "implementation"),
+                           ("tests/fixture:legacy.py", "test"),
+                           ("tools/cli:legacy.js", "infrastructure")):
+            with self.subTest(path=path):
+                self.assertEqual(source_role(path), role)
+                self.assertEqual(source_role(path + ":run"), role)
+        scope = {"tools/cli:legacy.js"}
+        self.assertEqual(source_role("tools/cli:legacy.js", runtime_entrypoints=scope), "implementation")
+        self.assertEqual(source_role("tools/cli:legacy.js:run", runtime_entrypoints=scope), "implementation")
+
     def test_unrelated_runtime_name_does_not_merge_or_promote_a_type_candidate(self):
         repo = self.repository()
         repo["files"] = repo["files"][1:]
@@ -71,12 +116,15 @@ class ImplementationSelectionTests(unittest.TestCase):
     def test_type_only_snapshot_keeps_structural_coverage_and_no_implementation_claim(self):
         repo = self.repository()
         repo["files"] = [repo["files"][1]]
-        repo["capabilities"] = extract_structure(repo)
-        data, report = build_context(repo, None, "capabilities", 180000)
-        self.assertEqual(data["repository"]["capabilities"], [])
-        self.assertTrue(report["implementation_context_missing"])
-        self.assertEqual(len(repo["capabilities"]), 1)
-        self.assertTrue(any(source.get("path") == "index.d.ts" for source in data["sources"].values()))
+        for path in ("index.d.ts", "types:legacy/index.d.ts"):
+            with self.subTest(path=path):
+                repo["files"][0]["path"] = path
+                repo["capabilities"] = extract_structure(repo)
+                data, report = build_context(repo, None, "capabilities", 180000)
+                self.assertEqual(data["repository"]["capabilities"], [])
+                self.assertTrue(report["implementation_context_missing"])
+                self.assertEqual(len(repo["capabilities"]), 1)
+                self.assertTrue(any(source.get("path") == path for source in data["sources"].values()))
 
 
 if __name__ == "__main__":

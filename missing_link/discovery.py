@@ -94,7 +94,7 @@ def _problem_terms(value, repository):
 def _path(capability):
     entrypoint = capability.get("entrypoint", "")
     if entrypoint:
-        return entrypoint.split(":", 1)[0]
+        return entrypoint.rsplit(":", 1)[0]
     return next((item["path"] for item in capability.get("evidence", []) if item.get("path")), "unknown")
 
 
