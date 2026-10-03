@@ -116,3 +116,15 @@ negative model/limit tests cover this startup-only correction. Freeze its new
 hashes and push this clarification before paid calls. This is not permission to
 repair or continue after a failed live job: the original strict stop rules apply
 unchanged once a source job is started.
+
+The second unpaid preflight mistakenly required the *source* issue tracker to
+be enabled. `alexmojaki/asttokens` has `has_issues=false`, but its public code is
+available and production discovery searches external requests; the source loader
+does not require its own tracker. Preserve the `five-new-02` preflight showing
+that false exclusion. The final driver in `five-new-03` removes only that
+unnecessary prerequisite, with positive/negative eligibility fixtures. Inputs
+and all genuine access/safety gates stay unchanged; no issue was inspected or
+source replaced. The verified `five-new-02` runtime and unchanged pool capture
+stay loaded, with their hashes also frozen by the final driver. No further
+restart or production correction is needed. Both startup corrections occur
+before any source job is acknowledged or paid attempt is reserved.
