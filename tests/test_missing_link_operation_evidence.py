@@ -155,6 +155,56 @@ class OperationEvidenceTests(unittest.TestCase):
         self.result(self.case(source, name="Worker.Inner", path="core.py"), ["file:core.py#L4-L4"], "partial_behavior")
         self.result(self.case(source, name="Worker.Inner.run", path="core.py"), ["file:core.py#L6-L6"], "partial_behavior")
 
+    def test_class_cannot_borrow_nested_multiline_statement_continuation(self):
+        for declaration in ("def", "async def"):
+            for statement in ("return (\n            delegate()\n        )",
+                              "delegate(\n            'input'\n        )"):
+                source = f"class Worker:\n    {declaration} run(self):\n        {statement}\n    shared = configure()\n"
+                for first in (4, 5):
+                    with self.subTest(declaration=declaration, statement=statement, first=first):
+                        refs = [f"file:core.py#L{first}-L6"]
+                        case = self.case(source, name="Worker", path="core.py")
+                        result = self.result(case, refs, "not_demonstrated")
+                        self.assertIn("selected_operation_body_missing", result["checks"][0]["support_normalization"]["codes"])
+                        repo, issue, request, raw = case
+                        raw["checks"][0].update(status="satisfied", contribution="existing_behavior", source_ids=refs)
+                        raw["partial_support"] = []
+                        for provenance in ("model", "coding_agent_import"):
+                            result = validate_matches([raw], repo, issue, request, provenance)[0]
+                            self.assertEqual(result["checks"][0]["status"], "undetermined")
+                            self.assertEqual(result["checks"][0]["contribution"], "not_demonstrated")
+                            self.assertFalse(result["discovery_assessment"]["eligible_for_followup"])
+                self.result(self.case(source, name="Worker", path="core.py"), ["file:core.py#L6-L6"], "partial_behavior")
+                self.result(self.case(source, name="Worker.run", path="core.py"), ["file:core.py#L2-L5"], "partial_behavior")
+
+    def test_class_multiline_initializer_is_not_a_nested_method_span(self):
+        source = "class Worker:\n    shared = configure(\n        'input'\n    )\n    def run(self):\n        return delegate()\n"
+        self.result(self.case(source, name="Worker", path="core.py"), ["file:core.py#L2-L4"], "partial_behavior")
+        self.result(self.case(source, name="Worker.run", path="core.py"), ["file:core.py#L5-L6"], "partial_behavior")
+
+    def test_provider_and_storage_reject_mixed_multiline_continuation_without_calls(self):
+        source = "class Worker:\n    def run(self):\n        return (\n            delegate()\n        )\n    shared = configure()\n"
+        repo, issue, request, raw = self.case(source, name="Worker", path="core.py")
+        refs = ["file:core.py#L4-L6"]
+        raw["checks"][0]["source_ids"] = refs
+        raw["partial_support"][0]["source_ids"] = refs
+        before = copy.deepcopy((repo, issue, request, raw))
+        provider = Provider({"REPOTRACTION_AI_URL": "http://localhost/v1", "REPOTRACTION_AI_MODEL": "fixture"})
+        budget = mock.Mock()
+        with mock.patch.object(provider, "complete", return_value={"matches": [raw]}), \
+             mock.patch("urllib.request.build_opener", side_effect=AssertionError("No paid calls")):
+            result = provider.evaluate(repo, issue, request, budget)[0]
+        self.assertEqual(result["checks"][0]["contribution"], "not_demonstrated")
+        self.assertEqual(result["checks"][0]["status"], "undetermined")
+        self.assertNotIn("quote_selection", result["checks"][0]["evidence"][0])
+        self.assertFalse(result["discovery_assessment"]["eligible_for_followup"])
+        budget.reserve_ai.assert_not_called()
+        self.assertEqual((repo, issue, request, raw), before)
+        with tempfile.TemporaryDirectory() as directory:
+            store = Store(Path(directory) / "fixture.sqlite3", "fixture")
+            store.put("matches", result["id"], result)
+            self.assertEqual(Store(store.path, "fixture").get("matches", result["id"]), result)
+
     def test_lexical_lookalikes_and_unclosed_javascript_are_not_body_proof(self):
         for source in ("/*\nfunction failure(issues) {\n return issues;\n}\n*/\n",
                        "function failure(issues) {\n return issues;\n",

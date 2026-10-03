@@ -44,7 +44,7 @@ def _scan(file):
             if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
                 pending.extend((child, enclosing_classes) for child in ast.iter_child_nodes(node))
                 continue
-            body = []
+            body, body_spans = [], []
             for statement in _owned_python_nodes(node):
                 if not isinstance(statement, ast.stmt) or isinstance(statement, ast.Pass):
                     continue
@@ -59,13 +59,14 @@ def _scan(file):
                 fragment = lines[line - 1][len(prefix):].strip()
                 if fragment:
                     body.append((line, fragment, len(prefix)))
+                    body_spans.append((line, statement.end_lineno))
             region = {"path": path, "line": node.lineno,
                 "end_line": node.end_lineno, "body": body, "lines": lines}
             regions[node.lineno] = region
             for enclosing in enclosing_classes:
-                enclosing["nested_body"].extend(body)
+                enclosing["nested_body_spans"].extend(body_spans)
             if isinstance(node, ast.ClassDef):
-                region["nested_body"] = []
+                region["nested_body_spans"] = []
                 enclosing_classes = (*enclosing_classes, region)
             pending.extend((child, enclosing_classes) for child in ast.iter_child_nodes(node))
         return regions
@@ -167,8 +168,9 @@ def cites_operation_body(entry, regions):
 
             # A broad class excerpt mixing its initializers with a method body
             # cannot attribute that method's behavior to the selected class.
+            # Include continuation/closing lines, not only statement starts.
             # Exact class-owned initialization and selected method IDs still work.
-            if any(first <= line <= last for line, _, _ in region.get("nested_body", [])):
+            if any(start <= last and first <= end for start, end in region.get("nested_body_spans", [])):
                 return False
             # A truncated excerpt cannot borrow matching words from a docstring
             # or default argument earlier than the actual body statement.

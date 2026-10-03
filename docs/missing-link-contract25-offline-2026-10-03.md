@@ -76,10 +76,35 @@ Regression fixtures cover:
 
 The first full run caught a fixture still asserting contract 24; the expectation
 was updated to 25 and contract-24 history was added to the stale-history test.
-The final full run passes **948 tests** on Windows / Python 3.13.
+The initial patch's full run passes **948 tests** on Windows / Python 3.13.
 Source and installed `app.py --help` pass. A separate ignored Windows installation
 includes the new modules and preserves its fixture history and `.env` on update.
 The user's installed configuration and running server were not replaced/restarted.
+
+## Review follow-up: multiline nested statements
+
+The [review of `c2ce24a`](https://github.com/Daniele-Cangi/RepoTraction/pull/49#discussion_r4174476629)
+identified a genuine gap despite all four CI jobs passing: the mixed-class check
+recorded only statement starts. An excerpt starting on a nested method's
+continuation/closing line and ending at a class initializer could still receive
+class-level behavior credit. Eight synchronous/asynchronous return/call variants
+reproduce that false `partial_behavior` result before the correction.
+
+Record each nested executable statement's full AST line span and reject **any
+overlap** with that span. The existing body-presence gate, precise initializers,
+selected method IDs, quote bounds and contract 25 remain unchanged. This closes
+the declared mixed-class rule, not a new parser or semantic completeness feature.
+All 27 operation-evidence tests pass, including full/partial model/import verdicts,
+positive multiline initialization/method cases, mocked provider scope validation
+and a temporary-store round trip. No real provider or acquired code is invoked.
+The review-follow-up full run passes **951 tests** on Windows / Python 3.13;
+source `app.py --help` and whitespace checks pass.
+
+Repeat retained-output verification: the nine comparison responses / 15 outcomes
+and focused quotes are identical to the initial contract-25 replay. All original
+ZIPs remain byte-identical; new normalized handoffs reconstruct under the same
+limits. The 12 table hashes, 150 protected artifacts and allowance remain unchanged.
+The original replay artifact and frozen experiment are not overwritten.
 
 ## History, cost and diagnostic limits
 
