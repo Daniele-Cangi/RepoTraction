@@ -106,22 +106,24 @@ class PartialCapabilityTests(unittest.TestCase):
                 raw["partial_support"][0]["source_ids"] = ["file:" + path]
                 self.assert_contribution(case, "not_demonstrated", provider_excluded=path.endswith(".d.ts"))
 
-    def test_contract21_history_is_preserved_but_not_current(self):
+    def test_contract21_and22_history_is_preserved_but_not_current(self):
         repo, issue, request, raw = self.case()
-        with mock.patch("missing_link.analysis.ANALYSIS_CONTRACT_VERSION", 21):
-            historical = validate_matches([copy.deepcopy(raw)], repo, issue, request, "model")[0]
-        current = validate_matches([raw], repo, issue, request, "model")[0]
-        self.assertEqual(ANALYSIS_CONTRACT_VERSION, 22)
-        self.assertNotEqual(historical["id"], current["id"])
-        with tempfile.TemporaryDirectory() as directory:
-            store = Store(Path(directory) / "fixture.sqlite3", "fixture")
-            store.put("repositories", repo["id"], repo)
-            store.put("matches", historical["id"], historical)
-            service = Service(store.path, "fixture", mock.Mock(side_effect=AssertionError("No GitHub calls")),
-                              lambda: "fixture", Provider({}))
-            self.assertTrue(service.state()["matches"][0]["stale"])
-            self.assertEqual(store.get("matches", historical["id"]), historical)
-            self.assertEqual(store.ai_reserved("fixture"), 0)
+        for version in (21, 22):
+            with self.subTest(version=version):
+                with mock.patch("missing_link.analysis.ANALYSIS_CONTRACT_VERSION", version):
+                    historical = validate_matches([copy.deepcopy(raw)], repo, issue, request, "model")[0]
+                current = validate_matches([raw], repo, issue, request, "model")[0]
+                self.assertEqual(ANALYSIS_CONTRACT_VERSION, 23)
+                self.assertNotEqual(historical["id"], current["id"])
+                with tempfile.TemporaryDirectory() as directory:
+                    store = Store(Path(directory) / "fixture.sqlite3", "fixture")
+                    store.put("repositories", repo["id"], repo)
+                    store.put("matches", historical["id"], historical)
+                    service = Service(store.path, "fixture", mock.Mock(side_effect=AssertionError("No GitHub calls")),
+                                      lambda: "fixture", Provider({}))
+                    self.assertTrue(service.state()["matches"][0]["stale"])
+                    self.assertEqual(store.get("matches", historical["id"]), historical)
+                    self.assertEqual(store.ai_reserved("fixture"), 0)
 
 
 if __name__ == "__main__":

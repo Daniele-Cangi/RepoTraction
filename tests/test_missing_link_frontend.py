@@ -234,7 +234,7 @@ class MissingLinkFrontendTests(unittest.TestCase):
         card.wait_for()
         self.assertIn("Discovery not assessed · novelty unverified", card.inner_text())
 
-    def fixture_page(self, fixture=None):
+    def fixture_page(self, fixture=None, *, capability_name="Synthetic fixture capability"):
         self.page.route("**/ui-fixture", lambda route: route.fulfill(
             content_type="text/html",
             body='<html><head><link rel="stylesheet" href="/styles.css"></head>'
@@ -261,8 +261,11 @@ class MissingLinkFrontendTests(unittest.TestCase):
           });
           window.mlController.setActive(true);
         }""", fixture or source_fixture())
+        if capability_name != "Synthetic fixture capability":
+            self.page.locator("#mlRepo").fill(fixture["repositories"][0]["full_name"])
+            self.page.locator("#mlRepo").dispatch_event("change")
         self.page.locator("#mlCapabilities").get_by_text(
-            "Synthetic fixture capability", exact=True
+            capability_name, exact=True
         ).wait_for()
 
     def wait_post(self, path):
@@ -323,6 +326,26 @@ class MissingLinkFrontendTests(unittest.TestCase):
         self.assertIn("Existing behavior: 1 requirements fully supported · Partial primitives: 0 · Scope-compatible constraints: 0 · Conflicts: 1", self.page.locator("#mlMatches").inner_text())
         self.assertEqual(self.page.locator("#mlMatches script").count(), 0)
         self.assertIn("Not executed", self.page.locator("#mlMatches").inner_text())
+
+    def test_normalized_explicit_rejection_with_unknown_checks_uses_not_a_fit_filter(self):
+        from missing_link.analysis import validate_matches
+        import test_missing_link_rejection as rejection_fixtures
+        repo, issue, request, raw = rejection_fixtures.ExplicitRejectionTests().case()
+        match = validate_matches([raw], repo, issue, request, "model")[0]
+        fixture = source_fixture()
+        fixture["repositories"] = [repo]
+        fixture["matches"] = [match]
+        self.fixture_page(fixture, capability_name=repo["capabilities"][0]["name"])
+        card = self.page.locator(".ml-match")
+        card.wait_for()
+        self.assertIn("Not a fit", card.inner_text())
+        self.assertNotIn("Needs investigation", card.inner_text())
+        self.assertIn("Not executed", card.inner_text())
+        self.page.locator('[data-ml-filter="investigate"]').click()
+        self.assertEqual(self.page.locator(".ml-match").count(), 0)
+        self.page.locator('[data-ml-filter="rejected"]').click()
+        self.assertEqual(self.page.locator(".ml-match").count(), 1)
+        self.assertEqual(self.page.evaluate("window.mlCalls.filter(call => call.options.method === 'POST').length"), 0)
 
     def test_stale_lead_is_visibly_historical_not_silently_requalified(self):
         fixture = source_fixture()

@@ -21,7 +21,7 @@ from .operation_evidence import operation_regions
 
 CLASSIFICATIONS = {"direct", "adapter", "extraction", "rejected", "investigate"}
 REQUEST_STATUSES = {"unresolved", "resolved", "duplicate", "unclear", "automated", NON_DEMAND_STATUS}
-ANALYSIS_CONTRACT_VERSION = 22
+ANALYSIS_CONTRACT_VERSION = 23
 
 
 def passive_api_constraint(requirement: dict) -> bool:
@@ -286,9 +286,11 @@ def validate_matches(raw_matches: list, repository: dict, issue: dict, request: 
         obstacles = texts(raw.get("obstacles", []))
         if any(item["status"] == "incompatible" for item in hard):
             classification = "rejected"
-        elif any(item["status"] == "undetermined" for item in hard) or not hard:
+        # Unknown checks downgrade positive suggestions, not an explicit non-fit
+        # verdict. Preserve rejection without inventing incompatible evidence.
+        elif classification != "rejected" and (any(item["status"] == "undetermined" for item in hard) or not hard):
             classification = "investigate"
-        elif not any(item["contribution"] == "existing_behavior" for item in checks):
+        elif classification != "rejected" and not any(item["contribution"] == "existing_behavior" for item in checks):
             classification = "investigate"
         if request["status"] in {"resolved", "duplicate", "automated"}:
             classification = "rejected"
