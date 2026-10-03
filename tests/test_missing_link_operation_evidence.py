@@ -5,9 +5,9 @@ import tempfile
 import unittest
 from unittest import mock
 
-from missing_link.analysis import validate_matches
+from missing_link.analysis import evidence_catalog, resolve_evidence, validate_matches
 from missing_link.context import build_context
-from missing_link.provider import Provider
+from missing_link.provider import CandidateValidationError, Provider
 from missing_link.sources import extract_structure
 from missing_link.store import Store
 import test_missing_link_partial_support as partial_fixtures
@@ -200,10 +200,86 @@ class OperationEvidenceTests(unittest.TestCase):
 
     def test_truncated_quotes_cannot_borrow_body_words_from_docstrings_or_defaults(self):
         source = 'def failure(value):\n    """return value\n' + "    " + "x" * 2000 + '\n    """\n    return value\n'
-        self.result(self.case(source, path="core.py"), ["file:core.py"], "not_demonstrated")
+        case = self.case(source, path="core.py")
+        case[0]["capabilities"][0]["evidence"][0]["quote"] = source[:1600]
+        self.result(case, ["c0:0"], "not_demonstrated")
         case = self.case('function failure(value = "return value;") { return value; }\n')
         case[0]["capabilities"][0]["evidence"][0]["quote"] = 'function failure(value = "return value;") {'
         self.result(case, ["c0:0"], "not_demonstrated")
+
+    def test_bounded_quote_preserves_body_already_in_original_cited_span(self):
+        source = 'def failure(value):\n    """return value\n' + "    " + "x" * 2000 + '\n    """\n    return value\n'
+        for ending in ("\n", "\r\n"):
+            with self.subTest(ending=ending):
+                case = self.case(source.replace("\n", ending), path="core.py")
+                result = self.result(case, ["file:core.py#L1-L5"], "partial_behavior")
+                evidence = result["checks"][0]["evidence"][0]
+                self.assertEqual(evidence["quote"], "    return value")
+                self.assertEqual((evidence["line"], evidence["end_line"]), (5, 5))
+                self.assertTrue(evidence["url"].endswith("#L5-L5"))
+                self.assertEqual(evidence["source_id"], "file:core.py#L1-L5")
+                self.assertEqual(evidence["quote_selection"], {"kind": "selected_body_subspan",
+                    "original_line": 1, "original_end_line": 5})
+                self.assertLessEqual(len(evidence["quote"]), 1600)
+                # Full support uses the same body gate, not a different shortcut.
+                repo, issue, request, raw = case
+                raw["checks"][0].update(status="satisfied", contribution="existing_behavior")
+                raw["partial_support"] = []
+                full = validate_matches([raw], repo, issue, request, "model")[0]
+                self.assertEqual(full["checks"][0]["contribution"], "existing_behavior")
+
+    def test_body_crop_cannot_expand_docs_only_or_whole_file_outside_operation(self):
+        source = 'def failure(value):\n    """return value\n' + "    " + "x" * 2000 + '\n    """\n    return value\n'
+        self.result(self.case(source, path="core.py"), ["file:core.py#L1-L4"], "not_demonstrated")
+        source += "\ndef sibling():\n    return parse()\n"
+        result = self.result(self.case(source, path="core.py"), ["file:core.py"], "not_demonstrated")
+        self.assertNotIn("quote_selection", result["checks"][0]["evidence"][0])
+
+    def test_body_crop_keeps_character_bound_and_cannot_credit_incomplete_statement(self):
+        for body in ("    return '" + "é" * 2000 + "'", "    return delegate(value)"):
+            source = 'def failure(value):\n    """' + "é" * 2000 + '\n    """\n' + body + "\n"
+            expected = "not_demonstrated" if len(body) > 1600 else "partial_behavior"
+            result = self.result(self.case(source, path="core.py"), ["file:core.py#L1-L4"], expected)
+            evidence = result["checks"][0]["evidence"][0]
+            self.assertLessEqual(len(evidence["quote"]), 1600)
+            if expected == "not_demonstrated":
+                self.assertNotIn("quote_selection", evidence)
+            else:
+                self.assertEqual(evidence["quote"], body)
+
+    def test_provider_body_crop_uses_only_source_lines_actually_supplied(self):
+        source = 'def failure(value):\n    """' + "x" * 2000 + '\n    """\n    return delegate(value)\n'
+        repo, issue, request, raw = self.case(source, path="core.py")
+        raw["checks"][0]["source_ids"] = ["file:core.py#L1-L4"]
+        raw["partial_support"][0]["source_ids"] = ["file:core.py#L1-L4"]
+        provider = Provider({"REPOTRACTION_AI_URL": "http://localhost/v1", "REPOTRACTION_AI_MODEL": "fixture"})
+        budget = mock.Mock()
+        with mock.patch.object(provider, "complete", return_value={"matches": [raw]}) as complete, \
+             mock.patch("urllib.request.build_opener", side_effect=AssertionError("No paid calls")):
+            result = provider.evaluate(repo, issue, request, budget)[0]
+        instruction, data, _, schema, phase = complete.call_args.args
+        self.assertLessEqual(len(provider._encode_prompt(instruction, data, schema, phase)[2]), 180000)
+        self.assertEqual(result["checks"][0]["contribution"], "partial_behavior")
+        self.assertEqual(result["checks"][0]["evidence"][0]["quote"], "    return delegate(value)")
+        budget.reserve_ai.assert_not_called()
+        with tempfile.TemporaryDirectory() as directory:
+            store = Store(Path(directory) / "fixture.sqlite3", "fixture")
+            store.put("matches", result["id"], result)
+            self.assertEqual(Store(store.path, "fixture").get("matches", result["id"]), result)
+        # The acquired repository still has the body, but the outbound pack does not.
+        pack = provider._bounded_context
+        def without_body(*args):
+            data, report = pack(*args)
+            data["sources"] = {key: entry for key, entry in data["sources"].items() if not entry.get("path")}
+            reference = "file:core.py#L1-L3"
+            data["sources"][reference] = resolve_evidence(reference, evidence_catalog(repo, issue))
+            return data, report
+        with mock.patch.object(provider, "_bounded_context", side_effect=without_body), \
+             mock.patch.object(provider, "complete", return_value={"matches": [raw]}), \
+             mock.patch("urllib.request.build_opener", side_effect=AssertionError("No paid calls")):
+            with self.assertRaisesRegex(CandidateValidationError, "not actually provided"):
+                provider.evaluate(repo, issue, request, budget)
+        budget.reserve_ai.assert_not_called()
 
     def test_provider_and_storage_keep_downgrade_and_review_without_live_calls(self):
         repo, issue, request, raw = self.case()

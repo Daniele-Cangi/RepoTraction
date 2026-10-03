@@ -180,3 +180,38 @@ def in_operation(entry, regions):
     first, last = entry.get("line"), entry.get("end_line")
     return type(first) is int and type(last) is int and any(entry.get("path") == region["path"]
         and region["line"] <= first <= last <= region["end_line"] for region in regions)
+
+
+def bounded_operation_evidence(entry, regions):
+    """Keep a body-bearing subspan of an already valid citation, never expand it.
+
+    The source ID still identifies the original supplied citation. Display bounds
+    and URL identify the retained quote; selection metadata makes that crop explicit.
+    No body can be recovered from an omitted/truncated or out-of-operation quote.
+    """
+    bounded = dict(entry)
+    bounded["quote"] = entry["quote"][:1600]
+    if (len(entry["quote"]) <= 1600 or cites_operation_body(bounded, regions)
+            or not cites_operation_body(entry, regions)):
+        return bounded
+    quoted_lines = entry["quote"].splitlines(keepends=True)
+    offsets = [0]
+    for line in quoted_lines:
+        offsets.append(offsets[-1] + len(line))
+    for region in regions:
+        if entry.get("path") != region["path"]:
+            continue
+        for line, _, _ in region["body"]:
+            index = line - entry["line"]
+            if not 0 <= index < len(quoted_lines):
+                continue
+            quote = entry["quote"][offsets[index]:offsets[index] + 1600]
+            last = line + len(quote.splitlines()) - 1
+            focused = {**bounded, "quote": quote, "line": line, "end_line": last}
+            if not cites_operation_body(focused, regions):
+                continue
+            focused["url"] = entry["url"].split("#", 1)[0] + f"#L{line}-L{last}"
+            focused["quote_selection"] = {"kind": "selected_body_subspan",
+                "original_line": entry["line"], "original_end_line": entry["end_line"]}
+            return focused
+    return bounded  # Oversized/incomplete body lines remain unestablished.
