@@ -75,6 +75,9 @@ parts `r13`, `r14`, `r15` does not establish structured output, graceful error
 handling or full compliance. It is an internal helper, not an established public
 entrypoint; target files were not supplied. Every retained partial anchor lies
 inside and cites the selected operation's body. No complete requirement is credited.
+Both Mosfet proposals retain a blocked inspection-ZIP status because of existing
+package bounds; JSON handoffs remain available. This is not a candidate analysis
+failure, and this report does not claim their ZIP packages are downloadable.
 
 ## python-dotenv: false resemblance declined
 
