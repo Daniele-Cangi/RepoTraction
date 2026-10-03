@@ -336,6 +336,54 @@ Final local verification passes **877 tests**, source/installed startup checks a
 the same read-only integrity audit: all 12 real table hashes and 64 frozen report
 hashes are unchanged, with **328 reservations / USD 5.1150975** and no active job.
 
+After PR #39 merged with green Windows/Linux CI and a clean final targeted review,
+the user authorized the [nine remaining sources](missing-link-contract21-remaining-2026-10-03.md).
+The protocol was committed before paid calls. All nine serial repository-only
+Discover jobs completed on merged `a905446`, with unchanged Luna, contract 21 and
+provider/input limits; no supplied issues, custom queries, imports, substitutions,
+paid retries or resumes. Babel remains paused and previous unknown charges remain.
+
+The segment retains **61 completed receipts and JSON outputs / 61 reservations**,
+27 distinct selected issues, two source-cited typed non-demands and 40 evaluations
+from 25 compared requests. No transport, polling, candidate-validation or missing
+implementation-context failure occurs; maximum measured wire body is **177,889
+bytes**. The fresh model recognizes python-dotenv's primary APIs and correctly
+stops two reference articles before compatibility comparison. All 40 pinned
+exports, terminal observations, accounting and aggregate audits remain identical
+after controlled restart; historical payloads, reservation rows and 64 prior
+report hashes stay unchanged, with no implicit worker restart or paid audit call.
+Executable code and provider-setting hashes remain frozen throughout the run.
+
+The original USD 10 allowance is now **389 reservations / USD 6.0337989**,
+leaving USD 3.9662011. This segment reserves USD 0.9187014; completed usage at
+configured prices estimates USD 0.2350699. Neither figure is an invoice.
+Useful p-retry/ANSI/tokenization partials and defensible false-positive rejections
+exist, but **zero matches qualify for follow-up**. No isolated connection is
+forced and no novel external adoption is established. Repeated non-held-out
+sources do not establish causal accuracy improvement or parser completeness.
+
+Next core work, offline first and separate from this frozen evaluation:
+
+- [ ] Prefer acquired implementation candidates over declaration-only candidates
+  during enrichment/selection. Reproduce the small escape-string-regexp case:
+  actual `index.js` behavior is described under an `index.d.ts` capability ID and
+  correctly loses cross-path credit. Preserve exact ownership; no name-only
+  merging, manual promotion or gate relaxation.
+- [ ] Require evidence of the selected operation's implementation, not only its
+  declaration or a sibling operation in the same file. Reproduce Zod `failure`
+  versus `_safeParse` and declaration-only `getEnumValues` credit with narrow
+  offline fixtures. Keep unknown outcomes when bounded analysis cannot establish
+  ownership; preserve genuine wrappers/partials without universal JS/TS resolution.
+- [ ] Review primary-operation/query ranking and reject ungrounded relevance before
+  more paid testing. Zod queries favor internal utilities; dotenv retrieval finds
+  unrelated YAML/UI/build contexts; some wcwidth partials duplicate target-native
+  behavior or require an unestablished runtime/index mapping. Dictionary-shaped
+  output and conceptual analogy are not new implementation contributions.
+- [ ] After bounded corrections, explicitly scope any further live experiment
+  under the remaining original allowance. Keep old results/unknown calls frozen;
+  no automatic paid retries or retroactive relabeling. Isolation still requires
+  an eligible grounded match. UI/key-entry and Go/Rust expansion remain deferred.
+
 The prior contract-14 offline replay of the retained eight-repository cohort packed
 all 8 enrichment, 24 extraction and 20 comparison inputs within the existing
 180,000-byte transport bound (maximum 164,598 bytes). The contract-16 no-spend
