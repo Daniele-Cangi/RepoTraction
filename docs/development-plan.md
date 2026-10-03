@@ -622,8 +622,12 @@ passes 902 tests. This is not evidence that the full three-input gate is complet
 
 Remaining bounded validation work:
 
-- [ ] Freeze a separate segment for Zod and python-dotenv, the two unstarted
+- [x] Freeze a separate segment for Zod and python-dotenv, the two unstarted
   prescribed inputs; retain the same cumulative allowance and no manual cases.
+  The [remaining-input result](missing-link-contract22-remaining-2026-10-03.md)
+  completed both jobs with 14 calls, eight assessments, two partial mechanisms,
+  no acquisition/validation errors and no eligible lead. The ledger is 409
+  reservations / USD 6.3181696; prior history and 102 report hashes are unchanged.
 - [ ] Review explicit `rejected` assessments becoming `investigate` when all
   mandatory checks are unknown. The observed similarity-only case remains
   ineligible; do not conflate provenance, semantic rejection and UI labels.
