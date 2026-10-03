@@ -16,12 +16,12 @@ from .demand import optional_field_hints
 from .sources import source_role, runtime_bin_entrypoints
 from .contracts import validate_requirement_count
 from .non_demands import NON_DEMAND_STATUS, is_non_demand, validate_non_demand
-from .contributions import normalize_support, partial_reviews
+from .contributions import normalize_support, partial_reviews, SUPPORT_MESSAGES
 from .operation_evidence import operation_regions
 
 CLASSIFICATIONS = {"direct", "adapter", "extraction", "rejected", "investigate"}
 REQUEST_STATUSES = {"unresolved", "resolved", "duplicate", "unclear", "automated", NON_DEMAND_STATUS}
-ANALYSIS_CONTRACT_VERSION = 23
+ANALYSIS_CONTRACT_VERSION = 24
 
 
 def passive_api_constraint(requirement: dict) -> bool:
@@ -277,11 +277,20 @@ def validate_matches(raw_matches: list, repository: dict, issue: dict, request: 
             if review:
                 for reference in review["source_ids"]:
                     resolve_evidence(reference, catalog)
+            original_status, original_contribution = status, contribution
+            diagnostics = []
             status, contribution = normalize_support(status, contribution, evidence,
                 capability=capability, passive=passive_api_constraint(requirement), reason=reason if "reason" in item else "",
-                runtime_entrypoints=runtime_entrypoints, partial=review, operation_regions=regions)
+                runtime_entrypoints=runtime_entrypoints, partial=review, operation_regions=regions, diagnostics=diagnostics)
+            normalization = {}
+            if diagnostics:
+                normalization = {"support_normalization": {
+                    "original_status": original_status, "original_contribution": original_contribution,
+                    "original_reason": reason, "codes": diagnostics,
+                    "messages": [SUPPORT_MESSAGES[code] for code in diagnostics]}}
+                reason += " Evidence gate: " + " ".join(normalization["support_normalization"]["messages"])
             checks.append({"requirement_id": rid, "status": status, "contribution": contribution,
-                "reason": reason, "evidence": evidence, **({"partial_support": review} if review else {})})
+                "reason": reason, "evidence": evidence, **({"partial_support": review} if review else {}), **normalization})
         hard = [item for item in checks if requirements[item["requirement_id"]]["mandatory"]]
         obstacles = texts(raw.get("obstacles", []))
         if any(item["status"] == "incompatible" for item in hard):
