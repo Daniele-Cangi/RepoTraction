@@ -290,10 +290,14 @@ class AtomicDemandTests(unittest.TestCase):
         self.assertFalse(request["constraint_review"]["qualification_blockers"])
         repo = repository()
         repo["files"][0]["text"] = "export default function stripAnsi(value) { return value.replace(ansiRegex(), ''); }"
+        repo["files"][0].update(path="index.js", url=repo["files"][0]["url"].rsplit("/", 1)[0] + "/index.js")
+        from missing_link.sources import extract_structure
+        repo["capabilities"] = extract_structure(repo)
         match = raw_match()
+        match["capability_id"] = repo["capabilities"][0]["id"]
         match["checks"] = [dict(requirement_id=f"r{i}", status="satisfied" if i == 1 else "incompatible",
             contribution="existing_behavior" if i == 1 else "not_demonstrated", reason="Fixture, not a model judgment.",
-            source_ids=["file:words.py#L1-L1"]) for i in range(3)]
+            source_ids=["file:index.js#L1-L1"]) for i in range(3)]
         result = validate_matches([match], repo, demand, request, "model")[0]
         self.assertEqual(result["classification"], "rejected")
         self.assertEqual(result["discovery_assessment"]["status"], "partial_contribution")

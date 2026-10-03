@@ -9,6 +9,7 @@ from .demand import optional_field_hints, supplied_optional_field_hints
 from .contracts import MAX_SCOPED_IDS
 from .sources import source_role, runtime_bin_entrypoints
 from .public_api import public_api_hints, public_api_report
+from .operation_evidence import operation_regions
 
 
 def size(value):
@@ -113,6 +114,7 @@ def build_context(repository, issue, phase, byte_limit, *, packing_target=None):
         if phase == "request":
             data["potential_subrequirements"] = supplied_optional_field_hints(optional_review, sources)
     candidates = []
+    operation_cache = {}
     runtime_entrypoints = runtime_bin_entrypoints((repository or {}).get("files", []))
     public_hints = public_api_hints((repository or {}).get("files", []))
     if repository:
@@ -123,8 +125,13 @@ def build_context(repository, issue, phase, byte_limit, *, packing_target=None):
         data["repository"]["capabilities"] = [{key: cap.get(key) for key in ("id", "name", "level", "entrypoint",
             "summary", "outcome", "inputs", "outputs", "preconditions", "dependencies", "standalone", "limitations")}
             for cap in candidates]
-        for cap in data["repository"]["capabilities"]:
+        for cap, candidate in zip(data["repository"]["capabilities"], candidates):
             cap["public_api_hint"] = cap.get("entrypoint") in public_hints["entrypoints"]
+            # The entrypoint already names the file. Avoid duplicating long
+            # paths in metadata; include a path only for a separate definition.
+            cap["implementation_bounds"] = [dict(line=region["line"], end_line=region["end_line"],
+                **({"path": region["path"]} if region["path"] != capability_path(candidate) else {}))
+                for region in operation_regions(candidate, repository.get("files", []), cache=operation_cache)]
     if size(data) > target // 2:
         raise ValueError("Analysis metadata exceeds context bound; narrow the selected context.")
     if repository:
@@ -195,6 +202,8 @@ def build_context(repository, issue, phase, byte_limit, *, packing_target=None):
         # Selected definitions must precede broad file prefixes: a large
         # manifest or unrelated early code can otherwise consume their budget.
         for cap in candidates:
+            for region in operation_regions(cap, repository.get("files", []), cache=operation_cache):
+                definition_regions.append((region["path"], region["line"], min(region["end_line"], region["line"] + 179)))
             for evidence in cap.get("evidence", []):
                 if evidence.get("path") in by_path:
                     start = max(1, evidence.get("line", 1))

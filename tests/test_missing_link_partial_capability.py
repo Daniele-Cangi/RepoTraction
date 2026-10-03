@@ -22,7 +22,7 @@ class PartialCapabilityTests(unittest.TestCase):
         other.update(id="hash_blob", name="hash_blob", summary="Hash a blob",
             definition={"path": "other.py", "line": 1, "end_line": 2},
             evidence=[{"path": "other.py", "line": 1, "end_line": 2,
-                "quote": "def hash_blob(value)", "url": file["url"], "kind": "declaration"}])
+                "quote": file["text"].rstrip(), "url": file["url"], "kind": "declaration"}])
         repo["capabilities"].append(other)
         raw.setdefault("obstacles", [])
         return repo, issue, request, raw
@@ -106,12 +106,12 @@ class PartialCapabilityTests(unittest.TestCase):
                 raw["partial_support"][0]["source_ids"] = ["file:" + path]
                 self.assert_contribution(case, "not_demonstrated", provider_excluded=path.endswith(".d.ts"))
 
-    def test_contract20_history_is_preserved_but_not_current(self):
+    def test_contract21_history_is_preserved_but_not_current(self):
         repo, issue, request, raw = self.case()
-        with mock.patch("missing_link.analysis.ANALYSIS_CONTRACT_VERSION", 20):
+        with mock.patch("missing_link.analysis.ANALYSIS_CONTRACT_VERSION", 21):
             historical = validate_matches([copy.deepcopy(raw)], repo, issue, request, "model")[0]
         current = validate_matches([raw], repo, issue, request, "model")[0]
-        self.assertEqual(ANALYSIS_CONTRACT_VERSION, 21)
+        self.assertEqual(ANALYSIS_CONTRACT_VERSION, 22)
         self.assertNotEqual(historical["id"], current["id"])
         with tempfile.TemporaryDirectory() as directory:
             store = Store(Path(directory) / "fixture.sqlite3", "fixture")

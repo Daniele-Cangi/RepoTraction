@@ -27,7 +27,8 @@ def repository():
             "url": "https://github.com/example/words/blob/" + "a" * 40 + "/words.py", "kind": "source"}],
         "capabilities": [{"id": "trim", "name": "trim", "level": "mechanism", "summary": "Shorten a string at word boundaries",
             "standalone": "yes", "search_terms": ["shorten string", "word boundaries"], "limitations": [],
-            "evidence": [{"path": "words.py", "line": 1, "end_line": 3, "quote": "def trim(value)",
+            "evidence": [{"path": "words.py", "line": 1, "end_line": 3,
+                "quote": 'def trim(value):\n    """Shorten a string at word boundaries."""\n    return value',
                 "url": "https://github.com/example/words/blob/" + "a" * 40 + "/words.py", "kind": "declaration"}]}]}
 
 
