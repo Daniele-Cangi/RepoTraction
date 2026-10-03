@@ -469,6 +469,25 @@ it is recorded separately at configured prices. This is **not** a provider invoi
 or a substitute for provider-side billing limits. Unknown usage is not called zero.
 Redirects and credentials embedded in endpoint URLs are rejected.
 
+Provider transport failures have safe typed job diagnostics: timeout, network/I/O,
+numeric HTTP failure, malformed envelope/stream and existing response bounds.
+They stop the whole investigation without an automatic retry. The diagnostic
+retains phase and captured attempt identity, not raw exception/body/key text.
+A missing complete response receipt is unknown and remains conservatively charged;
+it is not called a bad model answer or zero usage. Completed model output still
+uses the existing audit and candidate-validation rules. Historical generic errors
+are not retrospectively reclassified.
+See [the no-spend verification](missing-link-api-verification.md#provider-transport-and-http-observer-diagnostics--3-october-2026).
+
+The opt-in `scripts/investigate_missing_link.py` driver requires a new `--report`
+path and persists the acknowledged job ID before polling. A polling error leaves
+the backend alone and records that it may still be running; inspect that ID before
+any explicit retry/resume. No replacement job or automatic cancellation is sent
+on a failed GET. The existing 15-minute deadline requests cancellation once;
+acknowledgement does not prove an in-flight provider call has exited or been
+refunded. The 30-second socket timeout is unchanged. Report-write failures print
+the known ID and safe stop diagnostic; old reports are never overwritten.
+
 Outbound context is displayed in the UI: selected public source snippets and
 signatures, public issue/comments/timeline, requirements, and compatibility
 results. No GitHub tokens, private sources or traffic/account history enter prompts.
