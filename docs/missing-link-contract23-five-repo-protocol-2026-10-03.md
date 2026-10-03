@@ -100,3 +100,19 @@ provide a controlled before/after accuracy comparison for PR #45.
 Do not force a positive result or isolated demonstration. An eligible grounded
 lead can motivate a separately scoped isolated test; interface/key-entry work and
 typed callable-export coverage remain separate follow-ups after reconciliation.
+
+## Unpaid startup correction before the final harness freeze
+
+The first owned startup preflight stopped before any job/paid request: its exact
+provider-description equality check rejected the API's documented additive
+`limits.total_reserved_usd` field. The configured provider itself was unchanged;
+all 12 table hashes stayed identical across restart/browser checks. No backend job
+was acknowledged, no allowance was reset and no live job was retried.
+
+Preserve that initial setup and baseline in `five-new-01`. The final owned harness
+in `five-new-02` compares every configured description/limit field and separately
+checks the live reserved total against the ledger. Positive/additive-field and
+negative model/limit tests cover this startup-only correction. Freeze its new
+hashes and push this clarification before paid calls. This is not permission to
+repair or continue after a failed live job: the original strict stop rules apply
+unchanged once a source job is started.
