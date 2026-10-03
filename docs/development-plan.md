@@ -650,10 +650,21 @@ force an isolated demonstration from a merely partial primitive.
   phrase; keep legacy fallback, scope/bounds and ranking. The narrow correction
   has 920 passing offline tests and awaits its own review/merge, not a live-quality
   endorsement. No new logic belongs in `app.py`.
-- [ ] Freeze a separate five-repository repository-only experiment after that
-  review: no preselected issues, new paid calls only within the original allowance,
-  and explicit failure/stop rules. Retain sanitized bounded retrieval pools in the
-  owned harness so selected and unselected candidates can actually be compared.
+- [x] Freeze a separate five-repository repository-only experiment after that
+  review, with no preselected issues and sanitized bounded retrieval pools. The
+  [contract-23 protocol](missing-link-contract23-five-repo-protocol-2026-10-03.md)
+  and [partial result](missing-link-contract23-five-repo-result-2026-10-03.md)
+  record asttokens completed, freezegun paused on identity-check timeout, three
+  unstarted inputs and no automatic retries. One grounded partial primitive,
+  no eligible lead; original ledger 419 reservations / USD 6.4914746. This does
+  not complete the five-input gate or establish improved live discovery accuracy.
+- [ ] Diagnose bounded CLI identity-check latency before a new scoped paid segment;
+  do not silently resume stopped jobs, weaken account isolation or refund unknown
+  attempts. Preserve Babel's earlier paused state and the current freezegun stop.
+- [ ] Guide class-level interpretations to available method IDs/body evidence and
+  explain discarded contribution claims; verify with retained-output fixtures.
+- [ ] Scope inspection handoff-size handling separately: all six new asttokens
+  ZIPs exceed the existing handoff per-file bound; JSON exports remain available.
 - [ ] Scope typed callable JS/TS exports omitted from the acquired Zod sample as
   a separate coverage task with positive/negative fixtures, not universal module
   resolution or an implicit expansion of this retrieval fix.
