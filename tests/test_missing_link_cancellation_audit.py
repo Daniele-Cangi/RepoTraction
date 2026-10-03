@@ -15,7 +15,7 @@ class CancellationAuditTests(unittest.TestCase):
 
     def cancelled_response(self, *, kind="responses", streaming=False, value=...,
                            cancel_at="complete", account_change=False, terminal_status="completed",
-                           refusal=False, undecodable=False, malformed_partial=False, identity_error=None):
+                           refusal=False, undecodable=False, malformed_partial=False, identity_error=None, nonobject_partial=False):
         provider = Provider({"REPOTRACTION_AI_URL": "http://localhost/v1", "REPOTRACTION_AI_MODEL": "fixture",
             "REPOTRACTION_AI_API_KIND": kind, "REPOTRACTION_AI_STREAMING": "1" if streaming else "0",
             "REPOTRACTION_AI_INPUT_USD_PER_MILLION": "1", "REPOTRACTION_AI_OUTPUT_USD_PER_MILLION": "1"})
@@ -47,6 +47,8 @@ class CancellationAuditTests(unittest.TestCase):
                     "usage": {"prompt_tokens": 10, "completion_tokens": 20}}
             if streaming:
                 partial = b'data: {\n' if malformed_partial else b'data: {"type":"response.output_text.delta","delta":"partial"}\n'
+                if nonobject_partial:
+                    partial = b'data: []\n'
                 lines = iter([b'event: fixture\n', partial,
                     ("data: " + json.dumps({"type": "response." + terminal_status, "response": result}) + "\n").encode()])
 
@@ -139,6 +141,16 @@ class CancellationAuditTests(unittest.TestCase):
         job, _, response = self.cancelled_response(streaming=True, cancel_at="partial", malformed_partial=True)
         self.assertEqual(response.__enter__.return_value.readline.call_count, 2)
         self.assertFalse(job["checkpoint"].get("ai_outputs"))
+
+    def test_nonobject_partial_event_keeps_cancellation_and_identity_precedence(self):
+        for identity_error in (None, GitHubAccountVerificationError("github_identity_cli_timeout")):
+            with self.subTest(identity_error=identity_error):
+                self.service.verify = lambda: self.account
+                job, _, response = self.cancelled_response(streaming=True, cancel_at="partial",
+                    nonobject_partial=True, identity_error=identity_error)
+                self.assertEqual(response.__enter__.return_value.readline.call_count, 2)
+                self.assertFalse(job.get("ai_trace"))
+                self.assertFalse(job["checkpoint"].get("ai_outputs"))
 
     def test_refused_incomplete_and_undecodable_responses_remain_excluded_after_cancel(self):
         for options in ({"refusal": True}, {"terminal_status": "incomplete"}, {"undecodable": True}):

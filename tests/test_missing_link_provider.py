@@ -12,6 +12,7 @@ from missing_link.context import build_context, normalize_references
 from missing_link.analysis import evidence_catalog
 from missing_link.contracts import schema_for, validate_shape
 from missing_link.provider import Provider, CandidateValidationError
+from missing_link.provider_errors import ProviderTransportError
 from missing_link.store import Store
 from test_missing_link import issue, repository, request_raw, raw_match, request_completion, wire_request
 
@@ -210,14 +211,14 @@ class ProviderContractTests(unittest.TestCase):
                 if terminal:
                     self.assertEqual(provider.complete("Extract", {}, mock.Mock(), schema_for("request"))["status"], "unresolved")
                 else:
-                    with self.assertRaises(ValueError):
+                    with self.assertRaises(ProviderTransportError):
                         provider.complete("Extract", {}, mock.Mock(), schema_for("request"))
 
     def test_transport_validation_errors_never_leak_header_credentials(self):
         provider = Provider({"REPOTRACTION_AI_URL": "http://localhost/v1", "REPOTRACTION_AI_MODEL": "fixture"})
         opener = mock.Mock()
         opener.open.side_effect = ValueError("Invalid header value Bearer sensitive-fixture-key")
-        with mock.patch("urllib.request.build_opener", return_value=opener), self.assertRaises(ValueError) as error:
+        with mock.patch("urllib.request.build_opener", return_value=opener), self.assertRaises(ProviderTransportError) as error:
             provider.complete("Extract", {}, mock.Mock())
         self.assertNotIn("sensitive-fixture-key", str(error.exception))
         self.assertFalse(Provider({"REPOTRACTION_AI_URL": "http://localhost/v1", "REPOTRACTION_AI_MODEL": "fixture",

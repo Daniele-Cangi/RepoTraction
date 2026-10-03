@@ -1,8 +1,19 @@
 """Safe job-stop descriptions, separate from source analysis and retry policy."""
+import re
+
 from github_cli import ActiveAccountChangedError, GitHubAccountVerificationError
 
+from .provider_errors import ProviderTransportError
 
-def job_failure(exc):
+
+def job_failure(exc, *, job=None):
+    if isinstance(exc, ProviderTransportError):
+        diagnostic = exc.diagnostic()
+        if isinstance(job, dict):
+            identity, call = job.get("id"), job.get("ai_calls_used")
+            if isinstance(identity, str) and re.fullmatch(r"[0-9a-f]{32}", identity) and type(call) is int and call > 0:
+                diagnostic.update(call_number=call, attempt_id=f"{identity}:{call}")
+        return {"status": "failed", "error": str(exc), "error_diagnostic": diagnostic}
     if isinstance(exc, GitHubAccountVerificationError):
         return {"status": "paused", "error": str(exc), "error_diagnostic": exc.diagnostic()}
     if isinstance(exc, ActiveAccountChangedError):
