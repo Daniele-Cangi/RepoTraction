@@ -21,7 +21,7 @@ from .operation_evidence import operation_regions
 
 CLASSIFICATIONS = {"direct", "adapter", "extraction", "rejected", "investigate"}
 REQUEST_STATUSES = {"unresolved", "resolved", "duplicate", "unclear", "automated", NON_DEMAND_STATUS}
-ANALYSIS_CONTRACT_VERSION = 24
+ANALYSIS_CONTRACT_VERSION = 25
 
 
 def passive_api_constraint(requirement: dict) -> bool:

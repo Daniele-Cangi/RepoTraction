@@ -38,8 +38,11 @@ def _scan(file):
         except (SyntaxError, ValueError, RecursionError):
             return {}
         regions = {}
-        for node in ast.walk(tree):
+        pending = [(tree, ())]
+        while pending:
+            node, enclosing_classes = pending.pop()
             if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+                pending.extend((child, enclosing_classes) for child in ast.iter_child_nodes(node))
                 continue
             body = []
             for statement in _owned_python_nodes(node):
@@ -56,8 +59,15 @@ def _scan(file):
                 fragment = lines[line - 1][len(prefix):].strip()
                 if fragment:
                     body.append((line, fragment, len(prefix)))
-            regions[node.lineno] = {"path": path, "line": node.lineno,
+            region = {"path": path, "line": node.lineno,
                 "end_line": node.end_lineno, "body": body, "lines": lines}
+            regions[node.lineno] = region
+            for enclosing in enclosing_classes:
+                enclosing["nested_body"].extend(body)
+            if isinstance(node, ast.ClassDef):
+                region["nested_body"] = []
+                enclosing_classes = (*enclosing_classes, region)
+            pending.extend((child, enclosing_classes) for child in ast.iter_child_nodes(node))
         return regions
     if PurePosixPath(path).suffix.casefold() not in {".js", ".mjs", ".cjs", ".ts", ".tsx", ".jsx"} or path.casefold().endswith(".d.ts"):
         return {}
@@ -150,11 +160,19 @@ def cites_operation_body(entry, regions):
             if not actual.startswith(quote):
                 return False
             quoted_lines = quote.splitlines()
+            def represented(body):
+                return any(first <= line <= last and line - first < len(quoted_lines)
+                    and column + len(fragment) <= len(quoted_lines[line - first])
+                    for line, fragment, column in body)
+
+            # A broad class excerpt mixing its initializers with a method body
+            # cannot attribute that method's behavior to the selected class.
+            # Exact class-owned initialization and selected method IDs still work.
+            if any(first <= line <= last for line, _, _ in region.get("nested_body", [])):
+                return False
             # A truncated excerpt cannot borrow matching words from a docstring
             # or default argument earlier than the actual body statement.
-            return any(first <= line <= last and line - first < len(quoted_lines)
-                and column + len(fragment) <= len(quoted_lines[line - first])
-                for line, fragment, column in region["body"])
+            return represented(region["body"])
     return False
 
 

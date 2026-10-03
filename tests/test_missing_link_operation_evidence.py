@@ -125,6 +125,36 @@ class OperationEvidenceTests(unittest.TestCase):
         source += "    shared = configure()\n"
         self.result(self.case(source, name="Worker", path="core.py"), ["file:core.py#L4-L4"], "partial_behavior")
 
+    def test_mixed_class_initializers_and_method_body_are_not_class_behavior(self):
+        source = "class Worker:\n    label = 'worker'\n    def run(self):\n        return delegate()\n    shared = configure()\n"
+        for refs in (["file:core.py"], ["file:core.py#L2-L4"], ["file:core.py#L2-L5"]):
+            with self.subTest(refs=refs):
+                case = self.case(source, name="Worker", path="core.py")
+                self.result(case, refs, "not_demonstrated")
+                repo, issue, request, raw = case
+                raw["checks"][0].update(status="satisfied", contribution="existing_behavior", source_ids=refs)
+                raw["partial_support"] = []
+                for provenance in ("model", "coding_agent_import"):
+                    result = validate_matches([raw], repo, issue, request, provenance)[0]
+                    self.assertEqual(result["checks"][0]["status"], "undetermined")
+                    self.assertEqual(result["checks"][0]["contribution"], "not_demonstrated")
+                    self.assertIn("selected_operation_body_missing", result["checks"][0]["support_normalization"]["codes"])
+                    self.assertFalse(result["discovery_assessment"]["eligible_for_followup"])
+        for refs in (["file:core.py#L2-L2"], ["file:core.py#L5-L5"]):
+            self.result(self.case(source, name="Worker", path="core.py"), refs, "partial_behavior")
+        self.result(self.case(source, name="Worker.run", path="core.py"), ["file:core.py#L3-L4"], "partial_behavior")
+
+        # Prefix clipping must not launder a mixed class citation into credit.
+        source = "class Worker:\n    label = 'worker'\n    \"\"\"" + "x" * 2000 + "\"\"\"\n    def run(self):\n        return delegate()\n"
+        self.result(self.case(source, name="Worker", path="core.py"), ["file:core.py"], "not_demonstrated")
+
+    def test_nested_class_body_does_not_borrow_outer_class_initializer(self):
+        source = "class Worker:\n    label = 'worker'\n    class Inner:\n        shared = configure()\n        async def run(self):\n            return delegate()\n"
+        self.result(self.case(source, name="Worker", path="core.py"), ["file:core.py"], "not_demonstrated")
+        self.result(self.case(source, name="Worker.Inner", path="core.py"), ["file:core.py#L3-L6"], "not_demonstrated")
+        self.result(self.case(source, name="Worker.Inner", path="core.py"), ["file:core.py#L4-L4"], "partial_behavior")
+        self.result(self.case(source, name="Worker.Inner.run", path="core.py"), ["file:core.py#L6-L6"], "partial_behavior")
+
     def test_lexical_lookalikes_and_unclosed_javascript_are_not_body_proof(self):
         for source in ("/*\nfunction failure(issues) {\n return issues;\n}\n*/\n",
                        "function failure(issues) {\n return issues;\n",
