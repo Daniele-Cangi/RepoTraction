@@ -106,14 +106,14 @@ class PartialCapabilityTests(unittest.TestCase):
                 raw["partial_support"][0]["source_ids"] = ["file:" + path]
                 self.assert_contribution(case, "not_demonstrated", provider_excluded=path.endswith(".d.ts"))
 
-    def test_contract21_through23_history_is_preserved_but_not_current(self):
+    def test_contract21_through24_history_is_preserved_but_not_current(self):
         repo, issue, request, raw = self.case()
-        for version in (21, 22, 23):
+        for version in (21, 22, 23, 24):
             with self.subTest(version=version):
                 with mock.patch("missing_link.analysis.ANALYSIS_CONTRACT_VERSION", version):
                     historical = validate_matches([copy.deepcopy(raw)], repo, issue, request, "model")[0]
                 current = validate_matches([raw], repo, issue, request, "model")[0]
-                self.assertEqual(ANALYSIS_CONTRACT_VERSION, 24)
+                self.assertEqual(ANALYSIS_CONTRACT_VERSION, 25)
                 self.assertNotEqual(historical["id"], current["id"])
                 with tempfile.TemporaryDirectory() as directory:
                     store = Store(Path(directory) / "fixture.sqlite3", "fixture")
