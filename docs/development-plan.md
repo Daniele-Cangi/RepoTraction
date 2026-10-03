@@ -732,7 +732,20 @@ force an isolated demonstration from a merely partial primitive.
   a separate coverage task with positive/negative fixtures, not universal module
   resolution or an implicit expansion of this retrieval fix.
 
-No full-pool ranking improvement can be inferred from selected-only history.
+- [x] Complete the [offline discovery relevance audit](missing-link-discovery-relevance-2026-10-04.md)
+  on the retained contract-25 pools: all queries and complete candidate orders
+  replay exactly. Diversity changes the third selection in each source relative
+  to lexical-first ranking, but six selected discussions remain unchanged and no
+  alternative is qualified. All 12 table hashes and 369 prior artifacts remain
+  identical; no API acquisition, paid call or production ranking change occurs.
+- [ ] Specify a bounded demand-to-mechanism triage using retained acquired
+  discussions, with runtime/data-shape/outcome fixtures and explicit unknowns.
+  Validate it before a new selection policy or paid segment. Any acquisition of
+  unselected alternatives needs a separate frozen read-only API protocol; their
+  titles cannot certify usefulness. Preserve qualification gates and old jobs.
+
+No full-pool ranking improvement can be inferred from selected-only history;
+the newer retained pools permit ordering replay, not semantic utility measurement.
 First establish a grounded eligible lead before isolation, UI or key-entry work.
 
 ## Acceptance checks
