@@ -388,6 +388,8 @@ class Provider:
             "Interpret at most 8 important product/subsystem/mechanism candidates. Use existing IDs only. For each provide name,summary,outcome,inputs,outputs,preconditions,dependencies,limitations,"
             "Prefer source-backed declared public API hints over lower-level helpers when selecting important mechanisms. "
             "A public_api_hint is a static declaration hint, not proof of exports, execution or compatibility; inspect its supplied implementation. "
+            "Type declaration files are supporting interface context, not runtime capability IDs. Select the actual implementation "
+            "candidate; never describe another file's runtime behavior under a type-only ID or transfer its ownership by name. "
             "standalone (yes/no/unknown),search_terms and source_ids. Describe internal mechanisms, not just product marketing. "
             "Search terms must be short problem/mechanism phrases, with relevant domain or runtime when grounded; "
             "do not use the source project/package name as a search term. "

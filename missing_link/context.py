@@ -57,7 +57,10 @@ def capability_path(capability):
 
 def select_capabilities(capabilities, limit=30, *, runtime_entrypoints=(), public_entrypoints=()):
     """Prefer product implementation with bounded per-file diversity, not export proof."""
-    ranked = sorted(capabilities, key=lambda cap: (
+    # Type declarations remain supplied context and structural coverage, but
+    # never become the identity of a runtime implementation. Do not merge IDs
+    # or transfer ownership based on matching names across files.
+    ranked = sorted((cap for cap in capabilities if not capability_path(cap).casefold().endswith(".d.ts")), key=lambda cap: (
         {"implementation": 0, "support": 1, "test": 2, "infrastructure": 3}[source_role(capability_path(cap), runtime_entrypoints=runtime_entrypoints)],
         cap.get("entrypoint") not in public_entrypoints,
         cap.get("level") != "mechanism", cap.get("name", "").startswith("_"), cap.get("standalone") != "yes"))
@@ -255,6 +258,8 @@ def build_context(repository, issue, phase, byte_limit, *, packing_target=None):
         supplied_paths = list(dict.fromkeys(entry["path"] for entry in sources.values() if entry.get("path")))
         report["selection_policy"] = "Request root, then implementation definitions before later discussion; literal public API hints within each source-role tier, per-file diversity and interleaved spans. Path heuristic with exact acquired-manifest bin targets, not verified exports or execution."
         report["public_api_hints"] = hint_report
+        report["declaration_context_only_capability_ids"] = [cap["id"] for cap in repository.get("capabilities", [])
+            if capability_path(cap).casefold().endswith(".d.ts")]
         report["selected_capability_roles"] = dict(Counter(source_role(capability_path(cap), runtime_entrypoints=runtime_entrypoints) for cap in candidates))
         report["supplied_source_roles"] = dict(Counter(source_role(path, runtime_entrypoints=runtime_entrypoints) for path in supplied_paths))
         report["implementation_source_paths"] = [path for path in supplied_paths if source_role(path, runtime_entrypoints=runtime_entrypoints) == "implementation"]
