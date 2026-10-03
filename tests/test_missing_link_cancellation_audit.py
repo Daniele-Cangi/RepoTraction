@@ -15,7 +15,8 @@ class CancellationAuditTests(unittest.TestCase):
 
     def cancelled_response(self, *, kind="responses", streaming=False, value=...,
                            cancel_at="complete", account_change=False, terminal_status="completed",
-                           refusal=False, undecodable=False, malformed_partial=False, identity_error=None, nonobject_partial=False):
+                           refusal=False, undecodable=False, malformed_partial=False, identity_error=None,
+                           nonobject_partial=False, terminal_event=None):
         provider = Provider({"REPOTRACTION_AI_URL": "http://localhost/v1", "REPOTRACTION_AI_MODEL": "fixture",
             "REPOTRACTION_AI_API_KIND": kind, "REPOTRACTION_AI_STREAMING": "1" if streaming else "0",
             "REPOTRACTION_AI_INPUT_USD_PER_MILLION": "1", "REPOTRACTION_AI_OUTPUT_USD_PER_MILLION": "1"})
@@ -50,7 +51,7 @@ class CancellationAuditTests(unittest.TestCase):
                 if nonobject_partial:
                     partial = b'data: []\n'
                 lines = iter([b'event: fixture\n', partial,
-                    ("data: " + json.dumps({"type": "response." + terminal_status, "response": result}) + "\n").encode()])
+                    ("data: " + json.dumps({"type": "response." + (terminal_event or terminal_status), "response": result}) + "\n").encode()])
 
                 def read_line(*_args):
                     line = next(lines, b"")
@@ -191,3 +192,13 @@ class CancellationAuditTests(unittest.TestCase):
                 job, output, _ = self.cancelled_response(identity_error=error, streaming=streaming)
                 self.assert_completed_audit(job, output)
                 self.assertEqual(job["error_diagnostic"]["code"], "github_identity_cli_timeout")
+
+    def test_inconsistent_terminal_preserves_cancel_and_identity_stop_without_receipts(self):
+        for event in ("failed", "incomplete"):
+            for identity_error in (None, GitHubAccountVerificationError("github_identity_cli_timeout")):
+                with self.subTest(event=event, identity_error=identity_error):
+                    self.service.verify = lambda: self.account
+                    job, _, _ = self.cancelled_response(streaming=True, terminal_event=event, identity_error=identity_error)
+                    self.assertFalse(job.get("reported_usage"))
+                    self.assertFalse(job.get("ai_trace"))
+                    self.assertFalse(job["checkpoint"].get("ai_outputs"))

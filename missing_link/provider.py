@@ -193,11 +193,12 @@ class Provider:
                                 raise ResponseError("ai_stream_invalid_event", phase=phase)
                             if event.get("type") in {"response.completed", "response.failed", "response.incomplete"}:
                                 # A received terminal response can be audited before
-                                # stopping for cancellation. Partial streams still
-                                # stop at each nonterminal frame.
+                                # stopping for cancellation, but only if its status
+                                # agrees with the event. Partial/inconsistent frames
+                                # still check cancellation before transport failure.
                                 result = event["response"]
-                                if not isinstance(result, dict):
-                                    budget.checkpoint()
+                                if (not isinstance(result, dict)
+                                        or result.get("status") != event["type"].split(".", 1)[1]):
                                     raise ResponseError("ai_stream_invalid_event", phase=phase)
                                 break
                         except (KeyError, ValueError, TypeError, ResponseError):

@@ -87,6 +87,37 @@ class ProviderDiagnosticTests(unittest.TestCase):
             with self.subTest(code=code, lines=lines):
                 self.assertEqual(self.failed_call(lines=lines)["code"], code)
 
+    def test_mismatched_terminal_event_and_status_never_become_receipts(self):
+        for event in ("completed", "failed", "incomplete"):
+            for status in ("completed", "failed", "incomplete", None):
+                if event == status:
+                    continue
+                with self.subTest(event=event, status=status):
+                    result = {"status": status, "usage": {"input_tokens": 1, "output_tokens": 2},
+                        "output": [{"type": "message", "content": [{"type": "output_text", "text": '{"fixture":true}'}]}]}
+                    line = ("data: " + json.dumps({"type": "response." + event, "response": result}) + "\n").encode()
+                    self.assertEqual(self.failed_call(lines=[line, b""])["code"], "ai_stream_invalid_event")
+
+    def test_consistent_terminal_events_preserve_receipt_and_output_boundaries(self):
+        for status in ("completed", "failed", "incomplete"):
+            with self.subTest(status=status):
+                opener, response, budget = mock.Mock(), mock.MagicMock(), mock.Mock()
+                result = {"status": status, "usage": {"input_tokens": 1, "output_tokens": 2},
+                    "output": [{"type": "message", "content": [{"type": "output_text", "text": '{"fixture":true}'}]}]}
+                response.__enter__.return_value.readline.side_effect = [
+                    ("data: " + json.dumps({"type": "response." + status, "response": result}) + "\n").encode(), b""]
+                opener.open.return_value = response
+                with mock.patch("urllib.request.build_opener", return_value=opener):
+                    if status == "completed":
+                        self.assertEqual(self.provider(True).complete("Fixture", {}, budget), {"fixture": True})
+                        budget.record_output.assert_called_once()
+                    else:
+                        with self.assertRaises(CandidateValidationError):
+                            self.provider(True).complete("Fixture", {}, budget)
+                        budget.record_output.assert_not_called()
+                budget.record_usage.assert_called_once()
+                budget.record_call.assert_called_once()
+
     def test_stream_size_and_deadline_bounds_are_unchanged(self):
         self.assertEqual(self.failed_call(lines=[b"x" * 512001])["code"], "ai_transport_size_exceeded")
         self.assertEqual(self.failed_call(lines=[b"event: private\n"], clock=[0, 241])["code"], "ai_stream_deadline_exceeded")
@@ -96,15 +127,27 @@ class ProviderStopPersistenceTests(unittest.TestCase):
     setUp = fixtures.ServiceTests.setUp
     fake_sources = fixtures.ServiceTests.fake_sources
 
-    def test_failed_call_is_global_and_keeps_attempt_charge_after_restart(self):
+    def stopped_call(self, *, terminal_event=None):
         provider = Provider({"REPOTRACTION_AI_URL": "http://localhost/v1", "REPOTRACTION_AI_MODEL": "fixture",
             "REPOTRACTION_AI_API_KIND": "responses", "REPOTRACTION_AI_INPUT_USD_PER_MILLION": "1",
+            "REPOTRACTION_AI_STREAMING": "1" if terminal_event else "0",
             "REPOTRACTION_AI_TOTAL_BUDGET_USD": "2", "REPOTRACTION_AI_BUDGET_ID": "transport-fixture"})
         self.service.provider = provider
         source, opener = self.fake_sources(), mock.Mock()
         source.search_issues.return_value = {"items": [{"url": fixtures.issue()["url"]},
             {"url": "https://github.com/example/other/issues/9"}]}
-        opener.open.side_effect = urllib.error.URLError(socket.timeout("private key prompt"))
+        if terminal_event:
+            def opened(request, **_kwargs):
+                context = json.loads(json.loads(request.data)["input"][1]["content"].split("\nUNTRUSTED_DATA_JSON:\n", 1)[1])
+                result = {"status": "completed", "usage": {"input_tokens": 1, "output_tokens": 2},
+                    "output": [{"type": "message", "content": [{"type": "output_text", "text": json.dumps(fixtures.wire_request(context))}]}]}
+                response = mock.MagicMock()
+                response.__enter__.return_value.readline.side_effect = [
+                    ("data: " + json.dumps({"type": "response." + terminal_event, "response": result}) + "\n").encode(), b""]
+                return response
+            opener.open.side_effect = opened
+        else:
+            opener.open.side_effect = urllib.error.URLError(socket.timeout("private key prompt"))
         with mock.patch("missing_link.service.PublicGitHub", return_value=source), \
              mock.patch("missing_link.service.extract_structure", return_value=fixtures.repository()["capabilities"]), \
              mock.patch.object(provider, "interpret_capabilities", return_value=fixtures.repository()["capabilities"]), \
@@ -115,7 +158,8 @@ class ProviderStopPersistenceTests(unittest.TestCase):
         self.assertEqual(job["status"], "failed")
         self.assertEqual(job["ai_calls_used"], 1)
         self.assertGreater(job["cost_reserved_usd"], 0)
-        self.assertEqual(job["error_diagnostic"], {"category": "ai_transport", "code": "ai_transport_timeout",
+        code = "ai_stream_invalid_event" if terminal_event else "ai_transport_timeout"
+        self.assertEqual(job["error_diagnostic"], {"category": "ai_transport", "code": code,
             "phase": "request", "reservation_retained": True, "response_receipt": "unavailable",
             "call_number": 1, "attempt_id": job["id"] + ":1"})
         self.assertFalse(job.get("ai_trace"))
@@ -129,6 +173,12 @@ class ProviderStopPersistenceTests(unittest.TestCase):
         self.assertEqual(restarted.store.get("jobs", job["id"]), job)
         self.assertEqual(restarted.store.ai_reserved("transport-fixture"), job["cost_reserved_usd"])
         self.assertFalse(restarted.threads)
+
+    def test_failed_call_is_global_and_keeps_attempt_charge_after_restart(self):
+        self.stopped_call()
+
+    def test_mismatched_terminal_keeps_unknown_charge_and_stops_later_candidates(self):
+        self.stopped_call(terminal_event="incomplete")
 
 
 if __name__ == "__main__":
