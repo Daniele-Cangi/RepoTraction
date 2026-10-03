@@ -658,13 +658,19 @@ force an isolated demonstration from a merely partial primitive.
   unstarted inputs and no automatic retries. One grounded partial primitive,
   no eligible lead; original ledger 419 reservations / USD 6.4914746. This does
   not complete the five-input gate or establish improved live discovery accuracy.
-- [ ] Diagnose bounded CLI identity-check latency before a new scoped paid segment;
-  do not silently resume stopped jobs, weaken account isolation or refund unknown
-  attempts. Preserve Babel's earlier paused state and the current freezegun stop.
-- [ ] Guide class-level interpretations to available method IDs/body evidence and
-  explain discarded contribution claims; verify with retained-output fixtures.
-- [ ] Scope inspection handoff-size handling separately: all six new asttokens
-  ZIPs exceed the existing handoff per-file bound; JSON exports remain available.
+- [x] Probe bounded CLI identity-check latency without spending. Three checks
+  succeeded in 0.728–0.760 seconds; the historical timeout's cause remains unknown.
+  Fix the reproduced success-cache timestamp defect without increasing timeout,
+  weakening isolation, resuming jobs or refunding unknown attempts.
+- [x] Guide class-level interpretations to available method IDs/body evidence and
+  explain discarded contribution claims; contract 24 retains the strict gate.
+  The retained-output replay leaves all six verdicts/contribution kinds unchanged.
+- [x] Handle large inspection handoffs losslessly with a multipart index and
+  fragments, preserving file/total limits and full JSON exports. All six asttokens
+  ZIPs reconstruct offline; no stored result or historical block is rewritten.
+- [ ] Review and merge the [contract-24 no-spend corrections](missing-link-contract24-offline-2026-10-03.md),
+  then freeze a new separately scoped live segment for the three unstarted sources.
+  Freezegun/Babel remain paused and all unknown reservations remain charged.
 - [ ] Scope typed callable JS/TS exports omitted from the acquired Zod sample as
   a separate coverage task with positive/negative fixtures, not universal module
   resolution or an implicit expansion of this retrieval fix.
