@@ -807,10 +807,29 @@ force an isolated demonstration from a merely partial primitive.
   The full local suite passes 1,041 tests; a second preflight reproduces all nine
   payload hashes and original inputs. Exact IDs and model-written descriptions
   do not certify semantic support.
-- [ ] After reviewing the isolated span helper, freeze the one-shot execution
+- [x] After reviewing the isolated span helper, freeze the one-shot execution
   driver and run the declared nine-case retrospective comparison. Independently
   inspect selected citation relevance, unsupported analogies and retained narrow
   partial value; no history rewrite, held-out accuracy claim or production promotion.
+  The [execution addendum](missing-link-triage-span-execution-protocol-2026-10-04.md)
+  was pushed before requests. The [completed span report](missing-link-triage-span-result-2026-10-04.md)
+  retains nine terminal usage receipts and nine mechanically valid cards; all
+  remain context-required. External-anchor and help-search analogy slices are
+  absent, while the requested mean slice survives. Independent reading of all
+  22 known facets still finds runtime/behavior confusion, unseen-helper and
+  interface-scope overclaims, and a wrong demand chunk. No qualified lead or
+  production promotion. All ten non-accounting tables, 471 prior reservations
+  and 435 earlier artifacts are preserved. New reservations are USD0.064601;
+  the original allowance is 480 / USD7.3363205, combined triage USD0.1240139.
+  Native usage estimate is USD0.0169968, not an invoice; earlier failed usage
+  remains unknown. Four driver fixtures, 61 focused tests and 1,041 full local
+  tests pass.
+- [ ] Add no-spend controls for runtime environment versus behavior, direct
+  entrypoint versus factory/returned-method interface, and requested suboperation
+  inputs/outputs versus broader product deliverables. Reproduce wrong-chunk
+  relevance and unseen-delegate overclaims without modifying historical cards.
+  Define any prompt/schema revision and bounded comparison before paid execution;
+  no target-label hard-coding, cap reset, automatic retry or production promotion.
 
 No full-pool ranking improvement can be inferred from selected-only history;
 the newer retained pools permit ordering replay, not semantic utility measurement.
