@@ -37,7 +37,18 @@ def resolve_demand_quote(sources, source_id, quote):
 
 
 BASES = ("observed_alignment", "observed_difference", "requested_suboperation",
-         "analogy", "missing_integration", "not_established")
+         "analogy", "missing_integration", "not_established", "facet_mismatch",
+         "broader_scope", "unseen_delegate", "irrelevant_citation", "unresolved_interface_layer")
+
+# These names report a reviewer's explicit assessment; none is inferred from
+# source text, code, the model's reason, language names or a valid quotation.
+REVIEW_ISSUE_KINDS = {
+    "facet_mismatch": "reviewed_property_is_not_requested_facet",
+    "broader_scope": "project_scope_is_not_suboperation_contract",
+    "unseen_delegate": "delegate_contract_not_established",
+    "irrelevant_citation": "citation_does_not_support_claim",
+    "unresolved_interface_layer": "interface_layer_not_established",
+}
 
 
 def audit_reviewed_prediction(prediction, reviews, *, demand_body, operation_body):
@@ -46,6 +57,9 @@ def audit_reviewed_prediction(prediction, reviews, *, demand_body, operation_bod
     This does NOT infer semantic support from quotes, code, labels or wording.
     A caller can still supply an incorrect review. Unknown predictions are
     abstentions, never errors merely for disagreeing with known reviewer labels.
+    Scope/citation issue kinds require independent reviewer bases, not model
+    self-certification. Interface-layer issues can require qualification rather
+    than proving a false relation. No issue count is an accuracy score or gate.
     """
     summary = summarize_review(prediction, demand_body=demand_body, operation_body=operation_body)
     summary.pop("annotation_origin")
@@ -74,7 +88,8 @@ def audit_reviewed_prediction(prediction, reviews, *, demand_body, operation_bod
         expected = {"aligned": "observed_alignment", "different": "observed_difference",
                     "slice": "requested_suboperation"}.get(relation)
         if relation != "unknown" and basis != expected:
-            kind = ("analogy_is_not_suboperation" if relation == "slice" and basis == "analogy"
+            kind = REVIEW_ISSUE_KINDS.get(basis) or (
+                    "analogy_is_not_suboperation" if relation == "slice" and basis == "analogy"
                     else "missing_integration_is_not_difference" if relation == "different" and basis == "missing_integration"
                     else "relation_not_established_by_review")
             issues.append({"facet": facet, "kind": kind})
