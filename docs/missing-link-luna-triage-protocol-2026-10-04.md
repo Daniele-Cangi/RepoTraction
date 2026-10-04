@@ -136,3 +136,16 @@ examples does not establish recall, generalization or autonomous utility. Preser
 all old Missing Link table hashes and frozen artifacts except the two allowance
 tables' explicitly added reservations. No new job, match, snapshot or bridge is
 created in production. Do not start UI, ranking or isolation work from this result.
+
+## Unpaid preparation correction
+
+The first launch stopped at its local input-equality assertion before acquiring
+the worker lease, creating an attempt marker, reserving funds or sending a request.
+JSON had converted scan tuples to lists. A separate preparation under
+`data/luna-triage-2026-10-04-02/` canonicalizes that comparison, preserving all
+original preparation files and the unchanged harness. Two additional no-spend
+checks confirm round-trip equality and identical outbound data; all nine request
+hashes, sizes, prompt/schema and the USD 0.0553099 reservation are unchanged.
+This is not a retry of a paid attempt. The wrapper is fingerprinted before its
+one-shot launch. No instruction, source, bound, stop rule or evaluation criterion
+is revised. Push this correction before the first actual provider call.
