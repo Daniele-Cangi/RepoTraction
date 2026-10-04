@@ -855,7 +855,7 @@ force an isolated demonstration from a merely partial primitive.
   citation support or model quality; production behavior remains unchanged.
   The full suite passes 1,086 tests; a second read-only preflight after testing
   reproduces all nine request hashes and unchanged history/accounting.
-- [ ] Review the isolated explicit-scope helper, then freeze a fresh one-shot
+- [x] Review the isolated explicit-scope helper, then freeze a fresh one-shot
   execution driver/addendum before the nine-case paid comparison. Reproduce input,
   code and request hashes, retain the existing lease/account guards and atomic
   USD7.4123066 ceiling. Independently inspect comparison properties, scope/layers,
@@ -866,6 +866,24 @@ force an isolated demonstration from a merely partial primitive.
   freezes the fresh driver and five passing no-network simulations before
   requests. Its baseline protects 474 artifacts and the existing 480 reservations;
   the original reviewed prompt, inputs and cumulative limits remain unchanged.
+  The [completed comparison](missing-link-triage-explicit-result-2026-10-04.md)
+  retains nine terminal, mechanically valid cards. Only three facets assert a
+  known relation: two supported factory-interface differences and the retained
+  mean slice. The other 33 abstain, including previously supported narrow negative
+  contrasts; fewer assertions are not a general accuracy improvement. All cards
+  remain context-required and no lead qualifies. All 474 protected artifacts,
+  480 prior reservations and ten non-accounting tables verify unchanged. Nine
+  new reservations are USD0.0676115; the original allowance is 489 / USD7.4039320,
+  combined triage USD0.1916254. Native usage estimates USD0.0164975, not an invoice;
+  earlier failed usage remains unknown. Five driver simulations, 106 focused
+  tests and the full 1,086-test suite pass.
+- [ ] Add bounded no-spend controls for comparing an explicit requested property
+  without first requiring the candidate to implement that operation. Retain narrow
+  evidenced differences, scope/interface precision, the mean slice and justified
+  abstention for unseen delegates; do not force unknowns into rejection or match
+  old labels. Review any new prompt and spending segment separately before another
+  paid comparison: the existing combined cap has only USD0.0083746 remaining and
+  cannot be reset. Production, ranking, isolation and UI work remain deferred.
 
 No full-pool ranking improvement can be inferred from selected-only history;
 the newer retained pools permit ordering replay, not semantic utility measurement.
