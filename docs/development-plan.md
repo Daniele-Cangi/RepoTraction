@@ -759,12 +759,20 @@ force an isolated demonstration from a merely partial primitive.
   unstarted. One USD 0.0042029 reservation is retained, bringing the original
   allowance to 462 reservations / USD7.2165095. Ten non-accounting table hashes,
   all prior reservation rows and 383 earlier artifacts remain unchanged.
-- [ ] Integrate and freeze a corrected evaluation harness before an explicitly
+- [x] Integrate and freeze a corrected evaluation harness before an explicitly
   authorized fresh paid segment. Offline fixtures reproduce per-event identity
   checkpoint pacing sensitivity and unsupported nullable wire types; seven
   repair checks pass without changing production guards, validator or deadline.
   Preserve the failed attempt, do not infer zero usage or model accuracy, and
   keep any renewed segment inside the original cumulative and test caps.
+  The [corrected protocol](missing-link-luna-triage-retry-protocol-2026-10-04.md)
+  fixes only experimental transport integration: forced fresh account checks
+  before requests, bounded successful-check reuse during streaming and declared
+  empty-string unknown references. Seven public regressions and six private
+  harness fixtures pass without paid calls; nine prepared requests reserve at
+  most USD0.05521, retaining the earlier USD0.0042029 inside the combined cap.
+- [ ] Run the corrected nine-case retrospective extraction once, inspect original
+  output and citation semantics independently, and preserve all historical jobs.
 
 No full-pool ranking improvement can be inferred from selected-only history;
 the newer retained pools permit ordering replay, not semantic utility measurement.
