@@ -861,6 +861,11 @@ force an isolated demonstration from a merely partial primitive.
   USD7.4123066 ceiling. Independently inspect comparison properties, scope/layers,
   citation relevance, abstention and preserved narrow partial value. Do not retry,
   rewrite history or infer held-out accuracy/eligibility from retrospective labels.
+  PR61 merged after a no-findings Copilot review and four green CI jobs. The
+  [execution addendum](missing-link-triage-explicit-execution-protocol-2026-10-04.md)
+  freezes the fresh driver and five passing no-network simulations before
+  requests. Its baseline protects 474 artifacts and the existing 480 reservations;
+  the original reviewed prompt, inputs and cumulative limits remain unchanged.
 
 No full-pool ranking improvement can be inferred from selected-only history;
 the newer retained pools permit ordering replay, not semantic utility measurement.
