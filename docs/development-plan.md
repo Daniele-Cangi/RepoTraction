@@ -759,12 +759,32 @@ force an isolated demonstration from a merely partial primitive.
   unstarted. One USD 0.0042029 reservation is retained, bringing the original
   allowance to 462 reservations / USD7.2165095. Ten non-accounting table hashes,
   all prior reservation rows and 383 earlier artifacts remain unchanged.
-- [ ] Integrate and freeze a corrected evaluation harness before an explicitly
+- [x] Integrate and freeze a corrected evaluation harness before an explicitly
   authorized fresh paid segment. Offline fixtures reproduce per-event identity
   checkpoint pacing sensitivity and unsupported nullable wire types; seven
   repair checks pass without changing production guards, validator or deadline.
   Preserve the failed attempt, do not infer zero usage or model accuracy, and
   keep any renewed segment inside the original cumulative and test caps.
+  The [corrected protocol](missing-link-luna-triage-retry-protocol-2026-10-04.md)
+  fixes only experimental transport integration: forced fresh account checks
+  before requests, bounded successful-check reuse during streaming and declared
+  empty-string unknown references. Seven public regressions and six private
+  harness fixtures pass without paid calls; nine prepared requests reserve at
+  most USD0.05521, retaining the earlier USD0.0042029 inside the combined cap.
+- [x] Run the corrected nine-case retrospective extraction once, inspect original
+  output and citation semantics independently, and preserve all historical jobs.
+  The [completed retry report](missing-link-luna-triage-retry-result-2026-10-04.md)
+  retains nine terminal receipts: three cards fail exact quotations and six stay
+  context-required. A local timestamp/external anchor and insertion/help-search
+  are unsupported raw slice hints, not qualified contributions. All ten
+  non-accounting tables and 398 prior artifacts verify unchanged; 1,001 local
+  tests pass. New reservations are USD0.05521; combined test reservations are
+  USD0.0594129 and the original allowance is 471 / USD7.2717195. Native usage for
+  the earlier failed call remains unknown; no invoice or held-out accuracy claim.
+- [ ] Define no-spend regressions for exact demand quotations and evidenced
+  suboperations versus analogy; keep missing integration distinct from runtime
+  conflict. Freeze any future prompt/selection protocol before a paid segment,
+  without repairing raw history or qualifying these experimental cards.
 
 No full-pool ranking improvement can be inferred from selected-only history;
 the newer retained pools permit ordering replay, not semantic utility measurement.
