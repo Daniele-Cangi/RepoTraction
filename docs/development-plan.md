@@ -894,12 +894,22 @@ force an isolated demonstration from a merely partial primitive.
   12 table hashes, accounting rows and 502 prior artifacts verify unchanged,
   including the post-test integrity check;
   no model call, provider/key lookup or new reservation occurs.
-- [ ] Clarify same-property comparison in a separate experimental prompt revision
+- [x] Clarify same-property comparison in a separate experimental prompt revision
   against the authored contrast and evidence-gap controls. Preserve the frozen
   helper, exact provenance, scope/layers, justified unknowns and narrow partial
   value; do not force historical labels or infer improvements from test fixtures.
-  Review and freeze the revised task and an explicitly authorized spending segment
-  before another model comparison; no cap reset or production promotion.
+  The [property prompt revision](missing-link-triage-property-prompt-2026-10-05.md)
+  replaces one paragraph in a new module while retaining the predecessor, schema,
+  normalizer and production behavior. Fourteen new offline controls pass alongside
+  the existing controls (136 focused tests); the full 1,116-test suite also passes.
+  Post-test checks preserve all 12 table hashes, accounting rows, 507 earlier
+  artifacts and the frozen code fingerprints; nine retained cards normalize
+  identically, keeping all 33 abstentions and the mean slice. No model result or
+  quality improvement is claimed; no new calls or reservations occur.
+- [ ] Complete a narrow review of the property-comparison prompt, then freeze a
+  separate comparison protocol, actual encoded requests and an explicitly authorized
+  spending segment before another model test. Keep operation layers, exact provenance,
+  real unknowns and bounded partial value; no cap reset or production promotion.
 
 No full-pool ranking improvement can be inferred from selected-only history;
 the newer retained pools permit ordering replay, not semantic utility measurement.
