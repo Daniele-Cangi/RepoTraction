@@ -839,12 +839,28 @@ force an isolated demonstration from a merely partial primitive.
   rows and 463 prior artifacts verify unchanged; no model call or new reservation.
   The full local suite passes 1,063 tests. Experimental prompt, provider schema
   and production behavior remain unchanged.
-- [ ] Define a reviewed experimental prompt/context or schema revision that
+- [x] Define an isolated experimental prompt/context or schema revision that
   makes execution environment, comparison interface layer and requested
   suboperation scope explicit. Keep citation support independently assessed;
   a model-written rationale cannot self-certify relevance. Freeze comparison
   inputs and cumulative caps before any new paid execution. Do not hard-code
   historical outcomes or change production selection from synthetic controls.
+  The [explicit-scope protocol](missing-link-triage-explicit-scope-protocol-2026-10-04.md)
+  adds declared facet properties, same-operation scope and entrypoint/returned
+  interface layers while delegating to unchanged exact-span guards. Twenty-three
+  new authored controls and 106 focused tests pass. Nine unchanged full contexts
+  are prepared with a USD0.0676115 reservation bound inside the remaining combined
+  USD0.0759861 cap; no paid call or reservation occurs. All 12 tables, accounting
+  rows and 468 earlier artifacts verify unchanged. Declarations cannot certify
+  citation support or model quality; production behavior remains unchanged.
+  The full suite passes 1,086 tests; a second read-only preflight after testing
+  reproduces all nine request hashes and unchanged history/accounting.
+- [ ] Review the isolated explicit-scope helper, then freeze a fresh one-shot
+  execution driver/addendum before the nine-case paid comparison. Reproduce input,
+  code and request hashes, retain the existing lease/account guards and atomic
+  USD7.4123066 ceiling. Independently inspect comparison properties, scope/layers,
+  citation relevance, abstention and preserved narrow partial value. Do not retry,
+  rewrite history or infer held-out accuracy/eligibility from retrospective labels.
 
 No full-pool ranking improvement can be inferred from selected-only history;
 the newer retained pools permit ordering replay, not semantic utility measurement.
