@@ -738,11 +738,21 @@ force an isolated demonstration from a merely partial primitive.
   to lexical-first ranking, but six selected discussions remain unchanged and no
   alternative is qualified. All 12 table hashes and 369 prior artifacts remain
   identical; no API acquisition, paid call or production ranking change occurs.
-- [ ] Specify a bounded demand-to-mechanism triage using retained acquired
+- [x] Specify a bounded demand-to-mechanism triage using retained acquired
   discussions, with runtime/data-shape/outcome fixtures and explicit unknowns.
   Validate it before a new selection policy or paid segment. Any acquisition of
   unselected alternatives needs a separate frozen read-only API protocol; their
   titles cannot certify usefulness. Preserve qualification gates and old jobs.
+  The [offline triage contract](missing-link-demand-triage-2026-10-04.md) has
+  14 synthetic checks and nine retrospective human reference cards. Five
+  differences, three slices and one unknown outcome remain context-required;
+  exact spans do not certify semantic support or operation ownership. No
+  production wiring, autonomous extraction or model-quality claim is made.
+- [ ] Freeze an independent extraction/evaluation protocol before a model or
+  selector change. Withhold reference labels from the model, preserve unknown
+  context and run existing evidence guards on proposed citations. Separate
+  retrospective reference checks from held-out quality measurement; declare
+  acquisition and reservation caps before any live or paid execution.
 
 No full-pool ranking improvement can be inferred from selected-only history;
 the newer retained pools permit ordering replay, not semantic utility measurement.
