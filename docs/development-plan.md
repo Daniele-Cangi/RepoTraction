@@ -771,8 +771,20 @@ force an isolated demonstration from a merely partial primitive.
   empty-string unknown references. Seven public regressions and six private
   harness fixtures pass without paid calls; nine prepared requests reserve at
   most USD0.05521, retaining the earlier USD0.0042029 inside the combined cap.
-- [ ] Run the corrected nine-case retrospective extraction once, inspect original
+- [x] Run the corrected nine-case retrospective extraction once, inspect original
   output and citation semantics independently, and preserve all historical jobs.
+  The [completed retry report](missing-link-luna-triage-retry-result-2026-10-04.md)
+  retains nine terminal receipts: three cards fail exact quotations and six stay
+  context-required. A local timestamp/external anchor and insertion/help-search
+  are unsupported raw slice hints, not qualified contributions. All ten
+  non-accounting tables and 398 prior artifacts verify unchanged; 1,001 local
+  tests pass. New reservations are USD0.05521; combined test reservations are
+  USD0.0594129 and the original allowance is 471 / USD7.2717195. Native usage for
+  the earlier failed call remains unknown; no invoice or held-out accuracy claim.
+- [ ] Define no-spend regressions for exact demand quotations and evidenced
+  suboperations versus analogy; keep missing integration distinct from runtime
+  conflict. Freeze any future prompt/selection protocol before a paid segment,
+  without repairing raw history or qualifying these experimental cards.
 
 No full-pool ranking improvement can be inferred from selected-only history;
 the newer retained pools permit ordering replay, not semantic utility measurement.
