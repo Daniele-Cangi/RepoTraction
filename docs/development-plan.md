@@ -794,10 +794,23 @@ force an isolated demonstration from a merely partial primitive.
   hashes and 426 earlier artifacts remain unchanged. No paid calls, automatic
   semantic classifier, production wiring or model-quality claim. The full local
   suite passes 1,021 tests, including 41 focused triage checks.
-- [ ] Specify an experimental prompt/context revision against the new controls,
+- [x] Specify an experimental prompt/context revision against the new controls,
   then freeze withheld evaluation and budget before another model test. Keep
   requested suboperations distinct from analogy, scope and missing integration;
   preserve exact quotation guards and every historical result.
+  The [span context protocol](missing-link-triage-span-protocol-2026-10-04.md)
+  uses scoped original-text IDs and explicit suboperation/behavior/remaining-work
+  fields. Twenty new synthetic tests and 61 focused triage checks pass. All nine
+  contexts retain every original character; 12 table hashes and 430 earlier
+  artifacts remain unchanged. No paid call or production wiring; future requests
+  reserve at most USD0.064601 inside the remaining combined USD0.1405871 cap.
+  The full local suite passes 1,041 tests; a second preflight reproduces all nine
+  payload hashes and original inputs. Exact IDs and model-written descriptions
+  do not certify semantic support.
+- [ ] After reviewing the isolated span helper, freeze the one-shot execution
+  driver and run the declared nine-case retrospective comparison. Independently
+  inspect selected citation relevance, unsupported analogies and retained narrow
+  partial value; no history rewrite, held-out accuracy claim or production promotion.
 
 No full-pool ranking improvement can be inferred from selected-only history;
 the newer retained pools permit ordering replay, not semantic utility measurement.
