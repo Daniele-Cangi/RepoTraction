@@ -906,10 +906,28 @@ force an isolated demonstration from a merely partial primitive.
   artifacts and the frozen code fingerprints; nine retained cards normalize
   identically, keeping all 33 abstentions and the mean slice. No model result or
   quality improvement is claimed; no new calls or reservations occur.
-- [ ] Complete a narrow review of the property-comparison prompt, then freeze a
+- [x] Complete a narrow review of the property-comparison prompt, then freeze a
   separate comparison protocol, actual encoded requests and an explicitly authorized
   spending segment before another model test. Keep operation layers, exact provenance,
   real unknowns and bounded partial value; no cap reset or production promotion.
+  PR64 merged with a no-findings review and four green CI jobs. The user authorized
+  another USD0.10 segment inside the original USD10 cumulative allowance; no extra
+  amount is needed for the proposed USD0.068867 reservations. The
+  [execution protocol](missing-link-triage-property-execution-protocol-2026-10-05.md)
+  freezes the same nine cases and actual requests, preserving all 489 earlier
+  reservation rows, source ownership and 510 prior artifacts. Seven no-network
+  execution controls pass with the existing tests (143 focused; 1,123 full-suite).
+  A mocked terminal-stream simulation reproduces all nine exact frozen bodies;
+  post-test checks preserve all twelve tables, prior rows and artifact hashes.
+  The new original allowance ceiling is USD7.5039320, without a reset or a
+  replacement ID.
+  Request the remaining execution review from Codex, not Copilot; paid execution
+  and independent result reporting remain pending that scoped gate and green CI.
+- [ ] Complete the scoped Codex execution review and green CI, then execute the
+  frozen nine-case property comparison once within the authorized segment. Preserve
+  receipts, failed/unknown usage and all earlier evidence; independently review
+  property support, genuine abstention and the mean slice before a separate result
+  report. No automatic retry, production promotion or reset of the original allowance.
 
 No full-pool ranking improvement can be inferred from selected-only history;
 the newer retained pools permit ordering replay, not semantic utility measurement.

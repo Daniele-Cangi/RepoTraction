@@ -20,3 +20,9 @@ module imports that start threads or perform network calls, and modules that imp
 Keep refactoring separate from feature changes and review fixes. Run focused
 regressions and the complete suite before pushing each extraction. Do not merge
 pull requests or perform paid AI calls merely to verify a structural change.
+
+## Pull request review requests
+
+When an external PR review is needed, request Codex with `@codex review`, not
+Copilot, unless the user explicitly asks otherwise. Keep the request scoped to
+the declared contract and concrete regressions, not unrelated completeness work.
