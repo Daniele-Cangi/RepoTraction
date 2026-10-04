@@ -824,12 +824,27 @@ force an isolated demonstration from a merely partial primitive.
   Native usage estimate is USD0.0169968, not an invoice; earlier failed usage
   remains unknown. Four driver fixtures, 61 focused tests and 1,041 full local
   tests pass.
-- [ ] Add no-spend controls for runtime environment versus behavior, direct
+- [x] Add no-spend controls for runtime environment versus behavior, direct
   entrypoint versus factory/returned-method interface, and requested suboperation
   inputs/outputs versus broader product deliverables. Reproduce wrong-chunk
   relevance and unseen-delegate overclaims without modifying historical cards.
   Define any prompt/schema revision and bounded comparison before paid execution;
   no target-label hard-coding, cap reset, automatic retry or production promotion.
+  The [scope regressions](missing-link-triage-scope-regressions-2026-10-04.md)
+  add 22 authored controls and five independent-review bases. All 83 focused
+  triage tests pass. A read-only replay reports 14 review items, including API
+  qualification requests, against the retained 22 known facets; this is not an
+  error rate or automatic semantic detection. The original mean slice and every
+  raw prediction remain unchanged. All 12 table hashes, reservation/allowance
+  rows and 463 prior artifacts verify unchanged; no model call or new reservation.
+  The full local suite passes 1,063 tests. Experimental prompt, provider schema
+  and production behavior remain unchanged.
+- [ ] Define a reviewed experimental prompt/context or schema revision that
+  makes execution environment, comparison interface layer and requested
+  suboperation scope explicit. Keep citation support independently assessed;
+  a model-written rationale cannot self-certify relevance. Freeze comparison
+  inputs and cumulative caps before any new paid execution. Do not hard-code
+  historical outcomes or change production selection from synthetic controls.
 
 No full-pool ranking improvement can be inferred from selected-only history;
 the newer retained pools permit ordering replay, not semantic utility measurement.
