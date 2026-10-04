@@ -781,10 +781,23 @@ force an isolated demonstration from a merely partial primitive.
   tests pass. New reservations are USD0.05521; combined test reservations are
   USD0.0594129 and the original allowance is 471 / USD7.2717195. Native usage for
   the earlier failed call remains unknown; no invoice or held-out accuracy claim.
-- [ ] Define no-spend regressions for exact demand quotations and evidenced
+- [x] Define no-spend regressions for exact demand quotations and evidenced
   suboperations versus analogy; keep missing integration distinct from runtime
   conflict. Freeze any future prompt/selection protocol before a paid segment,
   without repairing raw history or qualifying these experimental cards.
+  The [offline evidence regressions](missing-link-triage-evidence-regressions-2026-10-04.md)
+  add 20 synthetic checks, distinguishing mechanical quotation integrity from
+  independently reviewed semantic consistency. A read-only replay retains all
+  nine responses and reproduces three invalid cards/seven absent quotations;
+  two explicitly reviewed cards expose timestamp/anchoring and CI/runtime
+  inconsistencies while preserving mean's narrow partial value. All 12 table
+  hashes and 426 earlier artifacts remain unchanged. No paid calls, automatic
+  semantic classifier, production wiring or model-quality claim. The full local
+  suite passes 1,021 tests, including 41 focused triage checks.
+- [ ] Specify an experimental prompt/context revision against the new controls,
+  then freeze withheld evaluation and budget before another model test. Keep
+  requested suboperations distinct from analogy, scope and missing integration;
+  preserve exact quotation guards and every historical result.
 
 No full-pool ranking improvement can be inferred from selected-only history;
 the newer retained pools permit ordering replay, not semantic utility measurement.
