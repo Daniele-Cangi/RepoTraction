@@ -748,11 +748,23 @@ force an isolated demonstration from a merely partial primitive.
   differences, three slices and one unknown outcome remain context-required;
   exact spans do not certify semantic support or operation ownership. No
   production wiring, autonomous extraction or model-quality claim is made.
-- [ ] Freeze an independent extraction/evaluation protocol before a model or
+- [x] Freeze an independent extraction/evaluation protocol before a model or
   selector change. Withhold reference labels from the model, preserve unknown
   context and run existing evidence guards on proposed citations. Separate
   retrospective reference checks from held-out quality measurement; declare
   acquisition and reservation caps before any live or paid execution.
+  The [retrospective Luna protocol](missing-link-luna-triage-protocol-2026-10-04.md)
+  was pushed before execution. Its [stopped first attempt](missing-link-luna-triage-result-2026-10-04.md)
+  has no complete response or model-quality measurement; eight cases remain
+  unstarted. One USD 0.0042029 reservation is retained, bringing the original
+  allowance to 462 reservations / USD7.2165095. Ten non-accounting table hashes,
+  all prior reservation rows and 383 earlier artifacts remain unchanged.
+- [ ] Integrate and freeze a corrected evaluation harness before an explicitly
+  authorized fresh paid segment. Offline fixtures reproduce per-event identity
+  checkpoint pacing sensitivity and unsupported nullable wire types; seven
+  repair checks pass without changing production guards, validator or deadline.
+  Preserve the failed attempt, do not infer zero usage or model accuracy, and
+  keep any renewed segment inside the original cumulative and test caps.
 
 No full-pool ranking improvement can be inferred from selected-only history;
 the newer retained pools permit ordering replay, not semantic utility measurement.
