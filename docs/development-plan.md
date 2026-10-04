@@ -877,13 +877,29 @@ force an isolated demonstration from a merely partial primitive.
   combined triage USD0.1916254. Native usage estimates USD0.0164975, not an invoice;
   earlier failed usage remains unknown. Five driver simulations, 106 focused
   tests and the full 1,086-test suite pass.
-- [ ] Add bounded no-spend controls for comparing an explicit requested property
+- [x] Add bounded no-spend controls for comparing an explicit requested property
   without first requiring the candidate to implement that operation. Retain narrow
   evidenced differences, scope/interface precision, the mean slice and justified
   abstention for unseen delegates; do not force unknowns into rejection or match
   old labels. Review any new prompt and spending segment separately before another
   paid comparison: the existing combined cap has only USD0.0083746 remaining and
   cannot be reset. Production, ranking, isolation and UI work remain deferred.
+  The [property comparison controls](missing-link-triage-property-controls-2026-10-04.md)
+  add 16 authored checks with paired contrasts/abstentions, layer precision and
+  independent negative review bases. All 122 focused tests and the full 1,102-test
+  suite pass on the final test revision. The unchanged
+  validator permits local comparisons without implementation proof; no prompt or
+  production logic is changed. A read-only replay retains three known facets,
+  all 33 abstentions and the mean slice without rewriting or scoring them. All
+  12 table hashes, accounting rows and 502 prior artifacts verify unchanged,
+  including the post-test integrity check;
+  no model call, provider/key lookup or new reservation occurs.
+- [ ] Clarify same-property comparison in a separate experimental prompt revision
+  against the authored contrast and evidence-gap controls. Preserve the frozen
+  helper, exact provenance, scope/layers, justified unknowns and narrow partial
+  value; do not force historical labels or infer improvements from test fixtures.
+  Review and freeze the revised task and an explicitly authorized spending segment
+  before another model comparison; no cap reset or production promotion.
 
 No full-pool ranking improvement can be inferred from selected-only history;
 the newer retained pools permit ordering replay, not semantic utility measurement.
