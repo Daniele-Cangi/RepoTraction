@@ -923,6 +923,16 @@ force an isolated demonstration from a merely partial primitive.
   replacement ID.
   Request the remaining execution review from Codex, not Copilot; paid execution
   and independent result reporting remain pending that scoped gate and green CI.
+- [x] Correct the relevant P1 execution-review finding before model calls: a
+  parsed card is not a raw terminal receipt. A separate experimental stream reader
+  now requires private preservation of the entire status-consistent terminal event
+  before interpretation, including incomplete/refused/failed content. Persistence
+  failure stops the run. Production Provider and all prior frozen files remain
+  unchanged; the superseded preparation is retained, not rewritten. The replacement
+  protects 525 artifacts and reproduces the same nine request bytes/reservations.
+  Sixteen execution controls pass (152 focused; 1,132 full-suite tests), including
+  storage/close/account failures and full-envelope preservation. No paid calls or
+  real reservations occur. Request only a scoped Codex re-review of this correction.
 - [ ] Complete the scoped Codex execution review and green CI, then execute the
   frozen nine-case property comparison once within the authorized segment. Preserve
   receipts, failed/unknown usage and all earlier evidence; independently review

@@ -70,11 +70,32 @@ must freshly verify as `Daniele-Cangi` before each request; the unchanged bounde
 identity cache is used only during that request. Account or budget failure stops
 before further network access. No retry or automatic continuation is allowed.
 
-The new public executor is `scripts/missing_link_triage_property_execution.py`.
-It uses the existing Provider terminal-stream path and Budget callbacks, preserving
-raw receipt JSON, response IDs/status, usage when supplied and normalization flags.
+The public executor is `scripts/missing_link_triage_property_execution.py`.
+Codex correctly identified that ordinary `Provider.complete()` returns a parsed
+card, not the terminal response JSON. Its Budget trace cannot reconstruct extra
+envelope fields, partial output or refusal content. That was a preservation defect
+in the initial preparation; no paid request used it.
+
+The corrected executor explicitly uses `scripts/missing_link_triage_receipts.py`,
+an experimental Responses-only reader. It reuses the frozen Provider encoder,
+redirect policy, limits and Budget contract without changing production Provider
+or installing any global hook. Its bounded stream loop preserves the complete
+decoded, status-consistent terminal event in a required private callback **before
+stream closure, output parsing or acceptance**. This includes the full `response`
+object, event fields, extra metadata, incomplete details, refusal and failed output.
+It is terminal JSON, not original wire whitespace or an archive of preceding SSE
+deltas; missing/malformed/inconsistent terminal frames are never fabricated.
+The distinction between typed lifecycle events follows the
+[OpenAI streaming documentation](https://developers.openai.com/api/docs/guides/streaming-responses).
+
+The owned callback exclusively creates `terminal-NN.json`. These untrusted receipts
+stay private: they are not copied into production jobs, the UI, logs or public
+reports. Parsed cards are separately named `parsed` in case results; job traces
+retain only their existing selected provenance and usage fields. Receipt storage
+failure stops before acceptance or another request, with no retry. Stream-close
+failure or an in-flight account change cannot discard an already saved terminal.
 Only local validation after a completed provider response is candidate-local:
-record its raw card and validation error, then attempt the next case once.
+record its parsed card and validation error, then attempt the next case once.
 Transport, missing terminal, incomplete/refused output, provider-schema, account
 and allowance failures stop the whole run. Unknown native usage stays unknown.
 
@@ -82,28 +103,37 @@ Only owned in-flight receipts are mutable. Completed results and diagnostics use
 exclusive creation. After lease release, the final integrity check permits at most
 nine exact new reservation rows and the corresponding increment of the original
 allowance. All 489 earlier rows, other allowances, ten non-accounting tables and
-510 earlier artifact hashes must remain unchanged. No production job is imported.
+525 earlier artifact hashes must remain unchanged, including the 15 files from
+the superseded preparation. No production job is imported.
 
-The owned driver is `data/luna-triage-property-run-2026-10-05/run.py`, with
+The initial driver `data/luna-triage-property-run-2026-10-05/run.py`, with
 canonical-LF source SHA256
-`18ce562b37684692ef82444ee9879181122611360809c27bccd1f185e2f06005`.
+`18ce562b37684692ef82444ee9879181122611360809c27bccd1f185e2f06005`,
+is superseded, unexecuted and preserved byte-for-byte with its original manifest.
+The replacement is `data/luna-triage-property-receipt-run-2026-10-05/run.py`,
+canonical-LF source SHA256
+`e99cd0df65f2710bf00f45f0512e36d8674fc894d521d7991fd2056a5dcab4a9`.
 The prepared manifest includes the public executor, prompt, provider, Store,
-Budget, lease, account/configuration helpers and relevant tests in its source
-fingerprints. The predecessor fingerprints remain protected separately.
+Budget, experimental receipt reader, lease, account/configuration helpers and
+relevant tests in its source fingerprints. The predecessor fingerprints remain
+protected separately.
 
 ## Checks before any paid request
 
-Seven new no-network tests exercise the actual Provider terminal-stream path:
-nine single calls, raw local-invalid preservation, provider-schema stop with raw
-receipt, missing/incomplete terminal handling, account failure and atomic allowance
-rejection before the next request. All 143 focused triage tests pass.
-The full 1,123-test suite passes on the final source revision. The post-test
-check reproduces the nine frozen requests and verifies all twelve table hashes,
-489 prior reservation rows and 510 protected artifacts unchanged.
+Sixteen no-network execution tests exercise the corrected receipt path: nine
+single calls with byte-identical Provider encoding and identical reservations;
+complete envelopes with extra fields; incomplete partial text and unknown usage;
+refusal/failed content; local-invalid and provider-schema handling; missing or
+inconsistent terminal frames; account and allowance stops; receipt persistence
+and stream-close failure; and callback mutation isolation. All 152 focused triage
+tests pass. The full 1,132-test suite passes on the final source revision. The
+post-test check reproduces the nine frozen requests and verifies all twelve table hashes,
+489 prior reservation rows and 525 protected artifacts unchanged.
 
 Offline preparation reproduces all nine request hashes. A second simulation sends
 the exact frozen bodies through a mocked opener and in-memory receipt/reservation
-callbacks. It is not a model run, makes no real reservation and cannot establish
+callbacks, now retaining all nine full terminal envelopes including extra fields.
+It is not a model run, makes no real reservation and cannot establish
 Luna quality. It passes with all nine exact serialized bodies, nine fresh forced
 identity checks and the expected USD0.068867 in memory-only reservations.
 
