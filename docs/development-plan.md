@@ -1063,12 +1063,27 @@ force an isolated demonstration from a merely partial primitive.
   prices, not an invoice or refund. All 498 prior rows, 580 historical artifacts
   and ten non-accounting tables remain unchanged. Post-run 206 focused and 1,186
   full-suite tests pass; no additional model call is used for replay/preservation.
-- [ ] Add no-spend paired source-reading controls for selected factory versus
+- [x] Add no-spend paired source-reading controls for selected factory versus
   returned-wrapper explanations and visible mechanism contrasts with unseen
   delegates. Preserve genuine gaps and full external anchoring as unknown. Do not
   rewrite historical cards, force labels, broaden parser coverage or automatically
   rerun these nine paid cases. A later autonomous usefulness test needs a separate
   frozen protocol, not a retrospective accuracy claim.
+  The [layer and mechanism controls](missing-link-triage-layer-controls-2026-10-05.md)
+  add 16 authored tests. Factory and returned-callable interfaces are independently
+  witnessed; a false unknown reason remains a documented audit limitation, not an
+  automatically detected/corrected prediction. The positive mechanism fixture
+  explicitly requests direct entrypoint steps and does not replace the historical
+  anchoring issue or require its timestamp relation to become known.
+  All 222 focused and 1,202 full-suite tests pass. Nine cards replay unchanged,
+  preserving seven known facets, 29 abstentions and the mean slice. All 12 table
+  hashes, 631 prior artifacts and accounting remain unchanged at 507 reservations
+  / USD7.5430970; no provider is instantiated or additional model call made.
+- [ ] Review only the bounded layer/mechanism controls, then consider minimal
+  experimental guidance for source-layer-accurate explanations, including unknown
+  reasons. Preserve the current prompt, history and delegate gaps. Controls alone
+  do not justify a paid rerun, production promotion or forced timestamp labels;
+  a later model-quality measurement requires a separately frozen protocol.
 
 No full-pool ranking improvement can be inferred from selected-only history;
 the newer retained pools permit ordering replay, not semantic utility measurement.
