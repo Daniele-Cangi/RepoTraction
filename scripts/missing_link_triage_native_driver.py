@@ -23,6 +23,11 @@ def configuration(provider):
 
 def verify_request(provider, *, case, payload, metadata, config):
     """Reproduce the frozen request/configuration; no network or reservation."""
+    if provider.describe().get("configured") is not True:
+        # Use the provider's own readiness contract, without retaining its error
+        # text or inspecting credentials. Invalid remote authorization must stop
+        # in preflight, before the exclusive one-shot marker is consumed.
+        raise ValueError("Native probe provider is not ready")
     if configuration(provider) != config:
         raise ValueError("Native probe provider configuration changed")
     current = probe.build_case()
@@ -75,7 +80,9 @@ reservation/allowance rows. No table or historical artifact is rewritten here.
         and set(new_allowances) == set(old_allowances) and allowance in old_allowances,
         "Native probe allowance set changed")
     for key, amount in old_allowances.items():
-        require(abs(new_allowances[key] - amount - (increment if key == allowance else 0)) < 1e-8,
+        unchanged_or_owned = (abs(new_allowances[key] - amount - increment) < 1e-8
+            if key == allowance else new_allowances[key] == amount)
+        require(unchanged_or_owned,
             "Native probe allowance balance changed")
     if not added:
         for name in ACCOUNTING_TABLES:

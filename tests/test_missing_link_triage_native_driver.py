@@ -98,6 +98,13 @@ class NativeDriverTests(unittest.TestCase):
             with self.subTest(table=table), self.assertRaises(ValueError):
                 self.verify(after)
 
+    def test_unrelated_allowance_rejects_even_sub_tolerance_mutation(self):
+        for delta in (5e-9, -5e-9):
+            after = incremented()
+            after["allowance_rows"][1][1] += delta
+            with self.subTest(delta=delta), self.assertRaisesRegex(ValueError, "allowance balance"):
+                self.verify(after)
+
     def test_already_reserved_job_and_segment_ceiling_are_rejected(self):
         before = snapshot()
         before["reservation_rows"][0][2] = JOB
@@ -171,12 +178,14 @@ class NativeDriverTests(unittest.TestCase):
                 self.gate(Path(temporary), fail_stage="release")
             self.assertEqual(self.trace[-2:], ["release", "verify_after"])
 
-    def frozen_request(self):
-        provider = Provider({"REPOTRACTION_AI_URL": "http://127.0.0.1:1", "REPOTRACTION_AI_MODEL": "gpt-6-luna",
+    def frozen_request(self, overrides=None):
+        env = {"REPOTRACTION_AI_URL": "http://127.0.0.1:1", "REPOTRACTION_AI_MODEL": "gpt-6-luna",
             "REPOTRACTION_AI_API_KIND": "responses", "REPOTRACTION_AI_RESPONSE_FORMAT": "json_schema",
             "REPOTRACTION_AI_STREAMING": "1", "REPOTRACTION_AI_MAX_CALLS": "1", "REPOTRACTION_AI_MAX_COST_USD": ".02",
             "REPOTRACTION_AI_MAX_OUTPUT_TOKENS": "6000", "REPOTRACTION_AI_INPUT_USD_PER_MILLION": ".1",
-            "REPOTRACTION_AI_OUTPUT_USD_PER_MILLION": ".5"})
+            "REPOTRACTION_AI_OUTPUT_USD_PER_MILLION": ".5"}
+        env.update(overrides or {})
+        provider = Provider(env)
         case = probe.build_case()
         schema = probe.schema_for_context(case["data"])
         endpoint, payload, body = provider._encode_prompt(probe.PROMPT, case["data"], schema, "analysis")
@@ -186,6 +195,40 @@ class NativeDriverTests(unittest.TestCase):
             "schema_sha256": hashlib.sha256(json.dumps(schema, sort_keys=True, ensure_ascii=False).encode()).hexdigest(),
             "reservation_usd": ((len(body) + 2048) * .1 + 6000 * .5) / 1e6}
         return provider, {"case": case, "payload": payload, "metadata": metadata, "config": task.configuration(provider)}
+
+    def test_missing_remote_authorization_cannot_consume_marker_or_attempt(self):
+        remote = {"REPOTRACTION_AI_URL": "https://api.openai.com/v1",
+            "REPOTRACTION_AI_KEY": "dummy-test-value", "REPOTRACTION_AI_ALLOW_REMOTE": "1",
+            "REPOTRACTION_AI_TOTAL_BUDGET_USD": "10", "REPOTRACTION_AI_BUDGET_ID": ALLOWANCE}
+        ready, frozen = self.frozen_request(remote)
+        unauthorized = {key: value for key, value in remote.items() if key != "REPOTRACTION_AI_ALLOW_REMOTE"}
+        invalid, invalid_frozen = self.frozen_request(unauthorized)
+        self.assertTrue(ready.describe()["configured"])
+        self.assertFalse(invalid.describe()["configured"])
+        self.assertEqual(invalid_frozen, frozen)
+        with tempfile.TemporaryDirectory() as temporary, \
+             patch("socket.socket", side_effect=AssertionError("network")), \
+             patch("os.getenv", side_effect=AssertionError("environment")), \
+             patch("sqlite3.connect", side_effect=AssertionError("ledger")):
+            marker = Path(temporary) / "started.json"
+            lease, identity, execute, verify_after = Mock(), Mock(), Mock(), Mock()
+            with self.assertRaisesRegex(ValueError, "not ready"):
+                task.run_once(preflight=lambda: task.verify_request(invalid, **frozen),
+                    merged=lambda: True, lease=lease, identity=identity, marker=marker,
+                    marker_metadata={}, execute=execute, verify_after=verify_after)
+            self.assertFalse(marker.exists())
+            lease.acquire.assert_not_called()
+            identity.assert_not_called()
+            execute.assert_not_called()
+            verify_after.assert_not_called()
+            self.assertEqual(task.verify_request(ready, **frozen), COST)
+
+    def test_provider_readiness_rejection_does_not_encode_or_echo_error(self):
+        provider, frozen = self.frozen_request()
+        provider.error = "private diagnostic sentinel"
+        with patch.object(provider, "_encode_prompt", side_effect=AssertionError("encode")):
+            with self.assertRaisesRegex(ValueError, "^Native probe provider is not ready$"):
+                task.verify_request(provider, **frozen)
 
     def test_exact_frozen_request_and_configuration_exclude_credentials(self):
         provider, frozen = self.frozen_request()
