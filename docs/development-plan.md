@@ -1094,12 +1094,25 @@ force an isolated demonstration from a merely partial primitive.
   axis and names only empty comparison/citation/slice fields. A four-facet regression
   checks the schema and normalizer contract, not model compliance. Post-fix totals
   are 247 focused and 1,227 full-suite tests; 637 earlier artifacts and all tables
-  remain unchanged, with no new call or reservation. Reconfirmation is pending.
-- [ ] Review only the prompt insertion and unchanged offline contracts, then freeze
-  a separate bounded model-evaluation protocol. Do not automatically rerun the
-  nine paid cases, force timestamp labels or promote the prompt to production.
-  Accurate unknown explanations and useful comparisons need source-based review
-  of new model responses, not instruction-presence or structural-test results.
+  remain unchanged, with no new call or reservation. Codex reconfirmed `7788ca2`
+  without new findings. PR72 merged as `0076681` with four green CI jobs after one
+  same-commit Windows/Python 3.13 rerun for a local HTTP connection abort.
+- [x] Review the prompt insertion and unchanged offline contracts, then freeze a
+  separate bounded model-evaluation protocol. The
+  [layer comparison protocol](missing-link-triage-layer-execution-protocol-2026-10-05.md)
+  fixes the original nine development contexts, corrected prompt and settings.
+  Its executor changes only the reviewed prompt import. All 265 focused and 1,245
+  full-suite tests pass. Mocked exact-body execution and post-test preservation
+  make no real call/reservation and keep 640 artifacts and all twelve tables intact.
+  The proposed USD0.0712619 reservations fit a USD0.10 segment with a cumulative
+  USD7.6430970 ceiling; the real allowance stays at 507 rows / USD7.5430970.
+  Source accuracy of every unknown reason is assessed separately from mechanical
+  validity; timestamps, known labels and useful leads are not forced.
+- [ ] Review only this execution contract and protocol, then run the separate
+  one-shot comparison after green CI and merge. Publish a source-based per-case
+  assessment before another prompt revision or production promotion. This is
+  development calibration, not an automatic rerun or held-out Discover benchmark.
+  A later autonomous usefulness test requires its own cohort and frozen protocol.
 
 No full-pool ranking improvement can be inferred from selected-only history;
 the newer retained pools permit ordering replay, not semantic utility measurement.
