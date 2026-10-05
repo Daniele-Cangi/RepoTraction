@@ -1079,11 +1079,21 @@ force an isolated demonstration from a merely partial primitive.
   preserving seven known facets, 29 abstentions and the mean slice. All 12 table
   hashes, 631 prior artifacts and accounting remain unchanged at 507 reservations
   / USD7.5430970; no provider is instantiated or additional model call made.
-- [ ] Review only the bounded layer/mechanism controls, then consider minimal
-  experimental guidance for source-layer-accurate explanations, including unknown
-  reasons. Preserve the current prompt, history and delegate gaps. Controls alone
-  do not justify a paid rerun, production promotion or forced timestamp labels;
-  a later model-quality measurement requires a separately frozen protocol.
+- [x] Review only the bounded layer/mechanism controls. PR71 merged as `1d9c879`
+  after a no-findings Codex review of `8aee74f` and four successful CI jobs.
+- [x] Prepare minimal experimental guidance for source-layer-accurate explanations,
+  including unknown reasons. The [layer prompt](missing-link-triage-layer-prompt-2026-10-05.md)
+  adds one block while preserving all predecessor wording, schemas, normalizers,
+  historical cards and delegate gaps. Its 16 reused controls and eight guard tests
+  bring the totals to 246 focused and 1,226 full-suite passing tests. Nine cards
+  replay unchanged; all twelve tables and 634 prior artifacts remain intact.
+  Accounting stays at 507 reservations / USD7.5430970; dummy payload encoding
+  makes no model call or reservation. This is not evidence of improved Luna quality.
+- [ ] Review only the prompt insertion and unchanged offline contracts, then freeze
+  a separate bounded model-evaluation protocol. Do not automatically rerun the
+  nine paid cases, force timestamp labels or promote the prompt to production.
+  Accurate unknown explanations and useful comparisons need source-based review
+  of new model responses, not instruction-presence or structural-test results.
 
 No full-pool ranking improvement can be inferred from selected-only history;
 the newer retained pools permit ordering replay, not semantic utility measurement.
