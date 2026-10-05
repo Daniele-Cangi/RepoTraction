@@ -933,11 +933,27 @@ force an isolated demonstration from a merely partial primitive.
   Sixteen execution controls pass (152 focused; 1,132 full-suite tests), including
   storage/close/account failures and full-envelope preservation. No paid calls or
   real reservations occur. Request only a scoped Codex re-review of this correction.
-- [ ] Complete the scoped Codex execution review and green CI, then execute the
+- [x] Complete the scoped Codex execution review and green CI, then execute the
   frozen nine-case property comparison once within the authorized segment. Preserve
   receipts, failed/unknown usage and all earlier evidence; independently review
   property support, genuine abstention and the mean slice before a separate result
   report. No automatic retry, production promotion or reset of the original allowance.
+  PR65 merged with a no-findings Codex review and four green CI jobs. The
+  [property comparison result](missing-link-triage-property-result-2026-10-05.md)
+  records nine complete terminal envelopes and nine valid cards, no retry, and
+  USD0.068867 new reservations (498 original rows / USD7.472799 cumulative).
+  Known facets rise from three to eight, with the mean slice and all three previous
+  known facets retained, but independent reading flags two overgeneralized NumPy
+  return claims and residual grep overabstention. All nine cards remain context
+  required; no qualified lead or accuracy claim follows. Receipt replay preserves
+  525 prior artifact hashes, 489 earlier reservation rows and ten non-accounting
+  tables. Production behavior and all earlier cards/reports remain unchanged.
+- [ ] Define paired no-spend controls for declared contracts versus branch-dependent
+  runtime returns, and explicit requested-property comparison versus requiring a
+  prior implementation relationship. Keep pass-through behavior, real delegate
+  gaps, factory layers and the bounded mean slice. Do not repair historical cards,
+  introduce a universal relevance classifier or trigger another paid run or
+  production promotion from assertion counts alone.
 
 No full-pool ranking improvement can be inferred from selected-only history;
 the newer retained pools permit ordering replay, not semantic utility measurement.
