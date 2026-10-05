@@ -1044,11 +1044,31 @@ force an isolated demonstration from a merely partial primitive.
   tests pass. Nine mocked calls retain full terminal envelopes; all 12 table hashes,
   580 prior artifacts and accounting remain unchanged (498 / USD7.4727990).
   Preparation and simulation make no real AI call or reservation.
-- [ ] Complete narrow Codex review, green CI and merge for the branch executor
+- [x] Complete narrow Codex review, green CI and merge for the branch executor
   and protocol, then execute the frozen comparison once with no retries. Independently
   assess conditional returns and local contrasts while preserving genuine gaps,
-  layers and the mean slice. Publish receipts/accounting and semantic observations
+  layers and the mean slice. Report receipt/accounting checks and semantic observations
   separately; no historical repair, forced positive lead or production promotion.
+  PR69 merged as `6b655c7` with a no-findings review and four green CI jobs.
+  The [branch comparison result](missing-link-triage-branch-result-2026-10-05.md)
+  records nine completed, mechanically valid responses. Grep output/behavior
+  contrasts return, two overgeneralized pass-through claims become unknown, and
+  the mean slice and three bisector factory contrasts survive. The timestamp
+  mechanism contrast is lost; the copy-publication abstention explanation confuses
+  the selected factory with its wrapper. Seven known facets and 29 abstentions are
+  observations, not accuracy or gold labels. All cards remain context required;
+  no qualified lead, isolation or production promotion follows.
+  The original allowance now has 507 reservations / USD7.5430970, including
+  USD0.0702980 new reservations. Native usage estimates USD0.0192929 at configured
+  prices, not an invoice or refund. All 498 prior rows, 580 historical artifacts
+  and ten non-accounting tables remain unchanged. Post-run 206 focused and 1,186
+  full-suite tests pass; no additional model call is used for replay/preservation.
+- [ ] Add no-spend paired source-reading controls for selected factory versus
+  returned-wrapper explanations and visible mechanism contrasts with unseen
+  delegates. Preserve genuine gaps and full external anchoring as unknown. Do not
+  rewrite historical cards, force labels, broaden parser coverage or automatically
+  rerun these nine paid cases. A later autonomous usefulness test needs a separate
+  frozen protocol, not a retrospective accuracy claim.
 
 No full-pool ranking improvement can be inferred from selected-only history;
 the newer retained pools permit ordering replay, not semantic utility measurement.
