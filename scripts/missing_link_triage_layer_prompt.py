@@ -8,8 +8,10 @@ from scripts import missing_link_triage_branch_prompt as previous
 
 _LAYER_ANCHOR = "where it runs. An unsupported layer or property requires unknown.\n"
 _LAYER_GUIDANCE = """
-Keep source-layer attribution accurate in reason even for unknown, while leaving
-its structured declarations and IDs empty as required below. A factory receiving
+Keep source-layer attribution accurate in reason even for unknown. Keep its axis;
+set only comparison_scope, operation_layer, demand_property, operation_property,
+demand_span_id, operation_id and all slice fields to empty strings as required below.
+A factory receiving
 a callback and returning a callable does not itself consume that callable's later
 arguments or return its later result. Describe any visible nested behavior at its
 own layer; do not attribute it to the selected factory's interface. If a delegate

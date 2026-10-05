@@ -47,13 +47,40 @@ class LayerPromptTests(unittest.TestCase):
                     revised._revise_prompt(prompt)
 
     def test_guidance_covers_unknown_reasons_without_forced_labels(self):
-        for phrase in ("accurate in reason even for unknown", "structured declarations and IDs empty",
+        for phrase in ("accurate in reason even for unknown", "Keep its axis",
             "own layer", "specific evidence gap without guessing", "clock policy",
             "Do not impose a direct-call mechanism unless the demand requires",
             "force a known relation merely because a composition is visible",
             "Unknown\nremains appropriate", "a bytes annotation does not prove"):
             self.assertIn(phrase, revised.PROMPT)
         # Presence is not evidence that a model follows these instructions.
+
+    def test_unknown_retains_required_axis_and_empties_only_optional_declarations(self):
+        from scripts.missing_link_triage_explicit_scope import AXES
+        value = layers.value_for(layers.make_copy_guard, "Return a path.", "output", "Path", "Callable")
+        raw, data, sources, body, spans = value
+        raw = fixtures.unknown()
+        before = copy.deepcopy(raw)
+        schema = revised.schema_for_context(data)
+        empty_fields = ("comparison_scope", "operation_layer", "demand_property", "operation_property",
+            "demand_span_id", "operation_id", "requested_part", "existing_behavior", "remaining_work")
+        self.assertIn("Keep its axis;", revised._LAYER_GUIDANCE)
+        self.assertIn("set only comparison_scope, operation_layer, demand_property, operation_property,\n"
+            "demand_span_id, operation_id and all slice fields to empty strings", revised._LAYER_GUIDANCE)
+        self.assertNotIn("structured declarations and IDs empty", revised._LAYER_GUIDANCE)
+        checked = revised.normalize_prediction(raw, data, demand_sources=sources,
+            operation_body=body, operation_spans=spans)
+        for facet, axis in AXES.items():
+            with self.subTest(facet=facet):
+                self.assertEqual(schema["properties"]["facets"]["properties"][facet]["properties"]["axis"]["enum"], [axis])
+                self.assertEqual(checked["comparison_declarations"][facet]["axis"], axis)
+                self.assertTrue(all(raw["facets"][facet][key] == "" for key in empty_fields))
+                invalid = copy.deepcopy(raw)
+                invalid["facets"][facet]["axis"] = ""
+                with self.assertRaises(ValueError):
+                    revised.normalize_prediction(invalid, data, demand_sources=sources,
+                        operation_body=body, operation_spans=spans)
+        self.assertEqual(raw, before)
 
     def test_schema_normalizer_and_existing_guards_are_identical(self):
         self.assertIs(revised.schema_for_context, previous.schema_for_context)
