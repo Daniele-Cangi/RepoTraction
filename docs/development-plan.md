@@ -1193,15 +1193,30 @@ force an isolated demonstration from a merely partial primitive.
   All 323 focused tests and the post-attempt 1,303-test full suite pass; CLI help
   is unchanged. A final read-only audit reproduces the snapshot, source hashes
   and all owned result/receipt hashes without another call or reservation.
-- [ ] Prepare a separate prospective semantic evaluation with new real-source
-  contexts before further paid comparison or production integration. Freeze its
-  inputs and judgments independently; exact schema acceptance alone does not
-  establish source-supported explanations, useful partial contributions or
-  autonomous discovery quality. Do not repeat the familiar nine-case cohort.
-  Nonempty strings are not semantic proof; explanation accuracy still requires
-  source review. Do not force timestamp labels or rerun the familiar paid cohort.
-  A later repository-only autonomous usefulness test needs its own cohort and
-  frozen protocol; this familiar development comparison is not that benchmark.
+- [x] Prepare a separate [prospective source protocol](missing-link-triage-prospective-protocol-2026-10-06.md)
+  after PR79's report merged as `e4cc3bb` with four green CI jobs. Six explicitly
+  selected API-contract/entrypoint comparisons across five new pinned Python
+  repositories keep original documentation and complete selected bodies, with
+  independent pre-response operator references excluded from model input.
+  The wrong-candidate control must not manufacture a flattening slice from
+  shared iterable vocabulary; accurate difference or grounded abstention is
+  acceptable, with no forced label. Eighteen authored controls bring totals to
+  341 focused and 1,321 full-suite passing tests. All six frozen contexts and
+  exact requests reproduce, and authored abstention cards replay mechanically.
+  No new call/reservation occurs: 720 protected earlier artifacts, all prior
+  rows, non-accounting tables and unrelated allowances remain unchanged at
+  517 reservations / USD7.6197550. Proposed six-case reservations total
+  USD0.0341576 within a USD0.10 segment and cumulative USD7.7197550 ceiling.
+- [ ] Review/merge the source helper and protocol, then freeze a separate owned
+  one-use prospective driver with mocked execution/accounting controls before
+  payment. Read every returned facet, including unknown reasons, against the
+  frozen sources independently of local shape/provenance validity. Exact schema
+  acceptance and nonempty strings are not semantic proof; do not rerun the old
+  nine cases or promote experimental results into production selection/UI.
+- [ ] Prepare a separate repository-only autonomous usefulness cohort/protocol
+  after source-grounded triage evaluation. The explicitly selected source
+  comparison is not Discover or that benchmark; grounded useful leads and
+  false-positive rejection must precede candidate isolation or UI/key-entry work.
 
 No full-pool ranking improvement can be inferred from selected-only history;
 the newer retained pools permit ordering replay, not semantic utility measurement.
