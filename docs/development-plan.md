@@ -1134,11 +1134,22 @@ force an isolated demonstration from a merely partial primitive.
   preserves 691 artifacts, all twelve tables and all accounting at 516 rows /
   USD7.6143589. The eight accepted cards and rejected mean card replay unchanged;
   no provider is instantiated or additional model call/reservation made.
-- [ ] Consider a separate experimental known/unknown property schema change, with
-  offline validation and unchanged local guards before any new paid protocol.
-  Nonempty strings are not semantic proof; explanation accuracy still requires
-  source review. Do not fix raw predictions, force timestamp labels, repeat these
-  paid cases or promote the prompt.
+- [x] Add a separate experimental known/unknown property schema change with
+  offline validation and unchanged prompt/local guards. The
+  [declaration schema](missing-link-triage-declaration-schema-2026-10-05.md)
+  uses nested closed branches and shared citation definitions, with an explicit
+  final branch validator after the legacy typed reader. Seventeen authored tests
+  bring totals to 297 focused and 1,277 full-suite passing tests. Eight retained
+  accepted cards normalize identically and the mean remains rejected; 694 prior
+  artifacts and all twelve tables stay unchanged. Accounting remains 516 rows /
+  USD7.6143589, with no new call or reservation. PR74 and PR75 are merged;
+  PR75's two valid wording findings were corrected without a contract change.
+- [ ] Review only the experimental schema/reader contract, then define a separate
+  frozen minimal native-schema acceptance protocol before any paid call. Offline
+  encoding is not API acceptance or improved Luna quality. Nonempty strings are
+  not semantic proof; explanation accuracy still requires source review. Do not
+  fix raw predictions, force timestamp labels, repeat these paid cases or promote
+  the prompt.
   A later repository-only autonomous usefulness test needs its own cohort and
   frozen protocol; this familiar development comparison is not that benchmark.
 
