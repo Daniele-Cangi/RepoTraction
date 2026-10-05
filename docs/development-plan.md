@@ -1089,6 +1089,12 @@ force an isolated demonstration from a merely partial primitive.
   replay unchanged; all twelve tables and 634 prior artifacts remain intact.
   Accounting stays at 507 reservations / USD7.5430970; dummy payload encoding
   makes no model call or reservation. This is not evidence of improved Luna quality.
+  A valid P2 in the initial PR72 review identified an ambiguous blanket instruction
+  to empty unknown declarations. The correction explicitly preserves the required
+  axis and names only empty comparison/citation/slice fields. A four-facet regression
+  checks the schema and normalizer contract, not model compliance. Post-fix totals
+  are 247 focused and 1,227 full-suite tests; 637 earlier artifacts and all tables
+  remain unchanged, with no new call or reservation. Reconfirmation is pending.
 - [ ] Review only the prompt insertion and unchanged offline contracts, then freeze
   a separate bounded model-evaluation protocol. Do not automatically rerun the
   nine paid cases, force timestamp labels or promote the prompt to production.
