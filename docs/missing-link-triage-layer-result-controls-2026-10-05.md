@@ -21,8 +21,9 @@ Only authored Python fixtures and inert callbacks execute.
 
 The fully populated average slice remains a partial hint with context required,
 not a qualified connection. A known relation must provide both `demand_property`
-and `operation_property`, in addition to scope, layer, citations and the three
-slice descriptions. An empty string currently satisfies the provider shape but
+and `operation_property`, in addition to scope, layer and citations. Only `slice`
+requires the three slice descriptions; `aligned` and `different` require them
+to be empty. An empty property string currently satisfies the provider shape but
 fails local normalization. A helpful reason or slice description cannot substitute
 for a missing property.
 
@@ -30,7 +31,8 @@ The controls cover either/both empty properties, whitespace including Unicode,
 omitted keys, and both 400/401-character boundaries. The same property requirement
 also applies to aligned/different relations. An invalid slice rejects its entire
 card without salvaging another known facet or mutating the original. An unknown
-facet instead keeps its axis, clears declarations and gets no slice credit.
+facet instead keeps its axis and must already have empty declarations; populated
+declarations reject the response without mutation. It gets no slice credit.
 Arbitrary 400-character text passing the mechanical limit is not source truth.
 
 These outcomes preserve the real mean failure: its saved empty properties and
