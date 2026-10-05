@@ -906,10 +906,38 @@ force an isolated demonstration from a merely partial primitive.
   artifacts and the frozen code fingerprints; nine retained cards normalize
   identically, keeping all 33 abstentions and the mean slice. No model result or
   quality improvement is claimed; no new calls or reservations occur.
-- [ ] Complete a narrow review of the property-comparison prompt, then freeze a
+- [x] Complete a narrow review of the property-comparison prompt, then freeze a
   separate comparison protocol, actual encoded requests and an explicitly authorized
   spending segment before another model test. Keep operation layers, exact provenance,
   real unknowns and bounded partial value; no cap reset or production promotion.
+  PR64 merged with a no-findings review and four green CI jobs. The user authorized
+  another USD0.10 segment inside the original USD10 cumulative allowance; no extra
+  amount is needed for the proposed USD0.068867 reservations. The
+  [execution protocol](missing-link-triage-property-execution-protocol-2026-10-05.md)
+  freezes the same nine cases and actual requests, preserving all 489 earlier
+  reservation rows, source ownership and 510 prior artifacts. Seven no-network
+  execution controls pass with the existing tests (143 focused; 1,123 full-suite).
+  A mocked terminal-stream simulation reproduces all nine exact frozen bodies;
+  post-test checks preserve all twelve tables, prior rows and artifact hashes.
+  The new original allowance ceiling is USD7.5039320, without a reset or a
+  replacement ID.
+  Request the remaining execution review from Codex, not Copilot; paid execution
+  and independent result reporting remain pending that scoped gate and green CI.
+- [x] Correct the relevant P1 execution-review finding before model calls: a
+  parsed card is not a raw terminal receipt. A separate experimental stream reader
+  now requires private preservation of the entire status-consistent terminal event
+  before interpretation, including incomplete/refused/failed content. Persistence
+  failure stops the run. Production Provider and all prior frozen files remain
+  unchanged; the superseded preparation is retained, not rewritten. The replacement
+  protects 525 artifacts and reproduces the same nine request bytes/reservations.
+  Sixteen execution controls pass (152 focused; 1,132 full-suite tests), including
+  storage/close/account failures and full-envelope preservation. No paid calls or
+  real reservations occur. Request only a scoped Codex re-review of this correction.
+- [ ] Complete the scoped Codex execution review and green CI, then execute the
+  frozen nine-case property comparison once within the authorized segment. Preserve
+  receipts, failed/unknown usage and all earlier evidence; independently review
+  property support, genuine abstention and the mean slice before a separate result
+  report. No automatic retry, production promotion or reset of the original allowance.
 
 No full-pool ranking improvement can be inferred from selected-only history;
 the newer retained pools permit ordering replay, not semantic utility measurement.
