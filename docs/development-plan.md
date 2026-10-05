@@ -1123,9 +1123,22 @@ force an isolated demonstration from a merely partial primitive.
   add USD0.0712619, reaching 516 rows / USD7.6143589 within the USD7.6430970
   segment ceiling. Native configured-price usage estimate USD0.0200768 is not an
   invoice. No production prompt, selection, qualification or UI changes.
-- [ ] Isolate no-spend known-slice declaration and conditional/delegate explanation
-  controls before a separate prompt/schema change. Do not fix raw predictions,
-  force timestamp labels, repeat these paid cases or promote the prompt.
+- [x] Isolate no-spend known-slice declaration and conditional/delegate explanation
+  controls before a separate prompt/schema change. PR74's report has a no-findings
+  Codex review of `267f719` and four green CI jobs. The separate
+  [result controls](missing-link-triage-layer-result-controls-2026-10-05.md)
+  add fifteen authored tests for missing/blank/bounded properties, whole-card
+  rejection and paired branch/delegate explanations. Existing guards reject
+  incomplete slices without repair; unknown-reason truth is not automatically
+  classified. All 280 focused and 1,260 full-suite tests pass. A read-only check
+  preserves 691 artifacts, all twelve tables and all accounting at 516 rows /
+  USD7.6143589. The eight accepted cards and rejected mean card replay unchanged;
+  no provider is instantiated or additional model call/reservation made.
+- [ ] Consider a separate experimental known/unknown property schema change, with
+  offline validation and unchanged local guards before any new paid protocol.
+  Nonempty strings are not semantic proof; explanation accuracy still requires
+  source review. Do not fix raw predictions, force timestamp labels, repeat these
+  paid cases or promote the prompt.
   A later repository-only autonomous usefulness test needs its own cohort and
   frozen protocol; this familiar development comparison is not that benchmark.
 
