@@ -1034,11 +1034,21 @@ force an isolated demonstration from a merely partial primitive.
   cards reproduce identically, preserving eight known facets, 28 abstentions and
   the mean slice. All 12 table hashes, 577 earlier artifacts and accounting rows
   remain unchanged, with no new AI calls or reservations.
-- [ ] Complete a narrow Codex review and green CI for the branch prompt revision,
-  then freeze any separately authorized model comparison with exact request hashes
-  and conservative reservations under the original allowance. Preserve conditional
-  returns, useful local contrasts, genuine gaps, layers and the mean slice; no
-  automatic paid run, historical repair or production promotion.
+- [x] Complete narrow Codex review and green CI for the branch prompt revision.
+  PR68 merged as `4596c4c` with a no-findings review and all four CI jobs green.
+- [x] Freeze the separate [branch comparison protocol](missing-link-triage-branch-execution-protocol-2026-10-05.md)
+  with nine exact configured-provider requests and USD0.0702980 conservative
+  reservations, within a USD0.10 segment of the original cumulative USD10 allowance.
+  The public executor differs only in its prompt import; 16 receipt controls are
+  reused with two equivalence/import checks. All 206 focused and 1,186 full-suite
+  tests pass. Nine mocked calls retain full terminal envelopes; all 12 table hashes,
+  580 prior artifacts and accounting remain unchanged (498 / USD7.4727990).
+  Preparation and simulation make no real AI call or reservation.
+- [ ] Complete narrow Codex review, green CI and merge for the branch executor
+  and protocol, then execute the frozen comparison once with no retries. Independently
+  assess conditional returns and local contrasts while preserving genuine gaps,
+  layers and the mean slice. Publish receipts/accounting and semantic observations
+  separately; no historical repair, forced positive lead or production promotion.
 
 No full-pool ranking improvement can be inferred from selected-only history;
 the newer retained pools permit ordering replay, not semantic utility measurement.
