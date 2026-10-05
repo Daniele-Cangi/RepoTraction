@@ -1155,12 +1155,24 @@ force an isolated demonstration from a merely partial primitive.
   full-suite passing tests. All twelve tables and 697 prior artifacts are intact;
   actual accounting stays 516 rows / USD7.6143589, with no new call/reservation.
   This probe is not Discover, source-quality measurement or repeated paid cases.
-- [ ] Merge the reviewed schema, review/merge only the one-request probe/protocol,
-  then prepare/review an owned one-shot driver with exclusive start marker,
-  worker lease, identity, frozen request/code/config fingerprints and atomic
-  original-allowance/segment checks before a paid attempt. Preparation has no paid
-  entrypoint and does not implement those caller responsibilities. Preserve
-  receipts before validation; no retry, repair, refunds or production promotion.
+- [x] Review/merge the one-request probe/protocol into its stacked parent. PR77
+  merged as `e8bf3c2` after a no-findings Codex review of `c15bdd2` and four green
+  CI jobs. Its merge tree equals the reviewed head; PR76 remains open with the
+  combined schema/protocol and four green CI jobs, not yet merged into main.
+- [x] Prepare [owned driver safeguards](missing-link-native-driver-2026-10-05.md)
+  for exclusive start marker, worker lease, fresh identity, exact request/config
+  and executable fingerprints, reviewed-revision ancestry on freshly fetched main
+  and the existing atomic original-allowance/segment reservation. Thirteen authored
+  controls cover drift, replay and synthetic accounting mutation rejection.
+  All 320 focused and 1,300 full-suite tests pass; CLI help remains unchanged.
+  Request and planned reservation remain 21,913 bytes / USD0.0053961. No native
+  call or real reservation is made; 703 prior artifacts and all twelve tables
+  remain protected at 516 rows / USD7.6143589.
+- [ ] Merge the combined schema/protocol and review/merge only the driver gates.
+  Confirm review and CI, then explicitly invoke the separately owned single-use
+  adapter and publish the mechanical outcome. Its main-ancestry check blocks
+  premature execution. Preserve receipts before validation; no retry, repair,
+  refunds or production promotion. Mocked success is not native API acceptance.
   Nonempty strings are not semantic proof; explanation accuracy still requires
   source review. Do not force timestamp labels or rerun the familiar paid cohort.
   A later repository-only autonomous usefulness test needs its own cohort and
