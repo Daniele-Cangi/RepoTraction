@@ -1108,11 +1108,26 @@ force an isolated demonstration from a merely partial primitive.
   USD7.6430970 ceiling; the real allowance stays at 507 rows / USD7.5430970.
   Source accuracy of every unknown reason is assessed separately from mechanical
   validity; timestamps, known labels and useful leads are not forced.
-- [ ] Review only this execution contract and protocol, then run the separate
-  one-shot comparison after green CI and merge. Publish a source-based per-case
-  assessment before another prompt revision or production promotion. This is
-  development calibration, not an automatic rerun or held-out Discover benchmark.
-  A later autonomous usefulness test requires its own cohort and frozen protocol.
+- [x] Review only the execution contract and protocol, then run the separate
+  one-shot comparison after green CI and merge. PR73 merged as `fa52760` after
+  a no-findings Codex review of `f9a5e46` and four green CI jobs. The
+  [layer comparison result](missing-link-triage-layer-result-2026-10-05.md)
+  records nine completed terminal envelopes, eight locally accepted cards and one
+  local rejection: the raw mean slice omitted both required property declarations.
+  No retry or repair occurs. A separate reading covers all 36 facet reasons:
+  factory/wrapper attribution improves in this response, but branch/delegate
+  certainty remains problematic. Raw counts (nine known, 27 unknown) are not
+  accuracy; the mean card is not an accepted normalized slice. All 265 focused
+  and 1,245 full-suite tests pass. The 640 prior artifacts, 507 prior reservation
+  rows and ten non-accounting tables are unchanged. Nine exact new reservations
+  add USD0.0712619, reaching 516 rows / USD7.6143589 within the USD7.6430970
+  segment ceiling. Native configured-price usage estimate USD0.0200768 is not an
+  invoice. No production prompt, selection, qualification or UI changes.
+- [ ] Isolate no-spend known-slice declaration and conditional/delegate explanation
+  controls before a separate prompt/schema change. Do not fix raw predictions,
+  force timestamp labels, repeat these paid cases or promote the prompt.
+  A later repository-only autonomous usefulness test needs its own cohort and
+  frozen protocol; this familiar development comparison is not that benchmark.
 
 No full-pool ranking improvement can be inferred from selected-only history;
 the newer retained pools permit ordering replay, not semantic utility measurement.
