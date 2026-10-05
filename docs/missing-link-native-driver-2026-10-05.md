@@ -8,8 +8,9 @@ reservation is made during this preparation.** Native API acceptance and model
 quality remain unverified.
 
 PR77 has a no-findings Codex review of `c15bdd2` and four green CI jobs. Its merge
-`e8bf3c2` is on the PR76 branch, not yet on main. That merge's file tree is identical
-to the reviewed PR77 head. PR76's combined head also has four green CI jobs.
+`e8bf3c2` first landed on the PR76 branch, with a file tree identical to the
+reviewed PR77 head. After four green CI jobs and operator authorization, PR76
+merged onto main as `3663652` on October 5. The driver safeguards remain separate.
 The driver must not run until the reviewed safeguards revision, including its
 schema/protocol ancestors, is reachable from freshly fetched main. An operator
 must also confirm the relevant Codex review and CI before invoking the paid entrypoint.
@@ -81,10 +82,10 @@ failure retention, release/integrity ordering and import safety. Real database
 rows are never edited by these controls; filesystem writes use temporary markers.
 All 320 focused triage tests and 1,300 full-suite tests pass; CLI help is unchanged.
 
-The owned simulation must send one exact frozen body to a mocked stream, retain
-the complete authored terminal envelope and parsed card, record USD0.0053961 only
-in memory and exercise both forced identity checks. Its marker is temporary,
-not the live start marker. A read-only post-test check protects **703 historical
+The owned offline simulation sent one exact frozen body to a mocked stream,
+retained the complete authored terminal envelope and parsed card, recorded
+USD0.0053961 only in memory and exercised both forced identity checks. Its marker was temporary,
+not the live start marker. The read-only post-test check verified **703 historical
 artifact hashes** and all twelve real tables; the actual allowance stays **516
 reservations / USD7.6143589 reserved** with no new model call or reservation.
 
