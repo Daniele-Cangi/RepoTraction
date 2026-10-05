@@ -1144,12 +1144,25 @@ force an isolated demonstration from a merely partial primitive.
   artifacts and all twelve tables stay unchanged. Accounting remains 516 rows /
   USD7.6143589, with no new call or reservation. PR74 and PR75 are merged;
   PR75's two valid wording findings were corrected without a contract change.
-- [ ] Review only the experimental schema/reader contract, then define a separate
-  frozen minimal native-schema acceptance protocol before any paid call. Offline
-  encoding is not API acceptance or improved Luna quality. Nonempty strings are
-  not semantic proof; explanation accuracy still requires source review. Do not
-  fix raw predictions, force timestamp labels, repeat these paid cases or promote
-  the prompt.
+- [x] Review only the experimental schema/reader contract. PR76 has a no-findings
+  Codex review of `352f9ed` and four green CI jobs; it is ready for merge, with no
+  required correction. Offline encoding is not API acceptance or improved quality.
+- [x] Prepare the separate [native schema acceptance protocol](missing-link-native-schema-protocol-2026-10-05.md).
+  One authored sum/count context, no prior labels or relation forcing, uses the
+  unchanged layer prompt and reviewed declaration schema. Its 21,913-byte exact
+  request would reserve USD0.0053961 within a USD0.02 segment and the original
+  USD10 allowance. Ten mocked controls bring totals to 307 focused and 1,287
+  full-suite passing tests. All twelve tables and 697 prior artifacts are intact;
+  actual accounting stays 516 rows / USD7.6143589, with no new call/reservation.
+  This probe is not Discover, source-quality measurement or repeated paid cases.
+- [ ] Merge the reviewed schema, review/merge only the one-request probe/protocol,
+  then prepare/review an owned one-shot driver with exclusive start marker,
+  worker lease, identity, frozen request/code/config fingerprints and atomic
+  original-allowance/segment checks before a paid attempt. Preparation has no paid
+  entrypoint and does not implement those caller responsibilities. Preserve
+  receipts before validation; no retry, repair, refunds or production promotion.
+  Nonempty strings are not semantic proof; explanation accuracy still requires
+  source review. Do not force timestamp labels or rerun the familiar paid cohort.
   A later repository-only autonomous usefulness test needs its own cohort and
   frozen protocol; this familiar development comparison is not that benchmark.
 
