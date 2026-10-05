@@ -362,7 +362,13 @@ exist, but **zero matches qualify for follow-up**. No isolated connection is
 forced and no novel external adoption is established. Repeated non-held-out
 sources do not establish causal accuracy improvement or parser completeness.
 
-Next core work, offline first and separate from this frozen evaluation:
+The figures and checklist below describe the frozen 3 October snapshot, not the
+current allowance or pending backlog. PR #40 was reconciled and merged without
+changing its historical report. Later sections record the contract-22 corrections,
+ranking work and subsequent experiments.
+
+Next core work at that historical snapshot, offline first and separate from this
+frozen evaluation:
 
 - [ ] Prefer acquired implementation candidates over declaration-only candidates
   during enrichment/selection. Reproduce the small escape-string-regexp case:
@@ -996,12 +1002,28 @@ force an isolated demonstration from a merely partial primitive.
   required; no qualified lead or accuracy claim follows. Receipt replay preserves
   525 prior artifact hashes, 489 earlier reservation rows and ten non-accounting
   tables. Production behavior and all earlier cards/reports remain unchanged.
-- [ ] Define paired no-spend controls for declared contracts versus branch-dependent
+- [x] Define paired no-spend controls for declared contracts versus branch-dependent
   runtime returns, and explicit requested-property comparison versus requiring a
   prior implementation relationship. Keep pass-through behavior, real delegate
   gaps, factory layers and the bounded mean slice. Do not repair historical cards,
   introduce a universal relevance classifier or trigger another paid run or
   production promotion from assertion counts alone.
+  The [branch and property controls](missing-link-triage-branch-controls-2026-10-05.md)
+  add 14 authored tests, including executable witnesses from our own Python
+  fixtures, not acquired code. They distinguish declared scalar/bytes contracts
+  from non-string pass-through, and permit a command-versus-boolean contrast
+  without claiming prior implementation/adoption. Explicit reviewer labels are
+  not an automatic semantic classifier; raw abstentions remain unscored and the
+  unseen delegate/mean slice remain bounded. Production and the frozen prompt,
+  normalizer, receipts and historical cards remain unchanged.
+  All 166 focused triage tests and 1,146 full-suite tests pass. Post-test replay
+  preserves nine cards, eight known facets, 28 abstentions and the mean slice;
+  all 12 table hashes, 574 prior artifact hashes and accounting rows remain
+  identical (498 reservations / USD7.4727990), with no new model calls.
+- [ ] Review a separate bounded experimental prompt revision against the paired
+  branch/property controls before proposing a new model comparison. Preserve
+  real gaps, scope/layers, annotations versus branch behavior and the prior prompt.
+  No automatic paid run, broader parser feature, production promotion or isolation.
 
 No full-pool ranking improvement can be inferred from selected-only history;
 the newer retained pools permit ordering replay, not semantic utility measurement.
