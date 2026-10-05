@@ -1020,10 +1020,25 @@ force an isolated demonstration from a merely partial primitive.
   preserves nine cards, eight known facets, 28 abstentions and the mean slice;
   all 12 table hashes, 574 prior artifact hashes and accounting rows remain
   identical (498 reservations / USD7.4727990), with no new model calls.
-- [ ] Review a separate bounded experimental prompt revision against the paired
+- [x] Prepare a separate bounded experimental prompt revision against the paired
   branch/property controls before proposing a new model comparison. Preserve
   real gaps, scope/layers, annotations versus branch behavior and the prior prompt.
   No automatic paid run, broader parser feature, production promotion or isolation.
+  The [branch prompt revision](missing-link-triage-branch-prompt-2026-10-05.md)
+  adds two instruction blocks in a new module, leaving every predecessor prompt,
+  the schema/normalizer, production and historical cards unchanged. The 14 authored
+  branch controls are reused alongside eight prompt/guard/encoding checks. These
+  verify mechanics, not that Luna has corrected either semantic problem.
+  All 188 focused triage tests and 1,168 full-suite tests pass. Nine original
+  contexts encode offline within 180,000 bytes (maximum 151,788); the nine saved
+  cards reproduce identically, preserving eight known facets, 28 abstentions and
+  the mean slice. All 12 table hashes, 577 earlier artifacts and accounting rows
+  remain unchanged, with no new AI calls or reservations.
+- [ ] Complete a narrow Codex review and green CI for the branch prompt revision,
+  then freeze any separately authorized model comparison with exact request hashes
+  and conservative reservations under the original allowance. Preserve conditional
+  returns, useful local contrasts, genuine gaps, layers and the mean slice; no
+  automatic paid run, historical repair or production promotion.
 
 No full-pool ranking improvement can be inferred from selected-only history;
 the newer retained pools permit ordering replay, not semantic utility measurement.
