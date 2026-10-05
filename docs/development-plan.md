@@ -1155,12 +1155,36 @@ force an isolated demonstration from a merely partial primitive.
   full-suite passing tests. All twelve tables and 697 prior artifacts are intact;
   actual accounting stays 516 rows / USD7.6143589, with no new call/reservation.
   This probe is not Discover, source-quality measurement or repeated paid cases.
-- [ ] Merge the reviewed schema, review/merge only the one-request probe/protocol,
-  then prepare/review an owned one-shot driver with exclusive start marker,
-  worker lease, identity, frozen request/code/config fingerprints and atomic
-  original-allowance/segment checks before a paid attempt. Preparation has no paid
-  entrypoint and does not implement those caller responsibilities. Preserve
-  receipts before validation; no retry, repair, refunds or production promotion.
+- [x] Review/merge the one-request probe/protocol into its stacked parent. PR77
+  merged as `e8bf3c2` after a no-findings Codex review of `c15bdd2` and four green
+  CI jobs. Its merge tree equals the reviewed head. After four green CI jobs and
+  operator authorization, the combined PR76 merged into main as `3663652`.
+- [x] Prepare [owned driver safeguards](missing-link-native-driver-2026-10-05.md)
+  for exclusive start marker, worker lease, fresh identity, exact request/config
+  and executable fingerprints, reviewed-revision ancestry on freshly fetched main
+  and the existing atomic original-allowance/segment reservation. Thirteen authored
+  controls cover drift, replay and synthetic accounting mutation rejection.
+  All 320 focused and 1,300 full-suite tests pass; CLI help remains unchanged.
+  Request and planned reservation remain 21,913 bytes / USD0.0053961. No native
+  call or real reservation is made; 703 prior artifacts and all twelve tables
+  remain protected at 516 rows / USD7.6143589. The owned offline simulation retained
+  one exact mocked request/terminal and both identity checks, with no live marker;
+  the final read-only integrity check confirmed the real history is unchanged.
+- [x] Reproduce and fix PR78's two bounded Codex findings: require provider
+  readiness before encoding/consuming the marker, and compare unrelated allowance
+  balances exactly instead of tolerating tiny mutations. Three new regressions
+  cover remote authorization, safe readiness diagnostics and sub-tolerance drift.
+  All 323 focused and 1,303 full-suite tests pass; CLI help is unchanged.
+  A read-only audit confirms all 703 protected artifacts and twelve tables are
+  unchanged, at 516 rows / USD7.6143589 with no new calls or reservations.
+- [ ] Review/merge only the corrected separate driver gates (PR78).
+  Preserve the initial owned manifest and simulation; changed executable hashes
+  already block that manifest. After review/green CI, prepare and simulate a new
+  owned successor bound to the corrected reviewed source, then explicitly invoke
+  the separately owned single-use
+  adapter and publish the mechanical outcome. Its main-ancestry check blocks
+  premature execution. Preserve receipts before validation; no retry, repair,
+  refunds or production promotion. Mocked success is not native API acceptance.
   Nonempty strings are not semantic proof; explanation accuracy still requires
   source review. Do not force timestamp labels or rerun the familiar paid cohort.
   A later repository-only autonomous usefulness test needs its own cohort and
