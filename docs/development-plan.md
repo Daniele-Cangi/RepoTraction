@@ -1177,14 +1177,27 @@ force an isolated demonstration from a merely partial primitive.
   All 323 focused and 1,303 full-suite tests pass; CLI help is unchanged.
   A read-only audit confirms all 703 protected artifacts and twelve tables are
   unchanged, at 516 rows / USD7.6143589 with no new calls or reservations.
-- [ ] Review/merge only the corrected separate driver gates (PR78).
-  Preserve the initial owned manifest and simulation; changed executable hashes
-  already block that manifest. After review/green CI, prepare and simulate a new
-  owned successor bound to the corrected reviewed source, then explicitly invoke
-  the separately owned single-use
-  adapter and publish the mechanical outcome. Its main-ancestry check blocks
-  premature execution. Preserve receipts before validation; no retry, repair,
-  refunds or production promotion. Mocked success is not native API acceptance.
+- [x] Review/merge the corrected separate driver gates (PR78). Codex confirmed
+  `b365756` without findings; all four CI jobs passed. The main merge `a4ae48d`
+  has the same file tree. Preserve the initial owned manifest/simulation and
+  prepare a separately owned successor bound to the reviewed corrected revision.
+- [x] Complete the one-shot native schema acceptance request after offline
+  successor replay/simulation. The [native schema result](missing-link-native-schema-result-2026-10-05.md)
+  retains one completed non-refused terminal and locally accepted card: runtime
+  and input unknown, output different, outcome slice with explicit properties
+  and all three descriptions. Normalization replays identically; status remains
+  context_required with unchanged qualification/selection. One USD0.0053961
+  reservation reaches 517 rows / USD7.6197550. All 708 older artifacts, 516 prior
+  rows, non-accounting tables and unrelated allowances remain unchanged.
+  Native usage is retained, without retry, repair, refunds or production promotion.
+  All 323 focused tests and the post-attempt 1,303-test full suite pass; CLI help
+  is unchanged. A final read-only audit reproduces the snapshot, source hashes
+  and all owned result/receipt hashes without another call or reservation.
+- [ ] Prepare a separate prospective semantic evaluation with new real-source
+  contexts before further paid comparison or production integration. Freeze its
+  inputs and judgments independently; exact schema acceptance alone does not
+  establish source-supported explanations, useful partial contributions or
+  autonomous discovery quality. Do not repeat the familiar nine-case cohort.
   Nonempty strings are not semantic proof; explanation accuracy still requires
   source review. Do not force timestamp labels or rerun the familiar paid cohort.
   A later repository-only autonomous usefulness test needs its own cohort and
