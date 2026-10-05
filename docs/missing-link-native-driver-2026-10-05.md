@@ -18,7 +18,11 @@ must also confirm the relevant Codex review and CI before invoking the paid entr
 ## Public safeguards and owned adapter
 
 `scripts/missing_link_triage_native_driver.py` has no IO or provider construction
-on import. `verify_request` compares only whitelisted non-secret configuration,
+on import. `verify_request` first requires the provider's own `configured=True`
+readiness signal, so invalid remote authorization or other configuration errors
+stop before encoding or consuming the marker. It raises a fixed diagnostic,
+without retaining the provider's error text or inspecting credentials. It then
+compares only whitelisted non-secret configuration,
 the authored case, exact serialized payload, prompt/schema/body fingerprints,
 request byte count and prepared reservation. The credential is never part of a
 fingerprint or report. Original source fingerprints are checked by the owned
@@ -66,6 +70,10 @@ even accounting table hashes must remain identical. The real reservation callbac
 enforces the cap atomically before outbound traffic; this post-check does not
 replace that transaction.
 
+Unrelated allowance balances must compare exactly. The numeric tolerance applies
+only to the declared owned allowance increment, not to foreign balances; changes
+of even USD0.000000005 to another allowance are rejected.
+
 The post-attempt reader uses the original low-level snapshot reader, not obsolete
 pre-payment assertions requiring 516 rows. That permits the one declared increment
 without weakening protection of old history. Only owned in-flight job persistence
@@ -95,3 +103,20 @@ invocation, attempt the single request and publish its mechanical outcome. Do no
 claim schema acceptance from mocks, force a known/slice label, rerun the nine-case
 development cohort, promote the prompt or infer autonomous usefulness. A bare
 HTTP status is not proof of the specific cause of request rejection.
+
+## Review corrections and frozen manifests
+
+Codex identified two concrete violations on `f69b746`: invalid provider readiness
+could consume the sole marker, and the balance tolerance could admit tiny changes
+to unrelated allowances. Three additional regressions reproduce both failures
+and check that readiness rejection does not encode or echo raw provider errors.
+The fixes do not change payload, schema, prompt, fixture, pricing or reservation.
+All 323 focused and 1,303 full-suite tests pass, including the sixteen driver
+controls. CLI help is unchanged; no paid call or new reservation was made.
+
+The initial offline simulation above predates these fixes. Its owned artifacts and
+prepared manifest remain immutable; the changed executable fingerprints make that
+manifest reject the corrected driver. After review and green CI, prepare and
+simulate a separately owned successor manifest bound to the reviewed corrected
+source before the one paid attempt. Do not overwrite the old manifest, bypass its
+checks or reuse its earlier mocked success as validation of the new revision.

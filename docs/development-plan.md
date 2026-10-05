@@ -1170,8 +1170,18 @@ force an isolated demonstration from a merely partial primitive.
   remain protected at 516 rows / USD7.6143589. The owned offline simulation retained
   one exact mocked request/terminal and both identity checks, with no live marker;
   the final read-only integrity check confirmed the real history is unchanged.
-- [ ] Review/merge only the separate driver gates (PR78).
-  Confirm review and CI, then explicitly invoke the separately owned single-use
+- [x] Reproduce and fix PR78's two bounded Codex findings: require provider
+  readiness before encoding/consuming the marker, and compare unrelated allowance
+  balances exactly instead of tolerating tiny mutations. Three new regressions
+  cover remote authorization, safe readiness diagnostics and sub-tolerance drift.
+  All 323 focused and 1,303 full-suite tests pass; CLI help is unchanged.
+  A read-only audit confirms all 703 protected artifacts and twelve tables are
+  unchanged, at 516 rows / USD7.6143589 with no new calls or reservations.
+- [ ] Review/merge only the corrected separate driver gates (PR78).
+  Preserve the initial owned manifest and simulation; changed executable hashes
+  already block that manifest. After review/green CI, prepare and simulate a new
+  owned successor bound to the corrected reviewed source, then explicitly invoke
+  the separately owned single-use
   adapter and publish the mechanical outcome. Its main-ancestry check blocks
   premature execution. Preserve receipts before validation; no retry, repair,
   refunds or production promotion. Mocked success is not native API acceptance.
