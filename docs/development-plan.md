@@ -1207,9 +1207,21 @@ force an isolated demonstration from a merely partial primitive.
   rows, non-accounting tables and unrelated allowances remain unchanged at
   517 reservations / USD7.6197550. Proposed six-case reservations total
   USD0.0341576 within a USD0.10 segment and cumulative USD7.7197550 ceiling.
-- [ ] Review/merge the source helper and protocol, then freeze a separate owned
-  one-use prospective driver with mocked execution/accounting controls before
-  payment. Read every returned facet, including unknown reasons, against the
+- [x] Review/merge the source helper and protocol (PR80). Codex reviewed `72555ad`
+  without findings, all four CI jobs passed, and the merge is `bf6610d`.
+- [x] Prepare [prospective driver safeguards](missing-link-triage-prospective-driver-2026-10-06.md)
+  with exact six-request/config/readiness checks, one attempt per ordered case,
+  native declaration-schema normalization and bounded ordered reservation-prefix
+  validation. Fifteen authored tests bring totals to 356 focused and 1,336
+  full-suite passing tests. The owned offline simulation keeps all six exact
+  payloads/terminals and an authored local rejection without repair, then continues
+  once. All 736 protected files and historical accounting remain unchanged at
+  517 rows / USD7.6197550, with no new call/reservation or live marker. The initial
+  manifest is offline-only and must not be executed against its preparation-base
+  revision; preserve it and bind a separately owned successor to reviewed main.
+- [ ] Review/merge the prospective driver gates, then freeze/replay the separately
+  owned reviewed-main successor before six one-shot real attempts. Read every
+  returned facet, including unknown reasons, against the
   frozen sources independently of local shape/provenance validity. Exact schema
   acceptance and nonempty strings are not semantic proof; do not rerun the old
   nine cases or promote experimental results into production selection/UI.
