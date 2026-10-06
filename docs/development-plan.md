@@ -1219,12 +1219,26 @@ force an isolated demonstration from a merely partial primitive.
   517 rows / USD7.6197550, with no new call/reservation or live marker. The initial
   manifest is offline-only and must not be executed against its preparation-base
   revision; preserve it and bind a separately owned successor to reviewed main.
-- [ ] Review/merge the prospective driver gates, then freeze/replay the separately
-  owned reviewed-main successor before six one-shot real attempts. Read every
-  returned facet, including unknown reasons, against the
-  frozen sources independently of local shape/provenance validity. Exact schema
-  acceptance and nonempty strings are not semantic proof; do not rerun the old
-  nine cases or promote experimental results into production selection/UI.
+- [x] Review/merge the prospective driver gates (PR81). Codex reviewed `4fef633`
+  without findings, all four CI jobs passed, and `7067668` has the same file tree.
+- [x] Freeze/replay a separately owned reviewed-main successor and complete six
+  one-shot real attempts. The [prospective result](missing-link-triage-prospective-result-2026-10-06.md)
+  records six completed non-refused terminals, six locally accepted cards and
+  identical normalization replay. A post-response source reading covers all 24
+  facets, including unknown reasons. It finds a bounded supported `first`
+  comparison and correct flattening-candidate rejection, but five facet labels
+  overstate evidence: declared chunk/Markup behavior is not unseen delegate proof,
+  and conditional separator policy is not a demonstrated different result.
+  All cards remain context_required and independently unverified, with unchanged
+  production selection/qualification. Six exact reservations add USD0.0341576,
+  reaching 523 rows / USD7.6539126; 741 older artifacts, 517 prior rows and all
+  unrelated history/allowances remain intact. Post-attempt totals remain 356
+  focused and 1,336 full-suite passing tests; no retry, repair or refund occurs.
+- [ ] Isolate no-spend authored controls for declared versus body-demonstrated
+  behavior and conditional possibility versus established difference before a
+  separate prompt/contract adjustment. Keep all prospective sources/references/
+  native responses immutable; do not infer semantic proof from mechanical
+  acceptance, force known/slice labels or rerun the familiar paid cohorts.
 - [ ] Prepare a separate repository-only autonomous usefulness cohort/protocol
   after source-grounded triage evaluation. The explicitly selected source
   comparison is not Discover or that benchmark; grounded useful leads and
