@@ -11,7 +11,7 @@ Understand your repository signals and discover problems your existing code coul
 [![GitHub REST API](https://img.shields.io/badge/GitHub_REST_API-2022--11--28-181717?style=flat-square&logo=github)](https://docs.github.com/en/rest)
 [![CI](https://github.com/Daniele-Cangi/RepoTraction/actions/workflows/ci.yml/badge.svg)](https://github.com/Daniele-Cangi/RepoTraction/actions/workflows/ci.yml)
 ![Zero dependencies](https://img.shields.io/badge/dependencies-zero-b8f33d?style=flat-square&labelColor=11161d)
-![Local first](https://img.shields.io/badge/data-local_only-b084ff?style=flat-square&labelColor=11161d)
+![Local first](https://img.shields.io/badge/analytics-local_first-b084ff?style=flat-square&labelColor=11161d)
 ![MIT License](https://img.shields.io/badge/license-MIT-b084ff?style=flat-square&labelColor=11161d)
 
 </div>
@@ -22,7 +22,9 @@ active in [GitHub CLI](https://cli.github.com/). It runs on your computer,
 reads GitHub through the authenticated <code>gh</code> session and stores
 historical data in a local SQLite database.
 
-There is no username to configure and no token to paste into the app.
+GitHub analytics needs no username setting or GitHub token pasted into the app:
+it uses the active GitHub CLI account. Optional AI interpretation is configured
+separately on the server; a remote provider may require its own API key and budget.
 
 ## What RepoTraction actually does
 
@@ -64,7 +66,7 @@ desired outcome from the candidate solution, checks mandatory constraints, and
 prepares a command/example/adapter proposal with pinned source evidence.
 Internal mechanisms can be considered independently of the complete product.
 
-This first working version supports Python AST analysis and a partial JS/TS
+The available workflow supports Python AST analysis and a partial JS/TS
 declaration scan; its actual source coverage is visible. No AI provider is required
 for existing analytics. Without a provider, Missing Link collects sources and
 retrieval candidates **but leaves compatibility as investigation**. For deeper
@@ -90,15 +92,30 @@ See [usage, provider configuration and limits](docs/missing-link.md),
 those manually reviewed analyses and fictional protocol tests. The
 [second held-out cohort](docs/missing-link-second-heldout-discovery.md) found no
 qualified external leads; [the resulting corrections](docs/missing-link-context-attribution.md)
-describe the fixes and what still needs fresh testing.
+describe that cohort's follow-up fixes.
+
+### Current validation status
 
 The [1 October live Luna evaluation](docs/missing-link-live-discovery-2026-10-01.md)
-retested the current contract on eight fresh repository-only inputs: 52 real model
+tested the then-current contract on eight fresh repository-only inputs: 52 real model
 calls, 24 selected issues and 34 comparisons, with no qualified external lead.
 It records useful partial mechanisms and sound rejections, four quotation failures,
-source-selection bias and a missed ANSI-cleanup contribution. Discovery quality
-remains experimental; successful API calls and passing software tests are not
-evidence of new actionable connections.
+source-selection bias and a missed ANSI-cleanup contribution.
+
+The [6 October prospective source comparison](docs/missing-link-triage-prospective-result-2026-10-06.md)
+made six real Luna calls across five new, pinned Python repositories. All six
+responses passed local schema/provenance validation and replayed identically.
+Source reading found a useful bounded comparison and a correctly rejected wrong
+candidate, but also **five overly strong facet labels across three cases**:
+documented behavior was treated as demonstrated delegate behavior, and a possible
+conditional difference as an established counterexample.
+
+That second test used explicitly selected API contracts and entrypoints, **not
+autonomous Discover or an accuracy benchmark**. Neither mechanical acceptance
+nor these bounded comparisons establish a qualified connection or integration
+proof. Discovery quality remains experimental. The next step is no-spend controls
+for those evidence distinctions before a separate prompt/contract adjustment;
+a fresh repository-only discovery cohort remains a separate validation task.
 
 ## Development plan
 
@@ -405,8 +422,16 @@ use the browser's local notification permission and are disabled by default.
 - The HTTP server binds only to <code>localhost</code> or a loopback IP address;
   requests with a non-local Host or cross-origin Origin are rejected.
 - Tokens never enter the browser or the SQLite database.
-- RepoTraction does not store credentials; GitHub CLI manages authentication
-  through its configured credential store or environment.
+- GitHub CLI manages GitHub authentication through its configured credential
+  store or environment. Optional AI credentials are read from the server's
+  environment or ignored local `.env`, not saved with evidence or returned to
+  the browser. Never commit that file or paste keys into source corrections.
+- Analytics stays local. Enabling a remote AI provider explicitly permits selected
+  public code and discussion context to leave the machine; its handling is subject
+  to that provider's policies. GitHub tokens, private sources and account/traffic
+  history are not sent in prompts. See [provider configuration](docs/missing-link.md#optional-interpretation-provider)
+  for opt-in controls, outbound context and budget limits. Opening the dashboard
+  alone does not start a paid call.
 - The active GitHub CLI account is checked during requests. If it changes while
   RepoTraction is open, data requests stop until the account is switched back or
   the server is restarted, keeping account histories separate.
@@ -454,9 +479,24 @@ GitHub REST API
 ~~~
 
 The frontend is plain HTML, CSS and JavaScript. The Python server has no framework
-or package-manager dependency. Traffic analytics remain in `app.py`; Missing Link
-has separate acquisition/analysis, provider, persistence/job and packaging modules
-in `missing_link/`. Its optional AI service does not become an analytics dependency.
+or package-manager dependency. Modularization is incremental:
+
+- `analytics/` holds extracted traffic comparisons, event evidence, repository
+  readiness/adoption and opportunity calculations.
+- `storage/` holds connection lifecycle, migrations, repository registry/history
+  reconciliation and repository snapshot writes.
+- `github_cli.py` holds bounded account-identity verification and shared errors.
+- `missing_link/` separates acquisition/analysis, optional providers, persistence,
+  jobs, packaging and isolated proof handling. Its AI service is not an analytics
+  dependency.
+- `app.py` still owns HTTP handling, collection/scheduling and startup coordination,
+  with adapters delegating to extracted modules. The full monolith split is not
+  complete; new separable implementation belongs outside it.
+
+See the [development plan](docs/development-plan.md) for completed boundaries and
+remaining extractions. The diagram above describes analytics; optional Missing
+Link interpretation also contacts the configured local or explicitly permitted
+remote AI endpoint.
 
 ## Development
 
