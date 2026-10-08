@@ -30,7 +30,8 @@ solutions, choose an unresolved design option or claim a reproduction was verifi
 Read root spans in original offset order. Coverage explicitly describes missing root
 sections and absent discussion. Cite only supplied span IDs; citations establish
 provenance, never semantic support by themselves. Query terms are retrieval hints,
-not implementation evidence. There is no source code, title or operator reference.
+not implementation evidence. No candidate implementation, issue title or operator
+reference card is supplied; code inside the root remains unverified request data.
 
 State the requested change, input/output shape, reported runtime and acceptance
 independently. Extract requested behavior, not incidental article or code facts.

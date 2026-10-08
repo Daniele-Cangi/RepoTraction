@@ -55,15 +55,15 @@ The input/reference digests from PR91 remain unchanged:
   `6cc171bc9e83130479156e71af09869c9bc6100240f28f69865da5fc95b6e9df`.
 
 The current private preparation is
-`data/missing-link-demand-operation-policy-preparation-v2-2026-10-09/`.
+`data/missing-link-demand-operation-policy-preparation-v3-2026-10-09/`.
 It retains eleven inert `offline-request-*.json` envelopes, the exact protocol and
 a manifest pinning instructions, code fingerprints, input IDs/fingerprints,
 envelope hashes, sizes and coverage. It records zero predictions/calls/reservations
 and `offline_only_no_executor`.
 
 The independent preparation manifest SHA-256 is
-`0e236bbc1761c00919c2cc7d690eef76d64c99b23e838bb4e117253c3f385ad5`.
-All eleven envelopes fit the bound: maximum **24,022 bytes** and **24 root spans**.
+`9abbb7ae14071055e4ba9c9a431cef306f4fa6989cb2e533d7351381ad4e0983`.
+All eleven envelopes fit the bound: maximum **24,104 bytes** and **24 root spans**.
 Ten have complete-root assertions; one preserves its omitted article middle.
 All eleven retain incomplete-discussion assertions and unverified acquisition.
 Those assertions are caller metadata, not independent proof of upstream coverage.
@@ -79,8 +79,13 @@ The initial preparation directory without `-v2` is preserved unchanged, with zer
 predictions/calls and independent manifest SHA-256
 `870e019e5cac116694d15b5afa2a39b52a586c30a4b19f6d90af05ceaefcbd95`.
 It is superseded because its payload IDs were descriptive; do not execute it or
-rewrite it. The successor was prepared before any control prediction, retaining
-the original frozen input/reference evidence.
+rewrite it. The opaque-ID v2 preparation is also preserved, SHA-256
+`0e236bbc1761c00919c2cc7d690eef76d64c99b23e838bb4e117253c3f385ad5`.
+The current v3 clarifies that no candidate implementation is supplied while code
+inside an issue root remains unverified request data. Only v3 matches the current
+instructions/code fingerprints. All three are offline-only with no outputs or
+paid entrypoint. Successors precede any control prediction and retain the same
+frozen input/reference evidence; never rewrite or execute a superseded preparation.
 
 ## Verification and next boundary
 
