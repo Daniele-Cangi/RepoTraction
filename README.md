@@ -125,7 +125,9 @@ validation policy. This does not establish improved model quality; a fresh
 repository-only discovery cohort remains a separate validation task. Its
 [four-source protocol](docs/missing-link-repository-only-fresh-protocol-2026-10-08.md)
 freezes glom, furl, CacheControl and bidict with no manually supplied issues or
-new paid investigation; a reviewed owned evaluator is still required.
+new paid investigation. The [owned evaluator](docs/missing-link-repository-only-evaluator-2026-10-08.md)
+implements private storage, pinned acquisition and atomic original-ledger spending;
+scoped review, CI and merge must precede the separately frozen one-shot run.
 
 ## Development plan
 
