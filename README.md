@@ -121,13 +121,16 @@ the bounded [8 October Luna test](docs/missing-link-triage-evidence-strength-fre
 All six native responses passed local validation. Reading all 24 facets found
 bounded useful information and a grounded wrong-candidate contrast, but three
 known labels remained too strong and one declared-input reason overstated unseen
-validation policy. This does not establish improved model quality; a fresh
-repository-only discovery cohort remains a separate validation task. Its
+validation policy. This does not establish improved model quality. The separate
 [four-source protocol](docs/missing-link-repository-only-fresh-protocol-2026-10-08.md)
-freezes glom, furl, CacheControl and bidict with no manually supplied issues or
-new paid investigation. The [owned evaluator](docs/missing-link-repository-only-evaluator-2026-10-08.md)
-implements private storage, pinned acquisition and atomic original-ledger spending;
-scoped review, CI and merge must precede the separately frozen one-shot run.
+froze glom, furl, CacheControl and bidict with no manually supplied issues.
+After the [owned evaluator](docs/missing-link-repository-only-evaluator-2026-10-08.md)
+passed scoped review, CI and merge, the [initial Discover cohort](docs/missing-link-repository-only-fresh-result-2026-10-09.md)
+completed four jobs and 26 native calls once. Reading all twelve comparisons and
+97 facets found conditional primitives, overstrong labels and one charged local
+extraction failure, with zero qualified external leads. The original ledger grew
+by USD0.3362051; historical records and production behavior remained unchanged.
+Candidate execution, UI/key-entry work and production promotion remain deferred.
 
 ## Development plan
 
