@@ -1234,11 +1234,24 @@ force an isolated demonstration from a merely partial primitive.
   reaching 523 rows / USD7.6539126; 741 older artifacts, 517 prior rows and all
   unrelated history/allowances remain intact. Post-attempt totals remain 356
   focused and 1,336 full-suite passing tests; no retry, repair or refund occurs.
-- [ ] Isolate no-spend authored controls for declared versus body-demonstrated
+- [x] Isolate no-spend authored controls for declared versus body-demonstrated
   behavior and conditional possibility versus established difference before a
   separate prompt/contract adjustment. Keep all prospective sources/references/
   native responses immutable; do not infer semantic proof from mechanical
   acceptance, force known/slice labels or rerun the familiar paid cohorts.
+  The [8 October evidence strength controls](missing-link-triage-evidence-strength-controls-2026-10-08.md)
+  add 18 synthetic regressions for unseen constructor/chunk results and conditional
+  separator policy. Explicit declared-contract comparisons, visible branch behavior
+  and a bounded strict-check slice survive; missing proof cannot certify alignment
+  or difference. The existing review audit uses authored bases, not inferred gold
+  labels. No production or experimental prompt/schema change is made.
+  All 374 focused and 1,354 full-suite tests pass; CLI help runs normally.
+  Read-only verification preserves frozen responses, source notes and all 741
+  protected artifacts, at 523 reservations / USD7.6539126 with no new model call.
+- [ ] Consider a separate experimental prompt adjustment for declared versus
+  demonstrated behavior and possible versus established difference. Preserve
+  schema/provenance guards, scoped comparisons and honest unknowns; verify offline
+  before any separately authorized fresh model test, without rewriting prior cards.
 - [ ] Prepare a separate repository-only autonomous usefulness cohort/protocol
   after source-grounded triage evaluation. The explicitly selected source
   comparison is not Discover or that benchmark; grounded useful leads and
