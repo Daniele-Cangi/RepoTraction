@@ -115,15 +115,17 @@ autonomous Discover or an accuracy benchmark**. Neither mechanical acceptance
 nor these bounded comparisons establish a qualified connection or integration
 proof. Discovery quality remains experimental. The [offline evidence controls](docs/missing-link-triage-evidence-strength-controls-2026-10-08.md)
 and [separate experimental instruction revision](docs/missing-link-triage-evidence-strength-prompt-2026-10-08.md)
-preserve those distinctions without changing production or collecting a new model
-response. The [fresh-source protocol](docs/missing-link-triage-evidence-strength-fresh-protocol-2026-10-08.md)
+were prepared offline without changing production. The [fresh-source protocol](docs/missing-link-triage-evidence-strength-fresh-protocol-2026-10-08.md)
 freezes six new comparisons across Packaging, Werkzeug and python-dateutil for
 the bounded [8 October Luna test](docs/missing-link-triage-evidence-strength-fresh-result-2026-10-08.md).
 All six native responses passed local validation. Reading all 24 facets found
 bounded useful information and a grounded wrong-candidate contrast, but three
 known labels remained too strong and one declared-input reason overstated unseen
 validation policy. This does not establish improved model quality; a fresh
-repository-only discovery cohort remains a separate validation task.
+repository-only discovery cohort remains a separate validation task. Its
+[four-source protocol](docs/missing-link-repository-only-fresh-protocol-2026-10-08.md)
+freezes glom, furl, CacheControl and bidict with no manually supplied issues or
+new paid investigation; a reviewed owned evaluator is still required.
 
 ## Development plan
 

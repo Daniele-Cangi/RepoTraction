@@ -1295,10 +1295,24 @@ force an isolated demonstration from a merely partial primitive.
   rows / USD7.6904081 in the original USD10 allowance. All older rows, 883 files,
   non-accounting tables and unrelated allowances remain unchanged; no retry,
   repair, production change or budget increase occurs.
-- [ ] Prepare a separate repository-only autonomous usefulness cohort/protocol
+- [x] Prepare a separate repository-only autonomous usefulness cohort/protocol
   after source-grounded triage evaluation. The explicitly selected source
   comparison is not Discover or that benchmark; grounded useful leads and
   false-positive rejection must precede candidate isolation or UI/key-entry work.
+  The [four-source repository-only protocol](missing-link-repository-only-fresh-protocol-2026-10-08.md)
+  freezes glom, furl, CacheControl and bidict before source/issue/search inspection.
+  Metadata-only preflight confirms public canonical identities and full revisions;
+  none appears as a source in retained local account/experiment history. The
+  proposed four initial Discover jobs use unchanged production contract 25 and
+  prompts, with empty issue/query inputs, eight calls and USD0.20 per job, and
+  a USD0.80 segment capped atomically at USD8.4904081 within the original USD10.
+  No new Discover job, model call, reservation or configuration change occurs.
+- [ ] Implement/review the separately owned evaluator's pinned acquisition,
+  original-ledger atomic segment cap, private receipts/storage, identity/lease,
+  exclusive slots and historical prefix checks before any cohort execution.
+  Offline conformance and scoped Codex review/CI/merge must precede a one-shot
+  successor. Preserve production behavior and all earlier cohorts; do not promote
+  the experimental triage prompt or run extra cases to manufacture a lead.
 
 No full-pool ranking improvement can be inferred from selected-only history;
 the newer retained pools permit ordering replay, not semantic utility measurement.
