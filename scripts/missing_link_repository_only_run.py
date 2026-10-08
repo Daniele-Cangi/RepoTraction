@@ -148,11 +148,47 @@ def journal(out):
     return [load(path) for path in paths]
 
 
-def verify(out):
+def inventory(out):
+    entries = list(out.iterdir())
+    require(all(path.is_file() and not path.is_symlink() for path in entries), "Owned directory has unexpected entries")
+    return {path.name for path in entries}
+
+
+def fresh_directory(out):
+    require(inventory(out) == {"prepared.json", "baseline.json"}, "Owned directory contains pre-existing execution evidence")
+
+
+def seal_receipts(out, owned_hashes):
+    """Return a digest for retention OUTSIDE the evidence directory.
+
+An adjacent checksum is not a trust anchor. The caller must retain the returned
+digest in its independent run log/reviewed report and supply it to later verify.
+"""
+    sealed = dict(owned_hashes)
+    for name in ("evaluation.sqlite3", "evaluation.sqlite3.missing-link.lock"):
+        if (out / name).exists():
+            sealed[name] = sha(out / name)
+    require(inventory(out) == set(sealed), "Cannot seal an incomplete or unowned evidence inventory")
+    require(all(sha(out / name) == value for name, value in sealed.items()), "Evidence changed before sealing")
+    save(out, "owned-artifacts.json", sealed)
+    return sha(out / "owned-artifacts.json")
+
+
+def verify_receipts(out, expected_digest):
+    require(bool(expected_digest and re.fullmatch(r"[a-f0-9]{64}", expected_digest)), "Independent receipt-manifest digest required")
+    require((out / "owned-artifacts.json").is_file(), "Anchored receipt manifest is missing")
+    require(sha(out / "owned-artifacts.json") == expected_digest, "Receipt manifest differs from independent digest")
+    sealed = load(out / "owned-artifacts.json")
+    require(inventory(out) == set(sealed) | {"owned-artifacts.json"}, "Sealed evidence inventory changed")
+    require(all(sha(out / name) == value for name, value in sealed.items()), "Sealed evidence changed")
+
+
+def verify(out, expected_digest=None):
     frozen(out)
-    if (out / "owned-artifacts.json").exists():
-        require(all(sha(out / name) == value for name, value in load(out / "owned-artifacts.json").items()),
-                "Retained owned evidence changed")
+    if expected_digest is not None or (out / "owned-artifacts.json").exists():
+        verify_receipts(out, expected_digest)
+    else:
+        fresh_directory(out)
     before = load(out / "baseline.json")
     verify_prefix(before, snapshot(before), journal(out), allowance=ALLOWANCE, ceiling=CEILING)
     print("Frozen code/cohort and original history reproduce with only the owned reservation prefix.")
@@ -160,8 +196,7 @@ def verify(out):
 
 def run(out):
     manifest = frozen(out, fetch=True)
-    require(not any((out / name).exists() for name in ("started.json", "summary.json", "evaluation.sqlite3"))
-            and not journal(out), "One-shot cohort already consumed")
+    fresh_directory(out)
     before = load(out / "baseline.json")
     env = provider_environment()
     env.update(REPOTRACTION_AI_MAX_OUTPUT_TOKENS="6000", REPOTRACTION_AI_MAX_CALLS="8", REPOTRACTION_AI_MAX_COST_USD="0.20")
@@ -174,6 +209,8 @@ def run(out):
         save(out, name, value)
         owned_hashes[name] = sha(out / name)
     def integrity():
+        require(inventory(out) <= set(owned_hashes) | {"evaluation.sqlite3", "evaluation.sqlite3.missing-link.lock"},
+                "Unowned execution file appeared")
         require(all(sha(out / name) == value for name, value in owned_hashes.items()), "Owned evidence changed")
         verify_prefix(before, snapshot(before), binding.rows if binding else [], allowance=ALLOWANCE, ceiling=CEILING)
     def retain(kind, attempt, value):
@@ -193,6 +230,7 @@ def run(out):
     require(lease.acquire(), "Original worker lease is held")
     summary = {"slots": [], "stopped_order": None, "unattempted": [s["input"] for s in manifest["slots"]], "retries": False}
     try:
+        fresh_directory(out)
         integrity()
         identity(force=True)
         owned_save("started.json", {"one_shot": True, "required_main": manifest["required_main"], "ceiling": CEILING})
@@ -248,7 +286,9 @@ def run(out):
             owned_save("summary.json", summary)
             integrity()
             owned_save("final-integrity.json", snapshot(before))
-            save(out, "owned-artifacts.json", owned_hashes)
+            independent_digest = seal_receipts(out, owned_hashes)
+            print(json.dumps({"receipt_manifest_sha256": independent_digest,
+                              "retain_outside_output_directory": True}), flush=True)
         finally:
             lease.release()
     print(json.dumps(summary), flush=True)
@@ -259,12 +299,13 @@ def main():
     parser.add_argument("action", choices=("prepare", "verify", "run"))
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--reviewed-head")
+    parser.add_argument("--receipt-manifest-sha256", help="Digest retained in an independent run log/report; required after execution")
     args = parser.parse_args()
     if args.action == "prepare":
         require(bool(args.reviewed_head and re.fullmatch(r"[a-f0-9]{40}", args.reviewed_head)), "Reviewed full head required")
         prepare(args.output.resolve(), args.reviewed_head)
     elif args.action == "verify":
-        verify(args.output.resolve())
+        verify(args.output.resolve(), args.receipt_manifest_sha256)
     else:
         run(args.output.resolve())
 

@@ -14,7 +14,8 @@ from missing_link.service import Budget, Service
 from missing_link.store import Store
 from scripts.missing_link_repository_only_evaluator import (
     EvaluationStopped, PinnedSource, ReceiptProvider, ReservationBinding, execute_slots, verify_prefix)
-from scripts.missing_link_repository_only_run import CEILING, frozen, knobs, run, save, sha, snapshot
+from scripts.missing_link_repository_only_run import (
+    CEILING, frozen, knobs, run, save, seal_receipts, sha, snapshot, verify_receipts)
 from scripts.missing_link_repository_only_evaluator import configuration
 from test_missing_link import repository, issue, request_raw, wire_request
 
@@ -304,15 +305,48 @@ class PinAndHistoryTests(unittest.TestCase):
 
 class RuntimeGatesTests(unittest.TestCase):
     def test_consumed_cohort_rejects_before_configuration_lookup(self):
-        for marker in ("started.json", "summary.json", "evaluation.sqlite3"):
+        for marker in ("started.json", "summary.json", "evaluation.sqlite3", "job-01.json", "matches-01.json",
+                       "request-01-01.json", "terminal-01-01.json", "acquisition-001.json", "foreign-directory"):
             with self.subTest(marker=marker), tempfile.TemporaryDirectory() as temp:
                 out = Path(temp)
-                (out / marker).write_text("authored", encoding="utf-8")
+                save(out, "prepared.json", {})
+                save(out, "baseline.json", {})
+                if marker == "foreign-directory": (out / marker).mkdir()
+                else: (out / marker).write_text("authored", encoding="utf-8")
                 with patch("scripts.missing_link_repository_only_run.frozen", return_value={}), \
                      patch("scripts.missing_link_repository_only_run.provider_environment") as env, \
                      self.assertRaises(EvaluationStopped):
                     run(out)
                 env.assert_not_called()
+
+    def test_independent_digest_rejects_rewritten_or_shortened_manifest(self):
+        for tamper in ("rewrite", "delete-entry", "delete-file", "extra-file", "delete-manifest"):
+            with self.subTest(tamper=tamper), tempfile.TemporaryDirectory() as temp:
+                out = Path(temp)
+                save(out, "terminal-01-01.json", {"authored": "original"})
+                save(out, "job-01.json", {"authored": "original"})
+                expected = seal_receipts(out, {path.name: sha(path) for path in out.iterdir()})
+                verify_receipts(out, expected)
+                with self.assertRaises(EvaluationStopped): verify_receipts(out, None)
+                manifest = json.loads((out / "owned-artifacts.json").read_text(encoding="utf-8"))
+                if tamper == "rewrite":
+                    (out / "terminal-01-01.json").write_text('"authored replacement"', encoding="utf-8")
+                    manifest["terminal-01-01.json"] = sha(out / "terminal-01-01.json")
+                elif tamper == "delete-entry": del manifest["job-01.json"]
+                elif tamper == "delete-file": (out / "job-01.json").unlink()
+                elif tamper == "delete-manifest": (out / "owned-artifacts.json").unlink()
+                else: save(out, "unowned.json", {})
+                if tamper in {"rewrite", "delete-entry"}:
+                    (out / "owned-artifacts.json").write_text(json.dumps(manifest), encoding="utf-8")
+                with self.assertRaises(EvaluationStopped): verify_receipts(out, expected)
+
+    def test_seal_refuses_missing_or_unowned_evidence(self):
+        with tempfile.TemporaryDirectory() as temp:
+            out = Path(temp)
+            save(out, "terminal-01-01.json", {})
+            with self.assertRaises(EvaluationStopped): seal_receipts(out, {})
+            (out / "terminal-01-01.json").unlink()
+            with self.assertRaises(EvaluationStopped): seal_receipts(out, {"terminal-01-01.json": "authored"})
 
     def test_fingerprints_provider_readiness_and_main_ancestry_block_before_payment(self):
         with tempfile.TemporaryDirectory() as temp:
