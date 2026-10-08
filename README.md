@@ -130,6 +130,11 @@ completed four jobs and 26 native calls once. Reading all twelve comparisons and
 97 facets found conditional primitives, overstrong labels and one charged local
 extraction failure, with zero qualified external leads. The original ledger grew
 by USD0.3362051; historical records and production behavior remained unchanged.
+The separate [retained root-body audit](docs/missing-link-repository-only-root-body-audit-2026-10-09.md)
+reproduces selection and examines 24 frozen unselected roots offline. Most contain
+visible requests, but query terms often describe another operation or implementation
+context; this supports a bounded offline triage control set, not a ranking or
+compatibility improvement claim. No additional acquisition or AI spending occurred.
 Candidate execution, UI/key-entry work and production promotion remain deferred.
 
 ## Development plan
