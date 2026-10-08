@@ -116,8 +116,11 @@ nor these bounded comparisons establish a qualified connection or integration
 proof. Discovery quality remains experimental. The [offline evidence controls](docs/missing-link-triage-evidence-strength-controls-2026-10-08.md)
 and [separate experimental instruction revision](docs/missing-link-triage-evidence-strength-prompt-2026-10-08.md)
 preserve those distinctions without changing production or collecting a new model
-response. They do not establish improved model quality; a fresh repository-only
-discovery cohort remains a separate validation task.
+response. The [fresh-source protocol](docs/missing-link-triage-evidence-strength-fresh-protocol-2026-10-08.md)
+freezes six new comparisons across Packaging, Werkzeug and python-dateutil for
+the next bounded Luna test. Preparation makes no paid call and does not establish
+improved model quality; a fresh repository-only discovery cohort remains a
+separate validation task.
 
 ## Development plan
 
