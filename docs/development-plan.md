@@ -1275,12 +1275,26 @@ force an isolated demonstration from a merely partial primitive.
   pass; CLI help and local documentation links are checked. Historical rows, sources and responses
   remain unchanged at 523 reservations / USD7.6539126 reserved, with 865 prior
   artifacts protected. No new model call, reservation or production wiring.
-- [ ] Review/merge this bounded protocol, then freeze a separately owned one-shot
+- [x] Review/merge this bounded protocol, then freeze a separately owned one-shot
   successor against reviewed main without rewriting the offline preparation.
   Recheck original allowance, fingerprints, identity, lease and exact prefixes;
   run the six fresh requests once and review all 24 facets, including unknown
   reasons. Keep prior cohorts immutable; no production promotion or parser/resolver
   expansion. Do not confuse greater abstention with improved usefulness.
+  PR86 merged as `42807d7` after a scoped no-major-findings Codex review of
+  `7bfce94` and four successful CI jobs, with an identical merge tree. A separately
+  owned successor preserves 883 prior files and all six frozen requests/references.
+  Its offline simulation, 421 focused tests and 1,401 full-suite tests passed before
+  six one-shot real Luna attempts. The [fresh-source result](missing-link-triage-evidence-strength-fresh-result-2026-10-08.md)
+  retains six complete non-refused terminals and identical accepted-card replay.
+  All 24 facets, including ten unknown reasons, were read separately: bounded
+  string/call-composition information and the wrong-candidate contrast survive,
+  while three known labels and one partly overstated input reason remain too strong.
+  All cards stay context_required and independently unverified, with unchanged
+  selection/qualification. Six exact reservations add USD0.0364955, reaching 529
+  rows / USD7.6904081 in the original USD10 allowance. All older rows, 883 files,
+  non-accounting tables and unrelated allowances remain unchanged; no retry,
+  repair, production change or budget increase occurs.
 - [ ] Prepare a separate repository-only autonomous usefulness cohort/protocol
   after source-grounded triage evaluation. The explicitly selected source
   comparison is not Discover or that benchmark; grounded useful leads and
