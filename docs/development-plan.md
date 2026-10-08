@@ -1331,8 +1331,27 @@ force an isolated demonstration from a merely partial primitive.
   non-accounting data remain unchanged. No retry, replacement or source execution
   occurred; no qualified lead authorizes isolation, UI/key-entry or promotion.
 
-No full-pool ranking improvement can be inferred from selected-only history;
-the newer retained pools permit ordering replay, not semantic utility measurement.
+- [x] Diagnose retrieval offline using retained search roots without new acquisition
+  or spending. The [root-body audit](missing-link-repository-only-root-body-audit-2026-10-09.md)
+  reproduces all twelve selections and four pools, then fixes 24 unselected root
+  slots before body reading. Twenty-three have visible change/help requests, but
+  twenty relate to the query as context or different operations; three are
+  operation-level and one remains unclear. Root-only operator labels do not
+  establish current actionability, source fit, useful alternatives or full-pool
+  relevance. The original ledger and sealed paid run remain unchanged.
+- [ ] Specify a separate offline demand-to-operation control set with requested
+  change, input/output shape, runtime, acceptance anchors and honest unknowns.
+  Include concrete educational demand and semantic-layer counterexamples; do not
+  blanket-filter learning tasks, equate title overlap with usefulness, require all
+  context fields to be known, or weaken final qualification. Freeze references
+  before testing any new policy. Retained controls are development evidence;
+  causal/live utility evaluation needs a separate fresh frozen protocol before
+  additional spending. No production prompt/parser/scoring change is authorized
+  by this retrospective audit alone.
+
+No full-pool ranking improvement can be inferred from selected-only history or
+the later nonrandom root sample. Retained ordering and root demand diagnostics
+remain separate from semantic compatibility and useful-lead measurement.
 First establish a grounded eligible lead before isolation, UI or key-entry work.
 
 ## Acceptance checks
