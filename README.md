@@ -135,6 +135,10 @@ reproduces selection and examines 24 frozen unselected roots offline. Most conta
 visible requests, but query terms often describe another operation or implementation
 context; this supports a bounded offline triage control set, not a ranking or
 compatibility improvement claim. No additional acquisition or AI spending occurred.
+Eleven [demand-to-operation development controls](docs/missing-link-demand-operation-controls-2026-10-09.md)
+now freeze separate root inputs and operator references for requested changes,
+input/output shape, runtime, acceptance constraints and unknowns. No new policy
+prediction or automatic triage is evaluated by this preparation.
 Candidate execution, UI/key-entry work and production promotion remain deferred.
 
 ## Development plan
