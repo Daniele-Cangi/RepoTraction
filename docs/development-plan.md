@@ -1313,6 +1313,11 @@ force an isolated demonstration from a merely partial primitive.
   Offline conformance and scoped Codex review/CI/merge must precede a one-shot
   successor. Preserve production behavior and all earlier cohorts; do not promote
   the experimental triage prompt or run extra cases to manufacture a lead.
+  The [owned evaluator](missing-link-repository-only-evaluator-2026-10-08.md)
+  now implements these boundaries in opt-in scripts with eighteen authored offline
+  tests. Production modules/prompts/configuration and earlier cohorts remain
+  unchanged. Scoped review, CI and merge still precede a separately frozen successor
+  and any payment; source-grounded usefulness assessment remains outstanding.
 
 No full-pool ranking improvement can be inferred from selected-only history;
 the newer retained pools permit ordering replay, not semantic utility measurement.
