@@ -304,6 +304,16 @@ class PinAndHistoryTests(unittest.TestCase):
 
 
 class RuntimeGatesTests(unittest.TestCase):
+    def evidence_fixture(self, out):
+        for name in ("prepared.json", "baseline.json", "started.json", "summary.json", "final-integrity.json",
+                     "terminal-01-01.json", "job-01.json"):
+            save(out, name, {"authored": "original"})
+        store = Store(out / "evaluation.sqlite3", "alice")
+        lease = WorkerLease(store.path)
+        self.assertTrue(lease.acquire())
+        lease.release()
+        return {path.name: sha(path) for path in out.iterdir() if not path.name.startswith("evaluation.sqlite3")}
+
     def test_consumed_cohort_rejects_before_configuration_lookup(self):
         for marker in ("started.json", "summary.json", "evaluation.sqlite3", "job-01.json", "matches-01.json",
                        "request-01-01.json", "terminal-01-01.json", "acquisition-001.json", "foreign-directory"):
@@ -323,9 +333,7 @@ class RuntimeGatesTests(unittest.TestCase):
         for tamper in ("rewrite", "delete-entry", "delete-file", "extra-file", "delete-manifest"):
             with self.subTest(tamper=tamper), tempfile.TemporaryDirectory() as temp:
                 out = Path(temp)
-                save(out, "terminal-01-01.json", {"authored": "original"})
-                save(out, "job-01.json", {"authored": "original"})
-                expected = seal_receipts(out, {path.name: sha(path) for path in out.iterdir()})
+                expected = seal_receipts(out, self.evidence_fixture(out))
                 verify_receipts(out, expected)
                 with self.assertRaises(EvaluationStopped): verify_receipts(out, None)
                 manifest = json.loads((out / "owned-artifacts.json").read_text(encoding="utf-8"))
@@ -347,6 +355,18 @@ class RuntimeGatesTests(unittest.TestCase):
             with self.assertRaises(EvaluationStopped): seal_receipts(out, {})
             (out / "terminal-01-01.json").unlink()
             with self.assertRaises(EvaluationStopped): seal_receipts(out, {"terminal-01-01.json": "authored"})
+
+    def test_private_database_and_lock_are_mandatory_before_and_after_seal(self):
+        for name in ("evaluation.sqlite3", "evaluation.sqlite3.missing-link.lock"):
+            for when in ("before", "after"):
+                with self.subTest(name=name, when=when), tempfile.TemporaryDirectory() as temp:
+                    out = Path(temp)
+                    hashes = self.evidence_fixture(out)
+                    if when == "after": expected = seal_receipts(out, hashes)
+                    (out / name).unlink()
+                    with self.assertRaises(EvaluationStopped):
+                        if when == "before": seal_receipts(out, hashes)
+                        else: verify_receipts(out, expected)
 
     def test_fingerprints_provider_readiness_and_main_ancestry_block_before_payment(self):
         with tempfile.TemporaryDirectory() as temp:

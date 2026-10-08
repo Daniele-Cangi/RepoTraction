@@ -40,6 +40,8 @@ PROTOCOL = ROOT / "docs/missing-link-repository-only-fresh-protocol-2026-10-08.m
 ADAPTERS = ("scripts/missing_link_repository_only_evaluator.py", "scripts/missing_link_repository_only_run.py",
             "scripts/missing_link_triage_receipts.py",
             "scripts/missing_link_triage_transport.py", "tests/test_missing_link_repository_only_evaluator.py")
+REQUIRED_EVIDENCE = {"prepared.json", "baseline.json", "started.json", "summary.json", "final-integrity.json",
+                     "evaluation.sqlite3", "evaluation.sqlite3.missing-link.lock"}
 
 
 def load(path):
@@ -166,8 +168,9 @@ digest in its independent run log/reviewed report and supply it to later verify.
 """
     sealed = dict(owned_hashes)
     for name in ("evaluation.sqlite3", "evaluation.sqlite3.missing-link.lock"):
-        if (out / name).exists():
-            sealed[name] = sha(out / name)
+        require((out / name).is_file(), "Required private evidence database/lock is missing")
+        sealed[name] = sha(out / name)
+    require(REQUIRED_EVIDENCE <= set(sealed), "Required execution evidence is missing")
     require(inventory(out) == set(sealed), "Cannot seal an incomplete or unowned evidence inventory")
     require(all(sha(out / name) == value for name, value in sealed.items()), "Evidence changed before sealing")
     save(out, "owned-artifacts.json", sealed)
@@ -179,6 +182,7 @@ def verify_receipts(out, expected_digest):
     require((out / "owned-artifacts.json").is_file(), "Anchored receipt manifest is missing")
     require(sha(out / "owned-artifacts.json") == expected_digest, "Receipt manifest differs from independent digest")
     sealed = load(out / "owned-artifacts.json")
+    require(REQUIRED_EVIDENCE <= set(sealed), "Required sealed execution evidence is missing")
     require(inventory(out) == set(sealed) | {"owned-artifacts.json"}, "Sealed evidence inventory changed")
     require(all(sha(out / name) == value for name, value in sealed.items()), "Sealed evidence changed")
 
@@ -204,6 +208,7 @@ def run(out):
     lease = WorkerLease(DB)
     binding = None
     active = {}
+    required_mutable = set()
     owned_hashes = {"prepared.json": sha(out / "prepared.json"), "baseline.json": sha(out / "baseline.json")}
     def owned_save(name, value):
         save(out, name, value)
@@ -211,6 +216,7 @@ def run(out):
     def integrity():
         require(inventory(out) <= set(owned_hashes) | {"evaluation.sqlite3", "evaluation.sqlite3.missing-link.lock"},
                 "Unowned execution file appeared")
+        require(all((out / name).is_file() for name in required_mutable), "Claimed private database/lock disappeared")
         require(all(sha(out / name) == value for name, value in owned_hashes.items()), "Owned evidence changed")
         verify_prefix(before, snapshot(before), binding.rows if binding else [], allowance=ALLOWANCE, ceiling=CEILING)
     def retain(kind, attempt, value):
@@ -237,6 +243,7 @@ def run(out):
         evaluation_db = out / "evaluation.sqlite3"
         with evaluation_db.open("xb"):
             pass
+        required_mutable.add(evaluation_db.name)
         original = Store(DB, ACCOUNT)
         binding = ReservationBinding(original, allowance=ALLOWANCE, ceiling=CEILING, verify=integrity,
             persist=lambda number, row: owned_save(f"reservation-{number:02}.json", row))
@@ -264,6 +271,7 @@ def run(out):
             active.clear()
             active.update(slot=slot, source=PinnedSource(read, slot))
         service = Service(evaluation_db, ACCOUNT, lambda endpoint, params=None: active["source"](endpoint, params=params), identity, provider)
+        required_mutable.add(service.lease.path.name)
         service.store.reserve_ai_allowance = binding
         def persist(slot, job):
             # Zero-call acquisition failure still retains the actual allocated job.

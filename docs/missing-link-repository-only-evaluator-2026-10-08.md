@@ -51,7 +51,7 @@ execution it seals the exact inventory, including the private database, and prin
 the manifest digest for independent retention. Post-run audit rejects altered,
 deleted or added evidence, and changed/deleted manifest entries.
 
-Seventeen authored offline tests cover unchanged production payload serialization,
+Eighteen authored offline tests cover unchanged production payload serialization,
 all three interpretation phases across four initial synchronous Service jobs,
 private storage/original-only atomic spending, tighter-cap failure before transport,
 two leases, pin/tree/identity drift, original prefix tampering, retained charges on
@@ -63,7 +63,10 @@ gates are checked before payment; stale directory entries block before credentia
 lookup. Reviewed-main ancestry is explicitly required. The independently anchored
 manifest tests cover receipt-plus-hash replacement, deleted entries/files, extra
 files and incomplete/unowned inventories. These address the two scoped PR88
-review findings before execution.
+initial review findings before execution. Private database/lock files and the core
+execution records are mandatory in the final seal and audit; deleting either
+private storage file before or after sealing fails closed, addressing the second
+review's concrete retention finding.
 These are mechanical checks with mocked acquisition/transport, not evidence of
 model compliance or useful external leads. No model call or reservation occurs
 while implementing or testing this evaluator.
