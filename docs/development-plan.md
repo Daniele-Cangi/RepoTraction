@@ -1339,7 +1339,7 @@ force an isolated demonstration from a merely partial primitive.
   operation-level and one remains unclear. Root-only operator labels do not
   establish current actionability, source fit, useful alternatives or full-pool
   relevance. The original ledger and sealed paid run remain unchanged.
-- [ ] Specify a separate offline demand-to-operation control set with requested
+- [x] Specify a separate offline demand-to-operation control set with requested
   change, input/output shape, runtime, acceptance anchors and honest unknowns.
   Include concrete educational demand and semantic-layer counterexamples; do not
   blanket-filter learning tasks, equate title overlap with usefulness, require all
@@ -1348,6 +1348,20 @@ force an isolated demonstration from a merely partial primitive.
   causal/live utility evaluation needs a separate fresh frozen protocol before
   additional spending. No production prompt/parser/scoring change is authorized
   by this retrospective audit alone.
+  The [eleven retained development controls](missing-link-demand-operation-controls-2026-10-09.md)
+  now fix five fields, six additional constraints and 74 original-root anchors,
+  with eleven explicit unknown field values. Inputs and operator references are
+  separate and independently hashed before any new policy prediction. Nine roots
+  ask for implementation, one for an owner decision and one remains unclear.
+  These are retrospective controls, not a held-out benchmark; no classifier,
+  source fit, automatic rejection, new acquisition or AI spending is evaluated.
+- [ ] Define and implement a separate experimental demand-description/query-hint
+  policy using the frozen input sections and honest evidence/unknowns. Keep its
+  outputs apart from operator references; assess unsupported claims, local
+  constraints, semantic-layer confusions and useful stated facts separately from
+  mechanical validity and abstention. Freeze its bounded evaluation protocol
+  before predictions. Do not promote it into production or charge a provider
+  under the control preparation alone; useful-lead qualification remains separate.
 
 No full-pool ranking improvement can be inferred from selected-only history or
 the later nonrandom root sample. Retained ordering and root demand diagnostics

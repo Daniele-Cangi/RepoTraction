@@ -1,0 +1,1449 @@
+{
+  "format_version": 1,
+  "control_set": "demand-operation-retained-development-2026-10-09",
+  "base_main": "2c6e5e7dce3645846f148eb7773148ac6d406c46",
+  "purpose": "Frozen retrospective development references before any new policy predictions; not a held-out benchmark.",
+  "selection_rule": "Explicit development controls from root audit cases 1,3,6,7,10,11,14,18,20,21,24. Chosen after known operator reading, not randomly or by new predictions.",
+  "original_owned_manifest_sha256": "da952e024c0356cf81ac39dfb301620aef9c2a6d80a91782eba413d64ce35df7",
+  "root_selection_sha256": "4b25c0f2b6bd4661874c459c8754c14456cf48d6fcc2524de87d72a95f2895b2",
+  "root_reading_sha256": "3d498269857cc3797abed119a4e30ffb9b1a02f3a9af1ae4bdf159002a962dd7",
+  "anchor_convention": "Zero-based original-root Unicode character offsets; SHA256 of exact UTF-8 span, not a normalized quote. Span/hash validity never proves interpretation.",
+  "changes_selection": false,
+  "changes_qualification": false,
+  "predictions_observed": false,
+  "cases": [
+    {
+      "id": "educational_project_request",
+      "audit_case": 1,
+      "purpose": "Preserve concrete implementation demand inside a learning task.",
+      "input_identity": {
+        "issue_url": "https://github.com/Prem-Tomar/data-reliability-platform/issues/15",
+        "body_sha256": "20fe1ab064bc8d42e313f9c035696fdd35fc0d07f3ef096bb2d2e9dd3f60fc66",
+        "acquisition_file": "acquisition-028.json",
+        "acquisition_sha256": "1bcc7a7d8c6530913721aafc1ae2a11732457259db522b94e757a6d8e629548a",
+        "query": "python nested object assignment is:open in:title,body -repo:mahmoud/glom",
+        "read_char_ranges": [
+          [
+            0,
+            2544
+          ]
+        ]
+      },
+      "reference": {
+        "demand_mode": "implementation_requested",
+        "query_relation": "context_only",
+        "query_relation_reason": "Course task explicitly requests a project normalization change and mutation/copy checks. It is not answered reference material; nested assignment vocabulary is context, not a reusable nested-path assignment requirement.",
+        "fields": {
+          "requested_change": {
+            "state": "stated_in_root",
+            "value": "Implement normalization with an explicit mutation/copy policy.",
+            "anchor_ids": [
+              "a1"
+            ],
+            "execution_or_semantics_verified": false
+          },
+          "input_shape": {
+            "state": "stated_in_root",
+            "value": "Synthetic record with nested mutable metadata.",
+            "anchor_ids": [
+              "a2",
+              "a3"
+            ],
+            "execution_or_semantics_verified": false
+          },
+          "output_shape": {
+            "state": "stated_in_root",
+            "value": "Original input is preserved by the chosen normalization path.",
+            "anchor_ids": [
+              "a4"
+            ],
+            "execution_or_semantics_verified": false
+          },
+          "runtime": {
+            "state": "unknown",
+            "value": null,
+            "anchor_ids": [],
+            "reason": "Course context mentions Python, but deployment/adoption runtime is not specified.",
+            "execution_or_semantics_verified": false
+          },
+          "acceptance": {
+            "state": "stated_in_root",
+            "value": "Explain identity versus equality and demonstrate shallow nested-copy effects.",
+            "anchor_ids": [
+              "a5"
+            ],
+            "execution_or_semantics_verified": false
+          }
+        },
+        "constraints": [],
+        "context_gaps": [
+          "Full discussion and referenced requirements were not acquired for these controls.",
+          "Current actionability, source compatibility, novelty and adoption are unassessed."
+        ],
+        "compatibility": "unassessed",
+        "eligibility": "unassessed",
+        "demand_complete": false,
+        "query_relation_semantics": "operator_reference_not_automatically_inferred"
+      },
+      "anchors": [
+        {
+          "id": "a1",
+          "source": "root",
+          "start": 765,
+          "end": 836,
+          "span_sha256": "9d10a33c0801f37e113674757569b47404ba46b88c319c5ec951212009ad148f"
+        },
+        {
+          "id": "a2",
+          "source": "root",
+          "start": 910,
+          "end": 927,
+          "span_sha256": "c808253375f5368640c4263c2f97b9e982c13660adb2f5aee8408cd8da1a6cf4"
+        },
+        {
+          "id": "a3",
+          "source": "root",
+          "start": 549,
+          "end": 565,
+          "span_sha256": "340a5d5a1789ebde9218f831619ead26261dba6cb7f91afee420e3c43b743ded"
+        },
+        {
+          "id": "a4",
+          "source": "root",
+          "start": 1111,
+          "end": 1182,
+          "span_sha256": "3987c208676348698f3e27c84d0c4a1c6a5478c8eec77cf841d5759fdf6cbe57"
+        },
+        {
+          "id": "a5",
+          "source": "root",
+          "start": 1189,
+          "end": 1259,
+          "span_sha256": "9127db3a3f37fbc4a9fee16303da710d4b40b6674676e01c04fd36bf30d89873"
+        }
+      ]
+    },
+    {
+      "id": "async_generator_not_generic_flatten",
+      "audit_case": 3,
+      "purpose": "Distinguish nested iterable vocabulary from generator send/yield and host-driver behavior.",
+      "input_identity": {
+        "issue_url": "https://github.com/smart-social-contracts/realms-gos/issues/352",
+        "body_sha256": "13b8eda387163278f268052fa11ec965ad6aa3016e0252757e7b59800bcf35c9",
+        "acquisition_file": "acquisition-030.json",
+        "acquisition_sha256": "9a89e1bf024d3b7276d9b87a2664004e95d832a5978a7ce23faef620e61a50d8",
+        "query": "python nested iterable flattening is:open in:title,body -repo:mahmoud/glom",
+        "read_char_ranges": [
+          [
+            0,
+            8599
+          ]
+        ]
+      },
+      "reference": {
+        "demand_mode": "implementation_requested",
+        "query_relation": "context_only",
+        "query_relation_reason": "Explicit nested-generator host-driving fix needs yield/send resumption and honest inter-canister failure. Flattening is present but its async driver semantics are not generic nested-iterable flattening.",
+        "fields": {
+          "requested_change": {
+            "state": "stated_in_root",
+            "value": "Repair nested generator handling; honest inter-canister failure is the minimum, async resumption is preferred.",
+            "anchor_ids": [
+              "a1",
+              "a2"
+            ],
+            "execution_or_semantics_verified": false
+          },
+          "input_shape": {
+            "state": "stated_in_root",
+            "value": "Nested wallet generator yielding an inter-canister call tuple.",
+            "anchor_ids": [
+              "a3",
+              "a4"
+            ],
+            "execution_or_semantics_verified": false
+          },
+          "output_shape": {
+            "state": "stated_in_root",
+            "value": "Token transfer/proposal parity with UI, or the specified clear runtime failure.",
+            "anchor_ids": [
+              "a5",
+              "a6"
+            ],
+            "execution_or_semantics_verified": false
+          },
+          "runtime": {
+            "state": "stated_in_root",
+            "value": "Reported host Python stack interacting with IC calls and the C sandbox RPC.",
+            "anchor_ids": [
+              "a7"
+            ],
+            "execution_or_semantics_verified": false
+          },
+          "acceptance": {
+            "state": "stated_in_root",
+            "value": "Preserve permission-denial behavior and cover the nested-generator case.",
+            "anchor_ids": [
+              "a8",
+              "a9"
+            ],
+            "execution_or_semantics_verified": false
+          }
+        },
+        "constraints": [
+          {
+            "state": "stated_in_root",
+            "value": "Do not send None into the extension while driving the nested generator.",
+            "anchor_ids": [
+              "a10"
+            ],
+            "execution_or_semantics_verified": false,
+            "id": "not_send_none"
+          }
+        ],
+        "context_gaps": [
+          "Full discussion and referenced requirements were not acquired for these controls.",
+          "Current actionability, source compatibility, novelty and adoption are unassessed."
+        ],
+        "compatibility": "unassessed",
+        "eligibility": "unassessed",
+        "demand_complete": false,
+        "query_relation_semantics": "operator_reference_not_automatically_inferred"
+      },
+      "anchors": [
+        {
+          "id": "a1",
+          "source": "root",
+          "start": 4884,
+          "end": 4927,
+          "span_sha256": "b800ea881bd22e4e378595996146cbfe3b1d8989f08c806f0e8dad7850a704fa"
+        },
+        {
+          "id": "a2",
+          "source": "root",
+          "start": 5368,
+          "end": 5442,
+          "span_sha256": "3b33461233d2e121e446efa1f2b5aa0a66502fedc0fd484df3833fb91a395fff"
+        },
+        {
+          "id": "a3",
+          "source": "root",
+          "start": 3985,
+          "end": 4045,
+          "span_sha256": "92889be530c2150258d8aca6cc2699ac2541dcb2c043b6cf20d3d9c797f88654"
+        },
+        {
+          "id": "a4",
+          "source": "root",
+          "start": 3683,
+          "end": 3702,
+          "span_sha256": "37812f3ab12e020a9432a3cc19464d86a9b9efea2056a4d2fabfd9aeafd06a46"
+        },
+        {
+          "id": "a5",
+          "source": "root",
+          "start": 8203,
+          "end": 8226,
+          "span_sha256": "678551a86875a723269157a0123dae5371cb8425b32ccc71f6ad3f6d7de297b6"
+        },
+        {
+          "id": "a6",
+          "source": "root",
+          "start": 8311,
+          "end": 8382,
+          "span_sha256": "1d2dc7491de9f46bde6ee8886090cf556f382a948ca973f0de641de158293fc7"
+        },
+        {
+          "id": "a7",
+          "source": "root",
+          "start": 5859,
+          "end": 5938,
+          "span_sha256": "516eb34bf52446199d76b012bbdebe3f42ce1ff59c3390f93c6e396218ad4fff"
+        },
+        {
+          "id": "a8",
+          "source": "root",
+          "start": 8385,
+          "end": 8439,
+          "span_sha256": "c62ff24e5b485e3ae3c8b961651c0d3cf3ebec555cec369fe1086aa54ab13aa2"
+        },
+        {
+          "id": "a9",
+          "source": "root",
+          "start": 8509,
+          "end": 8552,
+          "span_sha256": "0ab3536bfbafb9f13df1ad7deac63437f69d755998a91e5b9dcc4d5307a781f3"
+        },
+        {
+          "id": "a10",
+          "source": "root",
+          "start": 5215,
+          "end": 5258,
+          "span_sha256": "671d30f327e0e1ea236f45b500aaf7041dee5858b6473cebf0d73bfa81552ee2"
+        }
+      ]
+    },
+    {
+      "id": "broad_visual_mapping_epic",
+      "audit_case": 6,
+      "purpose": "Keep broad demand without inventing a small CLI implementation seam.",
+      "input_identity": {
+        "issue_url": "https://github.com/apiome/apiome/issues/938",
+        "body_sha256": "42e31442ea254054111a50e4e7eea074b71f7fde7e6c315e987b1dfd816e5c2d",
+        "acquisition_file": "acquisition-031.json",
+        "acquisition_sha256": "f390dbc683d3e61b26c1fecd6e416bf90081e49a00eef5c83c2b2427ae68eee3",
+        "query": "python command line data transformation is:open in:title,body -repo:mahmoud/glom",
+        "read_char_ranges": [
+          [
+            0,
+            3578
+          ]
+        ]
+      },
+      "reference": {
+        "demand_mode": "implementation_requested",
+        "query_relation": "context_only",
+        "query_relation_reason": "Explicit schema/mapping/preview epic. Visual workflow, structured rules and validation are specified; a command-line transformation interface is not requested in the root.",
+        "fields": {
+          "requested_change": {
+            "state": "stated_in_root",
+            "value": "Provide schema discovery, visual mapping rules, templates and validation preview.",
+            "anchor_ids": [
+              "a1"
+            ],
+            "execution_or_semantics_verified": false
+          },
+          "input_shape": {
+            "state": "stated_in_root",
+            "value": "External data shapes and sample records, with exact child schemas unresolved.",
+            "anchor_ids": [
+              "a2",
+              "a3"
+            ],
+            "execution_or_semantics_verified": false
+          },
+          "output_shape": {
+            "state": "stated_in_root",
+            "value": "Saved structured mappings and categorized preview errors.",
+            "anchor_ids": [
+              "a4",
+              "a5"
+            ],
+            "execution_or_semantics_verified": false
+          },
+          "runtime": {
+            "state": "unknown",
+            "value": null,
+            "anchor_ids": [],
+            "reason": "Root lists multiple stacks/backend directions; one settled transform execution/adoption runtime is not established.",
+            "execution_or_semantics_verified": false
+          },
+          "acceptance": {
+            "state": "stated_in_root",
+            "value": "Preview sample records with JSON Schema validation before enabling synchronization.",
+            "anchor_ids": [
+              "a6"
+            ],
+            "execution_or_semantics_verified": false
+          }
+        },
+        "constraints": [],
+        "context_gaps": [
+          "Full discussion and referenced requirements were not acquired for these controls.",
+          "Current actionability, source compatibility, novelty and adoption are unassessed.",
+          "Referenced child issues and their detailed requirements are absent; listed stack alternatives are not resolved."
+        ],
+        "compatibility": "unassessed",
+        "eligibility": "unassessed",
+        "demand_complete": false,
+        "query_relation_semantics": "operator_reference_not_automatically_inferred"
+      },
+      "anchors": [
+        {
+          "id": "a1",
+          "source": "root",
+          "start": 208,
+          "end": 339,
+          "span_sha256": "1518ecafea5f2e4930c45dcc2ac03cb33c7133a764cf10ba9f587b6d6f65dd03"
+        },
+        {
+          "id": "a2",
+          "source": "root",
+          "start": 109,
+          "end": 149,
+          "span_sha256": "3ec0bb91d4fa12574ecc42cdacba86830533b04f4c7ea2bfb1c8ddb252a6dc9e"
+        },
+        {
+          "id": "a3",
+          "source": "root",
+          "start": 1215,
+          "end": 1257,
+          "span_sha256": "fa746c737a660e4794b1cbb1cf260cd2eb0bcc2697f5c1acc1c1333b9919f33e"
+        },
+        {
+          "id": "a4",
+          "source": "root",
+          "start": 1033,
+          "end": 1058,
+          "span_sha256": "9fa84e562a1439d1bea94262de048cce5f2c233be38c0636f6a90d7ed4701e2f"
+        },
+        {
+          "id": "a5",
+          "source": "root",
+          "start": 1262,
+          "end": 1302,
+          "span_sha256": "ab2fd38a551ef21bf624dafbdbc9a44da1189816992d451926ede6db167c82e8"
+        },
+        {
+          "id": "a6",
+          "source": "root",
+          "start": 1179,
+          "end": 1302,
+          "span_sha256": "8314aa5a9aec634425e5c5f195719fd6bc72860dc9e7237f6de8293633cc9546"
+        }
+      ]
+    },
+    {
+      "id": "url_components_without_adoption",
+      "audit_case": 7,
+      "purpose": "An operation-level hit still leaves usefulness and adoption unknown.",
+      "input_identity": {
+        "issue_url": "https://github.com/5h4d0wn1k/viperstrike/issues/10",
+        "body_sha256": "04d445323cda133776e40f22402bb63a9aed124cbdc28e73b470d659d6a5cd27",
+        "acquisition_file": "acquisition-069.json",
+        "acquisition_sha256": "67f86242069f8320f32bfb4da33871d1b484cef621408cd80d70b4d0a140bdc6",
+        "query": "python url component splitting is:open in:title,body -repo:gruns/furl",
+        "read_char_ranges": [
+          [
+            0,
+            2090
+          ]
+        ]
+      },
+      "reference": {
+        "demand_mode": "implementation_requested",
+        "query_relation": "requested_operation",
+        "query_relation_reason": "URL component extraction is directly requested for gate-accepted scheme-less input. Root specifically suggests reusing the validated parser; whether an external package helps is unknown.",
+        "fields": {
+          "requested_change": {
+            "state": "stated_in_root",
+            "value": "Reuse validated URL components instead of naive splitting in the oracle path.",
+            "anchor_ids": [
+              "a1"
+            ],
+            "execution_or_semantics_verified": false
+          },
+          "input_shape": {
+            "state": "stated_in_root",
+            "value": "Gate-accepted scheme-less host:port input.",
+            "anchor_ids": [
+              "a2"
+            ],
+            "execution_or_semantics_verified": false
+          },
+          "output_shape": {
+            "state": "stated_in_root",
+            "value": "Parsed host and port consumed without the reported indexing crash.",
+            "anchor_ids": [
+              "a3",
+              "a4"
+            ],
+            "execution_or_semantics_verified": false
+          },
+          "runtime": {
+            "state": "stated_in_root",
+            "value": "Reported Python command-line oracle path.",
+            "anchor_ids": [
+              "a5"
+            ],
+            "execution_or_semantics_verified": false
+          },
+          "acceptance": {
+            "state": "stated_in_root",
+            "value": "Add an end-to-end regression for the gate-accepted bare loopback input.",
+            "anchor_ids": [
+              "a6"
+            ],
+            "execution_or_semantics_verified": false
+          }
+        },
+        "constraints": [
+          {
+            "state": "stated_in_root",
+            "value": "Root asks to reuse an existing validated parser; no external-package adoption request is inferred.",
+            "anchor_ids": [
+              "a7"
+            ],
+            "execution_or_semantics_verified": false,
+            "id": "reuse_validated_parser"
+          }
+        ],
+        "context_gaps": [
+          "Full discussion and referenced requirements were not acquired for these controls.",
+          "Current actionability, source compatibility, novelty and adoption are unassessed."
+        ],
+        "compatibility": "unassessed",
+        "eligibility": "unassessed",
+        "demand_complete": false,
+        "query_relation_semantics": "operator_reference_not_automatically_inferred"
+      },
+      "anchors": [
+        {
+          "id": "a1",
+          "source": "root",
+          "start": 1822,
+          "end": 1939,
+          "span_sha256": "d11db3e115aaee1bfdd542768a82254a7584732eac79dc40e922987a587d9d47"
+        },
+        {
+          "id": "a2",
+          "source": "root",
+          "start": 924,
+          "end": 976,
+          "span_sha256": "ea6a109d491cd7272f0c3f6f19749a5fd05d36c2e056e119c4218f4025ddba65"
+        },
+        {
+          "id": "a3",
+          "source": "root",
+          "start": 1851,
+          "end": 1881,
+          "span_sha256": "6a57f169096ce329f8542f215e3e3198804e4a24877c058375170512b47a379c"
+        },
+        {
+          "id": "a4",
+          "source": "root",
+          "start": 1916,
+          "end": 1939,
+          "span_sha256": "73819256457e2100bc774721c20d35cc2d86b956522a198e77ccde3848c010c5"
+        },
+        {
+          "id": "a5",
+          "source": "root",
+          "start": 571,
+          "end": 599,
+          "span_sha256": "3e2f87f68b537d8ce593e35f339c1e3504cce822b158c24742266e427001e539"
+        },
+        {
+          "id": "a6",
+          "source": "root",
+          "start": 1941,
+          "end": 2025,
+          "span_sha256": "5354386c47961cb7dce86f0dd5d0de8018d62407d72ba1bf0f4cd766fed630dc"
+        },
+        {
+          "id": "a7",
+          "source": "root",
+          "start": 1321,
+          "end": 1401,
+          "span_sha256": "ee74318582e0971c63021d3d5bac10e6b9c465263d94ada655a89b8effe5e1f4"
+        }
+      ]
+    },
+    {
+      "id": "partial_reference_root_unknown",
+      "audit_case": 10,
+      "purpose": "Unread article middle cannot support a non-demand verdict.",
+      "input_identity": {
+        "issue_url": "https://github.com/guevara/read-it-later/issues/6090",
+        "body_sha256": "91d8929da42eeae64b06859f04fbcf7dfc8c3624bf5ecb76077277f94d755514",
+        "acquisition_file": "acquisition-071.json",
+        "acquisition_sha256": "c7848a6a91c4e338efa1ee74940d278c00df95dc453c8bb8afe59a0728502560",
+        "query": "ordered multivalue mapping append is:open in:title,body -repo:gruns/furl",
+        "read_char_ranges": [
+          [
+            0,
+            10000
+          ],
+          [
+            43566,
+            45566
+          ]
+        ]
+      },
+      "reference": {
+        "demand_mode": "unknown",
+        "query_relation": "unclear",
+        "query_relation_reason": "Read windows contain a republished memory-model article with attribution and no separately visible project request. The unread middle prevents a reference-only absence claim; demand remains insufficient_root.",
+        "fields": {
+          "requested_change": {
+            "state": "unknown",
+            "value": null,
+            "anchor_ids": [],
+            "reason": "Only attributed article windows were inspected; no independent request is established, and the middle is unread.",
+            "execution_or_semantics_verified": false
+          },
+          "input_shape": {
+            "state": "unknown",
+            "value": null,
+            "anchor_ids": [],
+            "reason": "Only attributed article windows were inspected; no independent request is established, and the middle is unread.",
+            "execution_or_semantics_verified": false
+          },
+          "output_shape": {
+            "state": "unknown",
+            "value": null,
+            "anchor_ids": [],
+            "reason": "Only attributed article windows were inspected; no independent request is established, and the middle is unread.",
+            "execution_or_semantics_verified": false
+          },
+          "runtime": {
+            "state": "unknown",
+            "value": null,
+            "anchor_ids": [],
+            "reason": "Only attributed article windows were inspected; no independent request is established, and the middle is unread.",
+            "execution_or_semantics_verified": false
+          },
+          "acceptance": {
+            "state": "unknown",
+            "value": null,
+            "anchor_ids": [],
+            "reason": "Only attributed article windows were inspected; no independent request is established, and the middle is unread.",
+            "execution_or_semantics_verified": false
+          }
+        },
+        "constraints": [],
+        "context_gaps": [
+          "Full discussion and referenced requirements were not acquired for these controls.",
+          "Current actionability, source compatibility, novelty and adoption are unassessed.",
+          "Original root characters 10000:43566 were not read; do not infer absence or a mandatory repair."
+        ],
+        "compatibility": "unassessed",
+        "eligibility": "unassessed",
+        "demand_complete": false,
+        "query_relation_semantics": "operator_reference_not_automatically_inferred"
+      },
+      "anchors": []
+    },
+    {
+      "id": "url_join_path_constraint",
+      "audit_case": 11,
+      "purpose": "Operation overlap must preserve the requested path behavior without assuming source/delegate support.",
+      "input_identity": {
+        "issue_url": "https://github.com/firecrawl/firecrawl/issues/4339",
+        "body_sha256": "b864d2b8ea197b5ef61b2844baad94f82cb75e2cff37d22bffc4b7eb5e08dc2e",
+        "acquisition_file": "acquisition-072.json",
+        "acquisition_sha256": "2f3fc750458c273f8ff07e7bb9731e565c5e7defaa5a49ad2d49cdc0adb1f48d",
+        "query": "python relative url joining is:open in:title,body -repo:gruns/furl",
+        "read_char_ranges": [
+          [
+            0,
+            2408
+          ]
+        ]
+      },
+      "reference": {
+        "demand_mode": "implementation_requested",
+        "query_relation": "requested_operation",
+        "query_relation_reason": "Direct URL joining behavior request with a path-prefix example. It overlaps the known selected base_url problem; root-only overlap proves neither source compatibility nor a superior alternative.",
+        "fields": {
+          "requested_change": {
+            "state": "stated_in_root",
+            "value": "Preserve configured base-path prefixes when joining relative endpoints.",
+            "anchor_ids": [
+              "a1"
+            ],
+            "execution_or_semantics_verified": false
+          },
+          "input_shape": {
+            "state": "stated_in_root",
+            "value": "Base URL contains /firecrawl and endpoint starts with /v2/.",
+            "anchor_ids": [
+              "a2",
+              "a3"
+            ],
+            "execution_or_semantics_verified": false
+          },
+          "output_shape": {
+            "state": "stated_in_root",
+            "value": "Joined request path retains /firecrawl/v2/search.",
+            "anchor_ids": [
+              "a4"
+            ],
+            "execution_or_semantics_verified": false
+          },
+          "runtime": {
+            "state": "stated_in_root",
+            "value": "Reported Python SDK behind a path-prefixed reverse proxy.",
+            "anchor_ids": [
+              "a5",
+              "a6"
+            ],
+            "execution_or_semantics_verified": false
+          },
+          "acceptance": {
+            "state": "stated_in_root",
+            "value": "Fix the V2 SDK URL construction for the prefixed deployment.",
+            "anchor_ids": [
+              "a7"
+            ],
+            "execution_or_semantics_verified": false
+          }
+        },
+        "constraints": [
+          {
+            "state": "stated_in_root",
+            "value": "A leading-slash endpoint must not discard the configured base path.",
+            "anchor_ids": [
+              "a8"
+            ],
+            "execution_or_semantics_verified": false,
+            "id": "preserve_prefix"
+          }
+        ],
+        "context_gaps": [
+          "Full discussion and referenced requirements were not acquired for these controls.",
+          "Current actionability, source compatibility, novelty and adoption are unassessed."
+        ],
+        "compatibility": "unassessed",
+        "eligibility": "unassessed",
+        "demand_complete": false,
+        "query_relation_semantics": "operator_reference_not_automatically_inferred"
+      },
+      "anchors": [
+        {
+          "id": "a1",
+          "source": "root",
+          "start": 1696,
+          "end": 1776,
+          "span_sha256": "811d2eb538ad0c347f80b1a4fa300eb42bcd2f8b3618e1ecbb7a231ac4b31f76"
+        },
+        {
+          "id": "a2",
+          "source": "root",
+          "start": 340,
+          "end": 390,
+          "span_sha256": "34afedbf2750506c3d05fd41deee81d8c893f00173f580698f6e548538246d68"
+        },
+        {
+          "id": "a3",
+          "source": "root",
+          "start": 1197,
+          "end": 1216,
+          "span_sha256": "0cbd5f34fb07c56da10306fa7c1357ba1ec8fa28eb2ffdbcbe0eda207777c87e"
+        },
+        {
+          "id": "a4",
+          "source": "root",
+          "start": 882,
+          "end": 947,
+          "span_sha256": "a802787c5afc2c9c6f93a99af76b186f539f2f5fc3a256391d940c3109aaf597"
+        },
+        {
+          "id": "a5",
+          "source": "root",
+          "start": 2109,
+          "end": 2131,
+          "span_sha256": "02599a8431be1e27d56f6e420d4e52658147aa5a9de12ea92068829a69b0526a"
+        },
+        {
+          "id": "a6",
+          "source": "root",
+          "start": 2132,
+          "end": 2204,
+          "span_sha256": "406dcd8bd53e7e1c062054d9d70781a14a9706117b2fab24e70a2f8a4b33fe51"
+        },
+        {
+          "id": "a7",
+          "source": "root",
+          "start": 2372,
+          "end": 2408,
+          "span_sha256": "8cd6768d493e1b235fe1be9a4a2a81002fb5cd3f13405b92f5bd1831804e74b7"
+        },
+        {
+          "id": "a8",
+          "source": "root",
+          "start": 1716,
+          "end": 1744,
+          "span_sha256": "cc8076d88387f53920ee8ea8d2643cedfd9e37e4cf9536534e113ccb59f6c1bb"
+        }
+      ]
+    },
+    {
+      "id": "tensor_cache_not_http_cache",
+      "audit_case": 14,
+      "purpose": "HTTP status and cache vocabulary are context for replica tensor coherence.",
+      "input_identity": {
+        "issue_url": "https://github.com/vllm-project/vllm-omni/issues/7295",
+        "body_sha256": "f9fa1af93cb1f3b4a56b8a8efa609e2bc4dbe0ed7aaa422d4bea89029bf3d1b9",
+        "acquisition_file": "acquisition-124.json",
+        "acquisition_sha256": "11ca9f6b7ec9024626dc50401303fd3c59dca4868eec693bbe38b3160de1d9be",
+        "query": "python requests http response caching is:open in:title,body -repo:psf/cachecontrol",
+        "read_char_ranges": [
+          [
+            0,
+            4018
+          ]
+        ]
+      },
+      "reference": {
+        "demand_mode": "implementation_requested",
+        "query_relation": "context_only",
+        "query_relation_reason": "Audio tensor sender/receiver cache coherence across replicas is the requested repair. HTTP 200/error is transport context, not HTTP response caching.",
+        "fields": {
+          "requested_change": {
+            "state": "stated_in_root",
+            "value": "Avoid repeated audio failures when another stage-0 replica lacks receiver-cache tensors.",
+            "anchor_ids": [
+              "a1"
+            ],
+            "execution_or_semantics_verified": false
+          },
+          "input_shape": {
+            "state": "stated_in_root",
+            "value": "Repeated valid audio bytes, shared frontend and two stage-0 replicas.",
+            "anchor_ids": [
+              "a2",
+              "a3"
+            ],
+            "execution_or_semantics_verified": false
+          },
+          "output_shape": {
+            "state": "stated_in_root",
+            "value": "Nonempty completion regardless of replica or prior receiver cache contents.",
+            "anchor_ids": [
+              "a4"
+            ],
+            "execution_or_semantics_verified": false
+          },
+          "runtime": {
+            "state": "stated_in_root",
+            "value": "Reported Python 3.12 multimodal GPU inference with separate replica receiver caches.",
+            "anchor_ids": [
+              "a5",
+              "a6"
+            ],
+            "execution_or_semantics_verified": false
+          },
+          "acceptance": {
+            "state": "stated_in_root",
+            "value": "Repeated valid clips must succeed across replica selection.",
+            "anchor_ids": [
+              "a7"
+            ],
+            "execution_or_semantics_verified": false
+          }
+        },
+        "constraints": [
+          {
+            "state": "stated_in_root",
+            "value": "HTTP 200 with error finish reason and empty content remains the reported failure.",
+            "anchor_ids": [
+              "a8"
+            ],
+            "execution_or_semantics_verified": false,
+            "id": "http_200_not_success"
+          }
+        ],
+        "context_gaps": [
+          "Full discussion and referenced requirements were not acquired for these controls.",
+          "Current actionability, source compatibility, novelty and adoption are unassessed.",
+          "Root reports a prepared fix and passing probes; its merge/adoption/current work status is not established."
+        ],
+        "compatibility": "unassessed",
+        "eligibility": "unassessed",
+        "demand_complete": false,
+        "query_relation_semantics": "operator_reference_not_automatically_inferred"
+      },
+      "anchors": [
+        {
+          "id": "a1",
+          "source": "root",
+          "start": 727,
+          "end": 812,
+          "span_sha256": "5048af663c6af7a7e42cc60de0d6b6acf20358370a14129a8ce410562ec955e9"
+        },
+        {
+          "id": "a2",
+          "source": "root",
+          "start": 560,
+          "end": 606,
+          "span_sha256": "ad9437ba13bd2392137f14f050b0e2da2626b2aff98455e040153ecd7032d97e"
+        },
+        {
+          "id": "a3",
+          "source": "root",
+          "start": 727,
+          "end": 751,
+          "span_sha256": "331de5e1e6d5265a77e5244aa1c82335eecbea7c607abb26cfb7f2db4cd24e31"
+        },
+        {
+          "id": "a4",
+          "source": "root",
+          "start": 824,
+          "end": 975,
+          "span_sha256": "0ce6e3634e861f44efe7d1257492306919c8351184cb443b451aa1ecd4b05cf8"
+        },
+        {
+          "id": "a5",
+          "source": "root",
+          "start": 160,
+          "end": 173,
+          "span_sha256": "e5fd3bbb409ed90f5c0eff60e18809a2c3227872681b530a19d987c618281b65"
+        },
+        {
+          "id": "a6",
+          "source": "root",
+          "start": 3392,
+          "end": 3439,
+          "span_sha256": "55e6d7b75c4f13b5693c0706950383f0b4715b689767c50c1e4f24731478b943"
+        },
+        {
+          "id": "a7",
+          "source": "root",
+          "start": 814,
+          "end": 882,
+          "span_sha256": "ad1b719e600babe8fcfbe2d03f01047d2e0b2f94f9f6c9c9dee4159b55626263"
+        },
+        {
+          "id": "a8",
+          "source": "root",
+          "start": 643,
+          "end": 699,
+          "span_sha256": "42c0fc4ef2029aeb655cd0892469d2b28f78aa08855715d963871693526062be"
+        }
+      ]
+    },
+    {
+      "id": "http_codec_broader_contract",
+      "audit_case": 18,
+      "purpose": "Keep an operation-level MessagePack hit and its wider generation/negotiation constraints.",
+      "input_identity": {
+        "issue_url": "https://github.com/ORESoftware/api-docs/issues/276",
+        "body_sha256": "383dcdab9a8f455d6895913dd90e50b08296f32d2943dd0d78075350d1f435c2",
+        "acquisition_file": "acquisition-128.json",
+        "acquisition_sha256": "f13d2d12025a4c88c90e7d9e66ba52bb0bf2158b15e1d105cdf727943189198e",
+        "query": "msgpack http response serialization is:open in:title,body -repo:psf/cachecontrol",
+        "read_char_ranges": [
+          [
+            0,
+            2761
+          ]
+        ]
+      },
+      "reference": {
+        "demand_mode": "implementation_requested",
+        "query_relation": "requested_operation",
+        "query_relation_reason": "HTTP MessagePack response encoding is explicitly part of a wider generated-codec/negotiation contract. This is operation-level query relevance, not reuse/fit of a cache-internal serializer.",
+        "fields": {
+          "requested_change": {
+            "state": "stated_in_root",
+            "value": "Expose existing structured codec selection end-to-end in generated SDKs and servers.",
+            "anchor_ids": [
+              "a1"
+            ],
+            "execution_or_semantics_verified": false
+          },
+          "input_shape": {
+            "state": "stated_in_root",
+            "value": "Structured typed operations with declared codec subset; raw byte bodies are separate.",
+            "anchor_ids": [
+              "a2",
+              "a3"
+            ],
+            "execution_or_semantics_verified": false
+          },
+          "output_shape": {
+            "state": "stated_in_root",
+            "value": "Negotiated HTTP response encoding and preserved binary values/chunks.",
+            "anchor_ids": [
+              "a4",
+              "a5",
+              "a6"
+            ],
+            "execution_or_semantics_verified": false
+          },
+          "runtime": {
+            "state": "stated_in_root",
+            "value": "Generated Rust, TypeScript, Dart and WASM surfaces.",
+            "anchor_ids": [
+              "a7"
+            ],
+            "execution_or_semantics_verified": false
+          },
+          "acceptance": {
+            "state": "stated_in_root",
+            "value": "Shared round-trip, invalid-input, media-negotiation and streaming fixtures.",
+            "anchor_ids": [
+              "a8",
+              "a9",
+              "a10"
+            ],
+            "execution_or_semantics_verified": false
+          }
+        },
+        "constraints": [
+          {
+            "state": "stated_in_root",
+            "value": "Unsupported request media fails 415; unsatisfied response negotiation fails 406, with no sniffing or binary-to-JSON fallback.",
+            "anchor_ids": [
+              "a11",
+              "a12"
+            ],
+            "execution_or_semantics_verified": false,
+            "id": "fail_closed"
+          }
+        ],
+        "context_gaps": [
+          "Full discussion and referenced requirements were not acquired for these controls.",
+          "Current actionability, source compatibility, novelty and adoption are unassessed."
+        ],
+        "compatibility": "unassessed",
+        "eligibility": "unassessed",
+        "demand_complete": false,
+        "query_relation_semantics": "operator_reference_not_automatically_inferred"
+      },
+      "anchors": [
+        {
+          "id": "a1",
+          "source": "root",
+          "start": 9,
+          "end": 103,
+          "span_sha256": "f50b7a30086292a4202375c94c75b32a234f43de2d8f4b4a0e2f0ef327956b68"
+        },
+        {
+          "id": "a2",
+          "source": "root",
+          "start": 416,
+          "end": 489,
+          "span_sha256": "ca1775aceeac3b8218442c00e4cf8e997c083f03e5373c1470ae31d0fad884f0"
+        },
+        {
+          "id": "a3",
+          "source": "root",
+          "start": 593,
+          "end": 648,
+          "span_sha256": "191674e35dfcb2dd487ac7b97a4fba5da9048c34804fcb9f80a5c8d40fda4dfc"
+        },
+        {
+          "id": "a4",
+          "source": "root",
+          "start": 751,
+          "end": 786,
+          "span_sha256": "9f33c2f4592f7ac156d8205d7a76b782268b11e986e64780f0c52a3e820e41aa"
+        },
+        {
+          "id": "a5",
+          "source": "root",
+          "start": 2007,
+          "end": 2043,
+          "span_sha256": "ce85548cada9df34194f007e2e4aeb137ab3792902f3292a0a128aa0e742ae92"
+        },
+        {
+          "id": "a6",
+          "source": "root",
+          "start": 2271,
+          "end": 2312,
+          "span_sha256": "82ea7e90bf1161285736aa0f6d8e9f04ad0c8a43b6f285e7fadd8873d6183943"
+        },
+        {
+          "id": "a7",
+          "source": "root",
+          "start": 1812,
+          "end": 1899,
+          "span_sha256": "115266ba414ec88ebf97407a1c023de902d9da30f1f191d4b4ee0ce929600dca"
+        },
+        {
+          "id": "a8",
+          "source": "root",
+          "start": 1934,
+          "end": 2004,
+          "span_sha256": "1311f53ec9bc20427fe5ba8808ba8d9493a74d349aa6067ac62b4d6273d87706"
+        },
+        {
+          "id": "a9",
+          "source": "root",
+          "start": 2046,
+          "end": 2101,
+          "span_sha256": "9f2d6c15595bb9e3427b3963396d58d7f8f8098847017e4d3ea4190a2300c5df"
+        },
+        {
+          "id": "a10",
+          "source": "root",
+          "start": 2271,
+          "end": 2312,
+          "span_sha256": "82ea7e90bf1161285736aa0f6d8e9f04ad0c8a43b6f285e7fadd8873d6183943"
+        },
+        {
+          "id": "a11",
+          "source": "root",
+          "start": 787,
+          "end": 895,
+          "span_sha256": "88512932fbb62cace7511162350dae67162fde8598fc2b6bde8cb22c7f4bfc3c"
+        },
+        {
+          "id": "a12",
+          "source": "root",
+          "start": 896,
+          "end": 940,
+          "span_sha256": "ed51146345fd5d1a063dd28f1554b2892206627b9dba9894685a957632146331"
+        }
+      ]
+    },
+    {
+      "id": "owner_decision_not_fixed_solution",
+      "audit_case": 20,
+      "purpose": "Design/help demand must not become a chosen implementation or settled acceptance contract.",
+      "input_identity": {
+        "issue_url": "https://github.com/skyphusion-labs/vivijure-backend/issues/478",
+        "body_sha256": "f5ffa175537f6f514176ddad559b8b99d87c58c6dff0f043b93799166acf4de6",
+        "acquisition_file": "acquisition-182.json",
+        "acquisition_sha256": "b3828d7ed75f8218df11f3487dfee887db308627c0c30d8a7aee5e4eb5bc7c82",
+        "query": "cached mapping hash is:open in:title,body -repo:jab/bidict",
+        "read_char_ranges": [
+          [
+            0,
+            2046
+          ]
+        ]
+      },
+      "reference": {
+        "demand_mode": "design_question",
+        "query_relation": "context_only",
+        "query_relation_reason": "Concrete design/help question about LoRA identity in keyframe reuse keys. No decision has been made in this root; semantic input identity is not cached mapping hashing.",
+        "fields": {
+          "requested_change": {
+            "state": "stated_in_root",
+            "value": "Decide whether bound LoRA identity belongs in keyframe reuse hashes and what identity means.",
+            "anchor_ids": [
+              "a1"
+            ],
+            "execution_or_semantics_verified": false
+          },
+          "input_shape": {
+            "state": "stated_in_root",
+            "value": "Keyframe configuration plus potentially changed bound adapter key/content.",
+            "anchor_ids": [
+              "a2",
+              "a3"
+            ],
+            "execution_or_semantics_verified": false
+          },
+          "output_shape": {
+            "state": "unknown",
+            "value": null,
+            "anchor_ids": [],
+            "reason": "Owner has not selected key-based, content-based or unchanged hashing behavior.",
+            "execution_or_semantics_verified": false
+          },
+          "runtime": {
+            "state": "unknown",
+            "value": null,
+            "anchor_ids": [],
+            "reason": "Function/path names and storage options do not establish a complete execution/adoption runtime.",
+            "execution_or_semantics_verified": false
+          },
+          "acceptance": {
+            "state": "unknown",
+            "value": null,
+            "anchor_ids": [],
+            "reason": "Alternative costs and behavior are described, but owner scope/choice is explicitly pending.",
+            "execution_or_semantics_verified": false
+          }
+        },
+        "constraints": [
+          {
+            "state": "stated_in_root",
+            "value": "Keep owner choice pending before implementation.",
+            "anchor_ids": [
+              "a4"
+            ],
+            "execution_or_semantics_verified": false,
+            "id": "scope_before_code"
+          }
+        ],
+        "context_gaps": [
+          "Full discussion and referenced requirements were not acquired for these controls.",
+          "Current actionability, source compatibility, novelty and adoption are unassessed."
+        ],
+        "compatibility": "unassessed",
+        "eligibility": "unassessed",
+        "demand_complete": false,
+        "query_relation_semantics": "operator_reference_not_automatically_inferred"
+      },
+      "anchors": [
+        {
+          "id": "a1",
+          "source": "root",
+          "start": 13,
+          "end": 93,
+          "span_sha256": "a19ed409533bc3e5925d2797dc8662c1638da29919ee1677cb4e01fcc0448933"
+        },
+        {
+          "id": "a2",
+          "source": "root",
+          "start": 600,
+          "end": 660,
+          "span_sha256": "fbd7fb353a63ce576cd8b66ac6e3fdc75ec885eb6cadc18cb5104063e219d94d"
+        },
+        {
+          "id": "a3",
+          "source": "root",
+          "start": 715,
+          "end": 780,
+          "span_sha256": "97884b6a003c5359f32a0974a260d92e9179c730fe92893b5069485f9fd18c7a"
+        },
+        {
+          "id": "a4",
+          "source": "root",
+          "start": 2004,
+          "end": 2045,
+          "span_sha256": "410cc242b02efeda40ade25f7129aeeb5d0d07cfe94e97005e97ce9d448d78a6"
+        }
+      ]
+    },
+    {
+      "id": "normalization_field_not_operation",
+      "audit_case": 21,
+      "purpose": "A normalization field name is not the requested operation.",
+      "input_identity": {
+        "issue_url": "https://github.com/huggingface/lerobot/issues/4840",
+        "body_sha256": "1a68d0c7b01dc5c0e9bcd70d16617dfcab491947cfe446bc8e9ed220e4df9282",
+        "acquisition_file": "acquisition-184.json",
+        "acquisition_sha256": "f0648701c240b04380e82684a6cac7a112896aa465dd8b149917999df61ed358",
+        "query": "mapping items normalization is:open in:title,body -repo:jab/bidict",
+        "read_char_ranges": [
+          [
+            0,
+            4252
+          ]
+        ]
+      },
+      "reference": {
+        "demand_mode": "implementation_requested",
+        "query_relation": "context_only",
+        "query_relation_reason": "Dict-valued config fields need JSON encoding into CLI overrides. normalization_mapping is a field name; generic mapping-items normalization is not the specified fix.",
+        "fields": {
+          "requested_change": {
+            "state": "stated_in_root",
+            "value": "Encode dict-valued config fields as whole JSON values in CLI overrides.",
+            "anchor_ids": [
+              "a1"
+            ],
+            "execution_or_semantics_verified": false
+          },
+          "input_shape": {
+            "state": "stated_in_root",
+            "value": "YAML/JSON policy.path config with dictionary policy fields including dotted keys.",
+            "anchor_ids": [
+              "a2",
+              "a3"
+            ],
+            "execution_or_semantics_verified": false
+          },
+          "output_shape": {
+            "state": "stated_in_root",
+            "value": "CLI overrides carry the complete dict instead of unrecognized dotted keys.",
+            "anchor_ids": [
+              "a4",
+              "a5"
+            ],
+            "execution_or_semantics_verified": false
+          },
+          "runtime": {
+            "state": "stated_in_root",
+            "value": "Reported Python 3.12 CPU config parsing path.",
+            "anchor_ids": [
+              "a6"
+            ],
+            "execution_or_semantics_verified": false
+          },
+          "acceptance": {
+            "state": "stated_in_root",
+            "value": "Preserve checkpoint keys not overridden and existing dataclass behavior.",
+            "anchor_ids": [
+              "a7",
+              "a8"
+            ],
+            "execution_or_semantics_verified": false
+          }
+        },
+        "constraints": [],
+        "context_gaps": [
+          "Full discussion and referenced requirements were not acquired for these controls.",
+          "Current actionability, source compatibility, novelty and adoption are unassessed."
+        ],
+        "compatibility": "unassessed",
+        "eligibility": "unassessed",
+        "demand_complete": false,
+        "query_relation_semantics": "operator_reference_not_automatically_inferred"
+      },
+      "anchors": [
+        {
+          "id": "a1",
+          "source": "root",
+          "start": 3761,
+          "end": 3826,
+          "span_sha256": "167f02708ae6fb1af6db1b60f66e2e57e203d74b294c521464de9103900ddd2c"
+        },
+        {
+          "id": "a2",
+          "source": "root",
+          "start": 221,
+          "end": 263,
+          "span_sha256": "98acc8df8a78989b1719cc79c6e2a8a086cb8d2ce95f3a44674324d0ac261131"
+        },
+        {
+          "id": "a3",
+          "source": "root",
+          "start": 807,
+          "end": 870,
+          "span_sha256": "99130576148e5b103e6a7267908547d4451b8397990a097655a68e6336e8d716"
+        },
+        {
+          "id": "a4",
+          "source": "root",
+          "start": 3779,
+          "end": 3801,
+          "span_sha256": "197039393408b028c7394da3a9fda3dae02e64411f73ed1f245aabc5b7bc6441"
+        },
+        {
+          "id": "a5",
+          "source": "root",
+          "start": 3943,
+          "end": 3991,
+          "span_sha256": "ca7ee079e306b0f7a47f600db89f06ab30780ac9c0863d10c68720e25de2844c"
+        },
+        {
+          "id": "a6",
+          "source": "root",
+          "start": 121,
+          "end": 198,
+          "span_sha256": "9a4b1e14e263533209808f041ae50044203842008264655f7b87bd0e8727c7ae"
+        },
+        {
+          "id": "a7",
+          "source": "root",
+          "start": 3943,
+          "end": 3991,
+          "span_sha256": "ca7ee079e306b0f7a47f600db89f06ab30780ac9c0863d10c68720e25de2844c"
+        },
+        {
+          "id": "a8",
+          "source": "root",
+          "start": 3997,
+          "end": 4031,
+          "span_sha256": "ed1ecc4905ad6bc14980eed932fe2cb9d2629b8eec28687eed78ad4ee99da5fb"
+        }
+      ]
+    },
+    {
+      "id": "rdf_inverse_not_bidirectional_dict",
+      "audit_case": 24,
+      "purpose": "Inverse RDF predicates are not inverse dictionary iteration.",
+      "input_identity": {
+        "issue_url": "https://github.com/RMLio/yarrrml-parser/issues/165",
+        "body_sha256": "8f7500ea8a2c04669b9d0ee5356fcb4c7d46d9e9fa94ef7da64b706dd852eafa",
+        "acquisition_file": "acquisition-186.json",
+        "acquisition_sha256": "bc134c8a47c07a5a17701111fe64ee3fa68ffab73af105af4805e89d4fc5fdf8",
+        "query": "inverse mapping iterator is:open in:title,body -repo:jab/bidict",
+        "read_char_ranges": [
+          [
+            0,
+            2782
+          ]
+        ]
+      },
+      "reference": {
+        "demand_mode": "implementation_requested",
+        "query_relation": "context_only",
+        "query_relation_reason": "Explicit RDF predicate parsing/generation bug with expected reversed triples. Inverse RDF predicates have different semantics from bidirectional mapping iteration.",
+        "fields": {
+          "requested_change": {
+            "state": "stated_in_root",
+            "value": "Parse inverse predicate mappings and generate the missing reversed triple.",
+            "anchor_ids": [
+              "a1",
+              "a2"
+            ],
+            "execution_or_semantics_verified": false
+          },
+          "input_shape": {
+            "state": "stated_in_root",
+            "value": "YAML mapping and JSON source record containing a regular and inverse predicate.",
+            "anchor_ids": [
+              "a3"
+            ],
+            "execution_or_semantics_verified": false
+          },
+          "output_shape": {
+            "state": "stated_in_root",
+            "value": "Two RDF triples, including the reverse relation.",
+            "anchor_ids": [
+              "a4"
+            ],
+            "execution_or_semantics_verified": false
+          },
+          "runtime": {
+            "state": "unknown",
+            "value": null,
+            "anchor_ids": [],
+            "reason": "Installed parser/mapper versions are reported; a specific execution-language/adoption runtime is not established in the read root.",
+            "execution_or_semantics_verified": false
+          },
+          "acceptance": {
+            "state": "stated_in_root",
+            "value": "The inverse predicate must appear in the generated mapping and resulting triples.",
+            "anchor_ids": [
+              "a5",
+              "a6"
+            ],
+            "execution_or_semantics_verified": false
+          }
+        },
+        "constraints": [],
+        "context_gaps": [
+          "Full discussion and referenced requirements were not acquired for these controls.",
+          "Current actionability, source compatibility, novelty and adoption are unassessed."
+        ],
+        "compatibility": "unassessed",
+        "eligibility": "unassessed",
+        "demand_complete": false,
+        "query_relation_semantics": "operator_reference_not_automatically_inferred"
+      },
+      "anchors": [
+        {
+          "id": "a1",
+          "source": "root",
+          "start": 108,
+          "end": 157,
+          "span_sha256": "96b02b9f8b72ff25797d7acaeaf15d0d691b05a52ba1089401a488699b228d25"
+        },
+        {
+          "id": "a2",
+          "source": "root",
+          "start": 2446,
+          "end": 2484,
+          "span_sha256": "66b25b321072775637f29e1eb6a102931d9988c6fd933bd1c1f6967e0492966e"
+        },
+        {
+          "id": "a3",
+          "source": "root",
+          "start": 552,
+          "end": 609,
+          "span_sha256": "e6e48c54f8310728be923c1201f7145bd290823ba53843a78bee1386f30a844b"
+        },
+        {
+          "id": "a4",
+          "source": "root",
+          "start": 2446,
+          "end": 2484,
+          "span_sha256": "66b25b321072775637f29e1eb6a102931d9988c6fd933bd1c1f6967e0492966e"
+        },
+        {
+          "id": "a5",
+          "source": "root",
+          "start": 1059,
+          "end": 1095,
+          "span_sha256": "cba3b074c8047b2f550dfcbd30f02153005534b30f73977705f2804e0bd6f045"
+        },
+        {
+          "id": "a6",
+          "source": "root",
+          "start": 2446,
+          "end": 2484,
+          "span_sha256": "66b25b321072775637f29e1eb6a102931d9988c6fd933bd1c1f6967e0492966e"
+        }
+      ]
+    }
+  ]
+}
