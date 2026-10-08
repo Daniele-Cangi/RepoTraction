@@ -1248,10 +1248,24 @@ force an isolated demonstration from a merely partial primitive.
   All 374 focused and 1,354 full-suite tests pass; CLI help runs normally.
   Read-only verification preserves frozen responses, source notes and all 741
   protected artifacts, at 523 reservations / USD7.6539126 with no new model call.
-- [ ] Consider a separate experimental prompt adjustment for declared versus
+- [x] Prepare a separate experimental prompt adjustment for declared versus
   demonstrated behavior and possible versus established difference. Preserve
   schema/provenance guards, scoped comparisons and honest unknowns; verify offline
   before any separately authorized fresh model test, without rewriting prior cards.
+  The [8 October evidence strength prompt](missing-link-triage-evidence-strength-prompt-2026-10-08.md)
+  adds only two instruction blocks over the frozen native declaration-schema task.
+  The schema/normalizer remain exact delegates; declared comparisons, scoped
+  visible behavior, unknowns and requested validation slices remain intact.
+  Eighteen authored controls replay unchanged, with 11 additional instruction,
+  guard, import-safety, transport and absent-production-wiring checks. This verifies
+  offline contracts, not model compliance or semantic quality improvement.
+  All 403 focused and 1,383 full-suite tests pass; CLI help is unchanged.
+  Read-only integrity verification preserves all frozen responses/source notes
+  and 741 protected artifacts at 523 reservations / USD7.6539126 reserved.
+  No model request or allowance reservation is made.
+- [ ] Review and merge the bounded experimental wording, then prepare a separate
+  frozen fresh model protocol within the original allowance. Keep prior paid
+  cases/responses immutable; no production promotion or parser/resolver expansion.
 - [ ] Prepare a separate repository-only autonomous usefulness cohort/protocol
   after source-grounded triage evaluation. The explicitly selected source
   comparison is not Discover or that benchmark; grounded useful leads and

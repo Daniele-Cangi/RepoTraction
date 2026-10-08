@@ -113,9 +113,11 @@ conditional difference as an established counterexample.
 That second test used explicitly selected API contracts and entrypoints, **not
 autonomous Discover or an accuracy benchmark**. Neither mechanical acceptance
 nor these bounded comparisons establish a qualified connection or integration
-proof. Discovery quality remains experimental. The next step is no-spend controls
-for those evidence distinctions before a separate prompt/contract adjustment;
-a fresh repository-only discovery cohort remains a separate validation task.
+proof. Discovery quality remains experimental. The [offline evidence controls](docs/missing-link-triage-evidence-strength-controls-2026-10-08.md)
+and [separate experimental instruction revision](docs/missing-link-triage-evidence-strength-prompt-2026-10-08.md)
+preserve those distinctions without changing production or collecting a new model
+response. They do not establish improved model quality; a fresh repository-only
+discovery cohort remains a separate validation task.
 
 ## Development plan
 
