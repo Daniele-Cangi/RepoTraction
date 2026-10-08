@@ -1275,16 +1275,44 @@ force an isolated demonstration from a merely partial primitive.
   pass; CLI help and local documentation links are checked. Historical rows, sources and responses
   remain unchanged at 523 reservations / USD7.6539126 reserved, with 865 prior
   artifacts protected. No new model call, reservation or production wiring.
-- [ ] Review/merge this bounded protocol, then freeze a separately owned one-shot
+- [x] Review/merge this bounded protocol, then freeze a separately owned one-shot
   successor against reviewed main without rewriting the offline preparation.
   Recheck original allowance, fingerprints, identity, lease and exact prefixes;
   run the six fresh requests once and review all 24 facets, including unknown
   reasons. Keep prior cohorts immutable; no production promotion or parser/resolver
   expansion. Do not confuse greater abstention with improved usefulness.
-- [ ] Prepare a separate repository-only autonomous usefulness cohort/protocol
+  PR86 merged as `42807d7` after a scoped no-major-findings Codex review of
+  `7bfce94` and four successful CI jobs, with an identical merge tree. A separately
+  owned successor preserves 883 prior files and all six frozen requests/references.
+  Its offline simulation, 421 focused tests and 1,401 full-suite tests passed before
+  six one-shot real Luna attempts. The [fresh-source result](missing-link-triage-evidence-strength-fresh-result-2026-10-08.md)
+  retains six complete non-refused terminals and identical accepted-card replay.
+  All 24 facets, including ten unknown reasons, were read separately: bounded
+  string/call-composition information and the wrong-candidate contrast survive,
+  while three known labels and one partly overstated input reason remain too strong.
+  All cards stay context_required and independently unverified, with unchanged
+  selection/qualification. Six exact reservations add USD0.0364955, reaching 529
+  rows / USD7.6904081 in the original USD10 allowance. All older rows, 883 files,
+  non-accounting tables and unrelated allowances remain unchanged; no retry,
+  repair, production change or budget increase occurs.
+- [x] Prepare a separate repository-only autonomous usefulness cohort/protocol
   after source-grounded triage evaluation. The explicitly selected source
   comparison is not Discover or that benchmark; grounded useful leads and
   false-positive rejection must precede candidate isolation or UI/key-entry work.
+  The [four-source repository-only protocol](missing-link-repository-only-fresh-protocol-2026-10-08.md)
+  freezes glom, furl, CacheControl and bidict before source/issue/search inspection.
+  Metadata-only preflight confirms public canonical identities and full revisions;
+  none appears as a source in retained local account/experiment history. The
+  proposed four initial Discover jobs use unchanged production contract 25 and
+  prompts, with empty issue/query inputs, eight calls and USD0.20 per job, and
+  a USD0.80 segment capped atomically at USD8.4904081 within the original USD10.
+  No new Discover job, model call, reservation or configuration change occurs.
+- [ ] Implement/review the separately owned evaluator's pinned acquisition,
+  original-ledger atomic segment cap, private receipts/storage, identity/lease,
+  exclusive slots and historical prefix checks before any cohort execution.
+  Offline conformance and scoped Codex review/CI/merge must precede a one-shot
+  successor. Preserve production behavior and all earlier cohorts; do not promote
+  the experimental triage prompt or run extra cases to manufacture a lead.
 
 No full-pool ranking improvement can be inferred from selected-only history;
 the newer retained pools permit ordering replay, not semantic utility measurement.
