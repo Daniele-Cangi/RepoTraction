@@ -1306,18 +1306,30 @@ force an isolated demonstration from a merely partial primitive.
   proposed four initial Discover jobs use unchanged production contract 25 and
   prompts, with empty issue/query inputs, eight calls and USD0.20 per job, and
   a USD0.80 segment capped atomically at USD8.4904081 within the original USD10.
-  No new Discover job, model call, reservation or configuration change occurs.
-- [ ] Implement/review the separately owned evaluator's pinned acquisition,
+  This preparation made no Discover job, model call, reservation or configuration change.
+- [x] Implement/review the separately owned evaluator's pinned acquisition,
   original-ledger atomic segment cap, private receipts/storage, identity/lease,
   exclusive slots and historical prefix checks before any cohort execution.
   Offline conformance and scoped Codex review/CI/merge must precede a one-shot
   successor. Preserve production behavior and all earlier cohorts; do not promote
   the experimental triage prompt or run extra cases to manufacture a lead.
   The [owned evaluator](missing-link-repository-only-evaluator-2026-10-08.md)
-  now implements these boundaries in opt-in scripts with eighteen authored offline
-  tests. Production modules/prompts/configuration and earlier cohorts remain
-  unchanged. Scoped review, CI and merge still precede a separately frozen successor
-  and any payment; source-grounded usefulness assessment remains outstanding.
+  implements these boundaries in opt-in scripts with eighteen authored offline
+  tests. [PR88](https://github.com/Daniele-Cangi/RepoTraction/pull/88) passed scoped
+  Codex review, all four CI jobs and the 1,419-test suite on head `704dc4a`, then
+  merged as `97d3844` before the owned successor and payment. Production
+  modules/prompts/configuration and earlier cohorts remain unchanged.
+- [x] Run the frozen four-source initial Discover cohort once and assess every
+  selected comparison, abstention and failure against the actual supplied evidence.
+  The [result](missing-link-repository-only-fresh-result-2026-10-09.md) retains 26
+  complete native responses, twelve comparisons/97 facets, one non-demand and one
+  charged candidate-local extraction failure. Conditional primitives do not
+  establish a qualified lead; overstrong positive/conflict labels remain reported.
+  The original ledger is 555 reservations / USD8.0266132 (delta USD0.3362051),
+  within the original USD10 and frozen segment cap. The sealed receipts and exact
+  owned prefix reproduce; all 941 protected historical files and original
+  non-accounting data remain unchanged. No retry, replacement or source execution
+  occurred; no qualified lead authorizes isolation, UI/key-entry or promotion.
 
 No full-pool ranking improvement can be inferred from selected-only history;
 the newer retained pools permit ordering replay, not semantic utility measurement.
