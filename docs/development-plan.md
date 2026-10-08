@@ -1263,9 +1263,24 @@ force an isolated demonstration from a merely partial primitive.
   Read-only integrity verification preserves all frozen responses/source notes
   and 741 protected artifacts at 523 reservations / USD7.6539126 reserved.
   No model request or allowance reservation is made.
-- [ ] Review and merge the bounded experimental wording, then prepare a separate
-  frozen fresh model protocol within the original allowance. Keep prior paid
-  cases/responses immutable; no production promotion or parser/resolver expansion.
+- [x] Review and merge the bounded experimental wording (PR85, `06e1a2b`).
+- [x] Prepare a separate [frozen fresh-source protocol](missing-link-triage-evidence-strength-fresh-protocol-2026-10-08.md)
+  within the original allowance: six API-contract comparisons across Packaging,
+  Werkzeug and python-dateutil, with pre-response operator references excluded
+  from context. Exact requests reserve USD0.0364955 within a USD0.10 segment and
+  cumulative USD7.7539126 ceiling. Driver request/execution bodies change only
+  their prompt binding; accounting delegates to the frozen prospective gates.
+  Eighteen authored driver tests and a six-request source-span/receipt simulation
+  check mechanics, not model quality. All 421 focused and 1,401 full-suite tests
+  pass; CLI help and local documentation links are checked. Historical rows, sources and responses
+  remain unchanged at 523 reservations / USD7.6539126 reserved, with 865 prior
+  artifacts protected. No new model call, reservation or production wiring.
+- [ ] Review/merge this bounded protocol, then freeze a separately owned one-shot
+  successor against reviewed main without rewriting the offline preparation.
+  Recheck original allowance, fingerprints, identity, lease and exact prefixes;
+  run the six fresh requests once and review all 24 facets, including unknown
+  reasons. Keep prior cohorts immutable; no production promotion or parser/resolver
+  expansion. Do not confuse greater abstention with improved usefulness.
 - [ ] Prepare a separate repository-only autonomous usefulness cohort/protocol
   after source-grounded triage evaluation. The explicitly selected source
   comparison is not Discover or that benchmark; grounded useful leads and
