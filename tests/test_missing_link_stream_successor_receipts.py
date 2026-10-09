@@ -405,5 +405,89 @@ class SuccessorReceiptTests(unittest.TestCase):
         self.assertEqual(self.telemetry[0]["failure"],
             {"category":"ai_transport","code":"ai_transport_redirect","phase":"request"})
 
+    def test_entered_response_exit_failure_preserves_primary_transport_clock_and_integrity(self):
+        for category in ("ai_transport", "clock", "integrity"):
+            with self.subTest(category=category):
+                self.setUp()
+                lines, seen = None, []
+                if category == "ai_transport":
+                    lines = [TimeoutError("PRIVATE primary transport")]
+                    expected_type = ProviderTransportError
+                elif category == "clock":
+                    self.light.side_effect = lambda: setattr(self.clock, "value", float("nan"))
+                    expected_type = reader.StreamClockError
+                else:
+                    def full():
+                        if self.receipts: raise EvaluationStopped("PRIVATE primary integrity")
+                    self.full.side_effect = full
+                    expected_type = EvaluationStopped
+                def exit_failure(stream, *info):
+                    seen.append(info)
+                    stream.close()
+                    raise OSError("PRIVATE secondary cleanup")
+                with patch.object(Stream, "__exit__", exit_failure), self.assertRaises(BaseException) as raised:
+                    self.run_stream(lines)
+                self.assertIsInstance(raised.exception, expected_type)
+                self.assertEqual(len(seen), 1)
+                self.assertIs(seen[0][0], expected_type)
+                self.assertIs(seen[0][1], raised.exception)
+                self.assertIsNotNone(seen[0][2])
+                self.assertTrue(self.stream.entered)
+                self.assertTrue(self.stream.closed)
+                self.assertEqual(self.stream.close_calls, 1)
+                trace = self.telemetry[0]
+                self.assertEqual(trace["failure"]["category"], category)
+                if category == "ai_transport":
+                    self.assertEqual(trace["failure"]["code"], "ai_transport_timeout")
+                    self.assertEqual(trace["failure"]["phase"], "request")
+                self.assertIs(trace["terminal_retained"], category == "integrity")
+                self.assertEqual(len(self.receipts), int(category == "integrity"))
+                self.assertEqual(self.opens, 1)
+                self.assertEqual(len(self.charges), 1)
+                self.assertTrue(trace["reservation_committed"])
+                self.assertNotIn("PRIVATE", json.dumps(trace))
+                self.assertNotIn("reported_usage", self.job)
+                self.assertNotIn("ai_trace", self.job)
+                self.assertNotIn("ai_outputs", self.job["checkpoint"])
+
+    def test_entered_response_exit_failure_without_primary_is_global_before_usage(self):
+        error, seen = OSError("PRIVATE cleanup only"), []
+        def exit_failure(stream, *info):
+            seen.append(info)
+            stream.close()
+            raise error
+        with patch.object(Stream, "__exit__", exit_failure), self.assertRaises(OSError) as raised:
+            self.run_stream()
+        self.assertIs(raised.exception, error)
+        self.assertEqual(seen, [(None, None, None)])
+        self.assertTrue(self.stream.closed)
+        self.assertEqual(self.stream.close_calls, 1)
+        self.assertTrue(self.telemetry[0]["terminal_retained"])
+        self.assertEqual(self.telemetry[0]["failure"], {"category": "callback_or_unclassified"})
+        self.assertNotIn("PRIVATE", json.dumps(self.telemetry))
+        self.assertEqual(len(self.receipts), 1)
+        self.assertEqual(len(self.charges), 1)
+        self.assertNotIn("reported_usage", self.job)
+        self.assertNotIn("ai_trace", self.job)
+        self.assertNotIn("ai_outputs", self.job["checkpoint"])
+
+    def test_entered_response_exit_cannot_suppress_primary_global_failure(self):
+        seen = []
+        def suppress(stream, *info):
+            seen.append(info)
+            stream.close()
+            return True
+        with patch.object(Stream, "__exit__", suppress), self.assertRaises(BaseException) as raised:
+            self.run_stream([TimeoutError("PRIVATE primary transport")])
+        self.assertIsInstance(raised.exception, ProviderTransportError)
+        self.assertEqual(raised.exception.code, "ai_transport_timeout")
+        self.assertIs(seen[0][1], raised.exception)
+        self.assertTrue(self.stream.closed)
+        self.assertEqual(self.stream.close_calls, 1)
+        self.assertEqual(self.telemetry[0]["failure"]["code"], "ai_transport_timeout")
+        self.assertIs(self.telemetry[0]["terminal_retained"], False)
+        self.assertEqual(self.receipts, [])
+        self.assertNotIn("reported_usage", self.job)
+
 
 if __name__ == "__main__": unittest.main()

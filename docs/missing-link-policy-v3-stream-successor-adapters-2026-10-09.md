@@ -87,7 +87,10 @@ Opened-stream absence and zero observed counters are initialized immediately
 when the opener returns, before its post-open timing sample or context entry.
 The reader owns that response at return and closes it if timing or context entry
 fails before the response context takes ownership. A failed cleanup cannot
-replace the primary global error. Normal response-context exit closes it once.
+replace or suppress the primary global error, before or after context entry.
+The exit callback receives the original exception type/object/traceback and runs
+once. If only cleanup fails, that failure stops globally before usage/output
+processing. Normal response-context exit closes it once.
 Invalid-clock durations remain null even when opened-stream absence is known.
 Both native `input_tokens` and `output_tokens` must be present as concrete
 nonnegative integers before usage, call metadata or semantic output processing.

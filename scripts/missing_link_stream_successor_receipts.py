@@ -9,6 +9,7 @@ from contextlib import contextmanager
 import http.client
 import json
 import math
+import sys
 import time
 import urllib.error
 import urllib.request
@@ -203,6 +204,7 @@ def _io(callback):
 def _response_stream(opener, request, timing):
     """Own the returned response before post-open timing or context entry."""
     response, entered = None, False
+    failure = (None, None, None)
 
     def open_response():
         nonlocal response
@@ -212,18 +214,27 @@ def _response_stream(opener, request, timing):
 
     try:
         timing.measure("opening", open_response)
-        with response:
-            entered = True
-            yield response
+        enter_response = type(response).__enter__
+        exit_response = type(response).__exit__
+        enter_response(response)
+        entered = True
+        yield response
     except BaseException:
-        if response is not None and not entered:
-            try:
-                response.close()
-            except BaseException:
-                # The attempt already stops globally; cleanup cannot replace
-                # its primary clock/context error or expose a raw message.
-                pass
+        failure = sys.exc_info()
         raise
+    finally:
+        if response is not None:
+            try:
+                if entered:
+                    # Exit is cleanup only: it cannot suppress a global error.
+                    exit_response(response, *failure)
+                else:
+                    response.close()
+            except BaseException:
+                # Preserve the actual primary exception/traceback in every
+                # lifecycle phase. A sole cleanup failure remains global.
+                if failure[0] is None:
+                    raise
 
 
 def complete_with_receipt(provider, instruction, data, budget, *, schema,
