@@ -1422,10 +1422,18 @@ force an isolated demonstration from a merely partial primitive.
   protects 1,488 artifacts including consumed native evidence and its assessment.
   Planned software reservations are USD0.0535105 under the original USD10 total;
   accounting remains 566 / USD8.0779182. No calls or authorization were added.
-- [ ] Review/CI/merge the policy-v2 protocol, then implement and review a separate
-  opt-in executor/run adapter. Freeze its merged code in a new owned successor
-  before a separately authorized eleven-slot experiment. Pin changed instructions,
-  exact bodies and all old/new dependencies; never adapt or replay the v1 run.
+- [x] Review/CI/merge the policy-v2 protocol. PR97 merged as
+  `5d6449bb7659f7eab2294b3dfd8cd2e7422bb044`, with its reviewed tree unchanged,
+  scoped Codex review clean and all four CI jobs successful.
+- [x] Implement the separate [policy-v2 owned executor](missing-link-demand-operation-policy-v2-owned-executor-2026-10-09.md)
+  and explicit prepare/verify/run adapter, preserving all original modules/tests
+  and frozen evidence. Forty-three authored controls cover v2 binding, unchanged
+  schema/local-rejection boundaries, identity/leases, scope, exact accounting and
+  historical inventory preservation. No actual owned freeze or calls occur here.
+- [ ] Review/CI/merge the policy-v2 adapters, then freeze their exact merged code
+  in a new owned successor before separately authorized eleven-slot execution.
+  Pin exact bodies and all 46 old/new dependencies, preserve the prospective
+  1,515-artifact baseline, and never adapt or replay the consumed v1 run.
 
 No full-pool ranking improvement can be inferred from selected-only history or
 the later nonrandom root sample. Retained ordering and root demand diagnostics
