@@ -1,6 +1,6 @@
 # Demand-to-operation execution preparation
 
-The [native execution protocol](missing-link-demand-operation-execution-protocol-2026-10-09.md)
+The [revision 2 native execution protocol](missing-link-demand-operation-execution-protocol-v2-2026-10-09.md)
 now fixes the next development experiment after PR92 merged as
 `99064726996e6a2a150029c75d28efb8d792ef58`. Its tree matches reviewed head
 `3a90a16b0e158f85b58974cc4f9409716045762b`. Scoped Codex review completed
@@ -16,7 +16,7 @@ scoped review/merge, exact-code owned successor and separate call authorization.
 ## Independent anchors and native requests
 
 Private ignored preparation:
-`data/missing-link-demand-operation-execution-preparation-2026-10-09/`.
+`data/missing-link-demand-operation-execution-preparation-v2-2026-10-09/`.
 Its exact inventory is `prepared.json`, `protocol.md`, `baseline.json`, unchanged
 `inputs.json`/`references.json`, eleven `policy-envelope-*.json` files and eleven
 `native-request-*.json` files. It contains no outputs, attempt/start markers or
@@ -26,9 +26,26 @@ Independent SHA-256 anchors retained outside that preparation:
 
 | Artifact | SHA-256 |
 | --- | --- |
-| Execution protocol, UTF-8/LF | `ba56274b06c35eeb113251888d387f0b5246888f70943d2f6dd6fb710092fb81` |
-| Private baseline, exact bytes | `b0845f7448e11c225802a2fb668682043377ad1aedbaf8304c9edd1c5ad603d7` |
-| Private preparation manifest, exact bytes | `f759f36aa2c39a61e53ad73950ca4d2b21f8eb430e23641fe26ba716edf8c28d` |
+| Revision 2 execution protocol, UTF-8/LF | `aea23198f1d4c58d8f50635805acbffcd21eb2178126bd8e9ddfa51fdb735474` |
+| Private v2 baseline, exact bytes | `3c62b9bee18e8fcab0462b5d813d8cce7d51d780e5bab7e51792fbb45ebf02e0` |
+| Private v2 preparation manifest, exact bytes | `854d9a5c90ade1419ee866b8e25c43769d2b6ad92c283d5e9f331e299ff989a8` |
+
+The initial preparation without `-v2` is preserved unchanged and superseded,
+with zero outputs/calls/reservations. Its independent protocol/baseline/manifest
+anchors remain respectively
+`ba56274b06c35eeb113251888d387f0b5246888f70943d2f6dd6fb710092fb81`,
+`b0845f7448e11c225802a2fb668682043377ad1aedbaf8304c9edd1c5ad603d7`,
+and `f759f36aa2c39a61e53ad73950ca4d2b21f8eb430e23641fe26ba716edf8c28d`.
+The original public revision 1 protocol also retains its exact LF bytes. The v2
+successor has byte-identical input/reference copies, all eleven policy envelopes
+and native bodies, settings, ordered slot IDs and reservation calculations.
+
+PR93's P2 review exposed ambiguous schema-versus-local `ValueError` handling.
+Revision 2 requires standalone successful generation-schema and integrity checks
+outside the narrow normalizer handler, before entering it and again after it.
+Only a post-schema local inconsistency can permit continuation, after preservation
+and run gates. Schema or integrity failure stops globally. This changes the
+prospective contract without changing the policy or generating any output.
 
 The manifest pins the merged/reviewed policy tree, unchanged first-party code,
 public settings, original input/reference digests, v4 envelope manifest, ordered
@@ -49,10 +66,11 @@ No unused cap authorizes extra attempts, repair, substitution or a new allowance
 ## Baseline and verification
 
 Read-only preparation snapshots all twelve original `ml_*` tables, original
-allowance rows/reservation prefix and **1,315 protected files**. The inventory
+allowance rows/reservation prefix and **1,342 protected files**. The inventory
 includes the previous 941 historical files, sealed paid-run evidence, subsequent
 source/root audits, separate control inputs/references and all four earlier
-policy preparations. Baseline remains **555 reservations / USD8.0266132**, with
+policy preparations, plus all 27 files in the initial execution preparation.
+Baseline remains **555 reservations / USD8.0266132**, with
 zero active jobs. Non-accounting data, reservations and protected bytes reproduce
 before and after preparation. Original paid-run receipt manifest remains
 `da952e024c0356cf81ac39dfb301620aef9c2a6d80a91782eba413d64ce35df7`.
@@ -68,7 +86,8 @@ The next implementation must enforce identity/leases, exclusive run/slot markers
 atomic original-ledger reservations and exact-prefix ownership; preserve native
 terminals before parsing/validation; stop globally on transport, generation,
 persistence or integrity failures; and permit continuation only for explicit
-post-receipt policy-normalizer rejection. Freeze its new executable fingerprints
+post-schema policy-normalizer rejection after successful standalone schema and
+integrity gates outside the local handler. Freeze its new executable fingerprints
 in a separate owned successor after review/merge. Retain every slot/failure and
 unknown, and assess each field/constraint/context gap independently without
 reference substitution, inferred truth or model-quality/qualified-lead claims.

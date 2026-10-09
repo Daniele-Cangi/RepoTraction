@@ -1373,9 +1373,12 @@ force an isolated demonstration from a merely partial primitive.
 - [x] After reviewing/merging the experimental policy, prepare a separately owned
   execution protocol tied to the reviewed code, exact inputs/references, native
   retention and original-ledger cap. The [native execution preparation](missing-link-demand-operation-execution-preparation-2026-10-09.md)
-  freezes eleven exact native bodies (USD0.051305 proposed reservations) and 1,315
+  freezes eleven exact native bodies (USD0.051305 proposed reservations) and 1,342
   protected files after PR92 merged as `9906472`. The proposed USD0.10 segment
   stays within the original USD10 allowance; no calls/reservations occurred.
+  Its revision 2 fixes the PR93 review ambiguity: standalone schema/integrity
+  gates outside the local normalizer handler must succeed before continuation.
+  The initial protocol/preparation are preserved; all native bodies stay identical.
 - [ ] Implement the separate opt-in owned executor against that frozen execution
   protocol, including offline identity/lease/marker, exact-body/prefix/cap,
   native-retention and failure-boundary conformance. Review/CI/merge it and freeze
