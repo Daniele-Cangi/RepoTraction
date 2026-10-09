@@ -83,6 +83,11 @@ commit, not a static error message. Receipt state becomes true only when the
 exclusive writer returns successfully; a failing writer leaves it null because
 partial persistence is uncertain. A missing terminal on an opened stream is
 false; before opening it remains null. Missing native usage is never zero usage.
+Terminal persistence has separate leading/trailing integrity checkpoints outside
+the writer exception boundary. Guard failures preserve their original type and
+category. A successful writer marks retention true before the trailing check;
+only actual writer failures become receipt-persistence errors with uncertain
+retention. A failed leading check leaves the known absence false.
 Opened-stream absence and zero observed counters are initialized immediately
 when the opener returns, before its post-open timing sample or context entry.
 The reader owns that response at return and closes it if timing or context entry

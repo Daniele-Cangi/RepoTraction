@@ -239,7 +239,7 @@ def _response_stream(opener, request, timing):
 
 def complete_with_receipt(provider, instruction, data, budget, *, schema,
                           retain_terminal, retain_telemetry, light_checkpoint,
-                          reservation_observed, clock=time.monotonic):
+                          terminal_checkpoint, reservation_observed, clock=time.monotonic):
     """Request phase only. One open; caller supplies full Budget and light gates."""
     timing, error = _Timing(clock), None
     try:
@@ -287,12 +287,15 @@ def complete_with_receipt(provider, instruction, data, budget, *, schema,
                         raise ProviderTransportError("ai_stream_invalid_event", phase="request") from None
                 timing.limits()
                 if terminal is not None:
+                    # Guards are global callbacks, outside the writer boundary.
+                    terminal_checkpoint()
                     timing.receipt = None  # A failing writer may have partially persisted.
                     try:
                         retain_terminal(copy.deepcopy(terminal))
                     except Exception:
                         raise ReceiptPersistenceError("Private terminal receipt could not be saved.") from None
                     timing.receipt = True
+                    terminal_checkpoint()
                     timing.checkpoint("full", budget.checkpoint)
                     timing.ended = timing.now()
                     break

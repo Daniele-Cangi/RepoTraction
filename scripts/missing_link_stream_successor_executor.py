@@ -85,11 +85,6 @@ def execute_cases(provider, slots, *, manifest, read, gate, light_gate, identity
             if cancelled():
                 raise Cancelled("Owned stream cancelled.")
 
-        def receipt(event):
-            guard(False)
-            retain_terminal(number, event)
-            guard(False)
-
         def telemetry(value):
             # Failure evidence may be retained when a DB/history guard failed.
             # It never permits acceptance or a complete seal without full gates.
@@ -100,7 +95,8 @@ def execute_cases(provider, slots, *, manifest, read, gate, light_gate, identity
         budget = Budget(job, persist_job, cancelled, full_checkpoint, reserve_one)
         envelope = slot["envelope"]
         raw = complete_with_receipt(provider, envelope["instructions"], envelope["context"], budget,
-            schema=envelope["schema"], retain_terminal=receipt, retain_telemetry=telemetry,
+            schema=envelope["schema"], retain_terminal=lambda event:retain_terminal(number,event),
+            retain_telemetry=telemetry, terminal_checkpoint=lambda:guard(False),
             light_checkpoint=light_checkpoint, clock=clock,
             reservation_observed=lambda: reservation_observed(job_id, slot["metadata"]["reservation_usd"]))
         guard()

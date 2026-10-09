@@ -342,6 +342,48 @@ class StreamSuccessorExecutionTests(unittest.TestCase):
                 record=Mock(),cancelled=lambda:False)
         claim.assert_not_called(); reserve.assert_not_called(); self.opener.assert_not_called()
 
+    def test_terminal_write_followed_by_integrity_change_preserves_primary(self):
+        from unittest.mock import Mock
+        from scripts.missing_link_stream_successor_receipts import TelemetryPersistenceError
+        for changed in ('code', 'slot', 'provider', 'lease'):
+            with self.subTest(changed=changed):
+                slots, saved, charges, jobs, changed_guard = self.slots(), [], [], [], []
+                model = self.provider.model
+                primary = EvaluationStopped('PRIVATE changed integrity')
+                def light():
+                    if changed_guard:
+                        raise primary
+                def retain(number, native):
+                    saved.append(copy.deepcopy(native))
+                    if changed == 'slot':
+                        slots[0]['metadata']['slot'] = 12
+                    elif changed == 'provider':
+                        self.provider.model = 'PRIVATE mutated'
+                    else:
+                        changed_guard.append(changed)
+                records, diagnostics = Mock(), Mock()
+                try:
+                    with self.assertRaises(TelemetryPersistenceError) as raised:
+                        executor.execute_cases(self.provider,slots,manifest=self.source,
+                            read=lambda name:(self.prep/name).read_bytes(),gate=lambda:None,
+                            light_gate=light,identity=lambda **kwargs:None,claim=lambda slot:None,
+                            reserve=lambda job_id,cost:charges.append((job_id,cost)),
+                            reservation_observed=lambda job_id,cost:bool(charges),
+                            persist=lambda number,job:jobs.append(job),retain_terminal=retain,
+                            retain_telemetry=diagnostics,record=records,cancelled=lambda:False,
+                            clock=Clock())
+                    self.assertEqual(raised.exception.primary, {'category':'integrity'})
+                    self.assertEqual(len(saved),1)
+                    self.assertEqual(len(charges),1)
+                    records.assert_not_called()
+                    diagnostics.assert_not_called()  # Changed light gate forbids the write.
+                    for job in jobs:
+                        self.assertNotIn('reported_usage',job)
+                        self.assertNotIn('ai_trace',job)
+                        self.assertNotIn('ai_outputs',job['checkpoint'])
+                finally:
+                    self.provider.model = model
+
     def test_imports_do_not_read_configuration_open_files_start_threads_or_network(self):
         # Preload immutable dependencies so the audit measures only new modules.
         code='''from contextlib import ExitStack

@@ -53,7 +53,8 @@ class SuccessorReceiptTests(unittest.TestCase):
         self.budget = Budget(self.job, lambda: None, lambda: self.cancelled(), lambda: self.full(), self.charges.append)
 
     def run_stream(self, lines=None, *, delay=0, on_read=lambda: None, open_error=None,
-                   retain=None, diagnostic=None, observed=None, on_open=lambda: None):
+                   retain=None, diagnostic=None, observed=None, on_open=lambda: None,
+                   terminal_checkpoint=lambda:None):
         stream = Stream(lines if lines is not None else [event(terminal({"value": "authored"}))],
                         self.clock, delay, on_read)
         opener = Mock()
@@ -69,7 +70,7 @@ class SuccessorReceiptTests(unittest.TestCase):
                 return reader.complete_with_receipt(self.provider, "Authored", {}, self.budget,
                     schema=None, retain_terminal=retain or self.receipts.append,
                     retain_telemetry=diagnostic or self.telemetry.append,
-                    light_checkpoint=self.light, clock=self.clock,
+                    light_checkpoint=self.light, terminal_checkpoint=terminal_checkpoint, clock=self.clock,
                     reservation_observed=observed or (lambda: bool(self.charges)))
             finally:
                 self.assertLessEqual(opener.open.call_count, 1)
@@ -256,6 +257,31 @@ class SuccessorReceiptTests(unittest.TestCase):
         # Writer may have partially succeeded; do not claim absence or completion.
         self.assertIsNone(self.telemetry[0]["terminal_retained"])
         self.assertNotIn("reported_usage", self.job)
+
+    def test_terminal_guards_preserve_original_errors_and_known_retention_state(self):
+        for trailing in (False, True):
+            for error in (EvaluationStopped('PRIVATE integrity'), Cancelled('PRIVATE cancellation'),
+                          OSError('PRIVATE guard IO')):
+                with self.subTest(trailing=trailing, error=type(error)):
+                    self.setUp()
+                    def guard():
+                        if bool(self.receipts) == trailing:
+                            raise error
+                    with self.assertRaises(type(error)) as raised:
+                        self.run_stream(terminal_checkpoint=guard)
+                    self.assertIs(raised.exception,error)
+                    trace = self.telemetry[0]
+                    self.assertEqual(trace['failure'],reader.failure_projection(error))
+                    self.assertIs(trace['terminal_retained'],trailing)
+                    self.assertEqual(len(self.receipts),int(trailing))
+                    self.assertTrue(trace['reservation_committed'])
+                    self.assertEqual(len(self.charges),1)
+                    self.assertTrue(self.stream.closed)
+                    self.assertEqual(self.stream.close_calls,1)
+                    self.assertNotIn('PRIVATE',json.dumps(trace))
+                    self.assertNotIn('reported_usage',self.job)
+                    self.assertNotIn('ai_trace',self.job)
+                    self.assertNotIn('ai_outputs',self.job['checkpoint'])
 
     def test_telemetry_storage_failure_preserves_primary_bounded_category(self):
         def save(value): raise OSError("PRIVATE")
