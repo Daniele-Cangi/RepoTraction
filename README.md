@@ -180,6 +180,9 @@ records a global transport stop at slot 1, one retained reservation and ten
 unattempted slots. No native terminal or prediction is available for semantic
 assessment. Original accounting is 578 / USD8.13614 within USD10; the consumed
 run cannot be resumed or retried.
+Separate [offline stream diagnostics](docs/missing-link-policy-v3-stream-diagnostics-2026-10-09.md)
+reproduce deadline exhaustion from local checkpoint work on authored buffered
+streams. The actual v3 failure subtype remains unknown; no further calls occur.
 Candidate execution, UI/key-entry work and production promotion remain deferred.
 
 ## Development plan

@@ -1482,12 +1482,19 @@ force an isolated demonstration from a merely partial primitive.
   resumed. Accounting extends only to 578 / USD8.13614; the original USD10
   allowance and historical evidence remain preserved. Eleven separate absence
   records provide no predicted claim paths or semantic judgments.
-- [ ] Investigate bounded transport diagnostics and streaming checkpoint costs
-  with authored offline controls. The retained exception type does not establish
-  a cause. Any future execution requires a separately reviewed protocol/tree,
-  unused accounting scope and new explicit authorization, preserving this failed
-  run, both predecessors and the original allowance. No semantic quality gain
-  or fresh useful lead is established by the transport stop.
+- [x] Investigate bounded transport diagnostics and streaming checkpoint costs
+  with [authored offline controls](missing-link-policy-v3-stream-diagnostics-2026-10-09.md).
+  The unchanged reader can exhaust its wall-clock deadline on buffered streams
+  solely through local checkpoint work. Read-only component measurements support
+  that mechanism's plausibility; the actual v3 failure subtype remains unknown.
+  Original accounting and every consumed artifact remain unchanged.
+- [ ] Specify and review a separate successor observability/checkpoint contract
+  before implementation. Preserve continuous cancellation/identity/integrity
+  protections, typed bounded telemetry and native-before-validation retention.
+  Any future execution requires a separately reviewed protocol/tree, unused
+  accounting scope and new explicit authorization, preserving this failed run,
+  both predecessors and the original allowance. No semantic quality gain or
+  fresh useful lead is established by the transport stop or offline diagnostic.
 
 No full-pool ranking improvement can be inferred from selected-only history or
 the later nonrandom root sample. Retained ordering and root demand diagnostics
