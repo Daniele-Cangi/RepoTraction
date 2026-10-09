@@ -74,12 +74,27 @@ def check_prediction(raw, slot, gate):
             'disposition':'local_rejection' if error else 'mechanically_valid', 'validation_error':error}
 
 
+def same_slot_structure(actual, expected):
+    """Compare concrete JSON-domain types recursively, without serialization."""
+    if type(actual) is not type(expected):
+        return False
+    if type(actual) is dict:
+        return (actual.keys() == expected.keys()
+                and all(type(key) is str for key in actual)
+                and all(type(key) is str for key in expected)
+                and all(same_slot_structure(actual[key], expected[key]) for key in expected))
+    if type(actual) is list:
+        return len(actual) == len(expected) and all(
+            same_slot_structure(left, right) for left, right in zip(actual, expected))
+    return type(actual) in (str, int, float, bool, type(None)) and actual == expected
+
+
 def execute_cases(provider, slots, *, manifest, read, gate, identity, claim, reserve, persist,
                   retain_terminal, record, cancelled):
     """Caller supplies its anchored manifest/body reader; never trust slot metadata."""
     gate()
     verified = verify_requests(provider, [s['packet'] for s in slots], manifest, read)
-    require(_bytes(slots) == _bytes(verified), 'Execution slots differ from the frozen manifest')
+    require(same_slot_structure(slots, verified), 'Execution slots differ from the frozen manifest')
     original = copy.deepcopy(slots)
     results = []
     for slot in slots:

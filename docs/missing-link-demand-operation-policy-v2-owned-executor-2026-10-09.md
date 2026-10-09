@@ -16,7 +16,8 @@ ordered envelopes/native bodies, settings, hashes, lengths, costs and the distin
 `demand-operation-policy-v2-owned-2026-10-09-01` through `-11` accounting IDs
 before attempts. Direct execution callers must supply the caller's independently
 anchored source manifest and frozen-body reader. The executor rebuilds all eleven
-requests and compares complete typed slots with those verified manifest entries
+requests and recursively compares complete slots with those verified manifest entries,
+requiring identical concrete dict/list/scalar types without JSON serialization,
 before claiming any slot or paying, including identifiers, phase, paths, lengths,
 costs, envelope and native hashes. A slot's own hash is not a trust anchor. Policy-v1 bodies,
 IDs or preparation revision cannot silently enter the new executor.
@@ -119,7 +120,7 @@ leases release in every exit path. Any evidence of prior execution blocks replay
 
 ## Authored conformance and next boundary
 
-Forty-two authored offline controls use temporary original databases, fake
+Forty-three authored offline controls use temporary original databases, fake
 public identity, temporary historical seals/scope records and synthetic native
 streams. They cover v2 versus v1 body binding, ordered IDs/settings/costs, standalone
 schema versus local rejection, raw/context/code mutation, receipt/usage/raw retention,
@@ -132,6 +133,9 @@ The four review regressions reject changed metadata in the first/middle/last slo
 an internally consistent changed body with a self-supplied new hash, a descendant
 main before credentials, and a tree change during receipt handling after one
 retained reservation. Both original P1 failures were reproduced before correction.
+Another reproduced review regression rejects JSON-equivalent tuple/list changes
+in nested envelopes, coverage and native payloads before any claim/payment;
+numeric metadata types must also match the verified slot exactly.
 
 These are execution-mechanics tests, not model outputs or proof the revised
 instructions work. Independently recheck the actual source preparation, consumed

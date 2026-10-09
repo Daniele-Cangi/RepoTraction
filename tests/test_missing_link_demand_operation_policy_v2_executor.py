@@ -535,6 +535,32 @@ class PolicyV2ExecutorTests(unittest.TestCase):
         self.assertFalse((self.out/'attempt-02.json').exists())
         self.assertFalse((self.out/'owned-artifacts.json').exists())
 
+    def test_direct_execution_rejects_json_equivalent_concrete_type_changes_before_claim(self):
+        original = self.slots()
+        def change(slots, index, target):
+            slot = slots[index]
+            if target == 'envelope_enum':
+                schema = slot['envelope']['schema']['properties']['request_kind']['properties']['value']
+                schema['enum'] = tuple(schema['enum'])
+            elif target == 'payload_input':
+                slot['payload']['input'] = tuple(slot['payload']['input'])
+            elif target == 'envelope_metadata':
+                slot['envelope']['context']['coverage']['omitted_root_char_ranges'] = tuple(
+                    slot['envelope']['context']['coverage']['omitted_root_char_ranges'])
+            else:
+                slot['metadata']['slot'] = float(slot['metadata']['slot'])
+        with patch.object(executor,'complete_with_receipt',side_effect=AssertionError('Receipt reached')) as receipt:
+            for index in (0,5,10):
+                for target in ('envelope_enum','payload_input','envelope_metadata','metadata_numeric_type'):
+                    slots = copy.deepcopy(original)
+                    change(slots,index,target)
+                    callbacks = {n:Mock() for n in ('gate','identity','claim','reserve','persist','retain_terminal','record','cancelled')}
+                    with self.subTest(slot=index+1,target=target), self.assertRaises(EvaluationStopped):
+                        executor.execute_cases(self.provider,slots,manifest=self.source,read=lambda n:self.files[n],**callbacks)
+                    callbacks['claim'].assert_not_called(); callbacks['reserve'].assert_not_called()
+            receipt.assert_not_called()
+        self.opener.assert_not_called()
+
 
 if __name__ == '__main__':
     unittest.main()

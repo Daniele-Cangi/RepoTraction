@@ -1427,7 +1427,7 @@ force an isolated demonstration from a merely partial primitive.
   scoped Codex review clean and all four CI jobs successful.
 - [x] Implement the separate [policy-v2 owned executor](missing-link-demand-operation-policy-v2-owned-executor-2026-10-09.md)
   and explicit prepare/verify/run adapter, preserving all original modules/tests
-  and frozen evidence. Forty-two authored controls cover v2 binding, unchanged
+  and frozen evidence. Forty-three authored controls cover v2 binding, unchanged
   schema/local-rejection boundaries, identity/leases, scope, exact accounting and
   historical inventory preservation. No actual owned freeze or calls occur here.
 - [ ] Review/CI/merge the policy-v2 adapters, then freeze their exact merged code
