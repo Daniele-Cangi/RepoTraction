@@ -97,12 +97,13 @@ class _Timing:
         return value
 
     def start(self):
-        self.started = self.now()
+        # Opening succeeded: absence/counts do not depend on a valid clock.
+        self.receipt = False
         for key in ("reading", "light", "full"):
             self.durations[key] = 0
         for key in self.counts:
             self.counts[key] = 0
-        self.receipt = False
+        self.started = self.now()
 
     def measure(self, kind, callback):
         before = self.now()

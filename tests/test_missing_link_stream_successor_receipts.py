@@ -292,6 +292,36 @@ class SuccessorReceiptTests(unittest.TestCase):
                 with self.assertRaises(reader.StreamClockError): self.run_stream()
                 self.assertEqual(self.opens, 0)
                 self.assertFalse(self.telemetry[0]["clock_valid"])
+                self.assertIsNone(self.telemetry[0]["terminal_retained"])
+                self.assertIsNone(self.telemetry[0]["lines"])
+
+    def test_invalid_stream_start_clock_keeps_opened_absence_and_observed_zero_counts(self):
+        for value in (-1, float("nan"), float("inf"), True, None, "invalid"):
+            with self.subTest(value=value):
+                self.setUp()
+                def enter(stream):
+                    stream.active = True
+                    self.clock.value = value
+                    return stream
+                # The opener's observations succeeded; corrupt only the first
+                # stream-clock sample, before any read or terminal retention.
+                with patch.object(Stream, "__enter__", enter), self.assertRaises(reader.StreamClockError):
+                    self.run_stream()
+                trace = self.telemetry[0]
+                self.assertEqual(self.opens, 1)
+                self.assertEqual(len(self.charges), 1)
+                self.assertTrue(trace["reservation_committed"])
+                self.assertIs(trace["terminal_retained"], False)
+                self.assertFalse(trace["clock_valid"])
+                self.assertEqual(trace["failure"], {"category": "clock"})
+                self.assertEqual(self.receipts, [])
+                for key in ("lines", "bytes", "light_checkpoints", "full_checkpoints"):
+                    self.assertEqual(trace[key], 0)
+                for key in ("opening_seconds", "reading_seconds", "light_checkpoint_seconds",
+                            "full_checkpoint_seconds", "active_stream_seconds", "wall_stream_seconds"):
+                    self.assertIsNone(trace[key])
+                self.assertNotIn("reported_usage", self.job)
+                self.assertNotIn("ai_outputs", self.job["checkpoint"])
 
     def test_transport_projection_ignores_overridden_diagnostic_and_mutable_invalid_fields(self):
         error = ProviderTransportError("ai_transport_http_error", http_status=503)
