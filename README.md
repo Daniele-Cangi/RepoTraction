@@ -143,6 +143,10 @@ The separate [experimental policy preparation](docs/missing-link-demand-operatio
 now supplies bounded context/schema/reading and independent operator review, with
 opaque control IDs and a frozen no-spend protocol. Eleven envelopes are prepared;
 no model predictions or production promotion have occurred.
+The [native execution preparation](docs/missing-link-demand-operation-execution-preparation-2026-10-09.md)
+freezes eleven exact provider bodies, private historical baselines and a proposed
+USD0.10 segment within the original allowance. It has no paid executor or call
+authorization; separate reviewed execution gates must precede any prediction.
 Candidate execution, UI/key-entry work and production promotion remain deferred.
 
 ## Development plan

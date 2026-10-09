@@ -128,10 +128,14 @@ with USD1.9733868 locally unreserved. These are software reservations, not a
 verified invoice. Historical records, account isolation, missing/zero semantics,
 production instructions/schema/normalizers and selection/scoring remain unchanged.
 
-Next, after review/merge, prepare a separately owned execution protocol bound to
-the reviewed implementation and these exact inputs/references. Define native
-output retention, identity/lease checks, one-shot failure boundaries and an
-original-ledger segment cap before authorizing any provider call. This preparation
-does not grant that authorization. Development results remain separate from a
+PR92 is now merged as `99064726996e6a2a150029c75d28efb8d792ef58`, with a clean
+scoped review and four successful CI jobs on reviewed head `3a90a16` after the
+Windows/Python 3.13 failed-job rerun. The separate
+[native execution preparation](missing-link-demand-operation-execution-preparation-2026-10-09.md)
+fixes exact wire bodies, historical baseline, native retention, identity/lease
+and failure boundaries and an original-ledger segment cap. Next implement/review
+its owned executor and freeze its exact-code successor before separately
+authorized provider calls. These preparations grant no call authorization.
+Development results remain separate from a
 fresh repository-only useful-lead comparison and final qualification/adoption.
 Zero qualified leads still defers execution/isolation, UI/key-entry and promotion.
