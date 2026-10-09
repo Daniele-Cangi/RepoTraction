@@ -157,12 +157,16 @@ This is retrospective development feedback; no fresh utility or improvement is e
 The separate [revision 2 instruction correction](docs/missing-link-demand-operation-policy-v2-2026-10-09.md)
 clarifies operation/mechanism, partial known facts, owner choices and identifier
 fidelity while reusing unchanged context/schema/reading. It has offline controls
-and no new predictions or production wiring; semantic improvement remains untested.
+and keeps production wiring unchanged; native outcomes are reported separately.
 Its separate [policy-v2 execution preparation](docs/missing-link-demand-operation-policy-v2-execution-preparation-2026-10-09.md)
 freezes eleven revised native bodies and preserves the consumed run/assessment.
 The separate [policy-v2 owned executor](docs/missing-link-demand-operation-policy-v2-owned-executor-2026-10-09.md)
-adds authored offline execution conformance. Its review/merge, exact-code owned
-freeze and separate call authorization are still required.
+adds authored offline execution conformance. After review/merge, an exact-code
+owned freeze and separate authorization, the [policy-v2 native run](docs/missing-link-demand-operation-policy-v2-native-results-2026-10-09.md)
+completed eleven one-shot calls, adding USD0.0535105 in software reservations.
+Independent reading records one remaining query-relation disagreement, missed
+local requirements and other unsupported annotations. This retrospective
+comparison does not establish causal improvement or fresh Discover utility.
 Candidate execution, UI/key-entry work and production promotion remain deferred.
 
 ## Development plan
