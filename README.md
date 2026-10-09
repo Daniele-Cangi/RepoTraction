@@ -170,11 +170,13 @@ comparison does not establish causal improvement or fresh Discover utility.
 The separate [revision 3 correction](docs/missing-link-demand-operation-policy-v3-2026-10-09.md)
 clarifies minimum/preferred outputs, requirements versus reported context,
 semantic operation roles and scoped gaps. It has authored offline controls and
-preserves both consumed runs; no v3 prediction, executor or call authorization exists.
+preserves both consumed runs; its initial correction adds no model predictions.
 After its reviewed merge, the separate [v3 execution preparation](docs/missing-link-demand-operation-policy-v3-execution-preparation-2026-10-09.md)
 freezes eleven new native bodies offline under a prospective protocol. Both old
-executors stay unchanged; a separate reviewed v3 adapter and owned freeze precede
-any new human call authorization within the original allowance.
+executors stay unchanged. The separate [v3 owned executor](docs/missing-link-demand-operation-policy-v3-owned-executor-2026-10-09.md)
+adds authored offline conformance. Its review/CI/merge and an exact-code owned
+freeze precede any new human call authorization within the original allowance;
+no actual v3 owned freeze, prediction or authorization exists yet.
 Candidate execution, UI/key-entry work and production promotion remain deferred.
 
 ## Development plan
