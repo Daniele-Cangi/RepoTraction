@@ -383,7 +383,8 @@ class PolicyV2ExecutorTests(unittest.TestCase):
             slot.update(envelope=env,payload=payload)
             slot['metadata'].update(native_sha256=executor.digest(body))
         callbacks = {n:Mock() for n in ('gate','identity','claim','reserve','persist','retain_terminal','record','cancelled')}
-        with self.assertRaises(EvaluationStopped): executor.execute_cases(self.provider,modified,**callbacks)
+        with self.assertRaises(EvaluationStopped):
+            executor.execute_cases(self.provider,modified,manifest=self.source,read=lambda n:self.files[n],**callbacks)
         callbacks['reserve'].assert_not_called(); self.opener.assert_not_called()
         with self.assertRaises(EvaluationStopped): executor.check_prediction(unknown(),modified[0],lambda:None)
 
@@ -464,6 +465,75 @@ class PolicyV2ExecutorTests(unittest.TestCase):
         self.assertTrue(any(o['phase'] == 'request' and o['output'] == raw
             for j in checkpoints for o in j['checkpoint'].get('ai_outputs',[])))
         self.assertFalse((self.out/'attempt-02.json').exists())
+
+    def test_direct_execution_rejects_all_changed_frozen_metadata_before_claim_or_payment(self):
+        # Every location is tested, including a late slot before an earlier call.
+        changes = {'operator_id':'other', 'opaque_id':'other', 'input_sha256':'0'*64,
+            'phase':'analysis', 'endpoint':'/other', 'native_bytes':1, 'envelope_bytes':1,
+            'native_sha256':'0'*64, 'envelope_sha256':'0'*64, 'native_body':'other.json',
+            'policy_envelope':'other.json', 'reservation_usd':0, 'job_id':'other'}
+        original = self.slots()
+        with patch.object(executor,'complete_with_receipt',side_effect=AssertionError('Receipt reached')) as receipt:
+            for index in (0,5,10):
+                for key,value in changes.items():
+                    slots = copy.deepcopy(original)
+                    slots[index]['metadata'][key] = value
+                    callbacks = {n:Mock() for n in ('gate','identity','claim','reserve','persist','retain_terminal','record','cancelled')}
+                    with self.subTest(slot=index+1,key=key), self.assertRaises(EvaluationStopped):
+                        executor.execute_cases(self.provider,slots,manifest=self.source,read=lambda n:self.files[n],**callbacks)
+                    callbacks['claim'].assert_not_called(); callbacks['reserve'].assert_not_called()
+            receipt.assert_not_called()
+        self.opener.assert_not_called()
+
+    def test_descendant_main_cannot_execute_from_another_tree_before_credentials(self):
+        def descendant(*args):
+            if args == ('branch','--show-current'): return 'main'
+            if args in (('rev-parse','HEAD'),('rev-parse','origin/main'),('rev-parse','HEAD^{tree}')): return 'b'*40
+            if args and args[0] == 'rev-parse': return 'a'*40
+            return ''
+        self.environment.side_effect = AssertionError('Credential lookup reached')
+        with patch.object(runner,'git',side_effect=descendant), self.assertRaises(EvaluationStopped):
+            runner.run(self.out,self.anchor,self.authorization)
+        self.environment.assert_not_called(); self.identity.assert_not_called(); self.opener.assert_not_called()
+        self.assertFalse((self.out/'started.json').exists())
+        self.assertEqual(self.original.ai_reserved(runner.ALLOWANCE),.10)
+
+    def test_direct_execution_cannot_reanchor_changed_body_using_its_own_hash(self):
+        slots = self.slots()
+        slot = slots[-1]
+        slot['packet']['query'] = 'Altered operation outside the frozen request'
+        envelope = executor.build_request(slot['packet'])
+        endpoint,payload,body = self.provider._encode_prompt(envelope['instructions'],envelope['context'],envelope['schema'],'request')
+        slot.update(envelope=envelope,payload=payload)
+        slot['metadata'].update(native_sha256=executor.digest(body),native_bytes=len(body),
+            envelope_sha256=executor.digest(executor._bytes(envelope)),envelope_bytes=len(executor._bytes(envelope)),
+            opaque_id=envelope['context']['id'],input_sha256=envelope['context']['input_sha256'],
+            reservation_usd=((len(body)+2048)*self.provider.input_price+self.provider.max_tokens*self.provider.output_price)/1e6)
+        callbacks = {n:Mock() for n in ('gate','identity','claim','reserve','persist','retain_terminal','record','cancelled')}
+        with self.assertRaises(EvaluationStopped):
+            executor.execute_cases(self.provider,slots,manifest=self.source,read=lambda n:self.files[n],**callbacks)
+        callbacks['claim'].assert_not_called(); callbacks['reserve'].assert_not_called(); self.opener.assert_not_called()
+
+    def test_reviewed_tree_change_during_receipt_stops_after_one_reservation(self):
+        changed = False
+        def git(*args):
+            if args == ('branch','--show-current'): return 'main'
+            if args in (('rev-parse','HEAD'),('rev-parse','origin/main'),('rev-parse','HEAD^{tree}')):
+                return ('b' if changed else 'a')*40
+            if args and args[0] == 'rev-parse': return 'a'*40
+            return ''
+        def receive(*a,**k):
+            nonlocal changed
+            changed = True
+            return Stream(terminal(unknown()))
+        self.opener.return_value.open.side_effect = receive
+        with patch.object(runner,'git',side_effect=git), self.assertRaises(EvaluationStopped):
+            runner.run(self.out,self.anchor,self.authorization)
+        self.assertEqual(self.opener.return_value.open.call_count,1)
+        self.assertEqual(len(runner.journal(self.out)),1)
+        self.assertEqual(runner.load(self.out/'terminal-01.json'),terminal(unknown()))
+        self.assertFalse((self.out/'attempt-02.json').exists())
+        self.assertFalse((self.out/'owned-artifacts.json').exists())
 
 
 if __name__ == '__main__':

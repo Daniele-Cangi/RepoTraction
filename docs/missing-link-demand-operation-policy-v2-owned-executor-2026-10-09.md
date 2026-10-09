@@ -14,8 +14,11 @@ with authored temporary-data conformance; no actual owned freeze or calls occur.
 the policy-v2 builder and unchanged mechanical normalizer. It verifies all eleven
 ordered envelopes/native bodies, settings, hashes, lengths, costs and the distinct
 `demand-operation-policy-v2-owned-2026-10-09-01` through `-11` accounting IDs
-before attempts. Direct execution callers also have every supplied envelope and
-payload compared with the v2 builder/encoder before any payment. Policy-v1 bodies,
+before attempts. Direct execution callers must supply the caller's independently
+anchored source manifest and frozen-body reader. The executor rebuilds all eleven
+requests and compares complete typed slots with those verified manifest entries
+before claiming any slot or paying, including identifiers, phase, paths, lengths,
+costs, envelope and native hashes. A slot's own hash is not a trust anchor. Policy-v1 bodies,
 IDs or preparation revision cannot silently enter the new executor.
 
 `scripts/missing_link_demand_operation_policy_v2_run.py` owns explicit
@@ -54,8 +57,14 @@ baseline extension and original accounting. It does not read credentials or call
 the provider. A changed or omitted historical file fails even if someone supplies
 a newly computed digest for a different owned manifest.
 
-Only `run` can read provider credentials, and only after clean merged code,
-independent owned anchor, source/history integrity, unused inventory, original
+Only `run` can read provider credentials. Before lookup it requires clean main
+with current HEAD at the owned manifest's exact frozen merged commit and its
+reviewed tree, and current `origin/main` still at that commit. Repeat that exact
+execution-tree check at every integrity gate; a later main commit cannot inherit
+the owned run's authorization even with unchanged pinned code. Read-only receipt
+verification retains the independent historical binding without starting execution.
+The credential boundary also requires an independent owned anchor,
+source/history integrity, unused inventory, original
 baseline and exact authorization-scope checks. It requires an explicit
 `--call-authorization` JSON record matching `authorization_scope(anchor, source)`:
 the owned/source digests, account, original allowance, all eleven ordered native
@@ -110,7 +119,7 @@ leases release in every exit path. Any evidence of prior execution blocks replay
 
 ## Authored conformance and next boundary
 
-Thirty-eight authored offline controls use temporary original databases, fake
+Forty-two authored offline controls use temporary original databases, fake
 public identity, temporary historical seals/scope records and synthetic native
 streams. They cover v2 versus v1 body binding, ordered IDs/settings/costs, standalone
 schema versus local rejection, raw/context/code mutation, receipt/usage/raw retention,
@@ -119,6 +128,10 @@ scope mismatch before credentials, history mutation and exact inventories,
 source-to-owned baseline preservation, seals/replay prevention and credential-free
 freeze on an authored 566-row baseline. Previous native/assessment bytes remain
 identical after the authored owned accounting extension.
+The four review regressions reject changed metadata in the first/middle/last slot,
+an internally consistent changed body with a self-supplied new hash, a descendant
+main before credentials, and a tree change during receipt handling after one
+retained reservation. Both original P1 failures were reproduced before correction.
 
 These are execution-mechanics tests, not model outputs or proof the revised
 instructions work. Independently recheck the actual source preparation, consumed

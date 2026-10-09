@@ -193,10 +193,17 @@ def authorization_scope(anchor, source):
         'native_sha256':[r['native_sha256'] for r in source['requests']]}
 
 
+def execution_tree(manifest):
+    """Only the frozen merged commit/tree may execute; later main is not approval."""
+    require(git('branch','--show-current') == 'main'
+            and git('rev-parse','HEAD') == git('rev-parse','origin/main') == manifest['required_main']
+            and git('rev-parse','HEAD^{tree}') == manifest['reviewed_tree'],
+            'Run requires the exact frozen reviewed/merged tree')
+
+
 def run(out, anchor, authorization=None):
     manifest, source = frozen(out,anchor,fetch=True)
-    require(git('branch','--show-current') == 'main' and git('rev-parse','HEAD') == git('rev-parse','origin/main'),
-            'Run requires clean merged main')
+    execution_tree(manifest)
     require(inventory(out) <= {'prepared.json','baseline.json',LOCK}, 'Owned run is already consumed')
     before = load(out/'baseline.json')
     verify_prefix(before,snapshot(before),[],allowance=ALLOWANCE,ceiling=CEILING)
@@ -230,6 +237,7 @@ def run(out, anchor, authorization=None):
 
     def integrity():
         frozen(out,anchor,provider)
+        execution_tree(manifest)
         require(inventory(out) <= set(hashes) | {LOCK}, 'Unowned evidence file appeared')
         require(all(sha(out/name) == value for name,value in hashes.items()), 'Owned evidence changed')
         if acquired:
@@ -273,7 +281,8 @@ def run(out, anchor, authorization=None):
         original.path, original.account = DB, ACCOUNT.casefold()
         binding = ReservationBinding(original,allowance=ALLOWANCE,ceiling=CEILING,verify=integrity,
             persist=lambda n,row:owned_save(f'reservation-{n:02}.json',row))
-        execute_cases(provider,slots,gate=integrity,identity=identity,claim=claim,reserve=reserve,persist=persist,
+        execute_cases(provider,slots,manifest=source,read=lambda name:(PREP/name).read_bytes(),
+            gate=integrity,identity=identity,claim=claim,reserve=reserve,persist=persist,
             retain_terminal=lambda n,event:owned_save(f'terminal-{n:02}.json',event),record=record,
             cancelled=lambda:(out.parent/(out.name+'.cancel')).exists())
     except BaseException as exc:

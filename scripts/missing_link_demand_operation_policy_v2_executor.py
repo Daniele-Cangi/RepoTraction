@@ -74,20 +74,12 @@ def check_prediction(raw, slot, gate):
             'disposition':'local_rejection' if error else 'mechanically_valid', 'validation_error':error}
 
 
-def execute_cases(provider, slots, *, gate, identity, claim, reserve, persist,
+def execute_cases(provider, slots, *, manifest, read, gate, identity, claim, reserve, persist,
                   retain_terminal, record, cancelled):
-    """Never retry; callbacks must be fatal on failed storage/ownership gates."""
-    require(len(slots) == 11 and [s['metadata']['slot'] for s in slots] == list(range(1,12)),
-            'Execution slot order changed')
-    # Bind even direct callers before payment, not only after a native response.
-    for number, slot in enumerate(slots, 1):
-        envelope = build_request(slot['packet'])
-        endpoint, payload, body = provider._encode_prompt(
-            envelope['instructions'], envelope['context'], envelope['schema'], 'request')
-        require(envelope == slot['envelope'] and payload == slot['payload']
-                and endpoint == '/responses' and digest(body) == slot['metadata']['native_sha256']
-                and slot['metadata']['job_id'] == f'demand-operation-policy-v2-owned-2026-10-09-{number:02}',
-                'Execution is not bound to frozen policy-v2 bodies')
+    """Caller supplies its anchored manifest/body reader; never trust slot metadata."""
+    gate()
+    verified = verify_requests(provider, [s['packet'] for s in slots], manifest, read)
+    require(_bytes(slots) == _bytes(verified), 'Execution slots differ from the frozen manifest')
     original = copy.deepcopy(slots)
     results = []
     for slot in slots:
