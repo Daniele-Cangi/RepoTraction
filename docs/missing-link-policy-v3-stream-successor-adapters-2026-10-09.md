@@ -83,9 +83,12 @@ commit, not a static error message. Receipt state becomes true only when the
 exclusive writer returns successfully; a failing writer leaves it null because
 partial persistence is uncertain. A missing terminal on an opened stream is
 false; before opening it remains null. Missing native usage is never zero usage.
-Opened-stream absence and zero observed counters are initialized before the
-fallible first stream-clock sample. Invalid-clock durations remain null even
-when the opened stream and absence of retained terminals are known.
+Opened-stream absence and zero observed counters are initialized immediately
+when the opener returns, before its post-open timing sample or context entry.
+The reader owns that response at return and closes it if timing or context entry
+fails before the response context takes ownership. A failed cleanup cannot
+replace the primary global error. Normal response-context exit closes it once.
+Invalid-clock durations remain null even when opened-stream absence is known.
 Both native `input_tokens` and `output_tokens` must be present as concrete
 nonnegative integers before usage, call metadata or semantic output processing.
 Missing/null/incomplete usage, booleans, fractional/negative counts and strings

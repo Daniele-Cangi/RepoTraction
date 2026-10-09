@@ -26,8 +26,12 @@ class Stream:
     def __init__(self, lines, clock, delay=0, on_read=lambda: None):
         self.lines, self.clock, self.delay = iter(lines), clock, delay
         self.on_read, self.active = on_read, False
-    def __enter__(self): self.active = True; return self
-    def __exit__(self, *args): self.active = False; return False
+        self.entered, self.closed, self.close_calls = False, False, 0
+    def __enter__(self): self.active = True; self.entered = True; return self
+    def __exit__(self, *args): self.close(); return False
+    def close(self):
+        self.close_calls += 1
+        self.closed, self.active = True, False
     def readline(self, limit):
         self.clock.value += self.delay
         self.on_read()
@@ -49,12 +53,15 @@ class SuccessorReceiptTests(unittest.TestCase):
         self.budget = Budget(self.job, lambda: None, lambda: self.cancelled(), lambda: self.full(), self.charges.append)
 
     def run_stream(self, lines=None, *, delay=0, on_read=lambda: None, open_error=None,
-                   retain=None, diagnostic=None, observed=None):
+                   retain=None, diagnostic=None, observed=None, on_open=lambda: None):
         stream = Stream(lines if lines is not None else [event(terminal({"value": "authored"}))],
                         self.clock, delay, on_read)
         opener = Mock()
         opener.open.return_value = stream
-        opener.open.side_effect = open_error
+        def open_response(*args, **kwargs):
+            on_open()
+            return stream
+        opener.open.side_effect = open_error if open_error is not None else open_response
         with patch("urllib.request.build_opener", return_value=opener), \
                 patch("socket.socket", side_effect=AssertionError("Offline sockets forbidden")), \
                 patch("missing_link.provider.provider_environment", side_effect=AssertionError("No config")):
@@ -67,6 +74,7 @@ class SuccessorReceiptTests(unittest.TestCase):
             finally:
                 self.assertLessEqual(opener.open.call_count, 1)
                 self.opens = opener.open.call_count
+                self.stream = stream
 
     def test_buffered_deltas_with_expensive_full_guards_finish(self):
         def full():
@@ -83,6 +91,8 @@ class SuccessorReceiptTests(unittest.TestCase):
         self.assertEqual(trace["light_checkpoints"], 602)
         self.assertTrue(trace["terminal_retained"])
         self.assertTrue(trace["reservation_committed"])
+        self.assertTrue(self.stream.closed)
+        self.assertEqual(self.stream.close_calls, 1)
 
     def test_expensive_light_guards_are_measured_once_and_count_toward_wall(self):
         self.light.side_effect = lambda: setattr(self.clock, "value", self.clock.value + 5)
@@ -220,6 +230,8 @@ class SuccessorReceiptTests(unittest.TestCase):
                 self.assertIsNone(trace["terminal_retained"])
                 self.assertIsNone(trace["reading_seconds"])
                 self.assertNotIn("PRIVATE", json.dumps(trace))
+                self.assertFalse(self.stream.closed)
+                self.assertEqual(self.stream.close_calls, 0)
 
     def test_read_timeout_keeps_observed_stream_counts(self):
         with self.assertRaises(ProviderTransportError): self.run_stream([b"\n", TimeoutError("authored")], delay=2)
@@ -329,6 +341,60 @@ class SuccessorReceiptTests(unittest.TestCase):
         error.code, error.phase, error.http_status = ["PRIVATE"], "PRIVATE", True
         result = reader.failure_projection(error)
         self.assertEqual(result, {"category": "ai_transport", "code": "ai_transport_protocol_error", "phase": "analysis"})
+
+    def test_post_open_invalid_clock_closes_response_with_known_absence_before_enter(self):
+        for value in (-1, float("nan"), float("inf"), True, None, "invalid"):
+            with self.subTest(value=value):
+                self.setUp()
+                with self.assertRaises(reader.StreamClockError):
+                    self.run_stream(on_open=lambda: setattr(self.clock, "value", value))
+                trace = self.telemetry[0]
+                self.assertEqual(self.opens, 1)
+                self.assertTrue(self.stream.closed)
+                self.assertEqual(self.stream.close_calls, 1)
+                self.assertFalse(self.stream.entered)
+                self.assertEqual(len(self.charges), 1)
+                self.assertTrue(trace["reservation_committed"])
+                self.assertIs(trace["terminal_retained"], False)
+                self.assertFalse(trace["clock_valid"])
+                self.assertEqual(trace["failure"], {"category": "clock"})
+                for key in ("lines", "bytes", "light_checkpoints", "full_checkpoints"):
+                    self.assertEqual(trace[key], 0)
+                for key in ("opening_seconds", "reading_seconds", "light_checkpoint_seconds",
+                            "full_checkpoint_seconds", "active_stream_seconds", "wall_stream_seconds"):
+                    self.assertIsNone(trace[key])
+                self.assertEqual(self.receipts, [])
+                self.assertNotIn("reported_usage", self.job)
+                self.assertNotIn("ai_trace", self.job)
+                self.assertNotIn("ai_outputs", self.job["checkpoint"])
+
+    def test_post_open_context_entry_failure_closes_response_without_transport_conversion(self):
+        error = OSError("PRIVATE entry failure")
+        with patch.object(Stream, "__enter__", side_effect=error), self.assertRaises(OSError) as raised:
+            self.run_stream()
+        self.assertIs(raised.exception, error)
+        self.assertTrue(self.stream.closed)
+        self.assertEqual(self.stream.close_calls, 1)
+        self.assertEqual(self.opens, 1)
+        self.assertIs(self.telemetry[0]["terminal_retained"], False)
+        self.assertEqual(self.telemetry[0]["lines"], 0)
+        self.assertEqual(self.telemetry[0]["failure"], {"category": "callback_or_unclassified"})
+        self.assertNotIn("PRIVATE", json.dumps(self.telemetry))
+        self.assertEqual(self.receipts, [])
+        self.assertNotIn("reported_usage", self.job)
+
+    def test_post_open_cleanup_failure_cannot_replace_primary_clock_failure(self):
+        with patch.object(Stream, "close", side_effect=OSError("PRIVATE cleanup failure")) as close, \
+                self.assertRaises(reader.StreamClockError):
+            self.run_stream(on_open=lambda: setattr(self.clock, "value", float("nan")))
+        close.assert_called_once_with()
+        self.assertEqual(self.opens, 1)
+        self.assertIs(self.telemetry[0]["terminal_retained"], False)
+        self.assertEqual(self.telemetry[0]["failure"], {"category": "clock"})
+        self.assertFalse(self.telemetry[0]["clock_valid"])
+        self.assertNotIn("PRIVATE", json.dumps(self.telemetry))
+        self.assertEqual(self.receipts, [])
+        self.assertNotIn("reported_usage", self.job)
 
     def test_mutated_secondary_diagnostic_is_sanitized_and_redirect_phase_is_request(self):
         error=reader.TelemetryPersistenceError(None)

@@ -5,6 +5,7 @@ Only open/read exceptions are converted to transport failures. Native terminals
 and bounded telemetry remain private, separate from accepted interpretations.
 """
 import copy
+from contextlib import contextmanager
 import http.client
 import json
 import math
@@ -96,13 +97,15 @@ class _Timing:
         self.last = value
         return value
 
-    def start(self):
+    def opened(self):
         # Opening succeeded: absence/counts do not depend on a valid clock.
         self.receipt = False
         for key in ("reading", "light", "full"):
             self.durations[key] = 0
         for key in self.counts:
             self.counts[key] = 0
+
+    def start(self):
         self.started = self.now()
 
     def measure(self, kind, callback):
@@ -196,6 +199,33 @@ def _io(callback):
         raise ProviderTransportError("ai_transport_io_error", phase="request") from None
 
 
+@contextmanager
+def _response_stream(opener, request, timing):
+    """Own the returned response before post-open timing or context entry."""
+    response, entered = None, False
+
+    def open_response():
+        nonlocal response
+        response = _io(lambda: opener.open(request, timeout=55))
+        timing.opened()
+        return response
+
+    try:
+        timing.measure("opening", open_response)
+        with response:
+            entered = True
+            yield response
+    except BaseException:
+        if response is not None and not entered:
+            try:
+                response.close()
+            except BaseException:
+                # The attempt already stops globally; cleanup cannot replace
+                # its primary clock/context error or expose a raw message.
+                pass
+        raise
+
+
 def complete_with_receipt(provider, instruction, data, budget, *, schema,
                           retain_terminal, retain_telemetry, light_checkpoint,
                           reservation_observed, clock=time.monotonic):
@@ -216,8 +246,7 @@ def complete_with_receipt(provider, instruction, data, budget, *, schema,
             headers["Authorization"] = "Bearer " + provider.key
         request = urllib.request.Request(provider.url + endpoint, data=body, headers=headers, method="POST")
         opener = urllib.request.build_opener(NoRedirect())
-        response = timing.measure("opening", lambda: _io(lambda: opener.open(request, timeout=55)))
-        with response:
+        with _response_stream(opener, request, timing) as response:
             timing.start()
             nonterminal, last_full, terminal = 0, timing.started, None
             while True:
