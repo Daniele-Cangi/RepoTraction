@@ -118,7 +118,12 @@ def execute_cases(provider, slots, *, manifest, read, gate, identity, claim, res
             reserve(job_id, cost)
             guard()
 
-        budget = Budget(job, lambda: persist(number, copy.deepcopy(job)), cancelled, identity, reserve_one)
+        def persist_job():
+            guard()
+            persist(number, copy.deepcopy(job))
+            guard()
+
+        budget = Budget(job, persist_job, cancelled, identity, reserve_one)
         envelope = slot['envelope']
         raw = complete_with_receipt(provider, envelope['instructions'], envelope['context'], budget,
             schema=envelope['schema'], phase='request',

@@ -246,7 +246,7 @@ def run(out, anchor, authorization=None):
         frozen(out,anchor,provider)
         execution_tree(manifest)
         require(inventory(out) <= set(hashes) | {LOCK}, 'Unowned evidence file appeared')
-        require(all(sha(out/name) == value for name,value in hashes.items()), 'Owned evidence changed')
+        require(all(owned_sha(name) == value for name,value in hashes.items()), 'Owned evidence changed')
         if acquired:
             require((out/LOCK).is_file(), 'Owned lease lock disappeared')
         rows = binding.rows if binding else []
@@ -306,6 +306,11 @@ def run(out, anchor, authorization=None):
                 require(inventory(out) == set(hashes)
                         and all(owned_sha(name) == value for name,value in hashes.items()),
                         'Cannot seal incomplete or changed owned evidence')
+                # Validate both current accounting and the actual retained final
+                # snapshot immediately before issuing a receipt digest.
+                integrity()
+                verify_prefix(before,load(out/'final-integrity.json'),journal(out),
+                    allowance=ALLOWANCE,ceiling=CEILING)
                 save(out,'owned-artifacts.json',hashes)
                 print(json.dumps({'receipt_manifest_sha256':sha(out/'owned-artifacts.json'),
                                   'retain_outside_output_directory':True}))

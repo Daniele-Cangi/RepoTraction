@@ -669,6 +669,53 @@ class PolicyV3ExecutorTests(unittest.TestCase):
         callbacks['record'].assert_not_called()
         self.opener.assert_not_called()
 
+    def test_final_snapshot_foreign_reservation_cannot_be_sealed(self):
+        snapshot = runner.snapshot
+        finalization_snapshots = 0
+        def changed_snapshot(before):
+            nonlocal finalization_snapshots
+            if (self.out/'summary.json').exists() and not (self.out/'final-integrity.json').exists():
+                finalization_snapshots += 1
+                if finalization_snapshots == 2:
+                    self.original.reserve_ai_allowance(runner.ALLOWANCE, 'foreign-finalization', .01, 10)
+            return snapshot(before)
+        with patch.object(runner, 'snapshot', side_effect=changed_snapshot), self.assertRaises(EvaluationStopped):
+            runner.run(self.out, self.anchor, self.authorization)
+        self.assertEqual(self.opener.return_value.open.call_count, 11)
+        self.assertTrue((self.out/'final-integrity.json').exists())
+        self.assertFalse((self.out/'owned-artifacts.json').exists())
+
+    def test_persistence_slot_mutation_after_charge_stops_before_transmission(self):
+        slots = self.slots()
+        callbacks = {name: Mock() for name in ('gate', 'identity', 'claim', 'reserve', 'persist', 'retain_terminal', 'record')}
+        callbacks['cancelled'] = Mock(return_value=False)
+        def persist(*args):
+            slots[-1]['metadata']['slot'] = 11.0
+        callbacks['persist'].side_effect = persist
+        with self.assertRaises(EvaluationStopped):
+            executor.execute_cases(self.provider, slots, manifest=self.source, read=lambda n: self.files[n], **callbacks)
+        callbacks['reserve'].assert_called_once()
+        self.opener.return_value.open.assert_not_called()
+        callbacks['retain_terminal'].assert_not_called()
+        callbacks['record'].assert_not_called()
+
+    def test_retained_final_snapshot_must_match_prefix_even_if_live_db_is_valid(self):
+        snapshot = runner.snapshot
+        finalization_snapshots = 0
+        def mismatched_snapshot(before):
+            nonlocal finalization_snapshots
+            result = snapshot(before)
+            if (self.out/'summary.json').exists() and not (self.out/'final-integrity.json').exists():
+                finalization_snapshots += 1
+                if finalization_snapshots == 2:
+                    result['tables']['ml_jobs'] = '0'*64
+            return result
+        with patch.object(runner, 'snapshot', side_effect=mismatched_snapshot), self.assertRaises(EvaluationStopped):
+            runner.run(self.out, self.anchor, self.authorization)
+        self.assertEqual(self.opener.return_value.open.call_count, 11)
+        self.assertTrue((self.out/'final-integrity.json').exists())
+        self.assertFalse((self.out/'owned-artifacts.json').exists())
+
     def test_owned_baseline_cannot_drop_v2_assessment_with_fresh_owned_anchor(self):
         baseline = runner.load(self.out/'baseline.json')
         baseline['artifacts'].pop(next(n for n in baseline['artifacts'] if 'policy-v2-owned-assessment' in n))
