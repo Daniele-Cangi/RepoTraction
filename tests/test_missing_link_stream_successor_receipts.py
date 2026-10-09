@@ -146,6 +146,49 @@ class SuccessorReceiptTests(unittest.TestCase):
         self.assertNotIn("reported_usage", self.job)
         self.assertNotIn("ai_outputs", self.job["checkpoint"])
 
+    def test_missing_or_invalid_native_usage_stops_before_usage_trace_or_output(self):
+        missing = object()
+        cases = [missing, None, [], {}, {"input_tokens": 1}, {"output_tokens": 1}]
+        for key in ("input_tokens", "output_tokens"):
+            for value in (None, True, False, -1, 1.0, "1"):
+                cases.append({"input_tokens": 1, "output_tokens": 1, key: value})
+        for usage in cases:
+            with self.subTest(usage=usage):
+                self.setUp()
+                native = terminal({"value": "authored"})
+                if usage is missing:
+                    del native["response"]["usage"]
+                else:
+                    native["response"]["usage"] = usage
+                with patch.object(self.budget, "record_usage") as record_usage, \
+                        patch.object(self.budget, "record_call") as record_call, \
+                        patch.object(self.budget, "record_output") as record_output:
+                    with self.assertRaises(CandidateValidationError):
+                        self.run_stream([event(native)])
+                    record_usage.assert_not_called()
+                    record_call.assert_not_called()
+                    record_output.assert_not_called()
+                self.assertEqual(self.receipts, [native])
+                self.assertEqual(len(self.charges), 1)
+                self.assertTrue(self.telemetry[0]["reservation_committed"])
+                self.assertTrue(self.telemetry[0]["terminal_retained"])
+                self.assertEqual(self.telemetry[0]["failure"], {"category": "candidate_validation"})
+                self.assertEqual(self.telemetry[0]["full_checkpoints"], 1)
+
+    def test_valid_native_usage_including_zero_is_reported_exactly(self):
+        for input_tokens, output_tokens in ((0, 0), (0, 25), (50, 0), (50, 25)):
+            with self.subTest(tokens=(input_tokens, output_tokens)):
+                self.setUp()
+                native = terminal({"value": "authored"})
+                native["response"]["usage"] = {"input_tokens": input_tokens, "output_tokens": output_tokens}
+                self.assertEqual(self.run_stream([event(native)]), {"value": "authored"})
+                self.assertEqual(self.job["reported_usage"], [{"input_tokens": input_tokens,
+                    "output_tokens": output_tokens,
+                    "estimated_cost_usd_at_configured_prices":
+                        (input_tokens * self.provider.input_price + output_tokens * self.provider.output_price) / 1_000_000}])
+                self.assertIsNone(self.telemetry[0]["failure"])
+                self.assertEqual(len(self.charges), 1)
+
     def test_missing_malformed_inconsistent_and_oversized_events_are_global(self):
         malformed = terminal({}); malformed["response"]["status"] = "incomplete"
         for lines, code in (([b"\n"], "ai_stream_missing_terminal"),

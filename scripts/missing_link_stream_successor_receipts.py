@@ -261,10 +261,10 @@ def complete_with_receipt(provider, instruction, data, budget, *, schema,
                     nonterminal, last_full = 0, timing.now()
         result = terminal["response"]
         usage = result.get("usage")
-        if isinstance(usage, dict):
-            tokens = usage.get("input_tokens"), usage.get("output_tokens")
-            if all(type(v) is int and v >= 0 for v in tokens):
-                budget.record_usage(*tokens, (tokens[0] * provider.input_price + tokens[1] * provider.output_price) / 1_000_000)
+        tokens = (usage.get("input_tokens"), usage.get("output_tokens")) if isinstance(usage, dict) else (None, None)
+        if not all(type(v) is int and v >= 0 for v in tokens):
+            raise CandidateValidationError("Missing or invalid native usage.")
+        budget.record_usage(*tokens, (tokens[0] * provider.input_price + tokens[1] * provider.output_price) / 1_000_000)
         budget.record_call({"phase": "request", "model": provider.model, "api_kind": provider.api_kind,
             "response_id": str(result.get("id", ""))[:150], "response_status": str(result.get("status", ""))[:30],
             "request_sha256": digest(payload), "request_bytes": len(body),

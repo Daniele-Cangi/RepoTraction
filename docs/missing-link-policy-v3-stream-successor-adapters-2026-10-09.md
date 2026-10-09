@@ -83,6 +83,13 @@ commit, not a static error message. Receipt state becomes true only when the
 exclusive writer returns successfully; a failing writer leaves it null because
 partial persistence is uncertain. A missing terminal on an opened stream is
 false; before opening it remains null. Missing native usage is never zero usage.
+Both native `input_tokens` and `output_tokens` must be present as concrete
+nonnegative integers before usage, call metadata or semantic output processing.
+Missing/null/incomplete usage, booleans, fractional/negative counts and strings
+stop globally after native retention and the fresh full check. Explicit integer
+zero is valid and retained as reported usage. A closed failed-run receipt can
+record the stopped attempt and remaining absence; it cannot report an accepted
+prediction or allow continuation/replay.
 
 Error projection accepts only fixed categories, allowlisted transport code/phase
 and concrete HTTP status 100–599 for HTTP errors. It ignores arbitrary exception

@@ -138,6 +138,35 @@ class StreamSuccessorExecutionTests(unittest.TestCase):
         self.assertTrue(runner.load(self.out/'diagnostics-01.json')['terminal_retained'])
         self.assertFalse((self.out/'result-01.json').exists())
 
+    def test_missing_native_usage_keeps_one_charge_and_receipt_without_result_or_continuation(self):
+        native = terminal(unknown())
+        del native['response']['usage']
+        self.opener.return_value.open.side_effect = lambda *a,**k:Stream(native)
+        with self.assertRaises(EvaluationStopped): self.run_owned()
+        self.assertEqual(self.opener.return_value.open.call_count,1)
+        self.assertEqual(runner.load(self.out/'terminal-01.json'),native)
+        trace = runner.load(self.out/'diagnostics-01.json')
+        self.assertTrue(trace['terminal_retained']); self.assertTrue(trace['reservation_committed'])
+        self.assertEqual(trace['failure'],{'category':'candidate_validation'})
+        summary = runner.load(self.out/'summary.json')
+        self.assertEqual(summary['results'],[])
+        self.assertEqual(summary['failure'],{'diagnostic':{'category':'candidate_validation'},'stopped_slot':1})
+        self.assertEqual(summary['unattempted'],list(range(2,12)))
+        self.assertFalse((self.out/'result-01.json').exists())
+        self.assertFalse((self.out/'attempt-02.json').exists())
+        for path in self.out.glob('checkpoint-*.json'):
+            job = runner.load(path)
+            self.assertNotIn('reported_usage',job)
+            self.assertNotIn('ai_trace',job)
+            self.assertNotIn('ai_outputs',job['checkpoint'])
+        after = runner.snapshot(self.before)
+        self.assertEqual(after['reservations'],self.before['reservations']+1)
+        self.assertGreater(after['reserved_usd'],self.before['reserved_usd'])
+        # A closed failed-run receipt records absence; it does not mark success.
+        runner.verify(self.out,self.anchor,runner.sha(self.out/'owned-artifacts.json'))
+        with self.assertRaises(EvaluationStopped): self.run_owned()
+        self.assertEqual(self.opener.return_value.open.call_count,1)
+
     def test_post_schema_local_rejection_continues_once_without_output_repair(self):
         invalid = unknown(); invalid['fields']['runtime']['text'] = 'Authored unsupported guess'
         self.opener.return_value.open.side_effect = [Stream(terminal(invalid))]+[Stream(terminal(unknown())) for _ in range(10)]
