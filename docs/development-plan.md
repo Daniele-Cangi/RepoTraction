@@ -1402,11 +1402,20 @@ force an isolated demonstration from a merely partial primitive.
   Four relation hints disagree with the frozen references. Original accounting
   advances only by the owned eleven-row prefix / USD0.051305 to 566 / USD8.0779182;
   original USD10 allowance and 1,369 protected historical artifacts are preserved.
-- [ ] Specify the next bounded policy revision for operation-hint/field-state
+- [x] Specify the next bounded policy revision for operation-hint/field-state
   distinctions before implementation or further predictions. Preserve this consumed
   run, raw outputs, references and earlier freezes; any additional paid experiment
   requires its own reviewed frozen successor and separate authorization. Retained
   development agreement cannot authorize production promotion or qualified leads.
+  The [revision 2 contract](missing-link-demand-operation-policy-v2-contract-2026-10-09.md)
+  was committed before its separate opt-in instruction successor. The
+  [correction](missing-link-demand-operation-policy-v2-2026-10-09.md) keeps original
+  context/schema/reader, frozen references and the consumed run unchanged. Eight
+  new authored controls verify mechanics; no revised model output or quality gain
+  is claimed. Original accounting stays 566 / USD8.0779182, with no new calls.
+- [ ] Review/CI/merge the isolated revision 2 correction before a separately named
+  execution protocol/owned successor and separately authorized experiment. Pin
+  changed instructions/native bodies; never adapt or replay the revision 1 run.
 
 No full-pool ranking improvement can be inferred from selected-only history or
 the later nonrandom root sample. Retained ordering and root demand diagnostics
