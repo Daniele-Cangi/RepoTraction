@@ -167,6 +167,10 @@ completed eleven one-shot calls, adding USD0.0535105 in software reservations.
 Independent reading records one remaining query-relation disagreement, missed
 local requirements and other unsupported annotations. This retrospective
 comparison does not establish causal improvement or fresh Discover utility.
+The separate [revision 3 correction](docs/missing-link-demand-operation-policy-v3-2026-10-09.md)
+clarifies minimum/preferred outputs, requirements versus reported context,
+semantic operation roles and scoped gaps. It has authored offline controls and
+preserves both consumed runs; no v3 prediction, executor or call authorization exists.
 Candidate execution, UI/key-entry work and production promotion remain deferred.
 
 ## Development plan

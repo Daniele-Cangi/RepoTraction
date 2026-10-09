@@ -1443,12 +1443,19 @@ force an isolated demonstration from a merely partial primitive.
   One query relation still disagrees with the frozen reference. Exact accounting
   extends to 577 / USD8.1314287; the original USD10 allowance and 1,515 protected
   artifacts remain preserved. No causal or fresh-utility improvement is established.
-- [ ] Specify any further bounded instruction correction before implementation
-  or new predictions, preserving both consumed runs, assessments and references.
-  Partial minimum/preferred outputs, required criteria versus reported context,
-  remaining operation hints and overbroad gaps need explicit boundaries.
-  Another paid run requires its own reviewed owned freeze and separate authorization;
-  retrospective agreement cannot replace useful-lead evidence or authorize promotion.
+- [x] Retain the v2 results after scoped review/CI. PR99 merged as
+  `7f45fcee3814d2c5cd36c851895e7b87408243a2`, matching the reviewed `d7005cfb`
+  tree with a clean scoped review and all four CI jobs successful.
+- [x] Specify the [revision 3 contract](missing-link-demand-operation-policy-v3-contract-2026-10-09.md)
+  before implementation. The separate pure [v3 correction](missing-link-demand-operation-policy-v3-2026-10-09.md)
+  clarifies minimum/preferred outputs, imposed criteria versus reported context,
+  semantic operation roles, delivery conditions and scoped gaps. Authored controls
+  establish mechanics, not model adherence; both consumed runs remain immutable.
+- [ ] Review/CI/merge the isolated v3 correction before any separately specified
+  execution protocol and owned freeze. Another paid run requires separate human
+  authorization within the original USD10 allowance; current accounting stays
+  577 / USD8.1314287. Retrospective agreement cannot replace useful-lead evidence
+  or authorize promotion, and neither consumed run may be repurposed or replayed.
 
 No full-pool ranking improvement can be inferred from selected-only history or
 the later nonrandom root sample. Retained ordering and root demand diagnostics
