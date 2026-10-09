@@ -1430,10 +1430,25 @@ force an isolated demonstration from a merely partial primitive.
   and frozen evidence. Forty-three authored controls cover v2 binding, unchanged
   schema/local-rejection boundaries, identity/leases, scope, exact accounting and
   historical inventory preservation. No actual owned freeze or calls occur here.
-- [ ] Review/CI/merge the policy-v2 adapters, then freeze their exact merged code
+- [x] Review/CI/merge the policy-v2 adapters, then freeze their exact merged code
   in a new owned successor before separately authorized eleven-slot execution.
   Pin exact bodies and all 46 old/new dependencies, preserve the prospective
   1,515-artifact baseline, and never adapt or replay the consumed v1 run.
+  PR98 merged `2cc2a24a6f4cd472c817842082d4231267dbd870` with the reviewed
+  `36e0b6c` tree, clean final scoped review and all four CI jobs successful.
+- [x] Execute the separately authorized eleven-slot policy-v2 run once and retain
+  an independent per-path assessment. The [v2 native results](missing-link-demand-operation-policy-v2-native-results-2026-10-09.md)
+  report eleven completed mechanically valid cards and 171 operator annotations,
+  including six unsupported paths, two missed local facts and two omitted conditions.
+  One query relation still disagrees with the frozen reference. Exact accounting
+  extends to 577 / USD8.1314287; the original USD10 allowance and 1,515 protected
+  artifacts remain preserved. No causal or fresh-utility improvement is established.
+- [ ] Specify any further bounded instruction correction before implementation
+  or new predictions, preserving both consumed runs, assessments and references.
+  Partial minimum/preferred outputs, required criteria versus reported context,
+  remaining operation hints and overbroad gaps need explicit boundaries.
+  Another paid run requires its own reviewed owned freeze and separate authorization;
+  retrospective agreement cannot replace useful-lead evidence or authorize promotion.
 
 No full-pool ranking improvement can be inferred from selected-only history or
 the later nonrandom root sample. Retained ordering and root demand diagnostics
