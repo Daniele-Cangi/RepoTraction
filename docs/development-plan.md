@@ -1379,9 +1379,14 @@ force an isolated demonstration from a merely partial primitive.
   Its revision 2 fixes the PR93 review ambiguity: standalone schema/integrity
   gates outside the local normalizer handler must succeed before continuation.
   The initial protocol/preparation are preserved; all native bodies stay identical.
-- [ ] Implement the separate opt-in owned executor against that frozen execution
+- [x] Implement the separate opt-in owned executor against that frozen execution
   protocol, including offline identity/lease/marker, exact-body/prefix/cap,
-  native-retention and failure-boundary conformance. Review/CI/merge it and freeze
+  native-retention and failure-boundary conformance. The [owned executor](missing-link-demand-operation-owned-executor-2026-10-09.md)
+  has separate pure execution gates and explicit prepare/verify/run adapters, with
+  28 authored offline controls. Schema/integrity failures remain global; only
+  preserved post-schema local rejection permits continuation. Existing frozen
+  preparations, native requests and original ledger remain unchanged.
+- [ ] Review/CI/merge the owned executor and freeze
   a new owned successor tied to its exact code before separately authorized calls.
   Obtain separate call authorization before any provider execution; neither the
   policy nor execution preparation grants it. Retrospective development
