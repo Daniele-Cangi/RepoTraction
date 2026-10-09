@@ -1459,10 +1459,14 @@ force an isolated demonstration from a merely partial primitive.
   Eleven new native bodies preserve original context/schema; all 1,635 historical
   artifacts, both consumed runs/assessments and 48 code fingerprints remain pinned.
   Original accounting stays 577 / USD8.1314287; no new calls or reservations.
-- [ ] Review/CI/merge the v3 protocol, then implement a separate opt-in v3 executor
-  and run adapter with authored conformance. Preserve old bindings, exact typed
-  slot metadata, native-before-validation retention, original accounting/leases,
-  exclusive consumption and global-versus-local failure boundaries.
+- [x] Review/CI/merge the v3 protocol. PR101 merged as
+  `d399203339fcf09acbffc865551952c9a7bc4569` with the reviewed `112bbd124e`
+  tree, clean scoped review and all four CI jobs successful.
+- [x] Implement the separate opt-in [v3 owned executor](missing-link-demand-operation-policy-v3-owned-executor-2026-10-09.md)
+  and run adapter with authored conformance. Preserve old bindings, typed immutable
+  slot/scope metadata, native-before-validation retention, original accounting,
+  identity/leases, exclusive consumption and global-versus-local failure boundaries.
+  This stage adds no actual owned freeze, provider call or call authorization.
 - [ ] After adapter review/CI/merge, freeze its exact executable tree in a new owned
   run and obtain separate human call authorization within the original USD10
   allowance. Retrospective agreement cannot replace useful-lead evidence or
