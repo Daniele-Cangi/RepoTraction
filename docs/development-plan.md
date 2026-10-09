@@ -1467,10 +1467,27 @@ force an isolated demonstration from a merely partial primitive.
   slot/scope metadata, native-before-validation retention, original accounting,
   identity/leases, exclusive consumption and global-versus-local failure boundaries.
   This stage adds no actual owned freeze, provider call or call authorization.
-- [ ] After adapter review/CI/merge, freeze its exact executable tree in a new owned
+- [x] After adapter review/CI/merge, freeze its exact executable tree in a new owned
   run and obtain separate human call authorization within the original USD10
   allowance. Retrospective agreement cannot replace useful-lead evidence or
   authorize promotion; neither consumed run may be repurposed or replayed.
+  PR102 merged `0f1e4ab0d09da1571a31ff3054979b26abb3d30e` with the reviewed
+  `01fea97a27` tree, clean scoped review and all four CI jobs successful. The
+  actual owned freeze binds 51 code fingerprints and 1,662 protected artifacts;
+  the user separately authorized the exact eleven-slot proposal.
+- [x] Attempt that authorized v3 run once and retain every slot disposition.
+  The [v3 outcome](missing-link-demand-operation-policy-v3-native-results-2026-10-09.md)
+  records a global `ProviderTransportError` at slot 1, one committed reservation,
+  no native terminal/card and ten unattempted slots. The consumed run cannot be
+  resumed. Accounting extends only to 578 / USD8.13614; the original USD10
+  allowance and historical evidence remain preserved. Eleven separate absence
+  records provide no predicted claim paths or semantic judgments.
+- [ ] Investigate bounded transport diagnostics and streaming checkpoint costs
+  with authored offline controls. The retained exception type does not establish
+  a cause. Any future execution requires a separately reviewed protocol/tree,
+  unused accounting scope and new explicit authorization, preserving this failed
+  run, both predecessors and the original allowance. No semantic quality gain
+  or fresh useful lead is established by the transport stop.
 
 No full-pool ranking improvement can be inferred from selected-only history or
 the later nonrandom root sample. Retained ordering and root demand diagnostics

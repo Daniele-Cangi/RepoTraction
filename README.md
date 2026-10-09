@@ -174,9 +174,12 @@ preserves both consumed runs; its initial correction adds no model predictions.
 After its reviewed merge, the separate [v3 execution preparation](docs/missing-link-demand-operation-policy-v3-execution-preparation-2026-10-09.md)
 freezes eleven new native bodies offline under a prospective protocol. Both old
 executors stay unchanged. The separate [v3 owned executor](docs/missing-link-demand-operation-policy-v3-owned-executor-2026-10-09.md)
-adds authored offline conformance. Its review/CI/merge and an exact-code owned
-freeze precede any new human call authorization within the original allowance;
-no actual v3 owned freeze, prediction or authorization exists yet.
+adds authored offline conformance. After review/CI/merge, an exact-code owned
+freeze and separate human authorization, the [v3 run outcome](docs/missing-link-demand-operation-policy-v3-native-results-2026-10-09.md)
+records a global transport stop at slot 1, one retained reservation and ten
+unattempted slots. No native terminal or prediction is available for semantic
+assessment. Original accounting is 578 / USD8.13614 within USD10; the consumed
+run cannot be resumed or retried.
 Candidate execution, UI/key-entry work and production promotion remain deferred.
 
 ## Development plan
