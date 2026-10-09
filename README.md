@@ -154,6 +154,10 @@ completed eleven one-shot calls, with USD0.051305 new software reservations.
 All cards are mechanically valid, but independent reading records four
 query-relation disagreements, other unsupported claims and missed local facts.
 This is retrospective development feedback; no fresh utility or improvement is established.
+The separate [revision 2 instruction correction](docs/missing-link-demand-operation-policy-v2-2026-10-09.md)
+clarifies operation/mechanism, partial known facts, owner choices and identifier
+fidelity while reusing unchanged context/schema/reading. It has offline controls
+and no new predictions or production wiring; semantic improvement remains untested.
 Candidate execution, UI/key-entry work and production promotion remain deferred.
 
 ## Development plan
