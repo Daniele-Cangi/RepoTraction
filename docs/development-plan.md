@@ -1495,12 +1495,16 @@ force an isolated demonstration from a merely partial primitive.
   have distinct unused accounting IDs; 1,687 protected artifacts and 53 code
   fingerprints remain pinned. Accounting stays 578 / USD8.13614 within USD10;
   preparation adds no calls or execution authorization.
-- [ ] Review/CI/merge the new transport contract before implementing separate
-  opt-in reader/executor/run adapters. Prove returned-read cancellation/identity/
-  code/slot/lease checks, the declared periodic full DB/history detection boundary,
-  active/wall deadlines, typed bounded telemetry, native-before-validation and
-  global/local failure partitioning with authored offline controls. Never change
-  the consumed readers, executors, bodies or assessments.
+- [x] Review/CI/merge the new transport contract before implementing separate
+  opt-in reader/executor/run adapters. PR105 merged `55f4a6d` with reviewed
+  `a3adfc1` tree unchanged, clean Codex review and all four CI jobs successful.
+- [x] Implement separate [stream successor adapters](missing-link-policy-v3-stream-successor-adapters-2026-10-09.md)
+  with authored controls for returned-read cancellation/identity/code/slot/lease
+  checks, the declared periodic full DB/history detection boundary, active/wall
+  deadlines, typed telemetry, native-before-validation and global/local failure
+  partitioning. Bind the exclusive owned directory to manifest and authorization;
+  preserve all consumed readers, executors, bodies and assessments. No actual
+  owned freeze, new reservation or provider call belongs to this implementation.
 - [ ] After adapter review/CI/merge, freeze a new owned scope on the exact merged
   tree before separately authorized one-shot execution. Available funds and this
   prospective preparation do not authorize calls. Preserve the original allowance
