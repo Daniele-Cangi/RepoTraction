@@ -24,6 +24,9 @@ after reservation and persistence, during validation and after receipt/record
 callbacks. A late slot mutation blocks even an earlier payment; a mutation after
 a committed charge stops without refund or transmission. Raw/slot snapshots are also compared with
 concrete types around the narrow local-normalizer handler.
+Each Budget checkpoint runs the full immutable/integrity guard before and after
+identity verification, including the checkpoint after persistence and before
+transmission. A cancellation callback returning false cannot bypass that guard.
 
 `scripts/missing_link_demand_operation_policy_v3_run.py` provides explicit
 `prepare`, `verify` and `run` actions. Import performs no I/O or background work.
@@ -114,7 +117,7 @@ release. Prior execution evidence blocks replay, including a zero-call consumed 
 
 ## Offline conformance and next boundary
 
-Fifty-six authored controls use temporary databases, fake identity, temporary
+Fifty-eight authored controls use temporary databases, fake identity, temporary
 historical seals and synthetic Responses streams. They cover policy/ID/body
 binding, exact settings/costs/typed slots, schema versus local rejection,
 raw/context/code/tree mutation, native/raw/usage retention, fixed identity,
@@ -123,12 +126,13 @@ historical inventories/baselines, seals/replay and credential-free preparation
 on an authored 577-row baseline. V3-specific controls reject v2 binding, v2
 native/assessment changes, concrete authorization-type changes, callback type
 mutations at identity/payment/persistence/normalization, dropped v2 assessment
-evidence, and unowned accounting or mismatched captured state during finalization.
+evidence, unowned accounting or mismatched captured state during finalization,
+and identity/cancellation mutation or integrity failure at post-charge checkpoints.
 They verify execution mechanics, not model adherence or semantic improvement.
 
-Validation: **169 focused demand-operation tests passed** in 274.727 seconds;
-**1,588 full-suite tests passed** in 423.847 seconds. The added finalization
-and persistence regressions use temporary databases and synthetic streams.
+Validation: **171 focused demand-operation tests passed** in 314.936 seconds;
+**1,590 full-suite tests passed** in 463.222 seconds. The added finalization,
+persistence and checkpoint regressions use temporary databases and synthetic streams.
 
 Read-only checks reproduce all eleven actual frozen v3 bodies, independent
 source/history/assessment anchors, all 48 frozen code fingerprints and unchanged
