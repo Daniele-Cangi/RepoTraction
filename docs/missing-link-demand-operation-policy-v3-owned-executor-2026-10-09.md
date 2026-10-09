@@ -20,9 +20,9 @@ Self-supplied hashes, old policy bodies/revisions/IDs and JSON-equivalent type
 changes cannot substitute for the frozen manifest.
 
 Typed immutable slot checks repeat around identity/claim, immediately before and
-after reservation, during validation and after receipt/record callbacks. A late
-slot mutation blocks even an earlier payment; a mutation after a committed charge
-stops without refund or transmission. Raw/slot snapshots are also compared with
+after reservation and persistence, during validation and after receipt/record
+callbacks. A late slot mutation blocks even an earlier payment; a mutation after
+a committed charge stops without refund or transmission. Raw/slot snapshots are also compared with
 concrete types around the narrow local-normalizer handler.
 
 `scripts/missing_link_demand_operation_policy_v3_run.py` provides explicit
@@ -105,13 +105,16 @@ classification, reference substitution or repair.
 
 Finalization retains attempted/unattempted slots and bounded failure type/slot,
 rechecks accounting/history and seals the exact owned inventory with an independent
-digest. On Windows the held lease handle supplies its lock checksum. Failed
-finalization retains evidence without claiming a complete seal; leases always
+digest. On Windows the held lease handle supplies its lock checksum.
+Before issuing the receipt digest, revalidate live accounting/history and pass
+the retained final snapshot through the exact-prefix verifier. Use the held handle
+for lock checks during this last gate as well, avoiding a second locked-file read.
+Failed finalization retains evidence without claiming a complete seal; leases always
 release. Prior execution evidence blocks replay, including a zero-call consumed run.
 
 ## Offline conformance and next boundary
 
-Fifty-three authored controls use temporary databases, fake identity, temporary
+Fifty-six authored controls use temporary databases, fake identity, temporary
 historical seals and synthetic Responses streams. They cover policy/ID/body
 binding, exact settings/costs/typed slots, schema versus local rejection,
 raw/context/code/tree mutation, native/raw/usage retention, fixed identity,
@@ -119,10 +122,13 @@ leases/cancellation, atomic caps/journal failure, exact scope before credentials
 historical inventories/baselines, seals/replay and credential-free preparation
 on an authored 577-row baseline. V3-specific controls reject v2 binding, v2
 native/assessment changes, concrete authorization-type changes, callback type
-mutations at identity/payment/normalization, and dropped v2 assessment evidence.
+mutations at identity/payment/persistence/normalization, dropped v2 assessment
+evidence, and unowned accounting or mismatched captured state during finalization.
 They verify execution mechanics, not model adherence or semantic improvement.
-All **166 focused controls** pass in 176.032 seconds. The full application suite
-passes **1,585 tests** in 363.988 seconds; CLI `--help` also exits successfully.
+
+Validation: **169 focused demand-operation tests passed** in 274.727 seconds;
+**1,588 full-suite tests passed** in 423.847 seconds. The added finalization
+and persistence regressions use temporary databases and synthetic streams.
 
 Read-only checks reproduce all eleven actual frozen v3 bodies, independent
 source/history/assessment anchors, all 48 frozen code fingerprints and unchanged
