@@ -288,14 +288,14 @@ def complete_with_receipt(provider, instruction, data, budget, *, schema,
                 timing.limits()
                 if terminal is not None:
                     # Guards are global callbacks, outside the writer boundary.
-                    terminal_checkpoint()
+                    timing.checkpoint("light", terminal_checkpoint)
                     timing.receipt = None  # A failing writer may have partially persisted.
                     try:
                         retain_terminal(copy.deepcopy(terminal))
                     except Exception:
                         raise ReceiptPersistenceError("Private terminal receipt could not be saved.") from None
                     timing.receipt = True
-                    terminal_checkpoint()
+                    timing.checkpoint("light", terminal_checkpoint)
                     timing.checkpoint("full", budget.checkpoint)
                     timing.ended = timing.now()
                     break

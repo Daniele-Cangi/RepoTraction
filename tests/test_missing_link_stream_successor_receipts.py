@@ -89,7 +89,7 @@ class SuccessorReceiptTests(unittest.TestCase):
         self.assertEqual(trace["full_checkpoint_seconds"], 30)
         self.assertEqual(trace["active_stream_seconds"], 0)
         self.assertEqual(trace["wall_stream_seconds"], 30)
-        self.assertEqual(trace["light_checkpoints"], 602)
+        self.assertEqual(trace["light_checkpoints"], 604)  # Includes both terminal guards.
         self.assertTrue(trace["terminal_retained"])
         self.assertTrue(trace["reservation_committed"])
         self.assertTrue(self.stream.closed)
@@ -282,6 +282,77 @@ class SuccessorReceiptTests(unittest.TestCase):
                     self.assertNotIn('reported_usage',self.job)
                     self.assertNotIn('ai_trace',self.job)
                     self.assertNotIn('ai_outputs',self.job['checkpoint'])
+
+    def test_terminal_guards_are_measured_once_and_excluded_from_active_time(self):
+        def guard():
+            self.clock.value += 121
+        self.assertEqual(self.run_stream(terminal_checkpoint=guard), {'value':'authored'})
+        trace = self.telemetry[0]
+        self.assertEqual(trace['light_checkpoints'],4)
+        self.assertEqual(trace['light_checkpoint_seconds'],242)
+        self.assertEqual(trace['wall_stream_seconds'],242)
+        self.assertEqual(trace['active_stream_seconds'],0)
+        self.assertIsNone(trace['failure'])
+        self.assertTrue(trace['terminal_retained'])
+        self.assertEqual(len(self.charges),1)
+        self.assertEqual(self.stream.close_calls,1)
+
+    def test_terminal_guard_wall_limit_is_checked_before_and_after_retention(self):
+        for trailing in (False, True):
+            for duration in (600, 601):
+                with self.subTest(trailing=trailing, duration=duration):
+                    self.setUp()
+                    def guard():
+                        if bool(self.receipts) == trailing:
+                            self.clock.value += duration
+                    if duration == 600:
+                        self.run_stream(terminal_checkpoint=guard)
+                    else:
+                        with self.assertRaises(ProviderTransportError):
+                            self.run_stream(terminal_checkpoint=guard)
+                        self.assertNotIn('reported_usage',self.job)
+                        self.assertNotIn('ai_trace',self.job)
+                        self.assertNotIn('ai_outputs',self.job['checkpoint'])
+                    trace = self.telemetry[0]
+                    retained = duration == 600 or trailing
+                    self.assertIs(trace['terminal_retained'],retained)
+                    self.assertEqual(len(self.receipts),int(retained))
+                    self.assertEqual(trace['wall_stream_seconds'],duration)
+                    self.assertEqual(trace['active_stream_seconds'],0)
+                    self.assertEqual(trace['light_checkpoint_seconds'],duration)
+                    self.assertEqual(trace['light_checkpoints'],4 if retained else 3)
+                    self.assertEqual(trace['full_checkpoints'],int(duration==600))
+                    self.assertEqual(trace['deadline_kind'],None if duration==600 else 'wall_stream')
+                    if duration == 601:
+                        self.assertEqual(trace['failure'],{'category':'ai_transport',
+                            'code':'ai_stream_deadline_exceeded','phase':'request'})
+                    self.assertTrue(trace['reservation_committed'])
+                    self.assertEqual(len(self.charges),1)
+                    self.assertEqual(self.stream.close_calls,1)
+
+    def test_failed_terminal_guard_duration_and_primary_survive_invalid_clock(self):
+        for invalid_clock in (False, True):
+            with self.subTest(invalid_clock=invalid_clock):
+                self.setUp()
+                primary = EvaluationStopped('PRIVATE terminal integrity')
+                def guard():
+                    self.clock.value = float('nan') if invalid_clock else self.clock.value + 7
+                    raise primary
+                with self.assertRaises(EvaluationStopped) as raised:
+                    self.run_stream(terminal_checkpoint=guard)
+                self.assertIs(raised.exception,primary)
+                trace = self.telemetry[0]
+                self.assertEqual(trace['failure'],{'category':'integrity'})
+                self.assertEqual(trace['light_checkpoints'],3)
+                self.assertEqual(trace['clock_valid'],not invalid_clock)
+                self.assertEqual(trace['light_checkpoint_seconds'],None if invalid_clock else 7)
+                self.assertEqual(trace['active_stream_seconds'],None if invalid_clock else 0)
+                self.assertEqual(trace['wall_stream_seconds'],None if invalid_clock else 7)
+                self.assertIs(trace['terminal_retained'],False)
+                self.assertEqual(self.receipts,[])
+                self.assertTrue(trace['reservation_committed'])
+                self.assertNotIn('PRIVATE',json.dumps(trace))
+                self.assertNotIn('reported_usage',self.job)
 
     def test_telemetry_storage_failure_preserves_primary_bounded_category(self):
         def save(value): raise OSError("PRIVATE")

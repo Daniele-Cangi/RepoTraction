@@ -88,6 +88,11 @@ the writer exception boundary. Guard failures preserve their original type and
 category. A successful writer marks retention true before the trailing check;
 only actual writer failures become receipt-persistence errors with uncertain
 retention. A failed leading check leaves the known absence false.
+Both terminal guards use the timed light-checkpoint boundary: each contributes
+once to checkpoint counts/durations and wall time, is excluded from active time,
+and has deadline checks immediately before and after it. A leading wall expiry
+stops before terminal storage; a trailing expiry preserves the retained terminal
+and stops before usage/output processing.
 Opened-stream absence and zero observed counters are initialized immediately
 when the opener returns, before its post-open timing sample or context entry.
 The reader owns that response at return and closes it if timing or context entry
