@@ -1386,11 +1386,27 @@ force an isolated demonstration from a merely partial primitive.
   28 authored offline controls. Schema/integrity failures remain global; only
   preserved post-schema local rejection permits continuation. Existing frozen
   preparations, native requests and original ledger remain unchanged.
-- [ ] Review/CI/merge the owned executor and freeze
+- [x] Review/CI/merge the owned executor and freeze
   a new owned successor tied to its exact code before separately authorized calls.
   Obtain separate call authorization before any provider execution; neither the
   policy nor execution preparation grants it. Retrospective development
   feedback cannot establish fresh Discover utility or replace lead qualification.
+  PR94 merged `4a7c912` with the reviewed `6c0f5fe` tree, clean scoped review and
+  all four CI jobs green; the independent owned preparation/receipt anchors are
+  retained outside the run directory.
+- [x] Execute the separately authorized eleven-slot retained-control run once and
+  assess every kind/field/constraint/relation/context gap without repairing outputs.
+  The [native results](missing-link-demand-operation-native-results-2026-10-09.md)
+  retain eleven completed mechanically valid cards and 193 operator annotations:
+  nine unsupported assertions, two missed local facts and three omitted constraints.
+  Four relation hints disagree with the frozen references. Original accounting
+  advances only by the owned eleven-row prefix / USD0.051305 to 566 / USD8.0779182;
+  original USD10 allowance and 1,369 protected historical artifacts are preserved.
+- [ ] Specify the next bounded policy revision for operation-hint/field-state
+  distinctions before implementation or further predictions. Preserve this consumed
+  run, raw outputs, references and earlier freezes; any additional paid experiment
+  requires its own reviewed frozen successor and separate authorization. Retained
+  development agreement cannot authorize production promotion or qualified leads.
 
 No full-pool ranking improvement can be inferred from selected-only history or
 the later nonrandom root sample. Retained ordering and root demand diagnostics
