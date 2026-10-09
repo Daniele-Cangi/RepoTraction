@@ -1413,9 +1413,19 @@ force an isolated demonstration from a merely partial primitive.
   context/schema/reader, frozen references and the consumed run unchanged. Eight
   new authored controls verify mechanics; no revised model output or quality gain
   is claimed. Original accounting stays 566 / USD8.0779182, with no new calls.
-- [ ] Review/CI/merge the isolated revision 2 correction before a separately named
-  execution protocol/owned successor and separately authorized experiment. Pin
-  changed instructions/native bodies; never adapt or replay the revision 1 run.
+- [x] Review/CI/merge the isolated revision 2 correction before separate preparation.
+  PR96 merged as `b95b1e2c2dcfb32769e80b88b2b4efeae73cd11b`, with the reviewed
+  tree unchanged, scoped Codex review clean and all four CI jobs successful.
+- [x] Freeze the separately named [policy-v2 execution protocol](missing-link-demand-operation-policy-v2-execution-protocol-2026-10-09.md)
+  and [offline preparation](missing-link-demand-operation-policy-v2-execution-preparation-2026-10-09.md).
+  Eleven exact revised bodies preserve context/schema and references; the baseline
+  protects 1,488 artifacts including consumed native evidence and its assessment.
+  Planned software reservations are USD0.0535105 under the original USD10 total;
+  accounting remains 566 / USD8.0779182. No calls or authorization were added.
+- [ ] Review/CI/merge the policy-v2 protocol, then implement and review a separate
+  opt-in executor/run adapter. Freeze its merged code in a new owned successor
+  before a separately authorized eleven-slot experiment. Pin changed instructions,
+  exact bodies and all old/new dependencies; never adapt or replay the v1 run.
 
 No full-pool ranking improvement can be inferred from selected-only history or
 the later nonrandom root sample. Retained ordering and root demand diagnostics
