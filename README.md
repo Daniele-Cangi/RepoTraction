@@ -139,6 +139,10 @@ Eleven [demand-to-operation development controls](docs/missing-link-demand-opera
 now freeze separate root inputs and operator references for requested changes,
 input/output shape, runtime, acceptance constraints and unknowns. No new policy
 prediction or automatic triage is evaluated by this preparation.
+The separate [experimental policy preparation](docs/missing-link-demand-operation-policy-2026-10-09.md)
+now supplies bounded context/schema/reading and independent operator review, with
+opaque control IDs and a frozen no-spend protocol. Eleven envelopes are prepared;
+no model predictions or production promotion have occurred.
 Candidate execution, UI/key-entry work and production promotion remain deferred.
 
 ## Development plan

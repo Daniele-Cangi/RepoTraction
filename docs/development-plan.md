@@ -1355,13 +1355,26 @@ force an isolated demonstration from a merely partial primitive.
   ask for implementation, one for an owner decision and one remains unclear.
   These are retrospective controls, not a held-out benchmark; no classifier,
   source fit, automatic rejection, new acquisition or AI spending is evaluated.
-- [ ] Define and implement a separate experimental demand-description/query-hint
+- [x] Define and implement a separate experimental demand-description/query-hint
   policy using the frozen input sections and honest evidence/unknowns. Keep its
   outputs apart from operator references; assess unsupported claims, local
   constraints, semantic-layer confusions and useful stated facts separately from
   mechanical validity and abstention. Freeze its bounded evaluation protocol
   before predictions. Do not promote it into production or charge a provider
   under the control preparation alone; useful-lead qualification remains separate.
+  The [experimental policy preparation](missing-link-demand-operation-policy-2026-10-09.md)
+  adds only opt-in pure context/instructions/schema/reader and explicit operator
+  review. Twenty-six synthetic controls test provenance, bounds, reference/ID
+  separation and preservation of supported/unsupported/unknown assertions without
+  automatic truth, scores or qualification. Every context gap has its own verdict
+  and diagnostic path after the scoped PR92 review correction. The frozen protocol
+  precedes any new model output; eleven envelopes are prepared with opaque IDs, no reference cards
+  and zero predictions/calls/reservations. Old preparations remain unchanged.
+- [ ] After reviewing/merging the experimental policy, prepare a separately owned
+  execution protocol tied to the reviewed code, exact inputs/references, native
+  retention and original-ledger cap. Obtain separate call authorization before
+  any provider execution; this preparation grants none. Retrospective development
+  feedback cannot establish fresh Discover utility or replace lead qualification.
 
 No full-pool ranking improvement can be inferred from selected-only history or
 the later nonrandom root sample. Retained ordering and root demand diagnostics
