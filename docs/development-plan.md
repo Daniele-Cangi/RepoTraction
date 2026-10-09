@@ -1364,10 +1364,11 @@ force an isolated demonstration from a merely partial primitive.
   under the control preparation alone; useful-lead qualification remains separate.
   The [experimental policy preparation](missing-link-demand-operation-policy-2026-10-09.md)
   adds only opt-in pure context/instructions/schema/reader and explicit operator
-  review. Twenty-four synthetic controls test provenance, bounds, reference/ID
+  review. Twenty-six synthetic controls test provenance, bounds, reference/ID
   separation and preservation of supported/unsupported/unknown assertions without
-  automatic truth, scores or qualification. The frozen protocol precedes any new
-  model output; eleven envelopes are prepared with opaque IDs, no reference cards
+  automatic truth, scores or qualification. Every context gap has its own verdict
+  and diagnostic path after the scoped PR92 review correction. The frozen protocol
+  precedes any new model output; eleven envelopes are prepared with opaque IDs, no reference cards
   and zero predictions/calls/reservations. Old preparations remain unchanged.
 - [ ] After reviewing/merging the experimental policy, prepare a separately owned
   execution protocol tied to the reviewed code, exact inputs/references, native

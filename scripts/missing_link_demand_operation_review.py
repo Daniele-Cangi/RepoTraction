@@ -20,8 +20,10 @@ def review_prediction(checked, review):
     raw = checked['prediction']
     if (not isinstance(review['fields'], dict) or set(review['fields']) != set(FIELDS)
             or not isinstance(review['constraints'], list)
-            or len(review['constraints']) != len(raw['constraints'])):
-        raise ValueError('Operator review fields/constraints do not match prediction scope')
+            or len(review['constraints']) != len(raw['constraints'])
+            or not isinstance(review['context_gaps'], list)
+            or len(review['context_gaps']) != len(raw['context_gaps'])):
+        raise ValueError('Operator review fields/constraints/context gaps do not match prediction scope')
     counts = Counter()
     groups = {'supported': [], 'unsupported': [], 'appropriate_unknown': [],
               'missed_stated_fact': [], 'unassessed': []}
@@ -43,7 +45,8 @@ def review_prediction(checked, review):
     for i, item in enumerate(review['constraints']):
         verdict(item, f'constraints.{i}', True)
     verdict(review['query_relation'], 'query_relation', raw['query_relation']['value'] != 'unclear')
-    verdict(review['context_gaps'], 'context_gaps', True)
+    for i, item in enumerate(review['context_gaps']):
+        verdict(item, f'context_gaps.{i}', True)
     omissions = review['omitted_constraints']
     if not isinstance(omissions, list) or len(omissions) > MAX_CONSTRAINTS:
         raise ValueError('Operator omitted-constraint list is invalid or over bound')

@@ -45,7 +45,7 @@ def operator_review(raw):
             'fields': {name: verdict(raw['fields'][name]['state'] == 'stated_in_root') for name in policy.FIELDS},
             'constraints': [verdict(True) for _ in raw['constraints']],
             'query_relation': verdict(raw['query_relation']['value'] != 'unclear'),
-            'context_gaps': verdict(True), 'omitted_constraints': []}
+            'context_gaps': [verdict(True) for _ in raw['context_gaps']], 'omitted_constraints': []}
 
 
 class DemandOperationPolicyTests(unittest.TestCase):
@@ -343,6 +343,47 @@ class DemandOperationPolicyTests(unittest.TestCase):
             with self.subTest(review=review), self.assertRaises(ValueError):
                 review_prediction(checked,review)
             self.assertEqual(review,before)
+
+    def test_context_gaps_receive_individual_verdicts_without_changing_prediction(self):
+        raw = unknown()
+        raw['context_gaps'] = ['Discussion is absent.', 'The root has no requested change.']
+        checked = self.normalize(raw)
+        review = operator_review(raw)
+        review['context_gaps'] = [
+            {'verdict': 'supported', 'reason': 'The supplied discussion-complete assertion is false.'},
+            {'verdict': 'unsupported', 'reason': 'The authored root explicitly requests path preservation.'}]
+        before = copy.deepcopy((checked, review))
+        result = review_prediction(checked, review)
+        self.assertEqual((checked, review), before)
+        self.assertEqual(result['checked'], checked)
+        self.assertEqual(result['operator_review'], review)
+        self.assertEqual(result['claim_paths']['supported'], ['context_gaps.0'])
+        self.assertEqual(result['claim_paths']['unsupported'], ['context_gaps.1'])
+        self.assertEqual(result['claim_counts']['supported'], 1)
+        self.assertEqual(result['claim_counts']['unsupported'], 1)
+        self.assertFalse(result['semantic_support_verified'])
+        self.assertFalse(result['changes_qualification'])
+        result['operator_review']['context_gaps'][0]['reason'] = 'Changed returned copy'
+        result['checked']['prediction']['context_gaps'][0] = 'Changed returned copy'
+        self.assertEqual((checked, review), before)
+
+    def test_context_gap_review_rejects_aggregate_misaligned_or_invalid_verdicts(self):
+        raw = unknown()
+        raw['context_gaps'] = ['Discussion is absent.', 'Adoption is unverified.']
+        checked = self.normalize(raw)
+        item = {'verdict': 'supported', 'reason': 'Explicit independent review.'}
+        invalid = [item, [], [item], [item] * 3,
+                   [item, {'verdict': 'appropriate_unknown', 'reason': 'Wrong stated-claim label.'}],
+                   [item, {'verdict': 'unsupported', 'reason': '\n'}],
+                   [item, {'verdict': 'unassessed', 'reason': 'x' * 801}],
+                   [item, {'verdict': 'supported', 'reason': 'Extra metadata.', 'extra': True}]]
+        for gap_review in invalid:
+            review = operator_review(raw)
+            review['context_gaps'] = copy.deepcopy(gap_review)
+            before = copy.deepcopy((checked, review))
+            with self.subTest(gap_review=gap_review), self.assertRaises(ValueError):
+                review_prediction(checked, review)
+            self.assertEqual((checked, review), before)
 
 
 if __name__ == '__main__':
