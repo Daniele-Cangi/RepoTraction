@@ -171,6 +171,10 @@ The separate [revision 3 correction](docs/missing-link-demand-operation-policy-v
 clarifies minimum/preferred outputs, requirements versus reported context,
 semantic operation roles and scoped gaps. It has authored offline controls and
 preserves both consumed runs; no v3 prediction, executor or call authorization exists.
+After its reviewed merge, the separate [v3 execution preparation](docs/missing-link-demand-operation-policy-v3-execution-preparation-2026-10-09.md)
+freezes eleven new native bodies offline under a prospective protocol. Both old
+executors stay unchanged; a separate reviewed v3 adapter and owned freeze precede
+any new human call authorization within the original allowance.
 Candidate execution, UI/key-entry work and production promotion remain deferred.
 
 ## Development plan

@@ -1451,11 +1451,22 @@ force an isolated demonstration from a merely partial primitive.
   clarifies minimum/preferred outputs, imposed criteria versus reported context,
   semantic operation roles, delivery conditions and scoped gaps. Authored controls
   establish mechanics, not model adherence; both consumed runs remain immutable.
-- [ ] Review/CI/merge the isolated v3 correction before any separately specified
-  execution protocol and owned freeze. Another paid run requires separate human
-  authorization within the original USD10 allowance; current accounting stays
-  577 / USD8.1314287. Retrospective agreement cannot replace useful-lead evidence
-  or authorize promotion, and neither consumed run may be repurposed or replayed.
+- [x] Review/CI/merge the isolated v3 correction. PR100 merged as
+  `2c6fe347b2ff7df31868f385ac42d2a9e34b7e73`, with the reviewed `2485cdf0f2`
+  tree, a clean scoped review and all four CI jobs successful.
+- [x] Specify the separate [v3 execution protocol](missing-link-demand-operation-policy-v3-execution-protocol-2026-10-09.md)
+  before exclusively freezing its [offline preparation](missing-link-demand-operation-policy-v3-execution-preparation-2026-10-09.md).
+  Eleven new native bodies preserve original context/schema; all 1,635 historical
+  artifacts, both consumed runs/assessments and 48 code fingerprints remain pinned.
+  Original accounting stays 577 / USD8.1314287; no new calls or reservations.
+- [ ] Review/CI/merge the v3 protocol, then implement a separate opt-in v3 executor
+  and run adapter with authored conformance. Preserve old bindings, exact typed
+  slot metadata, native-before-validation retention, original accounting/leases,
+  exclusive consumption and global-versus-local failure boundaries.
+- [ ] After adapter review/CI/merge, freeze its exact executable tree in a new owned
+  run and obtain separate human call authorization within the original USD10
+  allowance. Retrospective agreement cannot replace useful-lead evidence or
+  authorize promotion; neither consumed run may be repurposed or replayed.
 
 No full-pool ranking improvement can be inferred from selected-only history or
 the later nonrandom root sample. Retained ordering and root demand diagnostics
