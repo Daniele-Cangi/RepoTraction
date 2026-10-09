@@ -123,7 +123,12 @@ def execute_cases(provider, slots, *, manifest, read, gate, identity, claim, res
             persist(number, copy.deepcopy(job))
             guard()
 
-        budget = Budget(job, persist_job, cancelled, identity, reserve_one)
+        def verify_checkpoint():
+            guard()
+            identity()
+            guard()
+
+        budget = Budget(job, persist_job, cancelled, verify_checkpoint, reserve_one)
         envelope = slot['envelope']
         raw = complete_with_receipt(provider, envelope['instructions'], envelope['context'], budget,
             schema=envelope['schema'], phase='request',

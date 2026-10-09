@@ -699,6 +699,45 @@ class PolicyV3ExecutorTests(unittest.TestCase):
         callbacks['retain_terminal'].assert_not_called()
         callbacks['record'].assert_not_called()
 
+    def test_checkpoint_callbacks_after_charge_stop_before_transmission(self):
+        for callback in ('identity', 'cancelled'):
+            with self.subTest(callback=callback):
+                slots = self.slots()
+                callbacks = {name: Mock() for name in ('gate', 'identity', 'claim', 'reserve', 'persist', 'retain_terminal', 'record')}
+                callbacks['cancelled'] = Mock(return_value=False)
+                def mutate_after_persistence(*args, **kwargs):
+                    if callbacks['persist'].call_count:
+                        slots[-1]['metadata']['slot'] = 11.0
+                    return False
+                callbacks[callback].side_effect = mutate_after_persistence
+                self.opener.return_value.open.reset_mock()
+                with self.assertRaises(EvaluationStopped):
+                    executor.execute_cases(self.provider, slots, manifest=self.source, read=lambda n: self.files[n], **callbacks)
+                callbacks['reserve'].assert_called_once()
+                self.opener.return_value.open.assert_not_called()
+                callbacks['retain_terminal'].assert_not_called()
+                callbacks['record'].assert_not_called()
+
+    def test_checkpoint_rechecks_integrity_after_charge_before_transmission(self):
+        slots = self.slots()
+        callbacks = {name: Mock() for name in ('gate', 'identity', 'claim', 'reserve', 'persist', 'retain_terminal', 'record')}
+        checkpoint_armed = False
+        def cancelled():
+            nonlocal checkpoint_armed
+            checkpoint_armed = bool(callbacks['persist'].call_count)
+            return False
+        def gate():
+            if checkpoint_armed:
+                raise EvaluationStopped('Authored checkpoint integrity failure')
+        callbacks['cancelled'] = cancelled
+        callbacks['gate'].side_effect = gate
+        with self.assertRaisesRegex(EvaluationStopped, 'checkpoint integrity'):
+            executor.execute_cases(self.provider, slots, manifest=self.source, read=lambda n: self.files[n], **callbacks)
+        callbacks['reserve'].assert_called_once()
+        self.opener.return_value.open.assert_not_called()
+        callbacks['retain_terminal'].assert_not_called()
+        callbacks['record'].assert_not_called()
+
     def test_retained_final_snapshot_must_match_prefix_even_if_live_db_is_valid(self):
         snapshot = runner.snapshot
         finalization_snapshots = 0
