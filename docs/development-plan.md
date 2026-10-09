@@ -1370,10 +1370,18 @@ force an isolated demonstration from a merely partial primitive.
   and diagnostic path after the scoped PR92 review correction. The frozen protocol
   precedes any new model output; eleven envelopes are prepared with opaque IDs, no reference cards
   and zero predictions/calls/reservations. Old preparations remain unchanged.
-- [ ] After reviewing/merging the experimental policy, prepare a separately owned
+- [x] After reviewing/merging the experimental policy, prepare a separately owned
   execution protocol tied to the reviewed code, exact inputs/references, native
-  retention and original-ledger cap. Obtain separate call authorization before
-  any provider execution; this preparation grants none. Retrospective development
+  retention and original-ledger cap. The [native execution preparation](missing-link-demand-operation-execution-preparation-2026-10-09.md)
+  freezes eleven exact native bodies (USD0.051305 proposed reservations) and 1,315
+  protected files after PR92 merged as `9906472`. The proposed USD0.10 segment
+  stays within the original USD10 allowance; no calls/reservations occurred.
+- [ ] Implement the separate opt-in owned executor against that frozen execution
+  protocol, including offline identity/lease/marker, exact-body/prefix/cap,
+  native-retention and failure-boundary conformance. Review/CI/merge it and freeze
+  a new owned successor tied to its exact code before separately authorized calls.
+  Obtain separate call authorization before any provider execution; neither the
+  policy nor execution preparation grants it. Retrospective development
   feedback cannot establish fresh Discover utility or replace lead qualification.
 
 No full-pool ranking improvement can be inferred from selected-only history or
