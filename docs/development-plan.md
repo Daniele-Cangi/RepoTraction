@@ -1567,6 +1567,8 @@ force an isolated demonstration from a merely partial primitive.
   stream/abort and preserve global audit failures at telemetry operation boundaries.
   Reject foreign stream exit before changing context state so the owner can still
   detach its timer and propagate the original failure during cleanup.
+  Roll back this entry's timer attachment if a concurrent foreign failure makes
+  entry raise, without detaching a previously active context on rejected entry.
   Retained benchmark/full-suite timings precede these fixes; validate the new head
   with focused controls and fresh CI.
 - [ ] Review/CI the changed historical detection boundary. Address the remaining

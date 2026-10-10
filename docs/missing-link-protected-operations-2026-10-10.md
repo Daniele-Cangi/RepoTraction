@@ -190,3 +190,28 @@ with all consumed fingerprints, historical files and original tables unchanged,
 zero new original reservations and zero provider calls. Fresh scoped CI/review
 cover the new published head. The earlier benchmark and local full-suite timings
 remain evidence only for their declared pre-correction revisions.
+
+### Rollback when stream entry fails after attachment
+
+The scoped review of `2fb37f4` found a foreign failure can be latched after the
+entry callback attaches the timer but before `_perform` checks its result. Entry
+then raises, and Python does not invoke context exit. A deterministic regression
+inserts a real foreign-thread abort at that boundary and reproduced the attached
+timer without entering the context body.
+
+Entry now takes responsibility for rollback before its first attachment mutation.
+If that entry fails, it closes its context and detaches the timer, then rethrows
+the identical primary exception. A failure before this attempt starts attachment,
+including overlapping entry or reentry, leaves the already active context's timer
+and owner cleanup intact. Existing normal/exceptional foreign-exit and owner
+cleanup controls remain in place. All four CI jobs passed on `2fb37f4` before this
+follow-up; the new correction requires fresh validation, CI and scoped review.
+
+All 119 focused controls pass in 188.687 seconds: 22 ownership, 29 cadence,
+40 successor and 28 legacy integration controls. Startup and whitespace checks
+pass. Independent final read-only verification again confirms 58 consumed code
+fingerprints, 1,740 historical files and original table hashes unchanged, with
+579 reservations / USD8.1408513 and zero new reservations or provider calls.
+The temporary authored root is removed only after verifying its exact resolved
+path and empty inventory, without recursive deletion. Retained benchmark and local
+full-suite timings remain bound to their earlier pre-correction revision.

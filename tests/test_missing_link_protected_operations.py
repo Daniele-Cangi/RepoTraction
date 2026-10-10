@@ -1,7 +1,7 @@
 """Authored unit ownership, integrity, ordering and clock controls; no IO."""
 from concurrent.futures import ThreadPoolExecutor
 import unittest
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 from scripts.missing_link_checkpoint_cadence import CheckpointFailure
 from scripts.missing_link_protected_operations import ProtectedOperations
@@ -143,6 +143,38 @@ class ProtectedOperationsTests(unittest.TestCase):
         self.assertEqual(entered, [])
         self.assertIsNone(self.engine.timing)
         with self.assertRaises(CheckpointFailure): self.engine.poll()
+
+    def test_foreign_failure_after_stream_attachment_rolls_back_failed_entry(self):
+        timer, entered = object(), []
+        perform = self.engine._perform
+        def perform_with_foreign_failure(callback):
+            def attach_then_fail():
+                value = callback()
+                self.assertIs(self.engine.timing, timer)
+                with ThreadPoolExecutor(max_workers=1) as pool:
+                    with self.assertRaisesRegex(CheckpointFailure, 'Cross-thread'):
+                        pool.submit(self.engine.abort, OSError('Authored foreign abort')).result()
+                return value
+            return perform(attach_then_fail)
+        with patch.object(self.engine, '_perform', side_effect=perform_with_foreign_failure):
+            with self.assertRaisesRegex(CheckpointFailure, 'Cross-thread') as caught:
+                with self.engine.stream(timer): entered.append(True)
+        self.assertEqual(entered, [])
+        self.assertIs(caught.exception, self.engine.failure)
+        self.assertIsNone(self.engine.timing)
+        with self.assertRaises(CheckpointFailure) as later: self.engine.poll()
+        self.assertIs(later.exception, caught.exception)
+
+    def test_failed_overlapping_stream_entry_does_not_detach_the_live_timer(self):
+        timer = object()
+        live = self.engine.stream(timer)
+        live.__enter__()
+        with self.assertRaises(CheckpointFailure) as caught:
+            with self.engine.stream(object()): self.fail('Rejected context body ran')
+        self.assertIs(self.engine.timing, timer)
+        with self.assertRaises(CheckpointFailure) as cleanup: live.__exit__(None, None, None)
+        self.assertIs(cleanup.exception, caught.exception)
+        self.assertIsNone(self.engine.timing)
 
     def test_foreign_stream_exit_cannot_detach_the_owner_timer(self):
         timer = object()

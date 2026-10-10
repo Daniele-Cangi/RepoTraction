@@ -19,12 +19,21 @@ class _OwnedStream:
         self._checks, self._timing, self._state = checks, timing, 'new'
 
     def __enter__(self):
+        attaching = False
         def attach():
+            nonlocal attaching
             if self._state != 'new' or self._checks.timing is not None:
                 self._checks._reject('Invalid or overlapping stream context')
+            attaching = True  # This entry owns rollback before its first mutation.
             self._state = 'active'
             self._checks.timing = self._timing
-        return self._checks._perform(attach)
+        try:
+            return self._checks._perform(attach)
+        except BaseException:
+            if attaching:
+                self._state = 'closed'
+                self._checks.timing = None  # Failed __enter__ has no automatic exit.
+            raise
 
     def __exit__(self, kind, error, traceback):
         self._checks._check_owner()  # A rejected exit leaves this context active.
