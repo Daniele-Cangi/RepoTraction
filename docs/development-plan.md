@@ -1529,9 +1529,14 @@ force an isolated demonstration from a merely partial primitive.
   native receipts, bounded callback timing and finalization barriers. The
   full authored cohort and global-failure controls are offline; the original
   database and all consumed artifacts remain immutable.
-- [ ] Measure the exact owned adapter against the original read-only history,
-  review/CI its integration and satisfy the unchanged local performance gates
-  before a separately owned paid binding/freeze and concrete human approval.
+- [x] Measure the committed owned adapter against original read-only history.
+  Both authored streams finish (10k/60k: 17.678/46.831 seconds), but complete
+  first-slot workloads take 249.761/224.065 seconds and fail the fixed gates.
+  The first workload spends 195.252 seconds in 43 original DB scans. All
+  original hashes and accounting are preserved; no provider call occurred.
+- [ ] Review/CI this integration and address repeated original-DB audit cost
+  across mandatory write boundaries without relaxing preservation or performance
+  gates. Paid ownership binding/freeze and concrete human approval remain separate.
   An authored transport/identity does not establish live latency or a model gain.
 
 No full-pool ranking improvement can be inferred from selected-only history or

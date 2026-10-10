@@ -116,6 +116,11 @@ real attempt. No old preparation, approval, writer or native run is replayed.
 
 ## Validation and observed measurements
 
+All 25 focused integration controls pass. The complete local suite passes all
+1,708 tests in 736.598 seconds on Windows / Python 3.13, including the final
+configuration-boundary and profile-retention corrections. `python app.py --help`
+also succeeds. Cross-platform CI and scoped external review remain required.
+
 Authored regressions cover buffered streams, exact active/wall accounting,
 unconditional terminal barriers, missing usage, SSE/size failures, cleanup and
 primary exceptions, clock failures, immutable request binding, concrete config
@@ -123,5 +128,38 @@ types, whole-cohort/local-refusal behavior, atomic reservation failures, content
 mutation with restored timestamps, foreign ledger changes, identity and lease
 loss, inventory changes, finalization failure and replay rejection.
 
-Actual read-only measurement results will be retained after the committed adapter
-is measured. No execution-readiness claim is made by the implementation alone.
+The committed adapter `a453e66fac7d46152eea8ef22ae93d729d48dff6` was measured
+on Windows / Python 3.13 with all 1,740 original files and original DB audits.
+Both first-slot probes completed, retained the authored terminal/result and
+passed their final preservation checks. The benchmark correctly exited 1:
+
+| Authored nonterminal lines | Stream wall seconds | Whole owned seconds | First 3 critical max | First 3 history max | Gate |
+| ---: | ---: | ---: | ---: | ---: | --- |
+| 10,000 | 17.678 | 249.761 | .039 s | 4.984 s | **Fail**: whole owned >30 s |
+| 60,000 | 46.831 | 224.065 | .058 s | 6.382 s | **Fail**: history >5 s and whole owned >120 s |
+
+The first probe performed 43 full history audits across the owned lifecycle.
+Those took 239.834 seconds: 195.252 seconds in original DB scans, 21.229 in file
+hashing, 21.711 in Git checks, with inventories and prefix comparison accounting
+for the rest. Original DB scanning alone was about 78% of whole owned time.
+The stream's 17.678 seconds included only 11.390 seconds of expensive audits:
+the many unconditional persistence/finalization barriers now dominate the total.
+The 60,000-line probe's different wall time reflects different observed callback
+costs; these are individual measurements without flushed OS caches, not a
+controlled speedup, percentile estimate or prediction of live completion.
+
+The initial report's second profile also includes the final independent
+post-probe history verification outside its measured whole-owned interval.
+The benchmark now copies profile values when retaining each probe so later
+verification cannot mutate an earlier result. The reported whole-owned and
+stream durations above are unaffected. Subsequent configuration-boundary
+hardening pins expected public settings before body reads and checks them after
+identity callbacks; the measurements above remain explicitly tied to `a453e66`,
+not a performance certification of later commits.
+
+All consumed code, files and original table hashes matched; original accounting
+remains 579 / USD8.1408513, with zero real provider calls or new original
+reservations. **Paid readiness remains false.** The next performance work must
+address repeated full DB auditing across mandatory write boundaries, while
+preserving the exact-prefix and mutation-detection contract. No gate was relaxed
+and no additional paid freeze or authorization was created.
