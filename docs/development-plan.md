@@ -1522,11 +1522,17 @@ force an isolated demonstration from a merely partial primitive.
   unconditional acceptance barriers, fail-stop lifecycle and bounded parallel
   content hashing. Authored controls and fixed filesystem workloads measure the
   component without modifying consumed code or making provider calls.
-- [ ] Review the changed detection boundary and complete a distinct owned
-  reader/executor integration. Measure that exact adapter's full callback set
-  offline against original read-only history before freezing any new paid scope.
-  The component drains long streams but its strict calibration limits are not
-  yet met in all local samples; do not claim execution readiness or a model gain.
+- [x] Review the changed detection boundary. PR107 merged `65a066b` with the
+  reviewed `d997c25` tree unchanged, a clean final Codex review and successful CI.
+- [x] Connect a separate [owned cadence reader/executor](missing-link-cadence-integration-2026-10-10.md)
+  to compiled code/history pins, real temporary leases/atomic accounting,
+  native receipts, bounded callback timing and finalization barriers. The
+  full authored cohort and global-failure controls are offline; the original
+  database and all consumed artifacts remain immutable.
+- [ ] Measure the exact owned adapter against the original read-only history,
+  review/CI its integration and satisfy the unchanged local performance gates
+  before a separately owned paid binding/freeze and concrete human approval.
+  An authored transport/identity does not establish live latency or a model gain.
 
 No full-pool ranking improvement can be inferred from selected-only history or
 the later nonrandom root sample. Retained ordering and root demand diagnostics
