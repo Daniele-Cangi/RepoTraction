@@ -1,0 +1,293 @@
+{
+  "scope": "exact_offline_owned_adapter_original_read_only_history_authored_identity_and_transport",
+  "implementation_head": "876033e1bb2ca32a9e49417306f65f016a7ed83d",
+  "implementation_tree": "dbf4c31ecda90c0c4907e965825c59a48d1e7e0a",
+  "historical_artifacts": 1740,
+  "protected_operation_units": true,
+  "compilation_seconds_outside_owned_gates": 6.108002099994337,
+  "consumed_code_fingerprints": 58,
+  "runs": [
+    {
+      "nonterminal_lines": 10000,
+      "attempted_authored_slots": 1,
+      "unattempted_slots": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ],
+      "whole_owned_seconds": 29.144949699984863,
+      "stream_trace": {
+        "version": 1,
+        "failure": null,
+        "reservation_committed": true,
+        "terminal_retained": true,
+        "clock_valid": true,
+        "deadline_kind": null,
+        "lines": 10001,
+        "bytes": 271124,
+        "light_checkpoints": 20018,
+        "full_checkpoints": 10,
+        "opening_seconds": 0.00027550000231713057,
+        "reading_seconds": 0.022742699802620336,
+        "light_checkpoint_seconds": 4.207424400839955,
+        "full_checkpoint_seconds": 2.3194000000075903,
+        "active_stream_seconds": 0.27783129914314486,
+        "wall_stream_seconds": 6.80465569999069,
+        "saturated": false,
+        "cadence": {
+          "version": 1,
+          "state": "streaming",
+          "clock_valid": true,
+          "counts": {
+            "fast": 20099,
+            "critical": 40,
+            "history": 10
+          },
+          "seconds": {
+            "fast": 4.354477699875133,
+            "critical": 0.8165482000622433,
+            "history": 10.798677499929909
+          },
+          "saturated": false,
+          "protected_units": {
+            "claim": 1,
+            "reserve": 1,
+            "account": 1,
+            "validate": 0,
+            "telemetry": 0,
+            "finish": 0
+          },
+          "protected_commits": 6
+        }
+      },
+      "profile": {
+        "critical": {
+          "count": 72,
+          "seconds": 1.552842499979306,
+          "max_seconds": 0.040306099981535226,
+          "first_three_seconds": [
+            0.03524559998186305,
+            0.017239300010260195,
+            0.025743900012457743
+          ]
+        },
+        "git": {
+          "count": 42,
+          "seconds": 5.483071500028018,
+          "max_seconds": 0.1407564999826718,
+          "first_three_seconds": [
+            0.13473769999109209,
+            0.1283543000172358,
+            0.1238747000170406
+          ]
+        },
+        "inventories": {
+          "count": 21,
+          "seconds": 0.5667144000180997,
+          "max_seconds": 0.0342131000070367,
+          "first_three_seconds": [
+            0.02495920000365004,
+            0.02431000000797212,
+            0.03064869999070652
+          ]
+        },
+        "historical_files": {
+          "count": 21,
+          "seconds": 4.096490399970207,
+          "max_seconds": 0.2221968000230845,
+          "first_three_seconds": [
+            0.19523059998755343,
+            0.19504439999582246,
+            0.19866539997747168
+          ]
+        },
+        "original_database": {
+          "count": 21,
+          "seconds": 12.632022299978416,
+          "max_seconds": 0.6290186999831349,
+          "first_three_seconds": [
+            0.6265558000013698,
+            0.5951933999895118,
+            0.5927046999859158
+          ]
+        },
+        "history": {
+          "count": 21,
+          "seconds": 22.82268310012296,
+          "max_seconds": 1.155343599995831,
+          "first_three_seconds": [
+            1.112181500007864,
+            1.0715249000058975,
+            1.0795783000066876
+          ]
+        }
+      },
+      "gates": {
+        "critical_first_three_max_le_100ms": true,
+        "history_first_three_max_le_5s": true,
+        "whole_owned_probe_within_budget": true
+      },
+      "gate_passed": true,
+      "authored_result_count": 1,
+      "database_audit_counts": {
+        "audits": 21,
+        "image_reads": 21,
+        "logical_scans": 0,
+        "cache_hits": 21,
+        "fallback_scans": 0
+      }
+    },
+    {
+      "nonterminal_lines": 60000,
+      "attempted_authored_slots": 1,
+      "unattempted_slots": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ],
+      "whole_owned_seconds": 62.57335359998979,
+      "stream_trace": {
+        "version": 1,
+        "failure": null,
+        "reservation_committed": true,
+        "terminal_retained": true,
+        "clock_valid": true,
+        "deadline_kind": null,
+        "lines": 60001,
+        "bytes": 1621124,
+        "light_checkpoints": 120078,
+        "full_checkpoints": 41,
+        "opening_seconds": 0.0025374999968335032,
+        "reading_seconds": 0.18825149856274948,
+        "light_checkpoint_seconds": 31.060791706113378,
+        "full_checkpoint_seconds": 4.8397365000564605,
+        "active_stream_seconds": 2.2422162938455585,
+        "wall_stream_seconds": 38.1427445000154,
+        "saturated": false,
+        "cadence": {
+          "version": 1,
+          "state": "streaming",
+          "clock_valid": true,
+          "counts": {
+            "fast": 120159,
+            "critical": 70,
+            "history": 11
+          },
+          "seconds": {
+            "fast": 32.005209106515395,
+            "critical": 1.7229998000257183,
+            "history": 12.884295000054408
+          },
+          "saturated": false,
+          "protected_units": {
+            "claim": 1,
+            "reserve": 1,
+            "account": 1,
+            "validate": 0,
+            "telemetry": 0,
+            "finish": 0
+          },
+          "protected_commits": 6
+        }
+      },
+      "profile": {
+        "critical": {
+          "count": 102,
+          "seconds": 2.57973939992371,
+          "max_seconds": 0.20754370000213385,
+          "first_three_seconds": [
+            0.03985540001303889,
+            0.02126979999593459,
+            0.020839700009673834
+          ]
+        },
+        "git": {
+          "count": 44,
+          "seconds": 6.497775800031377,
+          "max_seconds": 0.26154160001897253,
+          "first_three_seconds": [
+            0.12603820001822896,
+            0.14717250000103377,
+            0.15197790000820532
+          ]
+        },
+        "inventories": {
+          "count": 22,
+          "seconds": 0.6609504999942146,
+          "max_seconds": 0.052410899981623515,
+          "first_three_seconds": [
+            0.024165599985281006,
+            0.03038320000632666,
+            0.02871670000604354
+          ]
+        },
+        "historical_files": {
+          "count": 22,
+          "seconds": 5.076225299912039,
+          "max_seconds": 0.3744973999855574,
+          "first_three_seconds": [
+            0.19839589999173768,
+            0.21138860000064597,
+            0.22134049999294803
+          ]
+        },
+        "original_database": {
+          "count": 22,
+          "seconds": 14.102088599989656,
+          "max_seconds": 0.8892298999999184,
+          "first_three_seconds": [
+            0.6315563999814913,
+            0.5658425000146963,
+            0.6070369000080973
+          ]
+        },
+        "history": {
+          "count": 22,
+          "seconds": 26.391106699971715,
+          "max_seconds": 1.5405537999758963,
+          "first_three_seconds": [
+            1.1302710000018124,
+            1.0911597000085749,
+            1.132653799984837
+          ]
+        }
+      },
+      "gates": {
+        "critical_first_three_max_le_100ms": true,
+        "history_first_three_max_le_5s": true,
+        "whole_owned_probe_within_budget": true
+      },
+      "gate_passed": true,
+      "authored_result_count": 1,
+      "database_audit_counts": {
+        "audits": 22,
+        "image_reads": 22,
+        "logical_scans": 0,
+        "cache_hits": 22,
+        "fallback_scans": 0
+      }
+    }
+  ],
+  "original_reservations": 579,
+  "original_reserved_usd": 8.1408513,
+  "original_database_unchanged": true,
+  "provider_calls": 0,
+  "original_new_reservations": 0,
+  "performance_gate_passed": true,
+  "paid_readiness": false,
+  "call_authorization_granted": false
+}

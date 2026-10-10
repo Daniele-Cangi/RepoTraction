@@ -114,8 +114,8 @@ including the fresh owned-prefix checks. The earlier PR110 10k observation was
 52.338 seconds with 43 full audits. These are individual retained observations,
 not controlled percentile or cache-flushed speedup estimates.
 
-The benchmark exits 1 because 30.545 exceeds the fixed thirty-second whole-owned
-gate. Overall performance readiness and paid readiness remain false. No retry
+That benchmark exits 1 because 30.545 exceeds the fixed thirty-second whole-owned
+gate. At that measured revision, performance and paid readiness remain false. No retry
 or threshold adjustment is used to turn this observation into acceptance. A
 subsequent documentation-only commit is not retrospectively the measured head.
 
@@ -215,3 +215,51 @@ fingerprints, 1,740 historical files and original table hashes unchanged, with
 The temporary authored root is removed only after verifying its exact resolved
 path and empty inventory, without recursive deletion. Retained benchmark and local
 full-suite timings remain bound to their earlier pre-correction revision.
+
+## Final merged revision and retained measurement
+
+PR111 merged as `876033e1bb2ca32a9e49417306f65f016a7ed83d`, with tree
+`dbf4c31ecda90c0c4907e965825c59a48d1e7e0a` identical to the final reviewed
+`f98758e96d5aed2daebce58d42425c31bfef50fd`. The final scoped Codex review found
+no major issues, all four CI jobs passed in run 38081270536, and all four review
+threads are resolved. Final focused validation is the 119-control run above;
+the full CI covers the corrected code. The earlier local 1,787-test timing still
+belongs to the original pre-correction implementation.
+
+The clean merged revision was measured once on Windows / Python 3.13.5, using
+the existing `--operation-units` benchmark, actual original read-only history
+and authored identity/transport. The [bounded JSON report](fixtures/missing-link-protected-operations-merged-measurement-2026-10-10.json)
+retains the exact measured head/tree, callback profiles, trace and unchanged gates.
+Compilation took 6.108 seconds, outside the owned gates.
+
+| Authored lines | Stream wall | Whole owned | First 3 critical max | First 3 history max | Full history audits | Fixed gates |
+| ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| 10,000 | 6.805 s | 29.145 s | .035 s | 1.112 s | 21 | **Pass** |
+| 60,000 | 38.143 s | 62.573 s | .040 s | 1.133 s | 22 | **Pass** |
+
+Both workloads complete with one authored result and audited final seal, one
+attempted slot and ten explicit unattempted slots. Each full audit reads and
+hashes a fresh complete original database image; 21/22 exact logical cache hits
+avoid repeated logical scans. The 60k stream still performs its overdue full
+history audit. Complete history callbacks total 22.823/26.391 seconds; the 10k
+profile includes 12.632 seconds in database audits, 5.483 in Git and 4.096 in
+historical file hashing. No audit, acceptance barrier or gate is removed.
+
+The benchmark exits 0 and its offline performance gate passes on this measured
+revision. The 10k margin is only .855 seconds (about 2.85% of the thirty-second
+limit). This is one observation, not a percentile, reliability margin or controlled
+comparison with the earlier 30.545-second failure, which remains retained above.
+The difference is not attributed to the review fixes. The critical gate applies
+to the first three callbacks; a later 60k critical callback takes .208 seconds,
+so this report does not establish a bound on every critical invocation.
+
+Independent final read-only verification confirms the same 58 consumed code
+fingerprints, 1,740 historical files and original database table hashes, with
+579 reservations / USD8.1408513, zero added original reservations and zero
+provider calls. The exact resolved temporary root is removed after checking its
+empty inventory, without recursive deletion. This documentation publication is
+not the measured head. There is no paid entry point or new live freeze; paid
+readiness and call authorization remain false. Separate owned preparation tied
+to reviewed/merged code and concrete human approval are still required before
+a new one-shot provider attempt. Authored timing supplies no live latency or
+semantic-quality evidence, and the consumed native run remains closed.
