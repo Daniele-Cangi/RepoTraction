@@ -21,6 +21,7 @@ if str(ROOT) not in sys.path:
 from missing_link.provider import Provider
 from scripts.missing_link_demand_operation_policy import FIELDS
 from scripts.missing_link_cadence_history import compile_history
+from scripts.missing_link_cadence_git import GitTreeAudit
 from scripts.missing_link_cadence_executor import successor_manifest
 from scripts.missing_link_cadence_owned import run_offline_owned
 from scripts.missing_link_repository_only_evaluator import require
@@ -72,9 +73,7 @@ def benchmark(*, temp_parent=None, workloads=(10000, 60000)):
     head, tree = git('rev-parse', 'HEAD'), git('rev-parse', 'HEAD^{tree}')
     require(not git('status', '--porcelain'), 'Offline measurement requires a clean committed implementation')
 
-    def check_tree():
-        require(git('rev-parse', 'HEAD') == head and git('rev-parse', 'HEAD^{tree}') == tree
-                and not git('status', '--porcelain'), 'Measured implementation changed')
+    check_tree = GitTreeAudit(head, tree)
 
     def forbidden(*args, **kwargs): raise AssertionError('Offline integration forbids network and credentials')
 

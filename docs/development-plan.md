@@ -1540,7 +1540,13 @@ force an isolated demonstration from a merely partial primitive.
   Hash a fresh complete SQLite transaction image before reusing an exact logical
   snapshot; preserve every full barrier and independent prefix comparison.
   Unsupported runtimes/oversized images retain complete logical scans.
-- [ ] Review/CI the image audit, then address remaining full first-slot cost.
+- [x] Review/CI the image audit. PR109 merged `fb06bbd` with the reviewed
+  `1565317` tree unchanged, the SQLite post-cleanup identity fix, clean final
+  Codex review and all four CI jobs successful.
+- [x] Implement [fresh file and Git audit scheduling](missing-link-batched-content-audits-2026-10-10.md)
+  with eight bounded worker batches and combined commit/tree resolution.
+  Retain every content read, explicit Git check and full acceptance barrier.
+- [ ] Measure/review the scheduling stage and address remaining first-slot cost.
   Observed whole-owned 10k/60k probes take 65.932/84.557 seconds: the 60k gate
   passes, but the 10k >30-second gate and overall readiness still fail.
   Paid ownership binding/freeze and concrete human approval remain separate.

@@ -200,6 +200,9 @@ there is no paid entry point or new provider call.
 The [content-verified database audit](docs/missing-link-content-verified-database-audit-2026-10-10.md)
 hashes a fresh SQLite transaction image before reusing logical history digests;
 all acceptance barriers and independent accounting comparisons remain required.
+The [file and Git audit scheduling stage](docs/missing-link-batched-content-audits-2026-10-10.md)
+uses bounded worker batches and combined Git name resolution while retaining
+fresh content reads and every full barrier.
 Candidate execution, UI/key-entry work and production promotion remain deferred.
 
 ## Development plan
