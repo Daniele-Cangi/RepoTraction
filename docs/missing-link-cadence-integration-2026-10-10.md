@@ -51,6 +51,13 @@ the cohort. Only the existing post-schema normalizer's explicit local refusal
 can advance to the next slot. Failed scopes are consumed and cannot replay.
 Failure diagnostics cannot grant acceptance or a success seal.
 
+The owned seal is first retained as `owned-artifacts.provisional.json`, whose
+bytes and inventory entry are covered by the final full barrier. Only a
+successful barrier permits atomic promotion to `owned-artifacts.json`; the
+returned receipt uses its already verified digest. A failed audit or publication
+retains provisional evidence and best-effort failure diagnostics, with no success
+seal and no permission to replay the consumed workspace.
+
 ## Compiled audits and trust boundary
 
 `missing_link_cadence_history.py` verifies predecessor preparation relationships
@@ -116,10 +123,19 @@ real attempt. No old preparation, approval, writer or native run is replayed.
 
 ## Validation and observed measurements
 
-All 25 focused integration controls pass. The complete local suite passes all
+Before the review correction, all 25 focused integration controls passed. The
+complete local suite passed all
 1,708 tests in 736.598 seconds on Windows / Python 3.13, including the final
-configuration-boundary and profile-retention corrections. `python app.py --help`
-also succeeds. Cross-platform CI and scoped external review remain required.
+configuration-boundary and profile-retention corrections. CI run 38051191805
+passed all four Windows/Linux and Python 3.10/3.13 jobs on `549d9a6`.
+`python app.py --help` also succeeded. The review identified premature seal
+publication on final-barrier failure; the provisional-seal correction adds
+controls for a post-staging history failure, staged-content mutation and failed
+publication, plus exact successful inventory/digest checks. Validation of the
+corrected head is recorded separately from those earlier full-suite results.
+All 28 focused controls pass after the seal correction in 119.266 seconds on
+Windows / Python 3.13; startup `--help` and independent read-only preservation
+also pass. The corrected commit requires its own CI and scoped re-review.
 
 Authored regressions cover buffered streams, exact active/wall accounting,
 unconditional terminal barriers, missing usage, SSE/size failures, cleanup and

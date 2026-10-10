@@ -151,7 +151,8 @@ class CadenceIntegrationTests(unittest.TestCase):
             with self.assertRaises(EvaluationStopped):
                 executor.bind_requests(self.fixture.provider, self.fixture.packets, modified, self.fixture.files.__getitem__)
 
-    def owned(self, *, observe=lambda stage, owner: None, lines=None, history=None, identity=None, read=None):
+    def owned(self, *, observe=lambda stage, owner: None, lines=None, history=None, identity=None, read=None,
+              case_limit=11):
         workspace = self.fixture.root/'cadence-owned'
         f = self.fixture
         opens = []
@@ -165,16 +166,20 @@ class CadenceIntegrationTests(unittest.TestCase):
                 code_pins=[FilePin(f.root/'code.txt', sha(f.root/'code.txt', canonical=True), True)],
                 historical_audit=history or (lambda: None), identity=identity or (lambda **kwargs: None),
                 opener_factory=factory, allowance=f.source['allowance'], account=f.source['account'],
-                base_reserved=.1, ceiling=.2, observe=observe, clock=self.clock)
+                base_reserved=.1, ceiling=.2, observe=observe, clock=self.clock, case_limit=case_limit)
         finally:
             self.opens, self.workspace = len(opens), workspace
 
     def test_owned_whole_cohort_keeps_receipts_exact_prefix_and_rejects_replay(self):
         original = database_snapshot(self.fixture.db, self.fixture.source['allowance'])
-        self.owned()
+        result = self.owned()
         self.assertEqual(self.opens, 11)
         out = self.workspace/'evidence'
         self.assertTrue((out/'owned-artifacts.json').exists())
+        self.assertFalse((out/'owned-artifacts.provisional.json').exists())
+        self.assertEqual(result['receipt_sha256'], sha(out/'owned-artifacts.json'))
+        self.assertEqual(set(load(out/'owned-artifacts.json')) | {'owned-artifacts.json'},
+                         {path.name for path in out.iterdir()})
         self.assertEqual(len(list(out.glob('terminal-*.json'))), 11)
         self.assertEqual(database_snapshot(self.fixture.db, self.fixture.source['allowance']), original)
         final = load(out/'final-integrity.json')
@@ -286,6 +291,44 @@ class CadenceIntegrationTests(unittest.TestCase):
                 raise EvaluationStopped('Authored final history failure')
         with self.assertRaises(EvaluationStopped): self.owned(history=history)
         self.assertFalse((self.workspace/'evidence/owned-artifacts.json').exists())
+
+    def test_history_failure_after_staging_cannot_publish_success_seal(self):
+        primary = EvaluationStopped('Authored final history failure after staging')
+        def history():
+            if (self.fixture.root/'cadence-owned/evidence/owned-artifacts.provisional.json').exists():
+                raise primary
+        with self.assertRaises(EvaluationStopped) as caught:
+            self.owned(history=history, case_limit=1)
+        self.assertIs(caught.exception, primary)
+        out = self.workspace/'evidence'
+        self.assertTrue((out/'owned-artifacts.provisional.json').exists())
+        self.assertFalse((out/'owned-artifacts.json').exists())
+        self.assertFalse(load(out/'failure.json')['sealed'])
+        self.assertEqual(database_snapshot(self.workspace/'authored-ledger.sqlite3',
+                         self.fixture.source['allowance'])['reservations'], 2)
+        with self.assertRaises(FileExistsError): self.owned()
+        self.assertEqual(self.opens, 0)
+
+    def test_staged_seal_mutation_is_audited_before_publication(self):
+        def changed(stage, owner):
+            provisional = owner.out/'owned-artifacts.provisional.json'
+            if stage == 'history' and provisional.exists():
+                provisional.write_text('Authored damaged provisional seal')
+        with self.assertRaises(EvaluationStopped): self.owned(observe=changed, case_limit=1)
+        out = self.workspace/'evidence'
+        self.assertFalse((out/'owned-artifacts.json').exists())
+        self.assertFalse(load(out/'failure.json')['sealed'])
+
+    def test_seal_publication_failure_keeps_scope_failed(self):
+        primary = OSError('Authored seal publication failure')
+        with patch.object(Path, 'rename', side_effect=primary) as publish:
+            with self.assertRaises(OSError) as caught: self.owned(case_limit=1)
+        self.assertIs(caught.exception, primary)
+        publish.assert_called_once()
+        out = self.workspace/'evidence'
+        self.assertTrue((out/'owned-artifacts.provisional.json').exists())
+        self.assertFalse((out/'owned-artifacts.json').exists())
+        self.assertFalse(load(out/'failure.json')['sealed'])
 
     def test_clock_exception_has_missing_timing_and_cannot_replace_guard_primary(self):
         primary = OSError('Authored guard')

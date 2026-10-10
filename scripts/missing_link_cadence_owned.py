@@ -44,13 +44,22 @@ class OwnedEvidence:
                 and [load(self.out/name) for name in names] == self.rows, 'Owned reservation journal changed')
         self.fast()
 
-    def seal(self):
+    def stage_seal(self):
         self.critical()
         stream = self.leases[0].file
         stream.seek(0)
         lock_hash = hashlib.sha256(stream.read()).hexdigest()
         stream.seek(0)
-        self.save('owned-artifacts.json', dict(self.hashes, **{'run.missing-link.lock': lock_hash}))
+        self.save('owned-artifacts.provisional.json', dict(self.hashes, **{'run.missing-link.lock': lock_hash}))
+
+    def publish_seal(self):
+        # The final barrier has verified the staged bytes and every protected
+        # dependency. Promotion is the last success write, with no fallible
+        # validation or receipt read after publishing the success filename.
+        name = 'owned-artifacts.provisional.json'
+        receipt = self.hashes[name]
+        (self.out/name).rename(self.out/'owned-artifacts.json')
+        return receipt
 
 
 def run_offline_owned(workspace, *, provider, packets, manifest, read, code_pins,
@@ -150,8 +159,9 @@ def run_offline_owned(workspace, *, provider, packets, manifest, read, code_pins
             clock=clock, case_limit=case_limit)
         barrier()
         verify_prefix(before, load(out/'final-integrity.json'), owner.rows, allowance=allowance, ceiling=ceiling)
-        owner.seal()
+        owner.stage_seal()
         barrier()
+        receipt = owner.publish_seal()
     except BaseException as exc:
         failure = {'diagnostic': failure_projection(exc), 'stopped_slot': active,
                    'sealed': False, 'retries': False,
@@ -166,4 +176,4 @@ def run_offline_owned(workspace, *, provider, packets, manifest, read, code_pins
     finally:
         for lease in reversed(acquired):
             lease.release()
-    return {'results': results, 'receipt_sha256': sha(out/'owned-artifacts.json')}
+    return {'results': results, 'receipt_sha256': receipt}
