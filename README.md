@@ -192,9 +192,11 @@ separate authorization, the [consumed stream outcome](docs/missing-link-stream-s
 records 594.6 of 600 seconds in local checkpoints, no terminal, and ten unattempted
 slots. Original software accounting is now 579 / USD8.1408513 within USD10.
 The separate [checkpoint cadence prototype](docs/missing-link-checkpoint-cadence-2026-10-10.md)
-adds time-based audits, forced acceptance barriers, bounded parallel file hashing
-and offline performance controls. It is not wired into a paid executor, and its
-full integration/performance gate remains open; no new calls occur here.
+adds time-based audits, forced acceptance barriers and bounded parallel file hashing.
+The separate [owned cadence integration](docs/missing-link-cadence-integration-2026-10-10.md)
+connects the reader, executor, temporary atomic ledger and original read-only
+history for offline verification. Its performance/readiness gate remains open;
+there is no paid entry point or new provider call.
 Candidate execution, UI/key-entry work and production promotion remain deferred.
 
 ## Development plan
