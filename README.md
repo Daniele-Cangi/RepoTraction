@@ -186,7 +186,9 @@ streams. The actual v3 failure subtype remains unknown; no further calls occur.
 The prospective [stream successor protocol](docs/missing-link-policy-v3-stream-successor-protocol-2026-10-09.md)
 and [offline preparation](docs/missing-link-policy-v3-stream-successor-preparation-2026-10-09.md)
 preserve all eleven request bodies with distinct unused accounting IDs. Separate
-corrected adapters, review and exact owned authorization precede new calls.
+corrected [stream successor adapters](docs/missing-link-policy-v3-stream-successor-adapters-2026-10-09.md)
+implement those gates with authored offline controls. Adapter review and exact
+owned authorization precede new calls; accounting and all old evidence stay fixed.
 Candidate execution, UI/key-entry work and production promotion remain deferred.
 
 ## Development plan
