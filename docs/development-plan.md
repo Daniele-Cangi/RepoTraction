@@ -1546,8 +1546,11 @@ force an isolated demonstration from a merely partial primitive.
 - [x] Implement [fresh file and Git audit scheduling](missing-link-batched-content-audits-2026-10-10.md)
   with eight bounded worker batches and combined commit/tree resolution.
   Retain every content read, explicit Git check and full acceptance barrier.
-- [ ] Measure/review the scheduling stage and address remaining first-slot cost.
-  Observed whole-owned 10k/60k probes take 65.932/84.557 seconds: the 60k gate
+- [x] Measure the committed scheduling stage against the original read-only
+  history. Whole-owned 10k/60k probes take 52.338/73.931 seconds, with every
+  full barrier and all 43 database image reads retained per probe.
+- [ ] Review/CI the scheduling stage and address remaining first-slot cost.
+  The 60k gate
   passes, but the 10k >30-second gate and overall readiness still fail.
   Paid ownership binding/freeze and concrete human approval remain separate.
   An authored transport/identity does not establish live latency or a model gain.

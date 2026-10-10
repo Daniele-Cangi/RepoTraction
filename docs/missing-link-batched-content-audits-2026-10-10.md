@@ -73,3 +73,42 @@ reservation or new paid freeze. Measurements are tied to their exact commit.
 Performance results alone grant no live execution authorization or model-quality
 claim; a separately owned reviewed/merged freeze and concrete approval remain
 necessary for any new paid attempt.
+
+## Retained owned measurement
+
+The clean implementation `72c07b5ab3612d8c25f9d61bbb242bc0e1f3cfb9` (tree
+`b8a11205ccac1895c4fb877bfc627529c3c3be94`) was measured on Windows / Python 3.13
+against the actual original read-only history and authored identity/transport.
+Compilation took 5.483 seconds, including initial complete logical validation,
+outside the same owned gates as before.
+
+| Authored lines | Stream wall | Whole owned | First 3 critical max | First 3 history max | Gate |
+| ---: | ---: | ---: | ---: | ---: | --- |
+| 10,000 | 6.541 s | 52.338 s | .034 s | 1.078 s | **Fail:** whole >30 s |
+| 60,000 | 27.727 s | 73.931 s | .036 s | 1.120 s | **Pass:** all three fixed gates |
+
+Both probes complete with a native authored terminal and result, one attempted
+slot and ten explicit unattempted slots. Each retains 43 full history audits,
+43 new complete database-image reads/hits and zero repeated logical scans in
+the owned phase. Initial logical validation is in compilation above.
+
+In the first probe, historical file reads take 8.276 seconds and Git takes
+10.917 seconds, compared with the earlier observations of 15.935 and 16.534.
+DB auditing takes 25.714 seconds and remains the largest component. The
+complete historical callback totals 46.131 seconds. Counts, barriers and
+original accounting remain unchanged. These are separate observations, not
+controlled percentile or cache-flushed speedup estimates.
+
+The benchmark exits 1 because the fixed 10k gate still fails. Overall
+performance readiness and paid readiness remain false. No subsequent
+documentation-only commit is retrospectively treated as the measured head.
+
+Validation on this implementation passes 57 focused cadence/file/Git/DB tests
+(56 passes and one existing POSIX-only skip), all 28 integration controls in
+62.219 seconds and the complete 1,741-test suite in 654.940 seconds (one
+POSIX-only skip on Windows / Python 3.13). Startup `--help` passes. Independent
+final read-only verification after the full suite confirms all 58 consumed code
+fingerprints, 1,740 historical files and original table hashes unchanged:
+579 reservations / USD8.1408513 within USD10, zero added original reservations
+and zero provider calls. Fresh CI and scoped Codex review must cover the final
+published head, whose changes after measurement are documentation only.
