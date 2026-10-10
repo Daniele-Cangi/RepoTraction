@@ -1556,10 +1556,10 @@ force an isolated demonstration from a merely partial primitive.
   with unconditional full entry/exit audits, provisional internal writes, fresh
   critical/owned-prefix checks around each commit and distinct revision/unused IDs.
   Keep the default legacy cadence path and every consumed scope unchanged.
-- [x] Measure the clean committed operation successor against original read-only
-  history. Whole-owned 10k/60k probes take 30.545/61.646 seconds with 21/22
-  full audits; the overdue thirty-second audit remains active. The 10k gate
-  still fails; no threshold is raised and overall performance readiness is false.
+- [x] Measure the initial committed operation successor against original read-only
+  history. Pre-correction `b2ce8e0` whole-owned 10k/60k probes take 30.545/61.646
+  seconds with 21/22 full audits; the overdue thirty-second audit remains active.
+  That observation fails the 10k gate; no threshold is raised.
 - [x] Complete initial focused/full-suite validation of the operation successor: 131
   focused controls and 1,787 full-suite tests pass with one existing Windows skip.
   Independently verify consumed code, historical files and original accounting.
@@ -1571,9 +1571,17 @@ force an isolated demonstration from a merely partial primitive.
   entry raise, without detaching a previously active context on rejected entry.
   Retained benchmark/full-suite timings precede these fixes; validate the new head
   with focused controls and fresh CI.
-- [ ] Review/CI the changed historical detection boundary. Address the remaining
-  first-slot cost in a separate stage after merge.
-  Paid ownership binding/freeze and concrete human approval remain separate.
+- [x] Review/CI the changed historical detection boundary. PR111 merged `876033e`
+  with the final reviewed `f98758e` tree unchanged, a clean scoped Codex review,
+  all four CI jobs successful and all four review threads resolved.
+- [x] Measure the final clean merged operation revision once. Retained whole-owned
+  10k/60k probes take 29.145/62.573 seconds; all fixed offline gates pass, with
+  21/22 fresh full database images and the overdue audit retained. The .855-second
+  10k margin is a single observation; retain the earlier failure and both profiles.
+  No causal improvement from review corrections or reliability margin is inferred.
+- [ ] Review the retained final measurement and its exact revision provenance.
+  Then prepare a separate owned one-shot freeze if continuing toward a live test;
+  paid ownership binding and concrete human approval remain separate.
   An authored transport/identity does not establish live latency or a model gain.
 
 No full-pool ranking improvement can be inferred from selected-only history or

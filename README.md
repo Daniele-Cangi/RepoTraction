@@ -207,6 +207,9 @@ The separate [protected operation contract](docs/missing-link-protected-operatio
 owns full entry/exit audits for grouped provisional writes, with fresh code,
 lease and exact owned-ledger checks around each inner commit. It is an explicit
 offline successor with its own revision and unused accounting IDs.
+Its final merged revision passes the fixed authored 10k/60k timing gates in one
+retained measurement (29.145/62.573 seconds). The 10k margin is .855 seconds;
+the earlier failed observation remains recorded, and paid readiness remains false.
 Candidate execution, UI/key-entry work and production promotion remain deferred.
 
 ## Development plan
