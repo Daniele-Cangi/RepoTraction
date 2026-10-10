@@ -11,6 +11,7 @@ import hashlib
 import math
 from pathlib import Path
 import re
+from threading import Event
 import time
 
 
@@ -31,7 +32,8 @@ class PinnedFiles:
 The caller supplies independently trusted digests. This checks content only;
 inventory, held leases, original DB and manifest relationships need their own
     checks. All pins are copied into an immutable tuple before any stream starts.
-    At most eight read tasks are outstanding. All workers join before returning
+    At most eight worker batches are outstanding, each reading one file at a
+    time. All workers join before returning
     or raising; nothing keeps reading after a failed audit has returned.
 """
     def __init__(self, pins):
@@ -82,19 +84,28 @@ inventory, held leases, original DB and manifest relationships need their own
         if len(self._pins) == 1:
             self._verify_one(self._pins[0])
             return
-        remaining = iter(self._pins)
+        stopped = Event()
+        workers = min(8, len(self._pins))
+
+        def verify_batch(batch):
+            try:
+                for pin in batch:
+                    if stopped.is_set():
+                        return
+                    self._verify_one(pin)
+            except BaseException:
+                stopped.set()
+                raise
+
         with ThreadPoolExecutor(max_workers=8, thread_name_prefix='checkpoint-audit') as pool:
-            pending = {pool.submit(self._verify_one, pin) for pin in [next(remaining) for _ in range(min(8, len(self._pins)))]}
+            pending = {pool.submit(verify_batch, self._pins[n::workers]) for n in range(workers)}
             try:
                 while pending:
                     done, pending = wait(pending, return_when=FIRST_COMPLETED)
                     for future in done:
                         future.result()
-                    for _ in done:
-                        pin = next(remaining, None)
-                        if pin is not None:
-                            pending.add(pool.submit(self._verify_one, pin))
             except BaseException:
+                stopped.set()
                 for future in pending:
                     future.cancel()
                 raise  # The context manager joins all running reads first.

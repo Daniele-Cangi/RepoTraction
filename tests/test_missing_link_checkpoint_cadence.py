@@ -355,6 +355,64 @@ class PinnedFilesTests(unittest.TestCase):
             PinnedFiles(values).verify()
         self.assertEqual(read.call_count, 20)
 
+    def test_uneven_batches_verify_every_file_again_and_detect_a_late_change(self):
+        values = []
+        for number in range(39):
+            path = self.path.parent/f'{number:02}.txt'
+            path.write_bytes(b'authored')
+            values.append(FilePin(path, hashlib.sha256(b'authored').hexdigest()))
+        pins = PinnedFiles(values)
+        pins.verify()
+        last = values[-1].path
+        stamp = last.stat()
+        last.write_bytes(b'mutated!')
+        os.utime(last, ns=(stamp.st_atime_ns, stamp.st_mtime_ns))
+        with self.assertRaises(CheckpointFailure): pins.verify()
+
+    def test_failure_in_later_batch_round_stops_new_reads_and_joins_active_reads(self):
+        body = b'authored'
+        pins = PinnedFiles(FilePin(self.path.parent/f'{n:02}.txt', hashlib.sha256(body).hexdigest())
+                           for n in range(40))
+        first_round = threading.Barrier(8)
+        second_started, failure, release = threading.Event(), threading.Event(), threading.Event()
+        lock = threading.Lock()
+        reads, second = [], []
+
+        def read(path, mode):
+            number = int(path.stem)
+            with lock: reads.append(number)
+            if number < 8:
+                first_round.wait(timeout=10)
+            elif number < 16:
+                with lock:
+                    second.append(number)
+                    if len(second) == 8: second_started.set()
+                if number == 8:
+                    if not second_started.wait(10): raise AssertionError('Second read round did not start')
+                    raise OSError('Authored later-round read failure')
+                if not release.wait(10): raise AssertionError('Authored read was not released')
+            else:
+                raise AssertionError('Read started after global failure')
+            return io.BytesIO(body)
+
+        def observed_wait(*args, **kwargs):
+            done, pending = real_wait(*args, **kwargs)
+            if any(future.exception() is not None for future in done): failure.set()
+            return done, pending
+
+        with patch.object(Path, 'open', read), \
+                patch('scripts.missing_link_checkpoint_cadence.wait', observed_wait), \
+                ThreadPoolExecutor(max_workers=1) as caller:
+            result = caller.submit(pins.verify)
+            try:
+                self.assertTrue(failure.wait(10))
+                self.assertFalse(result.done())
+            finally:
+                release.set()
+            with self.assertRaisesRegex(OSError, 'Authored later-round read failure'):
+                result.result(timeout=10)
+        self.assertEqual(sorted(reads), list(range(16)))
+
     def test_incremental_canonical_hash_handles_chunked_utf8_and_newlines(self):
         raw = ('A'*65535 + '\r\n' + 'B'*65533 + '€\r' + '\nend\r').encode('utf-8')
         self.path.write_bytes(raw)

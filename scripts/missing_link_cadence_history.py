@@ -25,7 +25,9 @@ REVIEWED_CADENCE = 'd997c25a4dc22bd277b9c3308478889fcdf4e7a6'
 ADAPTERS = tuple('scripts/missing_link_cadence_' + name + '.py'
                  for name in ('checks', 'reader', 'executor', 'owned', 'history', 'benchmark')) + (
     'scripts/missing_link_checkpoint_cadence.py', 'tests/test_missing_link_cadence_integration.py',
-    'scripts/missing_link_database_audit.py', 'tests/test_missing_link_database_audit.py')
+    'scripts/missing_link_database_audit.py', 'tests/test_missing_link_database_audit.py',
+    'scripts/missing_link_cadence_git.py', 'tests/test_missing_link_cadence_git.py',
+    'tests/test_missing_link_checkpoint_cadence.py')
 
 
 def safe_path(root, relative):
