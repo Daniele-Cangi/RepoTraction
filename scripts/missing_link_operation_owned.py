@@ -190,20 +190,29 @@ def run_bound_owned(out, *, manifest, anchor, source, authorization, provider, p
         raise
     finally:
         cleanup_error = None
-        for lease in reversed(acquired):
+        # The output lease was acquired first. Keep it through database cleanup
+        # and any failure evidence writes, then release it last.
+        for lease in reversed(acquired[1:]):
             try:
                 lease.release()
             except BaseException as exc:
                 if cleanup_error is None: cleanup_error = exc
         if cleanup_error is not None and primary is None:
-            # A cleanup failure never returns a success digest. Retire a staged
-            # success filename when storage permits; no independent success
-            # anchor is issued even if that failure rename cannot be persisted.
             try:
+                require(leases[0] in acquired, 'Failure evidence requires the owned output lease')
+                held_leases((leases[0],))
                 (out/'owned-artifacts.json').rename(out/'owned-artifacts.rejected.json')
                 owner.save('failure.json', {'diagnostic': failure_projection(cleanup_error),
                     'stopped_slot': active, 'sealed': False, 'retries': False, 'unattempted': []})
             except BaseException:
                 pass
+        if leases[0] in acquired:
+            try:
+                leases[0].release()
+            except BaseException as exc:
+                if cleanup_error is None: cleanup_error = exc
+        # Output release may drop ownership before raising. Never mutate the
+        # evidence after that attempt, and never return a success digest on error.
+        if cleanup_error is not None and primary is None:
             raise cleanup_error
     return {'results': results, 'receipt_manifest_sha256': receipt, 'retain_outside_output_directory': True}

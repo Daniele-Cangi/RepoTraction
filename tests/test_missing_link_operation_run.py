@@ -4,6 +4,7 @@ from contextlib import closing
 import hashlib
 import importlib
 import json
+from pathlib import Path
 import sqlite3
 from types import SimpleNamespace
 import unittest
@@ -287,16 +288,112 @@ class OperationRunTests(unittest.TestCase):
         self.assertEqual(database_snapshot(self.fixture.db, runner.ALLOWANCE)['reservations'], 1)
 
     def test_lease_cleanup_failure_never_issues_a_success_receipt(self):
-        release = owned.WorkerLease.release
+        release, rename, save_owned = owned.WorkerLease.release, Path.rename, OwnedEvidence.save
         primary = OSError('Authored lease cleanup failure')
+        ownership, released = [], []
+        def observe(name):
+            competitor = owned.WorkerLease(self.out/'run')
+            try:
+                ownership.append((name, competitor.acquire()))
+            finally:
+                release(competitor)
         def failing(lease):
             release(lease)
-            raise primary
-        with patch.object(owned.WorkerLease, 'release', failing):
+            released.append(lease.path)
+            if lease.path == Path(str(self.fixture.db)+'.missing-link.lock'):
+                raise primary
+            raise OSError('Authored secondary output cleanup failure')
+        def renaming(path, target):
+            if path == self.out/'owned-artifacts.json': observe('retirement')
+            return rename(path, target)
+        def saving(owner, name, value):
+            if name == 'failure.json': observe('failure')
+            save_owned(owner, name, value)
+        with patch.object(owned.WorkerLease, 'release', failing), \
+                patch.object(Path, 'rename', renaming), patch.object(OwnedEvidence, 'save', saving):
             with self.assertRaises(OSError) as caught: self.execute()
         self.assertIs(caught.exception, primary)
+        self.assertEqual(ownership, [('retirement', False), ('failure', False)])
+        self.assertEqual(released, [Path(str(self.fixture.db)+'.missing-link.lock'),
+                                   self.out/'run.missing-link.lock'])
         self.assertFalse((self.out/'owned-artifacts.json').exists())
         self.assertTrue((self.out/'owned-artifacts.rejected.json').exists())
+        self.assertTrue((self.out/'failure.json').exists())
+
+    def test_output_release_failure_cannot_write_after_a_competitor_acquires(self):
+        release, rename, save_owned = owned.WorkerLease.release, Path.rename, OwnedEvidence.save
+        primary = OSError('Authored output cleanup failure')
+        competitor, after_release, writes = owned.WorkerLease(self.out/'run'), False, []
+        def failing(lease):
+            nonlocal after_release
+            release(lease)
+            if lease.path == self.out/'run.missing-link.lock':
+                after_release = True
+                self.assertTrue(competitor.acquire())
+                raise primary
+        def renaming(path, target):
+            if after_release: writes.append('rename')
+            return rename(path, target)
+        def saving(owner, name, value):
+            if after_release: writes.append(name)
+            save_owned(owner, name, value)
+        try:
+            with patch.object(owned.WorkerLease, 'release', failing), \
+                    patch.object(Path, 'rename', renaming), patch.object(OwnedEvidence, 'save', saving):
+                with self.assertRaises(OSError) as caught: self.execute()
+            self.assertIs(caught.exception, primary)
+            self.assertEqual(writes, [])
+            self.assertTrue((self.out/'owned-artifacts.json').exists())
+            self.assertFalse((self.out/'owned-artifacts.rejected.json').exists())
+            self.assertFalse((self.out/'failure.json').exists())
+        finally:
+            release(competitor)
+
+    def test_database_cleanup_failure_cannot_retire_evidence_after_output_ownership_is_lost(self):
+        release, publish = owned.WorkerLease.release, OwnedEvidence.publish_seal
+        primary = OSError('Authored database cleanup failure')
+        competitor, owners = owned.WorkerLease(self.out/'run'), []
+        def publishing(owner):
+            owners.append(owner)
+            return publish(owner)
+        def failing(lease):
+            release(lease)
+            if lease.path == Path(str(self.fixture.db)+'.missing-link.lock'):
+                release(owners[0].leases[0])
+                self.assertTrue(competitor.acquire())
+                raise primary
+        try:
+            with patch.object(owned.WorkerLease, 'release', failing), \
+                    patch.object(OwnedEvidence, 'publish_seal', publishing):
+                with self.assertRaises(OSError) as caught: self.execute()
+            self.assertIs(caught.exception, primary)
+            self.assertTrue((self.out/'owned-artifacts.json').exists())
+            self.assertFalse((self.out/'owned-artifacts.rejected.json').exists())
+            self.assertFalse((self.out/'failure.json').exists())
+        finally:
+            release(competitor)
+
+    def test_receipt_retirement_failure_still_releases_output_and_preserves_cleanup_error(self):
+        release, rename = owned.WorkerLease.release, Path.rename
+        primary = OSError('Authored database cleanup failure')
+        released = []
+        def failing(lease):
+            release(lease)
+            released.append(lease.path)
+            if lease.path == Path(str(self.fixture.db)+'.missing-link.lock'): raise primary
+        def renaming(path, target):
+            if path == self.out/'owned-artifacts.json': raise OSError('Authored retirement failure')
+            return rename(path, target)
+        with patch.object(owned.WorkerLease, 'release', failing), patch.object(Path, 'rename', renaming):
+            with self.assertRaises(OSError) as caught: self.execute()
+        self.assertIs(caught.exception, primary)
+        self.assertEqual(released, [Path(str(self.fixture.db)+'.missing-link.lock'),
+                                   self.out/'run.missing-link.lock'])
+        competitor = owned.WorkerLease(self.out/'run')
+        try:
+            self.assertTrue(competitor.acquire())
+        finally:
+            release(competitor)
 
     def test_lease_cleanup_error_cannot_replace_primary_execution_failure(self):
         release = owned.WorkerLease.release

@@ -69,10 +69,14 @@ complete; no next-slot attempt or success seal follows a latched failure.
 Summary/final integrity and a provisional receipt must pass fresh final audits.
 Promotion to `owned-artifacts.json` is the last success write. The returned
 receipt digest must be retained independently. Lease cleanup is attempted for
-every acquired lease and cannot replace an earlier primary failure. A cleanup
-failure after promotion raises without issuing a success digest and retires the
-success filename when storage permits. File existence alone never proves a
-successful independently anchored run. Failure evidence is best effort and the
+every acquired lease and cannot replace an earlier primary failure. Database
+cleanup and any receipt retirement/failure writes precede output lease release
+and require its continued ownership. Output release is attempted last; if it
+raises after dropping ownership, no later evidence mutation is permitted.
+Any cleanup failure raises without issuing a success digest. The success filename
+may remain when retirement cannot be persisted under the held output lease or
+when output release itself fails. File existence alone never proves a successful
+independently anchored run. Failure evidence is best effort and the
 directory remains consumed, including pre-start failures after lease creation.
 Failure writes require ownership of the output lease; a rejected competing
 lease acquisition cannot add failure evidence to another owner's directory.
