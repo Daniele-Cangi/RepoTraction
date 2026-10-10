@@ -7,6 +7,9 @@ from scripts import missing_link_cadence_executor as legacy
 from scripts import missing_link_demand_operation_policy_v3_executor as policy
 from scripts.missing_link_repository_only_evaluator import EvaluationStopped
 from scripts.missing_link_repository_only_run import load
+from scripts.missing_link_cadence_owned import OwnedEvidence
+from scripts.missing_link_protected_operations import ProtectedOperations
+from scripts.missing_link_stream_successor_receipts import TelemetryPersistenceError
 from test_missing_link_cadence_integration import CadenceIntegrationTests as _Base
 from test_missing_link_stream_successor_receipts import Stream
 
@@ -105,6 +108,80 @@ class OperationIntegrationTests(_Base):
             with self.assertRaises(EvaluationStopped):
                 executor.bind_requests(self.fixture.provider, self.fixture.packets, changed,
                                        self.fixture.files.__getitem__)
+
+    def test_telemetry_entry_history_failure_preserves_the_global_primary(self):
+        primary = EvaluationStopped('Authored telemetry entry history failure')
+        entering = False
+        operation = ProtectedOperations.operation
+        def marked(engine, name, callback):
+            nonlocal entering
+            if name == 'telemetry': entering = True
+            return operation(engine, name, callback)
+        def history():
+            if entering: raise primary
+        with patch.object(ProtectedOperations, 'operation', marked):
+            with self.assertRaises(EvaluationStopped) as caught: self.owned(history=history)
+        self.assertIs(caught.exception, primary)
+        out = self.workspace/'evidence'
+        self.assertFalse((out/'diagnostics-01.json').exists())
+        self.assertFalse((out/'result-01.json').exists())
+        self.assertFalse((out/'attempt-02.json').exists())
+        self.assertFalse((out/'owned-artifacts.json').exists())
+        self.assertEqual(load(out/'failure.json')['diagnostic'], {'category': 'integrity'})
+
+    def test_telemetry_exit_history_failure_preserves_the_global_primary(self):
+        primary = EvaluationStopped('Authored telemetry exit history failure')
+        changed = False
+        save = OwnedEvidence.save
+        def saving(owner, name, value):
+            nonlocal changed
+            save(owner, name, value)
+            if name == 'diagnostics-01.json': changed = True
+        def history():
+            if changed: raise primary
+        with patch.object(OwnedEvidence, 'save', saving):
+            with self.assertRaises(EvaluationStopped) as caught: self.owned(history=history)
+        self.assertIs(caught.exception, primary)
+        out = self.workspace/'evidence'
+        self.assertTrue((out/'diagnostics-01.json').exists())  # Provisional, not accepted.
+        self.assertFalse((out/'result-01.json').exists())
+        self.assertFalse((out/'attempt-02.json').exists())
+        self.assertFalse((out/'owned-artifacts.json').exists())
+        self.assertEqual(load(out/'failure.json')['diagnostic'], {'category': 'integrity'})
+
+    def test_actual_telemetry_storage_failure_remains_a_persistence_failure(self):
+        save = OwnedEvidence.save
+        def saving(owner, name, value):
+            if name == 'diagnostics-01.json': raise OSError('Authored actual telemetry storage failure')
+            save(owner, name, value)
+        with patch.object(OwnedEvidence, 'save', saving):
+            with self.assertRaises(TelemetryPersistenceError) as caught: self.owned()
+        self.assertIsNone(caught.exception.primary)
+        out = self.workspace/'evidence'
+        self.assertFalse((out/'attempt-02.json').exists())
+        self.assertFalse((out/'owned-artifacts.json').exists())
+        self.assertEqual(load(out/'failure.json')['diagnostic'],
+                         {'category': 'telemetry_persistence', 'primary': None})
+
+    def test_actual_failure_diagnostics_storage_error_keeps_transport_projection(self):
+        save = OwnedEvidence.save
+        def saving(owner, name, value):
+            if name == 'diagnostics-01.json': raise OSError('Authored failure diagnostics storage error')
+            save(owner, name, value)
+        with patch.object(OwnedEvidence, 'save', saving):
+            with self.assertRaises(TelemetryPersistenceError) as caught: self.owned(lines=[b''])
+        self.assertEqual(caught.exception.primary, {'category': 'ai_transport',
+                         'code': 'ai_stream_missing_terminal', 'phase': 'request'})
+        self.assertFalse((self.workspace/'evidence/attempt-02.json').exists())
+        self.assertFalse((self.workspace/'evidence/owned-artifacts.json').exists())
+
+    def test_diagnostic_projection_failure_is_not_reported_as_a_write_failure(self):
+        primary = ValueError('Authored diagnostic projection failure')
+        self.checks.snapshot = Mock(side_effect=primary)
+        with self.assertRaises(ValueError) as caught: self.read()
+        self.assertIs(caught.exception, primary)
+        self.assertIs(self.checks.failure, primary)
+        self.assertEqual(self.traces, [])
 
 
 del _Base  # Avoid rediscovering the imported legacy test class in this module.

@@ -114,6 +114,7 @@ def complete_with_receipt(provider, slot, body, budget, *, checks, retain_termin
         checks.abort(exc)
         raise
     finally:
+        retaining = False
         try:
             observed = reservation_observed()
             if observed is not None and type(observed) is not bool:
@@ -124,8 +125,16 @@ def complete_with_receipt(provider, slot, body, budget, *, checks, retain_termin
                 timing.valid = False
             trace = timing.snapshot(error)
             trace['cadence'] = cadence
+            retaining = True
             retain_telemetry(trace)
-        except BaseException:
+        except BaseException as exc:
+            if operations is not None:
+                if not retaining or exc is checks.failure:
+                    checks.abort(exc)
+                    raise checks.failure
+                if isinstance(exc, TelemetryPersistenceError):
+                    checks.abort(exc)
+                    raise
             failure = TelemetryPersistenceError(failure_projection(error))
             checks.abort(failure)
             raise failure from None

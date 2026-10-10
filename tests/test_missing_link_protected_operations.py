@@ -119,5 +119,77 @@ class ProtectedOperationsTests(unittest.TestCase):
         self.engine.controller._clock = Mock(side_effect=AssertionError('No clock read'))
         self.engine.snapshot()
 
+    def test_inherited_lifecycle_methods_already_check_the_thread_owner(self):
+        for name in ('start', 'poll', 'barrier', 'finish', 'write'):
+            with self.subTest(name=name):
+                self.setUp()
+                before = self.engine.snapshot()['counts']
+                def foreign():
+                    method = getattr(self.engine, name)
+                    return method(lambda: None) if name == 'write' else method()
+                with ThreadPoolExecutor(max_workers=1) as pool:
+                    with self.assertRaisesRegex(CheckpointFailure, 'Cross-thread'):
+                        pool.submit(foreign).result()
+                self.assertEqual(self.engine.snapshot()['counts'], before)
+                self.assertEqual(self.engine.snapshot()['state'], 'failed')
+
+    def test_foreign_stream_entry_cannot_attach_a_timer(self):
+        entered = []
+        def foreign():
+            with self.engine.stream(object()): entered.append(True)
+        with ThreadPoolExecutor(max_workers=1) as pool:
+            with self.assertRaisesRegex(CheckpointFailure, 'Cross-thread'):
+                pool.submit(foreign).result()
+        self.assertEqual(entered, [])
+        self.assertIsNone(self.engine.timing)
+        with self.assertRaises(CheckpointFailure): self.engine.poll()
+
+    def test_foreign_stream_exit_cannot_detach_the_owner_timer(self):
+        timer = object()
+        context = self.engine.stream(timer)
+        context.__enter__()
+        with ThreadPoolExecutor(max_workers=1) as pool:
+            with self.assertRaisesRegex(CheckpointFailure, 'Cross-thread'):
+                pool.submit(context.__exit__, None, None, None).result()
+        self.assertIs(self.engine.timing, timer)
+        with self.assertRaises(CheckpointFailure): self.engine.poll()
+
+    def test_foreign_abort_cannot_install_its_supplied_exception(self):
+        supplied = OSError('Authored foreign abort')
+        with ThreadPoolExecutor(max_workers=1) as pool:
+            with self.assertRaisesRegex(CheckpointFailure, 'Cross-thread') as caught:
+                pool.submit(self.engine.abort, supplied).result()
+        self.assertIs(self.engine.failure, caught.exception)
+        self.assertIsNot(self.engine.failure, supplied)
+        with self.assertRaises(CheckpointFailure): self.telemetry()
+
+    def test_foreign_exceptional_stream_exit_cannot_install_its_exception(self):
+        timer, supplied = object(), OSError('Authored foreign stream throw')
+        context = self.engine.stream(timer)
+        context.__enter__()
+        with ThreadPoolExecutor(max_workers=1) as pool:
+            with self.assertRaisesRegex(CheckpointFailure, 'Cross-thread') as caught:
+                pool.submit(context.__exit__, type(supplied), supplied, None).result()
+        self.assertIs(self.engine.failure, caught.exception)
+        self.assertIsNot(self.engine.failure, supplied)
+        self.assertIs(self.engine.timing, timer)
+
+    def test_owner_stream_failure_detaches_timer_and_latches_the_primary(self):
+        primary = OSError('Authored stream body failure')
+        with self.assertRaises(OSError) as caught:
+            with self.engine.stream(object()): raise primary
+        self.assertIs(caught.exception, primary)
+        self.assertIsNone(self.engine.timing)
+        self.assertIs(self.engine.failure, primary)
+
+    def test_caught_foreign_abort_poisoning_still_fails_owner_stream_exit(self):
+        with self.assertRaises(CheckpointFailure) as caught:
+            with self.engine.stream(object()):
+                with ThreadPoolExecutor(max_workers=1) as pool:
+                    with self.assertRaises(CheckpointFailure):
+                        pool.submit(self.engine.abort, OSError('Authored foreign')).result()
+        self.assertIs(caught.exception, self.engine.failure)
+        self.assertIsNone(self.engine.timing)
+
 
 if __name__ == '__main__': unittest.main()

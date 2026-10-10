@@ -122,8 +122,8 @@ subsequent documentation-only commit is not retrospectively the measured head.
 Validation passes 131 focused controls (130 passes and one existing POSIX-only
 skip), including 63 legacy/new integration tests in 149.044 seconds. The complete
 1,787-test suite passes in 845.590 seconds with the same single Windows skip.
-Startup `--help` passes. Scripts and tests remain byte-identical to the measured
-implementation; subsequent changes report documentation and validation only.
+Startup `--help` passes. Initial publication `375dae2` changed documentation only
+after measurement; its scripts/tests were byte-identical to that measured code.
 
 Independent final read-only verification after the full suite confirms all 58
 consumed code fingerprints, 1,740 historical files and original table hashes
@@ -132,3 +132,38 @@ zero provider calls. The task-owned temporary root is removed only after checkin
 its exact resolved path and empty inventory, without recursive deletion. Fresh CI
 and scoped Codex review must cover the final published head and this explicitly
 changed historical detection boundary before merge.
+
+## Scoped review corrections
+
+Codex reviewed `375dae2` and reported two P2 findings. Foreign `poll`, `barrier`,
+`start`, `finish` and `write` already reach the overridden `_perform` through
+dynamic dispatch; explicit regressions confirm that they reject before any audit.
+The inherited `stream` context and `abort` did bypass ownership. They now verify
+the thread before timer attachment/detachment and failure installation, including
+exceptional context exit. A private lock serializes first-failure installation.
+Owner cleanup still detaches its timer after a failure; a caught foreign attempt
+poisons subsequent owner operations and cannot replace the first exception.
+
+Historical/critical failures at telemetry operation entry/exit now escape as the
+original latched exception. Conversion to `TelemetryPersistenceError` is confined
+to actual storage callbacks; an actual failed diagnostic write retains the prior
+bounded transport projection. Diagnostic projection failures and failed diagnostic
+guards preserve the global primary rather than claiming a storage failure.
+The legacy reader's exception behavior is preserved.
+
+Regressions reproduced three ownership failures and both telemetry audit failures
+on `375dae2` before the corrections. They also cover genuine telemetry storage
+failure, failed-transport diagnostic storage, context cleanup and diagnostic
+projection failure. The retained benchmark and full-suite timings above precede
+these code corrections and are not attributed to the corrected revision. The
+original four CI jobs passed on `375dae2`; fresh CI/review cover the fix.
+
+Review-fix validation passes 18 ownership unit controls, 29 cadence controls and
+40 successor / 28 legacy integration controls (115 distinct tests). The main
+114-test run passes in 204.806 seconds; the final exceptional foreign-exit
+regression and all 18 ownership controls pass separately. Startup passes.
+Independent final read-only verification again confirms all 58 consumed code
+fingerprints, 1,740 historical files and original tables unchanged, with zero
+added original reservations or provider calls. The empty resolved task temporary
+root is removed without recursive deletion. The complete suite runs in fresh CI
+on the corrected head; the local full-suite timings above remain pre-fix evidence.

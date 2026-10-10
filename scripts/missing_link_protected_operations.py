@@ -1,5 +1,6 @@
 """Explicit single-owner mutation units, fresh full boundaries, no import IO."""
-from threading import get_ident
+from contextlib import contextmanager
+from threading import Lock, get_ident
 
 from scripts.missing_link_cadence_checks import Checks
 from scripts.missing_link_checkpoint_cadence import CheckpointFailure
@@ -24,20 +25,52 @@ class ProtectedOperations(Checks):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._owner = get_ident()
+        self._failure_lock = Lock()
         self._unit, self._phase, self._writing, self._index = None, None, False, 0
         self._steps = dict(STEPS)
         self._units = {name: 0 for name, _ in STEPS}
         self._commits = 0
 
+    def _latch(self, error):
+        with self._failure_lock:
+            if self.failure is None:
+                self.failure = error
+
     def _reject(self, message):
-        self.abort(CheckpointFailure(message))
+        self._latch(CheckpointFailure(message))
         raise self.failure
+
+    def _check_owner(self):
+        if get_ident() != self._owner:
+            self._reject('Cross-thread protected operation')
+
+    def abort(self, error):
+        self._check_owner()
+        self._latch(error)
+
+    @contextmanager
+    def stream(self, timing):
+        def attach():
+            if self.timing is not None:
+                self._reject('Overlapping stream timing')
+            self.timing = timing
+        self._perform(attach)
+        try:
+            yield
+        except BaseException as exc:
+            self._check_owner()  # Foreign throw/exit must not install its exception.
+            self._latch(exc)
+            raise self.failure
+        finally:
+            self._check_owner()  # A foreign exit cannot detach the owner's timer.
+            self.timing = None  # Owner cleanup is required even after a failure.
+            if self.failure is not None:
+                raise self.failure
 
     def _perform(self, callback):
         if self.failure is not None:
             raise self.failure
-        if get_ident() != self._owner:
-            self._reject('Cross-thread protected operation')
+        self._check_owner()
         try:
             value = callback()
             if self.failure is not None:

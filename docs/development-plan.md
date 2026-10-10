@@ -1560,9 +1560,13 @@ force an isolated demonstration from a merely partial primitive.
   history. Whole-owned 10k/60k probes take 30.545/61.646 seconds with 21/22
   full audits; the overdue thirty-second audit remains active. The 10k gate
   still fails; no threshold is raised and overall performance readiness is false.
-- [x] Complete focused/full-suite validation of the operation successor: 131
+- [x] Complete initial focused/full-suite validation of the operation successor: 131
   focused controls and 1,787 full-suite tests pass with one existing Windows skip.
   Independently verify consumed code, historical files and original accounting.
+- [x] Reproduce and correct scoped PR111 review findings: enforce ownership for
+  stream/abort and preserve global audit failures at telemetry operation boundaries.
+  Retained benchmark/full-suite timings precede these fixes; validate the new head
+  with focused controls and fresh CI.
 - [ ] Review/CI the changed historical detection boundary. Address the remaining
   first-slot cost in a separate stage after merge.
   Paid ownership binding/freeze and concrete human approval remain separate.

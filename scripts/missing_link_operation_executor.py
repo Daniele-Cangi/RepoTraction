@@ -9,6 +9,7 @@ from scripts import missing_link_demand_operation_policy_v3_executor as v3
 from scripts.missing_link_cadence_reader import complete_with_receipt
 from scripts.missing_link_repository_only_evaluator import configuration, require
 from scripts.missing_link_protected_operations import ProtectedOperations
+from scripts.missing_link_stream_successor_receipts import TelemetryPersistenceError
 
 JOB_PREFIX = 'demand-operation-policy-v3-operation-owned-2026-10-10-'
 SETTINGS = dict(predecessor.SETTINGS, transport_revision='checkpoint_operations_1',
@@ -79,13 +80,23 @@ def execute_cases(provider, packets, *, manifest, read, fast, critical, history,
             checks.commit('checkpoint', lambda: persist(number, copy.deepcopy(job)))
 
         def telemetry(value):
+            def save():
+                try:
+                    retain_telemetry(number, value)
+                except BaseException:
+                    raise TelemetryPersistenceError(value['failure']) from None
             if value['failure'] is None:
-                checks.operation('telemetry', lambda: checks.commit('telemetry',
-                    lambda: retain_telemetry(number, value)))
+                checks.operation('telemetry', lambda: checks.commit('telemetry', save))
             else:
-                fast()
-                retain_telemetry(number, value)
-                fast()
+                try:
+                    fast()
+                    save()
+                    fast()
+                except TelemetryPersistenceError:
+                    raise
+                except BaseException as exc:
+                    checks.abort(exc)
+                    raise checks.failure
 
         budget = Budget(job, persist_job, cancelled, checks.guard, reserve_one)
         raw = complete_with_receipt(provider, slot, request.body, budget, checks=checks,
