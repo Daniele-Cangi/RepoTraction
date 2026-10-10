@@ -1505,11 +1505,28 @@ force an isolated demonstration from a merely partial primitive.
   partitioning. Bind the exclusive owned directory to manifest and authorization;
   preserve all consumed readers, executors, bodies and assessments. No actual
   owned freeze, new reservation or provider call belongs to this implementation.
-- [ ] After adapter review/CI/merge, freeze a new owned scope on the exact merged
+- [x] After adapter review/CI/merge, freeze a new owned scope on the exact merged
   tree before separately authorized one-shot execution. Available funds and this
   prospective preparation do not authorize calls. Preserve the original allowance
   and all consumed runs; no semantic quality gain or fresh useful lead is
   established by the transport stop, offline diagnostics or new preparation.
+- [x] Retain the [consumed stream successor outcome](missing-link-stream-successor-outcome-2026-10-10.md).
+  PR106 merged `0983780` with the reviewed `32ed885` tree, clean scoped Codex
+  review and four successful CI jobs. The separately authorized run stopped at
+  slot 1 on its 600-second wall deadline: 594.6 seconds were local checkpoints.
+  No terminal/card/usage was retained; ten slots remain unattempted and the run
+  cannot resume. Independent seals preserve all 58 fingerprints and 1,714 prior
+  artifacts; original accounting is 579 / USD8.1408513 within USD10.
+- [x] Implement the isolated [checkpoint cadence prototype and integration contract](missing-link-checkpoint-cadence-2026-10-10.md):
+  immediate guards, one-second critical / thirty-second historical audits,
+  unconditional acceptance barriers, fail-stop lifecycle and bounded parallel
+  content hashing. Authored controls and fixed filesystem workloads measure the
+  component without modifying consumed code or making provider calls.
+- [ ] Review the changed detection boundary and complete a distinct owned
+  reader/executor integration. Measure that exact adapter's full callback set
+  offline against original read-only history before freezing any new paid scope.
+  The component drains long streams but its strict calibration limits are not
+  yet met in all local samples; do not claim execution readiness or a model gain.
 
 No full-pool ranking improvement can be inferred from selected-only history or
 the later nonrandom root sample. Retained ordering and root demand diagnostics

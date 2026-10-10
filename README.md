@@ -187,8 +187,14 @@ The prospective [stream successor protocol](docs/missing-link-policy-v3-stream-s
 and [offline preparation](docs/missing-link-policy-v3-stream-successor-preparation-2026-10-09.md)
 preserve all eleven request bodies with distinct unused accounting IDs. Separate
 corrected [stream successor adapters](docs/missing-link-policy-v3-stream-successor-adapters-2026-10-09.md)
-implement those gates with authored offline controls. Adapter review and exact
-owned authorization precede new calls; accounting and all old evidence stay fixed.
+implement those gates with authored offline controls. After review, merge and
+separate authorization, the [consumed stream outcome](docs/missing-link-stream-successor-outcome-2026-10-10.md)
+records 594.6 of 600 seconds in local checkpoints, no terminal, and ten unattempted
+slots. Original software accounting is now 579 / USD8.1408513 within USD10.
+The separate [checkpoint cadence prototype](docs/missing-link-checkpoint-cadence-2026-10-10.md)
+adds time-based audits, forced acceptance barriers, bounded parallel file hashing
+and offline performance controls. It is not wired into a paid executor, and its
+full integration/performance gate remains open; no new calls occur here.
 Candidate execution, UI/key-entry work and production promotion remain deferred.
 
 ## Development plan
