@@ -65,18 +65,18 @@ def execute_cases(provider, packets, *, manifest, read, fast, critical, history,
     Only v3.check_prediction's explicit normalization refusal is local. Every
     other failure unwinds the cohort; the owned caller consumes its start marker.
     """
+    config, key = copy.deepcopy(manifest['config_without_key']), provider.key
     requests = bind_requests(provider, packets, manifest, read)
     require(type(case_limit) is int and 1 <= case_limit <= 11, 'Invalid offline case limit')
     require(case_limit == 11 or opener_factory is not None, 'Partial probes require an authored transport')
-    config, key = copy.deepcopy(configuration(provider)), provider.key
 
     def immediate():
         if cancelled():
             raise Cancelled('Owned cadence stream cancelled.')
+        identity()
         fast()
         require(v3.same_slot_structure(configuration(provider), config) and provider.key == key,
                 'Provider configuration changed')
-        identity()
         if cancelled():
             raise Cancelled('Owned cadence stream cancelled.')
 

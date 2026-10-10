@@ -5,6 +5,7 @@ The original repository/history must be present locally and remain unchanged.
 Exit 1 when fixed performance gates fail; no result authorizes a paid attempt.
 """
 import argparse
+import copy
 import io
 import json
 from pathlib import Path
@@ -114,7 +115,7 @@ def benchmark(*, temp_parent=None, workloads=(10000, 60000)):
                          'whole_owned_probe_within_budget': elapsed <= (30 if lines == 10000 else 120)}
                 runs.append({'nonterminal_lines': lines, 'attempted_authored_slots': 1,
                     'unattempted_slots': list(range(2, 12)), 'whole_owned_seconds': elapsed,
-                    'stream_trace': trace, 'profile': profile.values, 'gates': gates,
+                    'stream_trace': trace, 'profile': copy.deepcopy(profile.values), 'gates': gates,
                     'gate_passed': all(gates.values()), 'authored_result_count': len(result['results'])})
         compiled['audit']()
     return {'scope': 'exact_offline_owned_adapter_original_read_only_history_authored_identity_and_transport',

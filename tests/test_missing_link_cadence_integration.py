@@ -151,7 +151,7 @@ class CadenceIntegrationTests(unittest.TestCase):
             with self.assertRaises(EvaluationStopped):
                 executor.bind_requests(self.fixture.provider, self.fixture.packets, modified, self.fixture.files.__getitem__)
 
-    def owned(self, *, observe=lambda stage, owner: None, lines=None, history=None, identity=None):
+    def owned(self, *, observe=lambda stage, owner: None, lines=None, history=None, identity=None, read=None):
         workspace = self.fixture.root/'cadence-owned'
         f = self.fixture
         opens = []
@@ -161,7 +161,7 @@ class CadenceIntegrationTests(unittest.TestCase):
             return Mock(open=opening)
         try:
             return run_offline_owned(workspace, provider=f.provider, packets=f.packets,
-                manifest=self.manifest, read=f.files.__getitem__,
+                manifest=self.manifest, read=read or f.files.__getitem__,
                 code_pins=[FilePin(f.root/'code.txt', sha(f.root/'code.txt', canonical=True), True)],
                 historical_audit=history or (lambda: None), identity=identity or (lambda **kwargs: None),
                 opener_factory=factory, allowance=f.source['allowance'], account=f.source['account'],
@@ -296,3 +296,30 @@ class CadenceIntegrationTests(unittest.TestCase):
         self.assertIs(caught.exception, primary)
         self.assertFalse(timing.snapshot(primary)['clock_valid'])
         self.assertIsNone(timing.snapshot(primary)['opening_seconds'])
+
+    def test_config_changed_by_last_body_read_cannot_be_reanchored(self):
+        last = self.manifest['requests'][-1]['native_body']
+        calls = 0
+        def read(name):
+            nonlocal calls
+            if name == last:
+                calls += 1
+                if calls == 2: self.fixture.provider.model = 'changed-at-final-bind'
+            return self.fixture.files[name]
+        with self.assertRaises(EvaluationStopped): self.owned(read=read)
+        self.assertEqual(self.opens, 0)
+        self.assertFalse((self.workspace/'evidence/attempt-01.json').exists())
+
+    def test_identity_callback_config_change_at_final_poll_blocks_open(self):
+        forces, pending = 0, False
+        def identity(*, force=False):
+            nonlocal forces, pending
+            if force:
+                forces += 1
+                pending = forces == 2
+            elif pending:
+                self.fixture.provider.model = 'changed-at-last-immediate-guard'
+                pending = False
+        with self.assertRaises(EvaluationStopped): self.owned(identity=identity)
+        self.assertEqual(self.opens, 0)
+        self.assertTrue((self.workspace/'evidence/reservation-01.json').exists())
