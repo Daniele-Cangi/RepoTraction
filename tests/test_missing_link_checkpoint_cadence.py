@@ -155,7 +155,7 @@ class CheckpointCadenceTests(unittest.TestCase):
         self.assertEqual(self.engine.snapshot()['state'], 'failed')
 
     def test_clock_reentrancy_at_every_sample_cannot_return_success(self):
-        for action in ('start', 'poll', 'barrier', 'finish'):
+        for action in ('start', 'poll', 'barrier', 'critical_barrier', 'finish'):
             # Discover the clock boundaries of a successful operation, including
             # finalization and poll's sample outside a callback measurement.
             probe_clock = Mock(return_value=0)

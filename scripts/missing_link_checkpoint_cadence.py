@@ -231,6 +231,14 @@ No callback may suppress a failure and continue this same controller.
             self._barrier()
         self._perform(operation)
 
+    def critical_barrier(self):
+        """Force immediate/code/owned checks inside a separately owned unit."""
+        def operation():
+            if self._state != 'streaming':
+                raise CheckpointFailure('Critical barrier outside active lifecycle.')
+            self._critical()
+        self._perform(operation)
+
     def finish(self):
         """Force a fresh full audit; success closes this one-shot controller."""
         def operation():

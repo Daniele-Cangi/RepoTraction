@@ -23,6 +23,7 @@ from scripts.missing_link_demand_operation_policy import FIELDS
 from scripts.missing_link_cadence_history import compile_history
 from scripts.missing_link_cadence_git import GitTreeAudit
 from scripts.missing_link_cadence_executor import successor_manifest
+from scripts.missing_link_operation_executor import successor_manifest as operation_manifest
 from scripts.missing_link_cadence_owned import run_offline_owned
 from scripts.missing_link_repository_only_evaluator import require
 from scripts.missing_link_repository_only_run import git, load
@@ -69,7 +70,7 @@ class AuthoredOpener:
             + b'data: ' + json.dumps(authored_terminal()).encode() + b'\n')
 
 
-def benchmark(*, temp_parent=None, workloads=(10000, 60000)):
+def benchmark(*, temp_parent=None, workloads=(10000, 60000), operation_units=False):
     head, tree = git('rev-parse', 'HEAD'), git('rev-parse', 'HEAD^{tree}')
     require(not git('status', '--porcelain'), 'Offline measurement requires a clean committed implementation')
 
@@ -84,7 +85,7 @@ def benchmark(*, temp_parent=None, workloads=(10000, 60000)):
         compilation_started = time.perf_counter()
         compiled = compile_history(tree=check_tree)
         compilation_seconds = time.perf_counter()-compilation_started
-        source = successor_manifest(compiled['source'])
+        source = (operation_manifest if operation_units else successor_manifest)(compiled['source'])
         packets = load(PREP/'inputs.json')['cases']
         # Dummy key permits the ordinary readiness checks, but cannot be sent:
         # the only injected opener returns the authored BytesIO above.
@@ -107,7 +108,8 @@ def benchmark(*, temp_parent=None, workloads=(10000, 60000)):
                     manifest=source, read=lambda name: (PREP/name).read_bytes(), code_pins=compiled['code_pins'],
                     historical_audit=compiled['audit'], identity=identity, opener_factory=lambda: opener,
                     allowance=ALLOWANCE, account=ACCOUNT, base_reserved=8.1408513, ceiling=8.2408513,
-                    case_limit=1, measure=profile, cancelled=lambda: (scratch/'cancel').exists())
+                    case_limit=1, measure=profile, cancelled=lambda: (scratch/'cancel').exists(),
+                    operation_units=operation_units)
                 elapsed = time.perf_counter()-start
                 trace = load(scratch/'run/evidence/diagnostics-01.json')
                 critical = profile.values['critical']['first_three_seconds']
@@ -124,6 +126,7 @@ def benchmark(*, temp_parent=None, workloads=(10000, 60000)):
         compiled['audit']()
     return {'scope': 'exact_offline_owned_adapter_original_read_only_history_authored_identity_and_transport',
         'implementation_head': head, 'implementation_tree': tree, 'historical_artifacts': 1740,
+        'protected_operation_units': operation_units,
         'compilation_seconds_outside_owned_gates': compilation_seconds,
         'consumed_code_fingerprints': 58, 'runs': runs,
         'original_reservations': 579, 'original_reserved_usd': 8.1408513,
@@ -135,8 +138,9 @@ def benchmark(*, temp_parent=None, workloads=(10000, 60000)):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--temp-parent', type=Path)
+    parser.add_argument('--operation-units', action='store_true', help='Measure the distinct protected-unit successor')
     args = parser.parse_args()
-    result = benchmark(temp_parent=args.temp_parent)
+    result = benchmark(temp_parent=args.temp_parent, operation_units=args.operation_units)
     print(json.dumps(result, indent=2))
     return 0 if result['performance_gate_passed'] else 1
 

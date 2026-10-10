@@ -30,6 +30,9 @@ def event(value):
 
 
 class CadenceIntegrationTests(unittest.TestCase):
+    operation_units = False
+    executor_module = executor
+
     def setUp(self):
         self.fixture = authored_v3.PolicyV3ExecutorTests()
         self.fixture.setUp()
@@ -38,14 +41,20 @@ class CadenceIntegrationTests(unittest.TestCase):
         self.clock, self.traces, self.receipts = Clock(), [], []
         source = copy.deepcopy(f.source)
         source['semantic_policy_revision'] = 3
-        self.manifest = executor.successor_manifest(source)
-        self.bound = executor.bind_requests(f.provider, f.packets, self.manifest, f.files.__getitem__)
+        self.manifest = self.executor_module.successor_manifest(source)
+        self.bound = self.executor_module.bind_requests(f.provider, f.packets, self.manifest, f.files.__getitem__)
         self.fast, self.critical, self.history = Mock(), Mock(), Mock()
-        self.checks = Checks(fast=self.fast, critical=self.critical, history=self.history, clock=self.clock)
+        checks_type = reader.ProtectedOperations if self.operation_units else Checks
+        self.checks = checks_type(fast=self.fast, critical=self.critical, history=self.history, clock=self.clock)
         self.checks.start()
         self.job = {'id': 'authored', 'ai_calls_used': 0, 'cost_reserved_usd': 0, 'checkpoint': {}}
         self.charges = []
-        self.budget = Budget(self.job, lambda: None, lambda: False, self.checks.barrier, self.charges.append)
+        if self.operation_units:
+            self.budget = Budget(self.job, lambda: self.checks.commit('checkpoint', lambda: None),
+                lambda: False, self.checks.guard,
+                lambda cost: self.checks.commit('reservation', lambda: self.charges.append(cost)))
+        else:
+            self.budget = Budget(self.job, lambda: None, lambda: False, self.checks.barrier, self.charges.append)
         self.fault = lambda: None
         self.addCleanup(patch.stopall)
         patch('socket.socket', side_effect=AssertionError('Offline sockets forbidden')).start()
@@ -63,7 +72,8 @@ class CadenceIntegrationTests(unittest.TestCase):
             return reader.complete_with_receipt(self.fixture.provider, self.bound[0].slot(), self.bound[0].body,
                 self.budget, checks=self.checks, retain_terminal=retain or self.receipts.append,
                 retain_telemetry=self.traces.append, reservation_observed=lambda: bool(self.charges),
-                before_open=lambda: None, opener_factory=lambda: opener, clock=self.clock)
+                before_open=lambda: None, opener_factory=lambda: opener, clock=self.clock,
+                operations=self.checks if self.operation_units else None)
         finally:
             self.assertLessEqual(opener.open.call_count, 1)
 
@@ -149,7 +159,8 @@ class CadenceIntegrationTests(unittest.TestCase):
                        lambda m: m['requests'][0].update(native_sha256='0'*64)):
             modified = copy.deepcopy(self.manifest); change(modified)
             with self.assertRaises(EvaluationStopped):
-                executor.bind_requests(self.fixture.provider, self.fixture.packets, modified, self.fixture.files.__getitem__)
+                self.executor_module.bind_requests(self.fixture.provider, self.fixture.packets, modified,
+                                                   self.fixture.files.__getitem__)
 
     def owned(self, *, observe=lambda stage, owner: None, lines=None, history=None, identity=None, read=None,
               case_limit=11):
@@ -166,7 +177,8 @@ class CadenceIntegrationTests(unittest.TestCase):
                 code_pins=[FilePin(f.root/'code.txt', sha(f.root/'code.txt', canonical=True), True)],
                 historical_audit=history or (lambda: None), identity=identity or (lambda **kwargs: None),
                 opener_factory=factory, allowance=f.source['allowance'], account=f.source['account'],
-                base_reserved=.1, ceiling=.2, observe=observe, clock=self.clock, case_limit=case_limit)
+                base_reserved=.1, ceiling=.2, observe=observe, clock=self.clock, case_limit=case_limit,
+                operation_units=self.operation_units)
         finally:
             self.opens, self.workspace = len(opens), workspace
 

@@ -14,6 +14,7 @@ from missing_link.store import Store
 from scripts.missing_link_cadence_checks import held_leases, database_snapshot
 from scripts.missing_link_checkpoint_cadence import PinnedFiles
 from scripts.missing_link_cadence_executor import execute_cases
+from scripts.missing_link_operation_executor import execute_cases as execute_operations
 from scripts.missing_link_repository_only_evaluator import ReservationBinding, require, verify_prefix
 from scripts.missing_link_repository_only_run import inventory, load, sha
 from scripts.missing_link_stream_successor_receipts import failure_projection
@@ -66,7 +67,7 @@ def run_offline_owned(workspace, *, provider, packets, manifest, read, code_pins
                       historical_audit, identity, opener_factory, allowance, account,
                       base_reserved, ceiling, cancelled=lambda: False, clock=time.monotonic,
                       observe=lambda stage, owner: None, case_limit=11,
-                      measure=lambda name, callback: callback()):
+                      measure=lambda name, callback: callback(), operation_units=False):
     """Exclusive owned run; atomically reserve only a freshly created scratch DB.
 
     Historical audit includes the actual read-only DB in a private rehearsal.
@@ -74,6 +75,7 @@ def run_offline_owned(workspace, *, provider, packets, manifest, read, code_pins
     credentials. The original DB path cannot be supplied to this entry point.
     """
     require(callable(opener_factory), 'An explicit offline transport is required')
+    require(type(operation_units) is bool, 'Invalid protected operation mode')
     workspace.mkdir()  # Exclusive; even failed preparation is never resumed.
     out = workspace/'evidence'
     out.mkdir()
@@ -98,12 +100,26 @@ def run_offline_owned(workspace, *, provider, packets, manifest, read, code_pins
     def history():
         measure('history', history_work)
 
+    def critical_work():
+        owner.critical()
+        if operation_units:
+            verify_prefix(before, database_snapshot(database, allowance), owner.rows,
+                          allowance=allowance, ceiling=ceiling)
+
     def critical():
-        measure('critical', owner.critical)
+        measure('critical', critical_work)
         observe('critical', owner)
 
     def barrier():
         owner.fast(); critical(); owner.fast(); history(); owner.fast(); critical(); owner.fast()
+
+    def local_reservation_barrier():
+        # The protected reserve unit owns original-history checks on both sides.
+        # Keep fresh owned-prefix verification around the actual atomic commit.
+        owner.fast(); critical()
+        verify_prefix(before, database_snapshot(database, allowance), owner.rows,
+                      allowance=allowance, ceiling=ceiling)
+        owner.fast()
 
     def claim(slot):
         nonlocal active
@@ -122,7 +138,8 @@ def run_offline_owned(workspace, *, provider, packets, manifest, read, code_pins
         owner.save(f'reservation-{number:02}.json', row)
         observe('reservation', owner)
 
-    binding = ReservationBinding(store, allowance=allowance, ceiling=ceiling, verify=barrier, persist=journal)
+    binding = ReservationBinding(store, allowance=allowance, ceiling=ceiling,
+        verify=local_reservation_barrier if operation_units else barrier, persist=journal)
 
     def reserve(job_id, cost):
         binding.expect(job_id, cost)
@@ -150,7 +167,8 @@ def run_offline_owned(workspace, *, provider, packets, manifest, read, code_pins
         barrier()
         owner.save('started.json', {'one_shot': True, 'mode': 'offline_authored_only'})
         barrier()
-        execute_cases(provider, packets, manifest=manifest, read=read, fast=owner.fast,
+        execute = execute_operations if operation_units else execute_cases
+        execute(provider, packets, manifest=manifest, read=read, fast=owner.fast,
             critical=critical, history=history, identity=identity, claim=claim, reserve=reserve,
             reservation_observed=lambda job_id, cost: any(r == {'job_id': job_id, 'cost': cost} for r in binding.rows),
             persist=persist, retain_terminal=retain_terminal,

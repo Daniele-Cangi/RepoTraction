@@ -1549,9 +1549,15 @@ force an isolated demonstration from a merely partial primitive.
 - [x] Measure the committed scheduling stage against the original read-only
   history. Whole-owned 10k/60k probes take 52.338/73.931 seconds, with every
   full barrier and all 43 database image reads retained per probe.
-- [ ] Review/CI the scheduling stage and address remaining first-slot cost.
-  The 60k gate
-  passes, but the 10k >30-second gate and overall readiness still fail.
+- [x] Review/CI the scheduling stage. PR110 merged `016d762` with the reviewed
+  `d243420` tree unchanged, a clean final scoped Codex review and four successful
+  CI jobs. The 60k gate passes, but the 10k >30-second gate still fails.
+- [x] Declare and implement a separate [protected operation contract](missing-link-protected-operations-2026-10-10.md)
+  with unconditional full entry/exit audits, provisional internal writes, fresh
+  critical/owned-prefix checks around each commit and distinct revision/unused IDs.
+  Keep the default legacy cadence path and every consumed scope unchanged.
+- [ ] Measure the clean committed operation successor, run the complete suite,
+  and review/CI its explicit changed historical detection boundary.
   Paid ownership binding/freeze and concrete human approval remain separate.
   An authored transport/identity does not establish live latency or a model gain.
 
