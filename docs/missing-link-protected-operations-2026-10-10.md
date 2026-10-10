@@ -86,3 +86,49 @@ hashes and the consumed native/assessment scopes remain immutable. The original
 579 reservations / USD8.1408513 within USD10 are preserved. Tests and the benchmark
 create only temporary authored ledgers; they make zero provider calls and add zero
 original reservations.
+
+## Committed offline measurement
+
+Implementation `b2ce8e048e089378462c135730282529ad9ef8a1` (tree
+`c2459fc7c9da6b0789a0bd9d2bfd5fc7453110ab`) was measured on Windows / Python 3.13
+against the actual original read-only history with authored identity/transport.
+Compilation took 7.597 seconds, including initial complete logical validation,
+outside the unchanged owned gates.
+
+| Authored lines | Stream wall | Whole owned | First 3 critical max | First 3 history max | Full history audits | Gate |
+| ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| 10,000 | 6.801 s | 30.545 s | .039 s | 1.254 s | 21 | **Fail:** whole >30 s |
+| 60,000 | 34.895 s | 61.646 s | .042 s | 1.221 s | 22 | **Pass:** all fixed gates |
+
+Both probes complete with a native authored terminal and result, one attempted
+slot, ten explicit unattempted slots and a final audited seal. The 60k stream
+exceeds the thirty-second interval and performs an additional full historical
+audit during the stream. There is no fixed audit-count cap or suppression of
+overdue work. Every full audit reads and hashes a new complete database image;
+the owned probes reuse exact logical snapshots with zero repeated logical scans.
+
+In the 10k probe, complete history callbacks total 24.076 seconds, including
+13.110 seconds in original database auditing, 5.896 in Git and 4.430 hashing
+historical files. Critical callbacks total 1.675 seconds across 72 invocations,
+including the fresh owned-prefix checks. The earlier PR110 10k observation was
+52.338 seconds with 43 full audits. These are individual retained observations,
+not controlled percentile or cache-flushed speedup estimates.
+
+The benchmark exits 1 because 30.545 exceeds the fixed thirty-second whole-owned
+gate. Overall performance readiness and paid readiness remain false. No retry
+or threshold adjustment is used to turn this observation into acceptance. A
+subsequent documentation-only commit is not retrospectively the measured head.
+
+Validation passes 131 focused controls (130 passes and one existing POSIX-only
+skip), including 63 legacy/new integration tests in 149.044 seconds. The complete
+1,787-test suite passes in 845.590 seconds with the same single Windows skip.
+Startup `--help` passes. Scripts and tests remain byte-identical to the measured
+implementation; subsequent changes report documentation and validation only.
+
+Independent final read-only verification after the full suite confirms all 58
+consumed code fingerprints, 1,740 historical files and original table hashes
+unchanged: 579 reservations / USD8.1408513, zero added original reservations and
+zero provider calls. The task-owned temporary root is removed only after checking
+its exact resolved path and empty inventory, without recursive deletion. Fresh CI
+and scoped Codex review must cover the final published head and this explicitly
+changed historical detection boundary before merge.

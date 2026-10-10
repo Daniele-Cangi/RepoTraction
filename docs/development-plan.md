@@ -1556,8 +1556,15 @@ force an isolated demonstration from a merely partial primitive.
   with unconditional full entry/exit audits, provisional internal writes, fresh
   critical/owned-prefix checks around each commit and distinct revision/unused IDs.
   Keep the default legacy cadence path and every consumed scope unchanged.
-- [ ] Measure the clean committed operation successor, run the complete suite,
-  and review/CI its explicit changed historical detection boundary.
+- [x] Measure the clean committed operation successor against original read-only
+  history. Whole-owned 10k/60k probes take 30.545/61.646 seconds with 21/22
+  full audits; the overdue thirty-second audit remains active. The 10k gate
+  still fails; no threshold is raised and overall performance readiness is false.
+- [x] Complete focused/full-suite validation of the operation successor: 131
+  focused controls and 1,787 full-suite tests pass with one existing Windows skip.
+  Independently verify consumed code, historical files and original accounting.
+- [ ] Review/CI the changed historical detection boundary. Address the remaining
+  first-slot cost in a separate stage after merge.
   Paid ownership binding/freeze and concrete human approval remain separate.
   An authored transport/identity does not establish live latency or a model gain.
 
