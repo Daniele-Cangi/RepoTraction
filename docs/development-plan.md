@@ -1534,9 +1534,16 @@ force an isolated demonstration from a merely partial primitive.
   first-slot workloads take 249.761/224.065 seconds and fail the fixed gates.
   The first workload spends 195.252 seconds in 43 original DB scans. All
   original hashes and accounting are preserved; no provider call occurred.
-- [ ] Review/CI this integration and address repeated original-DB audit cost
-  across mandatory write boundaries without relaxing preservation or performance
-  gates. Paid ownership binding/freeze and concrete human approval remain separate.
+- [x] Review/CI the integration. PR108 merged `3db6002` with the reviewed
+  `77d1523` tree unchanged, a clean final Codex review and all four CI jobs passing.
+- [x] Implement and measure [content-verified original database audits](missing-link-content-verified-database-audit-2026-10-10.md).
+  Hash a fresh complete SQLite transaction image before reusing an exact logical
+  snapshot; preserve every full barrier and independent prefix comparison.
+  Unsupported runtimes/oversized images retain complete logical scans.
+- [ ] Review/CI the image audit, then address remaining full first-slot cost.
+  Observed whole-owned 10k/60k probes take 65.932/84.557 seconds: the 60k gate
+  passes, but the 10k >30-second gate and overall readiness still fail.
+  Paid ownership binding/freeze and concrete human approval remain separate.
   An authored transport/identity does not establish live latency or a model gain.
 
 No full-pool ranking improvement can be inferred from selected-only history or
