@@ -203,6 +203,10 @@ all acceptance barriers and independent accounting comparisons remain required.
 The [file and Git audit scheduling stage](docs/missing-link-batched-content-audits-2026-10-10.md)
 uses bounded worker batches and combined Git name resolution while retaining
 fresh content reads and every full barrier.
+The separate [protected operation contract](docs/missing-link-protected-operations-2026-10-10.md)
+owns full entry/exit audits for grouped provisional writes, with fresh code,
+lease and exact owned-ledger checks around each inner commit. It is an explicit
+offline successor with its own revision and unused accounting IDs.
 Candidate execution, UI/key-entry work and production promotion remain deferred.
 
 ## Development plan

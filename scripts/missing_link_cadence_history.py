@@ -27,7 +27,9 @@ ADAPTERS = tuple('scripts/missing_link_cadence_' + name + '.py'
     'scripts/missing_link_checkpoint_cadence.py', 'tests/test_missing_link_cadence_integration.py',
     'scripts/missing_link_database_audit.py', 'tests/test_missing_link_database_audit.py',
     'scripts/missing_link_cadence_git.py', 'tests/test_missing_link_cadence_git.py',
-    'tests/test_missing_link_checkpoint_cadence.py')
+    'tests/test_missing_link_checkpoint_cadence.py',
+    'scripts/missing_link_protected_operations.py', 'scripts/missing_link_operation_executor.py',
+    'tests/test_missing_link_protected_operations.py', 'tests/test_missing_link_operation_integration.py')
 
 
 def safe_path(root, relative):

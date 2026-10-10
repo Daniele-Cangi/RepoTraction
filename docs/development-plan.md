@@ -1549,9 +1549,30 @@ force an isolated demonstration from a merely partial primitive.
 - [x] Measure the committed scheduling stage against the original read-only
   history. Whole-owned 10k/60k probes take 52.338/73.931 seconds, with every
   full barrier and all 43 database image reads retained per probe.
-- [ ] Review/CI the scheduling stage and address remaining first-slot cost.
-  The 60k gate
-  passes, but the 10k >30-second gate and overall readiness still fail.
+- [x] Review/CI the scheduling stage. PR110 merged `016d762` with the reviewed
+  `d243420` tree unchanged, a clean final scoped Codex review and four successful
+  CI jobs. The 60k gate passes, but the 10k >30-second gate still fails.
+- [x] Declare and implement a separate [protected operation contract](missing-link-protected-operations-2026-10-10.md)
+  with unconditional full entry/exit audits, provisional internal writes, fresh
+  critical/owned-prefix checks around each commit and distinct revision/unused IDs.
+  Keep the default legacy cadence path and every consumed scope unchanged.
+- [x] Measure the clean committed operation successor against original read-only
+  history. Whole-owned 10k/60k probes take 30.545/61.646 seconds with 21/22
+  full audits; the overdue thirty-second audit remains active. The 10k gate
+  still fails; no threshold is raised and overall performance readiness is false.
+- [x] Complete initial focused/full-suite validation of the operation successor: 131
+  focused controls and 1,787 full-suite tests pass with one existing Windows skip.
+  Independently verify consumed code, historical files and original accounting.
+- [x] Reproduce and correct scoped PR111 review findings: enforce ownership for
+  stream/abort and preserve global audit failures at telemetry operation boundaries.
+  Reject foreign stream exit before changing context state so the owner can still
+  detach its timer and propagate the original failure during cleanup.
+  Roll back this entry's timer attachment if a concurrent foreign failure makes
+  entry raise, without detaching a previously active context on rejected entry.
+  Retained benchmark/full-suite timings precede these fixes; validate the new head
+  with focused controls and fresh CI.
+- [ ] Review/CI the changed historical detection boundary. Address the remaining
+  first-slot cost in a separate stage after merge.
   Paid ownership binding/freeze and concrete human approval remain separate.
   An authored transport/identity does not establish live latency or a model gain.
 
