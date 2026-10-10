@@ -204,6 +204,51 @@ class DatabaseAuditTests(unittest.TestCase):
         with self.assertRaises(EvaluationStopped) as repeated: self.cache()
         self.assertIs(repeated.exception, caught.exception)
 
+    def replace_on_close(self, callback):
+        replacement = self.root/'replacement-at-close.sqlite3'
+        shutil.copyfile(self.path, replacement)  # Every audit connection is closed.
+        Store(replacement, 'authored-account').put('repositories', 1, {'text': 'changed during close'})
+        path = self.path
+        class ReplaceDuringClose(sqlite3.Connection):
+            def close(inner):
+                super().close()
+                os.replace(replacement, path)  # Also possible on Windows after close.
+        with self.factory(ReplaceDuringClose):
+            callback()
+
+    def test_replacement_during_close_blocks_hits_refreshes_and_fallbacks(self):
+        for warm, bound in ((True, 512*1024*1024), (False, 512*1024*1024), (False, 1)):
+            with self.subTest(warm=warm, bound=bound):
+                cache = audit.ContentVerifiedSnapshot(self.path, self.allowance, max_image_bytes=bound)
+                if warm: cache()
+                with self.assertRaises(EvaluationStopped) as caught:
+                    self.replace_on_close(cache)
+                counts = cache.snapshot()
+                with patch.object(audit.sqlite3, 'connect', side_effect=AssertionError('No retry')):
+                    with self.assertRaises(EvaluationStopped) as repeated: cache()
+                self.assertIs(repeated.exception, caught.exception)
+                self.assertEqual(cache.snapshot(), counts)
+
+    def test_uncached_snapshot_rejects_replacement_during_connection_cleanup(self):
+        with self.assertRaises(EvaluationStopped):
+            self.replace_on_close(lambda: audit.database_snapshot(self.path, self.allowance))
+        with self.assertRaises(EvaluationStopped):
+            self.verify(audit.database_snapshot(self.path, self.allowance))
+
+    def test_close_failure_cannot_return_warm_cache_or_allow_retry(self):
+        self.cache()
+        primary = OSError('Authored SQLite close failure')
+        class FailDuringClose(sqlite3.Connection):
+            def close(inner):
+                super().close()
+                raise primary
+        with self.factory(FailDuringClose):
+            with self.assertRaises(OSError) as caught: self.cache()
+        self.assertIs(caught.exception, primary)
+        with patch.object(audit.sqlite3, 'connect', side_effect=AssertionError('No retry')):
+            with self.assertRaises(OSError) as repeated: self.cache()
+        self.assertIs(repeated.exception, primary)
+
     def test_compiled_history_still_checks_files_inventories_and_exact_prefix_on_hits(self):
         pinned = self.root/'evidence.txt'
         pinned.write_text('authored')

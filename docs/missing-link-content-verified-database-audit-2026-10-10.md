@@ -32,7 +32,8 @@ Only the compiled original-history audit uses `ContentVerifiedSnapshot`:
    the main file alone is not a cache key.
 3. The first image or any changed image gets the entire logical scan in the same
    transaction. Only a byte-identical image can reuse the previously computed
-   logical result. Path identity and connection cleanup must also succeed.
+   logical result. Connection cleanup must succeed, followed by a final path
+   identity check, before returning or committing a refreshed cache result.
 4. Return a fresh copy. The caller still performs its independently anchored
    exact-prefix comparison, alongside real file hashes, inventories and Git
    checks on every full barrier. No barrier is removed or coalesced.
@@ -77,7 +78,8 @@ Authored controls cover canonical digests, detached cache results, real content
 changes with restored metadata, foreign accounting, table/active-job changes,
 physical-only changes, unsupported runtimes and image size bounds, read-only
 enforcement, missing-versus-zero aggregates, serialization/refresh failures,
-reentrancy, path replacement, and WAL commits before/during audits. The
+reentrancy, path replacement (including during connection cleanup), close
+failures, and WAL commits before/during audits. The
 integration and complete suite must also pass before this stage is published.
 
 The unchanged owned benchmark declares the same gates: first three critical
@@ -128,6 +130,18 @@ consumed code fingerprints, 1,740 protected files and original table hashes
 unchanged: 579 reservations / USD8.1408513, zero provider calls and zero original
 reservations added. Later documentation-only changes retain these results under
 their exact measured implementation, rather than claiming a new measurement.
+
+PR109's P1 review found that a replacement during `Connection.close()` could
+escape a path check made before cleanup. The final identity check now follows
+successful connection cleanup, before a logical result can return or enter the
+cache. Authored replacements reproduced the defect on the pre-fix head for a
+warm cache, cold scan, forced fallback and uncached snapshot; all are rejected
+after the correction. Close failures also retain the same latched failure and
+cannot retry. The corrected implementation passes 23 focused DB controls (one
+POSIX-only skip), all 28 integration controls in 79.298 seconds, startup `--help`
+and the independent original-history check above. The complete local suite and
+performance measurements above precede this review correction; they do not
+certify measurements of the corrected head. Fresh full CI covers the new head.
 
 Fresh CI and scoped Codex review are required for publication. The next
 performance work must address the complete 10k owned workload's remaining cost

@@ -24,9 +24,11 @@ def _transaction(path):
         # before serializing, also when a cache hit avoids the logical queries.
         db.execute('SELECT COUNT(*) FROM sqlite_master').fetchall()
         yield db
-        final = path.stat()
-        require(not path.is_symlink() and (initial.st_dev, initial.st_ino) == (final.st_dev, final.st_ino),
-                'Audit database path changed')
+    # Closing releases SQLite's read lock and can itself replace the path. Check
+    # only after cleanup succeeds, before any caller can return or cache a result.
+    final = path.stat()
+    require(not path.is_symlink() and (initial.st_dev, initial.st_ino) == (final.st_dev, final.st_ino),
+            'Audit database path changed')
 
 
 def _logical_snapshot(db, allowance):
