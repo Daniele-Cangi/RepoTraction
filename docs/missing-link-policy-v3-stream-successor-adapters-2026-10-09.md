@@ -56,8 +56,12 @@ and event handling count as active stream time; measured light/full checkpoint
 callbacks are excluded from active time and included in wall time. Enforce 240
 active and 600 observed wall seconds without resetting either clock. Equality
 is allowed. The stream interval includes the fresh full post-terminal check;
-later parsing/persistence/normalization is outside these stream timings. Socket
-timeout remains 55 seconds, with no redirects/retries and unchanged 512,000-byte
+later parsing/persistence/normalization is outside these stream timings.
+The final stream observation enforces both limits before closing the interval;
+the end timestamp freezes that same checked sample without another clock read.
+An over-limit final observation preserves the terminal and reservation, records
+the exceeded deadline and stops before usage/call/output processing.
+Socket timeout remains 55 seconds, with no redirects/retries and unchanged 512,000-byte
 line / 8,000,000-byte cumulative bounds. This is not a hard process timeout.
 
 Invalid/backward/nonfinite clocks stop globally. Failed callback durations are

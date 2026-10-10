@@ -137,6 +137,54 @@ class SuccessorReceiptTests(unittest.TestCase):
                 self.assertTrue(self.telemetry[0]["terminal_retained"])
                 self.assertEqual(self.telemetry[0]["active_stream_seconds"], 0)
 
+    def test_final_stream_observation_enforces_active_and_wall_limits_before_acceptance(self):
+        for kind, checkpoint_seconds, limit in (('active_stream',0,240),('wall_stream',500,600)):
+            for exceeded in (False, True):
+                with self.subTest(kind=kind, exceeded=exceeded):
+                    self.setUp()
+                    final_time = limit + int(exceeded)
+                    observations = []
+                    def full():
+                        if self.receipts:
+                            self.clock.value += checkpoint_seconds
+                    self.full.side_effect = full
+                    checkpoint = reader._Timing.checkpoint
+                    def after_checkpoint(timing, phase, callback):
+                        checkpoint(timing,phase,callback)
+                        if phase == 'full' and self.receipts:
+                            # Advance only after the successful fresh full gate's
+                            # post-callback limit check, before the final sample.
+                            self.clock.value = final_time
+                    original_clock = Clock.__call__
+                    def observed_clock(instance):
+                        observations.append(instance.value)
+                        return original_clock(instance)
+                    with patch.object(reader._Timing,'checkpoint',after_checkpoint), \
+                            patch.object(Clock,'__call__',observed_clock), \
+                            patch.object(self.budget,'record_usage',wraps=self.budget.record_usage) as usage, \
+                            patch.object(self.budget,'record_call',wraps=self.budget.record_call) as call, \
+                            patch.object(self.budget,'record_output',wraps=self.budget.record_output) as output:
+                        if exceeded:
+                            with self.assertRaises(ProviderTransportError) as raised:
+                                self.run_stream()
+                            self.assertEqual(raised.exception.code,'ai_stream_deadline_exceeded')
+                            usage.assert_not_called(); call.assert_not_called(); output.assert_not_called()
+                        else:
+                            self.assertEqual(self.run_stream(),{'value':'authored'})
+                            usage.assert_called_once(); call.assert_called_once(); output.assert_called_once()
+                    trace = self.telemetry[0]
+                    self.assertEqual(observations.count(final_time),1)
+                    self.assertEqual(trace['wall_stream_seconds'],final_time)
+                    self.assertEqual(trace['active_stream_seconds'],final_time-checkpoint_seconds)
+                    self.assertEqual(trace['full_checkpoint_seconds'],checkpoint_seconds)
+                    self.assertEqual(trace['full_checkpoints'],1)
+                    self.assertEqual(trace['deadline_kind'],kind if exceeded else None)
+                    self.assertTrue(trace['terminal_retained'])
+                    self.assertTrue(trace['reservation_committed'])
+                    self.assertEqual(len(self.receipts),1)
+                    self.assertEqual(len(self.charges),1)
+                    self.assertEqual(self.stream.close_calls,1)
+
     def test_failed_callback_timing_and_exception_are_preserved(self):
         original = OSError("authored callback")
         def light():

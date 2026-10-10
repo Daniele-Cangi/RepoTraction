@@ -297,7 +297,8 @@ def complete_with_receipt(provider, instruction, data, budget, *, schema,
                     timing.receipt = True
                     timing.checkpoint("light", terminal_checkpoint)
                     timing.checkpoint("full", budget.checkpoint)
-                    timing.ended = timing.now()
+                    timing.limits()
+                    timing.ended = timing.last  # Freeze the checked sample, without rereading.
                     break
                 nonterminal += 1
                 if nonterminal >= 128 or timing.now() - last_full >= 30:
