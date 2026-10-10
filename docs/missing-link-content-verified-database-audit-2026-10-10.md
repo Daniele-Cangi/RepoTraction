@@ -93,3 +93,43 @@ history, actual temporary leases/reservations and explicit authored identity and
 transport. Retained metrics must name their exact measured commit; later changes
 are not retrospectively certified. No component result or gate pass authorizes
 provider calls, a new paid freeze, or a model-quality claim.
+
+## Retained results
+
+Implementation `548929c56c4fe579bba46ce3ce2f3a8fa562b2e7` (tree
+`663c14bee5833ebf167e94f6e5be186d4eaec075`) was measured on Windows / Python 3.13
+with the actual original read-only history and the authored owned transport.
+Compilation took 6.084 seconds, including its initial full logical validation.
+Both probes completed and retained their native authored terminal/result:
+
+| Authored lines | Stream wall | Whole owned | First 3 critical max | First 3 history max | Gate |
+| ---: | ---: | ---: | ---: | ---: | --- |
+| 10,000 | 7.468 s | 65.932 s | .043 s | 1.391 s | **Fail:** whole >30 s |
+| 60,000 | 27.616 s | 84.557 s | .038 s | 1.449 s | **Pass:** all three fixed gates |
+
+Each probe performed 43 original DB audits, with 43 fresh complete image reads,
+43 validated cache hits and zero repeated logical scans during the owned phase.
+The initial logical scan is in the compilation above. The first probe's DB
+audits took 25.404 seconds, versus 195.252 in the prior measurement's 43 audits.
+Its remaining full history time also includes 16.534 seconds in Git checks and
+15.935 in historical file hashes. All full barriers remain in place.
+
+Earlier whole-owned observations were 249.761/224.065 seconds. These are separate
+individual measurements, not controlled percentile or cache-flushed speedup
+estimates. This run establishes a lower observed audit/owned cost and a passing
+60k gate; the 10k gate and overall readiness still fail. The benchmark exits 1
+and retains `paid_readiness: false`, without relaxing any threshold.
+
+Validation of the implementation passes: 20 focused DB controls (one POSIX-only
+control skipped on Windows), 28 integration controls in 61.385 seconds, and the
+complete 1,731-test suite in 689.202 seconds (one POSIX-only skip). Startup
+`--help` passes. Independent final read-only verification confirms all 58
+consumed code fingerprints, 1,740 protected files and original table hashes
+unchanged: 579 reservations / USD8.1408513, zero provider calls and zero original
+reservations added. Later documentation-only changes retain these results under
+their exact measured implementation, rather than claiming a new measurement.
+
+Fresh CI and scoped Codex review are required for publication. The next
+performance work must address the complete 10k owned workload's remaining cost
+while preserving fresh protected-write/acceptance checks. Available funds and
+the passing authored 60k gate grant no live execution authorization.
