@@ -1,14 +1,11 @@
 """Cadence adapter and read-only audits; explicit dependencies, no import IO."""
-from contextlib import closing, contextmanager
+from contextlib import contextmanager
 import copy
-import hashlib
-import json
 import os
-import re
-import sqlite3
 import time
 
 from scripts.missing_link_checkpoint_cadence import CheckpointCadence, FilePin, PinnedFiles
+from scripts.missing_link_database_audit import database_snapshot
 from scripts.missing_link_repository_only_evaluator import require, verify_prefix
 
 
@@ -82,39 +79,6 @@ def held_leases(leases):
         require((held.st_dev, held.st_ino) == (path.st_dev, path.st_ino), 'Held lease replaced')
 
 
-def database_snapshot(path, allowance):
-    """Same canonical table digest as the frozen audit, one read-only transaction.
-
-    Encode one row at a time, preserving json.dumps(fetchall()) separators and
-    ordering exactly. Memory is bounded by one row instead of the entire DB.
-    """
-    with closing(sqlite3.connect(path.as_uri() + '?mode=ro', uri=True)) as db:
-        db.execute('BEGIN')
-        tables = [r[0] for r in db.execute("SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'ml_%'")]
-        require(all(re.fullmatch(r'ml_[A-Za-z0-9_]+', name) for name in tables), 'Invalid audit table')
-        hashes = {}
-        for table in tables:
-            digest = hashlib.sha256(b'[')
-            separator = b''
-            for row in db.execute(f'SELECT * FROM "{table}" ORDER BY rowid'):
-                digest.update(separator)
-                digest.update(json.dumps(row, sort_keys=True, ensure_ascii=False).encode())
-                separator = b', '
-            digest.update(b']')
-            hashes[table] = digest.hexdigest()
-        rows = [list(r) for r in db.execute('SELECT * FROM ml_ai_reservations ORDER BY id')]
-        allowances = [list(r) for r in db.execute('SELECT * FROM ml_ai_allowances ORDER BY id')]
-        active = []
-        for row in db.execute('SELECT payload FROM ml_jobs'):
-            job = json.loads(row[0])
-            if job['status'] in {'queued', 'running'}:
-                active.append(job['id'])
-        count, cost = db.execute('SELECT COUNT(*),SUM(cost) FROM ml_ai_reservations WHERE allowance_id=?',
-                                 (allowance,)).fetchone()
-    return {'tables': hashes, 'artifacts': {}, 'reservations': count, 'reserved_usd': cost,
-            'reservation_rows': rows, 'allowance_rows': allowances, 'active_jobs': active}
-
-
 class HistoryAudit:
     """Compiled content pins plus exact DB prefix and independently supplied Git gate.
 
@@ -122,10 +86,11 @@ class HistoryAudit:
     previously verified seals; directories are enumerated anew on every audit.
     """
     def __init__(self, *, root, database, baseline, allowance, ceiling, rows, tree, inventories,
-                 measure=lambda name, callback: callback()):
+                 measure=lambda name, callback: callback(), database_audit=None):
         self.database, self.allowance, self.ceiling = database, allowance, ceiling
         self.rows, self.tree = rows, tree
         self.measure = measure
+        self.database_audit = database_audit or (lambda: database_snapshot(self.database, self.allowance))
         self.before = copy.deepcopy(baseline)
         self.files = PinnedFiles(FilePin(root/name, value) for name, value in baseline['artifacts'].items())
         self.inventories = tuple((path, frozenset(names)) for path, names in inventories)
@@ -141,7 +106,7 @@ class HistoryAudit:
                         'Protected inventory changed')
         self.measure('inventories', inventories)
         self.measure('historical_files', self.files.verify)
-        after = self.measure('original_database', lambda: database_snapshot(self.database, self.allowance))
+        after = self.measure('original_database', self.database_audit)
         # The real hashes have just been checked; do not hash all paths twice.
         after['artifacts'] = dict(self.before['artifacts'])
         verify_prefix(self.before, after, self.rows(), allowance=self.allowance, ceiling=self.ceiling)

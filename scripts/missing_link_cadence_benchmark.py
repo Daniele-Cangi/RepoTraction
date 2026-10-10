@@ -82,7 +82,9 @@ def benchmark(*, temp_parent=None, workloads=(10000, 60000)):
          patch('urllib.request.build_opener', side_effect=forbidden), \
          patch('missing_link.config.provider_environment', side_effect=forbidden), \
          patch('missing_link.provider.provider_environment', side_effect=forbidden):
+        compilation_started = time.perf_counter()
         compiled = compile_history(tree=check_tree)
+        compilation_seconds = time.perf_counter()-compilation_started
         source = successor_manifest(compiled['source'])
         packets = load(PREP/'inputs.json')['cases']
         # Dummy key permits the ordinary readiness checks, but cannot be sent:
@@ -92,6 +94,7 @@ def benchmark(*, temp_parent=None, workloads=(10000, 60000)):
         for lines in workloads:
             profile = Profile()
             compiled['audit'].measure = profile
+            before_counts = compiled['database_audit'].snapshot()
             with tempfile.TemporaryDirectory(prefix='repotraction-cadence-owned-', dir=temp_parent) as temporary:
                 scratch = Path(temporary).resolve()
                 identity_file = scratch/'authored-identity.txt'
@@ -116,10 +119,13 @@ def benchmark(*, temp_parent=None, workloads=(10000, 60000)):
                 runs.append({'nonterminal_lines': lines, 'attempted_authored_slots': 1,
                     'unattempted_slots': list(range(2, 12)), 'whole_owned_seconds': elapsed,
                     'stream_trace': trace, 'profile': copy.deepcopy(profile.values), 'gates': gates,
-                    'gate_passed': all(gates.values()), 'authored_result_count': len(result['results'])})
+                    'gate_passed': all(gates.values()), 'authored_result_count': len(result['results']),
+                    'database_audit_counts': {k: v-before_counts[k]
+                        for k, v in compiled['database_audit'].snapshot().items()}})
         compiled['audit']()
     return {'scope': 'exact_offline_owned_adapter_original_read_only_history_authored_identity_and_transport',
         'implementation_head': head, 'implementation_tree': tree, 'historical_artifacts': 1740,
+        'compilation_seconds_outside_owned_gates': compilation_seconds,
         'consumed_code_fingerprints': 58, 'runs': runs,
         'original_reservations': 579, 'original_reserved_usd': 8.1408513,
         'original_database_unchanged': True, 'provider_calls': 0, 'original_new_reservations': 0,

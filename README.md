@@ -197,6 +197,9 @@ The separate [owned cadence integration](docs/missing-link-cadence-integration-2
 connects the reader, executor, temporary atomic ledger and original read-only
 history for offline verification. Its performance/readiness gate remains open;
 there is no paid entry point or new provider call.
+The [content-verified database audit](docs/missing-link-content-verified-database-audit-2026-10-10.md)
+hashes a fresh SQLite transaction image before reusing logical history digests;
+all acceptance barriers and independent accounting comparisons remain required.
 Candidate execution, UI/key-entry work and production promotion remain deferred.
 
 ## Development plan

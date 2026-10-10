@@ -9,6 +9,7 @@ from pathlib import Path
 from scripts import missing_link_stream_successor_run as consumed
 from scripts.missing_link_checkpoint_cadence import FilePin, PinnedFiles
 from scripts.missing_link_cadence_checks import HistoryAudit
+from scripts.missing_link_database_audit import ContentVerifiedSnapshot
 from scripts.missing_link_repository_only_evaluator import require, verify_prefix
 from scripts.missing_link_repository_only_run import load, sha, inventory, git
 
@@ -23,7 +24,8 @@ MERGED_CADENCE = '65a066b35385b912491bb10e791b4807f710c725'
 REVIEWED_CADENCE = 'd997c25a4dc22bd277b9c3308478889fcdf4e7a6'
 ADAPTERS = tuple('scripts/missing_link_cadence_' + name + '.py'
                  for name in ('checks', 'reader', 'executor', 'owned', 'history', 'benchmark')) + (
-    'scripts/missing_link_checkpoint_cadence.py', 'tests/test_missing_link_cadence_integration.py')
+    'scripts/missing_link_checkpoint_cadence.py', 'tests/test_missing_link_cadence_integration.py',
+    'scripts/missing_link_database_audit.py', 'tests/test_missing_link_database_audit.py')
 
 
 def safe_path(root, relative):
@@ -91,7 +93,10 @@ def compile_history(*, tree, additional_code=()):
             + tuple(FilePin(root/name, sha(root/name, canonical=True), True) for name in ADAPTERS)
             + tuple(additional_code))
     PinnedFiles(pins).verify()
+    database_audit = ContentVerifiedSnapshot(consumed.DB, consumed.ALLOWANCE)
     audit = HistoryAudit(root=root, database=consumed.DB, baseline=baseline,
-        allowance=consumed.ALLOWANCE, ceiling=8.1408513, rows=lambda: [], tree=tree, inventories=inventories)
+        allowance=consumed.ALLOWANCE, ceiling=8.1408513, rows=lambda: [], tree=tree, inventories=inventories,
+        database_audit=database_audit)
     audit()
-    return {'source': source, 'baseline': baseline, 'code_pins': pins, 'audit': audit}
+    return {'source': source, 'baseline': baseline, 'code_pins': pins, 'audit': audit,
+            'database_audit': database_audit}
