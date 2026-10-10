@@ -133,6 +133,9 @@ No callback may suppress a failure and continue this same controller.
         except BaseException:
             self._clock_valid = False
             raise
+        if self._failure is not None:
+            self._clock_valid = False
+            raise self._failure
         if (type(value) not in (int, float) or not math.isfinite(value)
                 or (self._last is not None and value < self._last)):
             self._clock_valid = False
@@ -180,6 +183,8 @@ No callback may suppress a failure and continue this same controller.
         self._busy = True
         try:
             operation()
+            if self._failure is not None:
+                raise self._failure
         except BaseException as exc:
             self._failure, self._state = exc, 'failed'
             raise

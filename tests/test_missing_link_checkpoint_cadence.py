@@ -154,6 +154,45 @@ class CheckpointCadenceTests(unittest.TestCase):
             self.engine.start()
         self.assertEqual(self.engine.snapshot()['state'], 'failed')
 
+    def test_clock_reentrancy_at_every_sample_cannot_return_success(self):
+        for action in ('start', 'poll', 'barrier', 'finish'):
+            # Discover the clock boundaries of a successful operation, including
+            # finalization and poll's sample outside a callback measurement.
+            probe_clock = Mock(return_value=0)
+            probe = CheckpointCadence(fast=lambda: None, critical=lambda: None,
+                                      history=lambda: None, clock=probe_clock)
+            if action != 'start':
+                probe.start()
+            probe_clock.reset_mock()
+            getattr(probe, action)()
+            for target in range(1, probe_clock.call_count + 1):
+                with self.subTest(action=action, sample=target):
+                    state = {'armed': False, 'calls': 0, 'caught': []}
+                    def clock():
+                        if state['armed']:
+                            state['calls'] += 1
+                            if state['calls'] == target:
+                                try:
+                                    engine.poll()
+                                except CheckpointFailure as exc:
+                                    state['caught'].append(exc)
+                        return 0
+                    engine = CheckpointCadence(fast=lambda: None, critical=lambda: None,
+                                               history=lambda: None, clock=clock)
+                    if action != 'start':
+                        engine.start()
+                    state['armed'] = True
+                    with self.assertRaises(CheckpointFailure) as caught:
+                        getattr(engine, action)()
+                    self.assertIs(caught.exception, state['caught'][0])
+                    self.assertEqual(engine.snapshot()['state'], 'failed')
+                    self.assertFalse(engine.snapshot()['clock_valid'])
+                    calls = state['calls']
+                    with self.assertRaises(CheckpointFailure) as later:
+                        engine.finish()
+                    self.assertIs(later.exception, caught.exception)
+                    self.assertEqual(state['calls'], calls)
+
     def test_invalid_lifecycle_never_restarts_or_reuses_finished_controller(self):
         with self.assertRaises(CheckpointFailure):
             self.engine.poll()
