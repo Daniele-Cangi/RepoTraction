@@ -1,4 +1,8 @@
-"""Offline successor with explicit protected-unit ownership and unused job IDs."""
+"""Explicit-transport successor with protected ownership and unused job IDs.
+
+Credential loading and live authorization belong to the separate owned runner.
+The offline runner continues to supply only its authored transport.
+"""
 import copy
 import json
 import time
@@ -48,8 +52,8 @@ def execute_cases(provider, packets, *, manifest, read, fast, critical, history,
                   clock=time.monotonic, case_limit=11):
     config, key = copy.deepcopy(manifest['config_without_key']), provider.key
     requests = bind_requests(provider, packets, manifest, read)
-    require(type(case_limit) is int and 1 <= case_limit <= 11, 'Invalid offline case limit')
-    require(opener_factory is not None, 'Protected operations currently require an authored transport')
+    require(type(case_limit) is int and 1 <= case_limit <= 11, 'Invalid bound case limit')
+    require(callable(opener_factory), 'Protected operations require an explicit transport')
 
     def immediate():
         if cancelled(): raise Cancelled('Owned operation stream cancelled.')

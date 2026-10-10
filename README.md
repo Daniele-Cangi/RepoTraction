@@ -210,6 +210,10 @@ offline successor with its own revision and unused accounting IDs.
 Its final merged revision passes the fixed authored 10k/60k timing gates in one
 retained measurement (29.145/62.573 seconds). The 10k margin is .855 seconds;
 the earlier failed observation remains recorded, and paid readiness remains false.
+The separate [authorized operation adapter](docs/missing-link-operation-live-contract-2026-10-10.md)
+adds reviewed-main preparation and exact human-approval gates for a prospective
+eleven-slot one-shot test. Implementation creates no actual freeze or provider
+call; the original allowance and all consumed scopes remain preserved.
 Candidate execution, UI/key-entry work and production promotion remain deferred.
 
 ## Development plan

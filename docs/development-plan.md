@@ -1579,10 +1579,19 @@ force an isolated demonstration from a merely partial primitive.
   21/22 fresh full database images and the overdue audit retained. The .855-second
   10k margin is a single observation; retain the earlier failure and both profiles.
   No causal improvement from review corrections or reliability margin is inferred.
-- [ ] Review the retained final measurement and its exact revision provenance.
-  Then prepare a separate owned one-shot freeze if continuing toward a live test;
-  paid ownership binding and concrete human approval remain separate.
-  An authored transport/identity does not establish live latency or a model gain.
+- [x] Review the retained final measurement and its exact revision provenance.
+  PR112 merged `bd257e0` with the reviewed `642e638` tree unchanged, a clean
+  scoped Codex review and all four CI jobs successful. The documentation merge
+  does not change the measured runtime or authorize a provider call.
+- [x] Implement the separate [authorized operation adapter](missing-link-operation-live-contract-2026-10-10.md)
+  with exact reviewed-main freezing, independent prepared anchors, pre-credential
+  human-approval checks, original atomic accounting and fail-stop finalization.
+  Exercise the ownership wiring with authored transports and temporary databases.
+- [ ] Review/CI/merge that adapter before preparing an actual separate owned
+  one-shot freeze. Present its concrete requests/cost limits and obtain fresh
+  human authorization before execution. Original accounting remains 579 /
+  USD8.1408513 within USD10; no implementation-stage freeze or provider call.
+  Authored transport/identity does not establish live latency or a model gain.
 
 No full-pool ranking improvement can be inferred from selected-only history or
 the later nonrandom root sample. Retained ordering and root demand diagnostics
