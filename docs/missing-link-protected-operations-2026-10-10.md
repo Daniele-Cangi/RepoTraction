@@ -167,3 +167,26 @@ fingerprints, 1,740 historical files and original tables unchanged, with zero
 added original reservations or provider calls. The empty resolved task temporary
 root is removed without recursive deletion. The complete suite runs in fresh CI
 on the corrected head; the local full-suite timings above remain pre-fix evidence.
+
+### Owner cleanup after a rejected foreign exit
+
+The next scoped review of `e753ce9` found that checking ownership inside a
+generator context's `finally` exhausts the generator on a rejected foreign exit.
+Two regressions reproduced the subsequent owner exit doing nothing and leaving
+the timer attached, for both normal and exceptional foreign exits.
+
+The stream now uses an explicit context with new/active/closed states. Exit checks
+ownership before changing context state or the timer, so the rejected foreign
+exit leaves the context available for owner cleanup. The owner detaches its timer
+even with a latched failure, then raises the identical primary exception. An
+unentered context cannot detach another active context's timer, and rejected
+reentry also leaves owner cleanup available. These are lifecycle corrections;
+the operation audit boundaries and legacy context remain unchanged.
+
+All four CI jobs passed on `e753ce9` before this follow-up fix. All 117 focused
+controls pass in 145.916 seconds: 20 ownership, 29 cadence and 40 successor / 28
+legacy integration controls. Startup and independent read-only verification pass,
+with all consumed fingerprints, historical files and original tables unchanged,
+zero new original reservations and zero provider calls. Fresh scoped CI/review
+cover the new published head. The earlier benchmark and local full-suite timings
+remain evidence only for their declared pre-correction revisions.

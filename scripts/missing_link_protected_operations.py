@@ -1,5 +1,4 @@
 """Explicit single-owner mutation units, fresh full boundaries, no import IO."""
-from contextlib import contextmanager
 from threading import Lock, get_ident
 
 from scripts.missing_link_cadence_checks import Checks
@@ -12,6 +11,33 @@ STEPS = (('claim', ('claim',)),
          ('validate', ('result',)),
          ('telemetry', ('telemetry',)),
          ('finish', ('finish',)))
+
+
+class _OwnedStream:
+    """Check exit ownership before consuming the owner's cleanup opportunity."""
+    def __init__(self, checks, timing):
+        self._checks, self._timing, self._state = checks, timing, 'new'
+
+    def __enter__(self):
+        def attach():
+            if self._state != 'new' or self._checks.timing is not None:
+                self._checks._reject('Invalid or overlapping stream context')
+            self._state = 'active'
+            self._checks.timing = self._timing
+        return self._checks._perform(attach)
+
+    def __exit__(self, kind, error, traceback):
+        self._checks._check_owner()  # A rejected exit leaves this context active.
+        if self._state == 'new':
+            self._checks._reject('Stream context was not entered')
+        if self._state == 'active':
+            self._state = 'closed'
+            self._checks.timing = None  # Owner cleanup also runs after a failure.
+            if error is not None:
+                self._checks.abort(error)
+        if self._checks.failure is not None:
+            raise self._checks.failure
+        return False
 
 
 class ProtectedOperations(Checks):
@@ -48,24 +74,8 @@ class ProtectedOperations(Checks):
         self._check_owner()
         self._latch(error)
 
-    @contextmanager
     def stream(self, timing):
-        def attach():
-            if self.timing is not None:
-                self._reject('Overlapping stream timing')
-            self.timing = timing
-        self._perform(attach)
-        try:
-            yield
-        except BaseException as exc:
-            self._check_owner()  # Foreign throw/exit must not install its exception.
-            self._latch(exc)
-            raise self.failure
-        finally:
-            self._check_owner()  # A foreign exit cannot detach the owner's timer.
-            self.timing = None  # Owner cleanup is required even after a failure.
-            if self.failure is not None:
-                raise self.failure
+        return _OwnedStream(self, timing)
 
     def _perform(self, callback):
         if self.failure is not None:

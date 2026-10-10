@@ -1565,6 +1565,8 @@ force an isolated demonstration from a merely partial primitive.
   Independently verify consumed code, historical files and original accounting.
 - [x] Reproduce and correct scoped PR111 review findings: enforce ownership for
   stream/abort and preserve global audit failures at telemetry operation boundaries.
+  Reject foreign stream exit before changing context state so the owner can still
+  detach its timer and propagate the original failure during cleanup.
   Retained benchmark/full-suite timings precede these fixes; validate the new head
   with focused controls and fresh CI.
 - [ ] Review/CI the changed historical detection boundary. Address the remaining

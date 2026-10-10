@@ -153,6 +153,10 @@ class ProtectedOperationsTests(unittest.TestCase):
                 pool.submit(context.__exit__, None, None, None).result()
         self.assertIs(self.engine.timing, timer)
         with self.assertRaises(CheckpointFailure): self.engine.poll()
+        with self.assertRaises(CheckpointFailure) as cleanup:
+            context.__exit__(None, None, None)
+        self.assertIs(cleanup.exception, self.engine.failure)
+        self.assertIsNone(self.engine.timing)
 
     def test_foreign_abort_cannot_install_its_supplied_exception(self):
         supplied = OSError('Authored foreign abort')
@@ -173,6 +177,28 @@ class ProtectedOperationsTests(unittest.TestCase):
         self.assertIs(self.engine.failure, caught.exception)
         self.assertIsNot(self.engine.failure, supplied)
         self.assertIs(self.engine.timing, timer)
+        with self.assertRaises(CheckpointFailure) as cleanup:
+            context.__exit__(None, None, None)
+        self.assertIs(cleanup.exception, self.engine.failure)
+        self.assertIsNone(self.engine.timing)
+
+    def test_unentered_context_cannot_detach_another_live_context(self):
+        timer = object()
+        live, unused = self.engine.stream(timer), self.engine.stream(object())
+        live.__enter__()
+        with self.assertRaises(CheckpointFailure): unused.__exit__(None, None, None)
+        self.assertIs(self.engine.timing, timer)
+        with self.assertRaises(CheckpointFailure): live.__exit__(None, None, None)
+        self.assertIsNone(self.engine.timing)
+
+    def test_reentered_context_cannot_detach_timer_before_owner_cleanup(self):
+        timer = object()
+        context = self.engine.stream(timer)
+        context.__enter__()
+        with self.assertRaises(CheckpointFailure): context.__enter__()
+        self.assertIs(self.engine.timing, timer)
+        with self.assertRaises(CheckpointFailure): context.__exit__(None, None, None)
+        self.assertIsNone(self.engine.timing)
 
     def test_owner_stream_failure_detaches_timer_and_latches_the_primary(self):
         primary = OSError('Authored stream body failure')
