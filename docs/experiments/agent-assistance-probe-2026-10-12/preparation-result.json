@@ -1,0 +1,170 @@
+{
+  "status": "offline-preparation-only",
+  "agent_attempts": 0,
+  "paid_api_calls": 0,
+  "donor_searches": 0,
+  "target": {
+    "repository": "pytest-dev/pytest",
+    "revision": "587ebc501ba292539202a1aac3a7f5b0112a08ec"
+  },
+  "direct_proposal": {
+    "url": "https://github.com/pytest-dev/pytest/pull/15118",
+    "state_at_acquisition": "open",
+    "head": "68cb1befd6baf84432b046fe9d703315e5f7221d",
+    "base": "2887015cade4757385308e7a7d8083557fc637e2",
+    "applied_to_pinned_target": true,
+    "patch_file": "direct-patch.json",
+    "patch_sha256": "1624292dab5fa8900e57e5e04bd945c345a37f8d6063c5f331467bf4aee7f820",
+    "patch_field": "patch_utf8"
+  },
+  "runtime": {
+    "platform": "win32",
+    "python": "3.13.5 (tags/v3.13.5:6cb20a2, Jun 11 2025, 16:15:46) [MSC v.1943 64 bit (AMD64)]",
+    "packages": [
+      "attrs==26.1.0",
+      "colorama==0.4.6",
+      "hypothesis==6.169.0",
+      "iniconfig==2.3.1",
+      "packaging==26.3",
+      "pluggy==1.6.0",
+      "Pygments==2.21.0",
+      "sortedcontainers==2.4.0"
+    ],
+    "pytest_metadata_override": "SETUPTOOLS_SCM_PRETEND_VERSION_FOR_PYTEST=9.2.0.dev0",
+    "reason": "The shallow clone lacks tags; the initial inferred 0.1.dev1 failed native minversion. Source stays pinned.",
+    "environment": {
+      "PYTHONPATH": "<actual-target>/src",
+      "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+    }
+  },
+  "commands": {
+    "reported": "python -m pytest -q <frozen-probe>/reported_proxy.py",
+    "acceptance": "python <frozen-probe>/native_acceptance.py",
+    "native-monkeypatch": "python -m pytest -q testing/test_monkeypatch.py",
+    "obsolete-case-native-validation": "python -m pytest -q testing/python/fixtures.py -k \"classmethod_above_fixture_warning or fixture_above_classmethod_still_works\""
+  },
+  "results": [
+    {
+      "arm": "pristine",
+      "check": "reported",
+      "exit_code": 1,
+      "source_path": "target-pristine/src/_pytest/monkeypatch.py",
+      "source_sha256": "92f5816b92d824b603c3a34f23d03107dce3a7fac5e4decebd8d0b5d1cac75a1",
+      "log_sha256": "d87bc30cb66ba29e04ff695efc9b8577ca5e995f16109264d5bd49e0839c3b24",
+      "tail": [
+        "E       assert True is False",
+        "E        +  where True = <reported_proxy.Config object at 0x000002046A4E92B0>.debug",
+        "",
+        "reported_proxy.py:27: AssertionError",
+        "=========================== short test summary info ===========================",
+        "FAILED reported_proxy.py::test_restored - assert True is False",
+        "ERROR reported_proxy.py::test_patch - AttributeError: 'Config' object has no ...",
+        "1 failed, 1 passed, 1 error in 0.43s"
+      ],
+      "log_file": "native-logs.json",
+      "log_key": "reported-pristine-verified.log"
+    },
+    {
+      "arm": "pristine",
+      "check": "acceptance",
+      "exit_code": 1,
+      "source_path": "target-pristine/src/_pytest/monkeypatch.py",
+      "source_sha256": "92f5816b92d824b603c3a34f23d03107dce3a7fac5e4decebd8d0b5d1cac75a1",
+      "log_sha256": "d50220b11c8bfd09f7ed2a571c38d7ed9cab2593a9fd087993b9bca81ab4e8a9",
+      "tail": [
+        "    delattr(obj, name)",
+        "    ~~~~~~~^^^^^^^^^^^",
+        "AttributeError: 'Proxy' object has no attribute 'flag'",
+        "",
+        "----------------------------------------------------------------------",
+        "Ran 8 tests in 0.003s",
+        "",
+        "FAILED (errors=4)"
+      ],
+      "log_file": "native-logs.json",
+      "log_key": "acceptance-pristine-verified.log"
+    },
+    {
+      "arm": "pristine",
+      "check": "native-monkeypatch",
+      "exit_code": 0,
+      "source_path": "target-pristine/src/_pytest/monkeypatch.py",
+      "source_sha256": "92f5816b92d824b603c3a34f23d03107dce3a7fac5e4decebd8d0b5d1cac75a1",
+      "log_sha256": "b2bdc262c20b1854fd64d621bba32fded93570a7ce3eb66615b84156b70f0ba8",
+      "tail": [
+        ".......................................s.....s                           [100%]",
+        "44 passed, 2 skipped in 0.89s"
+      ],
+      "log_file": "native-logs.json",
+      "log_key": "native-monkeypatch-pristine-verified.log"
+    },
+    {
+      "check": "reported",
+      "exit_code": 0,
+      "log_sha256": "1736e3eb3d1e390c1a3a8081667d8e0738957ddd7ffb89367e4447887aa19cf4",
+      "tail": [
+        "..                                                                       [100%]",
+        "2 passed in 0.02s"
+      ],
+      "arm": "direct-pr-15118",
+      "source_sha256": "b4f16969db35eda5a0eb7a904b5a6f44bce55a91c7f0a3a1f33f8d363bbe6eb9",
+      "source_path": "target-direct/src/_pytest/monkeypatch.py",
+      "log_file": "native-logs.json",
+      "log_key": "reported-direct-applied.log"
+    },
+    {
+      "check": "acceptance",
+      "exit_code": 1,
+      "log_sha256": "2f874accfdcc89fbce69c68eed1f00b60e6ed9b15fc7df1f8191fee1af0c6aef",
+      "tail": [
+        "    self.assertNotIn(\"flag\", vars(obj))",
+        "    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^",
+        "AssertionError: 'flag' unexpectedly found in {'flag': 1}",
+        "",
+        "----------------------------------------------------------------------",
+        "Ran 8 tests in 0.003s",
+        "",
+        "FAILED (failures=2)"
+      ],
+      "arm": "direct-pr-15118",
+      "source_sha256": "b4f16969db35eda5a0eb7a904b5a6f44bce55a91c7f0a3a1f33f8d363bbe6eb9",
+      "source_path": "target-direct/src/_pytest/monkeypatch.py",
+      "log_file": "native-logs.json",
+      "log_key": "acceptance-direct-applied.log"
+    },
+    {
+      "check": "native-monkeypatch",
+      "exit_code": 0,
+      "log_sha256": "95cd246019ee3c76e55d095251ab481e3459518c00c35073cade42bd82f2f2b2",
+      "tail": [
+        "........................................s.....s                          [100%]",
+        "45 passed, 2 skipped in 0.80s"
+      ],
+      "arm": "direct-pr-15118",
+      "source_sha256": "b4f16969db35eda5a0eb7a904b5a6f44bce55a91c7f0a3a1f33f8d363bbe6eb9",
+      "source_path": "target-direct/src/_pytest/monkeypatch.py",
+      "log_file": "native-logs.json",
+      "log_key": "native-monkeypatch-direct-applied.log"
+    }
+  ],
+  "obsolete_pool_control": {
+    "sha256": "0e825e6c4b53570dfbea3c9213e22062235a611a1d9871d65be60ee4d64f6254",
+    "outcome": "3 passed, 243 deselected",
+    "log_file": "native-logs.json",
+    "log_key": "obsolete-case-native-validation.log"
+  },
+  "assessment_scope": "Public reproduction, existing native module and assessor-derived generalizations are separate. Full pytest suite and agent benefit have not been demonstrated.",
+  "excluded_setup_attempts": [
+    "Initial shallow-clone version metadata blocked pytest before tests ran; corrected explicitly.",
+    "Two malformed local patch reconstructions failed git apply; retained locally as setup errors.",
+    "Earlier direct-labeled records still had the pristine source hash because patch application failed. They are excluded; only direct-applied logs with changed source hash are used."
+  ],
+  "frozen_before_donor_search": {
+    "native_acceptance.py": "d8304975bc1f62e625601ec572e0dd211d792f4d02eb737287aa14e125ce28f4",
+    "reported_proxy.py": "3ccfd68a81b5755437619ba6f693a7e016d6246685eba3eb80af69701687d227",
+    "acceptance-before-source-search.md": "84cb45ac2df613a69046b667e9789b36439c6a84f13faa27809b032cf9c8b69d",
+    "prompts.json": "3d6937f3cd9cda3ecf496ab00b319aad477b3742fb85904b5c7f7eefc9a757dc",
+    "execution-bounds.json": "a3568f947630e0767aed11e1003c2a2e8d87f4ec266851c55f2148d287bd80a4"
+  },
+  "artifact_encoding": "Raw UTF-8 patch and log bytes are preserved as JSON strings, including original whitespace and CRLF. SHA-256 applies to the decoded field encoded as UTF-8, not the JSON container. No raw evidence is trimmed."
+}
