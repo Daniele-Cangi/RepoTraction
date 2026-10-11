@@ -16,22 +16,29 @@ def sentence_spans(line):
 
 def _citation_blocks(piece, *, root_opening=False):
     """Keep soft-wrapped prose together without joining Markdown items or code."""
-    start, end, fence = None, None, None
+    start, end, fence, item_indent = None, None, None, None
     for index, line in enumerate(re.finditer(r"[^\n]+", piece)):
         value = line[0]
         marker = re.match(r"[ \t]*(`{3,}|~{3,})", value)
+        item = re.match(r" *(?:[-+*]|\d+[.)]) +", value) if fence is None else None
+        indent = len(value) - len(value.lstrip(" "))
+        continuation = item_indent is not None and item_indent <= indent < item_indent + 4
         separate = (not value.strip() or fence is not None or marker is not None
                     or (root_opening and index == 0)
-                    or re.match(r"(?: {4}|\t|[ \t]*(?:#{1,6}\s|[-+*]\s|\d+[.)]\s|[|>]))", value))
-        if start is not None and (separate or piece[end:line.start()] != "\n"):
+                    or re.match(r"[ \t]*(?:#{1,6}\s|[|>])", value)
+                    or (not continuation and re.match(r"(?: {4}|\t)", value)))
+        if start is not None and (separate or item or (item_indent is not None and not continuation)
+                                  or piece[end:line.start()] != "\n"):
             yield start, end
-            start = end = None
+            start = end = item_indent = None
         if separate:
             if value.strip():
                 yield line.start(), line.end()
         else:
             start = line.start() if start is None else start
             end = line.end()
+            if item:
+                item_indent = item.end()
         if marker:
             token = marker[1]
             if fence is None:

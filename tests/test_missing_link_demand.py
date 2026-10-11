@@ -55,6 +55,22 @@ class DemandSpanTests(unittest.TestCase):
                          ["Keep the first\nrecord.", "Preserve the last\nrecord."])
         self.assertTrue(all(item["quote"] in original for item in spans.values()))
 
+    def test_wrapped_list_constraints_stay_with_their_item(self):
+        first = "- Convert each amount to an integer count\n  of its base unit without rounding."
+        second = "12. Preserve document spelling\n    and reject values outside the bounds."
+        nested = "  - Keep the nested constraint\n    with its own operation."
+        code = "        untouched_code()"
+        demand = dict(issue(), body="\n".join([first, second, nested, code,
+                                              "A separate unindented paragraph."]), comments=[])
+        data, _ = build_context(None, demand, "request", 180000)
+        spans, _ = citation_spans(data["sources"], evidence_catalog({}, demand), 18000)
+        quotes = {item["quote"] for item in spans.values()}
+        # The conservative sentence splitter can separate the numeric marker;
+        # the complete operation and constraint must still share a citation.
+        for quote in (first, second[4:], nested.strip(), code.strip(), "A separate unindented paragraph."):
+            self.assertIn(quote, quotes)
+        self.assertFalse(any(first in quote and second in quote for quote in quotes))
+
     def test_long_wrapped_paragraph_keeps_existing_quote_and_byte_limits(self):
         body = "\n".join("Retain the original decimal spelling and operation constraints" for _ in range(100))
         demand = dict(issue(), body=body, comments=[])

@@ -23,6 +23,9 @@ class CitationFairnessTests(unittest.TestCase):
 
     def test_long_report_cannot_consume_all_later_comment_citations(self):
         demand = self.case()
+        # Independent paragraphs force citation-budget overflow even when soft
+        # wraps within a paragraph no longer consume one ID per physical line.
+        demand["body"] = demand["body"].replace("\n", "\n\n")
         original = copy.deepcopy(demand)
         data, _ = build_context(None, demand, "request", 180000)
         spans, report = citation_spans(data["sources"], evidence_catalog({}, demand), 18000)

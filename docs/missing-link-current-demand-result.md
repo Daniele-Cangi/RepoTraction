@@ -102,7 +102,7 @@ are not regenerated or reinterpreted. The analysis contract version stays the
 same because the output schema and saved-result meaning remain compatible;
 newly generated spans continue to bind their exact original offsets and text.
 
-## Offline benefit and tradeoffs
+## Initial offline benefit and tradeoffs (`0e25619`)
 
 The six baseline wire bodies were reproduced **byte for byte**. Both versions
 were then compared on all 17 retained discussions, stopping at `complete` before
@@ -146,11 +146,39 @@ a speedup claim or predicted model latency. The demonstrated improvement is
 complete original citation availability for wrapped clauses, not more useful
 connections. No newly qualified connection is claimed.
 
+### Review correction: continuations inside list items
+
+Review identified that an indented continuation of a Markdown list item still
+lost the operation/constraint boundary. The same helper now retains that
+continuation with its item, while separating the next item, nested items and
+indented code. It conservatively requires indentation appropriate to the list
+marker; it is not a full Markdown parser. An ordered numeric marker can remain a
+separate sentence under the existing splitter, but the operation and constraint
+stay together. A generic regression covers unordered, ordered and nested items.
+
+Review also found that the previous long-report test assumed one citation per
+physical line: its wrapped report now fits without any omitted visible spans.
+The overflow fixture now uses independent paragraphs so it still tests real
+byte-budget overflow and preservation of later comments. The positive omission
+assertion remains; the implementation does not manufacture omitted spans merely
+to satisfy the test. The first full-suite run was superseded after this finding;
+it is not reported as passing.
+
+The [second offline comparison](experiments/current-demand-interpretation-2026-10-11/offline-citation-comparison-list-continuations.json)
+retains the same baseline and all 17 discussions. It does not overwrite the
+initial comparison or any model outputs. Exact six-wire reproduction, original
+quotes, source text/represented-source sets and all bounds still pass. Index 7
+now has 98 selectable spans and the previously displaced "At 16384 Hz" fragment
+is again contained in a selected quote. The remaining **five** displaced spans
+are the index 11/14/16 passages described above, including the substantive
+index 11 sentence. No semantic gain or coverage equivalence is inferred.
+
 ## Validation and next decision
 
-Four generic regressions cover wrapped operation/constraint preservation,
+Five generic regressions cover wrapped operation/constraint preservation,
 sentence and Markdown boundaries, omission seams, and long-text byte/quote
-bounds. All **111 focused tests** passed. The full suite and all Windows/Linux
+bounds, including list continuations. All **118 focused tests** passed, including
+the citation-fairness suite. The full suite and all Windows/Linux
 Python 3.10/3.13 CI jobs remain merge requirements; consult the current
 [PR #119 checks](https://github.com/Daniele-Cangi/RepoTraction/pull/119/checks)
 for the exact reviewed commit rather than treating older CI as validation.
