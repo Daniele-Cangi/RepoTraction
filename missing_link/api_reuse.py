@@ -151,10 +151,6 @@ def package_candidates(repository, package_root, arities, *, limit=40):
                 "url": f"https://github.com/{name}/blob/{revision}/{quote(file['path'], safe='/')}#L{start}-L{node.end_lineno}",
                 "quote": code, "file_sha256": _sha(file["text"]), "slice_sha256": _sha(code)}
         code = ("from importlib import import_module\n"
-                "import sys\n"
-                "for _name in list(sys.modules):\n"
-                f"    if _name == {package!r} or _name.startswith({package + '.'!r}):\n"
-                "        del sys.modules[_name]\n"
                 "def _reuse(*args):\n"
                 f"    module = import_module({module!r})\n"
                 f"    if not module.__file__.replace('\\\\', '/').startswith('/sandbox/work/project/{package}/'):\n"

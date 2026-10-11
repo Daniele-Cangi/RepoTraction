@@ -262,7 +262,7 @@ def prepare_behavior_search(repository, contracts, *, limit=40, package_root=Non
             "Public Python definitions in the supplied package; bounded positional calls and one construction/factory then method/property.",
             "Package initialization runs only in WASI; unavailable modules, data or native dependencies are not stubbed.",
             "The supplied snapshot may omit dependencies; static inheritance and runtime rebinding can limit catalog coverage.",
-            "Package modules reload between bindings; state may evolve across one binding's examples and checks.",
+            "Normal Python imports share package state within a search: order can affect observations. Replay an exported binding in a fresh WASI invocation before relying on it.",
             "Examples are supplied specifications; package selection is external to this search.",
             "Finite observations do not establish equivalence, advantage, API stability, licensing suitability or target integration."]
     return plan
@@ -345,6 +345,8 @@ def assess_behavior_search(plan, execution):
             "uncovered_requirements": contract.get("uncovered_requirements", []),
             "reuse_mode": "package_api_requires_review" if candidate.get("api_binding") else "extraction_requires_review",
             "qualified": False, "target_integrated": False, "complete_fit": "unestablished"})
+        if candidate.get("api_binding"):
+            matches[-1]["independent_replay_required"] = True
     return {"status": "observed", "matches": matches, "counterexamples": counterexamples,
         "candidate_count": len(candidates), "contract_count": len(contracts),
         "attempted_bindings": len(rows) + omitted, "reported_bindings": len(rows),
@@ -418,6 +420,7 @@ def prepare_behavior_bridge(plan, match):
             new_logic="Positional argument routing through an existing package API; no implementation of the requested operation.",
             assumptions=["Review the pinned package and all license/notice obligations before adoption or redistribution.",
                          "This bundle verifies a supplied snapshot, not an installed distribution or target dependency resolution.",
+                         "Search observations share package globals; this export must run in a fresh WASI invocation to check replay fidelity.",
                          "Runtime resources, API stability, performance and target integration remain unestablished."])
     from .wasi_runner import MAX_ARTIFACT_BYTES, MAX_TOTAL_ARTIFACT_BYTES
     sizes = [len(content.encode("utf-8")) for content in proposal["files"].values()]

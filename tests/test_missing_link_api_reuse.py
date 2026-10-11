@@ -119,16 +119,21 @@ class PackageReuseTests(unittest.TestCase):
         result = assess_behavior_search(plan, execute_authored(plan))
         self.assertFalse(any(m["entrypoint"].endswith(":boolean") for m in result["matches"]))
 
-    def test_package_globals_reload_between_bindings_in_both_orders(self):
+    def test_shared_import_state_is_explicit_and_fresh_export_can_reject_warm_match(self):
         cold = {**contract("cold"), "examples": [{"args": [0], "expected": 1}],
                 "checks": [{"args": [0], "expected": 2}]}
         warm = {**cold, "id": "warm", "examples": [{"args": [0], "expected": 3}],
                 "checks": [{"args": [0], "expected": 4}]}
-        for contracts in ([cold, warm], [warm, cold]):
-            plan = prepare_behavior_search(snapshot(), contracts, package_root="labpkg")
-            result = assess_behavior_search(plan, execute_authored(plan))
-            self.assertEqual([m["contract_id"] for m in result["matches"]
-                              if m["entrypoint"] == "labpkg.api:stateful"], ["cold"])
+        plan = prepare_behavior_search(snapshot(), [cold, warm], package_root="labpkg")
+        result = assess_behavior_search(plan, execute_authored(plan))
+        warm_match = next(m for m in result["matches"]
+                          if m["entrypoint"] == "labpkg.api:stateful" and m["contract_id"] == "warm")
+        self.assertTrue(warm_match["independent_replay_required"])
+        self.assertFalse(warm_match["qualified"])
+        self.assertTrue(any("share package state" in text for text in plan["limitations"]))
+        bridge = prepare_behavior_bridge(plan, warm_match)
+        with self.assertRaisesRegex(AssertionError, "AssertionError"):
+            execute_authored_files(bridge["files"], bridge["entrypoint"])
 
     def test_counterexample_and_runtime_block_are_not_promoted(self):
         spec = contract()
