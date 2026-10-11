@@ -170,6 +170,7 @@ class RequestDiscoveryTests(unittest.TestCase):
         self.source.fetch_repository.return_value = repository()
         self.source.search_repositories.return_value = {"query": "fixture query", "items": candidates(), "complete": False}
         self.mode, self.pick = "search", "inspect"
+        self.structure = repository()["capabilities"]
         self.match_response = []
         self.request_response = request_raw()
         self.wires = []
@@ -193,7 +194,7 @@ class RequestDiscoveryTests(unittest.TestCase):
 
     def run_job(self, *, resume=None):
         with mock.patch("missing_link.service.PublicGitHub", return_value=self.source), \
-                mock.patch("missing_link.service.extract_structure", return_value=repository()["capabilities"]), \
+                mock.patch("missing_link.service.extract_structure", return_value=self.structure), \
                 mock.patch("urllib.request.build_opener") as opener:
             opener.return_value.open.side_effect = self.response
             result = (self.service.resume({"job_id": resume}, background=False) if resume else
@@ -216,6 +217,19 @@ class RequestDiscoveryTests(unittest.TestCase):
         self.assertEqual(self.wires[2]["candidates"][1]["retrieved_for"], ["op0"])
         self.assertFalse(job["result"]["source_selection"]["qualified"])
         self.assertEqual(job["result"]["match_ids"], [])
+        public = next(item for item in self.service.state()["jobs"] if item["id"] == job["id"])
+        self.assertNotIn("checkpoint", public)
+        self.assertEqual(public["result"]["source_selection"]["acquired_source"], {
+            "id": 42, "full_name": "example/words", "revision": "a" * 40})
+
+    def test_zero_capabilities_still_exports_pinned_source_without_extra_ai_calls(self):
+        self.structure = []
+        job = self.run_job()
+        self.assertEqual(job["status"], "completed", job.get("error"))
+        self.assertEqual(job["ai_calls_used"], 3)
+        public = next(item for item in self.service.state()["jobs"] if item["id"] == job["id"])
+        self.assertEqual(public["result"]["match_ids"], [])
+        self.assertEqual(public["result"]["source_selection"]["acquired_source"]["revision"], "a" * 40)
 
     def test_direct_and_unknown_stop_before_search_or_source_analysis(self):
         for mode in ("use_direct", "defer"):

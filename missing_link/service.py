@@ -584,6 +584,9 @@ class Service:
             repository["analysis_at"] = now()
             checkpoints["repository"] = repository
             save()
+        repository = checkpoints["repository"]
+        job["result"]["source_selection"] = dict(selected, acquired_source={
+            "id": repository["id"], "full_name": repository["full_name"], "revision": repository["revision"]})
         checkpoints["candidates"] = [{"url": issue["url"]}]
         save()
         return True
