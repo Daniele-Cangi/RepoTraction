@@ -7,6 +7,20 @@ import copy
 import json
 import math
 import types
+from contextlib import redirect_stderr, redirect_stdout
+
+
+class _DiscardedOutput:
+    """Discard ordinary guest prints without retaining unbounded log text."""
+    def __init__(self):
+        self.characters = 0
+
+    def write(self, text):
+        self.characters += len(text)
+        return len(text)
+
+    def flush(self):
+        pass
 
 
 def _normal(value, depth=0):
@@ -96,7 +110,7 @@ def observe(function, contract, recipe):
     return row
 
 
-def run(payload):
+def _search(payload):
     records, load_errors = [], []
     # Reserve the result envelope and count fields up front. Records
     # that do not fit remain explicitly unobserved in the host assessment.
@@ -152,5 +166,16 @@ def run(payload):
     while records and used + len(wire(load_errors)) > budget:
         used -= len(records.pop()) + 1
         omitted += 1
-    print('{"bindings":[' + ','.join(records) + '],"load_errors":' + wire(load_errors)
-          + ',"omitted_bindings":' + str(omitted) + '}')
+    return ('{"bindings":[' + ','.join(records) + '],"load_errors":' + wire(load_errors)
+            + ',"omitted_bindings":' + str(omitted))
+
+
+def run(payload):
+    output, errors = _DiscardedOutput(), _DiscardedOutput()
+    # Covers defaults/decorators during load, calls and lazy generator iteration.
+    # This protects the result protocol from ordinary prints, not hostile code
+    # that deliberately bypasses Python's streams inside the guest.
+    with redirect_stdout(output), redirect_stderr(errors):
+        document = _search(payload)
+    print(document + ',"discarded_output_chars":{"stdout":' + str(output.characters)
+          + ',"stderr":' + str(errors.characters) + '}}')

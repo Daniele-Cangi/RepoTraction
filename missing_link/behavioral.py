@@ -208,21 +208,35 @@ def _validate_contracts(contracts):
 def prepare_behavior_search(repository, contracts, *, limit=40):
     """Prepare inspectable WASI artifacts. No imports or execution of source."""
     _validate_contracts(contracts)
-    from .wasi_runner import MAX_OUTPUT
+    from .wasi_runner import MAX_OUTPUT, MAX_ARTIFACT_BYTES, MAX_TOTAL_ARTIFACT_BYTES
     candidates, omissions = extract_callables(repository, limit=limit)
-    files = {f"project/candidate_{i}.py": c["code"] for i, c in enumerate(candidates)}
-    payload = {"candidates": [{"id": c["id"], "name": c["name"],
-        "file": f"/sandbox/work/project/candidate_{i}.py", "required_args": c["required_args"],
-        "positional_args": c["positional_args"], "required_keywords": c["required_keywords"],
-        "variadic": c["variadic"]} for i, c in enumerate(candidates)],
-        "contracts": [{k: c[k] for k in ("id", "input_kind", "examples", "checks")} for c in contracts],
-        "output_limit": MAX_OUTPUT}
     # Keep the guest driver in one ordinary module, shared by tests and the
     # generated artifact. No new process runner, transport, store or scheduler.
     from . import behavior_examples
     from pathlib import Path
     driver = Path(behavior_examples.__file__).read_text(encoding="utf-8")
-    files["reviewed_tests/search.py"] = driver + "\nrun(" + repr(payload) + ")\n"
+    # Account for source copies AND the generated evaluator/payload. Drop excess
+    # slices without truncating executable code or changing the runner's limits.
+    while True:
+        files = {f"project/candidate_{i}.py": c["code"] for i, c in enumerate(candidates)}
+        payload = {"candidates": [{"id": c["id"], "name": c["name"],
+            "file": f"/sandbox/work/project/candidate_{i}.py", "required_args": c["required_args"],
+            "positional_args": c["positional_args"], "required_keywords": c["required_keywords"],
+            "variadic": c["variadic"]} for i, c in enumerate(candidates)],
+            "contracts": [{k: c[k] for k in ("id", "input_kind", "examples", "checks")} for c in contracts],
+            "output_limit": MAX_OUTPUT}
+        files["reviewed_tests/search.py"] = driver + "\nrun(" + repr(payload) + ")\n"
+        sizes = {path: len(content.encode("utf-8")) for path, content in files.items()}
+        oversized = next((i for i in range(len(candidates))
+                          if sizes[f"project/candidate_{i}.py"] > MAX_ARTIFACT_BYTES), None)
+        if (oversized is None and max(sizes.values()) <= MAX_ARTIFACT_BYTES
+                and sum(sizes.values()) <= MAX_TOTAL_ARTIFACT_BYTES):
+            break
+        if not candidates:
+            raise ValueError("Example payload exceeds the existing WASI artifact byte limit.")
+        omitted = candidates.pop(oversized if oversized is not None else -1)
+        omissions.append({"path": omitted["evidence"]["path"], "symbol": omitted["name"],
+                          "reason": "Existing WASI artifact byte limit reached; source not truncated."})
     return {"version": 1, "repository": repository["full_name"], "revision": repository["revision"],
         "candidates": candidates, "omissions": omissions, "contracts": json.loads(json.dumps(contracts)),
         "files": files, "entrypoint": "reviewed_tests/search.py",
@@ -257,6 +271,10 @@ def assess_behavior_search(plan, execution):
     omitted = observed.get("omitted_bindings", 0)
     if type(omitted) is not int or not 0 <= omitted <= len(candidates) * len(contracts) * len(_RECIPES) - len(rows):
         raise ValueError("Invalid omitted observation count.")
+    discarded_output = observed.get("discarded_output_chars", {"stdout": 0, "stderr": 0})
+    if (not isinstance(discarded_output, dict) or set(discarded_output) != {"stdout", "stderr"}
+            or any(type(value) is not int or value < 0 for value in discarded_output.values())):
+        raise ValueError("Invalid discarded-output character count.")
     load_errors = observed.get("load_errors", [])
     if not isinstance(load_errors, list) or any(not isinstance(row, dict) or row.get("candidate_id") not in candidates for row in load_errors):
         raise ValueError("Invalid candidate load-error record.")
@@ -310,6 +328,7 @@ def assess_behavior_search(plan, execution):
         "candidate_count": len(candidates), "contract_count": len(contracts),
         "attempted_bindings": len(rows) + omitted, "reported_bindings": len(rows),
         "omitted_bindings": omitted, "load_errors": load_errors, "qualified_leads": 0,
+        "discarded_output_chars": discarded_output,
         "unobserved_bindings": [{"candidate_id": c, "contract_id": p, "recipe": r}
                                 for c, p, r in sorted(expected_bindings - seen)],
         "omissions": plan["omissions"], "limitations": plan["limitations"],
@@ -345,15 +364,20 @@ def prepare_behavior_bridge(plan, match):
             f"    return [[start - {origin}, end - {origin} + {delta}]\n"
             "            for start, end in operation(universe, selected)]\n")
     cases = contract["examples"] + contract["checks"]
-    check = ("import copy\nimport json\nfrom reuse import apply\n"
-        "from behavior_examples import _normal, _equal\n"
+    check = ("import copy\nimport json\n"
+        "from contextlib import redirect_stdout, redirect_stderr\n"
+        "from behavior_examples import _normal, _equal, _DiscardedOutput\n"
         f"cases = {cases!r}\n"
-        "for case in cases:\n"
-        "    args = copy.deepcopy(case['args'])\n"
-        "    actual = _normal(apply(*args))\n"
-        "    assert _equal(actual, case['expected']), (case, actual)\n"
-        "    assert _equal(args, case['args']), 'input mutation'\n"
-        "print(json.dumps({'passed': len(cases), 'scope': 'exported partial adapter', 'target_integrated': False}))\n")
+        "output, errors = _DiscardedOutput(), _DiscardedOutput()\n"
+        "with redirect_stdout(output), redirect_stderr(errors):\n"
+        "    from reuse import apply\n"
+        "    for case in cases:\n"
+        "        args = copy.deepcopy(case['args'])\n"
+        "        actual = _normal(apply(*args))\n"
+        "        assert _equal(actual, case['expected']), (case, actual)\n"
+        "        assert _equal(args, case['args']), 'input mutation'\n"
+        "print(json.dumps({'passed': len(cases), 'scope': 'exported partial adapter', 'target_integrated': False, "
+        "'discarded_output_chars': {'stdout': output.characters, 'stderr': errors.characters}}))\n")
     from . import behavior_examples
     from pathlib import Path
     evaluator = Path(behavior_examples.__file__).read_text(encoding="utf-8")

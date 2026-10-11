@@ -263,16 +263,19 @@ Local validation completed without failures:
 | --- | --- |
 | Complete suite, Windows / Python 3.13.5 | 1,847 tests, 1 skipped, 1,168.087 s |
 | Complete suite, Ubuntu WSL / Python 3.12.3 | 1,847 tests, 43 skipped, 1,013.415 s |
-| Latest focused regressions, both systems | 26 passed on each |
+| Latest prototype regressions, both systems | 28 passed on each |
+| Existing WASI runner regressions | 8 passed on Windows; 8 run / 1 skipped on Linux |
 | Application `--help`, both systems | Passed |
 | Staged whitespace check | Passed |
 
 The complete suites collected the earlier 20-test prototype module. The latest
-26-test focused run verifies the final missing-observation handling and export
-changes; no existing production module was edited. Full-suite logs are retained
+28-test focused run verifies the final missing-observation handling and export
+changes. The runner's existing input limits now have shared constant names;
+their values and enforcement are unchanged. Full-suite logs are retained
 in the new experiment directory. The existing GitHub Actions matrix remains
-Windows/Linux × Python 3.10/3.13. The branch is now published as draft PR #114;
-the complete hosted matrix on the latest head remains required before merge.
+Windows/Linux × Python 3.10/3.13. The branch is published as PR #114. All four
+hosted jobs passed on `a04e3c4`; the complete hosted matrix on the latest head
+remains required before merge.
 
 The publication review reproduced an export mismatch for generator-valued
 functions: discovery normalized their output, while the exported check attempted
@@ -290,6 +293,19 @@ retain their case index and an explicit truncation marker. If all binding record
 cannot fit, their omitted count and unobserved identities remain explicit; the
 retained prefix is not a complete search result or a ranking of the best matches.
 No output limit, candidate limit, runtime backend or historical evidence changed.
+
+The second review reproduced two further boundary cases: ordinary callable prints
+corrupted the JSON document, and 40 supported 50-KB slices plus their evaluator
+exceeded the runner's total input cap. Search and exported replay now discard
+ordinary Python stdout/stderr during loading and execution, without retaining log
+text; output character counts remain explicit. This is protocol protection, not
+containment of hostile code deliberately bypassing Python streams. Search assembly
+counts the actual UTF-8 bytes of every slice and the generated evaluator/payload,
+omitting whole excess candidates with reasons instead of truncating code or raising
+runner limits. The noisy-callable search and export passed in WASI, and rerunning
+the frozen corpus still reports 110 observations and 127/127 exported checks.
+Separate receipts are `pr114-second-review-noisy.json` and
+`pr114-second-review-corpus.json` in the local experiment directory.
 
 ## Next functional step
 

@@ -4,7 +4,7 @@ import io
 import json
 import subprocess
 import sys
-from contextlib import redirect_stdout
+from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 import tempfile
 import unittest
@@ -50,10 +50,16 @@ OWN_GENERATOR = '''def generated(value):
     yield value + 1
 '''
 
+OWN_NOISY = '''def noisy(value, initial=print("loaded")):
+    print("x" * 50000)
+    print("stderr message", file=__import__("sys").stderr)
+    yield value + 1
+'''
+
 
 def execute_authored_fixture(plan):
     """Exercise the guest evaluator using ONLY authored fixtures, never acquired source."""
-    if any(c["evidence"]["quote"] not in (OWN_CODE, OWN_GENERATOR) for c in plan["candidates"]):
+    if any(c["evidence"]["quote"] not in (OWN_CODE, OWN_GENERATOR, OWN_NOISY) for c in plan["candidates"]):
         raise AssertionError("Host evaluation is restricted to the authored unit fixture.")
     with tempfile.TemporaryDirectory() as directory:
         candidates = []
@@ -69,6 +75,17 @@ def execute_authored_fixture(plan):
 
 
 class ExtractionTests(unittest.TestCase):
+    def test_search_artifacts_fit_runner_after_payload_and_slice_overhead(self):
+        code = "def wide(value):\n    # " + "x" * 50000 + "\n    return value + 1\n"
+        repo = snapshot(code)
+        repo["files"] = [{"path": f"engine{i}.py", "text": code} for i in range(40)]
+        plan = prepare_behavior_search(repo, [mask_contract()])
+        self.assertLessEqual(sum(len(text.encode("utf-8")) for text in plan["files"].values()), 2000000)
+        self.assertTrue(all(len(text.encode("utf-8")) <= 262144 for text in plan["files"].values()))
+        self.assertLess(len(plan["candidates"]), 40)
+        self.assertEqual(len(plan["candidates"]) + len(plan["omissions"]), 40)
+        self.assertIn("artifact byte limit", plan["omissions"][-1]["reason"])
+
     def test_parsing_never_executes_module_initializers(self):
         repo = snapshot("raise RuntimeError('must not execute')\n" + OWN_CODE)
         candidates, _ = extract_callables(repo)
@@ -135,6 +152,20 @@ class ExtractionTests(unittest.TestCase):
 
 
 class BehavioralTests(unittest.TestCase):
+    def test_loading_and_lazy_callable_output_do_not_corrupt_search_json(self):
+        contract = {"id": "noisy", "kind": "synthetic_control", "input_kind": "arguments",
+                    "runtime": "python", "examples": [case([0], [1])], "checks": [case([1], [2])]}
+        plan = prepare_behavior_search(snapshot(OWN_NOISY), [contract])
+        errors = io.StringIO()
+        with redirect_stderr(errors):
+            execution = execute_authored_fixture(plan)
+        result = assess_behavior_search(plan, execution)
+        self.assertTrue(result["matches"])
+        self.assertEqual(errors.getvalue(), "")
+        self.assertLessEqual(len(execution["stdout"].encode("utf-8")), MAX_OUTPUT)
+        self.assertGreater(result["discarded_output_chars"]["stdout"], MAX_OUTPUT)
+        self.assertGreater(result["discarded_output_chars"]["stderr"], 0)
+
     def test_export_rejects_a_match_from_a_different_plan(self):
         plan = prepare_behavior_search(snapshot(OWN_CODE), [mask_contract()])
         match = assess_behavior_search(plan, execute_authored_fixture(plan))["matches"][0]
@@ -226,15 +257,15 @@ class BehavioralTests(unittest.TestCase):
         self.assertEqual(result["matches"], [])
         self.assertTrue(any(c["first_failure"]["phase"] == "checks" for c in result["counterexamples"]))
 
-    def test_export_replays_generators_and_preserves_strict_example_types(self):
+    def test_export_replays_noisy_generators_and_preserves_strict_example_types(self):
         contract = {"id": "iterator", "kind": "synthetic_control", "input_kind": "arguments",
                     "runtime": "python", "examples": [case([0], [1])], "checks": [case([1], [2])]}
-        plan = prepare_behavior_search(snapshot(OWN_GENERATOR), [contract])
+        plan = prepare_behavior_search(snapshot(OWN_NOISY), [contract])
         result = assess_behavior_search(plan, execute_authored_fixture(plan))
         proposal = prepare_behavior_bridge(plan, result["matches"][0])
         # Only the explicitly authored generator and our exported adapter/check
         # execute on the host. Acquired source fixtures remain data.
-        self.assertEqual(plan["candidates"][0]["evidence"]["quote"], OWN_GENERATOR)
+        self.assertEqual(plan["candidates"][0]["evidence"]["quote"], OWN_NOISY)
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             for path, content in proposal["files"].items():
@@ -247,7 +278,10 @@ class BehavioralTests(unittest.TestCase):
             replay = subprocess.run([sys.executable, "-I", "-c", launcher, str(root)],
                                     capture_output=True, text=True, timeout=10)
             self.assertEqual(replay.returncode, 0, replay.stderr)
+            self.assertEqual(replay.stderr, "")
+            self.assertLessEqual(len(replay.stdout.encode("utf-8")), MAX_OUTPUT)
             self.assertEqual(json.loads(replay.stdout)["passed"], 2)
+            self.assertGreater(json.loads(replay.stdout)["discarded_output_chars"]["stdout"], MAX_OUTPUT)
             check_path = root / proposal["entrypoint"]
             check_path.write_text(check_path.read_text(encoding="utf-8").replace(
                 "'expected': [1]", "'expected': [True]"), encoding="utf-8")
