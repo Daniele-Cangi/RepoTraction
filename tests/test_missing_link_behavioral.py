@@ -11,6 +11,7 @@ import unittest
 
 from missing_link.behavioral import extract_callables, prepare_behavior_search, assess_behavior_search, prepare_behavior_bridge
 from missing_link.behavior_examples import observe, run
+from missing_link.wasi_runner import MAX_OUTPUT
 
 
 def snapshot(code):
@@ -62,7 +63,7 @@ def execute_authored_fixture(plan):
             candidates.append({**candidate, "file": str(path)})
         output = io.StringIO()
         with redirect_stdout(output):
-            run({"candidates": candidates, "contracts": plan["contracts"]})
+            run({"candidates": candidates, "contracts": plan["contracts"], "output_limit": MAX_OUTPUT})
     return {"status": "exited_successfully", "context": "isolated_wasi_example",
             "artifact_sha256": plan["artifact_sha256"], "stdout": output.getvalue()}
 
@@ -134,6 +135,60 @@ class ExtractionTests(unittest.TestCase):
 
 
 class BehavioralTests(unittest.TestCase):
+    def test_export_rejects_a_match_from_a_different_plan(self):
+        plan = prepare_behavior_search(snapshot(OWN_CODE), [mask_contract()])
+        match = assess_behavior_search(plan, execute_authored_fixture(plan))["matches"][0]
+        alternatives = []
+        altered = copy.deepcopy(plan)
+        altered["contracts"][0]["checks"][0]["expected"] = [[0, 99]]
+        alternatives.append(altered)
+        altered = copy.deepcopy(plan)
+        altered["candidates"][0]["code"] += "\n# different source\n"
+        alternatives.append(altered)
+        altered = copy.deepcopy(plan)
+        altered["revision"] = "b" * 40
+        alternatives.append(altered)
+        for other in alternatives:
+            with self.assertRaisesRegex(ValueError, "search plan"):
+                prepare_behavior_bridge(other, match)
+        del match["plan_sha256"]
+        with self.assertRaisesRegex(ValueError, "search plan"):
+            prepare_behavior_bridge(plan, match)
+
+    def test_maximum_search_reports_omissions_within_existing_output_limit(self):
+        repo = snapshot(OWN_CODE)
+        repo["files"] = [{"path": f"engine{i}.py", "text": OWN_CODE} for i in range(40)]
+        contracts = [{**mask_contract(), "id": f"mask{i}"} for i in range(16)]
+        plan = prepare_behavior_search(repo, contracts)
+        execution = execute_authored_fixture(plan)
+        self.assertLessEqual(len(execution["stdout"].encode("utf-8")), MAX_OUTPUT)
+        result = assess_behavior_search(plan, execution)
+        self.assertEqual(result["attempted_bindings"], 40 * 16 * 4)
+        self.assertGreater(result["omitted_bindings"], 0)
+        self.assertEqual(len(result["unobserved_bindings"]), result["omitted_bindings"])
+        self.assertTrue(result["matches"])
+
+    def test_large_counterexample_keeps_case_reference_and_truncation(self):
+        contract = {"id": "large", "kind": "synthetic_control", "input_kind": "arguments",
+                    "runtime": "python", "examples": [case([0], "x" * 40000)],
+                    "checks": [case([1], [2])]}
+        plan = prepare_behavior_search(snapshot(OWN_GENERATOR), [contract])
+        execution = execute_authored_fixture(plan)
+        self.assertLessEqual(len(execution["stdout"].encode("utf-8")), MAX_OUTPUT)
+        result = assess_behavior_search(plan, execution)
+        self.assertEqual(result["matches"], [])
+        failure = result["counterexamples"][0]["first_failure"]
+        self.assertTrue(failure["detail_truncated"])
+        self.assertEqual((failure["phase"], failure["case_index"]), ("examples", 0))
+
+    def test_non_json_outputs_become_serializable_counterexamples(self):
+        contract = {"examples": [case([1], {})], "checks": [case([2], {})]}
+        for output in ({(1, 2): 3}, {1: "numeric key"}, float("inf"), float("nan")):
+            row = observe(lambda value: output, contract, "identity")
+            self.assertEqual(row["examples_passed"], 0)
+            self.assertEqual(row["first_failure"]["error_type"], "ValueError")
+            json.dumps(row, allow_nan=False)
+
     def test_finds_hidden_behavior_with_representation_adapter(self):
         plan = prepare_behavior_search(snapshot(OWN_CODE), [mask_contract()])
         result = assess_behavior_search(plan, execute_authored_fixture(plan))

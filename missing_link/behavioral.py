@@ -28,6 +28,10 @@ def _sha(text):
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
+def _plan_sha256(plan):
+    return _sha(json.dumps(plan, sort_keys=True, ensure_ascii=True, allow_nan=False))
+
+
 def _references(code):
     table = symtable.symtable(_PREFIX + code, "<source-slice>", "exec")
 
@@ -204,13 +208,15 @@ def _validate_contracts(contracts):
 def prepare_behavior_search(repository, contracts, *, limit=40):
     """Prepare inspectable WASI artifacts. No imports or execution of source."""
     _validate_contracts(contracts)
+    from .wasi_runner import MAX_OUTPUT
     candidates, omissions = extract_callables(repository, limit=limit)
     files = {f"project/candidate_{i}.py": c["code"] for i, c in enumerate(candidates)}
     payload = {"candidates": [{"id": c["id"], "name": c["name"],
         "file": f"/sandbox/work/project/candidate_{i}.py", "required_args": c["required_args"],
         "positional_args": c["positional_args"], "required_keywords": c["required_keywords"],
         "variadic": c["variadic"]} for i, c in enumerate(candidates)],
-        "contracts": [{k: c[k] for k in ("id", "input_kind", "examples", "checks")} for c in contracts]}
+        "contracts": [{k: c[k] for k in ("id", "input_kind", "examples", "checks")} for c in contracts],
+        "output_limit": MAX_OUTPUT}
     # Keep the guest driver in one ordinary module, shared by tests and the
     # generated artifact. No new process runner, transport, store or scheduler.
     from . import behavior_examples
@@ -248,6 +254,9 @@ def assess_behavior_search(plan, execution):
     if any(not isinstance(row, list) or len(row) != len(fields) for row in bindings):
         raise ValueError("Invalid behavioral observation record.")
     rows = [dict(zip(fields, row)) for row in bindings]
+    omitted = observed.get("omitted_bindings", 0)
+    if type(omitted) is not int or not 0 <= omitted <= len(candidates) * len(contracts) * len(_RECIPES) - len(rows):
+        raise ValueError("Invalid omitted observation count.")
     load_errors = observed.get("load_errors", [])
     if not isinstance(load_errors, list) or any(not isinstance(row, dict) or row.get("candidate_id") not in candidates for row in load_errors):
         raise ValueError("Invalid candidate load-error record.")
@@ -261,6 +270,7 @@ def assess_behavior_search(plan, execution):
                         and (candidate["variadic"] or arity <= candidate["positional_args"])):
                     expected_bindings.add((cid, pid, recipe))
     matches, counterexamples, seen = [], [], set()
+    plan_sha256 = _plan_sha256(plan)
     for row in rows:
         cid, pid, recipe = row.get("candidate_id"), row.get("contract_id"), row.get("recipe")
         key = (cid, pid, recipe)
@@ -286,6 +296,7 @@ def assess_behavior_search(plan, execution):
         runtime = contract["runtime"]
         status = "behavioral_witness" if runtime == "python" else "runtime_blocked" if runtime != "unknown" else "runtime_unknown"
         matches.append({"candidate_id": cid, "entrypoint": candidate["entrypoint"], "contract_id": pid,
+            "plan_sha256": plan_sha256,
             "disposition": status, "recipe": recipe, "evidence": candidate["evidence"],
             "source_scope": candidate["scope"], "private_name": candidate["private_name"],
             "examples_passed": row["examples_passed"], "checks_passed": row["checks_passed"],
@@ -297,7 +308,8 @@ def assess_behavior_search(plan, execution):
             "qualified": False, "target_integrated": False, "complete_fit": "unestablished"})
     return {"status": "observed", "matches": matches, "counterexamples": counterexamples,
         "candidate_count": len(candidates), "contract_count": len(contracts),
-        "attempted_bindings": len(rows), "load_errors": load_errors, "qualified_leads": 0,
+        "attempted_bindings": len(rows) + omitted, "reported_bindings": len(rows),
+        "omitted_bindings": omitted, "load_errors": load_errors, "qualified_leads": 0,
         "unobserved_bindings": [{"candidate_id": c, "contract_id": p, "recipe": r}
                                 for c, p, r in sorted(expected_bindings - seen)],
         "omissions": plan["omissions"], "limitations": plan["limitations"],
@@ -312,6 +324,8 @@ def prepare_behavior_bridge(plan, match):
     """
     if match.get("disposition") != "behavioral_witness":
         raise ValueError("Resolve the runtime before preparing an executable extraction proposal.")
+    if match.get("plan_sha256") != _plan_sha256(plan):
+        raise ValueError("The observed match belongs to a different or unbound search plan.")
     candidate = next(c for c in plan["candidates"] if c["id"] == match["candidate_id"])
     contract = next(c for c in plan["contracts"] if c["id"] == match["contract_id"])
     recipe = match["recipe"]

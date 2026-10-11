@@ -114,8 +114,18 @@ after observing the outcome. Checks exhaust small boolean masks and use a separa
 oracle based on runs in a binary string. They test unseen inputs, not unseen source
 families or independently authored interpretations.
 
-Protocol SHA-256: `cf132590cfd2554bcababe76a179757f3ec14d7712e4877bbafec1b07cdcae2a`.
-Contracts SHA-256: `32052b729aeff847ffccd170bf1b8f3d9c7609542b923eb4abc36b1cf7e173d3`.
+The original pre-execution hashes below describe the **Windows CRLF bytes**.
+The corresponding fields in the frozen `experiment-result.json` retain these
+original values. Git committed LF bytes, whose distinct hashes are also listed;
+neither raw-byte hash should be presented as independent of line endings.
+
+| File | Original CRLF SHA-256 | Committed LF SHA-256 |
+| --- | --- | --- |
+| `protocol.json` | `cf132590cfd2554bcababe76a179757f3ec14d7712e4877bbafec1b07cdcae2a` | `d5a3cb1bf80e5bef6d37f84817cddc4e1ea9ca15b6612594ba38bca300937974` |
+| `contracts.json` | `32052b729aeff847ffccd170bf1b8f3d9c7609542b923eb4abc36b1cf7e173d3` | `3fc9ce10af58562575d7de746c24d301f25d6057dd80dcfb1bf86dbc727412ce` |
+
+These were verified from the Git blobs and the retained local bytes. Converting
+only the committed LF line endings to CRLF reconstructs the original hashes.
 
 ## Concrete cross-domain result
 
@@ -253,12 +263,12 @@ Local validation completed without failures:
 | --- | --- |
 | Complete suite, Windows / Python 3.13.5 | 1,847 tests, 1 skipped, 1,168.087 s |
 | Complete suite, Ubuntu WSL / Python 3.12.3 | 1,847 tests, 43 skipped, 1,013.415 s |
-| Latest focused regressions, both systems | 22 passed on each |
+| Latest focused regressions, both systems | 26 passed on each |
 | Application `--help`, both systems | Passed |
 | Staged whitespace check | Passed |
 
 The complete suites collected the earlier 20-test prototype module. The latest
-22-test focused run verifies the final missing-observation handling and export
+26-test focused run verifies the final missing-observation handling and export
 changes; no existing production module was edited. Full-suite logs are retained
 in the new experiment directory. The existing GitHub Actions matrix remains
 Windows/Linux × Python 3.10/3.13. The branch is now published as draft PR #114;
@@ -272,6 +282,14 @@ authored generator regression passes on both systems, and the updated RF proposa
 replays all 127 cases inside WASI. Its new receipt is retained separately as
 `data/behavioral-discovery-2026-10-11/proposal-replay-pr114.json`; the original
 experiment fixtures and receipts have not been rewritten.
+
+PR review fixes also bind exported matches to the complete assessed plan, reject
+non-JSON mapping keys/non-finite numbers as counterexamples, and bound serialized
+observations to the existing runner output limit. Large counterexample details
+retain their case index and an explicit truncation marker. If all binding records
+cannot fit, their omitted count and unobserved identities remain explicit; the
+retained prefix is not a complete search result or a ranking of the best matches.
+No output limit, candidate limit, runtime backend or historical evidence changed.
 
 ## Next functional step
 

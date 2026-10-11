@@ -5,12 +5,15 @@ or source-function choice. Discovery and holdout cases are evaluated separately.
 """
 import copy
 import json
+import math
 import types
 
 
 def _normal(value, depth=0):
     if depth > 8:
         raise ValueError("Output nesting exceeded")
+    if type(value) is float and not math.isfinite(value):
+        raise ValueError("Non-finite output is outside the JSON example domain")
     if value is None or type(value) in (bool, int, float, str):
         return value
     if isinstance(value, (list, tuple, types.GeneratorType)):
@@ -21,6 +24,8 @@ def _normal(value, depth=0):
             result.append(_normal(item, depth + 1))
         return result
     if isinstance(value, dict):
+        if len(value) > 2048 or any(type(key) is not str for key in value):
+            raise ValueError("Expected a bounded mapping with JSON string keys")
         return {key: _normal(item, depth + 1) for key, item in value.items()}
     raise ValueError("Output is outside the JSON example domain")
 
@@ -72,7 +77,7 @@ def observe(function, contract, recipe):
                 passed = _equal(observed, case["expected"])
                 failure = {"observed": observed}
             except Exception as exc:
-                passed, failure = False, {"error_type": type(exc).__name__}
+                passed, failure = False, {"error_type": type(exc).__name__[:128]}
             mutated = not _equal(args, original)
             row["mutated_input"] |= mutated
             row[phase + "_passed"] += int(passed and not mutated)
@@ -92,7 +97,16 @@ def observe(function, contract, recipe):
 
 
 def run(payload):
-    observations, load_errors = [], []
+    records, load_errors = [], []
+    # Reserve the result envelope and count fields up front. Records
+    # that do not fit remain explicitly unobserved in the host assessment.
+    budget = payload["output_limit"] - 256
+    used, omitted = 0, 0
+    fields = ("candidate_id", "contract_id", "recipe", "examples_passed", "checks_passed",
+              "mutated_input", "ablation_passed", "first_failure")
+    def wire(value):
+        return json.dumps(value, ensure_ascii=True, allow_nan=False, separators=(",", ":"))
+
     for candidate in payload["candidates"]:
         try:
             namespace = {"__name__": "behavior_slice", "__file__": candidate["file"]}
@@ -101,7 +115,7 @@ def run(payload):
             exec(compile(code, candidate["file"], "exec"), namespace)
             function = namespace[candidate["name"]]
         except Exception as exc:
-            load_errors.append({"candidate_id": candidate["id"], "error_type": type(exc).__name__})
+            load_errors.append({"candidate_id": candidate["id"], "error_type": type(exc).__name__[:64]})
             continue
         for contract in payload["contracts"]:
             recipes = ["identity"]
@@ -117,11 +131,26 @@ def run(payload):
                 # fields so an ordinary experiment fits the existing output cap.
                 if row["first_failure"] is None:
                     del row["first_failure"]
-                observations.append({"candidate_id": candidate["id"], "contract_id": contract["id"],
-                                     "recipe": recipe, **row})
+                observation = {"candidate_id": candidate["id"], "contract_id": contract["id"],
+                               "recipe": recipe, **row}
+                record = wire([observation.get(k) for k in fields])
+                if len(record) > 2048 and row.get("first_failure"):
+                    # The case remains addressable in the frozen plan. Preserve
+                    # its index/reason when duplicating full values would overflow.
+                    failure = row["first_failure"]
+                    observation["first_failure"] = {k: failure[k] for k in
+                        ("phase", "case_index", "mutated_input", "error_type") if k in failure}
+                    observation["first_failure"]["detail_truncated"] = True
+                    record = wire([observation.get(k) for k in fields])
+                if used + len(record) + 1 <= budget:
+                    records.append(record)
+                    used += len(record) + 1
+                else:
+                    omitted += 1
     # Fixed positional records avoid repeating field names across failed bindings
     # within the existing runner's 32-KiB stdout limit.
-    fields = ("candidate_id", "contract_id", "recipe", "examples_passed", "checks_passed",
-              "mutated_input", "ablation_passed", "first_failure")
-    print(json.dumps({"bindings": [[row.get(k) for k in fields] for row in observations], "load_errors": load_errors},
-                     ensure_ascii=True, allow_nan=False, separators=(",", ":")))
+    while records and used + len(wire(load_errors)) > budget:
+        used -= len(records.pop()) + 1
+        omitted += 1
+    print('{"bindings":[' + ','.join(records) + '],"load_errors":' + wire(load_errors)
+          + ',"omitted_bindings":' + str(omitted) + '}')
