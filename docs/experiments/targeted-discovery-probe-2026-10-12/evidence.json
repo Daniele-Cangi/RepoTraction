@@ -1,0 +1,3867 @@
+[
+  {
+    "case": 0,
+    "arm": "B",
+    "job_id": "af6cb9fb78d7491592fc1f62b0cfeef3",
+    "input": {
+      "repo": "",
+      "action": "discover_from_request",
+      "issue_url": "https://github.com/pganssle/audio-feeder/issues/81",
+      "query": "",
+      "use_ai": true,
+      "max_requests": 120,
+      "max_candidates": 1,
+      "targeted_inquiry": true
+    },
+    "status": "completed",
+    "stage": "completed",
+    "error": null,
+    "error_diagnostic": null,
+    "result": {
+      "match_ids": [],
+      "discovery_request": {
+        "id": 5793857160,
+        "title": "Author sort doesn't use any sort of normalization",
+        "url": "https://github.com/pganssle/audio-feeder/issues/81",
+        "outcome": "The request is to normalize author sorting using natural sorts, ignoring diacritics and case for primary sorting, with ties resolved in favor of the non-normalized version.",
+        "status": "unresolved",
+        "status_reason": "The author requests a change in q0. The only supplied later discussion is a bug-label event in t0; it does not indicate that the request was satisfied, duplicated, or changed.",
+        "status_evidence": [
+          {
+            "url": "https://github.com/pganssle/audio-feeder/issues/81",
+            "source_id": "q0"
+          },
+          {
+            "url": "https://github.com/pganssle/audio-feeder/issues/81",
+            "source_id": "t0"
+          }
+        ],
+        "requirements": [
+          {
+            "id": "r0",
+            "text": "Use natural sorting for authors.",
+            "mandatory": true,
+            "explicit": true,
+            "source": {
+              "url": "https://github.com/pganssle/audio-feeder/issues/81",
+              "quote": "We should be using natural sorts for these things that strip out diacritics and case normalize for sorting purposes (with tie-breakers going to the non-normalized version)",
+              "source_id": "q0",
+              "quote_match": "exact",
+              "citation_id": "s0b5dc62dd81fe8e5"
+            },
+            "inference": ""
+          },
+          {
+            "id": "r1",
+            "text": "Ignore diacritics when sorting authors.",
+            "mandatory": true,
+            "explicit": true,
+            "source": {
+              "url": "https://github.com/pganssle/audio-feeder/issues/81",
+              "quote": "We should be using natural sorts for these things that strip out diacritics and case normalize for sorting purposes (with tie-breakers going to the non-normalized version)",
+              "source_id": "q0",
+              "quote_match": "exact",
+              "citation_id": "s0b5dc62dd81fe8e5"
+            },
+            "inference": ""
+          },
+          {
+            "id": "r2",
+            "text": "Normalize case when sorting authors.",
+            "mandatory": true,
+            "explicit": true,
+            "source": {
+              "url": "https://github.com/pganssle/audio-feeder/issues/81",
+              "quote": "We should be using natural sorts for these things that strip out diacritics and case normalize for sorting purposes (with tie-breakers going to the non-normalized version)",
+              "source_id": "q0",
+              "quote_match": "exact",
+              "citation_id": "s0b5dc62dd81fe8e5"
+            },
+            "inference": ""
+          },
+          {
+            "id": "r3",
+            "text": "When normalized sort keys tie, use the non-normalized version as the tie-breaker.",
+            "mandatory": true,
+            "explicit": true,
+            "source": {
+              "url": "https://github.com/pganssle/audio-feeder/issues/81",
+              "quote": "We should be using natural sorts for these things that strip out diacritics and case normalize for sorting purposes (with tie-breakers going to the non-normalized version)",
+              "source_id": "q0",
+              "quote_match": "exact",
+              "citation_id": "s0b5dc62dd81fe8e5"
+            },
+            "inference": "Interprets the requested tie-breaker as applying when the normalized sort keys are equal."
+          }
+        ],
+        "environment": [],
+        "prior_attempts": [],
+        "missing_information": [
+          "The request does not specify the precise natural-sort algorithm or how ties between non-normalized versions are ordered."
+        ],
+        "optional_field_dispositions": [],
+        "constraint_review": {
+          "items": [],
+          "complete": true,
+          "markers_found": 0,
+          "constraint_markers_found": 0,
+          "gap_markers_found": 0,
+          "gap_hints_complete": true,
+          "note": "Non-exhaustive English constraint markers; no marker does not prove all requirements were extracted.",
+          "optional_field_review": {
+            "items": [],
+            "complete": true,
+            "omitted_fields": 0,
+            "dispositions": [],
+            "method": "optional-field syntax is an extraction hint, not proof of optional demand or compatibility"
+          },
+          "qualification_blockers": []
+        },
+        "context_complete": true,
+        "updated_at": "2026-10-10T17:58:37Z",
+        "fingerprint": "7240538c082a66cba3ec12e99a8ab701c9d8426aae2674948e876cf9e62f2acf",
+        "analysis_context": {
+          "phase": "request",
+          "source_ids": [
+            "q0",
+            "t0"
+          ],
+          "omitted_source_ids": [],
+          "source_id_limit": 400,
+          "source_id_limit_omissions": 0,
+          "shortened_discussion_ids": [],
+          "discussion_complete": true,
+          "note": "Selected evidence is not the whole repository. Missing context remains unknown; omitted discussion prevents a qualified positive.",
+          "optional_field_hint_scan_complete": true,
+          "target_reference_context": {
+            "revision": null,
+            "source_ids": [],
+            "omitted_source_ids": [],
+            "reference_only": true,
+            "absence_proves_novelty": false
+          },
+          "omitted_constraint_ids": [],
+          "constraint_hint_scan_complete": true,
+          "omitted_source_count": 0,
+          "payload_bytes": 2455,
+          "demand_span_coverage": {
+            "span_count": 3,
+            "omitted_visible_spans": 0,
+            "complete": true,
+            "sources_without_spans": [],
+            "source_count_without_spans": 0,
+            "method": "exact original spans; bounded root opening then round-robin discussion coverage, not semantic validation"
+          }
+        }
+      },
+      "target_inquiry": {
+        "decision": "read_target",
+        "reason": "The target sample contains only root manifests, so it does not establish whether author sorting already exists or meets the requested behavior. Reading the page-generation implementation and its related page code and tests could distinguish an existing reusable implementation from a missing or partial one.",
+        "question": "How does the target currently sort authors when generating pages, and do the implementation or relevant tests establish natural sorting, diacritic- and case-insensitive primary ordering, and a non-normalized tie-breaker?",
+        "expected_decision_change": "If the implementation and tests establish all requested behaviors, that supports reuse and may avoid searching for a contribution. If sorting is absent or only partially matches, that supports searching for a matching contribution or addressing the gap directly. If the files do not establish the behavior, the question remains undetermined.",
+        "requirement_ids": [
+          "r0",
+          "r1",
+          "r2",
+          "r3"
+        ],
+        "file_ids": [
+          "f29",
+          "f30",
+          "f39"
+        ],
+        "version": "targeted-discovery-inquiry-v1",
+        "qualified": false,
+        "status": "unverified_inquiry",
+        "files": [
+          {
+            "id": "f29",
+            "path": "src/audio_feeder/page_generator.py",
+            "sha": "0ada4115ea8cdc60539f7572d7867b33f744f366",
+            "kind": "source"
+          },
+          {
+            "id": "f30",
+            "path": "src/audio_feeder/pages.py",
+            "sha": "a0ae8e8e9aa0a54e1e5500e1a397956199d4dbdc",
+            "kind": "source"
+          },
+          {
+            "id": "f39",
+            "path": "tests/test_page_generator.py",
+            "sha": "2dacdf7e2e612a86456d158ccd5d3722e85934c7",
+            "kind": "test"
+          }
+        ],
+        "target_snapshot": {
+          "id": 77259094,
+          "full_name": "pganssle/audio-feeder",
+          "revision": "2a5b58dab43a5195ccc964916bbddaf7f8727c1d",
+          "coverage": {
+            "tree_truncated": false,
+            "tree_entries": 168,
+            "eligible_files": 67,
+            "files_scanned": 2,
+            "file_budget": 4,
+            "bytes_scanned": 5062,
+            "language_counts": {
+              "Documentation/manifest": 1,
+              "Python": 1
+            },
+            "tree_language_counts": {
+              "Other": 66,
+              "Python": 63
+            },
+            "excluded": {
+              "unsupported_file_type": 60,
+              "sensitive_or_generated_path": 2
+            },
+            "sampling_policy": "Root manifests and explicitly cited source paths only; bounded prior-reference sample, not target compatibility.",
+            "static_export_hints": [],
+            "export_hints_complete": true,
+            "omitted_export_paths": [],
+            "initializer_import_hints": [],
+            "initializer_import_hints_complete": true,
+            "initializer_hint_limit": 64,
+            "omitted_initializer_imports": [],
+            "eligible_source_roles": {
+              "infrastructure": 5,
+              "implementation": 39
+            },
+            "acquired_source_roles": {},
+            "runtime_bin_entrypoints": {},
+            "metadata_redacted": false,
+            "metadata_truncated": false,
+            "complete": false,
+            "eligible_sample_complete": false,
+            "limitations": [
+              "Bounded source sample; declarations and test references are not execution proof.",
+              "File budget sampled 4 of 67 eligible files.",
+              "Some files were excluded for safety, size, encoding or unsupported type.",
+              "No implementation source was acquired; this sample cannot represent product capabilities."
+            ]
+          },
+          "sample_only": true,
+          "files": [
+            {
+              "path": "pyproject.toml",
+              "sha": "603a69de2608ec3036a713f1e96758a7a8e28391",
+              "url": "https://github.com/pganssle/audio-feeder/blob/2a5b58dab43a5195ccc964916bbddaf7f8727c1d/pyproject.toml",
+              "redacted": false,
+              "truncated": false
+            },
+            {
+              "path": "setup.py",
+              "sha": "2e25e48cd8b88de1424ea90bc6282446a89bd61d",
+              "url": "https://github.com/pganssle/audio-feeder/blob/2a5b58dab43a5195ccc964916bbddaf7f8727c1d/setup.py",
+              "redacted": false,
+              "truncated": false
+            }
+          ]
+        },
+        "context_coverage": {
+          "decision_version": "request-led-discovery-v1",
+          "target_file_limit": 4,
+          "target_characters_per_file": 8000,
+          "target_files_omitted": 0,
+          "all_target_source_available": false
+        },
+        "evidence": {
+          "id": 77259094,
+          "full_name": "pganssle/audio-feeder",
+          "revision": "2a5b58dab43a5195ccc964916bbddaf7f8727c1d",
+          "coverage": {
+            "tree_truncated": false,
+            "tree_entries": 168,
+            "eligible_files": 67,
+            "files_scanned": 3,
+            "file_budget": 3,
+            "bytes_scanned": 25641,
+            "language_counts": {
+              "Python": 3
+            },
+            "tree_language_counts": {
+              "Other": 66,
+              "Python": 63
+            },
+            "excluded": {
+              "unsupported_file_type": 60,
+              "sensitive_or_generated_path": 2
+            },
+            "sampling_policy": "One model-selected target inquiry; exact supplied paths, no import expansion.",
+            "static_export_hints": [],
+            "export_hints_complete": true,
+            "omitted_export_paths": [],
+            "initializer_import_hints": [],
+            "initializer_import_hints_complete": true,
+            "initializer_hint_limit": 64,
+            "omitted_initializer_imports": [],
+            "eligible_source_roles": {
+              "infrastructure": 5,
+              "implementation": 39
+            },
+            "acquired_source_roles": {
+              "implementation": 2
+            },
+            "runtime_bin_entrypoints": {},
+            "metadata_redacted": false,
+            "metadata_truncated": false,
+            "complete": false,
+            "eligible_sample_complete": false,
+            "limitations": [
+              "Bounded source sample; declarations and test references are not execution proof.",
+              "File budget sampled 3 of 67 eligible files.",
+              "Some files were excluded for safety, size, encoding or unsupported type."
+            ],
+            "requested_paths": [
+              "src/audio_feeder/page_generator.py",
+              "src/audio_feeder/pages.py",
+              "tests/test_page_generator.py"
+            ]
+          },
+          "files": [
+            {
+              "path": "src/audio_feeder/page_generator.py",
+              "sha": "0ada4115ea8cdc60539f7572d7867b33f744f366",
+              "url": "https://github.com/pganssle/audio-feeder/blob/2a5b58dab43a5195ccc964916bbddaf7f8727c1d/src/audio_feeder/page_generator.py",
+              "truncated": false,
+              "redacted": false
+            },
+            {
+              "path": "src/audio_feeder/pages.py",
+              "sha": "a0ae8e8e9aa0a54e1e5500e1a397956199d4dbdc",
+              "url": "https://github.com/pganssle/audio-feeder/blob/2a5b58dab43a5195ccc964916bbddaf7f8727c1d/src/audio_feeder/pages.py",
+              "truncated": true,
+              "redacted": false
+            },
+            {
+              "path": "tests/test_page_generator.py",
+              "sha": "2dacdf7e2e612a86456d158ccd5d3722e85934c7",
+              "url": "https://github.com/pganssle/audio-feeder/blob/2a5b58dab43a5195ccc964916bbddaf7f8727c1d/tests/test_page_generator.py",
+              "truncated": false,
+              "redacted": false
+            }
+          ]
+        },
+        "file_catalog_reference": {
+          "path": "acquisition-index.json",
+          "case_index": 0,
+          "exact_catalogue_equality_verified": true
+        }
+      },
+      "discovery_decision": {
+        "decision": "use_direct",
+        "reason": "The requested operation is to order author strings: use a natural-sort primary key that ignores case and diacritics, then resolve equal normalized keys using the original, non-normalized author value (r0–r3; demand source q0). This is a focused sorting correction, not a broader audiobook or metadata operation. A small local sort-key change using Python’s Unicode utilities and numeric-token handling is a plausible direct solution; searching for a package has no demonstrated incremental advantage. The sampled page code calls get_sorted_entries, but its implementation is not present in the supplied excerpt, so existing behavior remains unknown (f29).",
+        "direct_alternative": {
+          "description": "Inspect the existing author sorting path and, if it does not meet the request, implement a local key that decomposes Unicode and removes combining marks, case-folds for primary comparison, tokenizes numeric runs for natural ordering, and uses the original value as a final tie-breaker. Python’s standard library supports the Unicode and token-processing parts; no new dependency is evident in the supplied manifest.",
+          "adequacy": "likely_sufficient",
+          "limitations": [
+            "The exact natural-sort convention and ordering among non-normalized values are unspecified (request missing information; q0).",
+            "The supplied excerpt does not establish whether the current sorting implementation already meets any or all requirements (f29).",
+            "Unicode decomposition and removing combining marks may not match every language’s desired collation behavior."
+          ]
+        },
+        "benefit_hypothesis": "A searched contribution might offer a mature Unicode-aware natural-sort behavior that is materially more correct or maintainable than a small local key, but no such incremental advantage is established from the supplied evidence.",
+        "benefit_test": "If this decision is revisited, compare any candidate against the local standard-library implementation on agreed cases containing numeric substrings, case variants, accented and unaccented spellings, and normalized-key ties. Search is justified only if the candidate demonstrably meets the required ordering more completely or substantially reduces maintained code without adding unacceptable dependency or runtime costs.",
+        "operations": [],
+        "unknowns": [
+          "The precise natural-sort algorithm and tie ordering for distinct original strings with the same normalized key are unspecified.",
+          "Whether the target’s current author sorting already satisfies the request is undetermined from the supplied excerpt.",
+          "Availability, behavior, compatibility, and adoption cost of any candidate package are unverified."
+        ],
+        "version": "request-led-discovery-v1",
+        "issue_fingerprint": "7240538c082a66cba3ec12e99a8ab701c9d8426aae2674948e876cf9e62f2acf",
+        "provider_identity": "cdcd5f4d30c98d6930cf75d7b2fc8c965d48b0d5a52560b0475019c45ad41426",
+        "status": "unverified_decision",
+        "qualified": false,
+        "direct_solution_verified": false,
+        "target_snapshot": {
+          "id": 77259094,
+          "full_name": "pganssle/audio-feeder",
+          "revision": "2a5b58dab43a5195ccc964916bbddaf7f8727c1d",
+          "coverage": {
+            "tree_truncated": false,
+            "tree_entries": 168,
+            "eligible_files": 67,
+            "files_scanned": 2,
+            "file_budget": 4,
+            "bytes_scanned": 5062,
+            "language_counts": {
+              "Documentation/manifest": 1,
+              "Python": 1
+            },
+            "tree_language_counts": {
+              "Other": 66,
+              "Python": 63
+            },
+            "excluded": {
+              "unsupported_file_type": 60,
+              "sensitive_or_generated_path": 2
+            },
+            "sampling_policy": "Root manifests and explicitly cited source paths only; bounded prior-reference sample, not target compatibility.",
+            "static_export_hints": [],
+            "export_hints_complete": true,
+            "omitted_export_paths": [],
+            "initializer_import_hints": [],
+            "initializer_import_hints_complete": true,
+            "initializer_hint_limit": 64,
+            "omitted_initializer_imports": [],
+            "eligible_source_roles": {
+              "infrastructure": 5,
+              "implementation": 39
+            },
+            "acquired_source_roles": {},
+            "runtime_bin_entrypoints": {},
+            "metadata_redacted": false,
+            "metadata_truncated": false,
+            "complete": false,
+            "eligible_sample_complete": false,
+            "limitations": [
+              "Bounded source sample; declarations and test references are not execution proof.",
+              "File budget sampled 4 of 67 eligible files.",
+              "Some files were excluded for safety, size, encoding or unsupported type.",
+              "No implementation source was acquired; this sample cannot represent product capabilities."
+            ]
+          },
+          "sample_only": true,
+          "files": [
+            {
+              "path": "pyproject.toml",
+              "sha": "603a69de2608ec3036a713f1e96758a7a8e28391",
+              "url": "https://github.com/pganssle/audio-feeder/blob/2a5b58dab43a5195ccc964916bbddaf7f8727c1d/pyproject.toml",
+              "redacted": false,
+              "truncated": false
+            },
+            {
+              "path": "setup.py",
+              "sha": "2e25e48cd8b88de1424ea90bc6282446a89bd61d",
+              "url": "https://github.com/pganssle/audio-feeder/blob/2a5b58dab43a5195ccc964916bbddaf7f8727c1d/setup.py",
+              "redacted": false,
+              "truncated": false
+            }
+          ]
+        },
+        "context_coverage": {
+          "decision_version": "request-led-discovery-v1",
+          "target_file_limit": 4,
+          "target_characters_per_file": 8000,
+          "target_files_omitted": 0,
+          "all_target_source_available": false
+        }
+      }
+    },
+    "reported_usage": [
+      {
+        "input_tokens": 2436,
+        "output_tokens": 753,
+        "estimated_cost_usd_at_configured_prices": 0.0006201000000000001
+      },
+      {
+        "input_tokens": 7662,
+        "output_tokens": 722,
+        "estimated_cost_usd_at_configured_prices": 0.0011272
+      },
+      {
+        "input_tokens": 13550,
+        "output_tokens": 1232,
+        "estimated_cost_usd_at_configured_prices": 0.001971
+      }
+    ],
+    "ai_trace": [
+      {
+        "phase": "request",
+        "model": "gpt-6-luna",
+        "api_kind": "responses",
+        "response_id": "resp_0cdeb4bac0ec88ac016acc0dddbfb087d2b44c082d35040f41",
+        "response_status": "completed",
+        "request_sha256": "a72e1d29f685ead2850a85d072f09638ccfd6d712dc1615594a47ca5c91b8edf",
+        "request_bytes": 11798,
+        "context_coverage": {
+          "phase": "request",
+          "source_ids": [
+            "q0",
+            "t0"
+          ],
+          "omitted_source_ids": [],
+          "source_id_limit": 400,
+          "source_id_limit_omissions": 0,
+          "shortened_discussion_ids": [],
+          "discussion_complete": true,
+          "note": "Selected evidence is not the whole repository. Missing context remains unknown; omitted discussion prevents a qualified positive.",
+          "optional_field_hint_scan_complete": true,
+          "target_reference_context": {
+            "revision": null,
+            "source_ids": [],
+            "omitted_source_ids": [],
+            "reference_only": true,
+            "absence_proves_novelty": false
+          },
+          "omitted_constraint_ids": [],
+          "constraint_hint_scan_complete": true,
+          "omitted_source_count": 0,
+          "payload_bytes": 2455,
+          "demand_span_coverage": {
+            "span_count": 3,
+            "omitted_visible_spans": 0,
+            "complete": true,
+            "sources_without_spans": [],
+            "source_count_without_spans": 0,
+            "method": "exact original spans; bounded root opening then round-robin discussion coverage, not semantic validation"
+          }
+        },
+        "call_number": 1,
+        "attempt_id": "af6cb9fb78d7491592fc1f62b0cfeef3:1"
+      },
+      {
+        "phase": "request",
+        "model": "gpt-6-luna",
+        "api_kind": "responses",
+        "response_id": "resp_0057968b21e12b53016acc0de41f5087d29f14163c2b6b8331",
+        "response_status": "completed",
+        "request_sha256": "b1e56e939528ecf3d919b61c76994221201f8f4fa41ecf06e853e866d1e841de",
+        "request_bytes": 25943,
+        "context_coverage": {
+          "decision_version": "request-led-discovery-v1",
+          "target_file_limit": 4,
+          "target_characters_per_file": 8000,
+          "target_files_omitted": 0,
+          "all_target_source_available": false
+        },
+        "call_number": 2,
+        "attempt_id": "af6cb9fb78d7491592fc1f62b0cfeef3:2"
+      },
+      {
+        "phase": "request",
+        "model": "gpt-6-luna",
+        "api_kind": "responses",
+        "response_id": "resp_0024f33c0399b4be016acc0ded7b2087d2ae1bb2946319f083",
+        "response_status": "completed",
+        "request_sha256": "c8aba86082d6750c57ca9b15f28180f2cfc1de8faf289a9425e40dddf0560dec",
+        "request_bytes": 50917,
+        "context_coverage": {
+          "decision_version": "request-led-discovery-v1",
+          "target_file_limit": 4,
+          "target_characters_per_file": 8000,
+          "target_files_omitted": 0,
+          "all_target_source_available": false
+        },
+        "call_number": 3,
+        "attempt_id": "af6cb9fb78d7491592fc1f62b0cfeef3:3"
+      }
+    ],
+    "native_outputs": [
+      {
+        "phase": "request",
+        "call_number": 1,
+        "attempt_id": "af6cb9fb78d7491592fc1f62b0cfeef3:1",
+        "output": {
+          "outcome": "The request is to normalize author sorting using natural sorts, ignoring diacritics and case for primary sorting, with ties resolved in favor of the non-normalized version.",
+          "status": "unresolved",
+          "status_source_ids": [
+            "q0",
+            "t0"
+          ],
+          "status_reason": "The author requests a change in q0. The only supplied later discussion is a bug-label event in t0; it does not indicate that the request was satisfied, duplicated, or changed.",
+          "requirements": [
+            {
+              "text": "Use natural sorting for authors.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "s0b5dc62dd81fe8e5",
+              "inference": ""
+            },
+            {
+              "text": "Ignore diacritics when sorting authors.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "s0b5dc62dd81fe8e5",
+              "inference": ""
+            },
+            {
+              "text": "Normalize case when sorting authors.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "s0b5dc62dd81fe8e5",
+              "inference": ""
+            },
+            {
+              "text": "When normalized sort keys tie, use the non-normalized version as the tie-breaker.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "s0b5dc62dd81fe8e5",
+              "inference": "Interprets the requested tie-breaker as applying when the normalized sort keys are equal."
+            }
+          ],
+          "optional_field_dispositions": [],
+          "environment": [],
+          "prior_attempts": [],
+          "missing_information": [
+            "The request does not specify the precise natural-sort algorithm or how ties between non-normalized versions are ordered."
+          ]
+        }
+      },
+      {
+        "phase": "request",
+        "call_number": 2,
+        "attempt_id": "af6cb9fb78d7491592fc1f62b0cfeef3:2",
+        "output": {
+          "decision": "read_target",
+          "reason": "The target sample contains only root manifests, so it does not establish whether author sorting already exists or meets the requested behavior. Reading the page-generation implementation and its related page code and tests could distinguish an existing reusable implementation from a missing or partial one.",
+          "question": "How does the target currently sort authors when generating pages, and do the implementation or relevant tests establish natural sorting, diacritic- and case-insensitive primary ordering, and a non-normalized tie-breaker?",
+          "expected_decision_change": "If the implementation and tests establish all requested behaviors, that supports reuse and may avoid searching for a contribution. If sorting is absent or only partially matches, that supports searching for a matching contribution or addressing the gap directly. If the files do not establish the behavior, the question remains undetermined.",
+          "requirement_ids": [
+            "r0",
+            "r1",
+            "r2",
+            "r3"
+          ],
+          "file_ids": [
+            "f29",
+            "f30",
+            "f39"
+          ]
+        }
+      },
+      {
+        "phase": "request",
+        "call_number": 3,
+        "attempt_id": "af6cb9fb78d7491592fc1f62b0cfeef3:3",
+        "output": {
+          "decision": "use_direct",
+          "reason": "The requested operation is to order author strings: use a natural-sort primary key that ignores case and diacritics, then resolve equal normalized keys using the original, non-normalized author value (r0–r3; demand source q0). This is a focused sorting correction, not a broader audiobook or metadata operation. A small local sort-key change using Python’s Unicode utilities and numeric-token handling is a plausible direct solution; searching for a package has no demonstrated incremental advantage. The sampled page code calls get_sorted_entries, but its implementation is not present in the supplied excerpt, so existing behavior remains unknown (f29).",
+          "direct_alternative": {
+            "description": "Inspect the existing author sorting path and, if it does not meet the request, implement a local key that decomposes Unicode and removes combining marks, case-folds for primary comparison, tokenizes numeric runs for natural ordering, and uses the original value as a final tie-breaker. Python’s standard library supports the Unicode and token-processing parts; no new dependency is evident in the supplied manifest.",
+            "adequacy": "likely_sufficient",
+            "limitations": [
+              "The exact natural-sort convention and ordering among non-normalized values are unspecified (request missing information; q0).",
+              "The supplied excerpt does not establish whether the current sorting implementation already meets any or all requirements (f29).",
+              "Unicode decomposition and removing combining marks may not match every language’s desired collation behavior."
+            ]
+          },
+          "benefit_hypothesis": "A searched contribution might offer a mature Unicode-aware natural-sort behavior that is materially more correct or maintainable than a small local key, but no such incremental advantage is established from the supplied evidence.",
+          "benefit_test": "If this decision is revisited, compare any candidate against the local standard-library implementation on agreed cases containing numeric substrings, case variants, accented and unaccented spellings, and normalized-key ties. Search is justified only if the candidate demonstrably meets the required ordering more completely or substantially reduces maintained code without adding unacceptable dependency or runtime costs.",
+          "operations": [],
+          "unknowns": [
+            "The precise natural-sort algorithm and tie ordering for distinct original strings with the same normalized key are unspecified.",
+            "Whether the target’s current author sorting already satisfies the request is undetermined from the supplied excerpt.",
+            "Availability, behavior, compatibility, and adoption cost of any candidate package are unverified."
+          ]
+        }
+      }
+    ],
+    "retained_job_sha256": "482df944b1f301449c41aa0ccdd7d19368aa33ea9da96f346e3482939f6e73cd",
+    "retained_matches_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  {
+    "case": 1,
+    "arm": "B",
+    "job_id": "aefdccddb19f407a96f6e6e7e4b1480b",
+    "input": {
+      "repo": "",
+      "action": "discover_from_request",
+      "issue_url": "https://github.com/WilliamNT/tunesynctool/issues/21",
+      "query": "",
+      "use_ai": true,
+      "max_requests": 120,
+      "max_candidates": 1,
+      "targeted_inquiry": true
+    },
+    "status": "completed",
+    "stage": "completed",
+    "error": null,
+    "error_diagnostic": null,
+    "result": {
+      "match_ids": [],
+      "discovery_request": {
+        "id": 3773903220,
+        "title": "Implement subsonic driver get track by isrc",
+        "url": "https://github.com/WilliamNT/tunesynctool/issues/21",
+        "outcome": "The Subsonic driver still needs to retrieve a track by ISRC. The mapper’s handling of ISRC values present in server responses has been added, but the discussion leaves the lookup behavior unresolved.",
+        "status": "unresolved",
+        "status_reason": "The owner reports adding ISRC mapping but explicitly leaving `get_track_by_isrc` unchanged because no direct endpoint was identified. The requester suggests search3 as a possible workaround but also says it may be reasonable to wait for specific API support. The owner says they will look into it, and the issue was later reopened; the discussion does not establish that the lookup was implemented.",
+        "status_evidence": [
+          {
+            "url": "https://github.com/WilliamNT/tunesynctool/issues/21",
+            "source_id": "q0"
+          },
+          {
+            "url": "https://github.com/WilliamNT/tunesynctool/issues/21#issuecomment-4638107577",
+            "source_id": "q2"
+          },
+          {
+            "url": "https://github.com/WilliamNT/tunesynctool/issues/21#issuecomment-4639076356",
+            "source_id": "q3"
+          },
+          {
+            "url": "https://github.com/WilliamNT/tunesynctool/issues/21#issuecomment-4643821289",
+            "source_id": "q4"
+          },
+          {
+            "url": "https://github.com/WilliamNT/tunesynctool/issues/21",
+            "source_id": "t7"
+          }
+        ],
+        "requirements": [
+          {
+            "id": "r0",
+            "text": "Implement the Subsonic driver’s `get_track_by_isrc` behavior so it can retrieve a track by its ISRC.",
+            "mandatory": true,
+            "explicit": true,
+            "source": {
+              "url": "https://github.com/WilliamNT/tunesynctool/issues/21",
+              "quote": "Implement subsonic driver get track by isrc",
+              "source_id": "q0",
+              "quote_match": "exact",
+              "citation_id": "scf1acf819fa561fa"
+            },
+            "inference": "The title explicitly requests this driver behavior; the discussion does not settle its implementation route."
+          },
+          {
+            "id": "r1",
+            "text": "When a Subsonic server response contains an ISRC for a track, preserve that value in the core package’s Subsonic mapping.",
+            "mandatory": true,
+            "explicit": false,
+            "source": {
+              "url": "https://github.com/WilliamNT/tunesynctool/issues/21#issuecomment-4638107577",
+              "quote": "I have updated the subsonic mapper in the core package to include the ISRC value if present in the server's response.",
+              "source_id": "q2",
+              "quote_match": "exact",
+              "citation_id": "s5b1f583796b9c82c"
+            },
+            "inference": "The owner describes adding this mapping and says it should help in some cases. Treat it as a supporting behavior for the requested ISRC lookup; the discussion indicates this part was completed."
+          },
+          {
+            "id": "r2",
+            "text": "When a Subsonic track is properly tagged with an ISRC, enable exact matching to Spotify tracks without making a Musicbrainz request.",
+            "mandatory": true,
+            "explicit": true,
+            "source": {
+              "url": "https://github.com/WilliamNT/tunesynctool/issues/21",
+              "quote": "This can be really useful, since it will allow getting exact matches between Spotify tracks and subsonic tracks without making any Musicbrainz requests if the subsonic tracks are already properly tagged with an ISRC.",
+              "source_id": "q0",
+              "quote_match": "exact",
+              "citation_id": "s9d01831fa6f3eec7"
+            },
+            "inference": "The requester states this as the intended benefit of the ISRC lookup. The conditional applies when the Subsonic track already has an ISRC tag."
+          },
+          {
+            "id": "r3",
+            "text": "Keep the implementation conformant to the (Open) Subsonic specification rather than relying on undocumented custom behavior.",
+            "mandatory": true,
+            "explicit": true,
+            "source": {
+              "url": "https://github.com/WilliamNT/tunesynctool/issues/21#issuecomment-4643821289",
+              "quote": "I have to stick to the specification for maintainability and uniformity.",
+              "source_id": "q4",
+              "quote_match": "exact",
+              "citation_id": "se262fcde59155c39"
+            },
+            "inference": "The repository owner states that specification conformance is necessary for maintainability and uniformity; this constrains acceptable approaches."
+          }
+        ],
+        "environment": [
+          "Subsonic driver and server responses; the discussion references the OpenSubsonic specification.",
+          "The intended matching use case involves Spotify tracks and Subsonic tracks tagged with ISRC values."
+        ],
+        "prior_attempts": [
+          "The repository owner reports that the core package’s Subsonic mapper was updated to include an ISRC when present in the server response; the requester responded positively.",
+          "The owner reports leaving `get_track_by_isrc` unchanged because they did not see a direct endpoint for fetching by ISRC.",
+          "The requester suggested searching with search3 and possibly warning that it might not work, while also considering waiting for more specific API support. The owner said they would look into it; this is not evidence that the workaround was implemented.",
+          "The requester mentioned working on a related gonic pull request; this is not evidence of an implementation in this repository."
+        ],
+        "missing_information": [
+          "The discussion does not identify a specification-supported endpoint or settled method for retrieving a track by ISRC.",
+          "It remains undecided whether search3 with the ISRC is acceptable under the owner’s specification-conformance constraint or whether implementation should wait for more specific API support."
+        ],
+        "optional_field_dispositions": [],
+        "constraint_review": {
+          "items": [],
+          "complete": true,
+          "markers_found": 0,
+          "constraint_markers_found": 0,
+          "gap_markers_found": 0,
+          "gap_hints_complete": true,
+          "note": "Non-exhaustive English constraint markers; no marker does not prove all requirements were extracted.",
+          "optional_field_review": {
+            "items": [],
+            "complete": true,
+            "omitted_fields": 0,
+            "dispositions": [],
+            "method": "optional-field syntax is an extraction hint, not proof of optional demand or compatibility"
+          },
+          "qualification_blockers": []
+        },
+        "context_complete": true,
+        "updated_at": "2026-06-07T19:50:45Z",
+        "fingerprint": "8b4a6b753e6302af30703a47f066e8914234ec4478224eddecbf96143fb95d6d",
+        "analysis_context": {
+          "phase": "request",
+          "source_ids": [
+            "q0",
+            "t11",
+            "t10",
+            "t9",
+            "t8",
+            "t7",
+            "t6",
+            "t5",
+            "t4",
+            "t3",
+            "t2",
+            "t1",
+            "t0",
+            "q4",
+            "q3",
+            "q2",
+            "q1"
+          ],
+          "omitted_source_ids": [],
+          "source_id_limit": 400,
+          "source_id_limit_omissions": 0,
+          "shortened_discussion_ids": [],
+          "discussion_complete": true,
+          "note": "Selected evidence is not the whole repository. Missing context remains unknown; omitted discussion prevents a qualified positive.",
+          "optional_field_hint_scan_complete": true,
+          "target_reference_context": {
+            "revision": null,
+            "source_ids": [],
+            "omitted_source_ids": [],
+            "reference_only": true,
+            "absence_proves_novelty": false
+          },
+          "omitted_constraint_ids": [],
+          "constraint_hint_scan_complete": true,
+          "omitted_source_count": 0,
+          "payload_bytes": 9763,
+          "demand_span_coverage": {
+            "span_count": 27,
+            "omitted_visible_spans": 0,
+            "complete": true,
+            "sources_without_spans": [],
+            "source_count_without_spans": 0,
+            "method": "exact original spans; bounded root opening then round-robin discussion coverage, not semantic validation"
+          }
+        }
+      },
+      "target_inquiry": {
+        "decision": "read_target",
+        "reason": "The supplied issue leaves `get_track_by_isrc` unresolved and makes specification conformance a constraint (q2, q4). The Subsonic synchronous and asynchronous driver implementations are the most relevant available files for checking whether lookup behavior already exists and what API approach it uses; manifests would not answer that.",
+        "question": "Do the Subsonic drivers already implement `get_track_by_isrc`, and, if so, does the implementation use an approach consistent with the stated specification-conformance requirement?",
+        "expected_decision_change": "If a conformant implementation is present, that could support reuse; if lookup is absent or uses an approach inconsistent with the constraint, it would support seeking a suitable implementation or deferring rather than assuming the proposed workaround is acceptable. Code inspection alone would not establish external protocol support or execution.",
+        "requirement_ids": [
+          "r0",
+          "r3"
+        ],
+        "file_ids": [
+          "f102",
+          "f101"
+        ],
+        "version": "targeted-discovery-inquiry-v1",
+        "qualified": false,
+        "status": "unverified_inquiry",
+        "files": [
+          {
+            "id": "f102",
+            "path": "tunesynctool/drivers/common/subsonic/driver.py",
+            "sha": "46d628acb52f66f4a5ff4b42ae58355ba228b95e",
+            "kind": "source"
+          },
+          {
+            "id": "f101",
+            "path": "tunesynctool/drivers/common/subsonic/async_driver.py",
+            "sha": "0a24fe0ad364d8e798983bd4abb7ec3db6c47d4a",
+            "kind": "source"
+          }
+        ],
+        "target_snapshot": {
+          "id": 903953295,
+          "full_name": "WilliamNT/tunesynctool",
+          "revision": "b705691ba7d02d34ff3b6423ca03fcfca1514994",
+          "coverage": {
+            "tree_truncated": false,
+            "tree_entries": 366,
+            "eligible_files": 208,
+            "files_scanned": 2,
+            "file_budget": 4,
+            "bytes_scanned": 1366,
+            "language_counts": {
+              "Documentation/manifest": 2
+            },
+            "tree_language_counts": {
+              "Other": 93,
+              "Python": 135,
+              "TypeScript": 66
+            },
+            "excluded": {
+              "unsupported_file_type": 83,
+              "sensitive_or_generated_path": 3
+            },
+            "sampling_policy": "Root manifests and explicitly cited source paths only; bounded prior-reference sample, not target compatibility.",
+            "static_export_hints": [],
+            "export_hints_complete": true,
+            "omitted_export_paths": [],
+            "initializer_import_hints": [],
+            "initializer_import_hints_complete": true,
+            "initializer_hint_limit": 64,
+            "omitted_initializer_imports": [],
+            "eligible_source_roles": {
+              "infrastructure": 2,
+              "implementation": 189,
+              "support": 2
+            },
+            "acquired_source_roles": {},
+            "runtime_bin_entrypoints": {},
+            "metadata_redacted": false,
+            "metadata_truncated": false,
+            "complete": false,
+            "eligible_sample_complete": false,
+            "limitations": [
+              "Bounded source sample; declarations and test references are not execution proof.",
+              "File budget sampled 4 of 208 eligible files.",
+              "Some files were excluded for safety, size, encoding or unsupported type.",
+              "No implementation source was acquired; this sample cannot represent product capabilities."
+            ]
+          },
+          "sample_only": true,
+          "files": [
+            {
+              "path": "pyproject.toml",
+              "sha": "970014ddcb72be824f6e1a8bafefec66b42891c7",
+              "url": "https://github.com/WilliamNT/tunesynctool/blob/b705691ba7d02d34ff3b6423ca03fcfca1514994/pyproject.toml",
+              "redacted": false,
+              "truncated": false
+            },
+            {
+              "path": "requirements.txt",
+              "sha": "b3b885c7921e1cb256a42dd77af91dd13e172bde",
+              "url": "https://github.com/WilliamNT/tunesynctool/blob/b705691ba7d02d34ff3b6423ca03fcfca1514994/requirements.txt",
+              "redacted": false,
+              "truncated": false
+            }
+          ]
+        },
+        "context_coverage": {
+          "decision_version": "request-led-discovery-v1",
+          "target_file_limit": 4,
+          "target_characters_per_file": 8000,
+          "target_files_omitted": 0,
+          "all_target_source_available": false
+        },
+        "evidence": {
+          "id": 903953295,
+          "full_name": "WilliamNT/tunesynctool",
+          "revision": "b705691ba7d02d34ff3b6423ca03fcfca1514994",
+          "coverage": {
+            "tree_truncated": false,
+            "tree_entries": 366,
+            "eligible_files": 208,
+            "files_scanned": 2,
+            "file_budget": 3,
+            "bytes_scanned": 7127,
+            "language_counts": {
+              "Python": 2
+            },
+            "tree_language_counts": {
+              "Other": 93,
+              "Python": 135,
+              "TypeScript": 66
+            },
+            "excluded": {
+              "unsupported_file_type": 83,
+              "sensitive_or_generated_path": 3
+            },
+            "sampling_policy": "One model-selected target inquiry; exact supplied paths, no import expansion.",
+            "static_export_hints": [],
+            "export_hints_complete": true,
+            "omitted_export_paths": [],
+            "initializer_import_hints": [],
+            "initializer_import_hints_complete": true,
+            "initializer_hint_limit": 64,
+            "omitted_initializer_imports": [],
+            "eligible_source_roles": {
+              "infrastructure": 2,
+              "implementation": 189,
+              "support": 2
+            },
+            "acquired_source_roles": {
+              "implementation": 2
+            },
+            "runtime_bin_entrypoints": {},
+            "metadata_redacted": false,
+            "metadata_truncated": false,
+            "complete": false,
+            "eligible_sample_complete": false,
+            "limitations": [
+              "Bounded source sample; declarations and test references are not execution proof.",
+              "File budget sampled 3 of 208 eligible files.",
+              "Some files were excluded for safety, size, encoding or unsupported type."
+            ],
+            "requested_paths": [
+              "tunesynctool/drivers/common/subsonic/driver.py",
+              "tunesynctool/drivers/common/subsonic/async_driver.py"
+            ]
+          },
+          "files": [
+            {
+              "path": "tunesynctool/drivers/common/subsonic/driver.py",
+              "sha": "46d628acb52f66f4a5ff4b42ae58355ba228b95e",
+              "url": "https://github.com/WilliamNT/tunesynctool/blob/b705691ba7d02d34ff3b6423ca03fcfca1514994/tunesynctool/drivers/common/subsonic/driver.py",
+              "truncated": false,
+              "redacted": false
+            },
+            {
+              "path": "tunesynctool/drivers/common/subsonic/async_driver.py",
+              "sha": "0a24fe0ad364d8e798983bd4abb7ec3db6c47d4a",
+              "url": "https://github.com/WilliamNT/tunesynctool/blob/b705691ba7d02d34ff3b6423ca03fcfca1514994/tunesynctool/drivers/common/subsonic/async_driver.py",
+              "truncated": false,
+              "redacted": false
+            }
+          ]
+        },
+        "file_catalog_reference": {
+          "path": "acquisition-index.json",
+          "case_index": 1,
+          "exact_catalogue_equality_verified": true
+        }
+      },
+      "discovery_decision": {
+        "decision": "search",
+        "reason": "The unresolved operation is to accept an ISRC and return the matching Subsonic track (r0), supporting exact Spotify matching without a MusicBrainz request (r2), while staying within the specification-conformance constraint (r3). The sampled driver already exposes search_tracks through search2 but leaves get_track_by_isrc unimplemented (f102); the issue records that whether search3 is acceptable or implementation should wait remains unsettled (q2, q4). A small local change using the existing search path is the strongest direct alternative, but its conformity and exact-match behavior are not established. A bounded search for an existing Subsonic implementation can test whether there is a concrete, specification-grounded approach that improves on guessing locally; this is not evidence that such a solution exists.",
+        "direct_alternative": {
+          "description": "Make a small change in the existing Subsonic driver, likely by querying through its existing search_tracks/search2 path with the ISRC and returning an exact ISRC match. The mapper is reported to preserve ISRC values when present (q2), and the sampled driver already has search_tracks (f102).",
+          "adequacy": "unknown",
+          "limitations": [
+            "The issue does not establish that search3 or any other search route can legally or reliably find tracks by ISRC under the specification-conformance constraint (q4).",
+            "Search results may not contain the requested ISRC or may not yield a unique exact match; behavior is unverified.",
+            "The sample does not establish server compatibility, tests, or runtime behavior."
+          ]
+        },
+        "benefit_hypothesis": "An existing implementation could provide a specification-grounded lookup method or demonstrate that the direct search workaround is not conformant, reducing the risk of implementing unsupported behavior. The advantage exists only if its documented method is applicable to this Python driver and materially better than a small local change.",
+        "benefit_test": "Compare any located implementation's stated Subsonic/OpenSubsonic protocol method and ISRC input/output behavior with the direct local search alternative. Count a benefit only if it identifies a specification-supported method that the direct alternative cannot substantiate, and verify that the method returns the exact matching track without a MusicBrainz request. If no applicable documented method is found, or it offers no advantage over the local change, stop reuse investigation and revisit the direct alternative or defer pending specification clarity; no execution is implied.",
+        "operations": [
+          {
+            "operation": "Retrieve one Subsonic track by its ISRC, respecting the stated specification-conformance constraint and enabling exact downstream matching without a MusicBrainz request.",
+            "input": "An ISRC string for a Subsonic track.",
+            "output": "The matching Subsonic track with its ISRC available for exact Spotify matching.",
+            "requirement_ids": [
+              "r0",
+              "r2",
+              "r3"
+            ],
+            "rationale": "This is the unresolved driver operation. ISRC mapping is reported as added (q2), so the missing behavior is lookup rather than mapping. Search3 is only a suggested workaround, and its acceptability is explicitly unresolved (q2, q4).",
+            "search_terms": "Python Subsonic OpenSubsonic ISRC track lookup search API",
+            "id": "op0"
+          }
+        ],
+        "unknowns": [
+          "Whether the specification supports a particular ISRC lookup method, including search3, remains unresolved in the supplied discussion (q2, q4).",
+          "Whether any suitable existing repository implementation exists or is reusable is unknown; no candidate package was supplied.",
+          "Whether the direct search alternative is exact, conformant, or compatible across relevant Subsonic servers is unverified."
+        ],
+        "version": "request-led-discovery-v1",
+        "issue_fingerprint": "8b4a6b753e6302af30703a47f066e8914234ec4478224eddecbf96143fb95d6d",
+        "provider_identity": "cdcd5f4d30c98d6930cf75d7b2fc8c965d48b0d5a52560b0475019c45ad41426",
+        "status": "unverified_decision",
+        "qualified": false,
+        "direct_solution_verified": false,
+        "target_snapshot": {
+          "id": 903953295,
+          "full_name": "WilliamNT/tunesynctool",
+          "revision": "b705691ba7d02d34ff3b6423ca03fcfca1514994",
+          "coverage": {
+            "tree_truncated": false,
+            "tree_entries": 366,
+            "eligible_files": 208,
+            "files_scanned": 2,
+            "file_budget": 4,
+            "bytes_scanned": 1366,
+            "language_counts": {
+              "Documentation/manifest": 2
+            },
+            "tree_language_counts": {
+              "Other": 93,
+              "Python": 135,
+              "TypeScript": 66
+            },
+            "excluded": {
+              "unsupported_file_type": 83,
+              "sensitive_or_generated_path": 3
+            },
+            "sampling_policy": "Root manifests and explicitly cited source paths only; bounded prior-reference sample, not target compatibility.",
+            "static_export_hints": [],
+            "export_hints_complete": true,
+            "omitted_export_paths": [],
+            "initializer_import_hints": [],
+            "initializer_import_hints_complete": true,
+            "initializer_hint_limit": 64,
+            "omitted_initializer_imports": [],
+            "eligible_source_roles": {
+              "infrastructure": 2,
+              "implementation": 189,
+              "support": 2
+            },
+            "acquired_source_roles": {},
+            "runtime_bin_entrypoints": {},
+            "metadata_redacted": false,
+            "metadata_truncated": false,
+            "complete": false,
+            "eligible_sample_complete": false,
+            "limitations": [
+              "Bounded source sample; declarations and test references are not execution proof.",
+              "File budget sampled 4 of 208 eligible files.",
+              "Some files were excluded for safety, size, encoding or unsupported type.",
+              "No implementation source was acquired; this sample cannot represent product capabilities."
+            ]
+          },
+          "sample_only": true,
+          "files": [
+            {
+              "path": "pyproject.toml",
+              "sha": "970014ddcb72be824f6e1a8bafefec66b42891c7",
+              "url": "https://github.com/WilliamNT/tunesynctool/blob/b705691ba7d02d34ff3b6423ca03fcfca1514994/pyproject.toml",
+              "redacted": false,
+              "truncated": false
+            },
+            {
+              "path": "requirements.txt",
+              "sha": "b3b885c7921e1cb256a42dd77af91dd13e172bde",
+              "url": "https://github.com/WilliamNT/tunesynctool/blob/b705691ba7d02d34ff3b6423ca03fcfca1514994/requirements.txt",
+              "redacted": false,
+              "truncated": false
+            }
+          ]
+        },
+        "context_coverage": {
+          "decision_version": "request-led-discovery-v1",
+          "target_file_limit": 4,
+          "target_characters_per_file": 8000,
+          "target_files_omitted": 0,
+          "all_target_source_available": false
+        }
+      },
+      "search": {
+        "automatic_source_search": true,
+        "queries": [
+          "Python Subsonic OpenSubsonic ISRC track lookup search API is:public archived:false fork:false in:name,description,readme"
+        ],
+        "candidates_found": 4,
+        "candidates": [
+          {
+            "full_name": "winters27/octo",
+            "url": "https://github.com/winters27/octo",
+            "description": "Turn Navidrome into a self-hosted music service - search beyond your library, stream anything instantly, and keep what you love.",
+            "description_redacted": false,
+            "description_truncated": false,
+            "language": "Rust",
+            "language_redacted": false,
+            "language_truncated": false,
+            "upstream_rank": 1,
+            "metadata_only": true,
+            "id": "source0",
+            "retrieved_for": [
+              "op0"
+            ]
+          },
+          {
+            "full_name": "PauloJf/BPM-Tagger",
+            "url": "https://github.com/PauloJf/BPM-Tagger",
+            "description": "",
+            "description_redacted": false,
+            "description_truncated": false,
+            "language": "Python",
+            "language_redacted": false,
+            "language_truncated": false,
+            "upstream_rank": 2,
+            "metadata_only": true,
+            "id": "source1",
+            "retrieved_for": [
+              "op0"
+            ]
+          },
+          {
+            "full_name": "adriankralovsky/track-swipe",
+            "url": "https://github.com/adriankralovsky/track-swipe",
+            "description": "Local-first Spotify-to-YouTube music matching with swipe review, persistent decisions, and a tagged audio library.",
+            "description_redacted": false,
+            "description_truncated": false,
+            "language": "Python",
+            "language_redacted": false,
+            "language_truncated": false,
+            "upstream_rank": 3,
+            "metadata_only": true,
+            "id": "source2",
+            "retrieved_for": [
+              "op0"
+            ]
+          },
+          {
+            "full_name": "SickProdigy/musicbrainz-helper",
+            "url": "https://github.com/SickProdigy/musicbrainz-helper",
+            "description": "Reviewable tools for contributing ratings, genres, releases, and metadata from other music services to MusicBrainz.",
+            "description_redacted": false,
+            "description_truncated": false,
+            "language": "Python",
+            "language_redacted": false,
+            "language_truncated": false,
+            "upstream_rank": 4,
+            "metadata_only": true,
+            "id": "source3",
+            "retrieved_for": [
+              "op0"
+            ]
+          }
+        ],
+        "complete": false,
+        "source_inspection_cap": 1
+      },
+      "source_selection": {
+        "decision": "none",
+        "candidate_id": "",
+        "operation_ids": [],
+        "reason": "None of the metadata establishes a Subsonic/OpenSubsonic ISRC lookup method or an advantage over the direct search_tracks/search2 alternative. source0 describes a Navidrome service but does not identify an applicable ISRC lookup implementation; source1 is a BPM tagger; source2 concerns Spotify-to-YouTube matching; and source3 focuses on contributing metadata to MusicBrainz, contrary to the no-MusicBrainz-request goal (op0).",
+        "source_check": "The candidates are metadata-only and no source code is supplied. No candidate can be checked for protocol conformance, exact ISRC-to-track behavior, or integration with the Python Subsonic driver. The direct alternative's conformance and exact-match behavior are also unresolved.",
+        "risks": [
+          "Rejecting the pool does not establish that no useful implementation exists; it means the supplied metadata cannot discriminate one.",
+          "The specification-supported lookup method remains unsettled, including whether search3 is acceptable.",
+          "The direct alternative may fail to return an exact or unique ISRC match, or may be incompatible with relevant servers."
+        ],
+        "repository": null,
+        "status": "unverified_selection",
+        "qualified": false
+      }
+    },
+    "reported_usage": [
+      {
+        "input_tokens": 6345,
+        "output_tokens": 2333,
+        "estimated_cost_usd_at_configured_prices": 0.001801
+      },
+      {
+        "input_tokens": 13887,
+        "output_tokens": 560,
+        "estimated_cost_usd_at_configured_prices": 0.0016687
+      },
+      {
+        "input_tokens": 16907,
+        "output_tokens": 1175,
+        "estimated_cost_usd_at_configured_prices": 0.0022781999999999998
+      },
+      {
+        "input_tokens": 2386,
+        "output_tokens": 470,
+        "estimated_cost_usd_at_configured_prices": 0.0004736
+      }
+    ],
+    "ai_trace": [
+      {
+        "phase": "request",
+        "model": "gpt-6-luna",
+        "api_kind": "responses",
+        "response_id": "resp_0d11253965a9620b016acc0df9c7dc87d2aaa6e6d57582912c",
+        "response_status": "completed",
+        "request_sha256": "0c7367ffc5115d1a2d63bc0a425424a8c547e88fd1b54766601c012f5749f700",
+        "request_bytes": 25191,
+        "context_coverage": {
+          "phase": "request",
+          "source_ids": [
+            "q0",
+            "t11",
+            "t10",
+            "t9",
+            "t8",
+            "t7",
+            "t6",
+            "t5",
+            "t4",
+            "t3",
+            "t2",
+            "t1",
+            "t0",
+            "q4",
+            "q3",
+            "q2",
+            "q1"
+          ],
+          "omitted_source_ids": [],
+          "source_id_limit": 400,
+          "source_id_limit_omissions": 0,
+          "shortened_discussion_ids": [],
+          "discussion_complete": true,
+          "note": "Selected evidence is not the whole repository. Missing context remains unknown; omitted discussion prevents a qualified positive.",
+          "optional_field_hint_scan_complete": true,
+          "target_reference_context": {
+            "revision": null,
+            "source_ids": [],
+            "omitted_source_ids": [],
+            "reference_only": true,
+            "absence_proves_novelty": false
+          },
+          "omitted_constraint_ids": [],
+          "constraint_hint_scan_complete": true,
+          "omitted_source_count": 0,
+          "payload_bytes": 9763,
+          "demand_span_coverage": {
+            "span_count": 27,
+            "omitted_visible_spans": 0,
+            "complete": true,
+            "sources_without_spans": [],
+            "source_count_without_spans": 0,
+            "method": "exact original spans; bounded root opening then round-robin discussion coverage, not semantic validation"
+          }
+        },
+        "call_number": 1,
+        "attempt_id": "aefdccddb19f407a96f6e6e7e4b1480b:1"
+      },
+      {
+        "phase": "request",
+        "model": "gpt-6-luna",
+        "api_kind": "responses",
+        "response_id": "resp_03cdc5b0d808fa7e016acc0e0cb71087d2a9b06ca633cbd0e3",
+        "response_status": "completed",
+        "request_sha256": "0679b6995bdea8dea83a72b12beb05a5b3f788367b956d050c4cb89d508fa5ad",
+        "request_bytes": 42604,
+        "context_coverage": {
+          "decision_version": "request-led-discovery-v1",
+          "target_file_limit": 4,
+          "target_characters_per_file": 8000,
+          "target_files_omitted": 0,
+          "all_target_source_available": false
+        },
+        "call_number": 2,
+        "attempt_id": "aefdccddb19f407a96f6e6e7e4b1480b:2"
+      },
+      {
+        "phase": "request",
+        "model": "gpt-6-luna",
+        "api_kind": "responses",
+        "response_id": "resp_0d0d915fb23f886a016acc0e15782087d2928954d05ff0d792",
+        "response_status": "completed",
+        "request_sha256": "d71fc8abfd993958e448351ea598c8b92070be5c7d91c85910f3a93ddddeb011",
+        "request_bytes": 56509,
+        "context_coverage": {
+          "decision_version": "request-led-discovery-v1",
+          "target_file_limit": 4,
+          "target_characters_per_file": 8000,
+          "target_files_omitted": 0,
+          "all_target_source_available": false
+        },
+        "call_number": 3,
+        "attempt_id": "aefdccddb19f407a96f6e6e7e4b1480b:3"
+      },
+      {
+        "phase": "request",
+        "model": "gpt-6-luna",
+        "api_kind": "responses",
+        "response_id": "resp_09cd1884ab582786016acc0e2230c087d2a1f60d9c8219f682",
+        "response_status": "completed",
+        "request_sha256": "865f0b96f30b9ff232fee29f97d92934bffaee7ac5f830919518ad775b133afc",
+        "request_bytes": 10862,
+        "context_coverage": {
+          "decision_version": "request-led-discovery-v1",
+          "repository_metadata_only": true,
+          "source_code_available": false
+        },
+        "call_number": 4,
+        "attempt_id": "aefdccddb19f407a96f6e6e7e4b1480b:4"
+      }
+    ],
+    "native_outputs": [
+      {
+        "phase": "request",
+        "call_number": 1,
+        "attempt_id": "aefdccddb19f407a96f6e6e7e4b1480b:1",
+        "output": {
+          "outcome": "The Subsonic driver still needs to retrieve a track by ISRC. The mapper’s handling of ISRC values present in server responses has been added, but the discussion leaves the lookup behavior unresolved.",
+          "status": "unresolved",
+          "status_source_ids": [
+            "q0",
+            "q2",
+            "q3",
+            "q4",
+            "t7"
+          ],
+          "status_reason": "The owner reports adding ISRC mapping but explicitly leaving `get_track_by_isrc` unchanged because no direct endpoint was identified. The requester suggests search3 as a possible workaround but also says it may be reasonable to wait for specific API support. The owner says they will look into it, and the issue was later reopened; the discussion does not establish that the lookup was implemented.",
+          "requirements": [
+            {
+              "text": "Implement the Subsonic driver’s `get_track_by_isrc` behavior so it can retrieve a track by its ISRC.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "scf1acf819fa561fa",
+              "inference": "The title explicitly requests this driver behavior; the discussion does not settle its implementation route."
+            },
+            {
+              "text": "When a Subsonic server response contains an ISRC for a track, preserve that value in the core package’s Subsonic mapping.",
+              "mandatory": true,
+              "explicit": false,
+              "citation_id": "s5b1f583796b9c82c",
+              "inference": "The owner describes adding this mapping and says it should help in some cases. Treat it as a supporting behavior for the requested ISRC lookup; the discussion indicates this part was completed."
+            },
+            {
+              "text": "When a Subsonic track is properly tagged with an ISRC, enable exact matching to Spotify tracks without making a Musicbrainz request.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "s9d01831fa6f3eec7",
+              "inference": "The requester states this as the intended benefit of the ISRC lookup. The conditional applies when the Subsonic track already has an ISRC tag."
+            },
+            {
+              "text": "Keep the implementation conformant to the (Open) Subsonic specification rather than relying on undocumented custom behavior.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "se262fcde59155c39",
+              "inference": "The repository owner states that specification conformance is necessary for maintainability and uniformity; this constrains acceptable approaches."
+            }
+          ],
+          "optional_field_dispositions": [],
+          "environment": [
+            "Subsonic driver and server responses; the discussion references the OpenSubsonic specification.",
+            "The intended matching use case involves Spotify tracks and Subsonic tracks tagged with ISRC values."
+          ],
+          "prior_attempts": [
+            "The repository owner reports that the core package’s Subsonic mapper was updated to include an ISRC when present in the server response; the requester responded positively.",
+            "The owner reports leaving `get_track_by_isrc` unchanged because they did not see a direct endpoint for fetching by ISRC.",
+            "The requester suggested searching with search3 and possibly warning that it might not work, while also considering waiting for more specific API support. The owner said they would look into it; this is not evidence that the workaround was implemented.",
+            "The requester mentioned working on a related gonic pull request; this is not evidence of an implementation in this repository."
+          ],
+          "missing_information": [
+            "The discussion does not identify a specification-supported endpoint or settled method for retrieving a track by ISRC.",
+            "It remains undecided whether search3 with the ISRC is acceptable under the owner’s specification-conformance constraint or whether implementation should wait for more specific API support."
+          ]
+        }
+      },
+      {
+        "phase": "request",
+        "call_number": 2,
+        "attempt_id": "aefdccddb19f407a96f6e6e7e4b1480b:2",
+        "output": {
+          "decision": "read_target",
+          "reason": "The supplied issue leaves `get_track_by_isrc` unresolved and makes specification conformance a constraint (q2, q4). The Subsonic synchronous and asynchronous driver implementations are the most relevant available files for checking whether lookup behavior already exists and what API approach it uses; manifests would not answer that.",
+          "question": "Do the Subsonic drivers already implement `get_track_by_isrc`, and, if so, does the implementation use an approach consistent with the stated specification-conformance requirement?",
+          "expected_decision_change": "If a conformant implementation is present, that could support reuse; if lookup is absent or uses an approach inconsistent with the constraint, it would support seeking a suitable implementation or deferring rather than assuming the proposed workaround is acceptable. Code inspection alone would not establish external protocol support or execution.",
+          "requirement_ids": [
+            "r0",
+            "r3"
+          ],
+          "file_ids": [
+            "f102",
+            "f101"
+          ]
+        }
+      },
+      {
+        "phase": "request",
+        "call_number": 3,
+        "attempt_id": "aefdccddb19f407a96f6e6e7e4b1480b:3",
+        "output": {
+          "decision": "search",
+          "reason": "The unresolved operation is to accept an ISRC and return the matching Subsonic track (r0), supporting exact Spotify matching without a MusicBrainz request (r2), while staying within the specification-conformance constraint (r3). The sampled driver already exposes search_tracks through search2 but leaves get_track_by_isrc unimplemented (f102); the issue records that whether search3 is acceptable or implementation should wait remains unsettled (q2, q4). A small local change using the existing search path is the strongest direct alternative, but its conformity and exact-match behavior are not established. A bounded search for an existing Subsonic implementation can test whether there is a concrete, specification-grounded approach that improves on guessing locally; this is not evidence that such a solution exists.",
+          "direct_alternative": {
+            "description": "Make a small change in the existing Subsonic driver, likely by querying through its existing search_tracks/search2 path with the ISRC and returning an exact ISRC match. The mapper is reported to preserve ISRC values when present (q2), and the sampled driver already has search_tracks (f102).",
+            "adequacy": "unknown",
+            "limitations": [
+              "The issue does not establish that search3 or any other search route can legally or reliably find tracks by ISRC under the specification-conformance constraint (q4).",
+              "Search results may not contain the requested ISRC or may not yield a unique exact match; behavior is unverified.",
+              "The sample does not establish server compatibility, tests, or runtime behavior."
+            ]
+          },
+          "benefit_hypothesis": "An existing implementation could provide a specification-grounded lookup method or demonstrate that the direct search workaround is not conformant, reducing the risk of implementing unsupported behavior. The advantage exists only if its documented method is applicable to this Python driver and materially better than a small local change.",
+          "benefit_test": "Compare any located implementation's stated Subsonic/OpenSubsonic protocol method and ISRC input/output behavior with the direct local search alternative. Count a benefit only if it identifies a specification-supported method that the direct alternative cannot substantiate, and verify that the method returns the exact matching track without a MusicBrainz request. If no applicable documented method is found, or it offers no advantage over the local change, stop reuse investigation and revisit the direct alternative or defer pending specification clarity; no execution is implied.",
+          "operations": [
+            {
+              "operation": "Retrieve one Subsonic track by its ISRC, respecting the stated specification-conformance constraint and enabling exact downstream matching without a MusicBrainz request.",
+              "input": "An ISRC string for a Subsonic track.",
+              "output": "The matching Subsonic track with its ISRC available for exact Spotify matching.",
+              "requirement_ids": [
+                "r0",
+                "r2",
+                "r3"
+              ],
+              "rationale": "This is the unresolved driver operation. ISRC mapping is reported as added (q2), so the missing behavior is lookup rather than mapping. Search3 is only a suggested workaround, and its acceptability is explicitly unresolved (q2, q4).",
+              "search_terms": "Python Subsonic OpenSubsonic ISRC track lookup search API"
+            }
+          ],
+          "unknowns": [
+            "Whether the specification supports a particular ISRC lookup method, including search3, remains unresolved in the supplied discussion (q2, q4).",
+            "Whether any suitable existing repository implementation exists or is reusable is unknown; no candidate package was supplied.",
+            "Whether the direct search alternative is exact, conformant, or compatible across relevant Subsonic servers is unverified."
+          ]
+        }
+      },
+      {
+        "phase": "request",
+        "call_number": 4,
+        "attempt_id": "aefdccddb19f407a96f6e6e7e4b1480b:4",
+        "output": {
+          "decision": "none",
+          "candidate_id": "",
+          "operation_ids": [],
+          "reason": "None of the metadata establishes a Subsonic/OpenSubsonic ISRC lookup method or an advantage over the direct search_tracks/search2 alternative. source0 describes a Navidrome service but does not identify an applicable ISRC lookup implementation; source1 is a BPM tagger; source2 concerns Spotify-to-YouTube matching; and source3 focuses on contributing metadata to MusicBrainz, contrary to the no-MusicBrainz-request goal (op0).",
+          "source_check": "The candidates are metadata-only and no source code is supplied. No candidate can be checked for protocol conformance, exact ISRC-to-track behavior, or integration with the Python Subsonic driver. The direct alternative's conformance and exact-match behavior are also unresolved.",
+          "risks": [
+            "Rejecting the pool does not establish that no useful implementation exists; it means the supplied metadata cannot discriminate one.",
+            "The specification-supported lookup method remains unsettled, including whether search3 is acceptable.",
+            "The direct alternative may fail to return an exact or unique ISRC match, or may be incompatible with relevant servers."
+          ]
+        }
+      }
+    ],
+    "retained_job_sha256": "46208420eaa673cce5d0121ab9762a85cba10b4e645a1f5416cac3adf0777bec",
+    "retained_matches_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  {
+    "case": 2,
+    "arm": "A",
+    "job_id": "713b714786a142b0b2e6fbef76e6ae3b",
+    "input": {
+      "repo": "",
+      "action": "discover_from_request",
+      "issue_url": "https://github.com/hoangsonww/Agentic-AI-Pipeline/issues/23",
+      "query": "",
+      "use_ai": true,
+      "max_requests": 120,
+      "max_candidates": 1
+    },
+    "status": "completed",
+    "stage": "completed",
+    "error": null,
+    "error_diagnostic": null,
+    "result": {
+      "match_ids": [
+        "59e6b88abd256912ea75555b90d19338",
+        "699177bbdf5a6368bc7f73699d7cdd5a"
+      ],
+      "discovery_request": {
+        "id": 3771608675,
+        "title": "Optional deterministic CI regression check (record/replay)?",
+        "url": "https://github.com/hoangsonww/Agentic-AI-Pipeline/issues/23",
+        "outcome": "The owner welcomed a PR and recommended wiring the suite to the core chat flow via run_chat. The requester later reported wiring it there and opening PR #24, but the discussion does not establish that the PR was merged or that the check was executed.",
+        "status": "unresolved",
+        "status_reason": "The requested contribution is described in a follow-up as being in PR #24, and the owner’s suggested entrypoint was followed. There is no supplied confirmation of merge or repository adoption, so the requested change cannot be treated as resolved.",
+        "status_evidence": [
+          {
+            "url": "https://github.com/hoangsonww/Agentic-AI-Pipeline/issues/23",
+            "source_id": "q0"
+          },
+          {
+            "url": "https://github.com/hoangsonww/Agentic-AI-Pipeline/issues/23#issuecomment-3701845210",
+            "source_id": "q1"
+          },
+          {
+            "url": "https://github.com/hoangsonww/Agentic-AI-Pipeline/issues/23#issuecomment-3704195300",
+            "source_id": "q2"
+          }
+        ],
+        "requirements": [
+          {
+            "id": "r0",
+            "text": "Provide an evals/runledger/ suite.",
+            "mandatory": true,
+            "explicit": true,
+            "source": {
+              "url": "https://github.com/hoangsonww/Agentic-AI-Pipeline/issues/23",
+              "quote": "- `evals/runledger/` (suite + one case + schema + cassette)",
+              "source_id": "q0",
+              "quote_match": "exact",
+              "citation_id": "s8c50eab40b21812f"
+            },
+            "inference": "The request lists the suite directory as part of the proposed PR."
+          },
+          {
+            "id": "r1",
+            "text": "Include one case in the suite.",
+            "mandatory": true,
+            "explicit": true,
+            "source": {
+              "url": "https://github.com/hoangsonww/Agentic-AI-Pipeline/issues/23",
+              "quote": "- `evals/runledger/` (suite + one case + schema + cassette)",
+              "source_id": "q0",
+              "quote_match": "exact",
+              "citation_id": "s8c50eab40b21812f"
+            },
+            "inference": "The request explicitly names one case as a suite component."
+          },
+          {
+            "id": "r2",
+            "text": "Include a schema for the suite.",
+            "mandatory": true,
+            "explicit": true,
+            "source": {
+              "url": "https://github.com/hoangsonww/Agentic-AI-Pipeline/issues/23",
+              "quote": "- `evals/runledger/` (suite + one case + schema + cassette)",
+              "source_id": "q0",
+              "quote_match": "exact",
+              "citation_id": "s8c50eab40b21812f"
+            },
+            "inference": "The request explicitly names a schema as a suite component."
+          },
+          {
+            "id": "r3",
+            "text": "Include a cassette for the suite.",
+            "mandatory": true,
+            "explicit": true,
+            "source": {
+              "url": "https://github.com/hoangsonww/Agentic-AI-Pipeline/issues/23",
+              "quote": "- `evals/runledger/` (suite + one case + schema + cassette)",
+              "source_id": "q0",
+              "quote_match": "exact",
+              "citation_id": "s8c50eab40b21812f"
+            },
+            "inference": "The request explicitly names a cassette as a suite component."
+          },
+          {
+            "id": "r4",
+            "text": "Provide baselines/runledger-demo.json.",
+            "mandatory": true,
+            "explicit": true,
+            "source": {
+              "url": "https://github.com/hoangsonww/Agentic-AI-Pipeline/issues/23",
+              "quote": "- `baselines/runledger-demo.json`",
+              "source_id": "q0",
+              "quote_match": "exact",
+              "citation_id": "sbc151adde5675962"
+            },
+            "inference": "The requested PR lists this specific baseline file."
+          },
+          {
+            "id": "r5",
+            "text": "Provide a GitHub Actions workflow to run the CI check, if that optional workflow is chosen; its trigger may be manual or on PR.",
+            "mandatory": false,
+            "explicit": true,
+            "source": {
+              "url": "https://github.com/hoangsonww/Agentic-AI-Pipeline/issues/23",
+              "quote": "- an optional GitHub Actions workflow to run the CI check (manual or on PR, depending on what you prefer)",
+              "source_id": "q0",
+              "quote_match": "exact",
+              "citation_id": "s6736abc3fb73709e"
+            },
+            "inference": "The workflow is explicitly optional, and the trigger is left to the repository owner's preference."
+          },
+          {
+            "id": "r6",
+            "text": "The check should be deterministic and use record-once/replay-in-CI behavior to catch agent/tool regressions, failing on mismatch.",
+            "mandatory": true,
+            "explicit": true,
+            "source": {
+              "url": "https://github.com/hoangsonww/Agentic-AI-Pipeline/issues/23",
+              "quote": "The goal is to catch agent/tool regressions in CI without live tool calls (record once, replay in CI; fail on mismatch).",
+              "source_id": "q0",
+              "quote_match": "exact",
+              "citation_id": "s0414f1767a5d546e"
+            },
+            "inference": "This states the goal and expected check behavior."
+          },
+          {
+            "id": "r7",
+            "text": "The CI replay should avoid live tool calls.",
+            "mandatory": true,
+            "explicit": true,
+            "source": {
+              "url": "https://github.com/hoangsonww/Agentic-AI-Pipeline/issues/23",
+              "quote": "The goal is to catch agent/tool regressions in CI without live tool calls (record once, replay in CI; fail on mismatch).",
+              "source_id": "q0",
+              "quote_match": "exact",
+              "citation_id": "s0414f1767a5d546e"
+            },
+            "inference": "Avoiding live tool calls is explicit; the later report describes recorded tool outputs."
+          },
+          {
+            "id": "r8",
+            "text": "Wire the suite to an existing agent/example entrypoint; the owner recommended the core chat flow through src/agentic_ai/graph.py via run_chat, and the follow-up reports using that entrypoint.",
+            "mandatory": true,
+            "explicit": true,
+            "source": {
+              "url": "https://github.com/hoangsonww/Agentic-AI-Pipeline/issues/23#issuecomment-3701845210",
+              "quote": "IMHO, the best entrypoint to wire RunLedger to is the core chat agent used everywhere else: `src/agentic_ai/graph.py` via `run_chat` (this is what `src/agentic_ai/app.py` and `src/agentic_ai/cli.py` ultimately call).",
+              "source_id": "q1",
+              "quote_match": "exact",
+              "citation_id": "sbb420b358ec30463"
+            },
+            "inference": "The initial request asks which entrypoint to use; the repository member recommends run_chat and the requester later says they followed that suggestion."
+          },
+          {
+            "id": "r9",
+            "text": "Use a small adapter script under evals/runledger/ that calls run_chat directly, avoiding the need to boot FastAPI.",
+            "mandatory": false,
+            "explicit": false,
+            "source": {
+              "url": "https://github.com/hoangsonww/Agentic-AI-Pipeline/issues/23#issuecomment-3701845210",
+              "quote": "I’d suggest a tiny adapter script under `evals/runledger/` that calls run_chat directly so you don’t need to boot FastAPI.",
+              "source_id": "q1",
+              "quote_match": "exact",
+              "citation_id": "s0697621394021b06"
+            },
+            "inference": "This is the owner's suggested implementation approach, not an explicit requirement in the original proposal; the follow-up confirms run_chat wiring but does not explicitly confirm an adapter script."
+          }
+        ],
+        "environment": [
+          "The requested check is intended to run in CI.",
+          "The owner suggested targeting the core chat agent rather than the heavier coding pipeline."
+        ],
+        "prior_attempts": [
+          "The owner accepted the offer and suggested src/agentic_ai/graph.py via run_chat as the entrypoint (q1).",
+          "The requester reports wiring RunLedger to run_chat and opening PR #24; the report also provides a local replay command, but does not establish that the PR was merged or the command was executed (q2)."
+        ],
+        "missing_information": [
+          "The discussion does not establish whether PR #24 was merged or adopted.",
+          "The optional GitHub Actions workflow's trigger—manual or on PR—was left to the owner's preference and is not specified in the supplied discussion."
+        ],
+        "optional_field_dispositions": [],
+        "constraint_review": {
+          "items": [],
+          "complete": true,
+          "markers_found": 0,
+          "constraint_markers_found": 0,
+          "gap_markers_found": 0,
+          "gap_hints_complete": true,
+          "note": "Non-exhaustive English constraint markers; no marker does not prove all requirements were extracted.",
+          "optional_field_review": {
+            "items": [],
+            "complete": true,
+            "omitted_fields": 0,
+            "dispositions": [],
+            "method": "optional-field syntax is an extraction hint, not proof of optional demand or compatibility"
+          },
+          "qualification_blockers": []
+        },
+        "context_complete": true,
+        "updated_at": "2026-01-01T22:40:55Z",
+        "fingerprint": "58f88b9de19dab776bb4ad112f5538cfaa8af599cf2952c91e4b40bc22bdb1ba",
+        "analysis_context": {
+          "phase": "request",
+          "source_ids": [
+            "q0",
+            "t9",
+            "t8",
+            "t7",
+            "t6",
+            "t5",
+            "t4",
+            "t3",
+            "t2",
+            "t1",
+            "t0",
+            "q2",
+            "q1"
+          ],
+          "omitted_source_ids": [],
+          "source_id_limit": 400,
+          "source_id_limit_omissions": 0,
+          "shortened_discussion_ids": [],
+          "discussion_complete": true,
+          "note": "Selected evidence is not the whole repository. Missing context remains unknown; omitted discussion prevents a qualified positive.",
+          "optional_field_hint_scan_complete": true,
+          "target_reference_context": {
+            "revision": null,
+            "source_ids": [],
+            "omitted_source_ids": [],
+            "reference_only": true,
+            "absence_proves_novelty": false
+          },
+          "omitted_constraint_ids": [],
+          "constraint_hint_scan_complete": true,
+          "omitted_source_count": 0,
+          "payload_bytes": 7856,
+          "demand_span_coverage": {
+            "span_count": 19,
+            "omitted_visible_spans": 0,
+            "complete": true,
+            "sources_without_spans": [],
+            "source_count_without_spans": 0,
+            "method": "exact original spans; bounded root opening then round-robin discussion coverage, not semantic validation"
+          }
+        }
+      },
+      "discovery_decision": {
+        "decision": "search",
+        "reason": "A bounded search is worth testing for the record/replay mechanism, not for the suite’s ordinary files or workflow. The request requires deterministic CI replay without live tool calls and names run_chat as the integration point (q0, q1); a reusable Python tool-call cassette mechanism could reduce custom interception and replay code. The strongest direct alternative remains a small pytest adapter with a local cassette and baseline. PR #24 is reported but adoption and execution are not established (q2).",
+        "direct_alternative": {
+          "description": "Use pytest and a small local adapter that invokes run_chat, replays recorded tool outputs without live calls, and compares the result to a checked-in baseline; keep the case, schema, cassette, and optional workflow repository-specific.",
+          "adequacy": "likely_sufficient",
+          "limitations": [
+            "Whether local interception can reliably isolate all relevant tool calls and make replay deterministic is not verified by the supplied sample.",
+            "The exact comparison semantics for a mismatch are not specified."
+          ]
+        },
+        "benefit_hypothesis": "A compatible existing replay mechanism may provide tool-call capture and offline replay that integrates with the requested run_chat flow, reducing bespoke adapter logic while preserving the requested no-live-call CI behavior.",
+        "benefit_test": "For a bounded investigation, compare a candidate with the local pytest-and-cassette approach on the same run_chat case: require replay from the cassette with zero live tool calls, deterministic pass on the matching baseline, and failure on a deliberately changed expected result. Reject the candidate if it cannot meet these checks without bypassing run_chat, or if it adds more integration work than the local adapter.",
+        "operations": [
+          {
+            "operation": "Record tool-call outputs for a run_chat case and replay them offline in CI, comparing the resulting evaluation against a baseline.",
+            "input": "A suite case and recorded tool-call cassette.",
+            "output": "A deterministic pass or mismatch failure, without live tool calls during CI replay.",
+            "requirement_ids": [
+              "r3",
+              "r6",
+              "r7",
+              "r8",
+              "r9"
+            ],
+            "rationale": "This is the distinctive behavior behind the requested regression check. Searching for tool-call replay rather than a generic evaluation suite could reveal reusable interception and cassette handling; the direct alternative is still a small local pytest adapter.",
+            "search_terms": "Python LangGraph LangChain tool call cassette record replay offline pytest",
+            "id": "op0"
+          }
+        ],
+        "unknowns": [
+          "Whether PR #24 was merged or adopted, and whether its reported replay command was executed (q2).",
+          "Whether the target’s complete codebase already has relevant replay support; the supplied target sample is bounded.",
+          "The preferred optional workflow trigger and the exact baseline comparison semantics."
+        ],
+        "version": "request-led-discovery-v1",
+        "issue_fingerprint": "58f88b9de19dab776bb4ad112f5538cfaa8af599cf2952c91e4b40bc22bdb1ba",
+        "provider_identity": "cdcd5f4d30c98d6930cf75d7b2fc8c965d48b0d5a52560b0475019c45ad41426",
+        "status": "unverified_decision",
+        "qualified": false,
+        "direct_solution_verified": false,
+        "target_snapshot": {
+          "id": 1027259947,
+          "full_name": "hoangsonww/Agentic-AI-Pipeline",
+          "revision": "443716a7d227b0d36cd73b82f134ccf00aa34185",
+          "coverage": {
+            "tree_truncated": false,
+            "tree_entries": 445,
+            "eligible_files": 121,
+            "files_scanned": 4,
+            "file_budget": 4,
+            "bytes_scanned": 21314,
+            "language_counts": {
+              "Documentation/manifest": 2,
+              "Python": 2
+            },
+            "tree_language_counts": {
+              "Other": 235,
+              "Python": 81,
+              "JavaScript": 6,
+              "TypeScript": 4
+            },
+            "excluded": {
+              "unsupported_file_type": 198,
+              "sensitive_or_generated_path": 7
+            },
+            "sampling_policy": "Root manifests and explicitly cited source paths only; bounded prior-reference sample, not target compatibility.",
+            "static_export_hints": [],
+            "export_hints_complete": true,
+            "omitted_export_paths": [],
+            "initializer_import_hints": [],
+            "initializer_import_hints_complete": true,
+            "initializer_hint_limit": 64,
+            "omitted_initializer_imports": [],
+            "eligible_source_roles": {
+              "implementation": 69,
+              "infrastructure": 16
+            },
+            "acquired_source_roles": {
+              "implementation": 2
+            },
+            "runtime_bin_entrypoints": {},
+            "metadata_redacted": false,
+            "metadata_truncated": false,
+            "complete": false,
+            "eligible_sample_complete": false,
+            "limitations": [
+              "Bounded source sample; declarations and test references are not execution proof.",
+              "File budget sampled 4 of 121 eligible files.",
+              "Some files were excluded for safety, size, encoding or unsupported type."
+            ]
+          },
+          "sample_only": true,
+          "files": [
+            {
+              "path": "pyproject.toml",
+              "sha": "fbcce547c1c67893042435e6fae51d27b3fb567a",
+              "url": "https://github.com/hoangsonww/Agentic-AI-Pipeline/blob/443716a7d227b0d36cd73b82f134ccf00aa34185/pyproject.toml",
+              "redacted": false,
+              "truncated": false
+            },
+            {
+              "path": "requirements.txt",
+              "sha": "d10d119578b17d89a007782629f155fe472203a2",
+              "url": "https://github.com/hoangsonww/Agentic-AI-Pipeline/blob/443716a7d227b0d36cd73b82f134ccf00aa34185/requirements.txt",
+              "redacted": false,
+              "truncated": false
+            },
+            {
+              "path": "Agentic-Coding-Pipeline/run.py",
+              "sha": "afa171180ac07e11abcd4228b3a21942f2250e76",
+              "url": "https://github.com/hoangsonww/Agentic-AI-Pipeline/blob/443716a7d227b0d36cd73b82f134ccf00aa34185/Agentic-Coding-Pipeline/run.py",
+              "redacted": false,
+              "truncated": false
+            },
+            {
+              "path": "src/agentic_ai/app.py",
+              "sha": "bd9ead62768c669f1209e8e68b70465b60b82e01",
+              "url": "https://github.com/hoangsonww/Agentic-AI-Pipeline/blob/443716a7d227b0d36cd73b82f134ccf00aa34185/src/agentic_ai/app.py",
+              "redacted": false,
+              "truncated": true
+            }
+          ]
+        },
+        "context_coverage": {
+          "decision_version": "request-led-discovery-v1",
+          "target_file_limit": 4,
+          "target_characters_per_file": 8000,
+          "target_files_omitted": 0,
+          "all_target_source_available": false
+        }
+      },
+      "search": {
+        "automatic_source_search": true,
+        "queries": [
+          "Python LangGraph LangChain tool call cassette record replay offline pytest is:public archived:false fork:false in:name,description,readme"
+        ],
+        "candidates_found": 20,
+        "candidates": [
+          {
+            "full_name": "yibie/awesome-jev",
+            "url": "https://github.com/yibie/awesome-jev",
+            "description": "A curated list of public projects, integrations, and discussions built on Jev — TypeSafe AI's System One model for typed decisions.",
+            "description_redacted": false,
+            "description_truncated": false,
+            "language": "Python",
+            "language_redacted": false,
+            "language_truncated": false,
+            "upstream_rank": 1,
+            "metadata_only": true,
+            "id": "source0",
+            "retrieved_for": [
+              "op0"
+            ]
+          },
+          {
+            "full_name": "beyhangl/evalcraft",
+            "url": "https://github.com/beyhangl/evalcraft",
+            "description": "Deterministic $0 pytest assertions for AI agents — catch the agent that quietly stopped calling its tools, and cost blowups, offline in CI.",
+            "description_redacted": false,
+            "description_truncated": false,
+            "language": "Python",
+            "language_redacted": false,
+            "language_truncated": false,
+            "upstream_rank": 2,
+            "metadata_only": true,
+            "id": "source1",
+            "retrieved_for": [
+              "op0"
+            ]
+          },
+          {
+            "full_name": "AppitStudio/awesome-jev",
+            "url": "https://github.com/AppitStudio/awesome-jev",
+            "description": "Curated Jev resources and runnable examples for typed AI decisions.",
+            "description_redacted": false,
+            "description_truncated": false,
+            "language": "Python",
+            "language_redacted": false,
+            "language_truncated": false,
+            "upstream_rank": 3,
+            "metadata_only": true,
+            "id": "source2",
+            "retrieved_for": [
+              "op0"
+            ]
+          },
+          {
+            "full_name": "mockagents/mockagents",
+            "url": "https://github.com/mockagents/mockagents",
+            "description": "Simulate, test, and validate AI agent integrations — without calling real LLMs or burning tokens.",
+            "description_redacted": false,
+            "description_truncated": false,
+            "language": "Go",
+            "language_redacted": false,
+            "language_truncated": false,
+            "upstream_rank": 4,
+            "metadata_only": true,
+            "id": "source3",
+            "retrieved_for": [
+              "op0"
+            ]
+          },
+          {
+            "full_name": "AleBrito124356/nim-agent-lab",
+            "url": "https://github.com/AleBrito124356/nim-agent-lab",
+            "description": "12 production-grade AI agent patterns in pure Python — ReAct, planner-executor, reflection, routing, memory, guardrails — on free NVIDIA NIM APIs",
+            "description_redacted": false,
+            "description_truncated": false,
+            "language": "Python",
+            "language_redacted": false,
+            "language_truncated": false,
+            "upstream_rank": 5,
+            "metadata_only": true,
+            "id": "source4",
+            "retrieved_for": [
+              "op0"
+            ]
+          },
+          {
+            "full_name": "thetechnoadvisor/icho",
+            "url": "https://github.com/thetechnoadvisor/icho",
+            "description": "Sequa is snapshot testing for LLM applications. Record once, replay forever.",
+            "description_redacted": false,
+            "description_truncated": false,
+            "language": "Python",
+            "language_redacted": false,
+            "language_truncated": false,
+            "upstream_rank": 6,
+            "metadata_only": true,
+            "id": "source5",
+            "retrieved_for": [
+              "op0"
+            ]
+          },
+          {
+            "full_name": "RajveerKondeti/agent-trace",
+            "url": "https://github.com/RajveerKondeti/agent-trace",
+            "description": "Deterministic Time-Travel Debugging & Observability for Multi-Agent AI Systems.",
+            "description_redacted": false,
+            "description_truncated": false,
+            "language": "Python",
+            "language_redacted": false,
+            "language_truncated": false,
+            "upstream_rank": 7,
+            "metadata_only": true,
+            "id": "source6",
+            "retrieved_for": [
+              "op0"
+            ]
+          },
+          {
+            "full_name": "actions-marketplace-validations/thetechnoadvisor_sequa",
+            "url": "https://github.com/actions-marketplace-validations/thetechnoadvisor_sequa",
+            "description": "",
+            "description_redacted": false,
+            "description_truncated": false,
+            "language": "Python",
+            "language_redacted": false,
+            "language_truncated": false,
+            "upstream_rank": 8,
+            "metadata_only": true,
+            "id": "source7",
+            "retrieved_for": [
+              "op0"
+            ]
+          },
+          {
+            "full_name": "cendorhq/cendor-cookbook",
+            "url": "https://github.com/cendorhq/cendor-cookbook",
+            "description": "Copy-paste, run-offline recipes for the Cendor LLM plumbing libraries — cost, context, testing, governance (Py + TS).",
+            "description_redacted": false,
+            "description_truncated": false,
+            "language": "Python",
+            "language_redacted": false,
+            "language_truncated": false,
+            "upstream_rank": 9,
+            "metadata_only": true,
+            "id": "source8",
+            "retrieved_for": [
+              "op0"
+            ]
+          },
+          {
+            "full_name": "ZeekrBaha/eval-agent-evaluation-framework",
+            "url": "https://github.com/ZeekrBaha/eval-agent-evaluation-framework",
+            "description": "Evaluation framework for a tool-calling agent: task completion, tool/param accuracy, efficiency, error recovery, pass^k, and prompt-injection resistance. One-command gate, deterministic record/replay.",
+            "description_redacted": false,
+            "description_truncated": false,
+            "language": "Python",
+            "language_redacted": false,
+            "language_truncated": false,
+            "upstream_rank": 10,
+            "metadata_only": true,
+            "id": "source9",
+            "retrieved_for": [
+              "op0"
+            ]
+          },
+          {
+            "full_name": "Tejasdk04/agent-golden-harness",
+            "url": "https://github.com/Tejasdk04/agent-golden-harness",
+            "description": "Deterministic golden-output regression testing for LLM agents — record model and tool calls, replay them offline, fail CI on behavioural drift. Zero runtime dependencies.",
+            "description_redacted": false,
+            "description_truncated": false,
+            "language": "Python",
+            "language_redacted": false,
+            "language_truncated": false,
+            "upstream_rank": 11,
+            "metadata_only": true,
+            "id": "source10",
+            "retrieved_for": [
+              "op0"
+            ]
+          },
+          {
+            "full_name": "Sruthi24102004/trendly-agent",
+            "url": "https://github.com/Sruthi24102004/trendly-agent",
+            "description": "",
+            "description_redacted": false,
+            "description_truncated": false,
+            "language": "Python",
+            "language_redacted": false,
+            "language_truncated": false,
+            "upstream_rank": 12,
+            "metadata_only": true,
+            "id": "source11",
+            "retrieved_for": [
+              "op0"
+            ]
+          },
+          {
+            "full_name": "integrallis/LLMTivo",
+            "url": "https://github.com/integrallis/LLMTivo",
+            "description": "Record LLM calls once, then replay them from the filesystem",
+            "description_redacted": false,
+            "description_truncated": false,
+            "language": "Python",
+            "language_redacted": false,
+            "language_truncated": false,
+            "upstream_rank": 13,
+            "metadata_only": true,
+            "id": "source12",
+            "retrieved_for": [
+              "op0"
+            ]
+          },
+          {
+            "full_name": "pauti04/reflight",
+            "url": "https://github.com/pauti04/reflight",
+            "description": "Flight recorder for AI agents: record every run, replay it deterministically, turn failures into regression tests",
+            "description_redacted": false,
+            "description_truncated": false,
+            "language": "Python",
+            "language_redacted": false,
+            "language_truncated": false,
+            "upstream_rank": 14,
+            "metadata_only": true,
+            "id": "source13",
+            "retrieved_for": [
+              "op0"
+            ]
+          },
+          {
+            "full_name": "anovick1/TrailGuard",
+            "url": "https://github.com/anovick1/TrailGuard",
+            "description": "Local-first, pytest-native testing framework for AI agents: record runs as signed YAML audit trails, replay deterministically with zero API calls, assert on routing and compliance (alpha)",
+            "description_redacted": false,
+            "description_truncated": false,
+            "language": "Python",
+            "language_redacted": false,
+            "language_truncated": false,
+            "upstream_rank": 15,
+            "metadata_only": true,
+            "id": "source14",
+            "retrieved_for": [
+              "op0"
+            ]
+          },
+          {
+            "full_name": "MoreClosersy/InvestIQ",
+            "url": "https://github.com/MoreClosersy/InvestIQ",
+            "description": "Multi-agent investment research system built with LangGraph, FastAPI, and GPT-4o-mini",
+            "description_redacted": false,
+            "description_truncated": false,
+            "language": "Python",
+            "language_redacted": false,
+            "language_truncated": false,
+            "upstream_rank": 16,
+            "metadata_only": true,
+            "id": "source15",
+            "retrieved_for": [
+              "op0"
+            ]
+          },
+          {
+            "full_name": "RudrenduPaul/agent-observability",
+            "url": "https://github.com/RudrenduPaul/agent-observability",
+            "description": "Deterministic record/replay for LLM agent HTTP traffic. Replay a failed run offline in under 1ms, zero API cost.",
+            "description_redacted": false,
+            "description_truncated": false,
+            "language": "Python",
+            "language_redacted": false,
+            "language_truncated": false,
+            "upstream_rank": 17,
+            "metadata_only": true,
+            "id": "source16",
+            "retrieved_for": [
+              "op0"
+            ]
+          },
+          {
+            "full_name": "vinimabreu/langgraph-production",
+            "url": "https://github.com/vinimabreu/langgraph-production",
+            "description": "A LangGraph support agent with the reliability layer around it: routing measured against labelled fixtures, a human gate before irreversible tools, durable resume with exactly-once effects, and a CI gate that fails when a number moves.",
+            "description_redacted": false,
+            "description_truncated": false,
+            "language": "Python",
+            "language_redacted": false,
+            "language_truncated": false,
+            "upstream_rank": 18,
+            "metadata_only": true,
+            "id": "source17",
+            "retrieved_for": [
+              "op0"
+            ]
+          },
+          {
+            "full_name": "anandtopu/mock-agents",
+            "url": "https://github.com/anandtopu/mock-agents",
+            "description": "Simulate, test, and validate AI agent integrations — without calling real LLMs or burning tokens.",
+            "description_redacted": false,
+            "description_truncated": false,
+            "language": "Go",
+            "language_redacted": false,
+            "language_truncated": false,
+            "upstream_rank": 19,
+            "metadata_only": true,
+            "id": "source18",
+            "retrieved_for": [
+              "op0"
+            ]
+          },
+          {
+            "full_name": "alexploopy/lapse",
+            "url": "https://github.com/alexploopy/lapse",
+            "description": "",
+            "description_redacted": false,
+            "description_truncated": false,
+            "language": "Python",
+            "language_redacted": false,
+            "language_truncated": false,
+            "upstream_rank": 20,
+            "metadata_only": true,
+            "id": "source19",
+            "retrieved_for": [
+              "op0"
+            ]
+          }
+        ],
+        "complete": false,
+        "source_inspection_cap": 1
+      },
+      "source_selection": {
+        "decision": "inspect",
+        "candidate_id": "source10",
+        "operation_ids": [
+          "op0"
+        ],
+        "reason": "The operation requires recording tool-call outputs for a run_chat case and replaying them offline in CI with a baseline comparison. The direct alternative—a small pytest adapter with a local cassette—is likely sufficient, but source10’s metadata specifically describes recording model and tool calls, offline replay, and CI failure on behavioral drift, making it the strongest hypothesis for reducing custom replay work. This is a metadata-based investigation choice, not evidence of compatibility or successful reuse.",
+        "source_check": "Inspect whether the implementation actually captures and replays the relevant tool calls, can be used around run_chat without bypassing it, and supports deterministic offline replay plus matching-baseline pass and changed-result failure. Compare the integration effort with the local pytest-and-cassette alternative.",
+        "risks": [
+          "Metadata only; implementation details, tests, and execution are not established.",
+          "The mechanism may target different frameworks or call boundaries and may not intercept run_chat’s relevant tool calls.",
+          "Its cassette format or comparison semantics may not fit the suite’s case and baseline.",
+          "Replay may still make live calls, or adapting it may require more work than the direct alternative."
+        ],
+        "repository": "Tejasdk04/agent-golden-harness",
+        "status": "unverified_selection",
+        "qualified": false,
+        "acquired_source": {
+          "id": 1390926176,
+          "full_name": "Tejasdk04/agent-golden-harness",
+          "revision": "46afde6e747fdaf503132f222f8af2fd8e529e9d"
+        }
+      }
+    },
+    "reported_usage": [
+      {
+        "input_tokens": 5315,
+        "output_tokens": 2207,
+        "estimated_cost_usd_at_configured_prices": 0.001635
+      },
+      {
+        "input_tokens": 7737,
+        "output_tokens": 1358,
+        "estimated_cost_usd_at_configured_prices": 0.0014527000000000001
+      },
+      {
+        "input_tokens": 4433,
+        "output_tokens": 478,
+        "estimated_cost_usd_at_configured_prices": 0.0006822999999999999
+      },
+      {
+        "input_tokens": 31760,
+        "output_tokens": 2695,
+        "estimated_cost_usd_at_configured_prices": 0.0045235
+      },
+      {
+        "input_tokens": 43453,
+        "output_tokens": 7205,
+        "estimated_cost_usd_at_configured_prices": 0.0079478
+      }
+    ],
+    "ai_trace": [
+      {
+        "phase": "request",
+        "model": "gpt-6-luna",
+        "api_kind": "responses",
+        "response_id": "resp_0eaee7b96e2a0059016acc0e274eac87d29b1bcfa77d01e22f",
+        "response_status": "completed",
+        "request_sha256": "4a4f4d360c93ff2d8e0cd387a46c89b6255689cc7b41481e7ffac1fe2a0370ca",
+        "request_bytes": 21340,
+        "context_coverage": {
+          "phase": "request",
+          "source_ids": [
+            "q0",
+            "t9",
+            "t8",
+            "t7",
+            "t6",
+            "t5",
+            "t4",
+            "t3",
+            "t2",
+            "t1",
+            "t0",
+            "q2",
+            "q1"
+          ],
+          "omitted_source_ids": [],
+          "source_id_limit": 400,
+          "source_id_limit_omissions": 0,
+          "shortened_discussion_ids": [],
+          "discussion_complete": true,
+          "note": "Selected evidence is not the whole repository. Missing context remains unknown; omitted discussion prevents a qualified positive.",
+          "optional_field_hint_scan_complete": true,
+          "target_reference_context": {
+            "revision": null,
+            "source_ids": [],
+            "omitted_source_ids": [],
+            "reference_only": true,
+            "absence_proves_novelty": false
+          },
+          "omitted_constraint_ids": [],
+          "constraint_hint_scan_complete": true,
+          "omitted_source_count": 0,
+          "payload_bytes": 7856,
+          "demand_span_coverage": {
+            "span_count": 19,
+            "omitted_visible_spans": 0,
+            "complete": true,
+            "sources_without_spans": [],
+            "source_count_without_spans": 0,
+            "method": "exact original spans; bounded root opening then round-robin discussion coverage, not semantic validation"
+          }
+        },
+        "call_number": 1,
+        "attempt_id": "713b714786a142b0b2e6fbef76e6ae3b:1"
+      },
+      {
+        "phase": "request",
+        "model": "gpt-6-luna",
+        "api_kind": "responses",
+        "response_id": "resp_0881e01cca9b104a016acc0e38598487d29eb39b8757ba83c8",
+        "response_status": "completed",
+        "request_sha256": "f7a4febb041c6b6e6bdfae257aa9fa06b9d321af88441bd4da9efc8f30991131",
+        "request_bytes": 31213,
+        "context_coverage": {
+          "decision_version": "request-led-discovery-v1",
+          "target_file_limit": 4,
+          "target_characters_per_file": 8000,
+          "target_files_omitted": 0,
+          "all_target_source_available": false
+        },
+        "call_number": 2,
+        "attempt_id": "713b714786a142b0b2e6fbef76e6ae3b:2"
+      },
+      {
+        "phase": "request",
+        "model": "gpt-6-luna",
+        "api_kind": "responses",
+        "response_id": "resp_09e34f3bc87d0e2f016acc0e44941887d29757056e5b933542",
+        "response_status": "completed",
+        "request_sha256": "7df4f73217639500bef4b0e041b95ef84c4670e7b4733bfe6ee1011cea4a9bcd",
+        "request_bytes": 18653,
+        "context_coverage": {
+          "decision_version": "request-led-discovery-v1",
+          "repository_metadata_only": true,
+          "source_code_available": false
+        },
+        "call_number": 3,
+        "attempt_id": "713b714786a142b0b2e6fbef76e6ae3b:3"
+      },
+      {
+        "phase": "capabilities",
+        "model": "gpt-6-luna",
+        "api_kind": "responses",
+        "response_id": "resp_026db024e8841d18016acc0e59858c87d2b35aaa037da9ef50",
+        "response_status": "completed",
+        "request_sha256": "069d0573038e359653b7362f4b642070fcfd854df9505fd32c850313fbcbfe69",
+        "request_bytes": 113401,
+        "context_coverage": {
+          "phase": "capabilities",
+          "source_ids": [
+            "file:src/goldenagent/golden.py#L28-L32",
+            "file:src/goldenagent/recorder.py#L94-L96",
+            "file:src/goldenagent/cassette.py#L26-L37",
+            "file:src/goldenagent/redact.py#L48-L82",
+            "file:src/goldenagent/golden.py#L39-L63",
+            "file:src/goldenagent/recorder.py#L15-L74",
+            "file:src/goldenagent/cassette.py#L41-L97",
+            "file:src/goldenagent/golden.py#L20-L21",
+            "file:src/goldenagent/cli.py#L35-L48",
+            "file:src/goldenagent/cassette.py#L13-L22",
+            "file:src/goldenagent/diff.py#L9-L11",
+            "file:src/goldenagent/golden.py#L35-L36",
+            "file:src/goldenagent/recorder.py#L28-L40",
+            "file:src/goldenagent/redact.py#L22-L23",
+            "file:src/goldenagent/cli.py#L13-L18",
+            "file:src/goldenagent/cassette.py#L35-L37",
+            "file:src/goldenagent/diff.py#L14-L22",
+            "file:src/goldenagent/golden.py#L24-L25",
+            "file:src/goldenagent/recorder.py#L42-L43",
+            "file:src/goldenagent/redact.py#L51-L53",
+            "file:src/goldenagent/cli.py#L21-L32",
+            "file:src/goldenagent/cassette.py#L49-L50",
+            "file:src/goldenagent/diff.py#L25-L40",
+            "file:src/goldenagent/recorder.py#L45-L46",
+            "file:src/goldenagent/redact.py#L55-L63",
+            "file:src/goldenagent/cassette.py#L53-L63",
+            "file:src/goldenagent/recorder.py#L49-L50",
+            "file:src/goldenagent/redact.py#L65-L71",
+            "file:src/goldenagent/cassette.py#L65-L66",
+            "file:src/goldenagent/recorder.py#L52-L53",
+            "file:src/goldenagent/recorder.py#L75-L91",
+            "file:tests/test_golden.py#L15-L15",
+            "file:tests/test_golden.py#L23-L23",
+            "file:tests/test_golden.py#L31-L31",
+            "file:tests/test_cassette.py#L19-L20",
+            "file:tests/test_cassette.py#L30-L30",
+            "file:tests/test_golden.py#L8-L8",
+            "file:tests/test_golden.py#L10-L10",
+            "file:tests/test_golden.py#L25-L25",
+            "file:tests/test_cassette.py#L18-L18",
+            "file:tests/test_cassette.py#L29-L29",
+            "file:tests/test_cassette.py#L7-L7",
+            "file:tests/test_cassette.py#L8-L8",
+            "file:tests/test_cassette.py#L13-L13",
+            "file:tests/test_cassette.py#L21-L21",
+            "file:tests/test_cassette.py#L24-L24",
+            "file:src/goldenagent/cli.py#L1-L52",
+            "file:src/goldenagent/__init__.py#L1-L24",
+            "file:src/goldenagent/cassette.py#L1-L60",
+            "file:src/goldenagent/golden.py#L1-L60",
+            "file:src/goldenagent/recorder.py#L1-L60",
+            "file:src/goldenagent/redact.py#L1-L60",
+            "file:src/goldenagent/diff.py#L1-L40",
+            "file:pyproject.toml#L1-L37",
+            "file:README.md#L1-L60",
+            "file:examples/demo_agent.py#L1-L60",
+            "file:LICENSE#L1-L21",
+            "file:tests/test_cassette.py#L1-L43",
+            "file:tests/test_golden.py#L1-L32",
+            "file:src/goldenagent/cassette.py#L61-L97",
+            "file:src/goldenagent/golden.py#L61-L63",
+            "file:src/goldenagent/recorder.py#L61-L96",
+            "file:src/goldenagent/redact.py#L61-L82",
+            "file:README.md#L61-L120",
+            "file:examples/demo_agent.py#L61-L73",
+            "file:README.md#L121-L131"
+          ],
+          "omitted_source_ids": [],
+          "source_id_limit": 400,
+          "source_id_limit_omissions": 0,
+          "shortened_discussion_ids": [],
+          "discussion_complete": false,
+          "capability_ids": [
+            "591f0135754cd2d7a80c",
+            "3157c557a9209a56c0b0",
+            "bfbbc962d3b35fda841c",
+            "973aa4fb2febdfa0878b",
+            "75716dc70c1841eacf0a",
+            "3898c2f82a11710f28df",
+            "0c73bdd52e75a40d009f",
+            "68712d2ee5a549440343",
+            "a04de6084fb95cb1bce6",
+            "f87037d19c6bb92c991e",
+            "5a8e5cab2d3ac6a4fef6",
+            "cadc2edd5b22201cc900",
+            "52ce6604dade9a8104cc",
+            "347b2567544b077624c6",
+            "c275e6980964425e8de3",
+            "0662ba149a3dfb52d4ee",
+            "456de551b088164f31ea",
+            "225e3562e3bf11befeb1",
+            "a132dea84b1e5a808051",
+            "56ae0d724357a5c0cf86",
+            "00c7c687dc74ff15ce3f",
+            "25bc33fcd8d32b6b6877",
+            "0b42379da4a5c84ee44d",
+            "c584af9e8c1909669d8e",
+            "d443e1a0813f87851451",
+            "0b1e1be90798643dd2ce",
+            "21149da5e8654a0168a8",
+            "5871093ed592c9f76653",
+            "52007562e0adc8082e81",
+            "0f1c427b5ae5e2aa644e"
+          ],
+          "omitted_capability_ids": [
+            "efba922318b36495185b",
+            "38432406adc8765c662c",
+            "908719cf8ca24a260379",
+            "dae2da66c893d2cec017",
+            "23bd4ef8b6df535590f8",
+            "015590e5dcf3d4d6b6f0",
+            "884a57b7dc8f27e283bc",
+            "79b70ad77a2bced349da",
+            "bc287b751afde32df5a8",
+            "56ce9f920c9c5ecb8637",
+            "e693a5c1ae71c13e745d",
+            "076e6bc1662bd25c9af4",
+            "2fd6de84481afec394a0",
+            "e81f5284398ae551138e",
+            "eb9f4cc09ac890b5ed52",
+            "64d782fffb646c3443d9",
+            "f2d831a95785ebac3db0",
+            "011ca372fa7844214039",
+            "5691a9411a4cf0d4279f"
+          ],
+          "source_coverage": {
+            "tree_truncated": false,
+            "tree_entries": 28,
+            "eligible_files": 16,
+            "files_scanned": 13,
+            "file_budget": 24,
+            "bytes_scanned": 26952,
+            "language_counts": {
+              "Documentation/manifest": 3,
+              "Python": 10
+            },
+            "tree_language_counts": {
+              "Other": 7,
+              "Python": 13
+            },
+            "excluded": {
+              "unsupported_file_type": 4,
+              "credential_looking_content": 3
+            },
+            "sampling_policy": "Path heuristic plus static initializer/re-export hints; bounded docs/source/test mix, not export verification.",
+            "static_export_hints": [],
+            "export_hints_complete": true,
+            "omitted_export_paths": [],
+            "initializer_import_hints": [
+              {
+                "from": "src/goldenagent/__init__.py",
+                "path": "src/goldenagent/cassette.py"
+              },
+              {
+                "from": "src/goldenagent/__init__.py",
+                "path": "src/goldenagent/golden.py"
+              },
+              {
+                "from": "src/goldenagent/__init__.py",
+                "path": "src/goldenagent/recorder.py"
+              },
+              {
+                "from": "src/goldenagent/__init__.py",
+                "path": "src/goldenagent/redact.py"
+              }
+            ],
+            "initializer_import_hints_complete": true,
+            "initializer_hint_limit": 64,
+            "omitted_initializer_imports": [],
+            "eligible_source_roles": {
+              "infrastructure": 1,
+              "implementation": 7
+            },
+            "acquired_source_roles": {
+              "implementation": 7,
+              "infrastructure": 1
+            },
+            "runtime_bin_entrypoints": {},
+            "metadata_redacted": false,
+            "metadata_truncated": false,
+            "complete": false,
+            "eligible_sample_complete": false,
+            "limitations": [
+              "Bounded source sample; declarations and test references are not execution proof.",
+              "Some files were excluded for safety, size, encoding or unsupported type."
+            ],
+            "analysis": {
+              "files": [
+                {
+                  "path": "LICENSE",
+                  "status": "quoted_only",
+                  "language": "Documentation/manifest"
+                },
+                {
+                  "path": "pyproject.toml",
+                  "status": "quoted_only",
+                  "language": "Documentation/manifest"
+                },
+                {
+                  "path": "src/goldenagent/cli.py",
+                  "status": "ast",
+                  "language": "Python"
+                },
+                {
+                  "path": "src/goldenagent/__init__.py",
+                  "status": "ast",
+                  "language": "Python"
+                },
+                {
+                  "path": "src/goldenagent/cassette.py",
+                  "status": "ast",
+                  "language": "Python"
+                },
+                {
+                  "path": "src/goldenagent/golden.py",
+                  "status": "ast",
+                  "language": "Python"
+                },
+                {
+                  "path": "src/goldenagent/recorder.py",
+                  "status": "ast",
+                  "language": "Python"
+                },
+                {
+                  "path": "src/goldenagent/redact.py",
+                  "status": "ast",
+                  "language": "Python"
+                },
+                {
+                  "path": "tests/test_cassette.py",
+                  "status": "ast",
+                  "language": "Python"
+                },
+                {
+                  "path": "README.md",
+                  "status": "quoted_only",
+                  "language": "Documentation/manifest"
+                },
+                {
+                  "path": "src/goldenagent/diff.py",
+                  "status": "ast",
+                  "language": "Python"
+                },
+                {
+                  "path": "examples/demo_agent.py",
+                  "status": "ast",
+                  "language": "Python"
+                },
+                {
+                  "path": "tests/test_golden.py",
+                  "status": "ast",
+                  "language": "Python"
+                }
+              ],
+              "capabilities": 49,
+              "capability_limit": 100,
+              "capability_limit_reached": false,
+              "supported_languages": {
+                "Python": "AST",
+                "JavaScript": "partial",
+                "TypeScript": "partial"
+              },
+              "execution": "none",
+              "test_evidence": "name-matched call references; not verified coverage",
+              "limitations": [
+                "Direct and nested declarations only; declarations inside control-flow blocks may be omitted.",
+                "JS/TS scan may miss declarations or identify comment/string lookalikes."
+              ]
+            }
+          },
+          "note": "Selected evidence is not the whole repository. Missing context remains unknown; omitted discussion prevents a qualified positive.",
+          "selection_policy": "Request root, then implementation definitions before later discussion; literal public API hints within each source-role tier, per-file diversity and interleaved spans. Path heuristic with exact acquired-manifest bin targets, not verified exports or execution.",
+          "public_api_hints": {
+            "entrypoints": [
+              "src/goldenagent/cassette.py:Cassette",
+              "src/goldenagent/cassette.py:Interaction",
+              "src/goldenagent/recorder.py:Recorder",
+              "src/goldenagent/recorder.py:replay",
+              "src/goldenagent/redact.py:Redactor",
+              "src/goldenagent/redact.py:DEFAULT_RULES",
+              "src/goldenagent/golden.py:assert_golden",
+              "src/goldenagent/golden.py:write_golden",
+              "src/goldenagent/golden.py:GoldenMismatch"
+            ],
+            "scan_complete": true,
+            "method": "literal __all__ and direct acquired relative imports; ranking hints, not verified exports",
+            "omitted_entrypoint_count": 0,
+            "entrypoint_list_complete": true
+          },
+          "declaration_context_only_capability_ids": [],
+          "selected_capability_roles": {
+            "implementation": 30
+          },
+          "supplied_source_roles": {
+            "implementation": 7,
+            "test": 2,
+            "support": 3,
+            "infrastructure": 1
+          },
+          "implementation_source_paths": [
+            "src/goldenagent/golden.py",
+            "src/goldenagent/recorder.py",
+            "src/goldenagent/cassette.py",
+            "src/goldenagent/redact.py",
+            "src/goldenagent/cli.py",
+            "src/goldenagent/diff.py",
+            "src/goldenagent/__init__.py"
+          ],
+          "runtime_bin_entrypoints": {},
+          "implementation_context_missing": false,
+          "omitted_source_count": 0,
+          "payload_bytes": 93948
+        },
+        "call_number": 4,
+        "attempt_id": "713b714786a142b0b2e6fbef76e6ae3b:4"
+      },
+      {
+        "phase": "matches",
+        "model": "gpt-6-luna",
+        "api_kind": "responses",
+        "response_id": "resp_0eb81d378809ae57016acc0e705fa887d2af1b2e550d8319c1",
+        "response_status": "completed",
+        "request_sha256": "5f2067b607805f700368321de2080596d5dceb66b1c286f0e5058929b58dd71c",
+        "request_bytes": 160554,
+        "context_coverage": {
+          "phase": "matches",
+          "source_ids": [
+            "q0",
+            "file:src/goldenagent/golden.py#L39-L63",
+            "file:src/goldenagent/recorder.py#L94-L96",
+            "file:src/goldenagent/cassette.py#L26-L37",
+            "file:src/goldenagent/redact.py#L48-L82",
+            "file:src/goldenagent/golden.py#L28-L32",
+            "file:src/goldenagent/recorder.py#L15-L74",
+            "file:src/goldenagent/cassette.py#L41-L97",
+            "file:src/goldenagent/golden.py#L20-L21",
+            "file:src/goldenagent/cassette.py#L13-L22",
+            "file:src/goldenagent/cli.py#L35-L48",
+            "file:src/goldenagent/redact.py#L55-L63",
+            "file:src/goldenagent/diff.py#L9-L11",
+            "file:src/goldenagent/golden.py#L35-L36",
+            "file:src/goldenagent/recorder.py#L28-L40",
+            "file:src/goldenagent/cassette.py#L53-L63",
+            "file:src/goldenagent/cli.py#L13-L18",
+            "file:src/goldenagent/redact.py#L22-L23",
+            "file:src/goldenagent/diff.py#L14-L22",
+            "file:src/goldenagent/golden.py#L24-L25",
+            "file:src/goldenagent/recorder.py#L42-L43",
+            "file:src/goldenagent/cassette.py#L35-L37",
+            "file:src/goldenagent/cli.py#L21-L32",
+            "file:src/goldenagent/redact.py#L51-L53",
+            "file:src/goldenagent/diff.py#L25-L40",
+            "file:src/goldenagent/recorder.py#L45-L46",
+            "file:src/goldenagent/cassette.py#L49-L50",
+            "file:src/goldenagent/redact.py#L65-L71",
+            "file:src/goldenagent/recorder.py#L49-L50",
+            "file:src/goldenagent/cassette.py#L65-L66",
+            "file:src/goldenagent/redact.py#L74-L76",
+            "file:src/goldenagent/recorder.py#L75-L91",
+            "file:tests/test_golden.py#L8-L8",
+            "file:tests/test_golden.py#L10-L10",
+            "file:tests/test_golden.py#L25-L25",
+            "file:tests/test_cassette.py#L19-L20",
+            "file:tests/test_cassette.py#L30-L30",
+            "file:tests/test_golden.py#L15-L15",
+            "file:tests/test_golden.py#L23-L23",
+            "file:tests/test_golden.py#L31-L31",
+            "file:tests/test_cassette.py#L18-L18",
+            "file:tests/test_cassette.py#L29-L29",
+            "file:tests/test_cassette.py#L7-L7",
+            "file:tests/test_cassette.py#L8-L8",
+            "file:tests/test_cassette.py#L13-L13",
+            "file:tests/test_cassette.py#L21-L21",
+            "file:tests/test_cassette.py#L24-L24",
+            "t9",
+            "t8",
+            "t7",
+            "t6",
+            "t5",
+            "t4",
+            "t3",
+            "t2",
+            "t1",
+            "t0",
+            "q2",
+            "q1",
+            "target:pyproject.toml",
+            "target:requirements.txt",
+            "target:Agentic-Coding-Pipeline/run.py",
+            "target:src/agentic_ai/app.py",
+            "file:src/goldenagent/cli.py#L1-L52",
+            "file:src/goldenagent/__init__.py#L1-L24",
+            "file:src/goldenagent/cassette.py#L1-L60",
+            "file:src/goldenagent/golden.py#L1-L60",
+            "file:src/goldenagent/recorder.py#L1-L60",
+            "file:src/goldenagent/redact.py#L1-L60",
+            "file:src/goldenagent/diff.py#L1-L40",
+            "file:pyproject.toml#L1-L37",
+            "file:README.md#L1-L60",
+            "file:examples/demo_agent.py#L1-L60",
+            "file:LICENSE#L1-L21",
+            "file:README.md#L121-L131"
+          ],
+          "omitted_source_ids": [
+            "file:tests/test_cassette.py#L1-L43",
+            "file:tests/test_golden.py#L1-L32",
+            "file:src/goldenagent/cassette.py#L61-L97",
+            "file:src/goldenagent/golden.py#L61-L63",
+            "file:src/goldenagent/recorder.py#L61-L96",
+            "file:src/goldenagent/redact.py#L61-L82",
+            "file:README.md#L61-L120",
+            "file:examples/demo_agent.py#L61-L73"
+          ],
+          "source_id_limit": 400,
+          "source_id_limit_omissions": 0,
+          "shortened_discussion_ids": [],
+          "discussion_complete": true,
+          "capability_ids": [
+            "75716dc70c1841eacf0a",
+            "3157c557a9209a56c0b0",
+            "bfbbc962d3b35fda841c",
+            "973aa4fb2febdfa0878b",
+            "591f0135754cd2d7a80c",
+            "3898c2f82a11710f28df",
+            "0c73bdd52e75a40d009f",
+            "68712d2ee5a549440343",
+            "f87037d19c6bb92c991e",
+            "a04de6084fb95cb1bce6",
+            "d443e1a0813f87851451",
+            "5a8e5cab2d3ac6a4fef6",
+            "cadc2edd5b22201cc900",
+            "52ce6604dade9a8104cc",
+            "0b1e1be90798643dd2ce",
+            "c275e6980964425e8de3",
+            "347b2567544b077624c6",
+            "456de551b088164f31ea",
+            "225e3562e3bf11befeb1",
+            "a132dea84b1e5a808051",
+            "0662ba149a3dfb52d4ee",
+            "00c7c687dc74ff15ce3f",
+            "56ae0d724357a5c0cf86",
+            "0b42379da4a5c84ee44d",
+            "c584af9e8c1909669d8e",
+            "25bc33fcd8d32b6b6877",
+            "5871093ed592c9f76653",
+            "21149da5e8654a0168a8",
+            "52007562e0adc8082e81",
+            "23bd4ef8b6df535590f8"
+          ],
+          "omitted_capability_ids": [
+            "efba922318b36495185b",
+            "38432406adc8765c662c",
+            "908719cf8ca24a260379",
+            "dae2da66c893d2cec017",
+            "0f1c427b5ae5e2aa644e",
+            "015590e5dcf3d4d6b6f0",
+            "884a57b7dc8f27e283bc",
+            "79b70ad77a2bced349da",
+            "bc287b751afde32df5a8",
+            "56ce9f920c9c5ecb8637",
+            "e693a5c1ae71c13e745d",
+            "076e6bc1662bd25c9af4",
+            "2fd6de84481afec394a0",
+            "e81f5284398ae551138e",
+            "eb9f4cc09ac890b5ed52",
+            "64d782fffb646c3443d9",
+            "f2d831a95785ebac3db0",
+            "011ca372fa7844214039",
+            "5691a9411a4cf0d4279f"
+          ],
+          "source_coverage": {
+            "tree_truncated": false,
+            "tree_entries": 28,
+            "eligible_files": 16,
+            "files_scanned": 13,
+            "file_budget": 24,
+            "bytes_scanned": 26952,
+            "language_counts": {
+              "Documentation/manifest": 3,
+              "Python": 10
+            },
+            "tree_language_counts": {
+              "Other": 7,
+              "Python": 13
+            },
+            "excluded": {
+              "unsupported_file_type": 4,
+              "credential_looking_content": 3
+            },
+            "sampling_policy": "Path heuristic plus static initializer/re-export hints; bounded docs/source/test mix, not export verification.",
+            "static_export_hints": [],
+            "export_hints_complete": true,
+            "omitted_export_paths": [],
+            "initializer_import_hints": [
+              {
+                "from": "src/goldenagent/__init__.py",
+                "path": "src/goldenagent/cassette.py"
+              },
+              {
+                "from": "src/goldenagent/__init__.py",
+                "path": "src/goldenagent/golden.py"
+              },
+              {
+                "from": "src/goldenagent/__init__.py",
+                "path": "src/goldenagent/recorder.py"
+              },
+              {
+                "from": "src/goldenagent/__init__.py",
+                "path": "src/goldenagent/redact.py"
+              }
+            ],
+            "initializer_import_hints_complete": true,
+            "initializer_hint_limit": 64,
+            "omitted_initializer_imports": [],
+            "eligible_source_roles": {
+              "infrastructure": 1,
+              "implementation": 7
+            },
+            "acquired_source_roles": {
+              "implementation": 7,
+              "infrastructure": 1
+            },
+            "runtime_bin_entrypoints": {},
+            "metadata_redacted": false,
+            "metadata_truncated": false,
+            "complete": false,
+            "eligible_sample_complete": false,
+            "limitations": [
+              "Bounded source sample; declarations and test references are not execution proof.",
+              "Some files were excluded for safety, size, encoding or unsupported type."
+            ],
+            "analysis": {
+              "files": [
+                {
+                  "path": "LICENSE",
+                  "status": "quoted_only",
+                  "language": "Documentation/manifest"
+                },
+                {
+                  "path": "pyproject.toml",
+                  "status": "quoted_only",
+                  "language": "Documentation/manifest"
+                },
+                {
+                  "path": "src/goldenagent/cli.py",
+                  "status": "ast",
+                  "language": "Python"
+                },
+                {
+                  "path": "src/goldenagent/__init__.py",
+                  "status": "ast",
+                  "language": "Python"
+                },
+                {
+                  "path": "src/goldenagent/cassette.py",
+                  "status": "ast",
+                  "language": "Python"
+                },
+                {
+                  "path": "src/goldenagent/golden.py",
+                  "status": "ast",
+                  "language": "Python"
+                },
+                {
+                  "path": "src/goldenagent/recorder.py",
+                  "status": "ast",
+                  "language": "Python"
+                },
+                {
+                  "path": "src/goldenagent/redact.py",
+                  "status": "ast",
+                  "language": "Python"
+                },
+                {
+                  "path": "tests/test_cassette.py",
+                  "status": "ast",
+                  "language": "Python"
+                },
+                {
+                  "path": "README.md",
+                  "status": "quoted_only",
+                  "language": "Documentation/manifest"
+                },
+                {
+                  "path": "src/goldenagent/diff.py",
+                  "status": "ast",
+                  "language": "Python"
+                },
+                {
+                  "path": "examples/demo_agent.py",
+                  "status": "ast",
+                  "language": "Python"
+                },
+                {
+                  "path": "tests/test_golden.py",
+                  "status": "ast",
+                  "language": "Python"
+                }
+              ],
+              "capabilities": 49,
+              "capability_limit": 100,
+              "capability_limit_reached": false,
+              "supported_languages": {
+                "Python": "AST",
+                "JavaScript": "partial",
+                "TypeScript": "partial"
+              },
+              "execution": "none",
+              "test_evidence": "name-matched call references; not verified coverage",
+              "limitations": [
+                "Direct and nested declarations only; declarations inside control-flow blocks may be omitted.",
+                "JS/TS scan may miss declarations or identify comment/string lookalikes."
+              ]
+            }
+          },
+          "note": "Selected evidence is not the whole repository. Missing context remains unknown; omitted discussion prevents a qualified positive.",
+          "target_reference_context": {
+            "revision": "443716a7d227b0d36cd73b82f134ccf00aa34185",
+            "source_ids": [
+              "target:pyproject.toml",
+              "target:requirements.txt",
+              "target:Agentic-Coding-Pipeline/run.py",
+              "target:src/agentic_ai/app.py"
+            ],
+            "omitted_source_ids": [],
+            "reference_only": true,
+            "absence_proves_novelty": false
+          },
+          "omitted_constraint_ids": [],
+          "constraint_hint_scan_complete": true,
+          "selection_policy": "Request root, then implementation definitions before later discussion; literal public API hints within each source-role tier, per-file diversity and interleaved spans. Path heuristic with exact acquired-manifest bin targets, not verified exports or execution.",
+          "public_api_hints": {
+            "entrypoints": [
+              "src/goldenagent/cassette.py:Cassette",
+              "src/goldenagent/cassette.py:Interaction",
+              "src/goldenagent/recorder.py:Recorder",
+              "src/goldenagent/recorder.py:replay",
+              "src/goldenagent/redact.py:Redactor",
+              "src/goldenagent/redact.py:DEFAULT_RULES",
+              "src/goldenagent/golden.py:assert_golden",
+              "src/goldenagent/golden.py:write_golden",
+              "src/goldenagent/golden.py:GoldenMismatch"
+            ],
+            "scan_complete": true,
+            "method": "literal __all__ and direct acquired relative imports; ranking hints, not verified exports",
+            "omitted_entrypoint_count": 0,
+            "entrypoint_list_complete": true
+          },
+          "declaration_context_only_capability_ids": [],
+          "selected_capability_roles": {
+            "implementation": 30
+          },
+          "supplied_source_roles": {
+            "implementation": 7,
+            "test": 2,
+            "support": 3,
+            "infrastructure": 1
+          },
+          "implementation_source_paths": [
+            "src/goldenagent/golden.py",
+            "src/goldenagent/recorder.py",
+            "src/goldenagent/cassette.py",
+            "src/goldenagent/redact.py",
+            "src/goldenagent/cli.py",
+            "src/goldenagent/diff.py",
+            "src/goldenagent/__init__.py"
+          ],
+          "runtime_bin_entrypoints": {},
+          "implementation_context_missing": false,
+          "omitted_source_count": 8,
+          "payload_bytes": 116520
+        },
+        "call_number": 5,
+        "attempt_id": "713b714786a142b0b2e6fbef76e6ae3b:5"
+      }
+    ],
+    "native_outputs": [
+      {
+        "phase": "request",
+        "call_number": 1,
+        "attempt_id": "713b714786a142b0b2e6fbef76e6ae3b:1",
+        "output": {
+          "outcome": "The owner welcomed a PR and recommended wiring the suite to the core chat flow via run_chat. The requester later reported wiring it there and opening PR #24, but the discussion does not establish that the PR was merged or that the check was executed.",
+          "status": "unresolved",
+          "status_source_ids": [
+            "q0",
+            "q1",
+            "q2"
+          ],
+          "status_reason": "The requested contribution is described in a follow-up as being in PR #24, and the owner’s suggested entrypoint was followed. There is no supplied confirmation of merge or repository adoption, so the requested change cannot be treated as resolved.",
+          "requirements": [
+            {
+              "text": "Provide an evals/runledger/ suite.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "s8c50eab40b21812f",
+              "inference": "The request lists the suite directory as part of the proposed PR."
+            },
+            {
+              "text": "Include one case in the suite.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "s8c50eab40b21812f",
+              "inference": "The request explicitly names one case as a suite component."
+            },
+            {
+              "text": "Include a schema for the suite.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "s8c50eab40b21812f",
+              "inference": "The request explicitly names a schema as a suite component."
+            },
+            {
+              "text": "Include a cassette for the suite.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "s8c50eab40b21812f",
+              "inference": "The request explicitly names a cassette as a suite component."
+            },
+            {
+              "text": "Provide baselines/runledger-demo.json.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "sbc151adde5675962",
+              "inference": "The requested PR lists this specific baseline file."
+            },
+            {
+              "text": "Provide a GitHub Actions workflow to run the CI check, if that optional workflow is chosen; its trigger may be manual or on PR.",
+              "mandatory": false,
+              "explicit": true,
+              "citation_id": "s6736abc3fb73709e",
+              "inference": "The workflow is explicitly optional, and the trigger is left to the repository owner's preference."
+            },
+            {
+              "text": "The check should be deterministic and use record-once/replay-in-CI behavior to catch agent/tool regressions, failing on mismatch.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "s0414f1767a5d546e",
+              "inference": "This states the goal and expected check behavior."
+            },
+            {
+              "text": "The CI replay should avoid live tool calls.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "s0414f1767a5d546e",
+              "inference": "Avoiding live tool calls is explicit; the later report describes recorded tool outputs."
+            },
+            {
+              "text": "Wire the suite to an existing agent/example entrypoint; the owner recommended the core chat flow through src/agentic_ai/graph.py via run_chat, and the follow-up reports using that entrypoint.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "sbb420b358ec30463",
+              "inference": "The initial request asks which entrypoint to use; the repository member recommends run_chat and the requester later says they followed that suggestion."
+            },
+            {
+              "text": "Use a small adapter script under evals/runledger/ that calls run_chat directly, avoiding the need to boot FastAPI.",
+              "mandatory": false,
+              "explicit": false,
+              "citation_id": "s0697621394021b06",
+              "inference": "This is the owner's suggested implementation approach, not an explicit requirement in the original proposal; the follow-up confirms run_chat wiring but does not explicitly confirm an adapter script."
+            }
+          ],
+          "optional_field_dispositions": [],
+          "environment": [
+            "The requested check is intended to run in CI.",
+            "The owner suggested targeting the core chat agent rather than the heavier coding pipeline."
+          ],
+          "prior_attempts": [
+            "The owner accepted the offer and suggested src/agentic_ai/graph.py via run_chat as the entrypoint (q1).",
+            "The requester reports wiring RunLedger to run_chat and opening PR #24; the report also provides a local replay command, but does not establish that the PR was merged or the command was executed (q2)."
+          ],
+          "missing_information": [
+            "The discussion does not establish whether PR #24 was merged or adopted.",
+            "The optional GitHub Actions workflow's trigger—manual or on PR—was left to the owner's preference and is not specified in the supplied discussion."
+          ]
+        }
+      },
+      {
+        "phase": "request",
+        "call_number": 2,
+        "attempt_id": "713b714786a142b0b2e6fbef76e6ae3b:2",
+        "output": {
+          "decision": "search",
+          "reason": "A bounded search is worth testing for the record/replay mechanism, not for the suite’s ordinary files or workflow. The request requires deterministic CI replay without live tool calls and names run_chat as the integration point (q0, q1); a reusable Python tool-call cassette mechanism could reduce custom interception and replay code. The strongest direct alternative remains a small pytest adapter with a local cassette and baseline. PR #24 is reported but adoption and execution are not established (q2).",
+          "direct_alternative": {
+            "description": "Use pytest and a small local adapter that invokes run_chat, replays recorded tool outputs without live calls, and compares the result to a checked-in baseline; keep the case, schema, cassette, and optional workflow repository-specific.",
+            "adequacy": "likely_sufficient",
+            "limitations": [
+              "Whether local interception can reliably isolate all relevant tool calls and make replay deterministic is not verified by the supplied sample.",
+              "The exact comparison semantics for a mismatch are not specified."
+            ]
+          },
+          "benefit_hypothesis": "A compatible existing replay mechanism may provide tool-call capture and offline replay that integrates with the requested run_chat flow, reducing bespoke adapter logic while preserving the requested no-live-call CI behavior.",
+          "benefit_test": "For a bounded investigation, compare a candidate with the local pytest-and-cassette approach on the same run_chat case: require replay from the cassette with zero live tool calls, deterministic pass on the matching baseline, and failure on a deliberately changed expected result. Reject the candidate if it cannot meet these checks without bypassing run_chat, or if it adds more integration work than the local adapter.",
+          "operations": [
+            {
+              "operation": "Record tool-call outputs for a run_chat case and replay them offline in CI, comparing the resulting evaluation against a baseline.",
+              "input": "A suite case and recorded tool-call cassette.",
+              "output": "A deterministic pass or mismatch failure, without live tool calls during CI replay.",
+              "requirement_ids": [
+                "r3",
+                "r6",
+                "r7",
+                "r8",
+                "r9"
+              ],
+              "rationale": "This is the distinctive behavior behind the requested regression check. Searching for tool-call replay rather than a generic evaluation suite could reveal reusable interception and cassette handling; the direct alternative is still a small local pytest adapter.",
+              "search_terms": "Python LangGraph LangChain tool call cassette record replay offline pytest"
+            }
+          ],
+          "unknowns": [
+            "Whether PR #24 was merged or adopted, and whether its reported replay command was executed (q2).",
+            "Whether the target’s complete codebase already has relevant replay support; the supplied target sample is bounded.",
+            "The preferred optional workflow trigger and the exact baseline comparison semantics."
+          ]
+        }
+      },
+      {
+        "phase": "request",
+        "call_number": 3,
+        "attempt_id": "713b714786a142b0b2e6fbef76e6ae3b:3",
+        "output": {
+          "decision": "inspect",
+          "candidate_id": "source10",
+          "operation_ids": [
+            "op0"
+          ],
+          "reason": "The operation requires recording tool-call outputs for a run_chat case and replaying them offline in CI with a baseline comparison. The direct alternative—a small pytest adapter with a local cassette—is likely sufficient, but source10’s metadata specifically describes recording model and tool calls, offline replay, and CI failure on behavioral drift, making it the strongest hypothesis for reducing custom replay work. This is a metadata-based investigation choice, not evidence of compatibility or successful reuse.",
+          "source_check": "Inspect whether the implementation actually captures and replays the relevant tool calls, can be used around run_chat without bypassing it, and supports deterministic offline replay plus matching-baseline pass and changed-result failure. Compare the integration effort with the local pytest-and-cassette alternative.",
+          "risks": [
+            "Metadata only; implementation details, tests, and execution are not established.",
+            "The mechanism may target different frameworks or call boundaries and may not intercept run_chat’s relevant tool calls.",
+            "Its cassette format or comparison semantics may not fit the suite’s case and baseline.",
+            "Replay may still make live calls, or adapting it may require more work than the direct alternative."
+          ]
+        }
+      },
+      {
+        "phase": "capabilities",
+        "call_number": 4,
+        "attempt_id": "713b714786a142b0b2e6fbef76e6ae3b:4",
+        "output": {
+          "capabilities": [
+            {
+              "id": "75716dc70c1841eacf0a",
+              "name": "Golden snapshot assertion",
+              "summary": "Creates a missing snapshot, optionally rewrites it in update mode, or compares its parsed value with the supplied value and raises a mismatch with a summary and unified diff when they differ.",
+              "outcome": "The implementation defines snapshot creation, update, and comparison behavior; execution was not verified.",
+              "inputs": [
+                "Snapshot path",
+                "Value to compare",
+                "Optional mismatch label"
+              ],
+              "outputs": [
+                "None on success; writes a snapshot when missing or in update mode; otherwise raises GoldenMismatch on drift"
+              ],
+              "preconditions": [
+                "Snapshot data must be readable JSON when the file already exists and update mode is off."
+              ],
+              "dependencies": [
+                "write_golden",
+                "read_golden",
+                "GOLDEN_UPDATE environment variable",
+                "summarise",
+                "unified"
+              ],
+              "limitations": [
+                "Value comparison is ordinary Python equality after reading the snapshot as JSON.",
+                "No execution or test results are established."
+              ],
+              "standalone": "yes",
+              "search_terms": [
+                "JSON snapshot regression testing",
+                "golden file comparison",
+                "unified diff assertion"
+              ],
+              "source_ids": [
+                "file:src/goldenagent/golden.py#L39-L63",
+                "file:src/goldenagent/golden.py#L61-L63",
+                "file:src/goldenagent/__init__.py#L1-L24"
+              ]
+            },
+            {
+              "id": "591f0135754cd2d7a80c",
+              "name": "Write canonical JSON snapshot",
+              "summary": "Creates parent directories as needed and writes a value in deterministic, sorted-key JSON form with a trailing newline.",
+              "outcome": "The function returns the path it writes; execution was not verified.",
+              "inputs": [
+                "Path as str or Path",
+                "Value to serialize"
+              ],
+              "outputs": [
+                "Path"
+              ],
+              "preconditions": [
+                "The path must be writable."
+              ],
+              "dependencies": [
+                "canonical JSON serialization"
+              ],
+              "limitations": [
+                "Serialization uses the supplied canonical formatter and its JSON-compatible value handling.",
+                "No execution or test results are established."
+              ],
+              "standalone": "yes",
+              "search_terms": [
+                "canonical JSON snapshot writer",
+                "sorted-key JSON serialization"
+              ],
+              "source_ids": [
+                "file:src/goldenagent/golden.py#L28-L32",
+                "file:src/goldenagent/diff.py#L9-L11",
+                "file:src/goldenagent/__init__.py#L1-L24"
+              ]
+            },
+            {
+              "id": "3157c557a9209a56c0b0",
+              "name": "Load a replay recorder",
+              "summary": "Provides a shorthand that returns Recorder.from_file(path). The supplied body establishes the delegation, not the detailed replay behavior of the loaded recorder.",
+              "outcome": "The shorthand returns the result of Recorder.from_file; execution was not verified.",
+              "inputs": [
+                "Cassette file path"
+              ],
+              "outputs": [
+                "Recorder returned by Recorder.from_file"
+              ],
+              "preconditions": [
+                "The path is expected to identify a cassette readable by the delegated loader."
+              ],
+              "dependencies": [
+                "Recorder.from_file"
+              ],
+              "limitations": [
+                "The implementation of Recorder.from_file is not supplied as a distinct method capability, so its loading and replay details are not attributed here.",
+                "No execution or test results are established."
+              ],
+              "standalone": "yes",
+              "search_terms": [
+                "offline interaction replay loader",
+                "recorded call replay"
+              ],
+              "source_ids": [
+                "file:src/goldenagent/recorder.py#L94-L96",
+                "file:src/goldenagent/__init__.py#L1-L24"
+              ]
+            },
+            {
+              "id": "d443e1a0813f87851451",
+              "name": "Recursive sensitive-value scrubbing",
+              "summary": "Redactor.scrub processes strings, dictionary values, lists, and tuples recursively; other values are returned unchanged. String masking and hit counting are performed by the text-scrubbing helper.",
+              "outcome": "The method returns a scrubbed structure for supported nested containers; execution was not verified.",
+              "inputs": [
+                "Value to scrub",
+                "Redactor instance with configured rules"
+              ],
+              "outputs": [
+                "Scrubbed value; tuple inputs remain tuples and list inputs produce lists"
+              ],
+              "preconditions": [
+                "A Redactor instance must be initialized."
+              ],
+              "dependencies": [
+                "Redactor rules",
+                "Redactor._scrub_text"
+              ],
+              "limitations": [
+                "Only strings and nested dict/list/tuple values are traversed; other value types pass through unchanged.",
+                "Masking is limited to configured rules; this method does not establish comprehensive secret detection.",
+                "No execution or test results are established."
+              ],
+              "standalone": "no",
+              "search_terms": [
+                "recursive secret redaction",
+                "nested JSON value scrubbing"
+              ],
+              "source_ids": [
+                "file:src/goldenagent/redact.py#L55-L63",
+                "file:src/goldenagent/redact.py#L65-L71",
+                "file:src/goldenagent/redact.py#L51-L53"
+              ]
+            },
+            {
+              "id": "f87037d19c6bb92c991e",
+              "name": "Order-independent call fingerprint",
+              "summary": "Serializes a call kind and payload as JSON with sorted dictionary keys, hashes the result with SHA-256, and returns the first 16 hexadecimal characters.",
+              "outcome": "The function computes a deterministic fingerprint from its serialized inputs; execution was not verified.",
+              "inputs": [
+                "Call kind string",
+                "Payload"
+              ],
+              "outputs": [
+                "16-character hexadecimal fingerprint"
+              ],
+              "preconditions": [
+                "Inputs must be serializable by json.dumps, with unsupported values handled by str conversion."
+              ],
+              "dependencies": [
+                "JSON serialization",
+                "SHA-256"
+              ],
+              "limitations": [
+                "The fingerprint is truncated to 16 hexadecimal characters.",
+                "No execution or test results are established."
+              ],
+              "standalone": "yes",
+              "search_terms": [
+                "order-independent request fingerprint",
+                "stable call key hashing"
+              ],
+              "source_ids": [
+                "file:src/goldenagent/cassette.py#L13-L22"
+              ]
+            },
+            {
+              "id": "0b1e1be90798643dd2ce",
+              "name": "Cassette interaction lookup",
+              "summary": "Computes the fingerprint for a kind, name, and request, then searches stored interactions for a matching key; returns a separate found flag so a recorded None response is distinguishable from a miss.",
+              "outcome": "The method returns a matching response or a miss tuple; execution was not verified.",
+              "inputs": [
+                "Cassette instance",
+                "Interaction kind",
+                "Interaction name",
+                "Request"
+              ],
+              "outputs": [
+                "Tuple of found boolean and response, or (False, None)"
+              ],
+              "preconditions": [
+                "The cassette must contain interactions with keys compatible with the lookup fingerprint."
+              ],
+              "dependencies": [
+                "Cassette interactions",
+                "fingerprint"
+              ],
+              "limitations": [
+                "Lookup searches for a key match; it does not establish ordering constraints or consume a matched interaction.",
+                "No execution or test results are established."
+              ],
+              "standalone": "no",
+              "search_terms": [
+                "recorded response lookup",
+                "cassette request matching"
+              ],
+              "source_ids": [
+                "file:src/goldenagent/cassette.py#L53-L63",
+                "file:src/goldenagent/cassette.py#L13-L22"
+              ]
+            },
+            {
+              "id": "a04de6084fb95cb1bce6",
+              "name": "Cassette inspection and audit CLI dispatch",
+              "summary": "Configures a command-line parser with show and audit subcommands and dispatches the parsed arguments to the selected handler.",
+              "outcome": "The entry point returns the handler's integer result; execution was not verified.",
+              "inputs": [
+                "Optional argv list; otherwise argparse reads command-line arguments"
+              ],
+              "outputs": [
+                "Integer result from the selected command handler"
+              ],
+              "preconditions": [
+                "A show or audit subcommand and its required arguments must be supplied."
+              ],
+              "dependencies": [
+                "argparse",
+                "_cmd_show",
+                "_cmd_audit"
+              ],
+              "limitations": [
+                "This entry point delegates the actual show and audit operations to handlers; their behavior is not described by this capability.",
+                "No execution or test results are established."
+              ],
+              "standalone": "yes",
+              "search_terms": [
+                "cassette inspection CLI",
+                "secret audit command dispatch"
+              ],
+              "source_ids": [
+                "file:src/goldenagent/cli.py#L35-L48",
+                "file:pyproject.toml#L1-L37"
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "phase": "matches",
+        "call_number": 5,
+        "attempt_id": "713b714786a142b0b2e6fbef76e6ae3b:5",
+        "output": {
+          "matches": [
+            {
+              "capability_id": "0c73bdd52e75a40d009f",
+              "classification": "adapter",
+              "summary": "The cassette implementation provides a useful storage and lookup primitive for recorded interactions, including JSON persistence and a cassette schema version. It does not establish a project-specific RunLedger suite, its files, or CI wiring; those remain new work.",
+              "checks": [
+                {
+                  "requirement_id": "r0",
+                  "status": "undetermined",
+                  "contribution": "not_demonstrated",
+                  "reason": "No implementation here establishes the requested target-project suite directory.",
+                  "source_ids": [
+                    "q0"
+                  ]
+                },
+                {
+                  "requirement_id": "r1",
+                  "status": "undetermined",
+                  "contribution": "not_demonstrated",
+                  "reason": "No suite case or target-specific case definition is demonstrated.",
+                  "source_ids": [
+                    "q0"
+                  ]
+                },
+                {
+                  "requirement_id": "r2",
+                  "status": "undetermined",
+                  "contribution": "partial_behavior",
+                  "reason": "Cassette persistence records a schema_version and loading rejects an unsupported cassette version. That is a reusable cassette-format schema primitive, not the requested suite schema.",
+                  "source_ids": [
+                    "q0",
+                    "file:src/goldenagent/cassette.py#L41-L97"
+                  ]
+                },
+                {
+                  "requirement_id": "r3",
+                  "status": "undetermined",
+                  "contribution": "partial_behavior",
+                  "reason": "Cassette supports storing interactions as JSON and loading them again, but no committed cassette for the requested suite is supplied.",
+                  "source_ids": [
+                    "q0",
+                    "file:src/goldenagent/cassette.py#L41-L97"
+                  ]
+                },
+                {
+                  "requirement_id": "r4",
+                  "status": "undetermined",
+                  "contribution": "not_demonstrated",
+                  "reason": "This candidate does not implement the named baseline file or snapshot comparison.",
+                  "source_ids": [
+                    "q0"
+                  ]
+                },
+                {
+                  "requirement_id": "r5",
+                  "status": "undetermined",
+                  "contribution": "not_demonstrated",
+                  "reason": "No GitHub Actions workflow or trigger configuration is demonstrated; the request leaves this optional.",
+                  "source_ids": [
+                    "q0"
+                  ]
+                },
+                {
+                  "requirement_id": "r6",
+                  "status": "undetermined",
+                  "contribution": "partial_behavior",
+                  "reason": "Cassette append/save/load and request-key lookup are useful pieces of recording and replay, but do not implement the complete agent/tool run, deterministic CI assertion, or fail-on-mismatch check.",
+                  "source_ids": [
+                    "q0",
+                    "file:src/goldenagent/cassette.py#L41-L97"
+                  ]
+                },
+                {
+                  "requirement_id": "r7",
+                  "status": "undetermined",
+                  "contribution": "partial_behavior",
+                  "reason": "Lookup can retrieve a recorded response by request fingerprint, a primitive for replaying without making that tool call. This candidate does not establish that the integrated agent uses replay instead of live tools.",
+                  "source_ids": [
+                    "q0",
+                    "file:src/goldenagent/cassette.py#L53-L63"
+                  ]
+                },
+                {
+                  "requirement_id": "r8",
+                  "status": "undetermined",
+                  "contribution": "not_demonstrated",
+                  "reason": "No code here wires the target suite to run_chat. The owner’s recommendation and the reported PR do not establish adoption.",
+                  "source_ids": [
+                    "q1",
+                    "q2"
+                  ]
+                },
+                {
+                  "requirement_id": "r9",
+                  "status": "undetermined",
+                  "contribution": "not_demonstrated",
+                  "reason": "No target-side adapter calling run_chat directly is implemented by this cassette capability.",
+                  "source_ids": [
+                    "q1"
+                  ]
+                }
+              ],
+              "partial_support": [
+                {
+                  "requirement_id": "r2",
+                  "basis": "candidate_implementation",
+                  "operation": "Cassette.save and Cassette.load persist JSON containing schema_version; load rejects versions other than the supported version.",
+                  "requirement_part": "A versioned schema primitive for cassette files.",
+                  "remaining_work": "Define and include the RunLedger suite schema and validate its project-specific fields.",
+                  "source_ids": [
+                    "file:src/goldenagent/cassette.py#L41-L97"
+                  ]
+                },
+                {
+                  "requirement_id": "r3",
+                  "basis": "candidate_implementation",
+                  "operation": "Cassette.append, save, and load store and restore recorded interactions in JSON.",
+                  "requirement_part": "The cassette storage and serialization mechanism.",
+                  "remaining_work": "Add the requested cassette fixture under the target suite and ensure its interactions match the target agent/tool contract.",
+                  "source_ids": [
+                    "file:src/goldenagent/cassette.py#L41-L97"
+                  ]
+                },
+                {
+                  "requirement_id": "r6",
+                  "basis": "candidate_implementation",
+                  "operation": "Cassette can append interactions, persist/load them, and look up a response by interaction kind, name, and request.",
+                  "requirement_part": "Storage and retrieval primitives for recorded interactions.",
+                  "remaining_work": "Wire record and replay around the target agent, assert the agent output against a committed baseline, and make CI fail on drift.",
+                  "source_ids": [
+                    "file:src/goldenagent/cassette.py#L41-L97"
+                  ]
+                },
+                {
+                  "requirement_id": "r7",
+                  "basis": "candidate_implementation",
+                  "operation": "Cassette.lookup returns a matching stored response without invoking a tool callable.",
+                  "requirement_part": "Retrieving recorded tool output as a replay input.",
+                  "remaining_work": "Ensure the target agent’s CI path supplies replayed responses and cannot fall through to live tool calls.",
+                  "source_ids": [
+                    "file:src/goldenagent/cassette.py#L53-L63"
+                  ]
+                }
+              ],
+              "obstacles": [
+                "The target project dependency list does not show this candidate package; adoption or installation is unknown.",
+                "The issue follow-up reports a PR and local command, not merge or execution.",
+                "No target-specific suite schema, case, cassette, baseline, workflow, or run_chat adapter is established."
+              ],
+              "bridge": {
+                "kind": "example",
+                "summary": "A small fixture test can demonstrate the existing cassette JSON round-trip and lookup primitive. It is only a library-level example, not the requested target-agent regression suite.",
+                "steps": [
+                  "Make the candidate package importable from its local source tree or install it in the environment.",
+                  "Run `python -m unittest evals.runledger.test_cassette_replay`.",
+                  "Replace the assumed fixture interaction with a recorded target-agent cassette and add the missing run_chat adapter and baseline comparison separately."
+                ],
+                "existing_contribution": "Cassette provides JSON persistence of interactions, schema-version checking, and response lookup by request fingerprint.",
+                "new_logic": "The test constructs an assumed fixture cassette and checks round-trip lookup. Suite schema, target-agent integration, committed target cassette, baseline policy, CI workflow, and live-call prevention policy remain new work.",
+                "assumptions": [
+                  "The example fixture values are illustrative and are not criteria supplied by the request.",
+                  "The candidate package is made importable locally; it is not listed in the target dependencies."
+                ],
+                "dependencies": [
+                  "Python standard library for the demonstrated cassette operations.",
+                  "The candidate goldenagent package from its local source; target dependency adoption is not established by target:pyproject.toml."
+                ],
+                "runtime": "Python 3.10 or newer for the candidate; target project declares Python >=3.10,<3.13.",
+                "permissions": [
+                  "Local filesystem read/write for the temporary cassette."
+                ],
+                "coupling": "Low for the cassette fixture test; integrating it with run_chat requires target-specific adapter and tool-surface decisions.",
+                "input": "An illustrative tool interaction with request args [\"fixture\"] and response \"recorded result\".",
+                "expected_output": "A local test checks that the persisted fixture cassette reloads and yields the expected stored response. This is an example expectation, not an original request criterion or an executed result.",
+                "ablation": "Remove the cassette test and the target has no demonstration of this candidate’s serialization/lookup primitive; removing the proposed target adapter leaves the request’s agent-level check unimplemented.",
+                "files": [
+                  {
+                    "path": "evals/runledger/cassette_example.py",
+                    "content": "from pathlib import Path\nfrom tempfile import TemporaryDirectory\n\nfrom goldenagent import Cassette, Interaction\n\n\ndef round_trip_fixture(path: Path) -> str:\n    cassette = Cassette(name=\"illustrative-fixture\")\n    cassette.append(Interaction(\n        kind=\"tool\",\n        name=\"lookup\",\n        request={\"args\": [\"fixture\"], \"kwargs\": {}},\n        response=\"recorded result\",\n    ))\n    cassette.save(path)\n    loaded = Cassette.load(path)\n    found, response = loaded.lookup(\n        \"tool\", \"lookup\", {\"args\": [\"fixture\"], \"kwargs\": {}}\n    )\n    if not found:\n        raise AssertionError(\"illustrative fixture interaction was not found\")\n    return response\n\n\nif __name__ == \"__main__\":\n    with TemporaryDirectory() as directory:\n        print(round_trip_fixture(Path(directory) / \"fixture.json\"))\n"
+                  },
+                  {
+                    "path": "evals/runledger/test_cassette_replay.py",
+                    "content": "import unittest\nfrom pathlib import Path\nfrom tempfile import TemporaryDirectory\n\nfrom cassette_example import round_trip_fixture\n\n\nclass CassetteFixtureTest(unittest.TestCase):\n    def test_fixture_round_trips(self):\n        with TemporaryDirectory() as directory:\n            result = round_trip_fixture(Path(directory) / \"fixture.json\")\n        # Assumed example-fixture output; not a target agent success criterion.\n        self.assertEqual(result, \"recorded result\")\n\n\nif __name__ == \"__main__\":\n    unittest.main()\n"
+                  }
+                ]
+              }
+            },
+            {
+              "capability_id": "75716dc70c1841eacf0a",
+              "classification": "adapter",
+              "summary": "The snapshot assertion is a strong reusable primitive for a baseline comparison: it creates a missing snapshot or raises on changed content. It does not record/replay agent calls or provide the requested named baseline file or CI integration.",
+              "checks": [
+                {
+                  "requirement_id": "r0",
+                  "status": "undetermined",
+                  "contribution": "not_demonstrated",
+                  "reason": "No target suite directory is implemented by the snapshot assertion.",
+                  "source_ids": [
+                    "q0"
+                  ]
+                },
+                {
+                  "requirement_id": "r1",
+                  "status": "undetermined",
+                  "contribution": "not_demonstrated",
+                  "reason": "No target suite case is supplied.",
+                  "source_ids": [
+                    "q0"
+                  ]
+                },
+                {
+                  "requirement_id": "r2",
+                  "status": "undetermined",
+                  "contribution": "not_demonstrated",
+                  "reason": "A snapshot is not the requested suite schema, and no suite schema is implemented here.",
+                  "source_ids": [
+                    "q0"
+                  ]
+                },
+                {
+                  "requirement_id": "r3",
+                  "status": "undetermined",
+                  "contribution": "not_demonstrated",
+                  "reason": "This capability compares output snapshots; it does not implement an interaction cassette.",
+                  "source_ids": [
+                    "q0"
+                  ]
+                },
+                {
+                  "requirement_id": "r4",
+                  "status": "undetermined",
+                  "contribution": "partial_behavior",
+                  "reason": "The assertion can create and compare a JSON snapshot, but the specifically named baseline file and its target-project content are not present here.",
+                  "source_ids": [
+                    "q0",
+                    "file:src/goldenagent/golden.py#L39-L63"
+                  ]
+                },
+                {
+                  "requirement_id": "r5",
+                  "status": "undetermined",
+                  "contribution": "not_demonstrated",
+                  "reason": "No GitHub Actions workflow or trigger is demonstrated.",
+                  "source_ids": [
+                    "q0"
+                  ]
+                },
+                {
+                  "requirement_id": "r6",
+                  "status": "undetermined",
+                  "contribution": "partial_behavior",
+                  "reason": "On drift, the assertion raises GoldenMismatch with a summary and unified diff. It does not record once, replay the target agent, or itself establish CI execution.",
+                  "source_ids": [
+                    "q0",
+                    "file:src/goldenagent/golden.py#L39-L63"
+                  ]
+                },
+                {
+                  "requirement_id": "r7",
+                  "status": "undetermined",
+                  "contribution": "not_demonstrated",
+                  "reason": "Snapshot comparison does not provide or guarantee offline tool replay.",
+                  "source_ids": [
+                    "q0"
+                  ]
+                },
+                {
+                  "requirement_id": "r8",
+                  "status": "undetermined",
+                  "contribution": "not_demonstrated",
+                  "reason": "No integration with the target run_chat entrypoint is implemented.",
+                  "source_ids": [
+                    "q1",
+                    "q2"
+                  ]
+                },
+                {
+                  "requirement_id": "r9",
+                  "status": "undetermined",
+                  "contribution": "not_demonstrated",
+                  "reason": "No adapter script calling run_chat directly is implemented.",
+                  "source_ids": [
+                    "q1"
+                  ]
+                }
+              ],
+              "partial_support": [
+                {
+                  "requirement_id": "r4",
+                  "basis": "candidate_implementation",
+                  "operation": "assert_golden writes a missing JSON snapshot, then compares parsed values against it on later calls and raises on mismatch.",
+                  "requirement_part": "Snapshot creation and comparison usable as a baseline primitive.",
+                  "remaining_work": "Create the specifically named target baseline from an agreed fixture and call the assertion from the target-agent regression test.",
+                  "source_ids": [
+                    "file:src/goldenagent/golden.py#L39-L63"
+                  ]
+                },
+                {
+                  "requirement_id": "r6",
+                  "basis": "candidate_implementation",
+                  "operation": "assert_golden compares a supplied value with a stored snapshot and raises GoldenMismatch when values differ.",
+                  "requirement_part": "Failing a check when the compared output differs from its baseline.",
+                  "remaining_work": "Add record-once/replay behavior for agent and tool calls, ensure the replay run avoids live calls, and wire the comparison into target CI.",
+                  "source_ids": [
+                    "file:src/goldenagent/golden.py#L39-L63"
+                  ]
+                }
+              ],
+              "obstacles": [
+                "A first call to assert_golden creates a missing snapshot, so the committed baseline must be present in CI to avoid silently establishing a new one there.",
+                "The target project’s dependency list does not show this candidate package; adoption or installation is unknown.",
+                "The follow-up mentions PR #24 but does not establish merge or execution."
+              ],
+              "bridge": {
+                "kind": "example",
+                "summary": "A small local test illustrates pinned snapshot comparison and mismatch failure. It is not the RunLedger suite, not a replay test, and does not establish a target baseline.",
+                "steps": [
+                  "Make the candidate package importable from its local source tree or install it in the environment.",
+                  "Run `python -m unittest evals.runledger.test_snapshot_baseline`.",
+                  "Replace the illustrative fixture with output from the target run_chat adapter and commit the target baseline before CI use."
+                ],
+                "existing_contribution": "assert_golden writes and compares JSON snapshots and raises on differences, with mismatch details.",
+                "new_logic": "The example writes an assumed fixture baseline and tests matching and changed values. Record/replay, target baseline contents and path, agent adapter, suite schema, and CI workflow remain new work.",
+                "assumptions": [
+                  "The example values are illustrative fixture data, not criteria specified by the request.",
+                  "CI must treat the baseline as committed input; the example’s temporary baseline does not test that policy."
+                ],
+                "dependencies": [
+                  "Python standard library for the demonstrated snapshot behavior.",
+                  "The candidate goldenagent package from its local source; target dependency adoption is not established by target:pyproject.toml.",
+                  "Python unittest for the example test."
+                ],
+                "runtime": "Python 3.10 or newer for the candidate; target project declares Python >=3.10,<3.13.",
+                "permissions": [
+                  "Local filesystem read/write for a temporary snapshot."
+                ],
+                "coupling": "Low for snapshot comparison; connecting the compared value to run_chat requires target-specific adapter work.",
+                "input": "An illustrative JSON-compatible value {\"answer\": \"fixture\"}.",
+                "expected_output": "The test expects the fixture value to match and a changed value to raise GoldenMismatch. This is an example expectation, not an original request criterion or an executed result.",
+                "ablation": "Without the assertion, this example has no snapshot mismatch failure; without the target adapter and committed baseline, it remains unrelated to target agent regressions.",
+                "files": [
+                  {
+                    "path": "evals/runledger/snapshot_example.py",
+                    "content": "from pathlib import Path\nfrom tempfile import TemporaryDirectory\n\nfrom goldenagent import assert_golden\n\n\ndef check_fixture(path: Path) -> None:\n    assert_golden(path, {\"answer\": \"fixture\"})\n\n\nif __name__ == \"__main__\":\n    with TemporaryDirectory() as directory:\n        check_fixture(Path(directory) / \"fixture.json\")\n        print(\"illustrative snapshot matched\")\n"
+                  },
+                  {
+                    "path": "evals/runledger/test_snapshot_baseline.py",
+                    "content": "import unittest\nfrom tempfile import TemporaryDirectory\nfrom pathlib import Path\n\nfrom goldenagent import GoldenMismatch, assert_golden\n\n\nclass SnapshotFixtureTest(unittest.TestCase):\n    def test_match_passes_and_drift_raises(self):\n        with TemporaryDirectory() as directory:\n            path = Path(directory) / \"fixture.json\"\n            assert_golden(path, {\"answer\": \"fixture\"})\n            assert_golden(path, {\"answer\": \"fixture\"})\n            with self.assertRaises(GoldenMismatch):\n                assert_golden(path, {\"answer\": \"changed\"})\n\n\nif __name__ == \"__main__\":\n    unittest.main()\n"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "retained_job_sha256": "e7e9b5e5bbc74965fd4fc1af8e729cc97f2ba039d2c7cf87f5b2100148bcc203",
+    "retained_matches_sha256": "ca1f53e0c5c098444115e6695aeac1f585a2f2c88c30b97acc3f95c602354109"
+  },
+  {
+    "case": 2,
+    "arm": "B",
+    "job_id": "d9a888d26a0844cbaf59be4361d360d5",
+    "input": {
+      "repo": "",
+      "action": "discover_from_request",
+      "issue_url": "https://github.com/hoangsonww/Agentic-AI-Pipeline/issues/23",
+      "query": "",
+      "use_ai": true,
+      "max_requests": 120,
+      "max_candidates": 1,
+      "targeted_inquiry": true
+    },
+    "status": "paused",
+    "stage": "requirements",
+    "error": "GitHub account verification timed out (10 seconds). No account change is confirmed. Check gh auth status and connectivity before explicitly resuming.",
+    "error_diagnostic": {
+      "category": "github_identity",
+      "code": "github_identity_cli_timeout",
+      "timeout_seconds": 10
+    },
+    "result": {
+      "match_ids": []
+    },
+    "reported_usage": [],
+    "ai_trace": [],
+    "native_outputs": [],
+    "retained_job_sha256": "89396a9fb9ff7657607f9d5308d9175212cfe289455688e8e88d95f191e46468",
+    "retained_matches_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  }
+]

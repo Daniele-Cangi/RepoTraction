@@ -1,0 +1,1165 @@
+[
+  {
+    "id": "59e6b88abd256912ea75555b90d19338",
+    "repo": "Tejasdk04/agent-golden-harness",
+    "repo_id": 1390926176,
+    "revision": "46afde6e747fdaf503132f222f8af2fd8e529e9d",
+    "classification": "investigate",
+    "summary": "The cassette implementation provides a useful storage and lookup primitive for recorded interactions, including JSON persistence and a cassette schema version. It does not establish a project-specific RunLedger suite, its files, or CI wiring; those remain new work.",
+    "capability_id": "0c73bdd52e75a40d009f",
+    "discovery_assessment": {
+      "status": "similarity_only",
+      "relationship": "external",
+      "contribution": "not_demonstrated",
+      "supported_requirement_ids": [],
+      "conflicting_requirement_ids": [],
+      "partial_requirement_ids": [],
+      "scope_compatible_requirement_ids": [],
+      "undetermined_requirement_ids": [
+        "r0",
+        "r1",
+        "r2",
+        "r3",
+        "r4",
+        "r5",
+        "r6",
+        "r7",
+        "r8",
+        "r9"
+      ],
+      "opportunity_review": {
+        "activity_age_days": 282,
+        "stale_after_days": 365,
+        "reference_body_hint": false,
+        "generated_content_hint": false,
+        "qualification_blockers": [],
+        "method": "snapshot-relative conservative review hints; not a demand or runtime compatibility proof"
+      },
+      "novelty": "unverified",
+      "eligible_for_followup": false,
+      "references": [],
+      "reference_count": 0,
+      "reference_coverage_complete": true,
+      "target_reference_context": {
+        "acquired": true,
+        "revision": "443716a7d227b0d36cd73b82f134ccf00aa34185",
+        "files_sampled": 4,
+        "absence_proves_novelty": false
+      },
+      "manifest_review_blockers": [],
+      "reasons": [
+        "No requirement has a supported existing contribution. Retrieval or all-undetermined checks are not a discovered solution.",
+        "No reference found in bounded discussion/target samples is not proof that this connection is new or unknown to the author."
+      ],
+      "method": "source-derived conservative hints, not a novelty classifier"
+    },
+    "obstacles": [
+      "The target project dependency list does not show this candidate package; adoption or installation is unknown.",
+      "The issue follow-up reports a PR and local command, not merge or execution.",
+      "No target-specific suite schema, case, cassette, baseline, workflow, or run_chat adapter is established."
+    ],
+    "limitations": [
+      "Grounded interpretation is not an executed proof of compatibility."
+    ],
+    "analysis_context": {
+      "phase": "matches",
+      "source_ids": [
+        "q0",
+        "file:src/goldenagent/golden.py#L39-L63",
+        "file:src/goldenagent/recorder.py#L94-L96",
+        "file:src/goldenagent/cassette.py#L26-L37",
+        "file:src/goldenagent/redact.py#L48-L82",
+        "file:src/goldenagent/golden.py#L28-L32",
+        "file:src/goldenagent/recorder.py#L15-L74",
+        "file:src/goldenagent/cassette.py#L41-L97",
+        "file:src/goldenagent/golden.py#L20-L21",
+        "file:src/goldenagent/cassette.py#L13-L22",
+        "file:src/goldenagent/cli.py#L35-L48",
+        "file:src/goldenagent/redact.py#L55-L63",
+        "file:src/goldenagent/diff.py#L9-L11",
+        "file:src/goldenagent/golden.py#L35-L36",
+        "file:src/goldenagent/recorder.py#L28-L40",
+        "file:src/goldenagent/cassette.py#L53-L63",
+        "file:src/goldenagent/cli.py#L13-L18",
+        "file:src/goldenagent/redact.py#L22-L23",
+        "file:src/goldenagent/diff.py#L14-L22",
+        "file:src/goldenagent/golden.py#L24-L25",
+        "file:src/goldenagent/recorder.py#L42-L43",
+        "file:src/goldenagent/cassette.py#L35-L37",
+        "file:src/goldenagent/cli.py#L21-L32",
+        "file:src/goldenagent/redact.py#L51-L53",
+        "file:src/goldenagent/diff.py#L25-L40",
+        "file:src/goldenagent/recorder.py#L45-L46",
+        "file:src/goldenagent/cassette.py#L49-L50",
+        "file:src/goldenagent/redact.py#L65-L71",
+        "file:src/goldenagent/recorder.py#L49-L50",
+        "file:src/goldenagent/cassette.py#L65-L66",
+        "file:src/goldenagent/redact.py#L74-L76",
+        "file:src/goldenagent/recorder.py#L75-L91",
+        "file:tests/test_golden.py#L8-L8",
+        "file:tests/test_golden.py#L10-L10",
+        "file:tests/test_golden.py#L25-L25",
+        "file:tests/test_cassette.py#L19-L20",
+        "file:tests/test_cassette.py#L30-L30",
+        "file:tests/test_golden.py#L15-L15",
+        "file:tests/test_golden.py#L23-L23",
+        "file:tests/test_golden.py#L31-L31",
+        "file:tests/test_cassette.py#L18-L18",
+        "file:tests/test_cassette.py#L29-L29",
+        "file:tests/test_cassette.py#L7-L7",
+        "file:tests/test_cassette.py#L8-L8",
+        "file:tests/test_cassette.py#L13-L13",
+        "file:tests/test_cassette.py#L21-L21",
+        "file:tests/test_cassette.py#L24-L24",
+        "t9",
+        "t8",
+        "t7",
+        "t6",
+        "t5",
+        "t4",
+        "t3",
+        "t2",
+        "t1",
+        "t0",
+        "q2",
+        "q1",
+        "target:pyproject.toml",
+        "target:requirements.txt",
+        "target:Agentic-Coding-Pipeline/run.py",
+        "target:src/agentic_ai/app.py",
+        "file:src/goldenagent/cli.py#L1-L52",
+        "file:src/goldenagent/__init__.py#L1-L24",
+        "file:src/goldenagent/cassette.py#L1-L60",
+        "file:src/goldenagent/golden.py#L1-L60",
+        "file:src/goldenagent/recorder.py#L1-L60",
+        "file:src/goldenagent/redact.py#L1-L60",
+        "file:src/goldenagent/diff.py#L1-L40",
+        "file:pyproject.toml#L1-L37",
+        "file:README.md#L1-L60",
+        "file:examples/demo_agent.py#L1-L60",
+        "file:LICENSE#L1-L21",
+        "file:README.md#L121-L131"
+      ],
+      "omitted_source_ids": [
+        "file:tests/test_cassette.py#L1-L43",
+        "file:tests/test_golden.py#L1-L32",
+        "file:src/goldenagent/cassette.py#L61-L97",
+        "file:src/goldenagent/golden.py#L61-L63",
+        "file:src/goldenagent/recorder.py#L61-L96",
+        "file:src/goldenagent/redact.py#L61-L82",
+        "file:README.md#L61-L120",
+        "file:examples/demo_agent.py#L61-L73"
+      ],
+      "source_id_limit": 400,
+      "source_id_limit_omissions": 0,
+      "shortened_discussion_ids": [],
+      "discussion_complete": true,
+      "capability_ids": [
+        "75716dc70c1841eacf0a",
+        "3157c557a9209a56c0b0",
+        "bfbbc962d3b35fda841c",
+        "973aa4fb2febdfa0878b",
+        "591f0135754cd2d7a80c",
+        "3898c2f82a11710f28df",
+        "0c73bdd52e75a40d009f",
+        "68712d2ee5a549440343",
+        "f87037d19c6bb92c991e",
+        "a04de6084fb95cb1bce6",
+        "d443e1a0813f87851451",
+        "5a8e5cab2d3ac6a4fef6",
+        "cadc2edd5b22201cc900",
+        "52ce6604dade9a8104cc",
+        "0b1e1be90798643dd2ce",
+        "c275e6980964425e8de3",
+        "347b2567544b077624c6",
+        "456de551b088164f31ea",
+        "225e3562e3bf11befeb1",
+        "a132dea84b1e5a808051",
+        "0662ba149a3dfb52d4ee",
+        "00c7c687dc74ff15ce3f",
+        "56ae0d724357a5c0cf86",
+        "0b42379da4a5c84ee44d",
+        "c584af9e8c1909669d8e",
+        "25bc33fcd8d32b6b6877",
+        "5871093ed592c9f76653",
+        "21149da5e8654a0168a8",
+        "52007562e0adc8082e81",
+        "23bd4ef8b6df535590f8"
+      ],
+      "omitted_capability_ids": [
+        "efba922318b36495185b",
+        "38432406adc8765c662c",
+        "908719cf8ca24a260379",
+        "dae2da66c893d2cec017",
+        "0f1c427b5ae5e2aa644e",
+        "015590e5dcf3d4d6b6f0",
+        "884a57b7dc8f27e283bc",
+        "79b70ad77a2bced349da",
+        "bc287b751afde32df5a8",
+        "56ce9f920c9c5ecb8637",
+        "e693a5c1ae71c13e745d",
+        "076e6bc1662bd25c9af4",
+        "2fd6de84481afec394a0",
+        "e81f5284398ae551138e",
+        "eb9f4cc09ac890b5ed52",
+        "64d782fffb646c3443d9",
+        "f2d831a95785ebac3db0",
+        "011ca372fa7844214039",
+        "5691a9411a4cf0d4279f"
+      ],
+      "source_coverage": {
+        "tree_truncated": false,
+        "tree_entries": 28,
+        "eligible_files": 16,
+        "files_scanned": 13,
+        "file_budget": 24,
+        "bytes_scanned": 26952,
+        "language_counts": {
+          "Documentation/manifest": 3,
+          "Python": 10
+        },
+        "tree_language_counts": {
+          "Other": 7,
+          "Python": 13
+        },
+        "excluded": {
+          "unsupported_file_type": 4,
+          "credential_looking_content": 3
+        },
+        "sampling_policy": "Path heuristic plus static initializer/re-export hints; bounded docs/source/test mix, not export verification.",
+        "static_export_hints": [],
+        "export_hints_complete": true,
+        "omitted_export_paths": [],
+        "initializer_import_hints": [
+          {
+            "from": "src/goldenagent/__init__.py",
+            "path": "src/goldenagent/cassette.py"
+          },
+          {
+            "from": "src/goldenagent/__init__.py",
+            "path": "src/goldenagent/golden.py"
+          },
+          {
+            "from": "src/goldenagent/__init__.py",
+            "path": "src/goldenagent/recorder.py"
+          },
+          {
+            "from": "src/goldenagent/__init__.py",
+            "path": "src/goldenagent/redact.py"
+          }
+        ],
+        "initializer_import_hints_complete": true,
+        "initializer_hint_limit": 64,
+        "omitted_initializer_imports": [],
+        "eligible_source_roles": {
+          "infrastructure": 1,
+          "implementation": 7
+        },
+        "acquired_source_roles": {
+          "implementation": 7,
+          "infrastructure": 1
+        },
+        "runtime_bin_entrypoints": {},
+        "metadata_redacted": false,
+        "metadata_truncated": false,
+        "complete": false,
+        "eligible_sample_complete": false,
+        "limitations": [
+          "Bounded source sample; declarations and test references are not execution proof.",
+          "Some files were excluded for safety, size, encoding or unsupported type."
+        ],
+        "analysis": {
+          "files": [
+            {
+              "path": "LICENSE",
+              "status": "quoted_only",
+              "language": "Documentation/manifest"
+            },
+            {
+              "path": "pyproject.toml",
+              "status": "quoted_only",
+              "language": "Documentation/manifest"
+            },
+            {
+              "path": "src/goldenagent/cli.py",
+              "status": "ast",
+              "language": "Python"
+            },
+            {
+              "path": "src/goldenagent/__init__.py",
+              "status": "ast",
+              "language": "Python"
+            },
+            {
+              "path": "src/goldenagent/cassette.py",
+              "status": "ast",
+              "language": "Python"
+            },
+            {
+              "path": "src/goldenagent/golden.py",
+              "status": "ast",
+              "language": "Python"
+            },
+            {
+              "path": "src/goldenagent/recorder.py",
+              "status": "ast",
+              "language": "Python"
+            },
+            {
+              "path": "src/goldenagent/redact.py",
+              "status": "ast",
+              "language": "Python"
+            },
+            {
+              "path": "tests/test_cassette.py",
+              "status": "ast",
+              "language": "Python"
+            },
+            {
+              "path": "README.md",
+              "status": "quoted_only",
+              "language": "Documentation/manifest"
+            },
+            {
+              "path": "src/goldenagent/diff.py",
+              "status": "ast",
+              "language": "Python"
+            },
+            {
+              "path": "examples/demo_agent.py",
+              "status": "ast",
+              "language": "Python"
+            },
+            {
+              "path": "tests/test_golden.py",
+              "status": "ast",
+              "language": "Python"
+            }
+          ],
+          "capabilities": 49,
+          "capability_limit": 100,
+          "capability_limit_reached": false,
+          "supported_languages": {
+            "Python": "AST",
+            "JavaScript": "partial",
+            "TypeScript": "partial"
+          },
+          "execution": "none",
+          "test_evidence": "name-matched call references; not verified coverage",
+          "limitations": [
+            "Direct and nested declarations only; declarations inside control-flow blocks may be omitted.",
+            "JS/TS scan may miss declarations or identify comment/string lookalikes."
+          ]
+        }
+      },
+      "note": "Selected evidence is not the whole repository. Missing context remains unknown; omitted discussion prevents a qualified positive.",
+      "target_reference_context": {
+        "revision": "443716a7d227b0d36cd73b82f134ccf00aa34185",
+        "source_ids": [
+          "target:pyproject.toml",
+          "target:requirements.txt",
+          "target:Agentic-Coding-Pipeline/run.py",
+          "target:src/agentic_ai/app.py"
+        ],
+        "omitted_source_ids": [],
+        "reference_only": true,
+        "absence_proves_novelty": false
+      },
+      "omitted_constraint_ids": [],
+      "constraint_hint_scan_complete": true,
+      "selection_policy": "Request root, then implementation definitions before later discussion; literal public API hints within each source-role tier, per-file diversity and interleaved spans. Path heuristic with exact acquired-manifest bin targets, not verified exports or execution.",
+      "public_api_hints": {
+        "entrypoints": [
+          "src/goldenagent/cassette.py:Cassette",
+          "src/goldenagent/cassette.py:Interaction",
+          "src/goldenagent/recorder.py:Recorder",
+          "src/goldenagent/recorder.py:replay",
+          "src/goldenagent/redact.py:Redactor",
+          "src/goldenagent/redact.py:DEFAULT_RULES",
+          "src/goldenagent/golden.py:assert_golden",
+          "src/goldenagent/golden.py:write_golden",
+          "src/goldenagent/golden.py:GoldenMismatch"
+        ],
+        "scan_complete": true,
+        "method": "literal __all__ and direct acquired relative imports; ranking hints, not verified exports",
+        "omitted_entrypoint_count": 0,
+        "entrypoint_list_complete": true
+      },
+      "declaration_context_only_capability_ids": [],
+      "selected_capability_roles": {
+        "implementation": 30
+      },
+      "supplied_source_roles": {
+        "implementation": 7,
+        "test": 2,
+        "support": 3,
+        "infrastructure": 1
+      },
+      "implementation_source_paths": [
+        "src/goldenagent/golden.py",
+        "src/goldenagent/recorder.py",
+        "src/goldenagent/cassette.py",
+        "src/goldenagent/redact.py",
+        "src/goldenagent/cli.py",
+        "src/goldenagent/diff.py",
+        "src/goldenagent/__init__.py"
+      ],
+      "runtime_bin_entrypoints": {},
+      "implementation_context_missing": false,
+      "omitted_source_count": 8,
+      "payload_bytes": 116520
+    },
+    "job_id": "713b714786a142b0b2e6fbef76e6ae3b",
+    "capability_entrypoint": "src/goldenagent/cassette.py:Cassette",
+    "checks": [
+      {
+        "requirement_id": "r0",
+        "status": "undetermined",
+        "contribution": "not_demonstrated",
+        "reason": "No implementation here establishes the requested target-project suite directory."
+      },
+      {
+        "requirement_id": "r1",
+        "status": "undetermined",
+        "contribution": "not_demonstrated",
+        "reason": "No suite case or target-specific case definition is demonstrated."
+      },
+      {
+        "requirement_id": "r2",
+        "status": "undetermined",
+        "contribution": "not_demonstrated",
+        "reason": "Cassette persistence records a schema_version and loading rejects an unsupported cassette version. That is a reusable cassette-format schema primitive, not the requested suite schema. Evidence gate: The citations do not establish the selected operation's own implementation body. A class or sibling citation cannot borrow a method's behavior; select an available method ID and cite its body for method-level claims.",
+        "partial_support": {
+          "requirement_id": "r2",
+          "basis": "candidate_implementation",
+          "operation": "Cassette.save and Cassette.load persist JSON containing schema_version; load rejects versions other than the supported version.",
+          "requirement_part": "A versioned schema primitive for cassette files.",
+          "remaining_work": "Define and include the RunLedger suite schema and validate its project-specific fields.",
+          "source_ids": [
+            "file:src/goldenagent/cassette.py#L41-L97"
+          ]
+        },
+        "support_normalization": {
+          "original_status": "undetermined",
+          "original_contribution": "partial_behavior",
+          "original_reason": "Cassette persistence records a schema_version and loading rejects an unsupported cassette version. That is a reusable cassette-format schema primitive, not the requested suite schema.",
+          "codes": [
+            "selected_operation_body_missing"
+          ],
+          "messages": [
+            "The citations do not establish the selected operation's own implementation body. A class or sibling citation cannot borrow a method's behavior; select an available method ID and cite its body for method-level claims."
+          ]
+        }
+      },
+      {
+        "requirement_id": "r3",
+        "status": "undetermined",
+        "contribution": "not_demonstrated",
+        "reason": "Cassette supports storing interactions as JSON and loading them again, but no committed cassette for the requested suite is supplied. Evidence gate: The citations do not establish the selected operation's own implementation body. A class or sibling citation cannot borrow a method's behavior; select an available method ID and cite its body for method-level claims.",
+        "partial_support": {
+          "requirement_id": "r3",
+          "basis": "candidate_implementation",
+          "operation": "Cassette.append, save, and load store and restore recorded interactions in JSON.",
+          "requirement_part": "The cassette storage and serialization mechanism.",
+          "remaining_work": "Add the requested cassette fixture under the target suite and ensure its interactions match the target agent/tool contract.",
+          "source_ids": [
+            "file:src/goldenagent/cassette.py#L41-L97"
+          ]
+        },
+        "support_normalization": {
+          "original_status": "undetermined",
+          "original_contribution": "partial_behavior",
+          "original_reason": "Cassette supports storing interactions as JSON and loading them again, but no committed cassette for the requested suite is supplied.",
+          "codes": [
+            "selected_operation_body_missing"
+          ],
+          "messages": [
+            "The citations do not establish the selected operation's own implementation body. A class or sibling citation cannot borrow a method's behavior; select an available method ID and cite its body for method-level claims."
+          ]
+        }
+      },
+      {
+        "requirement_id": "r4",
+        "status": "undetermined",
+        "contribution": "not_demonstrated",
+        "reason": "This candidate does not implement the named baseline file or snapshot comparison."
+      },
+      {
+        "requirement_id": "r5",
+        "status": "undetermined",
+        "contribution": "not_demonstrated",
+        "reason": "No GitHub Actions workflow or trigger configuration is demonstrated; the request leaves this optional."
+      },
+      {
+        "requirement_id": "r6",
+        "status": "undetermined",
+        "contribution": "not_demonstrated",
+        "reason": "Cassette append/save/load and request-key lookup are useful pieces of recording and replay, but do not implement the complete agent/tool run, deterministic CI assertion, or fail-on-mismatch check. Evidence gate: The citations do not establish the selected operation's own implementation body. A class or sibling citation cannot borrow a method's behavior; select an available method ID and cite its body for method-level claims.",
+        "partial_support": {
+          "requirement_id": "r6",
+          "basis": "candidate_implementation",
+          "operation": "Cassette can append interactions, persist/load them, and look up a response by interaction kind, name, and request.",
+          "requirement_part": "Storage and retrieval primitives for recorded interactions.",
+          "remaining_work": "Wire record and replay around the target agent, assert the agent output against a committed baseline, and make CI fail on drift.",
+          "source_ids": [
+            "file:src/goldenagent/cassette.py#L41-L97"
+          ]
+        },
+        "support_normalization": {
+          "original_status": "undetermined",
+          "original_contribution": "partial_behavior",
+          "original_reason": "Cassette append/save/load and request-key lookup are useful pieces of recording and replay, but do not implement the complete agent/tool run, deterministic CI assertion, or fail-on-mismatch check.",
+          "codes": [
+            "selected_operation_body_missing"
+          ],
+          "messages": [
+            "The citations do not establish the selected operation's own implementation body. A class or sibling citation cannot borrow a method's behavior; select an available method ID and cite its body for method-level claims."
+          ]
+        }
+      },
+      {
+        "requirement_id": "r7",
+        "status": "undetermined",
+        "contribution": "not_demonstrated",
+        "reason": "Lookup can retrieve a recorded response by request fingerprint, a primitive for replaying without making that tool call. This candidate does not establish that the integrated agent uses replay instead of live tools. Evidence gate: The citations do not establish the selected operation's own implementation body. A class or sibling citation cannot borrow a method's behavior; select an available method ID and cite its body for method-level claims.",
+        "partial_support": {
+          "requirement_id": "r7",
+          "basis": "candidate_implementation",
+          "operation": "Cassette.lookup returns a matching stored response without invoking a tool callable.",
+          "requirement_part": "Retrieving recorded tool output as a replay input.",
+          "remaining_work": "Ensure the target agent’s CI path supplies replayed responses and cannot fall through to live tool calls.",
+          "source_ids": [
+            "file:src/goldenagent/cassette.py#L53-L63"
+          ]
+        },
+        "support_normalization": {
+          "original_status": "undetermined",
+          "original_contribution": "partial_behavior",
+          "original_reason": "Lookup can retrieve a recorded response by request fingerprint, a primitive for replaying without making that tool call. This candidate does not establish that the integrated agent uses replay instead of live tools.",
+          "codes": [
+            "selected_operation_body_missing"
+          ],
+          "messages": [
+            "The citations do not establish the selected operation's own implementation body. A class or sibling citation cannot borrow a method's behavior; select an available method ID and cite its body for method-level claims."
+          ]
+        }
+      },
+      {
+        "requirement_id": "r8",
+        "status": "undetermined",
+        "contribution": "not_demonstrated",
+        "reason": "No code here wires the target suite to run_chat. The owner’s recommendation and the reported PR do not establish adoption."
+      },
+      {
+        "requirement_id": "r9",
+        "status": "undetermined",
+        "contribution": "not_demonstrated",
+        "reason": "No target-side adapter calling run_chat directly is implemented by this cassette capability."
+      }
+    ],
+    "bridge": {
+      "kind": "example",
+      "summary": "A small fixture test can demonstrate the existing cassette JSON round-trip and lookup primitive. It is only a library-level example, not the requested target-agent regression suite.",
+      "steps": [
+        "Make the candidate package importable from its local source tree or install it in the environment.",
+        "Run `python -m unittest evals.runledger.test_cassette_replay`.",
+        "Replace the assumed fixture interaction with a recorded target-agent cassette and add the missing run_chat adapter and baseline comparison separately."
+      ],
+      "existing_contribution": "Cassette provides JSON persistence of interactions, schema-version checking, and response lookup by request fingerprint.",
+      "new_logic": "The test constructs an assumed fixture cassette and checks round-trip lookup. Suite schema, target-agent integration, committed target cassette, baseline policy, CI workflow, and live-call prevention policy remain new work.",
+      "assumptions": [
+        "The example fixture values are illustrative and are not criteria supplied by the request.",
+        "The candidate package is made importable locally; it is not listed in the target dependencies."
+      ],
+      "dependencies": [
+        "Python standard library for the demonstrated cassette operations.",
+        "The candidate goldenagent package from its local source; target dependency adoption is not established by target:pyproject.toml."
+      ],
+      "runtime": "Python 3.10 or newer for the candidate; target project declares Python >=3.10,<3.13.",
+      "permissions": [
+        "Local filesystem read/write for the temporary cassette."
+      ],
+      "coupling": "Low for the cassette fixture test; integrating it with run_chat requires target-specific adapter and tool-surface decisions.",
+      "input": "An illustrative tool interaction with request args [\"fixture\"] and response \"recorded result\".",
+      "expected_output": "A local test checks that the persisted fixture cassette reloads and yields the expected stored response. This is an example expectation, not an original request criterion or an executed result.",
+      "ablation": "Remove the cassette test and the target has no demonstration of this candidate’s serialization/lookup primitive; removing the proposed target adapter leaves the request’s agent-level check unimplemented.",
+      "files": [
+        {
+          "path": "evals/runledger/cassette_example.py",
+          "content": "from pathlib import Path\nfrom tempfile import TemporaryDirectory\n\nfrom goldenagent import Cassette, Interaction\n\n\ndef round_trip_fixture(path: Path) -> str:\n    cassette = Cassette(name=\"illustrative-fixture\")\n    cassette.append(Interaction(\n        kind=\"tool\",\n        name=\"lookup\",\n        request={\"args\": [\"fixture\"], \"kwargs\": {}},\n        response=\"recorded result\",\n    ))\n    cassette.save(path)\n    loaded = Cassette.load(path)\n    found, response = loaded.lookup(\n        \"tool\", \"lookup\", {\"args\": [\"fixture\"], \"kwargs\": {}}\n    )\n    if not found:\n        raise AssertionError(\"illustrative fixture interaction was not found\")\n    return response\n\n\nif __name__ == \"__main__\":\n    with TemporaryDirectory() as directory:\n        print(round_trip_fixture(Path(directory) / \"fixture.json\"))"
+        },
+        {
+          "path": "evals/runledger/test_cassette_replay.py",
+          "content": "import unittest\nfrom pathlib import Path\nfrom tempfile import TemporaryDirectory\n\nfrom cassette_example import round_trip_fixture\n\n\nclass CassetteFixtureTest(unittest.TestCase):\n    def test_fixture_round_trips(self):\n        with TemporaryDirectory() as directory:\n            result = round_trip_fixture(Path(directory) / \"fixture.json\")\n        # Assumed example-fixture output; not a target agent success criterion.\n        self.assertEqual(result, \"recorded result\")\n\n\nif __name__ == \"__main__\":\n    unittest.main()"
+        }
+      ],
+      "success_criteria": [
+        "Provide an evals/runledger/ suite.",
+        "Include one case in the suite.",
+        "Include a schema for the suite.",
+        "Include a cassette for the suite.",
+        "Provide baselines/runledger-demo.json.",
+        "The check should be deterministic and use record-once/replay-in-CI behavior to catch agent/tool regressions, failing on mismatch.",
+        "The CI replay should avoid live tool calls.",
+        "Wire the suite to an existing agent/example entrypoint; the owner recommended the core chat flow through src/agentic_ai/graph.py via run_chat, and the follow-up reports using that entrypoint."
+      ],
+      "verification": {
+        "status": "not_executed",
+        "reason": "Source-grounded hypothesis; no isolated proof runner has executed this bridge."
+      }
+    },
+    "evidence_note": "Full native checks and citation IDs are in evidence.json; full resolved match retained locally by hash."
+  },
+  {
+    "id": "699177bbdf5a6368bc7f73699d7cdd5a",
+    "repo": "Tejasdk04/agent-golden-harness",
+    "repo_id": 1390926176,
+    "revision": "46afde6e747fdaf503132f222f8af2fd8e529e9d",
+    "classification": "investigate",
+    "summary": "The snapshot assertion is a strong reusable primitive for a baseline comparison: it creates a missing snapshot or raises on changed content. It does not record/replay agent calls or provide the requested named baseline file or CI integration.",
+    "capability_id": "75716dc70c1841eacf0a",
+    "discovery_assessment": {
+      "status": "partial_contribution",
+      "relationship": "external",
+      "contribution": "partial",
+      "supported_requirement_ids": [],
+      "conflicting_requirement_ids": [],
+      "partial_requirement_ids": [
+        "r4",
+        "r6"
+      ],
+      "scope_compatible_requirement_ids": [],
+      "undetermined_requirement_ids": [
+        "r0",
+        "r1",
+        "r2",
+        "r3",
+        "r4",
+        "r5",
+        "r6",
+        "r7",
+        "r8",
+        "r9"
+      ],
+      "opportunity_review": {
+        "activity_age_days": 282,
+        "stale_after_days": 365,
+        "reference_body_hint": false,
+        "generated_content_hint": false,
+        "qualification_blockers": [],
+        "method": "snapshot-relative conservative review hints; not a demand or runtime compatibility proof"
+      },
+      "novelty": "unverified",
+      "eligible_for_followup": false,
+      "references": [],
+      "reference_count": 0,
+      "reference_coverage_complete": true,
+      "target_reference_context": {
+        "acquired": true,
+        "revision": "443716a7d227b0d36cd73b82f134ccf00aa34185",
+        "files_sampled": 4,
+        "absence_proves_novelty": false
+      },
+      "manifest_review_blockers": [],
+      "reasons": [
+        "A source-cited primitive can contribute, but no complete requirement is established. Integration, full fulfillment and a new actionable connection remain unverified.",
+        "Partial primitives are not satisfied requirements and do not by themselves qualify a lead or authorize follow-up execution.",
+        "No reference found in bounded discussion/target samples is not proof that this connection is new or unknown to the author."
+      ],
+      "method": "source-derived conservative hints, not a novelty classifier"
+    },
+    "obstacles": [
+      "A first call to assert_golden creates a missing snapshot, so the committed baseline must be present in CI to avoid silently establishing a new one there.",
+      "The target project’s dependency list does not show this candidate package; adoption or installation is unknown.",
+      "The follow-up mentions PR #24 but does not establish merge or execution."
+    ],
+    "limitations": [
+      "Grounded interpretation is not an executed proof of compatibility."
+    ],
+    "analysis_context": {
+      "phase": "matches",
+      "source_ids": [
+        "q0",
+        "file:src/goldenagent/golden.py#L39-L63",
+        "file:src/goldenagent/recorder.py#L94-L96",
+        "file:src/goldenagent/cassette.py#L26-L37",
+        "file:src/goldenagent/redact.py#L48-L82",
+        "file:src/goldenagent/golden.py#L28-L32",
+        "file:src/goldenagent/recorder.py#L15-L74",
+        "file:src/goldenagent/cassette.py#L41-L97",
+        "file:src/goldenagent/golden.py#L20-L21",
+        "file:src/goldenagent/cassette.py#L13-L22",
+        "file:src/goldenagent/cli.py#L35-L48",
+        "file:src/goldenagent/redact.py#L55-L63",
+        "file:src/goldenagent/diff.py#L9-L11",
+        "file:src/goldenagent/golden.py#L35-L36",
+        "file:src/goldenagent/recorder.py#L28-L40",
+        "file:src/goldenagent/cassette.py#L53-L63",
+        "file:src/goldenagent/cli.py#L13-L18",
+        "file:src/goldenagent/redact.py#L22-L23",
+        "file:src/goldenagent/diff.py#L14-L22",
+        "file:src/goldenagent/golden.py#L24-L25",
+        "file:src/goldenagent/recorder.py#L42-L43",
+        "file:src/goldenagent/cassette.py#L35-L37",
+        "file:src/goldenagent/cli.py#L21-L32",
+        "file:src/goldenagent/redact.py#L51-L53",
+        "file:src/goldenagent/diff.py#L25-L40",
+        "file:src/goldenagent/recorder.py#L45-L46",
+        "file:src/goldenagent/cassette.py#L49-L50",
+        "file:src/goldenagent/redact.py#L65-L71",
+        "file:src/goldenagent/recorder.py#L49-L50",
+        "file:src/goldenagent/cassette.py#L65-L66",
+        "file:src/goldenagent/redact.py#L74-L76",
+        "file:src/goldenagent/recorder.py#L75-L91",
+        "file:tests/test_golden.py#L8-L8",
+        "file:tests/test_golden.py#L10-L10",
+        "file:tests/test_golden.py#L25-L25",
+        "file:tests/test_cassette.py#L19-L20",
+        "file:tests/test_cassette.py#L30-L30",
+        "file:tests/test_golden.py#L15-L15",
+        "file:tests/test_golden.py#L23-L23",
+        "file:tests/test_golden.py#L31-L31",
+        "file:tests/test_cassette.py#L18-L18",
+        "file:tests/test_cassette.py#L29-L29",
+        "file:tests/test_cassette.py#L7-L7",
+        "file:tests/test_cassette.py#L8-L8",
+        "file:tests/test_cassette.py#L13-L13",
+        "file:tests/test_cassette.py#L21-L21",
+        "file:tests/test_cassette.py#L24-L24",
+        "t9",
+        "t8",
+        "t7",
+        "t6",
+        "t5",
+        "t4",
+        "t3",
+        "t2",
+        "t1",
+        "t0",
+        "q2",
+        "q1",
+        "target:pyproject.toml",
+        "target:requirements.txt",
+        "target:Agentic-Coding-Pipeline/run.py",
+        "target:src/agentic_ai/app.py",
+        "file:src/goldenagent/cli.py#L1-L52",
+        "file:src/goldenagent/__init__.py#L1-L24",
+        "file:src/goldenagent/cassette.py#L1-L60",
+        "file:src/goldenagent/golden.py#L1-L60",
+        "file:src/goldenagent/recorder.py#L1-L60",
+        "file:src/goldenagent/redact.py#L1-L60",
+        "file:src/goldenagent/diff.py#L1-L40",
+        "file:pyproject.toml#L1-L37",
+        "file:README.md#L1-L60",
+        "file:examples/demo_agent.py#L1-L60",
+        "file:LICENSE#L1-L21",
+        "file:README.md#L121-L131"
+      ],
+      "omitted_source_ids": [
+        "file:tests/test_cassette.py#L1-L43",
+        "file:tests/test_golden.py#L1-L32",
+        "file:src/goldenagent/cassette.py#L61-L97",
+        "file:src/goldenagent/golden.py#L61-L63",
+        "file:src/goldenagent/recorder.py#L61-L96",
+        "file:src/goldenagent/redact.py#L61-L82",
+        "file:README.md#L61-L120",
+        "file:examples/demo_agent.py#L61-L73"
+      ],
+      "source_id_limit": 400,
+      "source_id_limit_omissions": 0,
+      "shortened_discussion_ids": [],
+      "discussion_complete": true,
+      "capability_ids": [
+        "75716dc70c1841eacf0a",
+        "3157c557a9209a56c0b0",
+        "bfbbc962d3b35fda841c",
+        "973aa4fb2febdfa0878b",
+        "591f0135754cd2d7a80c",
+        "3898c2f82a11710f28df",
+        "0c73bdd52e75a40d009f",
+        "68712d2ee5a549440343",
+        "f87037d19c6bb92c991e",
+        "a04de6084fb95cb1bce6",
+        "d443e1a0813f87851451",
+        "5a8e5cab2d3ac6a4fef6",
+        "cadc2edd5b22201cc900",
+        "52ce6604dade9a8104cc",
+        "0b1e1be90798643dd2ce",
+        "c275e6980964425e8de3",
+        "347b2567544b077624c6",
+        "456de551b088164f31ea",
+        "225e3562e3bf11befeb1",
+        "a132dea84b1e5a808051",
+        "0662ba149a3dfb52d4ee",
+        "00c7c687dc74ff15ce3f",
+        "56ae0d724357a5c0cf86",
+        "0b42379da4a5c84ee44d",
+        "c584af9e8c1909669d8e",
+        "25bc33fcd8d32b6b6877",
+        "5871093ed592c9f76653",
+        "21149da5e8654a0168a8",
+        "52007562e0adc8082e81",
+        "23bd4ef8b6df535590f8"
+      ],
+      "omitted_capability_ids": [
+        "efba922318b36495185b",
+        "38432406adc8765c662c",
+        "908719cf8ca24a260379",
+        "dae2da66c893d2cec017",
+        "0f1c427b5ae5e2aa644e",
+        "015590e5dcf3d4d6b6f0",
+        "884a57b7dc8f27e283bc",
+        "79b70ad77a2bced349da",
+        "bc287b751afde32df5a8",
+        "56ce9f920c9c5ecb8637",
+        "e693a5c1ae71c13e745d",
+        "076e6bc1662bd25c9af4",
+        "2fd6de84481afec394a0",
+        "e81f5284398ae551138e",
+        "eb9f4cc09ac890b5ed52",
+        "64d782fffb646c3443d9",
+        "f2d831a95785ebac3db0",
+        "011ca372fa7844214039",
+        "5691a9411a4cf0d4279f"
+      ],
+      "source_coverage": {
+        "tree_truncated": false,
+        "tree_entries": 28,
+        "eligible_files": 16,
+        "files_scanned": 13,
+        "file_budget": 24,
+        "bytes_scanned": 26952,
+        "language_counts": {
+          "Documentation/manifest": 3,
+          "Python": 10
+        },
+        "tree_language_counts": {
+          "Other": 7,
+          "Python": 13
+        },
+        "excluded": {
+          "unsupported_file_type": 4,
+          "credential_looking_content": 3
+        },
+        "sampling_policy": "Path heuristic plus static initializer/re-export hints; bounded docs/source/test mix, not export verification.",
+        "static_export_hints": [],
+        "export_hints_complete": true,
+        "omitted_export_paths": [],
+        "initializer_import_hints": [
+          {
+            "from": "src/goldenagent/__init__.py",
+            "path": "src/goldenagent/cassette.py"
+          },
+          {
+            "from": "src/goldenagent/__init__.py",
+            "path": "src/goldenagent/golden.py"
+          },
+          {
+            "from": "src/goldenagent/__init__.py",
+            "path": "src/goldenagent/recorder.py"
+          },
+          {
+            "from": "src/goldenagent/__init__.py",
+            "path": "src/goldenagent/redact.py"
+          }
+        ],
+        "initializer_import_hints_complete": true,
+        "initializer_hint_limit": 64,
+        "omitted_initializer_imports": [],
+        "eligible_source_roles": {
+          "infrastructure": 1,
+          "implementation": 7
+        },
+        "acquired_source_roles": {
+          "implementation": 7,
+          "infrastructure": 1
+        },
+        "runtime_bin_entrypoints": {},
+        "metadata_redacted": false,
+        "metadata_truncated": false,
+        "complete": false,
+        "eligible_sample_complete": false,
+        "limitations": [
+          "Bounded source sample; declarations and test references are not execution proof.",
+          "Some files were excluded for safety, size, encoding or unsupported type."
+        ],
+        "analysis": {
+          "files": [
+            {
+              "path": "LICENSE",
+              "status": "quoted_only",
+              "language": "Documentation/manifest"
+            },
+            {
+              "path": "pyproject.toml",
+              "status": "quoted_only",
+              "language": "Documentation/manifest"
+            },
+            {
+              "path": "src/goldenagent/cli.py",
+              "status": "ast",
+              "language": "Python"
+            },
+            {
+              "path": "src/goldenagent/__init__.py",
+              "status": "ast",
+              "language": "Python"
+            },
+            {
+              "path": "src/goldenagent/cassette.py",
+              "status": "ast",
+              "language": "Python"
+            },
+            {
+              "path": "src/goldenagent/golden.py",
+              "status": "ast",
+              "language": "Python"
+            },
+            {
+              "path": "src/goldenagent/recorder.py",
+              "status": "ast",
+              "language": "Python"
+            },
+            {
+              "path": "src/goldenagent/redact.py",
+              "status": "ast",
+              "language": "Python"
+            },
+            {
+              "path": "tests/test_cassette.py",
+              "status": "ast",
+              "language": "Python"
+            },
+            {
+              "path": "README.md",
+              "status": "quoted_only",
+              "language": "Documentation/manifest"
+            },
+            {
+              "path": "src/goldenagent/diff.py",
+              "status": "ast",
+              "language": "Python"
+            },
+            {
+              "path": "examples/demo_agent.py",
+              "status": "ast",
+              "language": "Python"
+            },
+            {
+              "path": "tests/test_golden.py",
+              "status": "ast",
+              "language": "Python"
+            }
+          ],
+          "capabilities": 49,
+          "capability_limit": 100,
+          "capability_limit_reached": false,
+          "supported_languages": {
+            "Python": "AST",
+            "JavaScript": "partial",
+            "TypeScript": "partial"
+          },
+          "execution": "none",
+          "test_evidence": "name-matched call references; not verified coverage",
+          "limitations": [
+            "Direct and nested declarations only; declarations inside control-flow blocks may be omitted.",
+            "JS/TS scan may miss declarations or identify comment/string lookalikes."
+          ]
+        }
+      },
+      "note": "Selected evidence is not the whole repository. Missing context remains unknown; omitted discussion prevents a qualified positive.",
+      "target_reference_context": {
+        "revision": "443716a7d227b0d36cd73b82f134ccf00aa34185",
+        "source_ids": [
+          "target:pyproject.toml",
+          "target:requirements.txt",
+          "target:Agentic-Coding-Pipeline/run.py",
+          "target:src/agentic_ai/app.py"
+        ],
+        "omitted_source_ids": [],
+        "reference_only": true,
+        "absence_proves_novelty": false
+      },
+      "omitted_constraint_ids": [],
+      "constraint_hint_scan_complete": true,
+      "selection_policy": "Request root, then implementation definitions before later discussion; literal public API hints within each source-role tier, per-file diversity and interleaved spans. Path heuristic with exact acquired-manifest bin targets, not verified exports or execution.",
+      "public_api_hints": {
+        "entrypoints": [
+          "src/goldenagent/cassette.py:Cassette",
+          "src/goldenagent/cassette.py:Interaction",
+          "src/goldenagent/recorder.py:Recorder",
+          "src/goldenagent/recorder.py:replay",
+          "src/goldenagent/redact.py:Redactor",
+          "src/goldenagent/redact.py:DEFAULT_RULES",
+          "src/goldenagent/golden.py:assert_golden",
+          "src/goldenagent/golden.py:write_golden",
+          "src/goldenagent/golden.py:GoldenMismatch"
+        ],
+        "scan_complete": true,
+        "method": "literal __all__ and direct acquired relative imports; ranking hints, not verified exports",
+        "omitted_entrypoint_count": 0,
+        "entrypoint_list_complete": true
+      },
+      "declaration_context_only_capability_ids": [],
+      "selected_capability_roles": {
+        "implementation": 30
+      },
+      "supplied_source_roles": {
+        "implementation": 7,
+        "test": 2,
+        "support": 3,
+        "infrastructure": 1
+      },
+      "implementation_source_paths": [
+        "src/goldenagent/golden.py",
+        "src/goldenagent/recorder.py",
+        "src/goldenagent/cassette.py",
+        "src/goldenagent/redact.py",
+        "src/goldenagent/cli.py",
+        "src/goldenagent/diff.py",
+        "src/goldenagent/__init__.py"
+      ],
+      "runtime_bin_entrypoints": {},
+      "implementation_context_missing": false,
+      "omitted_source_count": 8,
+      "payload_bytes": 116520
+    },
+    "job_id": "713b714786a142b0b2e6fbef76e6ae3b",
+    "capability_entrypoint": "src/goldenagent/golden.py:assert_golden",
+    "checks": [
+      {
+        "requirement_id": "r0",
+        "status": "undetermined",
+        "contribution": "not_demonstrated",
+        "reason": "No target suite directory is implemented by the snapshot assertion."
+      },
+      {
+        "requirement_id": "r1",
+        "status": "undetermined",
+        "contribution": "not_demonstrated",
+        "reason": "No target suite case is supplied."
+      },
+      {
+        "requirement_id": "r2",
+        "status": "undetermined",
+        "contribution": "not_demonstrated",
+        "reason": "A snapshot is not the requested suite schema, and no suite schema is implemented here."
+      },
+      {
+        "requirement_id": "r3",
+        "status": "undetermined",
+        "contribution": "not_demonstrated",
+        "reason": "This capability compares output snapshots; it does not implement an interaction cassette."
+      },
+      {
+        "requirement_id": "r4",
+        "status": "undetermined",
+        "contribution": "partial_behavior",
+        "reason": "The assertion can create and compare a JSON snapshot, but the specifically named baseline file and its target-project content are not present here.",
+        "partial_support": {
+          "requirement_id": "r4",
+          "basis": "candidate_implementation",
+          "operation": "assert_golden writes a missing JSON snapshot, then compares parsed values against it on later calls and raises on mismatch.",
+          "requirement_part": "Snapshot creation and comparison usable as a baseline primitive.",
+          "remaining_work": "Create the specifically named target baseline from an agreed fixture and call the assertion from the target-agent regression test.",
+          "source_ids": [
+            "file:src/goldenagent/golden.py#L39-L63"
+          ]
+        }
+      },
+      {
+        "requirement_id": "r5",
+        "status": "undetermined",
+        "contribution": "not_demonstrated",
+        "reason": "No GitHub Actions workflow or trigger is demonstrated."
+      },
+      {
+        "requirement_id": "r6",
+        "status": "undetermined",
+        "contribution": "partial_behavior",
+        "reason": "On drift, the assertion raises GoldenMismatch with a summary and unified diff. It does not record once, replay the target agent, or itself establish CI execution.",
+        "partial_support": {
+          "requirement_id": "r6",
+          "basis": "candidate_implementation",
+          "operation": "assert_golden compares a supplied value with a stored snapshot and raises GoldenMismatch when values differ.",
+          "requirement_part": "Failing a check when the compared output differs from its baseline.",
+          "remaining_work": "Add record-once/replay behavior for agent and tool calls, ensure the replay run avoids live calls, and wire the comparison into target CI.",
+          "source_ids": [
+            "file:src/goldenagent/golden.py#L39-L63"
+          ]
+        }
+      },
+      {
+        "requirement_id": "r7",
+        "status": "undetermined",
+        "contribution": "not_demonstrated",
+        "reason": "Snapshot comparison does not provide or guarantee offline tool replay."
+      },
+      {
+        "requirement_id": "r8",
+        "status": "undetermined",
+        "contribution": "not_demonstrated",
+        "reason": "No integration with the target run_chat entrypoint is implemented."
+      },
+      {
+        "requirement_id": "r9",
+        "status": "undetermined",
+        "contribution": "not_demonstrated",
+        "reason": "No adapter script calling run_chat directly is implemented."
+      }
+    ],
+    "bridge": {
+      "kind": "example",
+      "summary": "A small local test illustrates pinned snapshot comparison and mismatch failure. It is not the RunLedger suite, not a replay test, and does not establish a target baseline.",
+      "steps": [
+        "Make the candidate package importable from its local source tree or install it in the environment.",
+        "Run `python -m unittest evals.runledger.test_snapshot_baseline`.",
+        "Replace the illustrative fixture with output from the target run_chat adapter and commit the target baseline before CI use."
+      ],
+      "existing_contribution": "assert_golden writes and compares JSON snapshots and raises on differences, with mismatch details.",
+      "new_logic": "The example writes an assumed fixture baseline and tests matching and changed values. Record/replay, target baseline contents and path, agent adapter, suite schema, and CI workflow remain new work.",
+      "assumptions": [
+        "The example values are illustrative fixture data, not criteria specified by the request.",
+        "CI must treat the baseline as committed input; the example’s temporary baseline does not test that policy."
+      ],
+      "dependencies": [
+        "Python standard library for the demonstrated snapshot behavior.",
+        "The candidate goldenagent package from its local source; target dependency adoption is not established by target:pyproject.toml.",
+        "Python unittest for the example test."
+      ],
+      "runtime": "Python 3.10 or newer for the candidate; target project declares Python >=3.10,<3.13.",
+      "permissions": [
+        "Local filesystem read/write for a temporary snapshot."
+      ],
+      "coupling": "Low for snapshot comparison; connecting the compared value to run_chat requires target-specific adapter work.",
+      "input": "An illustrative JSON-compatible value {\"answer\": \"fixture\"}.",
+      "expected_output": "The test expects the fixture value to match and a changed value to raise GoldenMismatch. This is an example expectation, not an original request criterion or an executed result.",
+      "ablation": "Without the assertion, this example has no snapshot mismatch failure; without the target adapter and committed baseline, it remains unrelated to target agent regressions.",
+      "files": [
+        {
+          "path": "evals/runledger/snapshot_example.py",
+          "content": "from pathlib import Path\nfrom tempfile import TemporaryDirectory\n\nfrom goldenagent import assert_golden\n\n\ndef check_fixture(path: Path) -> None:\n    assert_golden(path, {\"answer\": \"fixture\"})\n\n\nif __name__ == \"__main__\":\n    with TemporaryDirectory() as directory:\n        check_fixture(Path(directory) / \"fixture.json\")\n        print(\"illustrative snapshot matched\")"
+        },
+        {
+          "path": "evals/runledger/test_snapshot_baseline.py",
+          "content": "import unittest\nfrom tempfile import TemporaryDirectory\nfrom pathlib import Path\n\nfrom goldenagent import GoldenMismatch, assert_golden\n\n\nclass SnapshotFixtureTest(unittest.TestCase):\n    def test_match_passes_and_drift_raises(self):\n        with TemporaryDirectory() as directory:\n            path = Path(directory) / \"fixture.json\"\n            assert_golden(path, {\"answer\": \"fixture\"})\n            assert_golden(path, {\"answer\": \"fixture\"})\n            with self.assertRaises(GoldenMismatch):\n                assert_golden(path, {\"answer\": \"changed\"})\n\n\nif __name__ == \"__main__\":\n    unittest.main()"
+        }
+      ],
+      "success_criteria": [
+        "Provide an evals/runledger/ suite.",
+        "Include one case in the suite.",
+        "Include a schema for the suite.",
+        "Include a cassette for the suite.",
+        "Provide baselines/runledger-demo.json.",
+        "The check should be deterministic and use record-once/replay-in-CI behavior to catch agent/tool regressions, failing on mismatch.",
+        "The CI replay should avoid live tool calls.",
+        "Wire the suite to an existing agent/example entrypoint; the owner recommended the core chat flow through src/agentic_ai/graph.py via run_chat, and the follow-up reports using that entrypoint."
+      ],
+      "verification": {
+        "status": "not_executed",
+        "reason": "Source-grounded hypothesis; no isolated proof runner has executed this bridge."
+      }
+    },
+    "evidence_note": "Full native checks and citation IDs are in evidence.json; full resolved match retained locally by hash."
+  }
+]

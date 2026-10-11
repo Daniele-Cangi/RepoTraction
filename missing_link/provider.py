@@ -328,9 +328,27 @@ class Provider:
             # Never include arbitrary model/example text in public diagnostics.
             raise CandidateValidationError("Invalid independent behavioral proposal; no automatic retry.") from None
 
-    def plan_discovery(self, request: dict, target: dict, budget) -> dict:
+    def choose_target_inquiry(self, request: dict, target: dict, budget) -> dict:
+        from .discovery_decisions import INQUIRY_INSTRUCTION, INQUIRY_VERSION, plan_input, inquiry_schema, resolve_inquiry
+        data = plan_input(request, target)
+        data["inquiry_version"] = INQUIRY_VERSION
+        data["file_catalog"] = target.get("file_catalog", {"entries": [], "complete": False})
+        schema = inquiry_schema(request, target)
+        raw = self.complete(INQUIRY_INSTRUCTION, data, budget, schema, "request")
+        try:
+            result = resolve_inquiry(raw, request, target)
+        except (ValueError, TypeError, KeyError):
+            raise CandidateValidationError("Invalid target inquiry; no automatic retry.") from None
+        result["file_catalog"] = data["file_catalog"]
+        result["target_snapshot"] = {key: value for key, value in data["target"].items() if key != "files"}
+        result["target_snapshot"]["files"] = [{key: value for key, value in f.items() if key != "text"}
+                                               for f in data["target"]["files"]]
+        result["context_coverage"] = data["context_coverage"]
+        return result
+
+    def plan_discovery(self, request: dict, target: dict, budget, *, inquiry=None) -> dict:
         from .discovery_decisions import PLAN_INSTRUCTION, plan_input, plan_schema, resolve_plan
-        data, schema = plan_input(request, target), plan_schema(request)
+        data, schema = plan_input(request, target, inquiry), plan_schema(request)
         raw = self.complete(PLAN_INSTRUCTION, data, budget, schema, "request")
         try:
             result = resolve_plan(raw, request, self.identity())

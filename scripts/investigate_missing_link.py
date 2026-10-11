@@ -18,6 +18,8 @@ def main():
     parser.add_argument("--repo", default="")
     parser.add_argument("--from-request", action="store_true",
                         help="Let Missing Link choose operations and one source from the issue; requires --use-ai.")
+    parser.add_argument("--targeted-inquiry", action="store_true",
+                        help="Allow one bounded target-file inquiry before the request-led decision.")
     parser.add_argument("--issue", action="append", default=[])
     parser.add_argument("--query", default="")
     parser.add_argument("--max-candidates", type=int)
@@ -25,6 +27,8 @@ def main():
     parser.add_argument("--report", type=Path, help="New report path; existing reports are never replaced.")
     parser.add_argument("--resume", help="Explicitly resume a failed/paused job as the first selected issue.")
     args = parser.parse_args()
+    if args.targeted_inquiry and not args.from_request:
+        parser.error("--targeted-inquiry requires --from-request.")
     if args.from_request:
         if args.repo or args.query or not args.use_ai or len(args.issue) != 1:
             parser.error("--from-request needs one --issue and --use-ai, without --repo or --query.")

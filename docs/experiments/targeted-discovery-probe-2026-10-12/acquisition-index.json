@@ -1,0 +1,3467 @@
+{
+  "protocol_commit": "2cd340e",
+  "preparation_github_reads": 33,
+  "retained_acquisition_sha256": "90fad3c154dffda0aec3394da449cd0df07d97ac2aaba1009545f83250b2b913",
+  "ai_calls": 0,
+  "cases": [
+    {
+      "url": "https://github.com/pganssle/audio-feeder/issues/81",
+      "issue_fingerprint": "fa81731e9543fc1225f85a17ea6bf476882ade235c05c39cc3936882e1de39d7",
+      "issue_updated_at": "2026-10-10T17:58:37Z",
+      "context_complete": true,
+      "target_id": 77259094,
+      "target_revision": "2a5b58dab43a5195ccc964916bbddaf7f8727c1d",
+      "target_fingerprint": "26a8c30333d6abcf11155eaf482d0e5c382a0ed6de1f7a08bc182a5304d4093d",
+      "initial_files": [
+        {
+          "path": "pyproject.toml",
+          "sha": "603a69de2608ec3036a713f1e96758a7a8e28391",
+          "url": "https://github.com/pganssle/audio-feeder/blob/2a5b58dab43a5195ccc964916bbddaf7f8727c1d/pyproject.toml"
+        },
+        {
+          "path": "setup.py",
+          "sha": "2e25e48cd8b88de1424ea90bc6282446a89bd61d",
+          "url": "https://github.com/pganssle/audio-feeder/blob/2a5b58dab43a5195ccc964916bbddaf7f8727c1d/setup.py"
+        }
+      ],
+      "file_catalog": {
+        "entries": [
+          {
+            "id": "f0",
+            "path": "LICENSE",
+            "sha": "b55d683330809c79433ba87d4cfcd1fa1299f4e9",
+            "kind": "documentation"
+          },
+          {
+            "id": "f1",
+            "path": "pyproject.toml",
+            "sha": "603a69de2608ec3036a713f1e96758a7a8e28391",
+            "kind": "manifest"
+          },
+          {
+            "id": "f2",
+            "path": "src/audio_feeder/app.py",
+            "sha": "6b1dd69bd662bdc22da319f85fa65421570dc7aa",
+            "kind": "source"
+          },
+          {
+            "id": "f3",
+            "path": "src/audio_feeder/cli.py",
+            "sha": "e31fbf4dbe44ba18ca54e63c0fa43bdffd79bdf7",
+            "kind": "source"
+          },
+          {
+            "id": "f4",
+            "path": "tests/test_config.py",
+            "sha": "aed0039963800e835468e3ca47202516ae274ddc",
+            "kind": "test"
+          },
+          {
+            "id": "f5",
+            "path": "src/audio_feeder/__init__.py",
+            "sha": "4f002f06b5f809f09880eb2b4f4eb30efb1976e0",
+            "kind": "source"
+          },
+          {
+            "id": "f6",
+            "path": "README.rst",
+            "sha": "d1971ce3b0e29bfeb66fb4df36dc0161b0819008",
+            "kind": "documentation"
+          },
+          {
+            "id": "f7",
+            "path": "setup.py",
+            "sha": "2e25e48cd8b88de1424ea90bc6282446a89bd61d",
+            "kind": "manifest"
+          },
+          {
+            "id": "f8",
+            "path": "src/audio_feeder/_db_types.py",
+            "sha": "073d7f5958d76f793f66264645960c5f6cc86351",
+            "kind": "source"
+          },
+          {
+            "id": "f9",
+            "path": "src/audio_feeder/_object_types.py",
+            "sha": "694468b303013a6d55992077b7c771688984c611",
+            "kind": "source"
+          },
+          {
+            "id": "f10",
+            "path": "tests/test_database_handlers.py",
+            "sha": "f38a9f2efe33a2f81ce4a60798343ed39a669b12",
+            "kind": "test"
+          },
+          {
+            "id": "f11",
+            "path": "src/audio_feeder/_useful_types.py",
+            "sha": "9d2f361c6f40ff72b8b18fb72dcd4f61251fdf99",
+            "kind": "source"
+          },
+          {
+            "id": "f12",
+            "path": "CHANGELOG.rst",
+            "sha": "35c1064c3c42c624f9a58f3a83ad5bd811ee52f2",
+            "kind": "documentation"
+          },
+          {
+            "id": "f13",
+            "path": "src/audio_feeder/cache_utils.py",
+            "sha": "2c6b8f5c423b0f611e0c5c4af3050b63cebda114",
+            "kind": "source"
+          },
+          {
+            "id": "f14",
+            "path": "src/audio_feeder/config.py",
+            "sha": "c8029431dabdeccaf0dd8397c2c2c9dfe086d351",
+            "kind": "source"
+          },
+          {
+            "id": "f15",
+            "path": "tests/test_directory_parser.py",
+            "sha": "865c5c0ce3a046488fd23e0499ac83f5d5686573",
+            "kind": "test"
+          },
+          {
+            "id": "f16",
+            "path": "src/audio_feeder/database_handler.py",
+            "sha": "6e30c3c4243802ac529214f557f6afdb8d1ef33a",
+            "kind": "source"
+          },
+          {
+            "id": "f17",
+            "path": "src/audio_feeder/directory_parser.py",
+            "sha": "7d85ef0df2a893bca11fa921c7cf452568b647cc",
+            "kind": "source"
+          },
+          {
+            "id": "f18",
+            "path": "src/audio_feeder/file_location.py",
+            "sha": "b0cf1c02abf9ba467c4b25337d87c0dcc2c87499",
+            "kind": "source"
+          },
+          {
+            "id": "f19",
+            "path": "tests/test_file_location.py",
+            "sha": "0bc83b44b0ed9ea37d37d273bc098c1e9ee483ea",
+            "kind": "test"
+          },
+          {
+            "id": "f20",
+            "path": "src/audio_feeder/file_probe.py",
+            "sha": "40fb1d86d44d18a93564905286ba352bd2b40817",
+            "kind": "source"
+          },
+          {
+            "id": "f21",
+            "path": "src/audio_feeder/hash_utils.py",
+            "sha": "fa820f1d9e566e2f27dd0d0a204f919df54ccb5f",
+            "kind": "source"
+          },
+          {
+            "id": "f22",
+            "path": "src/audio_feeder/html_utils.py",
+            "sha": "77c9af628d3506979af74bb5e20f56c8816ce7fb",
+            "kind": "source"
+          },
+          {
+            "id": "f23",
+            "path": "tests/test_file_probe.py",
+            "sha": "eeed1ff425359048612494fe763cf2628f95a502",
+            "kind": "test"
+          },
+          {
+            "id": "f24",
+            "path": "src/audio_feeder/m4btools.py",
+            "sha": "3970c8d53bc139fbb5f637d6372997b344247868",
+            "kind": "source"
+          },
+          {
+            "id": "f25",
+            "path": "src/audio_feeder/media_renderer.py",
+            "sha": "205ac08d3c6c88e8af58af646bb6b1fdce193ff6",
+            "kind": "source"
+          },
+          {
+            "id": "f26",
+            "path": "src/audio_feeder/metadata_loader.py",
+            "sha": "ac7b8d8440dadade210368a2a57c6ae8a8f60a5a",
+            "kind": "source"
+          },
+          {
+            "id": "f27",
+            "path": "tests/test_html_utils.py",
+            "sha": "e60e35d4ab5e2345848f8a9b71f41995d84cedf1",
+            "kind": "test"
+          },
+          {
+            "id": "f28",
+            "path": "src/audio_feeder/object_handler.py",
+            "sha": "4dd81af896496918eb1d43f4e828e9a94c459759",
+            "kind": "source"
+          },
+          {
+            "id": "f29",
+            "path": "src/audio_feeder/page_generator.py",
+            "sha": "0ada4115ea8cdc60539f7572d7867b33f744f366",
+            "kind": "source"
+          },
+          {
+            "id": "f30",
+            "path": "src/audio_feeder/pages.py",
+            "sha": "a0ae8e8e9aa0a54e1e5500e1a397956199d4dbdc",
+            "kind": "source"
+          },
+          {
+            "id": "f31",
+            "path": "tests/test_m4btools.py",
+            "sha": "25a8a34fc65885e06f79448e706a359255f82824",
+            "kind": "test"
+          },
+          {
+            "id": "f32",
+            "path": "src/audio_feeder/resolver.py",
+            "sha": "9305526b116e85ee964cd718ac47ca2f1eee1690",
+            "kind": "source"
+          },
+          {
+            "id": "f33",
+            "path": "src/audio_feeder/resources.py",
+            "sha": "3bb1356457e709f5a566bcdcf951ddac7ab4104e",
+            "kind": "source"
+          },
+          {
+            "id": "f34",
+            "path": "src/audio_feeder/rss_feeds.py",
+            "sha": "11b4f66afe074f3c493e2b0e2fdefc827bec4288",
+            "kind": "source"
+          },
+          {
+            "id": "f35",
+            "path": "tests/test_metadata_loader.py",
+            "sha": "b50ef065dadc2e455e5a89623e8d8ed11c027108",
+            "kind": "test"
+          },
+          {
+            "id": "f36",
+            "path": "src/audio_feeder/segmenter.py",
+            "sha": "5b0eeed48285bf1df268f24dadfe825776b912f1",
+            "kind": "source"
+          },
+          {
+            "id": "f37",
+            "path": "src/audio_feeder/sql_database_handler.py",
+            "sha": "c64da6c92c3073d4d0beeafae36c39f45d6e4f3c",
+            "kind": "source"
+          },
+          {
+            "id": "f38",
+            "path": "src/audio_feeder/updater.py",
+            "sha": "1b29eb1a393ea8ac66893d5b431bf8499f7a85ee",
+            "kind": "source"
+          },
+          {
+            "id": "f39",
+            "path": "tests/test_page_generator.py",
+            "sha": "2dacdf7e2e612a86456d158ccd5d3722e85934c7",
+            "kind": "test"
+          },
+          {
+            "id": "f40",
+            "path": "src/audio_feeder/yaml_database_handler.py",
+            "sha": "5311fad38b00315dc3ff2f986d968841722909fc",
+            "kind": "source"
+          },
+          {
+            "id": "f41",
+            "path": "src/audio_feeder/data/__init__.py",
+            "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+            "kind": "source"
+          },
+          {
+            "id": "f42",
+            "path": "src/audio_feeder/data/css/__init__.py",
+            "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+            "kind": "source"
+          },
+          {
+            "id": "f43",
+            "path": "tests/test_pages.py",
+            "sha": "b4e159eb07dce380e7cd2fa34ebcc0d7094460a4",
+            "kind": "test"
+          },
+          {
+            "id": "f44",
+            "path": "src/audio_feeder/data/site/__init__.py",
+            "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+            "kind": "source"
+          },
+          {
+            "id": "f45",
+            "path": "src/audio_feeder/data/templates/__init__.py",
+            "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+            "kind": "source"
+          },
+          {
+            "id": "f46",
+            "path": "src/audio_feeder/data/site/fonts/__init__.py",
+            "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+            "kind": "source"
+          },
+          {
+            "id": "f47",
+            "path": "tests/test_resolver.py",
+            "sha": "a323230f40e3fef6b114c1df1385a6cd5ed7aa2e",
+            "kind": "test"
+          },
+          {
+            "id": "f48",
+            "path": "src/audio_feeder/data/site/site-images/__init__.py",
+            "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+            "kind": "source"
+          },
+          {
+            "id": "f49",
+            "path": "src/audio_feeder/data/templates/entry_types/__init__.py",
+            "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+            "kind": "source"
+          },
+          {
+            "id": "f50",
+            "path": "src/audio_feeder/data/templates/pages/__init__.py",
+            "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+            "kind": "source"
+          },
+          {
+            "id": "f51",
+            "path": "tests/test_resources.py",
+            "sha": "60d46ccdc758eb4a1aa7dd79ae48843a804c6c6b",
+            "kind": "test"
+          },
+          {
+            "id": "f52",
+            "path": "src/audio_feeder/data/templates/rss/__init__.py",
+            "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+            "kind": "source"
+          },
+          {
+            "id": "f53",
+            "path": "src/audio_feeder/data/templates/entry_types/Book/__init__.py",
+            "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+            "kind": "source"
+          },
+          {
+            "id": "f54",
+            "path": "src/audio_feeder/data/templates/rss/entry_types/__init__.py",
+            "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+            "kind": "source"
+          },
+          {
+            "id": "f55",
+            "path": "tests/test_rss_feeds.py",
+            "sha": "f8cf0d23bbd43489003083b7cc9dd8b210d3fdcc",
+            "kind": "test"
+          },
+          {
+            "id": "f56",
+            "path": "src/audio_feeder/data/templates/rss/entry_types/Book/__init__.py",
+            "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+            "kind": "source"
+          },
+          {
+            "id": "f57",
+            "path": "scripts/bundle_fa_subset.py",
+            "sha": "7e66df27c0f299f7e4c38487514fa002a8cd2b30",
+            "kind": "source"
+          },
+          {
+            "id": "f58",
+            "path": "scripts/record_responses.py",
+            "sha": "8b8d61d4db4f5b8e49731dbb870175d247c0027f",
+            "kind": "source"
+          },
+          {
+            "id": "f59",
+            "path": "tests/test_segmenter.py",
+            "sha": "b4d6afca346c52433202f095575928fb06bed7cb",
+            "kind": "test"
+          },
+          {
+            "id": "f60",
+            "path": "scripts/start_test_server.py",
+            "sha": "0c5bdec250a3f84c1ab3f1ac890c9b5625224992",
+            "kind": "source"
+          },
+          {
+            "id": "f61",
+            "path": "scripts/utils.py",
+            "sha": "59f001d4048e0116b0539af679dee27ddf0dfc8e",
+            "kind": "source"
+          },
+          {
+            "id": "f62",
+            "path": "scripts/__init__.py",
+            "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+            "kind": "source"
+          },
+          {
+            "id": "f63",
+            "path": "tests/test_updater.py",
+            "sha": "77cdc9f04d6327bd6746c94659b36d8f7a7c9e8b",
+            "kind": "test"
+          },
+          {
+            "id": "f64",
+            "path": "tests/utils.py",
+            "sha": "424f31e7202c0266a77e371647deb0c8da1c7860",
+            "kind": "test"
+          },
+          {
+            "id": "f65",
+            "path": "tests/__init__.py",
+            "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+            "kind": "test"
+          },
+          {
+            "id": "f66",
+            "path": "tests/conftest.py",
+            "sha": "e70392aed81bee95d73576b96f0f268fb299503c",
+            "kind": "test"
+          }
+        ],
+        "entry_limit": 300,
+        "byte_limit": 24000,
+        "omitted": 0,
+        "complete": true,
+        "sampling_policy": "Existing _select_files docs/source/test ordering, within catalogue bounds.",
+        "note": "Eligible path metadata only; a filename is not implementation evidence."
+      }
+    },
+    {
+      "url": "https://github.com/WilliamNT/tunesynctool/issues/21",
+      "issue_fingerprint": "694b8409b92710ef264897e8a1e3931eb0dc535f0c1b0ca67c72ff4ac3d1635a",
+      "issue_updated_at": "2026-06-07T19:50:45Z",
+      "context_complete": true,
+      "target_id": 903953295,
+      "target_revision": "b705691ba7d02d34ff3b6423ca03fcfca1514994",
+      "target_fingerprint": "125f655cb52263e9e9260713674d5853180da4e6492773b25eddfc1fee63391e",
+      "initial_files": [
+        {
+          "path": "pyproject.toml",
+          "sha": "970014ddcb72be824f6e1a8bafefec66b42891c7",
+          "url": "https://github.com/WilliamNT/tunesynctool/blob/b705691ba7d02d34ff3b6423ca03fcfca1514994/pyproject.toml"
+        },
+        {
+          "path": "requirements.txt",
+          "sha": "b3b885c7921e1cb256a42dd77af91dd13e172bde",
+          "url": "https://github.com/WilliamNT/tunesynctool/blob/b705691ba7d02d34ff3b6423ca03fcfca1514994/requirements.txt"
+        }
+      ],
+      "file_catalog": {
+        "entries": [
+          {
+            "id": "f0",
+            "path": "LICENSE",
+            "sha": "d159169d1050894d3ea3b98e1c965c4058208fe1",
+            "kind": "documentation"
+          },
+          {
+            "id": "f1",
+            "path": "pyproject.toml",
+            "sha": "970014ddcb72be824f6e1a8bafefec66b42891c7",
+            "kind": "manifest"
+          },
+          {
+            "id": "f2",
+            "path": "tunesynctool/cli/main.py",
+            "sha": "e40b2c8265c6ba898b0bcdf3e4fa63246662f209",
+            "kind": "source"
+          },
+          {
+            "id": "f3",
+            "path": "webui/api/main.py",
+            "sha": "e6eeea6583d4b730652c5f347106f130687fc142",
+            "kind": "source"
+          },
+          {
+            "id": "f4",
+            "path": "tests/matching/test_normalization.py",
+            "sha": "f7ec78b609d4a252e0d01fa65a072168d5ea6b49",
+            "kind": "test"
+          },
+          {
+            "id": "f5",
+            "path": "webui/frontend/src/api/index.ts",
+            "sha": "9d2ef8fc7fd45cd298002616b7e9dc50ad16fb20",
+            "kind": "source"
+          },
+          {
+            "id": "f6",
+            "path": "README.md",
+            "sha": "48cc6c908b3b11d3668cab4df430615e3d0af3e0",
+            "kind": "documentation"
+          },
+          {
+            "id": "f7",
+            "path": "requirements.txt",
+            "sha": "b3b885c7921e1cb256a42dd77af91dd13e172bde",
+            "kind": "manifest"
+          },
+          {
+            "id": "f8",
+            "path": "webui/frontend/src/router/index.ts",
+            "sha": "8cdf31b3a1b23884c705520f5ee8913ed2b4dc5c",
+            "kind": "source"
+          },
+          {
+            "id": "f9",
+            "path": "webui/frontend/src/api/models/index.ts",
+            "sha": "55272cf85577e8763e872da74a02078e28037411",
+            "kind": "source"
+          },
+          {
+            "id": "f10",
+            "path": "tests/models/test_playlist.py",
+            "sha": "60420975d03cb60ad098328a71ea96eed14a93b8",
+            "kind": "test"
+          },
+          {
+            "id": "f11",
+            "path": "tunesynctool/__init__.py",
+            "sha": "216e8b6a49beebd8adace58d0e0b4a0a2be57df3",
+            "kind": "source"
+          },
+          {
+            "id": "f12",
+            "path": "webui/frontend/README.md",
+            "sha": "02b06e393d9bd204a5938a4b9e05582a8a73d7a8",
+            "kind": "documentation"
+          },
+          {
+            "id": "f13",
+            "path": "webui/frontend/package.json",
+            "sha": "3b8f489ed47f4bc2f6c828e7c8f4e178c3e032cd",
+            "kind": "manifest"
+          },
+          {
+            "id": "f14",
+            "path": "tunesynctool/drivers/__init__.py",
+            "sha": "cdda9d4f6c4634e47e394b0a52d0dfdade640297",
+            "kind": "source"
+          },
+          {
+            "id": "f15",
+            "path": "tunesynctool/drivers/async_service_driver.py",
+            "sha": "966b0f4d6caa55cf0b4278e8b3775f5146ea0175",
+            "kind": "source"
+          },
+          {
+            "id": "f16",
+            "path": "tests/models/test_track.py",
+            "sha": "0bca6b2bdc254d0a88cf100fe836ba1eeecbcb25",
+            "kind": "test"
+          },
+          {
+            "id": "f17",
+            "path": "tunesynctool/drivers/service_driver.py",
+            "sha": "1494a6f1c004060139f7d83b8ccfe91f38a168cb",
+            "kind": "source"
+          },
+          {
+            "id": "f18",
+            "path": "CONTRIBUTING.md",
+            "sha": "0a34829e6eacaa32e7acff87473ed444ca55b40f",
+            "kind": "documentation"
+          },
+          {
+            "id": "f19",
+            "path": "tunesynctool/drivers/service_mapper.py",
+            "sha": "2a346d42964da47ad6a99ec17b124cfd33f19191",
+            "kind": "source"
+          },
+          {
+            "id": "f20",
+            "path": "tunesynctool/exceptions/__init__.py",
+            "sha": "47c4c2a9b0e25eaeef11830e5638b2568b80b504",
+            "kind": "source"
+          },
+          {
+            "id": "f21",
+            "path": "tests/spotify_driver/test_spotify_mapping.py",
+            "sha": "46fbb3aaa18596b3c17f3a9e3ceabd5b7adec871",
+            "kind": "test"
+          },
+          {
+            "id": "f22",
+            "path": "tunesynctool/features/__init__.py",
+            "sha": "ecff861b11428add45df663465b7cc4faf2968b1",
+            "kind": "source"
+          },
+          {
+            "id": "f23",
+            "path": "tunesynctool/features/async_track_matcher.py",
+            "sha": "c3e15d8e67de48ee3fdcc494942ac72cb50dd0c9",
+            "kind": "source"
+          },
+          {
+            "id": "f24",
+            "path": "tunesynctool/features/playlist_sync.py",
+            "sha": "2fabfe3b7b9cb95f25fd97ecb882053a78fe2182",
+            "kind": "source"
+          },
+          {
+            "id": "f25",
+            "path": "tests/subsonic_driver/test_subsonic_mapping.py",
+            "sha": "1e0ddc73c6eadd104cea4d02db89551f8e382963",
+            "kind": "test"
+          },
+          {
+            "id": "f26",
+            "path": "tunesynctool/features/track_matcher.py",
+            "sha": "44c2e52dc087d8b6d2a9e3349e452674b374a0ed",
+            "kind": "source"
+          },
+          {
+            "id": "f27",
+            "path": "tunesynctool/integrations/musicbrainz.py",
+            "sha": "a8ddc389535911d4e62d676c65e9d171564c3793",
+            "kind": "source"
+          },
+          {
+            "id": "f28",
+            "path": "tunesynctool/models/configuration.py",
+            "sha": "0556c8309669a0d6420f97ec6f866a50d2c65209",
+            "kind": "source"
+          },
+          {
+            "id": "f29",
+            "path": "tests/youtube_driver/test_youtube_mapping.py",
+            "sha": "99036f9cf837fb4c8f5e8037e84903821c963b67",
+            "kind": "test"
+          },
+          {
+            "id": "f30",
+            "path": "tunesynctool/models/playlist.py",
+            "sha": "63290dc4fc3178f9112190068e0bb75a38aea798",
+            "kind": "source"
+          },
+          {
+            "id": "f31",
+            "path": "tunesynctool/models/track.py",
+            "sha": "86c2d5691210d1bba0d8c660e78e28649cf4a524",
+            "kind": "source"
+          },
+          {
+            "id": "f32",
+            "path": "tunesynctool/utilities/__init__.py",
+            "sha": "728d212f3a85598e9ce2b766c0c9e5e1c9897852",
+            "kind": "source"
+          },
+          {
+            "id": "f33",
+            "path": "tests/youtube_driver/test_youtube_oauth2_driver.py",
+            "sha": "9c7b513bf3efd7a287ff465124e03b89df2d3a6e",
+            "kind": "test"
+          },
+          {
+            "id": "f34",
+            "path": "tunesynctool/utilities/collections.py",
+            "sha": "abadb7d3101597866c908fb047a44e88b0d755bc",
+            "kind": "source"
+          },
+          {
+            "id": "f35",
+            "path": "tunesynctool/utilities/comparison.py",
+            "sha": "58eff363cc0f4680dfc0ada87bacf431fe0f81cf",
+            "kind": "source"
+          },
+          {
+            "id": "f36",
+            "path": "tunesynctool/utilities/normalization.py",
+            "sha": "8ebffc828b11ce05b6d704d58a4f2ae9a96395ff",
+            "kind": "source"
+          },
+          {
+            "id": "f37",
+            "path": "tests/__init__.py",
+            "sha": "4513ab99bc2c1dc623e219a783443b46ec9f9d98",
+            "kind": "test"
+          },
+          {
+            "id": "f38",
+            "path": "webui/frontend/eslint.config.ts",
+            "sha": "a9b7063a8806e6fd394ec4396369be4a972afd2a",
+            "kind": "source"
+          },
+          {
+            "id": "f39",
+            "path": "webui/frontend/vite.config.ts",
+            "sha": "f16ca78d0593fe01996a0078480e6c6fb96f7dbe",
+            "kind": "source"
+          },
+          {
+            "id": "f40",
+            "path": "tunesynctool/cli/commands/sync.py",
+            "sha": "dc4996ec5b3e4e4d5d4bb438ddb0705d52a79c42",
+            "kind": "source"
+          },
+          {
+            "id": "f41",
+            "path": "tunesynctool/cli/commands/transfer.py",
+            "sha": "3b3911577fe1be688d97d83fc3647a92bdaff1f6",
+            "kind": "source"
+          },
+          {
+            "id": "f42",
+            "path": "tunesynctool/cli/utils/driver.py",
+            "sha": "78043040601f8fb223a4af33714c586a462f76a4",
+            "kind": "source"
+          },
+          {
+            "id": "f43",
+            "path": "tunesynctool/drivers/common/__init__.py",
+            "sha": "d5061fc0f3634af91a94c36ff4b2a59c8dcb2d0e",
+            "kind": "source"
+          },
+          {
+            "id": "f44",
+            "path": "webui/api/core/__init__.py",
+            "sha": "97d911ca4e176b062404e5929870fd0299bfc1f1",
+            "kind": "source"
+          },
+          {
+            "id": "f45",
+            "path": "webui/api/core/config.py",
+            "sha": "9543d6d5a0a1b0fa8232c9897a231a6291c41bbe",
+            "kind": "source"
+          },
+          {
+            "id": "f46",
+            "path": "webui/api/core/context.py",
+            "sha": "b06973e4c520be0e9c0d44ef359609424740791b",
+            "kind": "source"
+          },
+          {
+            "id": "f47",
+            "path": "webui/api/core/database.py",
+            "sha": "1c5081ccf81aca137a94e0c68019c9564f63f7e4",
+            "kind": "source"
+          },
+          {
+            "id": "f48",
+            "path": "webui/api/core/logging.py",
+            "sha": "2e87af678c070be740533730a4448b4156040590",
+            "kind": "source"
+          },
+          {
+            "id": "f49",
+            "path": "webui/api/core/redis.py",
+            "sha": "70e41866729661425c0256c42578cc2e9aef6481",
+            "kind": "source"
+          },
+          {
+            "id": "f50",
+            "path": "webui/api/core/security.py",
+            "sha": "a6676079fa644af6fa63e3bac6017ff57d7d3199",
+            "kind": "source"
+          },
+          {
+            "id": "f51",
+            "path": "webui/api/exceptions/auth.py",
+            "sha": "609d18a1ed870992bc3a7b66ca5c65f4b857ce41",
+            "kind": "source"
+          },
+          {
+            "id": "f52",
+            "path": "webui/api/helpers/database.py",
+            "sha": "b1db592cd3ff2059f831184ef4eaace342298a72",
+            "kind": "source"
+          },
+          {
+            "id": "f53",
+            "path": "webui/api/helpers/encryption.py",
+            "sha": "a47df324e6de3c70cabe0cf9c048cb9cdb76652e",
+            "kind": "source"
+          },
+          {
+            "id": "f54",
+            "path": "webui/api/helpers/extraction.py",
+            "sha": "8f63e5700d61f616b13964dbafead197cdca289d",
+            "kind": "source"
+          },
+          {
+            "id": "f55",
+            "path": "webui/api/helpers/mapping.py",
+            "sha": "0238084d60a4a935563339e2131bf762596c323a",
+            "kind": "source"
+          },
+          {
+            "id": "f56",
+            "path": "webui/api/helpers/route_level_dependencies.py",
+            "sha": "c996ddd6dd75935c1fc795dad746065bff0a0f89",
+            "kind": "source"
+          },
+          {
+            "id": "f57",
+            "path": "webui/api/helpers/service_driver.py",
+            "sha": "9d222e9100e5730fc5395f2b52d41d916990a518",
+            "kind": "source"
+          },
+          {
+            "id": "f58",
+            "path": "webui/api/helpers/ytmusicapi.py",
+            "sha": "eedc65f4ff80b705b7bb3c38c61efe84766f58c6",
+            "kind": "source"
+          },
+          {
+            "id": "f59",
+            "path": "webui/api/models/collection.py",
+            "sha": "17912e27e33c52c8d61cde575bcecc79af055012",
+            "kind": "source"
+          },
+          {
+            "id": "f60",
+            "path": "webui/api/models/deezer_arl.py",
+            "sha": "9925b10acd1ed42db5960323a7f56f45674cec07",
+            "kind": "source"
+          },
+          {
+            "id": "f61",
+            "path": "webui/api/models/entity.py",
+            "sha": "1a745e479c0899d65f27ab689827469b6a511eee",
+            "kind": "source"
+          },
+          {
+            "id": "f62",
+            "path": "webui/api/models/playlist.py",
+            "sha": "39c3e4c09dcb6c6a68dc6875727bbb3ebe717510",
+            "kind": "source"
+          },
+          {
+            "id": "f63",
+            "path": "webui/api/models/search.py",
+            "sha": "a0bd325911c2b9f2286d9d1766a1aacd9d743253",
+            "kind": "source"
+          },
+          {
+            "id": "f64",
+            "path": "webui/api/models/service.py",
+            "sha": "b5e1479de6864f96e9d198f0aa6a685b02ac951f",
+            "kind": "source"
+          },
+          {
+            "id": "f65",
+            "path": "webui/api/models/state.py",
+            "sha": "8b4d2d808c7efbca0a7f1a187bcb2d793213c5c7",
+            "kind": "source"
+          },
+          {
+            "id": "f66",
+            "path": "webui/api/models/subsonic.py",
+            "sha": "fb6984dc2be041a1d0bc1089d07614d14f8ab3e0",
+            "kind": "source"
+          },
+          {
+            "id": "f67",
+            "path": "webui/api/models/system.py",
+            "sha": "08cb60367b62fd5d08940bcb1262f8807ee5d062",
+            "kind": "source"
+          },
+          {
+            "id": "f68",
+            "path": "webui/api/models/task.py",
+            "sha": "35bbf6aedbcc3ff1319be06f98506b0e8b01c495",
+            "kind": "source"
+          },
+          {
+            "id": "f69",
+            "path": "webui/api/models/token.py",
+            "sha": "922d43e9080b3bf86aaa7e3d1c26bfd9e83621c6",
+            "kind": "source"
+          },
+          {
+            "id": "f70",
+            "path": "webui/api/models/track.py",
+            "sha": "d1a74342f9adbdfc2059fe49280154aaf0b7d3d7",
+            "kind": "source"
+          },
+          {
+            "id": "f71",
+            "path": "webui/api/models/user.py",
+            "sha": "910498180f7a91133046ba942ed9bea0eb8a299e",
+            "kind": "source"
+          },
+          {
+            "id": "f72",
+            "path": "webui/api/routes/auth.py",
+            "sha": "e7b142961ce0f6c8b947a73ba0a03532a1d0c2f3",
+            "kind": "source"
+          },
+          {
+            "id": "f73",
+            "path": "webui/api/routes/catalog.py",
+            "sha": "38bc8a52845c2ff60e9dd7f25f9a00a8aa2cb78e",
+            "kind": "source"
+          },
+          {
+            "id": "f74",
+            "path": "webui/api/routes/library.py",
+            "sha": "fa93e2eb20a735a7d876bd3520cf36b693705f5a",
+            "kind": "source"
+          },
+          {
+            "id": "f75",
+            "path": "webui/api/routes/router.py",
+            "sha": "5ce3ee7bafb84506d1926dcfbfd5e5f2eca1b7c4",
+            "kind": "source"
+          },
+          {
+            "id": "f76",
+            "path": "webui/api/routes/tasks.py",
+            "sha": "824b73742aa72dd0ecd5f52a07cca2a29112c1be",
+            "kind": "source"
+          },
+          {
+            "id": "f77",
+            "path": "webui/api/routes/users.py",
+            "sha": "b2cf26d3daedc6b8098401e94511231dea3c1b24",
+            "kind": "source"
+          },
+          {
+            "id": "f78",
+            "path": "webui/api/services/auth_service.py",
+            "sha": "4d05b2299a71102ffc6f79630bbd96f4ccca3ed2",
+            "kind": "source"
+          },
+          {
+            "id": "f79",
+            "path": "webui/api/services/catalog_service.py",
+            "sha": "5198db573ec4e1085e1f3fd35ba9c30d655d8ffc",
+            "kind": "source"
+          },
+          {
+            "id": "f80",
+            "path": "webui/api/services/credentials_service.py",
+            "sha": "4af487070ae8c92ca23908256fa19711ea1797ca",
+            "kind": "source"
+          },
+          {
+            "id": "f81",
+            "path": "webui/api/services/deezer_service.py",
+            "sha": "e62bb671be6934017bd5eb1203171916f448f78f",
+            "kind": "source"
+          },
+          {
+            "id": "f82",
+            "path": "webui/api/services/library_service.py",
+            "sha": "f565dc6c8789e907cb802fe6d9d9ff498c1feb12",
+            "kind": "source"
+          },
+          {
+            "id": "f83",
+            "path": "webui/api/services/provider_service.py",
+            "sha": "98f1563600d93cb1f37ca3b0ed2955d97ef25855",
+            "kind": "source"
+          },
+          {
+            "id": "f84",
+            "path": "webui/api/services/service_driver_helper_service.py",
+            "sha": "25df4b4a8ff0f9bd0f60c099334714d8fdadc982",
+            "kind": "source"
+          },
+          {
+            "id": "f85",
+            "path": "webui/api/services/subsonic_service.py",
+            "sha": "24f61434c4fcc2970f386a5474db48e12ad1fcdd",
+            "kind": "source"
+          },
+          {
+            "id": "f86",
+            "path": "webui/api/services/task_service.py",
+            "sha": "6b4e601b743c8c00a83118274867ba9b9940da5a",
+            "kind": "source"
+          },
+          {
+            "id": "f87",
+            "path": "webui/api/services/track_matching_service.py",
+            "sha": "57da6e0214c76ff31b0bbfd628037528e6c8c0ba",
+            "kind": "source"
+          },
+          {
+            "id": "f88",
+            "path": "webui/api/services/user_service.py",
+            "sha": "3606b37928aa7459090bef2a675e3bcf1f1ff98c",
+            "kind": "source"
+          },
+          {
+            "id": "f89",
+            "path": "webui/api/workers/dispatcher.py",
+            "sha": "63cb7c78ddcb232bbdf4f5283b09fc1383fd7616",
+            "kind": "source"
+          },
+          {
+            "id": "f90",
+            "path": "webui/api/workers/recovery.py",
+            "sha": "f10df4634f1058c221f49c919423df91e2624f8c",
+            "kind": "source"
+          },
+          {
+            "id": "f91",
+            "path": "webui/frontend/src/main.ts",
+            "sha": "8d88f45c23bf19a7a2b47d30e9c0a1f5b35913a9",
+            "kind": "source"
+          },
+          {
+            "id": "f92",
+            "path": "tunesynctool/drivers/common/deezer/__init__.py",
+            "sha": "c3e79c7732e5bf4767cec87fae7460ea1a240a08",
+            "kind": "source"
+          },
+          {
+            "id": "f93",
+            "path": "tunesynctool/drivers/common/deezer/async_driver.py",
+            "sha": "9a089f5c9c3259c88c8c844f8ee248a0d5f864ec",
+            "kind": "source"
+          },
+          {
+            "id": "f94",
+            "path": "tunesynctool/drivers/common/deezer/driver.py",
+            "sha": "9458b911c6503065791aba06e39ca307c29ab9e4",
+            "kind": "source"
+          },
+          {
+            "id": "f95",
+            "path": "tunesynctool/drivers/common/deezer/mapper.py",
+            "sha": "4d309f1da86efaffcf53a150b5620d3d54918143",
+            "kind": "source"
+          },
+          {
+            "id": "f96",
+            "path": "tunesynctool/drivers/common/spotify/__init__.py",
+            "sha": "e7c64c6a0ccd11461115ff04f27b9e4cccf4607e",
+            "kind": "source"
+          },
+          {
+            "id": "f97",
+            "path": "tunesynctool/drivers/common/spotify/async_driver.py",
+            "sha": "53c0d32307555040f6936417d7a62e54566c666a",
+            "kind": "source"
+          },
+          {
+            "id": "f98",
+            "path": "tunesynctool/drivers/common/spotify/driver.py",
+            "sha": "c61cd78b29206fee3e8eeeea490be433d1608c12",
+            "kind": "source"
+          },
+          {
+            "id": "f99",
+            "path": "tunesynctool/drivers/common/spotify/mapper.py",
+            "sha": "b4e552054e9cf571162c645e7510d0a315a27200",
+            "kind": "source"
+          },
+          {
+            "id": "f100",
+            "path": "tunesynctool/drivers/common/subsonic/__init__.py",
+            "sha": "e707351d2d95a4dc67bba3d467f5468a8148f9ba",
+            "kind": "source"
+          },
+          {
+            "id": "f101",
+            "path": "tunesynctool/drivers/common/subsonic/async_driver.py",
+            "sha": "0a24fe0ad364d8e798983bd4abb7ec3db6c47d4a",
+            "kind": "source"
+          },
+          {
+            "id": "f102",
+            "path": "tunesynctool/drivers/common/subsonic/driver.py",
+            "sha": "46d628acb52f66f4a5ff4b42ae58355ba228b95e",
+            "kind": "source"
+          },
+          {
+            "id": "f103",
+            "path": "tunesynctool/drivers/common/subsonic/mapper.py",
+            "sha": "6ea2cc13af6b7e597446d981659f6ae3b7cb01cc",
+            "kind": "source"
+          },
+          {
+            "id": "f104",
+            "path": "tunesynctool/drivers/common/youtube/__init__.py",
+            "sha": "d81bcb7327868a756ea6bafd0eb7edf57a0d2011",
+            "kind": "source"
+          },
+          {
+            "id": "f105",
+            "path": "tunesynctool/drivers/common/youtube/async_driver.py",
+            "sha": "45621737283bce1ef1bb8270da79021ed194eff8",
+            "kind": "source"
+          },
+          {
+            "id": "f106",
+            "path": "tunesynctool/drivers/common/youtube/driver.py",
+            "sha": "fd2be812363c1715a6a445091b4ee8dce4a598e1",
+            "kind": "source"
+          },
+          {
+            "id": "f107",
+            "path": "tunesynctool/drivers/common/youtube/mapper.py",
+            "sha": "e83a391fc25f2238545cba125b873a7933405dec",
+            "kind": "source"
+          },
+          {
+            "id": "f108",
+            "path": "webui/api/drivers/cached/async_cached_driver.py",
+            "sha": "9a6ce0f1e916912be9c2bf9783ce65452bcf9c67",
+            "kind": "source"
+          },
+          {
+            "id": "f109",
+            "path": "webui/api/drivers/youtube/async_driver.py",
+            "sha": "280aa3ebaf99fe4a27d726735c71760a6dc15766",
+            "kind": "source"
+          },
+          {
+            "id": "f110",
+            "path": "webui/api/drivers/youtube/driver.py",
+            "sha": "8baff542153cf1c25f7418a4e9733df2e28709e4",
+            "kind": "source"
+          },
+          {
+            "id": "f111",
+            "path": "webui/api/drivers/youtube/exception.py",
+            "sha": "8e223eee7c3d9f069d2260e2d5a552c1059c57d1",
+            "kind": "source"
+          },
+          {
+            "id": "f112",
+            "path": "webui/api/drivers/youtube/mapper.py",
+            "sha": "018da3b28c6965793b3a39adf690c2e2928266ee",
+            "kind": "source"
+          },
+          {
+            "id": "f113",
+            "path": "webui/api/exceptions/http/auth.py",
+            "sha": "02b18d48affe1a6952b1f7f68384ada5b48a2f01",
+            "kind": "source"
+          },
+          {
+            "id": "f114",
+            "path": "webui/api/exceptions/http/provider.py",
+            "sha": "b24055b6eff7c3036b8b6998a7db5fe119d9439e",
+            "kind": "source"
+          },
+          {
+            "id": "f115",
+            "path": "webui/api/exceptions/http/service_driver.py",
+            "sha": "4567b1b9e62637913dcc6577099094aaf24d2415",
+            "kind": "source"
+          },
+          {
+            "id": "f116",
+            "path": "webui/api/routes/providers/deezer.py",
+            "sha": "8a4330a080ea770d4a37d29e6f021d03e115e649",
+            "kind": "source"
+          },
+          {
+            "id": "f117",
+            "path": "webui/api/routes/providers/providers.py",
+            "sha": "7abaa51a2ccdef41bab678d67c73fcc4045e9fff",
+            "kind": "source"
+          },
+          {
+            "id": "f118",
+            "path": "webui/api/routes/providers/spotify.py",
+            "sha": "c73d510cec2d9f0ab39185e4a3522338cdb4b8af",
+            "kind": "source"
+          },
+          {
+            "id": "f119",
+            "path": "webui/api/routes/providers/subsonic.py",
+            "sha": "ed9185aafa9a4070ca1379085c54ea8626a6d521",
+            "kind": "source"
+          },
+          {
+            "id": "f120",
+            "path": "webui/api/routes/providers/youtube.py",
+            "sha": "f6a906f6768b747966213eeb406576a1e938302e",
+            "kind": "source"
+          },
+          {
+            "id": "f121",
+            "path": "webui/api/services/factories/service_driver_factory.py",
+            "sha": "ca00f0cc2ffea83ce601c53b235fb19a6a0b860e",
+            "kind": "source"
+          },
+          {
+            "id": "f122",
+            "path": "webui/api/services/oauth2_linking/base_oauth2_handler.py",
+            "sha": "c89a81924c40a8d9122e0ba4293f96aa2cf83217",
+            "kind": "source"
+          },
+          {
+            "id": "f123",
+            "path": "webui/api/services/oauth2_linking/spotify_oauth2_handler.py",
+            "sha": "108e14dbe3e5e24eebcf4aab257bc6165d4afdbe",
+            "kind": "source"
+          },
+          {
+            "id": "f124",
+            "path": "webui/api/services/oauth2_linking/youtube_oauth2_handler.py",
+            "sha": "f0870000cae51f196be0c93fbc72c8a77b160719",
+            "kind": "source"
+          },
+          {
+            "id": "f125",
+            "path": "webui/api/services/providers/base_provider.py",
+            "sha": "a04f1119ab9cd8f4b805ef2e258e8d6de5b83f8a",
+            "kind": "source"
+          },
+          {
+            "id": "f126",
+            "path": "webui/api/services/providers/deezer_provider.py",
+            "sha": "b727f5e27dba1ff5eaeefeaa9542970dfcb8dacb",
+            "kind": "source"
+          },
+          {
+            "id": "f127",
+            "path": "webui/api/services/providers/provider_factory.py",
+            "sha": "9300f5bd891e603b2a914ffba1972ba424fe65e3",
+            "kind": "source"
+          },
+          {
+            "id": "f128",
+            "path": "webui/api/services/providers/spotify_provider.py",
+            "sha": "da75f149dbd708389a2993ca60cadd54fa8ce3e2",
+            "kind": "source"
+          },
+          {
+            "id": "f129",
+            "path": "webui/api/services/providers/subsonic_provider.py",
+            "sha": "bed4a2f4016a37af6f3183f612d9258e1c3b2476",
+            "kind": "source"
+          },
+          {
+            "id": "f130",
+            "path": "webui/api/services/providers/youtube_provider.py",
+            "sha": "4eb709f5ed85f8a7452684091f8f6a2826f8abee",
+            "kind": "source"
+          },
+          {
+            "id": "f131",
+            "path": "webui/api/workers/handlers/playlist_transfer_handler.py",
+            "sha": "f46000deaf3048b8b7a6f0792217c9727c6a4bc8",
+            "kind": "source"
+          },
+          {
+            "id": "f132",
+            "path": "webui/api/workers/utils/constants.py",
+            "sha": "5ed33560bc3eada4b0cb90a37f186ce4df4216f3",
+            "kind": "source"
+          },
+          {
+            "id": "f133",
+            "path": "webui/api/workers/utils/context.py",
+            "sha": "b96befeb05604908470075c2c5813d131abafa37",
+            "kind": "source"
+          },
+          {
+            "id": "f134",
+            "path": "webui/api/workers/utils/heartbeat.py",
+            "sha": "032140751a0d601bc02df42bf14f4cdb6012c6fb",
+            "kind": "source"
+          },
+          {
+            "id": "f135",
+            "path": "webui/api/workers/utils/keys.py",
+            "sha": "f37d0cb1b77f31a05cc1ba20bc3e596a4429090c",
+            "kind": "source"
+          },
+          {
+            "id": "f136",
+            "path": "webui/api/workers/utils/task_status.py",
+            "sha": "c4ef9b6bee62f22080679f0ebbe780f8c1129873",
+            "kind": "source"
+          },
+          {
+            "id": "f137",
+            "path": "webui/frontend/src/api/api.ts",
+            "sha": "78fed2b611397a1b63e91d8e669d58ccc7e3b9df",
+            "kind": "source"
+          },
+          {
+            "id": "f138",
+            "path": "webui/frontend/src/api/base.ts",
+            "sha": "5e48216e0b9cf930ce27d38a91ec0bdfc6bc7b6e",
+            "kind": "source"
+          },
+          {
+            "id": "f139",
+            "path": "webui/frontend/src/api/common.ts",
+            "sha": "1eb81fb1b1c521bf7d5c4b89283d756c6a19f553",
+            "kind": "source"
+          },
+          {
+            "id": "f140",
+            "path": "webui/frontend/src/api/configuration.ts",
+            "sha": "2c5ed7c948a62ee9cdd2af3edd27091fa9bcffaf",
+            "kind": "source"
+          },
+          {
+            "id": "f141",
+            "path": "webui/frontend/src/composables/useAppNotification.ts",
+            "sha": "6769285e0f4e173396c5f95f73cc2aaeee1719a1",
+            "kind": "source"
+          },
+          {
+            "id": "f142",
+            "path": "webui/frontend/src/composables/useProviders.ts",
+            "sha": "27c3af66e4e9073a2e257c194c0331fc5cc4988c",
+            "kind": "source"
+          },
+          {
+            "id": "f143",
+            "path": "webui/frontend/src/composables/useUser.ts",
+            "sha": "e69fb49918c20597a73a1efec0d087ca90351a3e",
+            "kind": "source"
+          },
+          {
+            "id": "f144",
+            "path": "webui/frontend/src/services/api.ts",
+            "sha": "fe6b62f24781b3c6673d263a7d09a40add067542",
+            "kind": "source"
+          },
+          {
+            "id": "f145",
+            "path": "webui/frontend/src/utils/id.ts",
+            "sha": "d4598dd5d770dc009474ebaed6a37fb3139fea29",
+            "kind": "source"
+          },
+          {
+            "id": "f146",
+            "path": "webui/frontend/src/api/api/authentication-api.ts",
+            "sha": "e56af7faa9df3d556d02e11ac5865a1002f9c820",
+            "kind": "source"
+          },
+          {
+            "id": "f147",
+            "path": "webui/frontend/src/api/api/catalog-api.ts",
+            "sha": "986d6ec8ac16f5021399adcf18aa7255f17531ab",
+            "kind": "source"
+          },
+          {
+            "id": "f148",
+            "path": "webui/frontend/src/api/api/deezer-api.ts",
+            "sha": "c95319865f3fcec81963edc4a0408f95936191fb",
+            "kind": "source"
+          },
+          {
+            "id": "f149",
+            "path": "webui/frontend/src/api/api/library-api.ts",
+            "sha": "e2b9fb723775b0e2892b583bd843063bae155c3b",
+            "kind": "source"
+          },
+          {
+            "id": "f150",
+            "path": "webui/frontend/src/api/api/providers-api.ts",
+            "sha": "f38f0aefcc97c3aaa70d2f8ac507e5a68b8f0a07",
+            "kind": "source"
+          },
+          {
+            "id": "f151",
+            "path": "webui/frontend/src/api/api/spotify-api.ts",
+            "sha": "4af053ebfe8b23f4a048dbfcfafbc1ed5eb84410",
+            "kind": "source"
+          },
+          {
+            "id": "f152",
+            "path": "webui/frontend/src/api/api/subsonic-api.ts",
+            "sha": "5b39b1cea0cbae1ac6868d2a92a09faf1990b423",
+            "kind": "source"
+          },
+          {
+            "id": "f153",
+            "path": "webui/frontend/src/api/api/tasks-api.ts",
+            "sha": "26acfc42801d2170a7378caee2d497ed55006738",
+            "kind": "source"
+          },
+          {
+            "id": "f154",
+            "path": "webui/frontend/src/api/api/users-api.ts",
+            "sha": "71396e95905029c5d2ba35eb5cc2e5058d536add",
+            "kind": "source"
+          },
+          {
+            "id": "f155",
+            "path": "webui/frontend/src/api/api/you-tube-api.ts",
+            "sha": "dda7f1c683e97873831478f9418e47f3be524039",
+            "kind": "source"
+          },
+          {
+            "id": "f156",
+            "path": "webui/frontend/src/api/models/access-token.ts",
+            "sha": "1262c9739a70605710d5bf4b505d82725bc6bec0",
+            "kind": "source"
+          },
+          {
+            "id": "f157",
+            "path": "webui/frontend/src/api/models/arlcreate.ts",
+            "sha": "4cb0dbd7884bd039d0a13bbf4f221cee7409106f",
+            "kind": "source"
+          },
+          {
+            "id": "f158",
+            "path": "webui/frontend/src/api/models/collection-playlist-read.ts",
+            "sha": "f85e3253c24d5385dc56e1d3a9e08174ce6ef69f",
+            "kind": "source"
+          },
+          {
+            "id": "f159",
+            "path": "webui/frontend/src/api/models/collection-playlist-task-status.ts",
+            "sha": "9fe45be9b00b859e3b9d3b9f4ab77bfcada4ca54",
+            "kind": "source"
+          },
+          {
+            "id": "f160",
+            "path": "webui/frontend/src/api/models/collection-provider-read.ts",
+            "sha": "70fd0df93434e5b85a79a05be69259136f3ed198",
+            "kind": "source"
+          },
+          {
+            "id": "f161",
+            "path": "webui/frontend/src/api/models/collection-provider-state.ts",
+            "sha": "5f9516d1d42e6cdef0b855e5bd19a7f67e12c861",
+            "kind": "source"
+          },
+          {
+            "id": "f162",
+            "path": "webui/frontend/src/api/models/collection-track-read.ts",
+            "sha": "fa9e019478c3efb67ef1443bbdec21829e90b147",
+            "kind": "source"
+          },
+          {
+            "id": "f163",
+            "path": "webui/frontend/src/api/models/collection-user-read.ts",
+            "sha": "69c742ce1b46577abe4a1a77a396a1e7d97182c9",
+            "kind": "source"
+          },
+          {
+            "id": "f164",
+            "path": "webui/frontend/src/api/models/entity-assets-base.ts",
+            "sha": "ce0058624a85510707d3de10f41b243cf892a462",
+            "kind": "source"
+          },
+          {
+            "id": "f165",
+            "path": "webui/frontend/src/api/models/entity-identifiers-base.ts",
+            "sha": "547cec6273418e67707b74fa8b0b8a3bb33cc3e5",
+            "kind": "source"
+          },
+          {
+            "id": "f166",
+            "path": "webui/frontend/src/api/models/entity-meta-read.ts",
+            "sha": "8486379134843c6eca5a91b1f06e6aab005d991e",
+            "kind": "source"
+          },
+          {
+            "id": "f167",
+            "path": "webui/frontend/src/api/models/entity-multi-author-read.ts",
+            "sha": "1089fd557bf9b0c302c2294bfa5f71d4cbd210ac",
+            "kind": "source"
+          },
+          {
+            "id": "f168",
+            "path": "webui/frontend/src/api/models/entity-single-author-read.ts",
+            "sha": "33556a81c3561fc1a0b655b2806676a23b0b0836",
+            "kind": "source"
+          },
+          {
+            "id": "f169",
+            "path": "webui/frontend/src/api/models/httpvalidation-error.ts",
+            "sha": "c04bcc756865cfa389241dab2774c38980f44ad6",
+            "kind": "source"
+          },
+          {
+            "id": "f170",
+            "path": "webui/frontend/src/api/models/oauth2-state-create.ts",
+            "sha": "95281b775530a153e1eab5f5d39653d03cd12ab9",
+            "kind": "source"
+          },
+          {
+            "id": "f171",
+            "path": "webui/frontend/src/api/models/playlist-create.ts",
+            "sha": "fb610273e9f56b25b15fc1037243816a9efb8957",
+            "kind": "source"
+          },
+          {
+            "id": "f172",
+            "path": "webui/frontend/src/api/models/playlist-multi-track-insert.ts",
+            "sha": "5015a633ffaf2133e4981ad8c11ee84fca37cb9b",
+            "kind": "source"
+          },
+          {
+            "id": "f173",
+            "path": "webui/frontend/src/api/models/playlist-read.ts",
+            "sha": "ef8732e5efed7fa63573f3f5e49d86e1a52b64ef",
+            "kind": "source"
+          },
+          {
+            "id": "f174",
+            "path": "webui/frontend/src/api/models/playlist-task-create.ts",
+            "sha": "ec6a11d926d2cb5437c67e661cdcc7a02b1d145b",
+            "kind": "source"
+          },
+          {
+            "id": "f175",
+            "path": "webui/frontend/src/api/models/playlist-task-progress.ts",
+            "sha": "72ff4ebe703f5e08351976470d7207b207a6f4f2",
+            "kind": "source"
+          },
+          {
+            "id": "f176",
+            "path": "webui/frontend/src/api/models/playlist-task-status.ts",
+            "sha": "fa302b161829275f12b9d7a650e0ebd81862638b",
+            "kind": "source"
+          },
+          {
+            "id": "f177",
+            "path": "webui/frontend/src/api/models/provider-about-read.ts",
+            "sha": "96436541d2fc27eae505d36a1344a2ed79479841",
+            "kind": "source"
+          },
+          {
+            "id": "f178",
+            "path": "webui/frontend/src/api/models/provider-link-type.ts",
+            "sha": "9df5dda4918e41a909e7e96a9e4f0347051c93c4",
+            "kind": "source"
+          },
+          {
+            "id": "f179",
+            "path": "webui/frontend/src/api/models/provider-linking-read.ts",
+            "sha": "e04c248d4405c0e6f730b11e0d9c292652382aeb",
+            "kind": "source"
+          }
+        ],
+        "entry_limit": 300,
+        "byte_limit": 24000,
+        "omitted": 28,
+        "complete": false,
+        "sampling_policy": "Existing _select_files docs/source/test ordering, within catalogue bounds.",
+        "note": "Eligible path metadata only; a filename is not implementation evidence."
+      }
+    },
+    {
+      "url": "https://github.com/hoangsonww/Agentic-AI-Pipeline/issues/23",
+      "issue_fingerprint": "2b4fe3134320d76181b52cb7703f17e684832248c74c61eae5f5c543e1544d48",
+      "issue_updated_at": "2026-01-01T22:40:55Z",
+      "context_complete": true,
+      "target_id": 1027259947,
+      "target_revision": "443716a7d227b0d36cd73b82f134ccf00aa34185",
+      "target_fingerprint": "302708bbbc1d11ef93bb85bfc5ee801b281a425f303f91a9c5b9be8799a5a79a",
+      "initial_files": [
+        {
+          "path": "pyproject.toml",
+          "sha": "fbcce547c1c67893042435e6fae51d27b3fb567a",
+          "url": "https://github.com/hoangsonww/Agentic-AI-Pipeline/blob/443716a7d227b0d36cd73b82f134ccf00aa34185/pyproject.toml"
+        },
+        {
+          "path": "requirements.txt",
+          "sha": "d10d119578b17d89a007782629f155fe472203a2",
+          "url": "https://github.com/hoangsonww/Agentic-AI-Pipeline/blob/443716a7d227b0d36cd73b82f134ccf00aa34185/requirements.txt"
+        },
+        {
+          "path": "Agentic-Coding-Pipeline/run.py",
+          "sha": "afa171180ac07e11abcd4228b3a21942f2250e76",
+          "url": "https://github.com/hoangsonww/Agentic-AI-Pipeline/blob/443716a7d227b0d36cd73b82f134ccf00aa34185/Agentic-Coding-Pipeline/run.py"
+        },
+        {
+          "path": "src/agentic_ai/app.py",
+          "sha": "bd9ead62768c669f1209e8e68b70465b60b82e01",
+          "url": "https://github.com/hoangsonww/Agentic-AI-Pipeline/blob/443716a7d227b0d36cd73b82f134ccf00aa34185/src/agentic_ai/app.py"
+        }
+      ],
+      "file_catalog": {
+        "entries": [
+          {
+            "id": "f0",
+            "path": "LICENSE",
+            "sha": "261eeb9e9f8b2b4b0d119366dda99c6fd7d35c64",
+            "kind": "documentation"
+          },
+          {
+            "id": "f1",
+            "path": "Makefile",
+            "sha": "571e1ba06ea6b7372df19ad6ff1bf6b1a0da08c2",
+            "kind": "manifest"
+          },
+          {
+            "id": "f2",
+            "path": "Agentic-RAG-Pipeline/app.py",
+            "sha": "e469c7184a745f21f1d689b5bc78e9b92bfb9a9c",
+            "kind": "source"
+          },
+          {
+            "id": "f3",
+            "path": "src/agentic_ai/app.py",
+            "sha": "bd9ead62768c669f1209e8e68b70465b60b82e01",
+            "kind": "source"
+          },
+          {
+            "id": "f4",
+            "path": "tests/test_mcp_server.py",
+            "sha": "aed9a6bcc777822e05d9b034bb58408672b565d5",
+            "kind": "test"
+          },
+          {
+            "id": "f5",
+            "path": "src/agentic_ai/cli.py",
+            "sha": "7652bf13fa070227504714121ab1921965955f6a",
+            "kind": "source"
+          },
+          {
+            "id": "f6",
+            "path": "README.md",
+            "sha": "b6d8f6254a9ad36cedaeeba6ff2e0837a6c0ebfb",
+            "kind": "documentation"
+          },
+          {
+            "id": "f7",
+            "path": "pyproject.toml",
+            "sha": "fbcce547c1c67893042435e6fae51d27b3fb567a",
+            "kind": "manifest"
+          },
+          {
+            "id": "f8",
+            "path": "clients/ts/src/index.ts",
+            "sha": "c6b8fe252d0bbec64ef7e8c12366ec816bb5a2b2",
+            "kind": "source"
+          },
+          {
+            "id": "f9",
+            "path": "Agentic-Coding-Pipeline/pipeline.py",
+            "sha": "c91b49d13838da5e7d052322bf789b7c0f6653e8",
+            "kind": "source"
+          },
+          {
+            "id": "f10",
+            "path": "tests/test_memory_layer.py",
+            "sha": "493e48b7e2c7a4c26c9093f8375e22b22d4519de",
+            "kind": "test"
+          },
+          {
+            "id": "f11",
+            "path": "Agentic-Coding-Pipeline/run.py",
+            "sha": "afa171180ac07e11abcd4228b3a21942f2250e76",
+            "kind": "source"
+          },
+          {
+            "id": "f12",
+            "path": "Agentic-Coding-Pipeline/README.md",
+            "sha": "6154e8d7af8b26bddb5123d08be8359bd1d867b5",
+            "kind": "documentation"
+          },
+          {
+            "id": "f13",
+            "path": "requirements.txt",
+            "sha": "d10d119578b17d89a007782629f155fe472203a2",
+            "kind": "manifest"
+          },
+          {
+            "id": "f14",
+            "path": "Agentic-Coding-Pipeline/services.py",
+            "sha": "3539a7fda3d35450e64c018a986a19df5a035cb0",
+            "kind": "source"
+          },
+          {
+            "id": "f15",
+            "path": "Agentic-RAG-Pipeline/services.py",
+            "sha": "56d84c89e2294ddabcd69d30d8f7c94ada747ea0",
+            "kind": "source"
+          },
+          {
+            "id": "f16",
+            "path": "tests/test_tools_ops.py",
+            "sha": "2feff96e7866446c7767e32fc8b661639564014e",
+            "kind": "test"
+          },
+          {
+            "id": "f17",
+            "path": "mcp/__init__.py",
+            "sha": "cf3f2a698db16302bb9bf24c5f3c7220f866bbce",
+            "kind": "source"
+          },
+          {
+            "id": "f18",
+            "path": "Agentic-RAG-Pipeline/README.md",
+            "sha": "dbfdde7076c9370901ca5acb1b603dde7726a0fb",
+            "kind": "documentation"
+          },
+          {
+            "id": "f19",
+            "path": "Agentic-RAG-Pipeline/requirements.txt",
+            "sha": "d4375d67e468e150c620efa0b854279aacfa6fde",
+            "kind": "manifest"
+          },
+          {
+            "id": "f20",
+            "path": "mcp/schemas.py",
+            "sha": "9a55c2d83af69f6c7654af84e6f4daea9e501e69",
+            "kind": "source"
+          },
+          {
+            "id": "f21",
+            "path": "mcp/server.py",
+            "sha": "87a4bf88fb2e325b8b994e61812095bdec12c1cc",
+            "kind": "source"
+          },
+          {
+            "id": "f22",
+            "path": "Agentic-Coding-Pipeline/tests/test_pipeline.py",
+            "sha": "f6edf1adbc01ecf19b0ab078b855c16161ac15d4",
+            "kind": "test"
+          },
+          {
+            "id": "f23",
+            "path": "packages/script.js",
+            "sha": "a0b35792c5ae6ee6fbaea045471617ad7496f5c2",
+            "kind": "source"
+          },
+          {
+            "id": "f24",
+            "path": "mcp/README.md",
+            "sha": "b0bbe1844d7bc0f8010cce09de245e792b0c6579",
+            "kind": "documentation"
+          },
+          {
+            "id": "f25",
+            "path": "clients/python/pyproject.toml",
+            "sha": "cc0b9df708f206e10edd47247ce3504054c0fa78",
+            "kind": "manifest"
+          },
+          {
+            "id": "f26",
+            "path": "web/app.js",
+            "sha": "cbdff27e3af57ad6d8797d51d52096a998c6d531",
+            "kind": "source"
+          },
+          {
+            "id": "f27",
+            "path": "Agentic-Coding-Pipeline/agents/base.py",
+            "sha": "3c2225557c3706ae09fdf9dcc0ba5bfcb40011b0",
+            "kind": "source"
+          },
+          {
+            "id": "f28",
+            "path": "tests/conftest.py",
+            "sha": "42f3563c01fa64ba137bfaf5ea5e9934ecba2157",
+            "kind": "test"
+          },
+          {
+            "id": "f29",
+            "path": "Agentic-Coding-Pipeline/agents/coding.py",
+            "sha": "a9de2843865e81051f7e6f726076d917921c0f9f",
+            "kind": "source"
+          },
+          {
+            "id": "f30",
+            "path": "clients/dotnet/README.md",
+            "sha": "8852f79ec3a778e9d34dd69188531c4f301fb3d4",
+            "kind": "documentation"
+          },
+          {
+            "id": "f31",
+            "path": "clients/ts/package.json",
+            "sha": "1bdf9281e69ca91852b396e7d573b884489ab2f6",
+            "kind": "manifest"
+          },
+          {
+            "id": "f32",
+            "path": "Agentic-Coding-Pipeline/agents/formatting.py",
+            "sha": "75cc029951575b5578085cc5e607104de5d785d4",
+            "kind": "source"
+          },
+          {
+            "id": "f33",
+            "path": "Agentic-Coding-Pipeline/agents/qa.py",
+            "sha": "f18014a73e6aae827c165af429b2b75212bf568a",
+            "kind": "source"
+          },
+          {
+            "id": "f34",
+            "path": "Agentic-Coding-Pipeline/tools/test_runner.py",
+            "sha": "16d94e4b0e64e45ef76a7b736d8346af078cded3",
+            "kind": "test"
+          },
+          {
+            "id": "f35",
+            "path": "Agentic-Coding-Pipeline/agents/testing.py",
+            "sha": "035c06c3c8dcb02216a52d120fb6345bd66dcf7c",
+            "kind": "source"
+          },
+          {
+            "id": "f36",
+            "path": "ARCHITECTURE.md",
+            "sha": "889e0b56c5f0303914b26f8e9792107ab31151c7",
+            "kind": "documentation"
+          },
+          {
+            "id": "f37",
+            "path": "Agentic-Coding-Pipeline/ui/app.js",
+            "sha": "ffbc44eb8986ecd4e3dd2137e195cf1c5594b87e",
+            "kind": "source"
+          },
+          {
+            "id": "f38",
+            "path": "Agentic-RAG-Pipeline/agents/base.py",
+            "sha": "bd7d59aa00316e8f35f9c181b5efb84bd4dd5092",
+            "kind": "source"
+          },
+          {
+            "id": "f39",
+            "path": "Agentic-RAG-Pipeline/agents/critic.py",
+            "sha": "4cbf8f9b355b1b9dbefc7b77c2356400ef6fb574",
+            "kind": "source"
+          },
+          {
+            "id": "f40",
+            "path": "DEPLOYMENTS_README.md",
+            "sha": "8487786b944957ab53710b72ab938df4434da21f",
+            "kind": "documentation"
+          },
+          {
+            "id": "f41",
+            "path": "Agentic-RAG-Pipeline/agents/guardrails.py",
+            "sha": "829593ec3075c11d14155a0908ff98394ef9c78d",
+            "kind": "source"
+          },
+          {
+            "id": "f42",
+            "path": "Agentic-RAG-Pipeline/agents/intent.py",
+            "sha": "fe27b87439046d3c9c2c505c11519897c329a592",
+            "kind": "source"
+          },
+          {
+            "id": "f43",
+            "path": "Agentic-RAG-Pipeline/agents/planner.py",
+            "sha": "84bebf4dca0fed2f1367dda228009ceba232e178",
+            "kind": "source"
+          },
+          {
+            "id": "f44",
+            "path": "SOCIAL_MEDIA_README.md",
+            "sha": "d01f4d4ad79ff44efa5af78f03d4a6f85ec63634",
+            "kind": "documentation"
+          },
+          {
+            "id": "f45",
+            "path": "Agentic-RAG-Pipeline/agents/retrieval_planner.py",
+            "sha": "0ab6627c986e9a0f6cf24425838d803dd2de7516",
+            "kind": "source"
+          },
+          {
+            "id": "f46",
+            "path": "Agentic-RAG-Pipeline/agents/retrievers.py",
+            "sha": "9a7e0fcde97f0c2685e5fd68a6ef46a332259411",
+            "kind": "source"
+          },
+          {
+            "id": "f47",
+            "path": "Agentic-RAG-Pipeline/agents/writer.py",
+            "sha": "d05f24cc2b0f888290cd1cc00082760e763428b9",
+            "kind": "source"
+          },
+          {
+            "id": "f48",
+            "path": ".github/CODE_OF_CONDUCT.md",
+            "sha": "c1f7e3be5329b6afd92d4f79912df981a15fdcf5",
+            "kind": "documentation"
+          },
+          {
+            "id": "f49",
+            "path": "Agentic-RAG-Pipeline/core/llm.py",
+            "sha": "d079240a8fb03c9064291e167d83c7af9de7def9",
+            "kind": "source"
+          },
+          {
+            "id": "f50",
+            "path": "Agentic-RAG-Pipeline/core/memory.py",
+            "sha": "e10ee766ac7d056b1f211dba8c8550890b163e9a",
+            "kind": "source"
+          },
+          {
+            "id": "f51",
+            "path": "Agentic-RAG-Pipeline/core/structs.py",
+            "sha": "0203d405dbec89c10541957a41d52b35f6428a9c",
+            "kind": "source"
+          },
+          {
+            "id": "f52",
+            "path": ".github/CONTRIBUTING.md",
+            "sha": "d1d254bfff171529850bb9dfec80d462fb11e189",
+            "kind": "documentation"
+          },
+          {
+            "id": "f53",
+            "path": "Agentic-RAG-Pipeline/core/tools.py",
+            "sha": "4216e34702a11b384296b667a93ae3812480cc80",
+            "kind": "source"
+          },
+          {
+            "id": "f54",
+            "path": "Agentic-RAG-Pipeline/core/vector.py",
+            "sha": "4b7a8a027bd419fb4e4830f2e6aa2c53ce43ffc4",
+            "kind": "source"
+          },
+          {
+            "id": "f55",
+            "path": "Agentic-RAG-Pipeline/corpus/.gitkeep.py",
+            "sha": "5e013b08090b3ef25f578f7d2be469f776e0bb63",
+            "kind": "source"
+          },
+          {
+            "id": "f56",
+            "path": ".github/pull_request_template.md",
+            "sha": "78f1909c7f76d4c52a2f923440499f5c73d4c082",
+            "kind": "documentation"
+          },
+          {
+            "id": "f57",
+            "path": "Agentic-RAG-Pipeline/eval/harness.py",
+            "sha": "0406bb13c551157e7b89769674c8e82adb123ee6",
+            "kind": "source"
+          },
+          {
+            "id": "f58",
+            "path": "Agentic-RAG-Pipeline/graph/orchestrator.py",
+            "sha": "80a9b148dd8ebf8245e30d4b1d0a83705207fc18",
+            "kind": "source"
+          },
+          {
+            "id": "f59",
+            "path": "Agentic-RAG-Pipeline/ui/app.js",
+            "sha": "8a40791dce4048b59ef6a770515c9f4a21038c32",
+            "kind": "source"
+          },
+          {
+            "id": "f60",
+            "path": ".github/SECURITY.md",
+            "sha": "e387884a72eb6c432c9b2efcb437cd0e6b891dd6",
+            "kind": "documentation"
+          },
+          {
+            "id": "f61",
+            "path": "clients/ts/.eslintrc.cjs",
+            "sha": "fd0a2a16a6aeb9b209fa0173ef68947520cebf90",
+            "kind": "source"
+          },
+          {
+            "id": "f62",
+            "path": "src/agentic_ai/config.py",
+            "sha": "a6eeab88c0b43cde6ca6f119ab9f38e837947223",
+            "kind": "source"
+          },
+          {
+            "id": "f63",
+            "path": "src/agentic_ai/graph.py",
+            "sha": "0247036d05308ed0c52a84dc5043baa4267cae78",
+            "kind": "source"
+          },
+          {
+            "id": "f64",
+            "path": "docs/ADVANCED_DEPLOYMENTS.md",
+            "sha": "18425328d837d0c56e3d836372ca13a5add4c4fd",
+            "kind": "documentation"
+          },
+          {
+            "id": "f65",
+            "path": "src/agentic_ai/social_media_api.py",
+            "sha": "58f42f0beb92eec8ac324af919c8d0be4968efdd",
+            "kind": "source"
+          },
+          {
+            "id": "f66",
+            "path": "src/agentic_ai/social_media_scheduler.py",
+            "sha": "72530bbfe565b3cebd9aee95a4cf418d4166ea00",
+            "kind": "source"
+          },
+          {
+            "id": "f67",
+            "path": "tooling/k6/chat-smoke.js",
+            "sha": "c4840978644f9023a11a06ed472d5270982f19d4",
+            "kind": "source"
+          },
+          {
+            "id": "f68",
+            "path": "docs/DEPLOYMENT_QUICKSTART.md",
+            "sha": "1c15cdcee558461c176e9d9a244a88230578fda2",
+            "kind": "documentation"
+          },
+          {
+            "id": "f69",
+            "path": "tooling/locust/locustfile.py",
+            "sha": "3e798082758fefd96f43d4a51852855781eee397",
+            "kind": "source"
+          },
+          {
+            "id": "f70",
+            "path": "clients/python/agentic_ai_client/__main__.py",
+            "sha": "acdf4bb3f5cd02232620b90d85e8e950593dcb66",
+            "kind": "source"
+          },
+          {
+            "id": "f71",
+            "path": "clients/python/agentic_ai_client/client.py",
+            "sha": "06e8fbedefb87a4fda186ccc43bc6f23ed2a62be",
+            "kind": "source"
+          },
+          {
+            "id": "f72",
+            "path": "docs/SOCIAL_MEDIA_AUTOMATION.md",
+            "sha": "0771e3fffe2f88d8e1189a54348f71c206899fb8",
+            "kind": "documentation"
+          },
+          {
+            "id": "f73",
+            "path": "clients/ts/src/client.ts",
+            "sha": "a26fdf25125aee39c4c97539fca2f99f05010ca0",
+            "kind": "source"
+          },
+          {
+            "id": "f74",
+            "path": "clients/ts/src/http.ts",
+            "sha": "fccdeaf8a16bd90bcb6fded20aa4f51f4fc1dc56",
+            "kind": "source"
+          },
+          {
+            "id": "f75",
+            "path": "evals/runledger/agent/agent.py",
+            "sha": "1a82475e0327a45ba59e36f543429d4fdf754a53",
+            "kind": "source"
+          },
+          {
+            "id": "f76",
+            "path": ".github/ISSUE_TEMPLATE/bug_report.md",
+            "sha": "9b77ea713f9805f941350851fb4f79c0f70a0f4b",
+            "kind": "documentation"
+          },
+          {
+            "id": "f77",
+            "path": "src/agentic_ai/agents/__init__.py",
+            "sha": "c2f9cda5f90fc33e91b8de4449150a4b7d969d57",
+            "kind": "source"
+          },
+          {
+            "id": "f78",
+            "path": "src/agentic_ai/agents/social_media_agent.py",
+            "sha": "9a33eff470a187ede19cadf0f88a8eacb28036c0",
+            "kind": "source"
+          },
+          {
+            "id": "f79",
+            "path": "src/agentic_ai/infra/logging.py",
+            "sha": "6bfe4cd2125c8e022af5eb42cfa7b09bd726470a",
+            "kind": "source"
+          },
+          {
+            "id": "f80",
+            "path": ".github/ISSUE_TEMPLATE/feature_request.md",
+            "sha": "2bc5d5f7118646c11eac4472d076e00ffdd1a944",
+            "kind": "documentation"
+          },
+          {
+            "id": "f81",
+            "path": "src/agentic_ai/infra/rate_limit.py",
+            "sha": "80e6bc5b53a1fd6167ab4c6e50744adcb4314fd9",
+            "kind": "source"
+          },
+          {
+            "id": "f82",
+            "path": "src/agentic_ai/layers/composition.py",
+            "sha": "32757d9c4b19b1c0784c1fbd71809bac4cf01b36",
+            "kind": "source"
+          },
+          {
+            "id": "f83",
+            "path": "src/agentic_ai/layers/memory.py",
+            "sha": "1554e4b5dcde7e558e5efe8a1ba8b7b871def8c0",
+            "kind": "source"
+          },
+          {
+            "id": "f84",
+            "path": "Agentic-RAG-Pipeline/corpus/sample.md",
+            "sha": "017f9873de9178138c51bf80e1eebe518360bb9f",
+            "kind": "documentation"
+          },
+          {
+            "id": "f85",
+            "path": "src/agentic_ai/layers/reasoning.py",
+            "sha": "580458eec56348a831721aa96ac78a1fab25f43d",
+            "kind": "source"
+          },
+          {
+            "id": "f86",
+            "path": "src/agentic_ai/layers/tools.py",
+            "sha": "4818ed8dea6be2419c8f8ba221ba8253dc5ec6fd",
+            "kind": "source"
+          },
+          {
+            "id": "f87",
+            "path": "src/agentic_ai/llm/__init__.py",
+            "sha": "a70177b6e72701bdfc13e450338e9fd391db5134",
+            "kind": "source"
+          },
+          {
+            "id": "f88",
+            "path": "evals/runledger/INTEGRATION.md",
+            "sha": "1e5beef6d5636b907395698c153ac743ffc2c4e9",
+            "kind": "documentation"
+          },
+          {
+            "id": "f89",
+            "path": "src/agentic_ai/llm/client.py",
+            "sha": "f56d97b898eaedc6cccdcf84647b61e1eb77a3f8",
+            "kind": "source"
+          },
+          {
+            "id": "f90",
+            "path": "src/agentic_ai/llm/clients.py",
+            "sha": "275024df80887f3901d4d9468ffb1f7ea480307f",
+            "kind": "source"
+          },
+          {
+            "id": "f91",
+            "path": "src/agentic_ai/memory/sql_store.py",
+            "sha": "92eb888f9979f2f98a23c25ed3c1b4626631cb0e",
+            "kind": "source"
+          },
+          {
+            "id": "f92",
+            "path": "data/seed/industry/acme_robotics_profile.md",
+            "sha": "7298f1faf5d7b9bfe935cb631b41b69e7c359fff",
+            "kind": "documentation"
+          },
+          {
+            "id": "f93",
+            "path": "src/agentic_ai/memory/vector_store.py",
+            "sha": "a9eae53c79d6dd7032c727d49333ba2cd5456620",
+            "kind": "source"
+          },
+          {
+            "id": "f94",
+            "path": "src/agentic_ai/types/common.py",
+            "sha": "fb485bd823a7592ec5a47de55dae5547c981399d",
+            "kind": "source"
+          },
+          {
+            "id": "f95",
+            "path": "Agentic-Coding-Pipeline/__init__.py",
+            "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+            "kind": "source"
+          },
+          {
+            "id": "f96",
+            "path": "data/seed/industry/outbound_playbook.md",
+            "sha": "2cd6b35a39dc79382e34e82a995ed055d2af00fc",
+            "kind": "documentation"
+          },
+          {
+            "id": "f97",
+            "path": "src/agentic_ai/__init__.py",
+            "sha": "4e4a1d707cce1111a407024dbd89fba385cfb2e2",
+            "kind": "source"
+          },
+          {
+            "id": "f98",
+            "path": "clients/python/agentic_ai_client/__init__.py",
+            "sha": "95b3f00e446df853f8d501314834b7678b4385df",
+            "kind": "source"
+          },
+          {
+            "id": "f99",
+            "path": "src/agentic_ai/infra/__init__.py",
+            "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+            "kind": "source"
+          },
+          {
+            "id": "f100",
+            "path": "data/seed/industry/robotics_overview.md",
+            "sha": "11f2c0c56f163c0289349a4593f336f4a9e0c233",
+            "kind": "documentation"
+          },
+          {
+            "id": "f101",
+            "path": "src/agentic_ai/layers/__init__.py",
+            "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+            "kind": "source"
+          },
+          {
+            "id": "f102",
+            "path": "src/agentic_ai/memory/__init__.py",
+            "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+            "kind": "source"
+          },
+          {
+            "id": "f103",
+            "path": "src/agentic_ai/types/__init__.py",
+            "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+            "kind": "source"
+          },
+          {
+            "id": "f104",
+            "path": "data/seed/outreach/templates.md",
+            "sha": "a633c2f10e6a0122f143efca10b3a0c1b334b33a",
+            "kind": "documentation"
+          },
+          {
+            "id": "f105",
+            "path": "examples/social_media_example.py",
+            "sha": "bc749451d69c3c7fb1d953819ec8ce7a88467402",
+            "kind": "source"
+          },
+          {
+            "id": "f106",
+            "path": "scripts/export_openapi.py",
+            "sha": "d2bc722e92e08e497bb961da86edbe500eb156af",
+            "kind": "source"
+          },
+          {
+            "id": "f107",
+            "path": "Agentic-Coding-Pipeline/tools/git.py",
+            "sha": "68016bae82a871984e557e08c7591bfffe5ae366",
+            "kind": "source"
+          },
+          {
+            "id": "f108",
+            "path": "mcp/tools/files.py",
+            "sha": "434a263f4fbf93268e6e5f4afc39495d8ec744b4",
+            "kind": "source"
+          },
+          {
+            "id": "f109",
+            "path": "mcp/tools/kb.py",
+            "sha": "5cf9219b603df55b32d0f5ce99651d9dc4ff76e5",
+            "kind": "source"
+          },
+          {
+            "id": "f110",
+            "path": "mcp/tools/web.py",
+            "sha": "5f3ba36916a2ce96ca94d42f7ef49b6f04f01cce",
+            "kind": "source"
+          },
+          {
+            "id": "f111",
+            "path": "tooling/benchmark/bench_chat.py",
+            "sha": "9ff25b4f1afd8975f4a7fbf964aa20386f0c313f",
+            "kind": "source"
+          },
+          {
+            "id": "f112",
+            "path": "clients/ts/src/demo.ts",
+            "sha": "eca51a34ef7f6116ff4edffab68eabe6465e0c8c",
+            "kind": "source"
+          },
+          {
+            "id": "f113",
+            "path": "src/agentic_ai/tools/content_generation.py",
+            "sha": "ed957d65f100030b5f331631ac1b7add45382912",
+            "kind": "source"
+          },
+          {
+            "id": "f114",
+            "path": "src/agentic_ai/tools/knowledge.py",
+            "sha": "832e602e228326d449d60dcde1a6878643ce1d3b",
+            "kind": "source"
+          },
+          {
+            "id": "f115",
+            "path": "src/agentic_ai/tools/ops.py",
+            "sha": "9eafec7786ee67228cf05bd7cbbf7c6f34fac95d",
+            "kind": "source"
+          },
+          {
+            "id": "f116",
+            "path": "src/agentic_ai/tools/social_media_tools.py",
+            "sha": "a27ae5c27a63162aa7a36c7e6665e63550f2f498",
+            "kind": "source"
+          },
+          {
+            "id": "f117",
+            "path": "src/agentic_ai/tools/webtools.py",
+            "sha": "55612594504c2d457d3dd81bb955f6c0fc2eb645",
+            "kind": "source"
+          },
+          {
+            "id": "f118",
+            "path": "Agentic-Coding-Pipeline/tools/__init__.py",
+            "sha": "fdf9be8e98e55d92cb062e9a9f6b5edb86afcd7f",
+            "kind": "source"
+          },
+          {
+            "id": "f119",
+            "path": "mcp/tools/__init__.py",
+            "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+            "kind": "source"
+          },
+          {
+            "id": "f120",
+            "path": "src/agentic_ai/tools/__init__.py",
+            "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+            "kind": "source"
+          }
+        ],
+        "entry_limit": 300,
+        "byte_limit": 24000,
+        "omitted": 0,
+        "complete": true,
+        "sampling_policy": "Existing _select_files docs/source/test ordering, within catalogue bounds.",
+        "note": "Eligible path metadata only; a filename is not implementation evidence."
+      }
+    },
+    {
+      "url": "https://github.com/PINA-org/PINA/issues/761",
+      "issue_fingerprint": "ded40694bcf1d69303280b66ba6977d21893ee8bb42e3e9dae46c774607ce455",
+      "issue_updated_at": "2026-07-24T09:20:23Z",
+      "context_complete": true,
+      "target_id": 433067589,
+      "target_revision": "0cd8afb51beae9883d38705ddb1997d37ae75b44",
+      "target_fingerprint": "f9124874c3e3ef87e4b62e4bb2e0ac910637474e21024ee4b9238a5ce39fe9d7",
+      "initial_files": [
+        {
+          "path": "pyproject.toml",
+          "sha": "c151698432750c58bf14d67b3e411678439d36be",
+          "url": "https://github.com/PINA-org/PINA/blob/0cd8afb51beae9883d38705ddb1997d37ae75b44/pyproject.toml"
+        }
+      ],
+      "file_catalog": {
+        "entries": [
+          {
+            "id": "f0",
+            "path": "LICENSE.rst",
+            "sha": "cd95832b16c82d3c3b774a5e31648979a0187c02",
+            "kind": "documentation"
+          },
+          {
+            "id": "f1",
+            "path": "pyproject.toml",
+            "sha": "c151698432750c58bf14d67b3e411678439d36be",
+            "kind": "manifest"
+          },
+          {
+            "id": "f2",
+            "path": "pina/__init__.py",
+            "sha": "6728730b8027eec7aa3e283cb5ce9d2252eb0741",
+            "kind": "source"
+          },
+          {
+            "id": "f3",
+            "path": "pina/graph.py",
+            "sha": "04c6374f533a16460ab08d1d7e35fa8dc35e0da7",
+            "kind": "source"
+          },
+          {
+            "id": "f4",
+            "path": "tests/test_graph.py",
+            "sha": "1ea51cfa37ce50956eab587b910d65788af067e8",
+            "kind": "test"
+          },
+          {
+            "id": "f5",
+            "path": "pina/label_tensor.py",
+            "sha": "78b4fafde8e20358bcfbf6f84abface63eac9590",
+            "kind": "source"
+          },
+          {
+            "id": "f6",
+            "path": "README.md",
+            "sha": "2c1ec00f73a54caa7af3e4ecf58af68043d04e02",
+            "kind": "documentation"
+          },
+          {
+            "id": "f7",
+            "path": "docs/Makefile",
+            "sha": "ed2201d8be8ac6d4295ea200303808e9fe083fb0",
+            "kind": "manifest"
+          },
+          {
+            "id": "f8",
+            "path": "pina/operator.py",
+            "sha": "fcd214804b31dafbc7588d84a163f19c9a1c986f",
+            "kind": "source"
+          },
+          {
+            "id": "f9",
+            "path": "pina/trainer.py",
+            "sha": "5cd598b4c010c1b21889a3d264d8aa42173ea9ea",
+            "kind": "source"
+          },
+          {
+            "id": "f10",
+            "path": "tests/test_operator.py",
+            "sha": "572020c9921d39ff83851b4686e252c380242cd5",
+            "kind": "test"
+          },
+          {
+            "id": "f11",
+            "path": "pina/type_checker.py",
+            "sha": "cfa886da380ac5cb177c84194ec5d773c2a834e9",
+            "kind": "source"
+          },
+          {
+            "id": "f12",
+            "path": "tutorials/README.md",
+            "sha": "464b71121d4258f71c56ada30b0588b9229f7bb2",
+            "kind": "documentation"
+          },
+          {
+            "id": "f13",
+            "path": "pina/utils.py",
+            "sha": "8e40ae9cd46494279363ce1fd2b1c9af52f93caa",
+            "kind": "source"
+          },
+          {
+            "id": "f14",
+            "path": "utils/check_skill_sync.py",
+            "sha": "252038a8d2e9a301832ca3a0317b1141daad411f",
+            "kind": "source"
+          },
+          {
+            "id": "f15",
+            "path": "tests/test_package.py",
+            "sha": "f59bd6c21847291e8db907494b8784e417cd7a4a",
+            "kind": "test"
+          },
+          {
+            "id": "f16",
+            "path": "utils/mathlab_versioning.py",
+            "sha": "d7e17a7e4ea196fa0f8ec5d93392ec0e041a9bc8",
+            "kind": "source"
+          },
+          {
+            "id": "f17",
+            "path": "docs/sphinx_extensions/readme_include.py",
+            "sha": "f3a65e9a7ab9110fbaf62a87a202769ed688727c",
+            "kind": "documentation"
+          },
+          {
+            "id": "f18",
+            "path": "pina/adaptive_function/__init__.py",
+            "sha": "d41f25ccd810b4150a45b03dc29235c90ce2dcc8",
+            "kind": "source"
+          },
+          {
+            "id": "f19",
+            "path": "pina/callback/__init__.py",
+            "sha": "a6b2e3973680fbe8401f4d7c3aac0f6f5a3ff9a0",
+            "kind": "source"
+          },
+          {
+            "id": "f20",
+            "path": "tests/test_trainer.py",
+            "sha": "27ccdf7bf8d3c60dcfc97b65473d43883e6f2e0e",
+            "kind": "test"
+          },
+          {
+            "id": "f21",
+            "path": "pina/condition/__init__.py",
+            "sha": "5ae1cc17742f1e1d6e64648c25a1fda848bf5d4e",
+            "kind": "source"
+          },
+          {
+            "id": "f22",
+            "path": "AGENTS.md",
+            "sha": "5ac1762de03b0152d0f5117b21615c3bead380bd",
+            "kind": "documentation"
+          },
+          {
+            "id": "f23",
+            "path": "pina/data/__init__.py",
+            "sha": "1ebcf2b9f1f1c80bd4b566dd9d3f8f340f1c5982",
+            "kind": "source"
+          },
+          {
+            "id": "f24",
+            "path": "pina/data/manager.py",
+            "sha": "1441cee1211ccbad76c350ab0fb07d34afbc70b3",
+            "kind": "source"
+          },
+          {
+            "id": "f25",
+            "path": "tests/test_type_checker.py",
+            "sha": "554d9613b8525a3cc430bf636cd594b17cc26f7b",
+            "kind": "test"
+          },
+          {
+            "id": "f26",
+            "path": "pina/domain/__init__.py",
+            "sha": "6782563db344c5f4ade9d3b9dd719ba3e9c4380b",
+            "kind": "source"
+          },
+          {
+            "id": "f27",
+            "path": "ANTITRUST.md",
+            "sha": "f819d59b87311f4b52fdb6cb984d1aa1ce33c5f6",
+            "kind": "documentation"
+          },
+          {
+            "id": "f28",
+            "path": "pina/equation/__init__.py",
+            "sha": "ae9a385bd4993e9b0b12cf8d0f49af41949dacd1",
+            "kind": "source"
+          },
+          {
+            "id": "f29",
+            "path": "pina/equation/zoo.py",
+            "sha": "4febb63e64f7f91266462930fe41508a6f016824",
+            "kind": "source"
+          },
+          {
+            "id": "f30",
+            "path": "tests/test_utils.py",
+            "sha": "7e851899506f564ce789c212469a34aeb5c90c54",
+            "kind": "test"
+          },
+          {
+            "id": "f31",
+            "path": "pina/loss/__init__.py",
+            "sha": "280cbf76a8b767fbdbfd2b7e8d22d7c9de48bdf3",
+            "kind": "source"
+          },
+          {
+            "id": "f32",
+            "path": "API_scheme.md",
+            "sha": "800a04741730059c3cb04c25034b7fa9ea229084",
+            "kind": "documentation"
+          },
+          {
+            "id": "f33",
+            "path": "pina/model/__init__.py",
+            "sha": "ee221c17e0eb2da72001c8fd2621dbb517b4e4e8",
+            "kind": "source"
+          },
+          {
+            "id": "f34",
+            "path": "pina/optim/__init__.py",
+            "sha": "f88b85e7a2c29c17218e3ff23343bd56fb3810c4",
+            "kind": "source"
+          },
+          {
+            "id": "f35",
+            "path": "tests/test_adaptive_function/test_adaptive_celu.py",
+            "sha": "171845d618362c8c6abc5586540d64390f43ee8b",
+            "kind": "test"
+          },
+          {
+            "id": "f36",
+            "path": "pina/problem/__init__.py",
+            "sha": "3248c22e52f517c66be0ea8f1b5f76d12b9d9f65",
+            "kind": "source"
+          },
+          {
+            "id": "f37",
+            "path": "CHARTER.md",
+            "sha": "6a03b96053636ccf6a649160343ab7bd1d679205",
+            "kind": "documentation"
+          },
+          {
+            "id": "f38",
+            "path": "pina/problem/zoo.py",
+            "sha": "47b2044256b4a7d5c41195d26f2d880fc24eb8c1",
+            "kind": "source"
+          },
+          {
+            "id": "f39",
+            "path": "pina/solver/__init__.py",
+            "sha": "44b6aa69097d41eaa72a541fa29a63d67236214c",
+            "kind": "source"
+          },
+          {
+            "id": "f40",
+            "path": "tests/test_adaptive_function/test_adaptive_elu.py",
+            "sha": "7c231d8da5f62f22125fb945a243d29a077b4ff2",
+            "kind": "test"
+          },
+          {
+            "id": "f41",
+            "path": "pina/solver/mixin.py",
+            "sha": "53ab1acc4e08ad6c08d72f4064d1e40cd9546234",
+            "kind": "source"
+          },
+          {
+            "id": "f42",
+            "path": "CODE_OF_CONDUCT.md",
+            "sha": "1df8fa17da6d37f43534a400fb799da717c4d29c",
+            "kind": "documentation"
+          },
+          {
+            "id": "f43",
+            "path": "pina/weighting/__init__.py",
+            "sha": "d4eb46716df23eaf0b1c2e9c6799bab847e35f3d",
+            "kind": "source"
+          },
+          {
+            "id": "f44",
+            "path": "tutorials/tutorial1/tutorial.py",
+            "sha": "2777ba8bdcd3dd4f4b1ab3a6cdb475e18621e51b",
+            "kind": "source"
+          },
+          {
+            "id": "f45",
+            "path": "tests/test_adaptive_function/test_adaptive_exp.py",
+            "sha": "5bad49b00146711da60658c750f8534439f867e4",
+            "kind": "test"
+          },
+          {
+            "id": "f46",
+            "path": "tutorials/tutorial10/tutorial.py",
+            "sha": "4c4acb5979d9bb2693497a6bf93db27b716058fe",
+            "kind": "source"
+          },
+          {
+            "id": "f47",
+            "path": "CONTRIBUTING.md",
+            "sha": "3bde485dba75e5d70d38d6b97b82f528bbfebf75",
+            "kind": "documentation"
+          },
+          {
+            "id": "f48",
+            "path": "tutorials/tutorial11/tutorial.py",
+            "sha": "e83b639ed861be031568b15b45183029ac7484d8",
+            "kind": "source"
+          },
+          {
+            "id": "f49",
+            "path": "tutorials/tutorial12/tutorial.py",
+            "sha": "8cecb71e834394157a58446d3077ae272ba4b6b2",
+            "kind": "source"
+          },
+          {
+            "id": "f50",
+            "path": "tests/test_adaptive_function/test_adaptive_gelu.py",
+            "sha": "53c4af8d166dc30fe13a43dc87c4692916be6c09",
+            "kind": "test"
+          },
+          {
+            "id": "f51",
+            "path": "tutorials/tutorial13/tutorial.py",
+            "sha": "24fe4da7331854b387c7851030fb03db8c76c771",
+            "kind": "source"
+          },
+          {
+            "id": "f52",
+            "path": "GOVERNANCE.md",
+            "sha": "63ffc753a3e449a3a25d92aa87973d43163bb4bc",
+            "kind": "documentation"
+          },
+          {
+            "id": "f53",
+            "path": "tutorials/tutorial14/tutorial.py",
+            "sha": "8c765808ac7e3d01242f7df7f57498d585ed5bfd",
+            "kind": "source"
+          },
+          {
+            "id": "f54",
+            "path": "tutorials/tutorial15/tutorial.py",
+            "sha": "906f3dfea9b974d95a94294c53a409eb783356e9",
+            "kind": "source"
+          },
+          {
+            "id": "f55",
+            "path": "tests/test_adaptive_function/test_adaptive_mish.py",
+            "sha": "2184383371cc7c560ed67475ec9d93917ae8f3e7",
+            "kind": "test"
+          },
+          {
+            "id": "f56",
+            "path": "tutorials/tutorial16/tutorial.py",
+            "sha": "31472f32970d7e77c5b23a8eb18341a171fef809",
+            "kind": "source"
+          },
+          {
+            "id": "f57",
+            "path": "MAINTAINERS.md",
+            "sha": "143706f807c634cf6fc84b9fb9b466e044e045f1",
+            "kind": "documentation"
+          },
+          {
+            "id": "f58",
+            "path": "tutorials/tutorial17/tutorial.py",
+            "sha": "ad4f5de83c40e80f56573b516338577ec86ac22a",
+            "kind": "source"
+          },
+          {
+            "id": "f59",
+            "path": "tutorials/tutorial18/tutorial.py",
+            "sha": "25e6866539c946ecca54a87b022e5e9c2ce27c9c",
+            "kind": "source"
+          },
+          {
+            "id": "f60",
+            "path": "tests/test_adaptive_function/test_adaptive_relu.py",
+            "sha": "02f8c7ff501ef546ad8b895e886c8f6ae0fb4ef3",
+            "kind": "test"
+          },
+          {
+            "id": "f61",
+            "path": "tutorials/tutorial19/tutorial.py",
+            "sha": "aa340cc92ce7e7c85b2f98578a9d919b961a43c5",
+            "kind": "source"
+          },
+          {
+            "id": "f62",
+            "path": "SECURITY.md",
+            "sha": "a425740c2b75a409536abe36a8955c61839f0ebd",
+            "kind": "documentation"
+          },
+          {
+            "id": "f63",
+            "path": "tutorials/tutorial2/tutorial.py",
+            "sha": "f69707517d7b039571086672dcabc73983d952b4",
+            "kind": "source"
+          },
+          {
+            "id": "f64",
+            "path": "tutorials/tutorial20/tutorial.py",
+            "sha": "00541041e747bb483200344ffebc0540de27236d",
+            "kind": "source"
+          },
+          {
+            "id": "f65",
+            "path": "tests/test_adaptive_function/test_adaptive_sigmoid.py",
+            "sha": "0d5bb7c081430dcd978401bb160ec335c68cc5dc",
+            "kind": "test"
+          },
+          {
+            "id": "f66",
+            "path": "tutorials/tutorial21/tutorial.py",
+            "sha": "249a30cf3b636ae9abc58cadf54a48e2f92a959d",
+            "kind": "source"
+          },
+          {
+            "id": "f67",
+            "path": "STEERING-COMMITTEE.md",
+            "sha": "b97c3a0b93ad7bf92fa92cfa56b6cc04155eee17",
+            "kind": "documentation"
+          },
+          {
+            "id": "f68",
+            "path": "tutorials/tutorial22/tutorial.py",
+            "sha": "6154eefa3c3195350ef1ec31aa64ded37f64f0f4",
+            "kind": "source"
+          },
+          {
+            "id": "f69",
+            "path": "tutorials/tutorial23/tutorial.py",
+            "sha": "160efbe74912d268f406a0c53c39b1aae2facc59",
+            "kind": "source"
+          },
+          {
+            "id": "f70",
+            "path": "tests/test_adaptive_function/test_adaptive_silu.py",
+            "sha": "56ed77cbb756012b836c9ac744cfbaf59e3ec2b6",
+            "kind": "test"
+          },
+          {
+            "id": "f71",
+            "path": "tutorials/tutorial24/tutorial.py",
+            "sha": "1eb26cd7c64c3c0effa2084e109761e78b8b2352",
+            "kind": "source"
+          },
+          {
+            "id": "f72",
+            "path": "TRADEMARKS.md",
+            "sha": "c7b25824d974936a34931436ab288ef5a5a9d0c1",
+            "kind": "documentation"
+          },
+          {
+            "id": "f73",
+            "path": "tutorials/tutorial3/tutorial.py",
+            "sha": "5f7d7c03b834f9bf23c610770320d0f2957a0f60",
+            "kind": "source"
+          },
+          {
+            "id": "f74",
+            "path": "tutorials/tutorial4/tutorial.py",
+            "sha": "67680d5918e410d773c2d432ba8b4b9f9f3be0b9",
+            "kind": "source"
+          },
+          {
+            "id": "f75",
+            "path": "tests/test_adaptive_function/test_adaptive_siren.py",
+            "sha": "5211ed29072d0e3440c3cc23d6bd7f46464cce4e",
+            "kind": "test"
+          },
+          {
+            "id": "f76",
+            "path": "tutorials/tutorial5/tutorial.py",
+            "sha": "57acbc98904ce488f158cfed3f68324361440baa",
+            "kind": "source"
+          },
+          {
+            "id": "f77",
+            "path": ".github/PULL_REQUEST_TEMPLATE.md",
+            "sha": "100235776f4c39ff6c21bffdd36711e2c06f8ac8",
+            "kind": "documentation"
+          },
+          {
+            "id": "f78",
+            "path": "tutorials/tutorial6/tutorial.py",
+            "sha": "0d781ba55e8f15d5ca8c0cffad6aa4fcbf0d17d5",
+            "kind": "source"
+          },
+          {
+            "id": "f79",
+            "path": "tutorials/tutorial7/tutorial.py",
+            "sha": "2e6f772c9205d098dd6bca1fc2ec1505672df981",
+            "kind": "source"
+          },
+          {
+            "id": "f80",
+            "path": "tests/test_adaptive_function/test_adaptive_softmax.py",
+            "sha": "af53fcca986008c18f193d49981cf23a931a9c3a",
+            "kind": "test"
+          },
+          {
+            "id": "f81",
+            "path": "tutorials/tutorial8/tutorial.py",
+            "sha": "6e33c8c519eee2da0d2244856c7388481df723ba",
+            "kind": "source"
+          },
+          {
+            "id": "f82",
+            "path": "joss/paper.md",
+            "sha": "b63d46d437ddbf77d691669e62c83070ca24ba29",
+            "kind": "documentation"
+          },
+          {
+            "id": "f83",
+            "path": "tutorials/tutorial9/tutorial.py",
+            "sha": "05409b4c454965ae739fba9bd45f7e0740aae5dc",
+            "kind": "source"
+          },
+          {
+            "id": "f84",
+            "path": "pina/_src/adaptive_function/adaptive_celu.py",
+            "sha": "3822cab23709d31edcc1032bb5568bb299bce797",
+            "kind": "source"
+          },
+          {
+            "id": "f85",
+            "path": "tests/test_adaptive_function/test_adaptive_softmin.py",
+            "sha": "ef1968930f888f07f61db77bb95a3ece8c7f6116",
+            "kind": "test"
+          },
+          {
+            "id": "f86",
+            "path": "pina/_src/adaptive_function/adaptive_elu.py",
+            "sha": "2ba9151ce3865c4f49b6909cfe2ab1cd36f7ecc4",
+            "kind": "source"
+          },
+          {
+            "id": "f87",
+            "path": "tutorials/TUTORIAL_GUIDELINES.md",
+            "sha": "0475cb553a4ca29ebba581bef2c660c0454ddaa1",
+            "kind": "documentation"
+          },
+          {
+            "id": "f88",
+            "path": "pina/_src/adaptive_function/adaptive_exp.py",
+            "sha": "16db53ab5a59fac8d09a2e5522bd591b9b2fc169",
+            "kind": "source"
+          },
+          {
+            "id": "f89",
+            "path": "pina/_src/adaptive_function/adaptive_function_interface.py",
+            "sha": "d53694bcd13fd5f754f3d524427b0c9d19c96900",
+            "kind": "source"
+          },
+          {
+            "id": "f90",
+            "path": "tests/test_adaptive_function/test_adaptive_tanh.py",
+            "sha": "4ece0b8ebeaa007809fba03b10ac12742105ea80",
+            "kind": "test"
+          },
+          {
+            "id": "f91",
+            "path": "pina/_src/adaptive_function/adaptive_gelu.py",
+            "sha": "6209312e394a1a202d99937c920ecd1fb22896a2",
+            "kind": "source"
+          },
+          {
+            "id": "f92",
+            "path": ".github/ISSUE_TEMPLATE/bug_report.md",
+            "sha": "960e4ad1abe462f65b4878587cd0dd875fd31f3e",
+            "kind": "documentation"
+          },
+          {
+            "id": "f93",
+            "path": "pina/_src/adaptive_function/adaptive_mish.py",
+            "sha": "989625f794a7503e3ac88ed390bcacca4662c91f",
+            "kind": "source"
+          },
+          {
+            "id": "f94",
+            "path": "pina/_src/adaptive_function/adaptive_relu.py",
+            "sha": "cce91fd0a9fffa937d2279618b79a9294e450564",
+            "kind": "source"
+          },
+          {
+            "id": "f95",
+            "path": "tests/test_block/test_convolution.py",
+            "sha": "f8206196ff8cf08190e594b3944270a0e3654b0f",
+            "kind": "test"
+          },
+          {
+            "id": "f96",
+            "path": "pina/_src/adaptive_function/adaptive_sigmoid.py",
+            "sha": "c43fa6e24ea1f77df952efc54a7b4fd05f4940f9",
+            "kind": "source"
+          },
+          {
+            "id": "f97",
+            "path": ".github/ISSUE_TEMPLATE/feature_request.md",
+            "sha": "11fc491ef1dae316f2b06bbb40eaba9c757fdfd1",
+            "kind": "documentation"
+          },
+          {
+            "id": "f98",
+            "path": "pina/_src/adaptive_function/adaptive_silu.py",
+            "sha": "7b29cfddee6f39345516387f1e79454b7c069760",
+            "kind": "source"
+          },
+          {
+            "id": "f99",
+            "path": "pina/_src/adaptive_function/adaptive_siren.py",
+            "sha": "d8312994506aff9d0ebab6ec5da074070083cb89",
+            "kind": "source"
+          },
+          {
+            "id": "f100",
+            "path": "tests/test_block/test_embedding.py",
+            "sha": "e8fa6ebcefdc7c63b183ad7021ab18afd87fa45a",
+            "kind": "test"
+          },
+          {
+            "id": "f101",
+            "path": "pina/_src/adaptive_function/adaptive_softmax.py",
+            "sha": "5cebe94c6cb74fdb95897ebdcb93386649190ea2",
+            "kind": "source"
+          },
+          {
+            "id": "f102",
+            "path": ".github/ISSUE_TEMPLATE/help-wanted.md",
+            "sha": "97d1c1e9029b52a1d66a0d4df611425a0fceef62",
+            "kind": "documentation"
+          },
+          {
+            "id": "f103",
+            "path": "pina/_src/adaptive_function/adaptive_softmin.py",
+            "sha": "dde020c353c09a2965edb7a2453aa12494baf18c",
+            "kind": "source"
+          },
+          {
+            "id": "f104",
+            "path": "pina/_src/adaptive_function/adaptive_tanh.py",
+            "sha": "6333252f33604252f6b9afbb5e9c8f03e3eafa06",
+            "kind": "source"
+          },
+          {
+            "id": "f105",
+            "path": "tests/test_block/test_fourier.py",
+            "sha": "75265fe33bd0c69cfe0ca17e290cc511d711fa8a",
+            "kind": "test"
+          },
+          {
+            "id": "f106",
+            "path": "pina/_src/adaptive_function/base_adaptive_function.py",
+            "sha": "c391d308a5bb86250d752d186f1cd6b49f5fab3f",
+            "kind": "source"
+          },
+          {
+            "id": "f107",
+            "path": ".opencode/commands/pina-agentic.md",
+            "sha": "09fc8fe37c2870b9d8b9b5074e2309d6942a06f8",
+            "kind": "documentation"
+          },
+          {
+            "id": "f108",
+            "path": "pina/_src/condition/base_condition.py",
+            "sha": "9adf19b2ddba378a886b7495f93656f3eb3ba847",
+            "kind": "source"
+          },
+          {
+            "id": "f109",
+            "path": "pina/_src/condition/condition.py",
+            "sha": "9bbb25860b1f265664a012b4374682e8db304497",
+            "kind": "source"
+          },
+          {
+            "id": "f110",
+            "path": "tests/test_block/test_kan_block.py",
+            "sha": "08f549f40f88bee908e8644d879002b7d245fb37",
+            "kind": "test"
+          },
+          {
+            "id": "f111",
+            "path": "pina/_src/condition/condition_interface.py",
+            "sha": "baa6a5d99a32c11bd89b2f339e0dc1b8b5bdc94c",
+            "kind": "source"
+          },
+          {
+            "id": "f112",
+            "path": ".opencode/skills/RULES.md",
+            "sha": "af04cbd88ddaa17bda9d8c63240cf65554e5b3ad",
+            "kind": "documentation"
+          },
+          {
+            "id": "f113",
+            "path": "pina/_src/condition/data_condition.py",
+            "sha": "ee6ee4c7621ec6c30b5a86b48f8cad464ff5270a",
+            "kind": "source"
+          },
+          {
+            "id": "f114",
+            "path": "pina/_src/condition/domain_equation_condition.py",
+            "sha": "4641d393376118443d766e80d5377e83612d3867",
+            "kind": "source"
+          },
+          {
+            "id": "f115",
+            "path": "tests/test_block/test_low_rank_block.py",
+            "sha": "17f0dabd62515e8c0733036fe1f6ba78c61a466a",
+            "kind": "test"
+          },
+          {
+            "id": "f116",
+            "path": "pina/_src/condition/graph_time_series_condition.py",
+            "sha": "77ece43d66fb6a96a820260a0753984c3c0f3628",
+            "kind": "source"
+          },
+          {
+            "id": "f117",
+            "path": "docs/source/_cite.rst",
+            "sha": "eddf700465869a5cf4f5133695a4169b2ea22351",
+            "kind": "documentation"
+          },
+          {
+            "id": "f118",
+            "path": "pina/_src/condition/input_equation_condition.py",
+            "sha": "8682f7af7f09e0f2d0fa058aa46adb5ae3b6c64d",
+            "kind": "source"
+          },
+          {
+            "id": "f119",
+            "path": "pina/_src/condition/input_target_condition.py",
+            "sha": "ead8cee3c18b5d4e03605979a90313058d47979e",
+            "kind": "source"
+          },
+          {
+            "id": "f120",
+            "path": "tests/test_block/test_orthogonal.py",
+            "sha": "e222c6bb54256a4b996de082333018648655babf",
+            "kind": "test"
+          },
+          {
+            "id": "f121",
+            "path": "pina/_src/condition/time_series_condition.py",
+            "sha": "28b38eaa69f658411cbc6ed425e6b33a917e0b7f",
+            "kind": "source"
+          },
+          {
+            "id": "f122",
+            "path": "docs/source/_contributing.rst",
+            "sha": "b981f6ba71274bce6b35d6fe52383f08faa53333",
+            "kind": "documentation"
+          },
+          {
+            "id": "f123",
+            "path": "pina/_src/core/graph.py",
+            "sha": "4b9679ed5496376f5a4168a07b6973be0bef874b",
+            "kind": "source"
+          },
+          {
+            "id": "f124",
+            "path": "pina/_src/core/label_tensor.py",
+            "sha": "d97ef077d057558f5f890e3a8a377c06c538ab88",
+            "kind": "source"
+          },
+          {
+            "id": "f125",
+            "path": "tests/test_block/test_pirate_network_block.py",
+            "sha": "b827d24aace6c82ad21ac2f82e0f760c897b5901",
+            "kind": "test"
+          },
+          {
+            "id": "f126",
+            "path": "pina/_src/core/operator.py",
+            "sha": "f67afdbada2a42724fc83a7f480e7bb8735cb08d",
+            "kind": "source"
+          },
+          {
+            "id": "f127",
+            "path": "docs/source/_installation.rst",
+            "sha": "a0bca26f5a5f809375fb1a4589f19882a9c79145",
+            "kind": "documentation"
+          },
+          {
+            "id": "f128",
+            "path": "pina/_src/core/trainer.py",
+            "sha": "e2c7660342b2b54edbdabeb0a64bde4277d71079",
+            "kind": "source"
+          },
+          {
+            "id": "f129",
+            "path": "pina/_src/core/type_checker.py",
+            "sha": "e8c908ac9f7fcd6ac35858036d828befe01bcaae",
+            "kind": "source"
+          },
+          {
+            "id": "f130",
+            "path": "tests/test_block/test_pod.py",
+            "sha": "ffe9a8a81e100023aa1888725c55ef7dfb1fe2de",
+            "kind": "test"
+          },
+          {
+            "id": "f131",
+            "path": "pina/_src/core/utils.py",
+            "sha": "74cd1a57f2a0e50472c15b9267b1eb14ee00da6e",
+            "kind": "source"
+          },
+          {
+            "id": "f132",
+            "path": "docs/source/_LICENSE.rst",
+            "sha": "fa9bfd3cc9cb6dd4825786ae484332df3e9ffc14",
+            "kind": "documentation"
+          },
+          {
+            "id": "f133",
+            "path": "pina/_src/data/aggregator.py",
+            "sha": "d6e149a3f355dc89de41f786083ea2920cb077c2",
+            "kind": "source"
+          },
+          {
+            "id": "f134",
+            "path": "pina/_src/data/condition_subset.py",
+            "sha": "068e833a2da9b7c0b67fbc3eaf0f6424158d1535",
+            "kind": "source"
+          },
+          {
+            "id": "f135",
+            "path": "tests/test_block/test_rbf.py",
+            "sha": "c3683674314ecd0205f78e9b01b0bdaf7371acfc",
+            "kind": "test"
+          },
+          {
+            "id": "f136",
+            "path": "pina/_src/data/creator.py",
+            "sha": "4ce714354e16d66b619f33db6ef1240484a6c2b1",
+            "kind": "source"
+          },
+          {
+            "id": "f137",
+            "path": "docs/source/_quickstart.rst",
+            "sha": "17f685c1f1328f1bf6eff21d437bde222b959b40",
+            "kind": "documentation"
+          },
+          {
+            "id": "f138",
+            "path": "pina/_src/data/data_module.py",
+            "sha": "73b13a626646cbe1d549c9ff0c29b71ade4025c7",
+            "kind": "source"
+          },
+          {
+            "id": "f139",
+            "path": "pina/_src/data/single_batch_data_loader.py",
+            "sha": "bec4cf93efd58777e33fb9d46da2a2a69f7655b1",
+            "kind": "source"
+          },
+          {
+            "id": "f140",
+            "path": "tests/test_block/test_residual.py",
+            "sha": "37f54f27dbca1452d6a06bcc4ba553603c7b79d6",
+            "kind": "test"
+          },
+          {
+            "id": "f141",
+            "path": "pina/_src/domain/base_domain.py",
+            "sha": "d3cea384814011624b1e66e4f6224a1f052897f7",
+            "kind": "source"
+          },
+          {
+            "id": "f142",
+            "path": "docs/source/_team.rst",
+            "sha": "f1fc474226a66544aa8872ed9ebe2577a7ad7d84",
+            "kind": "documentation"
+          },
+          {
+            "id": "f143",
+            "path": "pina/_src/domain/base_operation.py",
+            "sha": "ff83e15516f16d14d212fc73e2e9181f65e2b70b",
+            "kind": "source"
+          },
+          {
+            "id": "f144",
+            "path": "pina/_src/domain/cartesian_domain.py",
+            "sha": "089e3377c5bf9a4204738ff75eda5f56de120edd",
+            "kind": "source"
+          },
+          {
+            "id": "f145",
+            "path": "tests/test_block/test_spectral_convolution.py",
+            "sha": "ba4b4a8c5c24f43bb05e75facf21f74dfe9aa364",
+            "kind": "test"
+          },
+          {
+            "id": "f146",
+            "path": "pina/_src/domain/difference.py",
+            "sha": "ce87920e51321951482719b6515573c5f5bbbaaa",
+            "kind": "source"
+          },
+          {
+            "id": "f147",
+            "path": "docs/source/_tutorial.rst",
+            "sha": "b432909ea03fd3864dd65cfac8252477e9c64e2a",
+            "kind": "documentation"
+          },
+          {
+            "id": "f148",
+            "path": "pina/_src/domain/domain_interface.py",
+            "sha": "f9b980bd8395cc9048037bd0e92035f53e8c2efc",
+            "kind": "source"
+          },
+          {
+            "id": "f149",
+            "path": "pina/_src/domain/ellipsoid_domain.py",
+            "sha": "92213e0b31de5950b549d3c04ae20de971041e65",
+            "kind": "source"
+          },
+          {
+            "id": "f150",
+            "path": "tests/test_callback/test_data_normalizer.py",
+            "sha": "ac2d3969cc4c6375fd8eb2451e9134b83a41dd87",
+            "kind": "test"
+          },
+          {
+            "id": "f151",
+            "path": "pina/_src/domain/exclusion.py",
+            "sha": "914e17086caec9b4a08b95a0afee481941ee6987",
+            "kind": "source"
+          },
+          {
+            "id": "f152",
+            "path": "docs/source/index.rst",
+            "sha": "924a7fdbfeab639aa7ee5ad9129d4e2dcbaec902",
+            "kind": "documentation"
+          },
+          {
+            "id": "f153",
+            "path": "pina/_src/domain/intersection.py",
+            "sha": "1b004556e657b619a5c9824ceaf63359ce9f048a",
+            "kind": "source"
+          },
+          {
+            "id": "f154",
+            "path": "pina/_src/domain/operation_interface.py",
+            "sha": "357556105046b75c3f64ecff2659814b20d02a13",
+            "kind": "source"
+          },
+          {
+            "id": "f155",
+            "path": "tests/test_callback/test_metric_tracker.py",
+            "sha": "0574db1a22edc9501a40f4a2631ff9675d9a804c",
+            "kind": "test"
+          },
+          {
+            "id": "f156",
+            "path": "pina/_src/domain/simplex_domain.py",
+            "sha": "5dff002cec6c48c8d1080b33a513db5c61a4b0f7",
+            "kind": "source"
+          },
+          {
+            "id": "f157",
+            "path": ".opencode/skills/condition-setup/SKILL.md",
+            "sha": "67e144d0fe18baf90105517ba141f2bd42cf24c1",
+            "kind": "documentation"
+          },
+          {
+            "id": "f158",
+            "path": "pina/_src/domain/union.py",
+            "sha": "eff137df399c8984ce3607296e0b46443acc3bc0",
+            "kind": "source"
+          },
+          {
+            "id": "f159",
+            "path": "pina/_src/equation/base_equation.py",
+            "sha": "4fff8dd3b575c63d74d76fe61953e79d6346b58f",
+            "kind": "source"
+          },
+          {
+            "id": "f160",
+            "path": "tests/test_callback/test_pina_progress_bar.py",
+            "sha": "cc1c3560dda8de22c8f88bb3f7f43e26704c2f30",
+            "kind": "test"
+          },
+          {
+            "id": "f161",
+            "path": "pina/_src/equation/equation.py",
+            "sha": "e516b801e87cc7113b222ec8a262a4cc68c167a5",
+            "kind": "source"
+          },
+          {
+            "id": "f162",
+            "path": ".opencode/skills/create-problem/SKILL.md",
+            "sha": "d9f681316a385edbbcaff6b068aac46a1f29b035",
+            "kind": "documentation"
+          },
+          {
+            "id": "f163",
+            "path": "pina/_src/equation/equation_interface.py",
+            "sha": "fa59de678f87c56f3957c53539441bc8a3dd4661",
+            "kind": "source"
+          },
+          {
+            "id": "f164",
+            "path": "pina/_src/equation/system_equation.py",
+            "sha": "7d3bdafd457893cb381156e1307119e31bfa6477",
+            "kind": "source"
+          },
+          {
+            "id": "f165",
+            "path": "tests/test_callback/test_r3_refinement.py",
+            "sha": "5a9a49a1e3ae37d9bfe46fff3d2a76f530ca0ea4",
+            "kind": "test"
+          },
+          {
+            "id": "f166",
+            "path": "pina/_src/loss/base_dual_loss.py",
+            "sha": "9287142bcfeb142c8b8a4af1479f3e55ff49cf4f",
+            "kind": "source"
+          },
+          {
+            "id": "f167",
+            "path": ".opencode/skills/create-skill/SKILL.md",
+            "sha": "67c79ff01cfc43a4ff140b6ede823abdfed58c78",
+            "kind": "documentation"
+          },
+          {
+            "id": "f168",
+            "path": "pina/_src/loss/dual_loss_interface.py",
+            "sha": "6db6bc44fcce8803c55282f14def6a1f1c1c2394",
+            "kind": "source"
+          },
+          {
+            "id": "f169",
+            "path": "pina/_src/loss/lp_loss.py",
+            "sha": "ab88773ce472c909902b92dbb888fb4aec03a296",
+            "kind": "source"
+          },
+          {
+            "id": "f170",
+            "path": "tests/test_callback/test_switch_optimizer.py",
+            "sha": "8f29c359fa5b914adabe334bb8c2c67defe9b86c",
+            "kind": "test"
+          },
+          {
+            "id": "f171",
+            "path": "pina/_src/loss/power_loss.py",
+            "sha": "8922a1f270080b49faffaa56565c4101aee1fd8a",
+            "kind": "source"
+          },
+          {
+            "id": "f172",
+            "path": ".opencode/skills/define-domains/SKILL.md",
+            "sha": "6e3d360da6d20d3bbb885d7098708dab5ebf074a",
+            "kind": "documentation"
+          },
+          {
+            "id": "f173",
+            "path": "pina/_src/loss/sinkhorn_loss.py",
+            "sha": "8c215acd6a35a22efdfc0024c2b64054fda8c03e",
+            "kind": "source"
+          },
+          {
+            "id": "f174",
+            "path": "pina/_src/model/average_neural_operator.py",
+            "sha": "c2a0635287d82c23ebc13339fe6140f35cd88152",
+            "kind": "source"
+          },
+          {
+            "id": "f175",
+            "path": "tests/test_callback/test_switch_scheduler.py",
+            "sha": "7a110db2254a0d0b00806761c34f27ad6624fa63",
+            "kind": "test"
+          },
+          {
+            "id": "f176",
+            "path": "pina/_src/model/deeponet.py",
+            "sha": "800f2acc31053b04498cce79833d0a9cb61762b6",
+            "kind": "source"
+          },
+          {
+            "id": "f177",
+            "path": ".opencode/skills/define-equations/SKILL.md",
+            "sha": "7b0d27480a1f07b15a69d1ee74d8bbbb5678ede9",
+            "kind": "documentation"
+          },
+          {
+            "id": "f178",
+            "path": "pina/_src/model/equivariant_graph_neural_operator.py",
+            "sha": "6adcafb6bd7efce7fe3e1207d6a604d664ea6946",
+            "kind": "source"
+          },
+          {
+            "id": "f179",
+            "path": "pina/_src/model/feed_forward.py",
+            "sha": "e5eca8e56c6b16e49aec3e35de4b634fedae1d9a",
+            "kind": "source"
+          },
+          {
+            "id": "f180",
+            "path": "tests/test_condition/test_data_condition.py",
+            "sha": "ff26af335686332de9ade9a895966538827f877f",
+            "kind": "test"
+          },
+          {
+            "id": "f181",
+            "path": "pina/_src/model/fourier_neural_operator.py",
+            "sha": "b290761761d702112e4b288b046f3594650e2393",
+            "kind": "source"
+          },
+          {
+            "id": "f182",
+            "path": ".opencode/skills/pina-workflow/SKILL.md",
+            "sha": "cffc7a0810e56d92ac798ad33719ea2abb931f3a",
+            "kind": "documentation"
+          },
+          {
+            "id": "f183",
+            "path": "pina/_src/model/graph_neural_operator.py",
+            "sha": "8b3c922ff3be52bfe1832d36d08a4fd71724b86e",
+            "kind": "source"
+          },
+          {
+            "id": "f184",
+            "path": "pina/_src/model/kernel_neural_operator.py",
+            "sha": "4b9b54d793dddb5b9acc22f1758437ce92e87afc",
+            "kind": "source"
+          },
+          {
+            "id": "f185",
+            "path": "tests/test_condition/test_domain_equation_condition.py",
+            "sha": "22e533a158695fa5feee07fec908584e7590afa2",
+            "kind": "test"
+          },
+          {
+            "id": "f186",
+            "path": "pina/_src/model/kolmogorov_arnold_network.py",
+            "sha": "81fee7863289384744f38197577c6f2c95a8a406",
+            "kind": "source"
+          }
+        ],
+        "entry_limit": 300,
+        "byte_limit": 24000,
+        "omitted": 394,
+        "complete": false,
+        "sampling_policy": "Existing _select_files docs/source/test ordering, within catalogue bounds.",
+        "note": "Eligible path metadata only; a filename is not implementation evidence."
+      }
+    }
+  ]
+}

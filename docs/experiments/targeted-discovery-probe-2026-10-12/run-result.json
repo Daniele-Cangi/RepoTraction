@@ -1,0 +1,201 @@
+{
+  "completed_at": "2026-10-11T22:34:02+00:00",
+  "code_commit": "eeb6028c6eb817dd3c41f8e9b34943a790300ecd",
+  "seconds": 253.851,
+  "reserved_usd": 0.13969489999999998,
+  "new_github_network_reads": 28,
+  "started_at": "2026-10-11T22:29:48+00:00",
+  "planned_jobs": 6,
+  "started_jobs": 4,
+  "completed_jobs": 3,
+  "paused_jobs": 1,
+  "complete_fresh_pairs": 0,
+  "jobs": [
+    {
+      "url": "https://github.com/pganssle/audio-feeder/issues/81",
+      "case": 0,
+      "arm": "B",
+      "job_id": "af6cb9fb78d7491592fc1f62b0cfeef3",
+      "status": "completed",
+      "stage": "completed",
+      "ai_calls": 3,
+      "charged_github_reads": 14,
+      "new_github_network_reads": 4,
+      "replayed_reads": 10,
+      "store_cache_hits": 1,
+      "reserved_usd": 0.027480200000000003,
+      "seconds": 28.786,
+      "error": null,
+      "error_diagnostic": null,
+      "decision": "use_direct",
+      "inquiry_files": [
+        "src/audio_feeder/page_generator.py",
+        "src/audio_feeder/pages.py",
+        "tests/test_page_generator.py"
+      ],
+      "search_queries": [],
+      "candidates_found": 0,
+      "selected_repository": null,
+      "recorded_native_outputs": 3,
+      "recorded_usage_estimate_usd": 0.0037183000000000003
+    },
+    {
+      "url": "https://github.com/WilliamNT/tunesynctool/issues/21",
+      "case": 1,
+      "arm": "B",
+      "job_id": "aefdccddb19f407a96f6e6e7e4b1480b",
+      "status": "completed",
+      "stage": "completed",
+      "ai_calls": 4,
+      "charged_github_reads": 14,
+      "new_github_network_reads": 4,
+      "replayed_reads": 10,
+      "store_cache_hits": 1,
+      "reserved_usd": 0.0383358,
+      "seconds": 45.467,
+      "error": null,
+      "error_diagnostic": null,
+      "decision": "search",
+      "inquiry_files": [
+        "tunesynctool/drivers/common/subsonic/driver.py",
+        "tunesynctool/drivers/common/subsonic/async_driver.py"
+      ],
+      "search_queries": [
+        "Python Subsonic OpenSubsonic ISRC track lookup search API is:public archived:false fork:false in:name,description,readme"
+      ],
+      "candidates_found": 4,
+      "selected_repository": null,
+      "recorded_native_outputs": 4,
+      "recorded_usage_estimate_usd": 0.0062215
+    },
+    {
+      "url": "https://github.com/hoangsonww/Agentic-AI-Pipeline/issues/23",
+      "case": 2,
+      "arm": "A",
+      "job_id": "713b714786a142b0b2e6fbef76e6ae3b",
+      "status": "completed",
+      "stage": "completed",
+      "ai_calls": 5,
+      "charged_github_reads": 31,
+      "new_github_network_reads": 20,
+      "replayed_reads": 11,
+      "store_cache_hits": 0,
+      "reserved_usd": 0.06554009999999999,
+      "seconds": 143.475,
+      "error": null,
+      "error_diagnostic": null,
+      "decision": "search",
+      "inquiry_files": [],
+      "search_queries": [
+        "Python LangGraph LangChain tool call cassette record replay offline pytest is:public archived:false fork:false in:name,description,readme"
+      ],
+      "candidates_found": 20,
+      "selected_repository": "Tejasdk04/agent-golden-harness",
+      "recorded_native_outputs": 5,
+      "recorded_usage_estimate_usd": 0.0162413
+    },
+    {
+      "url": "https://github.com/hoangsonww/Agentic-AI-Pipeline/issues/23",
+      "case": 2,
+      "arm": "B",
+      "job_id": "d9a888d26a0844cbaf59be4361d360d5",
+      "status": "paused",
+      "stage": "requirements",
+      "ai_calls": 1,
+      "charged_github_reads": 4,
+      "new_github_network_reads": 0,
+      "replayed_reads": 4,
+      "store_cache_hits": 0,
+      "reserved_usd": 0.008338799999999999,
+      "seconds": 36.011,
+      "error": "GitHub account verification timed out (10 seconds). No account change is confirmed. Check gh auth status and connectivity before explicitly resuming.",
+      "error_diagnostic": {
+        "category": "github_identity",
+        "code": "github_identity_cli_timeout",
+        "timeout_seconds": 10
+      },
+      "decision": null,
+      "inquiry_files": [],
+      "search_queries": [],
+      "candidates_found": 0,
+      "selected_repository": null,
+      "recorded_native_outputs": 0,
+      "recorded_usage_estimate_usd": 0
+    }
+  ],
+  "not_started": [
+    {
+      "case": 3,
+      "arm": "B",
+      "url": "https://github.com/PINA-org/PINA/issues/761",
+      "reason": "Cohort stopped after identity timeout."
+    },
+    {
+      "case": 3,
+      "arm": "A",
+      "url": "https://github.com/PINA-org/PINA/issues/761",
+      "reason": "Cohort stopped after identity timeout."
+    }
+  ],
+  "outcome": "inconclusive_interrupted_comparison",
+  "qualified_reuses": 0,
+  "native_target_integrations": 0,
+  "repository_searches": 2,
+  "donor_inspections": 1,
+  "partial_contribution_records": 1,
+  "similarity_only_records": 1,
+  "ai_reservations": 13,
+  "recorded_complete_native_outputs": 12,
+  "unobserved_attempts": [
+    {
+      "job_id": "d9a888d26a0844cbaf59be4361d360d5",
+      "call_number": 1,
+      "reserved_usd": 0.008338799999999999,
+      "dispatch_status": "unknown_from_retained_evidence",
+      "provider_usage": "unknown",
+      "note": "Reservation precedes dispatch; checkpoints run both before dispatch and while streaming. No terminal response/usage is retained. Do not equate reservation with completed or billed call."
+    }
+  ],
+  "recorded_input_tokens": 155871,
+  "recorded_output_tokens": 21188,
+  "recorded_usage_estimate_usd": 0.0261811,
+  "prices_note": "Existing configured USD 0.10/0.50 per million input/output tokens; incomplete usage coverage and not a billing receipt.",
+  "authorization_usd": 1.0,
+  "charged_github_reads": 63,
+  "replayed_github_reads": 35,
+  "store_cache_hits": 2,
+  "preparation_unique_github_reads": 33,
+  "timing_note": "Measured wall time for the cohort and each job; no measured model/callback split. Preparation, CI and assessment are excluded. Non-identical paths and truncated cohort prevent a performance comparison.",
+  "reconciliation": {
+    "reservation_rows": 13,
+    "ledger_reserved_usd": 0.1396949,
+    "unique_completed_attempt_ids": 12,
+    "native_output_count": 12,
+    "no_retry_resume_or_replacement": true,
+    "frozen_acquisition_hash_verified": true
+  },
+  "historical_comparison": [
+    {
+      "url": "https://github.com/pganssle/audio-feeder/issues/81",
+      "old_job_id": "e6af6e8b85b44691bf4eb61d1fa36d80",
+      "new_job_id": "af6cb9fb78d7491592fc1f62b0cfeef3",
+      "same_issue_fingerprint": true,
+      "same_target_revision": true,
+      "same_interpretation_prompt_hash": true,
+      "old_decision": "use_direct",
+      "new_decision": "use_direct",
+      "paired_live_control": false
+    },
+    {
+      "url": "https://github.com/WilliamNT/tunesynctool/issues/21",
+      "old_job_id": "50cdc79b35454ae98b285fbdfd79eeea",
+      "new_job_id": "aefdccddb19f407a96f6e6e7e4b1480b",
+      "same_issue_fingerprint": true,
+      "same_target_revision": true,
+      "same_interpretation_prompt_hash": true,
+      "old_decision": "defer",
+      "new_decision": "search",
+      "paired_live_control": false
+    }
+  ]
+}

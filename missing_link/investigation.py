@@ -122,6 +122,7 @@ def run_investigation(args, request, *, emit=print, monotonic=time.monotonic, sl
             if resume:
                 previous_job = next((item for item in state.get("jobs", []) if item.get("id") == resume), None)
                 if (not previous_job or previous_job.get("input", {}).get("action", "discover") != action
+                        or previous_job.get("input", {}).get("targeted_inquiry", False) != getattr(args, "targeted_inquiry", False)
                         or any(previous_job.get("input", {}).get(key) != value
                         for key, value in {"repo": args.repo, "issue_url": issue_url, "use_ai": args.use_ai}.items())):
                     phase = "preflight"
@@ -133,9 +134,12 @@ def run_investigation(args, request, *, emit=print, monotonic=time.monotonic, sl
                 started = _call(request, "/api/missing-link/resume", {"job_id": resume})
                 resume = None
             else:
-                started = _call(request, "/api/missing-link/jobs", {"repo": args.repo, "action": action,
+                job_input = {"repo": args.repo, "action": action,
                     "issue_url": issue_url, "query": args.query, "max_candidates": args.max_candidates,
-                    "max_requests": 80, "use_ai": args.use_ai})
+                    "max_requests": 80, "use_ai": args.use_ai}
+                if getattr(args, "targeted_inquiry", False):
+                    job_input["targeted_inquiry"] = True
+                started = _call(request, "/api/missing-link/jobs", job_input)
             acknowledged_id = started.get("job_id")
             if (not isinstance(acknowledged_id, str) or not re.fullmatch(r"[0-9a-f]{32}", acknowledged_id)
                     or (job_id is not None and acknowledged_id != job_id)):

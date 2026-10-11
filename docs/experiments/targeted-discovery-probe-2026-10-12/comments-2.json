@@ -1,0 +1,42 @@
+[
+  {
+    "id": 3701661204,
+    "url": "https://github.com/PINA-org/PINA/issues/761#issuecomment-3701661204",
+    "body": "Hi @adendek, thank you for the issue!\n\nAdding an einsum function would definitely be an interesting and valuable feature. However, I would like to clarify how our LabelTensor object handles metadata, as it works a bit differently than you described.\n\nIn PINA, we distinguish between dimension names and labels (assigned to specific indices). Here are the two ways to define a LabelTensor:\n\n1. **Labeling the Last Dimension**\nWhen you pass a list of strings, labels are assigned to the last dimension. This identifies the specific variables within that dimension rather than naming the dimension itself.\n```python\nimport torch\nfrom pina import LabelTensor\n\n# Assigning 'x' to the first column and 'y' to the second column\npts = LabelTensor(torch.rand(10, 2), labels=['x', 'y'])\n```\n\n2. **Defining Dimension Names and Labels**\nAlternatively, you can provide a dictionary to define both the name of the dimensions and the labels for the items within them:\n```python\nimport torch\nfrom pina import LabelTensor\n\nt = torch.rand(20, 3, 2)\nlabels = {\n    0: {\"name\": \"batch\"}, \n    1: {\"name\": \"width\", \"labels\": [\"a\", \"b\", \"c\"]},\n    2: {\"name\": \"height\", \"labels\": [\"x\", \"y\"]},\n} \nlt = LabelTensor(t, labels=labels)\n```\n\nIn this case, you are defining the semantic names for the axes (e.g., \"width\") as well as the specific labels for the items along those axes.\n\nDo you think the feature you proposed could work in both the cases? ",
+    "created_at": "2025-12-31T07:58:14Z",
+    "updated_at": "2025-12-31T07:58:14Z",
+    "author_association": "CONTRIBUTOR"
+  },
+  {
+    "id": 3765847138,
+    "url": "https://github.com/PINA-org/PINA/issues/761#issuecomment-3765847138",
+    "body": "Thank you for the detailed clarification, @FilippoOlivo! That helps me better understand the current duality in `LabelTensor`.\n\nThe current implementation is flexible, but it requires us to manually 'carry' that metadata dictionary through every transformation. I’ve been investigating how we might simplify this by leveraging the logic behind PyTorch’s experimental [Named Tensors](https://nlp.seas.harvard.edu/NamedTensor) and, more specifically, the [torchdim](https://github.com/pytorch/pytorch/tree/main/functorch/dim) (Dimension Objects) approach.\n\nHow this would address both cases you mentioned:\n\nIn the `torchdim` paradigm, dimensions are treated as first-class objects rather than just integer indices or strings.\n\n* **Case 1 (Last Dim Labels)**: The last dimension object would carry an internal mapping for its coordinate labels (x, y).\n\n* **Case 2 (Complex Metadata)**: Instead of a nested dictionary, each axis (batch, width, height) would be a dim object. Metadata like labels=[\"a\", \"b\", \"c\"] would be bound directly to that dimension object.\n\n```python\n# Conceptual Case 2 with dims\nfrom functorch.dim import dims\n\n# We create the dimensions as objects\nbatch, width, height = dims(3)\n\n# The 'labels' are now just attributes or metadata \n# associated with that specific dimension object\nwidth.labels = [\"a\", \"b\", \"c\"]\nheight.labels = [\"x\", \"y\"]\n\n# The tensor is bound to these objects\nlt = LabelTensor(torch.rand(20, 3, 2), [batch, width, height])\n\n# An einsum becomes trivial and safe:\n# torch.einsum(i, j, k -> i, k) becomes:\nresult = lt.sum(width) # 'width' (and its metadata) disappears, others remain.\n\n```\n\n\nPlease, let me know what you think, so I can proceed with PR. \n",
+    "created_at": "2026-01-18T23:03:42Z",
+    "updated_at": "2026-01-18T23:03:42Z",
+    "author_association": "CONTRIBUTOR"
+  },
+  {
+    "id": 3877317670,
+    "url": "https://github.com/PINA-org/PINA/issues/761#issuecomment-3877317670",
+    "body": "Hi @adendek!\nSorry for the late reply, we’re going through a very busy period.\n\nI find your suggestion extremely interesting, as it would significantly simplify the logic behind `LabelTensor` while increasing compatibility with PyTorch. My only concern is that, since this PyTorch feature is still experimental, it may require additional changes in the near future.\n\nThat said, I will bring this topic to our next internal monthly meeting, which is scheduled for tomorrow. I’ll get back to you shortly afterward with an update.",
+    "created_at": "2026-02-10T12:33:03Z",
+    "updated_at": "2026-02-10T12:33:03Z",
+    "author_association": "COLLABORATOR"
+  },
+  {
+    "id": 3883225741,
+    "url": "https://github.com/PINA-org/PINA/issues/761#issuecomment-3883225741",
+    "body": "@GiovanniCanali  looking foreward on the update, please update me after your meeting. ",
+    "created_at": "2026-02-11T09:22:44Z",
+    "updated_at": "2026-02-11T09:22:44Z",
+    "author_association": "CONTRIBUTOR"
+  },
+  {
+    "id": 3885356698,
+    "url": "https://github.com/PINA-org/PINA/issues/761#issuecomment-3885356698",
+    "body": "Thank you for your patience, @adendek.\n\nAs far as we understand, `functorch` is still limited to nightly builds and has not yet been incorporated into the stable PyTorch release. For this reason, it seems premature to rely on it in our codebase. We will keep monitoring its development, but prefer not to adopt it until it reaches a stable state.\n\nIt is also unclear whether we would be able to preserve the same behavior. For example, would the following pattern still work as expected?\n\n```python\ntensor_a = LabelTensor(torch.rand(10, 2), labels=[\"x\", \"y\"])\nx = tensor_a[\"x\"]\n```\n\nIn particular, would `x` be returned as the desired tensor, independent from the original one?\n\nThat said, the proposal is interesting. We are currently encountering compilation issues with `torch.autograd` and `LabelTensor`s (see issue #621). Specifically, something appears to break when computing gradients of a `LabelTensor` with `autograd` while compilation is enabled. This persists despite the release of Torch 2.10.0, which was expected to address related problems. We have observed this behavior since Torch 2.8.0.\n\nWhile we do not yet have a clear explanation for this issue, moving in the suggested direction could make our custom tensor more aligned with PyTorch’s internal design and potentially help resolve this persistent problem.",
+    "created_at": "2026-02-11T15:56:41Z",
+    "updated_at": "2026-02-11T15:56:41Z",
+    "author_association": "COLLABORATOR"
+  }
+]

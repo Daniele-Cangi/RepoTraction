@@ -41,6 +41,22 @@ class InvestigationTests(unittest.TestCase):
         self.assertEqual(len(posts), mutations)
         self.assertNotIn("private", "\n".join(self.messages))
 
+    def test_targeted_inquiry_flag_is_forwarded_and_cannot_change_on_resume(self):
+        self.args.repo, self.args.from_request, self.args.targeted_inquiry = "", True, True
+        self.args.issue = ["https://github.com/example/site/issues/7"]
+        self.job["status"] = "completed"
+        self.job["input"].update(repo="", action="discover_from_request", issue_url=self.args.issue[0])
+        result, _, request = self.execute([self.initial, {"job_id": self.job["id"]}, {"jobs": [self.job]}])
+        self.assertEqual(result, 0)
+        self.assertTrue(request.call_args_list[1].args[1]["targeted_inquiry"])
+        self.args.resume = self.job["id"]
+        self.args.report = self.path.with_name("resume-inquiry.json")
+        self.path = self.args.report
+        result, report, request = self.execute([dict(self.initial, jobs=[self.job])])
+        self.assertEqual(result, 1)
+        self.assertEqual(report["observation_failure"]["code"], "observer_resume_input_mismatch")
+        self.assertEqual(request.call_count, 1)
+
     def test_poll_timeout_keeps_known_id_last_state_and_does_not_cancel_or_retry(self):
         self.args.issue = ["https://github.com/example/target/issues/1", "https://github.com/example/target/issues/2"]
         result, report, request = self.execute([self.initial, {"job_id": self.job["id"]},

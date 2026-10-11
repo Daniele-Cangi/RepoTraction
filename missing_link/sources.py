@@ -338,15 +338,23 @@ class PublicGitHub:
         return repo
 
     def fetch_repository(self, full_name: str, max_files: int = 24, *, reference_paths=None,
-                         reference_blob_paths=None) -> dict[str, Any]:
+                         reference_blob_paths=None, pinned_revision=None, selected_paths=None,
+                         include_catalog=False) -> dict[str, Any]:
         max_files = _bounded_int(max_files, 1, 80, "max_files")
+        if pinned_revision is not None and not SHA_PATTERN.fullmatch(str(pinned_revision)):
+            raise ValueError("Target inquiry needs a full pinned revision.")
+        if selected_paths is not None and (not isinstance(selected_paths, list) or
+                not 1 <= len(selected_paths) <= min(3, max_files) or
+                any(not _safe_path(path) for path in selected_paths) or
+                len(set(selected_paths)) != len(selected_paths) or reference_paths is not None):
+            raise ValueError("Target inquiry needs distinct safe selected paths.")
         repo = self._public_repo(full_name)
         full_name = str(repo.get("full_name") or full_name)
         branch = str(repo.get("default_branch") or "")
         if not branch or len(branch) > 256:
             raise ValueError("The repository has no analyzable default branch.")
         try:
-            commit = self._read(f"repos/{full_name}/commits/{quote(branch, safe='')}")
+            commit = self._read(f"repos/{full_name}/commits/{quote(pinned_revision or branch, safe='')}")
         except RuntimeError as exc:
             # Only missing/empty target commits are candidate-local. Account,
             # rate-limit, cancellation, budget and transport failures propagate.
@@ -357,6 +365,8 @@ class PublicGitHub:
         tree_sha = str(commit.get("commit", {}).get("tree", {}).get("sha") or "")
         if not SHA_PATTERN.fullmatch(revision) or not SHA_PATTERN.fullmatch(tree_sha):
             raise ValueError("GitHub did not provide a pinned repository revision/tree.")
+        if pinned_revision is not None and revision != pinned_revision:
+            raise ValueError("Target inquiry revision changed.")
         tree = self._read(f"repos/{full_name}/git/trees/{tree_sha}", {"recursive": 1})
         raw_entries = tree.get("tree")
         if not isinstance(raw_entries, list):
@@ -391,6 +401,10 @@ class PublicGitHub:
         language_counts: Counter[str] = Counter()
         pending = deque(_select_files(candidates, len(candidates)))
         eligible_by_path = {entry["path"]: entry for entry in candidates}
+        if selected_paths is not None:
+            if any(path not in eligible_by_path for path in selected_paths):
+                raise ValueError("Selected target path is absent or ineligible at the pinned revision.")
+            pending = deque(eligible_by_path[path] for path in selected_paths)
         if reference_paths is not None:
             # Reference review uses root manifests before explicitly cited code.
             # Selection remains inside the same safety-filtered tree and budget.
@@ -451,7 +465,7 @@ class PublicGitHub:
             files.append({"path": path, "sha": entry["sha"], "text": text,
                           "url": f"https://github.com/{full_name}/blob/{revision}/{quote(path, safe='/')}",
                           "kind": _kind(path), "language": language, "bytes": len(raw)})
-            targets = _initializer_imports(path, text, eligible_by_path) if reference_paths is None else []
+            targets = _initializer_imports(path, text, eligible_by_path) if reference_paths is None and selected_paths is None else []
             if len(targets) == MAX_INITIALIZER_HINTS:
                 initializer_hints_complete = False
             for target in targets:
@@ -461,7 +475,7 @@ class PublicGitHub:
                     initializer_hints_complete = False
             pending.extendleft(eligible_by_path[target] for target in reversed(targets)
                                if target not in attempted)
-            exports, export_scan_complete = export_hints(path, text, eligible_by_path) if reference_paths is None else ([], True)
+            exports, export_scan_complete = export_hints(path, text, eligible_by_path) if reference_paths is None and selected_paths is None else ([], True)
             export_hints_complete &= export_scan_complete
             for target in exports:
                 if len(static_export_hints) < MAX_EXPORT_HINTS:
@@ -483,7 +497,7 @@ class PublicGitHub:
         if eligible_roles["implementation"] and not acquired_roles["implementation"]:
             limitations.append("No implementation source was acquired; this sample cannot represent product capabilities.")
         description, redacted, description_truncated = _redact(repo.get("description"))
-        return {"id": repo.get("id"), "full_name": full_name, "revision": revision,
+        result = {"id": repo.get("id"), "full_name": full_name, "revision": revision,
                 "default_branch": branch, "description": description, "license": repo.get("license"),
                 "files": files, "fetched_at": _now(), "public": True,
                 "license_files": [{"path": f["path"], "sha": f["sha"], "url": f["url"]}
@@ -509,8 +523,32 @@ class PublicGitHub:
                              "complete": not tree.get("truncated") and len(files) == len(candidates) and not excluded,
                              "eligible_sample_complete": not tree.get("truncated") and len(files) == len(candidates),
                              "limitations": limitations}}
+        if selected_paths is not None:
+            result["coverage"]["sampling_policy"] = "One model-selected target inquiry; exact supplied paths, no import expansion."
+            result["coverage"]["requested_paths"] = selected_paths
+        if include_catalog:
+            entries, used = [], 0
+            # Reuse the ordinary bounded docs/source/test mix: an alphabetical
+            # documentation directory must not consume every implementation slot.
+            for entry in _select_files(candidates, len(candidates)):
+                path = entry["path"]
+                clean, redacted_path, truncated_path = _redact(path)
+                if clean != path or redacted_path or truncated_path:
+                    continue
+                item = {"id": f"f{len(entries)}", "path": path, "sha": entry["sha"], "kind": _kind(path)}
+                size = len(json.dumps(item, ensure_ascii=False).encode("utf-8"))
+                if len(entries) >= 300 or used + size > 24000:
+                    break
+                entries.append(item)
+                used += size
+            result["file_catalog"] = {"entries": entries, "entry_limit": 300, "byte_limit": 24000,
+                "omitted": len(candidates) - len(entries),
+                "complete": not tree.get("truncated") and len(entries) == len(candidates),
+                "sampling_policy": "Existing _select_files docs/source/test ordering, within catalogue bounds.",
+                "note": "Eligible path metadata only; a filename is not implementation evidence."}
+        return result
 
-    def fetch_reference_context(self, issue: dict) -> dict:
+    def fetch_reference_context(self, issue: dict, *, include_catalog=False) -> dict:
         """Pinned public target sample for prior-reference hints, not compatibility."""
         target, _ = parse_issue_url(issue["url"])
         prose = "\n".join([issue.get("body") or "", *[(comment.get("body") or "") for comment in issue.get("comments", [])]])
@@ -529,7 +567,7 @@ class PublicGitHub:
             if _safe_path(path) and not SECRET_PATH.search(path)))[:20]
         blob_paths = list(dict.fromkeys(blob_paths))[:20]
         context = self.fetch_repository(target, max_files=4, reference_paths=paths,
-                                        reference_blob_paths=blob_paths)
+                                        reference_blob_paths=blob_paths, include_catalog=include_catalog)
         # Target files are separate from the source repository and its exports.
         # Keep only a bounded prefix for reference review, preserving line numbers.
         for file in context["files"]:
