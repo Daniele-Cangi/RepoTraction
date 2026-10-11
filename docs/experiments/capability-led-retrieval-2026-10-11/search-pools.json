@@ -1,0 +1,501 @@
+[
+  {
+    "id": 0,
+    "arm": "structural",
+    "source_index": 0,
+    "source": "more-itertools/more-itertools",
+    "query_index": 0,
+    "query": "take first items iterable list is:open in:title,body -repo:more-itertools/more-itertools is:issue is:public",
+    "sort": "updated",
+    "order": "desc",
+    "topn": 3,
+    "items": [
+      {
+        "url": "https://github.com/asdf1589/WebSearchEngine/issues/5",
+        "title": "Weekly Report：Metric 量測檢查與修正（2026-09-23 ～ 10-05）",
+        "state": "open"
+      },
+      {
+        "url": "https://github.com/huangyue12120/Learning-Atlas/issues/24",
+        "title": "[Upstream] Source updates require review",
+        "state": "open"
+      },
+      {
+        "url": "https://github.com/the-vibey-project/vibey/issues/821",
+        "title": "feat(gh): forge-snapshot captures workflow runs, resumable by creation, and a run still in progress holds the resume point",
+        "state": "open"
+      }
+    ]
+  },
+  {
+    "id": 1,
+    "arm": "structural",
+    "source_index": 0,
+    "source": "more-itertools/more-itertools",
+    "query_index": 1,
+    "query": "tabulate iterator over results func start is:open in:title,body -repo:more-itertools/more-itertools is:issue is:public",
+    "sort": "updated",
+    "order": "desc",
+    "topn": 3,
+    "items": [
+      {
+        "url": "https://github.com/Ankita7033/oss-autocontrib-inbox/issues/74",
+        "title": "OSS auto-contrib: fix drafted + candidates",
+        "state": "open"
+      },
+      {
+        "url": "https://github.com/Ankita7033/oss-autocontrib-inbox/issues/28",
+        "title": "OSS auto-contrib: fix drafted + candidates",
+        "state": "open"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "arm": "structural",
+    "source_index": 0,
+    "source": "more-itertools/more-itertools",
+    "query_index": 2,
+    "query": "tail iterator over last items iterable is:open in:title,body -repo:more-itertools/more-itertools is:issue is:public",
+    "sort": "updated",
+    "order": "desc",
+    "topn": 3,
+    "items": [
+      {
+        "url": "https://github.com/schwehr/jsdoctor/issues/88",
+        "title": "Evaluate LLM security scan and fix when appropriate",
+        "state": "open"
+      },
+      {
+        "url": "https://github.com/Ankita7033/oss-autocontrib-inbox/issues/85",
+        "title": "OSS auto-contrib: fix drafted + candidates",
+        "state": "open"
+      },
+      {
+        "url": "https://github.com/freelancing-solutions/gcp-database-as-a-service-stock-markets/issues/137",
+        "title": "[from legacy-datastore port] May never be suitable.",
+        "state": "open"
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "arm": "structural",
+    "source_index": 1,
+    "source": "mahmoud/boltons",
+    "query_index": 0,
+    "query": "clamp limit value given range is:open in:title,body -repo:mahmoud/boltons is:issue is:public",
+    "sort": "updated",
+    "order": "desc",
+    "topn": 3,
+    "items": [
+      {
+        "url": "https://github.com/zwrose/superheroes/issues/695",
+        "title": "chore(superheroes): vet-proposals collector — standing (Tier-2 items awaiting the owner's word)",
+        "state": "open"
+      },
+      {
+        "url": "https://github.com/ExpBG-Tech/mod-gm-tools/issues/87",
+        "title": "[P2][feature][garrison] Combat posture: window guards locked standing, door watchers never prone, no smoke grenades for any garrison soldier, frag grenades configurable",
+        "state": "open"
+      },
+      {
+        "url": "https://github.com/misofm/engine/issues/560",
+        "title": "Audit #349 lane B: compiler, control, hosts, SDK and tooling",
+        "state": "open"
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "arm": "structural",
+    "source_index": 1,
+    "source": "mahmoud/boltons",
+    "query_index": 1,
+    "query": "ceil ceiling options smallest is:open in:title,body -repo:mahmoud/boltons is:issue is:public",
+    "sort": "updated",
+    "order": "desc",
+    "topn": 3,
+    "items": [
+      {
+        "url": "https://github.com/misofm/engine/issues/291",
+        "title": "Design issue — parameter lattice v2: objective base units, integer canonical values",
+        "state": "open"
+      },
+      {
+        "url": "https://github.com/blwatkins/typescript-utils/issues/121",
+        "title": "Decide the Random generator scoping model before v1.0",
+        "state": "open"
+      },
+      {
+        "url": "https://github.com/mknw/hames-playground/issues/418",
+        "title": "Core pattern: typedDecision — probability-typed decisions over a closed label set (design)",
+        "state": "open"
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "arm": "structural",
+    "source_index": 1,
+    "source": "mahmoud/boltons",
+    "query_index": 2,
+    "query": "floor options largest is:open in:title,body -repo:mahmoud/boltons is:issue is:public",
+    "sort": "updated",
+    "order": "desc",
+    "topn": 3,
+    "items": [
+      {
+        "url": "https://github.com/marsninja/quakepassion/issues/73",
+        "title": "Studio — an in-engine editing studio: maps, entities, logic, models, assets and Passion tools",
+        "state": "open"
+      },
+      {
+        "url": "https://github.com/LibrePhotos/librephotos/issues/2302",
+        "title": "Offline reverse geocoding with ExifTool's Geolocation database as default",
+        "state": "open"
+      },
+      {
+        "url": "https://github.com/Takazudo/zudo-cloudflare-wisdom/issues/221",
+        "title": "zfb 3 migration guide (automated diagnosis, 2026-10-04)",
+        "state": "open"
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "arm": "structural",
+    "source_index": 2,
+    "source": "networkx/networkx",
+    "query_index": 0,
+    "query": "descendants all nodes reachable source is:open in:title,body -repo:networkx/networkx is:issue is:public",
+    "sort": "updated",
+    "order": "desc",
+    "topn": 3,
+    "items": [
+      {
+        "url": "https://github.com/ry-cen/prizecheck/issues/79",
+        "title": "Spec: Collector workspace",
+        "state": "open"
+      },
+      {
+        "url": "https://github.com/Distributed-Minds/Fleet-Control-Public/issues/16",
+        "title": "P0: Close derivative authority on principal shutdown and revocation",
+        "state": "open"
+      },
+      {
+        "url": "https://github.com/nteract/semiotic/issues/1293",
+        "title": "[Tracking] Technical correctness, accessibility, and API hardening backlog",
+        "state": "open"
+      }
+    ]
+  },
+  {
+    "id": 7,
+    "arm": "structural",
+    "source_index": 2,
+    "source": "networkx/networkx",
+    "query_index": 1,
+    "query": "ancestors all nodes having path source is:open in:title,body -repo:networkx/networkx is:issue is:public",
+    "sort": "updated",
+    "order": "desc",
+    "topn": 3,
+    "items": [
+      {
+        "url": "https://github.com/livestorejs/livestore/issues/1497",
+        "title": "Epic: migrate @livestore/devtools-vite to source-available in livestore-contrib (retire the artifact handoff)",
+        "state": "open"
+      },
+      {
+        "url": "https://github.com/nickderobertis/onepipeline/issues/847",
+        "title": "feat(stack): readjust review drafts onto the base as their parents land",
+        "state": "open"
+      },
+      {
+        "url": "https://github.com/nickderobertis/onepipeline/issues/841",
+        "title": "feat(channel): rework a settled review draft on its own branch and restack the drafts above it",
+        "state": "open"
+      }
+    ]
+  },
+  {
+    "id": 8,
+    "arm": "structural",
+    "source_index": 2,
+    "source": "networkx/networkx",
+    "query_index": 2,
+    "query": "has cycle decides whether directed graph is:open in:title,body -repo:networkx/networkx is:issue is:public",
+    "sort": "updated",
+    "order": "desc",
+    "topn": 3,
+    "items": [
+      {
+        "url": "https://github.com/mshamblin5150-code/clinical-skills/issues/596",
+        "title": "Implementation map: ruled clinical-skills backlog",
+        "state": "open"
+      },
+      {
+        "url": "https://github.com/paulomac1000/ai-skills/issues/93",
+        "title": "[P1][REVIEW-SAFETY] Review Evidence Contract: exact candidate, independence, freshness and input coverage",
+        "state": "open"
+      },
+      {
+        "url": "https://github.com/paulomac1000/ai-skills/issues/131",
+        "title": "[P1][BEFORE UNATTENDED PSE][VERIFICATION] Dependency-aware cost-ordered verification schedule and minimum rerun set",
+        "state": "open"
+      }
+    ]
+  },
+  {
+    "id": 9,
+    "arm": "interpreted",
+    "source_index": 0,
+    "source": "more-itertools/more-itertools",
+    "query_index": 0,
+    "query": "python take first iterable items is:open in:title,body -repo:more-itertools/more-itertools is:issue is:public",
+    "sort": "updated",
+    "order": "desc",
+    "topn": 3,
+    "items": [
+      {
+        "url": "https://github.com/asdf1589/WebSearchEngine/issues/5",
+        "title": "Weekly Report：Metric 量測檢查與修正（2026-09-23 ～ 10-05）",
+        "state": "open"
+      },
+      {
+        "url": "https://github.com/huangyue12120/Learning-Atlas/issues/24",
+        "title": "[Upstream] Source updates require review",
+        "state": "open"
+      },
+      {
+        "url": "https://github.com/the-vibey-project/vibey/issues/821",
+        "title": "feat(gh): forge-snapshot captures workflow runs, resumable by creation, and a run still in progress holds the resume point",
+        "state": "open"
+      }
+    ]
+  },
+  {
+    "id": 10,
+    "arm": "interpreted",
+    "source_index": 0,
+    "source": "more-itertools/more-itertools",
+    "query_index": 1,
+    "query": "python iterable fixed size grouping is:open in:title,body -repo:more-itertools/more-itertools is:issue is:public",
+    "sort": "updated",
+    "order": "desc",
+    "topn": 3,
+    "items": [
+      {
+        "url": "https://github.com/huangyue12120/Learning-Atlas/issues/24",
+        "title": "[Upstream] Source updates require review",
+        "state": "open"
+      },
+      {
+        "url": "https://github.com/jeffrichley/wayfarer/issues/27",
+        "title": "Wayfarer's first running slice: the right half of the line runs itself",
+        "state": "open"
+      },
+      {
+        "url": "https://github.com/ray-project/ray/issues/66147",
+        "title": "[Data] read_iceberg re-reads a shared delete file once per data file instead of once per read task",
+        "state": "open"
+      }
+    ]
+  },
+  {
+    "id": 11,
+    "arm": "interpreted",
+    "source_index": 0,
+    "source": "more-itertools/more-itertools",
+    "query_index": 2,
+    "query": "python lazy predicate partition is:open in:title,body -repo:more-itertools/more-itertools is:issue is:public",
+    "sort": "updated",
+    "order": "desc",
+    "topn": 3,
+    "items": [
+      {
+        "url": "https://github.com/ericvanlare/melee-web/issues/251",
+        "title": "Reach Pokemon Stadium C3 idle in-match lifetime",
+        "state": "open"
+      },
+      {
+        "url": "https://github.com/mshamblin5150-code/clinical-skills/issues/596",
+        "title": "Implementation map: ruled clinical-skills backlog",
+        "state": "open"
+      },
+      {
+        "url": "https://github.com/tilorc-bot/satassume/issues/149",
+        "title": "New theories that shrink the predicate rules (theory loop)",
+        "state": "open"
+      }
+    ]
+  },
+  {
+    "id": 12,
+    "arm": "interpreted",
+    "source_index": 1,
+    "source": "mahmoud/boltons",
+    "query_index": 0,
+    "query": "python clamp numeric range is:open in:title,body -repo:mahmoud/boltons is:issue is:public",
+    "sort": "updated",
+    "order": "desc",
+    "topn": 3,
+    "items": [
+      {
+        "url": "https://github.com/APPARANYX/grasstex/issues/456",
+        "title": "Audit #2: consolidated findings & follow-up queue (structure / code / runtime sweeps)",
+        "state": "open"
+      },
+      {
+        "url": "https://github.com/Agent-StrongHold/Project-mAIstro/issues/1851",
+        "title": "[M1][#1845] Define immutable root-admission identity types",
+        "state": "open"
+      },
+      {
+        "url": "https://github.com/buildingjoshbetter/TrueMemory/issues/771",
+        "title": "perf: TrueMemory stabilization and functionality audit execution plan",
+        "state": "open"
+      }
+    ]
+  },
+  {
+    "id": 13,
+    "arm": "interpreted",
+    "source_index": 1,
+    "source": "mahmoud/boltons",
+    "query_index": 1,
+    "query": "python discrete ceiling selection is:open in:title,body -repo:mahmoud/boltons is:issue is:public",
+    "sort": "updated",
+    "order": "desc",
+    "topn": 3,
+    "items": [
+      {
+        "url": "https://github.com/equinor/neqsim/issues/3154",
+        "title": "[Campaign] Industrial-scale ProcessSystem and ProcessModel optimization",
+        "state": "open"
+      },
+      {
+        "url": "https://github.com/theantipopau/omencore/issues/189",
+        "title": "OMEN MAX 16-ak0xxx (board 8D87): Feature request: automatic software fan curves when BIOS Auto under-cools in Performance mode",
+        "state": "open"
+      },
+      {
+        "url": "https://github.com/eqiora/eqiora/issues/305",
+        "title": "Retire transitional API generations as product capability waves converge",
+        "state": "open"
+      }
+    ]
+  },
+  {
+    "id": 14,
+    "arm": "interpreted",
+    "source_index": 1,
+    "source": "mahmoud/boltons",
+    "query_index": 2,
+    "query": "python discrete floor selection is:open in:title,body -repo:mahmoud/boltons is:issue is:public",
+    "sort": "updated",
+    "order": "desc",
+    "topn": 3,
+    "items": [
+      {
+        "url": "https://github.com/stevendaix/cfdx_dev/issues/34",
+        "title": "Roadmap globale CFDX — audit spec → implementation → validation → CI → merge",
+        "state": "open"
+      },
+      {
+        "url": "https://github.com/stevendaix/cfdx_dev/issues/461",
+        "title": "[Epic] Numerical methods maturity — FVM discretisation, solver robustness and long-term V&V",
+        "state": "open"
+      },
+      {
+        "url": "https://github.com/ryacub/rayniyomi/issues/71",
+        "title": "R-BOARD: Remediation sprint index and execution tracker",
+        "state": "open"
+      }
+    ]
+  },
+  {
+    "id": 15,
+    "arm": "interpreted",
+    "source_index": 2,
+    "source": "networkx/networkx",
+    "query_index": 0,
+    "query": "directed acyclic graph validation is:open in:title,body -repo:networkx/networkx is:issue is:public",
+    "sort": "updated",
+    "order": "desc",
+    "topn": 3,
+    "items": [
+      {
+        "url": "https://github.com/nisavid/provingkit/issues/12",
+        "title": "Map the Proseweaving plugin and review-writing policy landing",
+        "state": "open"
+      },
+      {
+        "url": "https://github.com/cntryl/cassie/issues/747",
+        "title": "Documentation/readiness: Close the query-engine invariant and capability gaps",
+        "state": "open"
+      },
+      {
+        "url": "https://github.com/nisavid/provingkit/issues/374",
+        "title": "Deliver a locally deployed repository-configuration alpha",
+        "state": "open"
+      }
+    ]
+  },
+  {
+    "id": 16,
+    "arm": "interpreted",
+    "source_index": 2,
+    "source": "networkx/networkx",
+    "query_index": 1,
+    "query": "dag topological ordering is:open in:title,body -repo:networkx/networkx is:issue is:public",
+    "sort": "updated",
+    "order": "desc",
+    "topn": 3,
+    "items": [
+      {
+        "url": "https://github.com/rickylabs/netscript/issues/2103",
+        "title": "0.0.8 milestone run: orchestrated delivery of milestone 25",
+        "state": "open"
+      },
+      {
+        "url": "https://github.com/cntryl/cassie/issues/747",
+        "title": "Documentation/readiness: Close the query-engine invariant and capability gaps",
+        "state": "open"
+      },
+      {
+        "url": "https://github.com/ormastes/simple/issues/2998",
+        "title": "C36 tracker MIR failure: missing finalize APIs, text clone and optional dictionary array provenance",
+        "state": "open"
+      }
+    ]
+  },
+  {
+    "id": 17,
+    "arm": "interpreted",
+    "source_index": 2,
+    "source": "networkx/networkx",
+    "query_index": 2,
+    "query": "deterministic dag ordering is:open in:title,body -repo:networkx/networkx is:issue is:public",
+    "sort": "updated",
+    "order": "desc",
+    "topn": 3,
+    "items": [
+      {
+        "url": "https://github.com/nickderobertis/crozier/issues/493",
+        "title": "fix: drop witness records whose source repository cannot be shown public",
+        "state": "open"
+      },
+      {
+        "url": "https://github.com/rickylabs/netscript/issues/2103",
+        "title": "0.0.8 milestone run: orchestrated delivery of milestone 25",
+        "state": "open"
+      },
+      {
+        "url": "https://github.com/YuanshuoDu/applymate-jobcopilot/issues/751",
+        "title": "Agent brain: reserve first repair capacity in typed TaskGraphs",
+        "state": "open"
+      }
+    ]
+  }
+]
