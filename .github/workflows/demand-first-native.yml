@@ -37,9 +37,10 @@ jobs:
         shell: bash
         run: |
           docker run --rm --network none --cap-drop ALL --security-opt no-new-privileges \
+            --user "$(id -u):$(id -g)" \
             --read-only --tmpfs /tmp:rw,size=512m \
             -v "$RUNNER_TEMP/native-results:/results" demand-first-target \
-            sh -c 'cp /dependencies.txt /results/; python /study/native_http.py /results'
+            sh -ec 'cp /dependencies.txt /results/; python /study/native_http.py /results'
       - uses: actions/upload-artifact@v4
         if: always()
         with:
