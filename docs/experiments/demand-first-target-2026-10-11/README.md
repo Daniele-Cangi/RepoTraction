@@ -1,8 +1,8 @@
 # Demand-first source selection: author ordering in audio-feeder
 
 This is a small **negative source-selection experiment**, not a new production
-discovery capability. No candidate has demonstrated useful reuse. Native HTTP
-verification of the direct correction is pending CI at this commit.
+discovery capability. No candidate has demonstrated useful reuse. The native HTTP
+test reproduced the reported defect and the direct correction passed all checks.
 
 ## Independent need and frozen boundary
 
@@ -59,7 +59,9 @@ No target sorter, renderer, database handler or HTTP response is mocked.
 
 The narrow CI workflow executes external code in a disposable Linux container,
 with no runtime network or host credentials. Dependencies install during image
-build; their resolved versions and image ID are exported. Dependencies/base image
+build **offline**; only wheel downloads and inert metadata parsing have network
+access. Source distributions are disallowed during acquisition. Resolved dependency
+versions and image ID are exported. Dependencies/base image
 are not pinned by digest, so this is not a bit-for-bit reproducible environment.
 No downloaded target code runs in the local host Python. This is a target-specific
 integration test, not a replacement runner, transport, or production service.
@@ -70,6 +72,29 @@ The second attempt completed the original HTTP exercise but could not write its
 result into the mounted directory. The container now uses the CI runner's UID/GID;
 runtime capabilities and network remain disabled. No result was counted from the
 failed attempt.
+
+Codex review identified that the initial successful run's package build still had
+network access. The Dockerfile now separates wheel acquisition from offline
+installation/build; the original result is retained with that limitation and the
+corrected isolation boundary will be exercised again before merge.
+
+## Observed native result
+
+[CI run 38167047503](https://github.com/Daniele-Cangi/RepoTraction/actions/runs/38167047503)
+at `7a042e5541288768a4f8db5e518d4361103417c4` made **160 real HTTP requests per
+variant**. These form 128 assertions per variant (pagination needs extra requests).
+The original passed **112/128**, failing the author-order assertions for the reported
+accent/case examples, fallback names and pagination, in both directions and both
+cache states. The direct correction passed **128/128**. Each variant also passed
+the same **4 upstream page/navigation tests**. These are repetitions across eight
+fixtures, not 128 independent demands.
+
+`native-results.json` retains every assertion, dependencies, logs and image ID in
+a compact JSON export. It records SHA-256 hashes of the original artifact files
+and the downloaded ZIP, verified against GitHub's artifact digest. The original
+ZIP digest is `4d246edad6418afe259736953f9d5c2a61b926e33e512ce78a075124151f2309`.
+This establishes a working direct correction, **not superiority over every
+possible direct implementation**, production acceptance or useful package reuse.
 
 **Protocol deviation:** the planned 9-repeat latency comparison at 1,000/10,000
 authors is not performed, because no selected source reached integration. There
