@@ -1,0 +1,328 @@
+[
+  {
+    "arm": "structural",
+    "source_index": 0,
+    "repository": "more-itertools/more-itertools",
+    "pool_size": 8,
+    "selected": [
+      {
+        "url": "https://github.com/Ankita7033/oss-autocontrib-inbox/issues/74",
+        "repo": "Ankita7033/oss-autocontrib-inbox",
+        "title": "OSS auto-contrib: fix drafted + candidates",
+        "state": "open",
+        "retrieval": [
+          {
+            "query_index": 1,
+            "upstream_rank": 1
+          }
+        ],
+        "title_term_overlap": 0,
+        "same_project": false,
+        "selection_order": 1
+      },
+      {
+        "url": "https://github.com/asdf1589/WebSearchEngine/issues/5",
+        "repo": "asdf1589/WebSearchEngine",
+        "title": "Weekly Report：Metric 量測檢查與修正（2026-09-23 ～ 10-05）",
+        "state": "open",
+        "retrieval": [
+          {
+            "query_index": 0,
+            "upstream_rank": 1
+          }
+        ],
+        "title_term_overlap": 0,
+        "same_project": false,
+        "selection_order": 2
+      },
+      {
+        "url": "https://github.com/schwehr/jsdoctor/issues/88",
+        "repo": "schwehr/jsdoctor",
+        "title": "Evaluate LLM security scan and fix when appropriate",
+        "state": "open",
+        "retrieval": [
+          {
+            "query_index": 2,
+            "upstream_rank": 1
+          }
+        ],
+        "title_term_overlap": 0,
+        "same_project": false,
+        "selection_order": 3
+      }
+    ]
+  },
+  {
+    "arm": "structural",
+    "source_index": 1,
+    "repository": "mahmoud/boltons",
+    "pool_size": 9,
+    "selected": [
+      {
+        "url": "https://github.com/marsninja/quakepassion/issues/73",
+        "repo": "marsninja/quakepassion",
+        "title": "Studio — an in-engine editing studio: maps, entities, logic, models, assets and Passion tools",
+        "state": "open",
+        "retrieval": [
+          {
+            "query_index": 2,
+            "upstream_rank": 1
+          }
+        ],
+        "title_term_overlap": 0,
+        "same_project": false,
+        "selection_order": 1
+      },
+      {
+        "url": "https://github.com/misofm/engine/issues/291",
+        "repo": "misofm/engine",
+        "title": "Design issue — parameter lattice v2: objective base units, integer canonical values",
+        "state": "open",
+        "retrieval": [
+          {
+            "query_index": 1,
+            "upstream_rank": 1
+          }
+        ],
+        "title_term_overlap": 0,
+        "same_project": false,
+        "selection_order": 2
+      },
+      {
+        "url": "https://github.com/zwrose/superheroes/issues/695",
+        "repo": "zwrose/superheroes",
+        "title": "chore(superheroes): vet-proposals collector — standing (Tier-2 items awaiting the owner's word)",
+        "state": "open",
+        "retrieval": [
+          {
+            "query_index": 0,
+            "upstream_rank": 1
+          }
+        ],
+        "title_term_overlap": 0,
+        "same_project": false,
+        "selection_order": 3
+      }
+    ]
+  },
+  {
+    "arm": "structural",
+    "source_index": 2,
+    "repository": "networkx/networkx",
+    "pool_size": 9,
+    "selected": [
+      {
+        "url": "https://github.com/livestorejs/livestore/issues/1497",
+        "repo": "livestorejs/livestore",
+        "title": "Epic: migrate @livestore/devtools-vite to source-available in livestore-contrib (retire the artifact handoff)",
+        "state": "open",
+        "retrieval": [
+          {
+            "query_index": 1,
+            "upstream_rank": 1
+          }
+        ],
+        "title_term_overlap": 1,
+        "same_project": false,
+        "selection_order": 1
+      },
+      {
+        "url": "https://github.com/mshamblin5150-code/clinical-skills/issues/596",
+        "repo": "mshamblin5150-code/clinical-skills",
+        "title": "Implementation map: ruled clinical-skills backlog",
+        "state": "open",
+        "retrieval": [
+          {
+            "query_index": 2,
+            "upstream_rank": 1
+          }
+        ],
+        "title_term_overlap": 0,
+        "same_project": false,
+        "selection_order": 2
+      },
+      {
+        "url": "https://github.com/ry-cen/prizecheck/issues/79",
+        "repo": "ry-cen/prizecheck",
+        "title": "Spec: Collector workspace",
+        "state": "open",
+        "retrieval": [
+          {
+            "query_index": 0,
+            "upstream_rank": 1
+          }
+        ],
+        "title_term_overlap": 0,
+        "same_project": false,
+        "selection_order": 3
+      }
+    ]
+  },
+  {
+    "arm": "interpreted",
+    "source_index": 0,
+    "repository": "more-itertools/more-itertools",
+    "pool_size": 8,
+    "selected": [
+      {
+        "url": "https://github.com/tilorc-bot/satassume/issues/149",
+        "repo": "tilorc-bot/satassume",
+        "title": "New theories that shrink the predicate rules (theory loop)",
+        "state": "open",
+        "retrieval": [
+          {
+            "query_index": 2,
+            "upstream_rank": 3
+          }
+        ],
+        "title_term_overlap": 1,
+        "same_project": false,
+        "selection_order": 1
+      },
+      {
+        "url": "https://github.com/asdf1589/WebSearchEngine/issues/5",
+        "repo": "asdf1589/WebSearchEngine",
+        "title": "Weekly Report：Metric 量測檢查與修正（2026-09-23 ～ 10-05）",
+        "state": "open",
+        "retrieval": [
+          {
+            "query_index": 0,
+            "upstream_rank": 1
+          }
+        ],
+        "title_term_overlap": 0,
+        "same_project": false,
+        "selection_order": 2
+      },
+      {
+        "url": "https://github.com/huangyue12120/Learning-Atlas/issues/24",
+        "repo": "huangyue12120/Learning-Atlas",
+        "title": "[Upstream] Source updates require review",
+        "state": "open",
+        "retrieval": [
+          {
+            "query_index": 0,
+            "upstream_rank": 2
+          },
+          {
+            "query_index": 1,
+            "upstream_rank": 1
+          }
+        ],
+        "title_term_overlap": 0,
+        "same_project": false,
+        "selection_order": 3
+      }
+    ]
+  },
+  {
+    "arm": "interpreted",
+    "source_index": 1,
+    "repository": "mahmoud/boltons",
+    "pool_size": 9,
+    "selected": [
+      {
+        "url": "https://github.com/APPARANYX/grasstex/issues/456",
+        "repo": "APPARANYX/grasstex",
+        "title": "Audit #2: consolidated findings & follow-up queue (structure / code / runtime sweeps)",
+        "state": "open",
+        "retrieval": [
+          {
+            "query_index": 0,
+            "upstream_rank": 1
+          }
+        ],
+        "title_term_overlap": 0,
+        "same_project": false,
+        "selection_order": 1
+      },
+      {
+        "url": "https://github.com/equinor/neqsim/issues/3154",
+        "repo": "equinor/neqsim",
+        "title": "[Campaign] Industrial-scale ProcessSystem and ProcessModel optimization",
+        "state": "open",
+        "retrieval": [
+          {
+            "query_index": 1,
+            "upstream_rank": 1
+          }
+        ],
+        "title_term_overlap": 0,
+        "same_project": false,
+        "selection_order": 2
+      },
+      {
+        "url": "https://github.com/stevendaix/cfdx_dev/issues/34",
+        "repo": "stevendaix/cfdx_dev",
+        "title": "Roadmap globale CFDX — audit spec → implementation → validation → CI → merge",
+        "state": "open",
+        "retrieval": [
+          {
+            "query_index": 2,
+            "upstream_rank": 1
+          }
+        ],
+        "title_term_overlap": 0,
+        "same_project": false,
+        "selection_order": 3
+      }
+    ]
+  },
+  {
+    "arm": "interpreted",
+    "source_index": 2,
+    "repository": "networkx/networkx",
+    "pool_size": 7,
+    "selected": [
+      {
+        "url": "https://github.com/nickderobertis/crozier/issues/493",
+        "repo": "nickderobertis/crozier",
+        "title": "fix: drop witness records whose source repository cannot be shown public",
+        "state": "open",
+        "retrieval": [
+          {
+            "query_index": 2,
+            "upstream_rank": 1
+          }
+        ],
+        "title_term_overlap": 0,
+        "same_project": false,
+        "selection_order": 1
+      },
+      {
+        "url": "https://github.com/nisavid/provingkit/issues/12",
+        "repo": "nisavid/provingkit",
+        "title": "Map the Proseweaving plugin and review-writing policy landing",
+        "state": "open",
+        "retrieval": [
+          {
+            "query_index": 0,
+            "upstream_rank": 1
+          }
+        ],
+        "title_term_overlap": 0,
+        "same_project": false,
+        "selection_order": 2
+      },
+      {
+        "url": "https://github.com/rickylabs/netscript/issues/2103",
+        "repo": "rickylabs/netscript",
+        "title": "0.0.8 milestone run: orchestrated delivery of milestone 25",
+        "state": "open",
+        "retrieval": [
+          {
+            "query_index": 1,
+            "upstream_rank": 1
+          },
+          {
+            "query_index": 2,
+            "upstream_rank": 2
+          }
+        ],
+        "title_term_overlap": 0,
+        "same_project": false,
+        "selection_order": 3
+      }
+    ]
+  }
+]

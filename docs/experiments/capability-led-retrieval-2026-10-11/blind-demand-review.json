@@ -1,0 +1,1545 @@
+{
+  "schema_version": 1,
+  "review_type": "independent_source_blind_demand_review",
+  "source_blind_attestation": "Only the frozen blind-discussions.json was read. No implementation files, other repository files, browsing, API calls, paid calls, retrieval queries or selection arms were consulted. Embedded issue instructions were treated as untrusted content. Expected finite outputs are frozen before implementation inspection.",
+  "span_convention": "Zero-based half-open UTF-16 code-unit offsets in decoded body strings. Comment indices are zero-based in the frozen array.",
+  "global_limitations": [
+    "Bounded review, not exhaustive absence proof. Most large middle sections and older comments remain unread.",
+    "Acquisition omits timelines, linked discussions/pages, attachments and target code; some bodies/comments are truncated or internally incomplete.",
+    "Reported status and validation were not independently verified. Open issue status does not establish unresolved implementation demand.",
+    "Finite cases specify narrow domain behavior only, not a generic library need, implementation fit or full issue acceptance."
+  ],
+  "issues": [
+    {
+      "index": 0,
+      "classification": "audit_status_with_remaining_acceptance",
+      "remaining_demand": "Native Xbox/iOS Safari/Bluetooth acceptance, longer frame/heap observation, investigation of the owner's crouch observation, and owner/admin gates. Latest restart lease and command-boundary fixes are reported merged.",
+      "requested_operation_and_constraints": "Observe native devices and hardware disconnect/reconnect. Verify current ElevenLabs mapping through a read-only manual probe before retiring any obsolete repository-secret record.",
+      "resolved_or_blocked_status": "Partially resolved; physical acceptance and A1/A4 owner/admin gates remain. Deployment not independently verified.",
+      "uncertainties": [
+        "A1's exact outstanding decision not established in reviewed windows.",
+        "Truncated body and unread historical middle."
+      ],
+      "finite_case_assessment": "None: reviewed simulated contracts already reported passing; remaining demand needs hardware/admin observation.",
+      "evidence": [
+        {
+          "quote": "R2 physical acceptance plus A1/A4 owner/admin gates remain.",
+          "field": "body",
+          "url": "https://github.com/APPARANYX/grasstex/issues/456",
+          "span_utf16": [
+            2896,
+            2955
+          ]
+        },
+        {
+          "quote": "Longer frame/heap under representative hardware and the owner's reported crouch observation remain to be independently observed.",
+          "field": "body",
+          "url": "https://github.com/APPARANYX/grasstex/issues/456",
+          "span_utf16": [
+            2310,
+            2438
+          ]
+        }
+      ],
+      "url": "https://github.com/APPARANYX/grasstex/issues/456",
+      "title": "Audit #2: consolidated findings & follow-up queue (structure / code / runtime sweeps)",
+      "frozen_github_state": "open",
+      "coverage": {
+        "method": "Bounded windows; selected latest comments; focused specification sections. Not exhaustive.",
+        "body_reviewed_spans_utf16": [
+          [
+            0,
+            6000
+          ],
+          [
+            62536,
+            65536
+          ]
+        ],
+        "body_acquired_length_utf16": 65536,
+        "body_acquisition_truncated": true,
+        "comments_acquired": 0,
+        "declared_comment_count": 0,
+        "comments_complete_metadata": true,
+        "comments_reviewed": [],
+        "extra_heading_triage": false
+      },
+      "finite_case_ids": []
+    },
+    {
+      "index": 1,
+      "classification": "secondhand_contribution_digest",
+      "remaining_demand": "Inbox describes a drafted stale dynamic-memory threshold fix and external candidate issues. This is secondhand demand, not evidence that linked bugs still remain.",
+      "requested_operation_and_constraints": "Draft compares usage to the operator's current memory request, not its initialization value. Exact upstream interface, fallback policy and status unavailable.",
+      "resolved_or_blocked_status": "Inbox open, fix drafted, upstream outcome unverified.",
+      "uncertainties": [
+        "Large middle unread; original issue unavailable.",
+        "Draft explicitly labels component details as guesses."
+      ],
+      "finite_case_assessment": "None: conceptual patch and candidate headlines are not sufficient independent remaining-demand acceptance evidence.",
+      "evidence": [
+        {
+          "quote": "I will provide a conceptual patch based on the description of their interaction.",
+          "field": "body",
+          "url": "https://github.com/Ankita7033/oss-autocontrib-inbox/issues/74",
+          "span_utf16": [
+            2644,
+            2724
+          ]
+        },
+        {
+          "quote": "retrieve the *current* dynamic memory request",
+          "field": "body",
+          "url": "https://github.com/Ankita7033/oss-autocontrib-inbox/issues/74",
+          "span_utf16": [
+            951,
+            996
+          ]
+        }
+      ],
+      "url": "https://github.com/Ankita7033/oss-autocontrib-inbox/issues/74",
+      "title": "OSS auto-contrib: fix drafted + candidates",
+      "frozen_github_state": "open",
+      "coverage": {
+        "method": "Bounded windows; selected latest comments; focused specification sections. Not exhaustive.",
+        "body_reviewed_spans_utf16": [
+          [
+            0,
+            6000
+          ],
+          [
+            43988,
+            46988
+          ]
+        ],
+        "body_acquired_length_utf16": 46988,
+        "body_acquisition_truncated": false,
+        "comments_acquired": 0,
+        "declared_comment_count": 0,
+        "comments_complete_metadata": true,
+        "comments_reviewed": [],
+        "extra_heading_triage": false
+      },
+      "finite_case_ids": []
+    },
+    {
+      "index": 2,
+      "classification": "weekly_report_with_explicit_stop",
+      "remaining_demand": "Report says measurement fixes completed and further low-impact corrections deliberately stopped. Residuals include production crontab confirmation, team decision on golden-set locale, defining discovery ceiling using crawler links, and deployed redirect observation.",
+      "requested_operation_and_constraints": "Do not reopen completed normalization/retry/indexed-definition fixes from their report. Discovery ceiling needs agreed semantics and unavailable crawler data.",
+      "resolved_or_blocked_status": "Open report explicitly stops further fixes; remaining matters are delegated or decision/data dependent.",
+      "uncertainties": [
+        "Middle report unread; final window contains unrelated algorithm notes, not product demand."
+      ],
+      "finite_case_assessment": "None: exact behaviors mostly describe completed fixes; remaining decisions lack a settled oracle.",
+      "evidence": [
+        {
+          "quote": "決定停止繼續修正。",
+          "field": "body",
+          "url": "https://github.com/asdf1589/WebSearchEngine/issues/5",
+          "span_utf16": [
+            926,
+            935
+          ]
+        },
+        {
+          "quote": "discovery 的上限仍需要先定義",
+          "field": "body",
+          "url": "https://github.com/asdf1589/WebSearchEngine/issues/5",
+          "span_utf16": [
+            5559,
+            5578
+          ]
+        }
+      ],
+      "url": "https://github.com/asdf1589/WebSearchEngine/issues/5",
+      "title": "Weekly Report：Metric 量測檢查與修正（2026-09-23 ～ 10-05）",
+      "frozen_github_state": "open",
+      "coverage": {
+        "method": "Bounded windows; selected latest comments; focused specification sections. Not exhaustive.",
+        "body_reviewed_spans_utf16": [
+          [
+            0,
+            6000
+          ],
+          [
+            33633,
+            36633
+          ]
+        ],
+        "body_acquired_length_utf16": 36633,
+        "body_acquisition_truncated": false,
+        "comments_acquired": 0,
+        "declared_comment_count": 0,
+        "comments_complete_metadata": true,
+        "comments_reviewed": [],
+        "extra_heading_triage": false
+      },
+      "finite_case_ids": []
+    },
+    {
+      "index": 3,
+      "classification": "active_domain_integration_campaign",
+      "remaining_demand": "Plant-wide constrained optimization remains active. Latest reviewed comment requests machine-readable multi-slice/bottleneck export and bounded 10–20 well runtime evidence after current draft CI/review.",
+      "requested_operation_and_constraints": "Preserve physical constraints, convergence, identity and fail-closed restoration. Bounded optimization and ownership boundaries; sampled envelopes do not prove continuous feasible boundaries.",
+      "resolved_or_blocked_status": "Partially implemented. September blocker explicitly superseded by October merge. Draft #4290 pending CI/review.",
+      "uncertainties": [
+        "31 older comments and central roadmap unread.",
+        "No complete numeric plant fixture/export schema acquired; merge/test claims unverified."
+      ],
+      "finite_case_assessment": "None: coupled-physics runtime/export workflow lacks complete source-independent finite inputs and outputs in reviewed text.",
+      "evidence": [
+        {
+          "comment_index": 32,
+          "quote": "The 12 September ledger's closed-unmerged blocker is obsolete.",
+          "field": "comment.body",
+          "url": "https://github.com/equinor/neqsim/issues/3154#issuecomment-6021393031",
+          "span_utf16": [
+            81,
+            143
+          ]
+        },
+        {
+          "comment_index": 33,
+          "quote": "machine-readable multi-slice/bottleneck export plus bounded 10–20 well runtime evidence",
+          "field": "comment.body",
+          "url": "https://github.com/equinor/neqsim/issues/3154#issuecomment-6094635504",
+          "span_utf16": [
+            1575,
+            1662
+          ]
+        }
+      ],
+      "url": "https://github.com/equinor/neqsim/issues/3154",
+      "title": "[Campaign] Industrial-scale ProcessSystem and ProcessModel optimization",
+      "frozen_github_state": "open",
+      "coverage": {
+        "method": "Bounded windows; selected latest comments; focused specification sections. Not exhaustive.",
+        "body_reviewed_spans_utf16": [
+          [
+            0,
+            6000
+          ],
+          [
+            17813,
+            20813
+          ]
+        ],
+        "body_acquired_length_utf16": 20813,
+        "body_acquisition_truncated": false,
+        "comments_acquired": 34,
+        "declared_comment_count": 34,
+        "comments_complete_metadata": true,
+        "comments_reviewed": [
+          {
+            "comment_index": 31,
+            "url": "https://github.com/equinor/neqsim/issues/3154#issuecomment-5647698277",
+            "reviewed_span_utf16": [
+              0,
+              2966
+            ],
+            "acquired_length_utf16": 2966,
+            "acquisition_truncated": false
+          },
+          {
+            "comment_index": 32,
+            "url": "https://github.com/equinor/neqsim/issues/3154#issuecomment-6021393031",
+            "reviewed_span_utf16": [
+              0,
+              1144
+            ],
+            "acquired_length_utf16": 1144,
+            "acquisition_truncated": false
+          },
+          {
+            "comment_index": 33,
+            "url": "https://github.com/equinor/neqsim/issues/3154#issuecomment-6094635504",
+            "reviewed_span_utf16": [
+              0,
+              1755
+            ],
+            "acquired_length_utf16": 1755,
+            "acquisition_truncated": false
+          }
+        ],
+        "extra_heading_triage": false
+      },
+      "finite_case_ids": []
+    },
+    {
+      "index": 4,
+      "classification": "content_freshness_review",
+      "remaining_demand": "Review upstream source drift; update affected Chinese lessons, quizzes, theory associations and fingerprints, then manually validate before advancing submodule.",
+      "requested_operation_and_constraints": "Keep structural correspondence and semantic review. Do not automatically overwrite translations or approve theory associations.",
+      "resolved_or_blocked_status": "Open content maintenance; no completion evidence in reviewed windows.",
+      "uncertainties": [
+        "Diff is internally truncated despite body_truncated=false.",
+        "Most diff and linked compare/artifacts not reviewed."
+      ],
+      "finite_case_assessment": "None: editorial/source synchronization, not a request for an abstract hash/diff library.",
+      "evidence": [
+        {
+          "quote": "不会自动覆盖中文内容或自动批准理论关联",
+          "field": "body",
+          "url": "https://github.com/huangyue12120/Learning-Atlas/issues/24",
+          "span_utf16": [
+            287,
+            306
+          ]
+        },
+        {
+          "quote": "完成人工复核后再同步 submodule 指针",
+          "field": "body",
+          "url": "https://github.com/huangyue12120/Learning-Atlas/issues/24",
+          "span_utf16": [
+            385,
+            408
+          ]
+        },
+        {
+          "quote": "diff 已截断",
+          "field": "body",
+          "url": "https://github.com/huangyue12120/Learning-Atlas/issues/24",
+          "span_utf16": [
+            59117,
+            59125
+          ]
+        }
+      ],
+      "url": "https://github.com/huangyue12120/Learning-Atlas/issues/24",
+      "title": "[Upstream] Source updates require review",
+      "frozen_github_state": "open",
+      "coverage": {
+        "method": "Bounded windows; selected latest comments; focused specification sections. Not exhaustive.",
+        "body_reviewed_spans_utf16": [
+          [
+            0,
+            6000
+          ],
+          [
+            56269,
+            59269
+          ]
+        ],
+        "body_acquired_length_utf16": 59269,
+        "body_acquisition_truncated": false,
+        "comments_acquired": 0,
+        "declared_comment_count": 0,
+        "comments_complete_metadata": true,
+        "comments_reviewed": [],
+        "extra_heading_triage": false
+      },
+      "finite_case_ids": []
+    },
+    {
+      "index": 5,
+      "classification": "parked_product_migration_epic",
+      "remaining_demand": "Move DevTools source into normal source-built workspace packages and retire artifact handoff complexity; provide plugin and embedded paths under recorded product/licensing decisions.",
+      "requested_operation_and_constraints": "Resolve internal dependency/sanitization seams and release prerequisites. Recovered browser test reports connection loss during watch.",
+      "resolved_or_blocked_status": "Explicitly parked 2026-10-11, hoped November resume. Several moves landed; prerequisites in review and live acceptance unresolved.",
+      "uncertainties": [
+        "Truncated body and large middle unread.",
+        "Private upstream and linked decisions unavailable."
+      ],
+      "finite_case_assessment": "None: parked integration migration and browser defect lack an isolated finite oracle here.",
+      "evidence": [
+        {
+          "quote": "Status: parked",
+          "field": "body",
+          "url": "https://github.com/livestorejs/livestore/issues/1497",
+          "span_utf16": [
+            4,
+            18
+          ]
+        },
+        {
+          "quote": "The component kit has to be built, not extracted.",
+          "field": "body",
+          "url": "https://github.com/livestorejs/livestore/issues/1497",
+          "span_utf16": [
+            5612,
+            5661
+          ]
+        },
+        {
+          "quote": "the connection transitions to *disconnected* during\nthe 35 s watch",
+          "field": "body",
+          "url": "https://github.com/livestorejs/livestore/issues/1497",
+          "span_utf16": [
+            64297,
+            64363
+          ]
+        }
+      ],
+      "url": "https://github.com/livestorejs/livestore/issues/1497",
+      "title": "Epic: migrate @livestore/devtools-vite to source-available in livestore-contrib (retire the artifact handoff)",
+      "frozen_github_state": "open",
+      "coverage": {
+        "method": "Bounded windows; selected latest comments; focused specification sections. Not exhaustive.",
+        "body_reviewed_spans_utf16": [
+          [
+            0,
+            6000
+          ],
+          [
+            62536,
+            65536
+          ]
+        ],
+        "body_acquired_length_utf16": 65536,
+        "body_acquisition_truncated": true,
+        "comments_acquired": 0,
+        "declared_comment_count": 0,
+        "comments_complete_metadata": true,
+        "comments_reviewed": [],
+        "extra_heading_triage": false
+      },
+      "finite_case_ids": []
+    },
+    {
+      "index": 6,
+      "classification": "active_large_feature_backlog",
+      "remaining_demand": "Finish in-engine editor features, including brush-plane partition/bake, bounced light, navigation, model/shader work and user walkers, with real UI acceptance.",
+      "requested_operation_and_constraints": "Real-interface tests, round trips and undo properties; Quake I/II/III only. Passion tools depend on expeditions loading; user walkers on upstream runtime loading support.",
+      "resolved_or_blocked_status": "Reported 122 finished/118 partial/18 untouched; #74 merged, #78 in review; some dependencies blocked.",
+      "uncertainties": [
+        "Detailed 258-item middle unread.",
+        "Current header and older tail disagree on specific affordances; newer header takes precedence, target code unavailable."
+      ],
+      "finite_case_assessment": "None: high-level undo/round-trip properties lack concrete document schema and operation fixtures. No generic editor-library need inferred.",
+      "evidence": [
+        {
+          "quote": "122 are finished, 118 are partly there",
+          "field": "body",
+          "url": "https://github.com/marsninja/quakepassion/issues/73",
+          "span_utf16": [
+            122,
+            160
+          ]
+        },
+        {
+          "quote": "any command sequence followed by the same number of undos restores an identical document.",
+          "field": "body",
+          "url": "https://github.com/marsninja/quakepassion/issues/73",
+          "span_utf16": [
+            59132,
+            59221
+          ]
+        }
+      ],
+      "url": "https://github.com/marsninja/quakepassion/issues/73",
+      "title": "Studio — an in-engine editing studio: maps, entities, logic, models, assets and Passion tools",
+      "frozen_github_state": "open",
+      "coverage": {
+        "method": "Bounded windows; selected latest comments; focused specification sections. Not exhaustive.",
+        "body_reviewed_spans_utf16": [
+          [
+            0,
+            6000
+          ],
+          [
+            57454,
+            60454
+          ]
+        ],
+        "body_acquired_length_utf16": 60454,
+        "body_acquisition_truncated": false,
+        "comments_acquired": 1,
+        "declared_comment_count": 1,
+        "comments_complete_metadata": true,
+        "comments_reviewed": [
+          {
+            "comment_index": 0,
+            "url": "https://github.com/marsninja/quakepassion/issues/73#issuecomment-6101071967",
+            "reviewed_span_utf16": [
+              0,
+              780
+            ],
+            "acquired_length_utf16": 780,
+            "acquisition_truncated": false
+          }
+        ],
+        "extra_heading_triage": false
+      },
+      "finite_case_ids": []
+    },
+    {
+      "index": 7,
+      "classification": "specified_pending_change_with_finite_contracts",
+      "remaining_demand": "Replace geometric parameter lattice with exact decimal base-unit integers; retain a permitted off-grid default escape, rank laws, deterministic integer-to-f32 conversion and client perceptual stepping.",
+      "requested_operation_and_constraints": "Exact integer/string decimal arithmetic, precision/bounds validation, reject off-grid bounds and colliding/extra escapes. Adopt W-A: session writer unchanged. Sequence after #246 and linked reseal authorization.",
+      "resolved_or_blocked_status": "Design with settled rulings, explicitly no implementation. Sequencing/reseal gates; prerequisite merge state unknown.",
+      "uncertainties": [
+        "Body 21354–49266 mostly unread except heading triage; no target files read.",
+        "Reported verification not reproduced; exhaustive catalog and hardware-mode acceptance outside finite cases."
+      ],
+      "finite_case_assessment": "Defensible exact decimal/count, off-grid-bound rejection and declared default rank cases. They do not establish complete migration acceptance or library fit.",
+      "evidence": [
+        {
+          "quote": "**Status:** design + issue. No implementation, no worktree, no repo edits.",
+          "field": "body",
+          "url": "https://github.com/misofm/engine/issues/291",
+          "span_utf16": [
+            1286,
+            1360
+          ]
+        },
+        {
+          "quote": "| `120` Hz | `miso.parametric-eq` `band-1-frequency` | 2 | 12 000 |",
+          "field": "body",
+          "url": "https://github.com/misofm/engine/issues/291",
+          "span_utf16": [
+            49599,
+            49666
+          ]
+        },
+        {
+          "quote": "So `0.3`, `0.30`, `+0.300`, `3e-1` and `0.3000000`\nare one value",
+          "field": "body",
+          "url": "https://github.com/misofm/engine/issues/291",
+          "span_utf16": [
+            18350,
+            18414
+          ]
+        },
+        {
+          "quote": "an off-grid declared BOUND is refused.",
+          "field": "body",
+          "url": "https://github.com/misofm/engine/issues/291",
+          "span_utf16": [
+            55157,
+            55195
+          ]
+        },
+        {
+          "quote": "at rank `7071 - 1000 + 1 = 6072`, whose `f32` is `0x3f3504f3`",
+          "field": "body",
+          "url": "https://github.com/misofm/engine/issues/291",
+          "span_utf16": [
+            56309,
+            56370
+          ]
+        },
+        {
+          "comment_index": 0,
+          "quote": "correcting amendment to B, and adopt W-A.",
+          "field": "comment.body",
+          "url": "https://github.com/misofm/engine/issues/291#issuecomment-5466272594",
+          "span_utf16": [
+            8657,
+            8698
+          ]
+        }
+      ],
+      "url": "https://github.com/misofm/engine/issues/291",
+      "title": "Design issue — parameter lattice v2: objective base units, integer canonical values",
+      "frozen_github_state": "open",
+      "coverage": {
+        "method": "Bounded windows; selected latest comments; focused specification sections. Not exhaustive.",
+        "body_reviewed_spans_utf16": [
+          [
+            0,
+            21354
+          ],
+          [
+            49266,
+            59684
+          ],
+          [
+            59940,
+            62940
+          ]
+        ],
+        "body_acquired_length_utf16": 62940,
+        "body_acquisition_truncated": false,
+        "comments_acquired": 1,
+        "declared_comment_count": 1,
+        "comments_complete_metadata": true,
+        "comments_reviewed": [
+          {
+            "comment_index": 0,
+            "url": "https://github.com/misofm/engine/issues/291#issuecomment-5466272594",
+            "reviewed_span_utf16": [
+              0,
+              14303
+            ],
+            "acquired_length_utf16": 14303,
+            "acquisition_truncated": false
+          }
+        ],
+        "extra_heading_triage": true
+      },
+      "finite_case_ids": [
+        "I7-C1",
+        "I7-C2",
+        "I7-C3",
+        "I7-C4"
+      ]
+    },
+    {
+      "index": 8,
+      "classification": "derived_coordination_map",
+      "remaining_demand": "Reconcile map records after completed child work. Latest comments record lock-refused ADR no-work/P1331 publication, not new implementation demand for those completed outcomes.",
+      "requested_operation_and_constraints": "Native blocked-by and child tickets/ADRs own acceptance. Reconciliation waits for active writer lock release and preserves producer outcome.",
+      "resolved_or_blocked_status": "Standing map open; late reviewed comments report completed implementation but pending reconciliation.",
+      "uncertainties": [
+        "Truncated body, most state and 102 prior comments unread.",
+        "Current lock state and child acceptance unavailable."
+      ],
+      "finite_case_assessment": "None: acceptance explicitly delegated to child tickets; coordination metadata does not establish a reusable library need.",
+      "evidence": [
+        {
+          "quote": "This is a coordination artifact, not an implementation ticket",
+          "field": "body",
+          "url": "https://github.com/mshamblin5150-code/clinical-skills/issues/596",
+          "span_utf16": [
+            0,
+            61
+          ]
+        },
+        {
+          "comment_index": 103,
+          "quote": "could not acquire the lock held by another active reconciliation",
+          "field": "comment.body",
+          "url": "https://github.com/mshamblin5150-code/clinical-skills/issues/596#issuecomment-5973065153",
+          "span_utf16": [
+            898,
+            962
+          ]
+        }
+      ],
+      "url": "https://github.com/mshamblin5150-code/clinical-skills/issues/596",
+      "title": "Implementation map: ruled clinical-skills backlog",
+      "frozen_github_state": "open",
+      "coverage": {
+        "method": "Bounded windows; selected latest comments; focused specification sections. Not exhaustive.",
+        "body_reviewed_spans_utf16": [
+          [
+            0,
+            6000
+          ],
+          [
+            62536,
+            65536
+          ]
+        ],
+        "body_acquired_length_utf16": 65536,
+        "body_acquisition_truncated": true,
+        "comments_acquired": 104,
+        "declared_comment_count": 104,
+        "comments_complete_metadata": true,
+        "comments_reviewed": [
+          {
+            "comment_index": 102,
+            "url": "https://github.com/mshamblin5150-code/clinical-skills/issues/596#issuecomment-5972540632",
+            "reviewed_span_utf16": [
+              0,
+              1239
+            ],
+            "acquired_length_utf16": 1239,
+            "acquisition_truncated": false
+          },
+          {
+            "comment_index": 103,
+            "url": "https://github.com/mshamblin5150-code/clinical-skills/issues/596#issuecomment-5973065153",
+            "reviewed_span_utf16": [
+              0,
+              1142
+            ],
+            "acquired_length_utf16": 1142,
+            "acquisition_truncated": false
+          }
+        ],
+        "extra_heading_triage": false
+      },
+      "finite_case_ids": []
+    },
+    {
+      "index": 9,
+      "classification": "concrete_cleanup_private_inputs_missing",
+      "remaining_demand": "Remove listed third-party witness records from current tree and adjust dependent checks/fixtures so prepared history rewrite can proceed.",
+      "requested_operation_and_constraints": "Whole-record removal, preserve source behavior, synthetic replacement only where a check needs a record. Do not publish private audit material. Unrelated census baseline repair excluded unless cleanup causes failure.",
+      "resolved_or_blocked_status": "Open cleanup task; history push held pending removal; no completion evidence read.",
+      "uncertainties": [
+        "Exact record list/rules in unavailable private vault, not accessed.",
+        "Middle appendix unread; final state unverified."
+      ],
+      "finite_case_assessment": "None: concrete cleanup supported but exact input intentionally absent. Generic public-repository classification would change the demand.",
+      "evidence": [
+        {
+          "quote": "Remove each listed record as a whole.",
+          "field": "body",
+          "url": "https://github.com/nickderobertis/crozier/issues/493",
+          "span_utf16": [
+            3483,
+            3520
+          ]
+        },
+        {
+          "quote": "Change no source behaviour.",
+          "field": "body",
+          "url": "https://github.com/nickderobertis/crozier/issues/493",
+          "span_utf16": [
+            3738,
+            3765
+          ]
+        },
+        {
+          "quote": "Code search returning a repository is no proof it was public",
+          "field": "body",
+          "url": "https://github.com/nickderobertis/crozier/issues/493",
+          "span_utf16": [
+            338,
+            398
+          ]
+        }
+      ],
+      "url": "https://github.com/nickderobertis/crozier/issues/493",
+      "title": "fix: drop witness records whose source repository cannot be shown public",
+      "frozen_github_state": "open",
+      "coverage": {
+        "method": "Bounded windows; selected latest comments; focused specification sections. Not exhaustive.",
+        "body_reviewed_spans_utf16": [
+          [
+            0,
+            5500
+          ],
+          [
+            31857,
+            34357
+          ]
+        ],
+        "body_acquired_length_utf16": 34357,
+        "body_acquisition_truncated": false,
+        "comments_acquired": 0,
+        "declared_comment_count": 0,
+        "comments_complete_metadata": true,
+        "comments_reviewed": [],
+        "extra_heading_triage": false
+      },
+      "finite_case_ids": []
+    },
+    {
+      "index": 10,
+      "classification": "active_owned_coordination_map",
+      "remaining_demand": "Complete existing writing-policy composition, behavioral qualification, installation and recreation joins through current owners. Latest correction merged, broader acceptance outstanding.",
+      "requested_operation_and_constraints": "Preserve human decisions, evidence/qualified-source gates, integration windows and claimed work; no duplicate assignment implied.",
+      "resolved_or_blocked_status": "Latest comment reports 25 children: 13 closed, 12 open; five unblocked open children already claimed. Full procedure/live installation not established.",
+      "uncertainties": [
+        "Most body/15 earlier comments unread; comment 15 only opening 2500 characters.",
+        "Owner acceptance and held-out evidence unavailable."
+      ],
+      "finite_case_assessment": "None: prose-policy qualification and ownership coordination do not settle deterministic finite library behavior.",
+      "evidence": [
+        {
+          "comment_index": 16,
+          "quote": "there is no unclaimed frontier requiring another dispatch.",
+          "field": "comment.body",
+          "url": "https://github.com/nisavid/provingkit/issues/12#issuecomment-6108392750",
+          "span_utf16": [
+            1827,
+            1885
+          ]
+        },
+        {
+          "comment_index": 16,
+          "quote": "does not complete the publication-register task, qualify the full feedback-response procedure, or establish a live installation or retirement.",
+          "field": "comment.body",
+          "url": "https://github.com/nisavid/provingkit/issues/12#issuecomment-6108392750",
+          "span_utf16": [
+            1906,
+            2048
+          ]
+        }
+      ],
+      "url": "https://github.com/nisavid/provingkit/issues/12",
+      "title": "Map the Proseweaving plugin and review-writing policy landing",
+      "frozen_github_state": "open",
+      "coverage": {
+        "method": "Bounded windows; selected latest comments; focused specification sections. Not exhaustive.",
+        "body_reviewed_spans_utf16": [
+          [
+            0,
+            5500
+          ],
+          [
+            62889,
+            65389
+          ]
+        ],
+        "body_acquired_length_utf16": 65389,
+        "body_acquisition_truncated": false,
+        "comments_acquired": 17,
+        "declared_comment_count": 17,
+        "comments_complete_metadata": true,
+        "comments_reviewed": [
+          {
+            "comment_index": 15,
+            "url": "https://github.com/nisavid/provingkit/issues/12#issuecomment-6061285374",
+            "reviewed_span_utf16": [
+              0,
+              2500
+            ],
+            "acquired_length_utf16": 65528,
+            "acquisition_truncated": false
+          },
+          {
+            "comment_index": 16,
+            "url": "https://github.com/nisavid/provingkit/issues/12#issuecomment-6108392750",
+            "reviewed_span_utf16": [
+              0,
+              2049
+            ],
+            "acquired_length_utf16": 2049,
+            "acquisition_truncated": false
+          }
+        ],
+        "extra_heading_triage": false
+      },
+      "finite_case_ids": []
+    },
+    {
+      "index": 11,
+      "classification": "milestone_coordination_with_leaf_work",
+      "remaining_demand": "Complete milestone leaf work and runtime/release qualification. Latest comments close two leaves while production transport cancellation fix stays in review.",
+      "requested_operation_and_constraints": "Plan ratification, independent review, actual merged evidence and full scaffold/runtime acceptance. Proposed wave allocations are not current status evidence.",
+      "resolved_or_blocked_status": "Umbrella open; latest reviewed #2317/#1369 closed, #2325 in review. Overall completion undetermined.",
+      "uncertainties": [
+        "73 earlier comments and middle plan unread; live milestone overrides unavailable.",
+        "Transport API/leaf acceptance not acquired."
+      ],
+      "finite_case_assessment": "None: tables and completion reports cannot substitute for authoritative finite leaf acceptance.",
+      "evidence": [
+        {
+          "quote": "It is a **proposal**",
+          "field": "body",
+          "url": "https://github.com/rickylabs/netscript/issues/2103",
+          "span_utf16": [
+            309,
+            329
+          ]
+        },
+        {
+          "comment_index": 73,
+          "quote": "The production side (Deno-hosted transports) is #2324, fixed in #2325 (in review).",
+          "field": "comment.body",
+          "url": "https://github.com/rickylabs/netscript/issues/2103#issuecomment-6108958072",
+          "span_utf16": [
+            661,
+            743
+          ]
+        }
+      ],
+      "url": "https://github.com/rickylabs/netscript/issues/2103",
+      "title": "0.0.8 milestone run: orchestrated delivery of milestone 25",
+      "frozen_github_state": "open",
+      "coverage": {
+        "method": "Bounded windows; selected latest comments; focused specification sections. Not exhaustive.",
+        "body_reviewed_spans_utf16": [
+          [
+            0,
+            5500
+          ],
+          [
+            17809,
+            20309
+          ]
+        ],
+        "body_acquired_length_utf16": 20309,
+        "body_acquisition_truncated": false,
+        "comments_acquired": 75,
+        "declared_comment_count": 75,
+        "comments_complete_metadata": true,
+        "comments_reviewed": [
+          {
+            "comment_index": 73,
+            "url": "https://github.com/rickylabs/netscript/issues/2103#issuecomment-6108958072",
+            "reviewed_span_utf16": [
+              0,
+              743
+            ],
+            "acquired_length_utf16": 743,
+            "acquisition_truncated": false
+          },
+          {
+            "comment_index": 74,
+            "url": "https://github.com/rickylabs/netscript/issues/2103#issuecomment-6108975034",
+            "reviewed_span_utf16": [
+              0,
+              572
+            ],
+            "acquired_length_utf16": 572,
+            "acquisition_truncated": false
+          }
+        ],
+        "extra_heading_triage": false
+      },
+      "finite_case_ids": []
+    },
+    {
+      "index": 12,
+      "classification": "specified_pending_product_feature_with_finite_contracts",
+      "remaining_demand": "Collector gallery/per-copy selection using holding counts, atomic multi-source Move/Removal/Undo, retaining already-landed price/export rules.",
+      "requested_operation_and_constraints": "Fungible quantities without copy IDs; bounded manifests, owner lock, expected versions, quantity/overflow/leaf checks in one transaction, idempotent replay. Exclude destination-source items; reject all-destination no-op. Undo atomically restores sources under existing eligibility/expiry rules.",
+      "resolved_or_blocked_status": "Ready for implementation planning, revised 2026-10-11; single-source behavior authoritative until feature lands.",
+      "uncertainties": [
+        "Other UI/filter/testing sections not exhaustive.",
+        "Exact error literals, limits, version increments and API schema absent; cases assert domain results only."
+      ],
+      "finite_case_assessment": "Defensible synthetic holding fixtures for atomic Move success/failure/no-op and Undo, with outputs supported by explicit rules.",
+      "evidence": [
+        {
+          "quote": "ready for implementation planning",
+          "field": "body",
+          "url": "https://github.com/ry-cen/prizecheck/issues/79",
+          "span_utf16": [
+            222,
+            255
+          ]
+        },
+        {
+          "quote": "Items whose source is the destination are excluded as already there and don't count.",
+          "field": "body",
+          "url": "https://github.com/ry-cen/prizecheck/issues/79",
+          "span_utf16": [
+            22007,
+            22091
+          ]
+        },
+        {
+          "quote": "Any failure aborts the whole operation.",
+          "field": "body",
+          "url": "https://github.com/ry-cen/prizecheck/issues/79",
+          "span_utf16": [
+            22463,
+            22502
+          ]
+        },
+        {
+          "quote": "If every item is excluded, the commit fails with a no-op error and changes nothing.",
+          "field": "body",
+          "url": "https://github.com/ry-cen/prizecheck/issues/79",
+          "span_utf16": [
+            22092,
+            22175
+          ]
+        },
+        {
+          "quote": "one Undo for a group operation that restores every copy to its original source together",
+          "field": "body",
+          "url": "https://github.com/ry-cen/prizecheck/issues/79",
+          "span_utf16": [
+            11382,
+            11469
+          ]
+        },
+        {
+          "quote": "the current single-source behavior stays authoritative until this work lands.",
+          "field": "body",
+          "url": "https://github.com/ry-cen/prizecheck/issues/79",
+          "span_utf16": [
+            40323,
+            40400
+          ]
+        }
+      ],
+      "url": "https://github.com/ry-cen/prizecheck/issues/79",
+      "title": "Spec: Collector workspace",
+      "frozen_github_state": "open",
+      "coverage": {
+        "method": "Bounded windows; selected latest comments; focused specification sections. Not exhaustive.",
+        "body_reviewed_spans_utf16": [
+          [
+            0,
+            5500
+          ],
+          [
+            9039,
+            11932
+          ],
+          [
+            20506,
+            24355
+          ],
+          [
+            37901,
+            40401
+          ]
+        ],
+        "body_acquired_length_utf16": 40401,
+        "body_acquisition_truncated": false,
+        "comments_acquired": 0,
+        "declared_comment_count": 0,
+        "comments_complete_metadata": true,
+        "comments_reviewed": [],
+        "extra_heading_triage": true
+      },
+      "finite_case_ids": [
+        "I12-C1",
+        "I12-C2",
+        "I12-C3"
+      ]
+    },
+    {
+      "index": 13,
+      "classification": "unverified_scan_evaluation_request",
+      "remaining_demand": "Evaluate scan hypotheses and fix appropriate findings while preserving API. Reviewed candidates concern documentation parsing, process count, HTML URL escaping and archive paths.",
+      "requested_operation_and_constraints": "Trusted code input only, stable API, Python >=3.14 assumption. Proposed patches sometimes visibly mismatch descriptions or policy; do not treat all as accepted requirements.",
+      "resolved_or_blocked_status": "Open evaluation, not confirmed vulnerabilities or accepted fixes.",
+      "uncertainties": [
+        "Middle findings unread, target code absent: validity/severity unknown.",
+        "Description/patch disagreement prevents normative oracle extraction."
+      ],
+      "finite_case_assessment": "None: evaluation request and inconsistent proposed fixes do not settle finite behavioral expectations.",
+      "evidence": [
+        {
+          "quote": "This reported issues might well be incorrect.",
+          "field": "body",
+          "url": "https://github.com/schwehr/jsdoctor/issues/88",
+          "span_utf16": [
+            124,
+            169
+          ]
+        },
+        {
+          "quote": "At this time, jsdoctor should keep the API stable",
+          "field": "body",
+          "url": "https://github.com/schwehr/jsdoctor/issues/88",
+          "span_utf16": [
+            172,
+            221
+          ]
+        }
+      ],
+      "url": "https://github.com/schwehr/jsdoctor/issues/88",
+      "title": "Evaluate LLM security scan and fix when appropriate",
+      "frozen_github_state": "open",
+      "coverage": {
+        "method": "Bounded windows; selected latest comments; focused specification sections. Not exhaustive.",
+        "body_reviewed_spans_utf16": [
+          [
+            0,
+            5500
+          ],
+          [
+            29865,
+            32365
+          ]
+        ],
+        "body_acquired_length_utf16": 32365,
+        "body_acquisition_truncated": false,
+        "comments_acquired": 0,
+        "declared_comment_count": 0,
+        "comments_complete_metadata": true,
+        "comments_reviewed": [],
+        "extra_heading_triage": false
+      },
+      "finite_case_ids": []
+    },
+    {
+      "index": 14,
+      "classification": "active_scientific_validation_roadmap",
+      "remaining_demand": "Close N8–N11 quantitative gaps: Schur acceptance, pressure/velocity physical matrix, difficult-mesh families, conservation/boundedness through production paths.",
+      "requested_operation_and_constraints": "Exact revision evidence, independent true residual/flux reconstruction and physical convergence; no tolerance relaxation or broad qualification from partial Poisson success. Latest body supersedes older status.",
+      "resolved_or_blocked_status": "Partial/open or non-qualified. Some PRs merged, others closed unmerged; negative-test PR remains open. Body #852 progress is newer than latest comment.",
+      "uncertainties": [
+        "Truncated body, historical middle and 65 earlier comments unread; comment 65 first 3000 characters only.",
+        "Physical fixtures and acceptance population unavailable."
+      ],
+      "finite_case_assessment": "None: toy solver inputs cannot substitute for required representative scientific qualification.",
+      "evidence": [
+        {
+          "quote": "La qualification physique complète n'est pas démontrée.",
+          "field": "body",
+          "url": "https://github.com/stevendaix/cfdx_dev/issues/34",
+          "span_utf16": [
+            1631,
+            1686
+          ]
+        },
+        {
+          "quote": "Ne pas transformer le succès d'un sous-domaine en qualification générale N10.",
+          "field": "body",
+          "url": "https://github.com/stevendaix/cfdx_dev/issues/34",
+          "span_utf16": [
+            3015,
+            3092
+          ]
+        },
+        {
+          "quote": "implementation ≠ verification ≠ validation ≠ qualification",
+          "field": "body",
+          "url": "https://github.com/stevendaix/cfdx_dev/issues/34",
+          "span_utf16": [
+            5311,
+            5369
+          ]
+        }
+      ],
+      "url": "https://github.com/stevendaix/cfdx_dev/issues/34",
+      "title": "Roadmap globale CFDX — audit spec → implementation → validation → CI → merge",
+      "frozen_github_state": "open",
+      "coverage": {
+        "method": "Bounded windows; selected latest comments; focused specification sections. Not exhaustive.",
+        "body_reviewed_spans_utf16": [
+          [
+            0,
+            5500
+          ],
+          [
+            63096,
+            65596
+          ]
+        ],
+        "body_acquired_length_utf16": 65596,
+        "body_acquisition_truncated": true,
+        "comments_acquired": 68,
+        "declared_comment_count": 68,
+        "comments_complete_metadata": true,
+        "comments_reviewed": [
+          {
+            "comment_index": 65,
+            "url": "https://github.com/stevendaix/cfdx_dev/issues/34#issuecomment-5966913429",
+            "reviewed_span_utf16": [
+              0,
+              3000
+            ],
+            "acquired_length_utf16": 3961,
+            "acquisition_truncated": false
+          },
+          {
+            "comment_index": 66,
+            "url": "https://github.com/stevendaix/cfdx_dev/issues/34#issuecomment-5967012233",
+            "reviewed_span_utf16": [
+              0,
+              788
+            ],
+            "acquired_length_utf16": 788,
+            "acquisition_truncated": false
+          },
+          {
+            "comment_index": 67,
+            "url": "https://github.com/stevendaix/cfdx_dev/issues/34#issuecomment-6099779025",
+            "reviewed_span_utf16": [
+              0,
+              928
+            ],
+            "acquired_length_utf16": 928,
+            "acquisition_truncated": false
+          }
+        ],
+        "extra_heading_triage": false
+      },
+      "finite_case_ids": []
+    },
+    {
+      "index": 15,
+      "classification": "active_measured_symbolic_solver_research",
+      "remaining_demand": "Reduce template/rule clauses and literals without changing answers or slowing workloads. Latest round prioritizes proved minimization, constant facts and demand-driven relation glue; later work sequenced behind existing changes.",
+      "requested_operation_and_constraints": "Pinned corpus measurements, soundness with infinities/assumptions, prove against actual instantiated rule block. Fewer clauses do not imply faster; avoid slow build-time minimization.",
+      "resolved_or_blocked_status": "Original proposals partly superseded by experiments. Latest R1–R6 work remains proposed; MONO gives more answers but is not cheaper.",
+      "uncertainties": [
+        "Middle proposals and roughly 1500 characters of second comment unread.",
+        "Original missing-answer examples may now be handled; each current residual is unknown. No corpus/results verification."
+      ],
+      "finite_case_assessment": "None frozen for active demand: original symbolic examples could be regression seeds, but remaining functionality is unconfirmed. Minimization needs absent clause/rule inputs.",
+      "evidence": [
+        {
+          "comment_index": 0,
+          "quote": "the propagator is **not cheaper**",
+          "field": "comment.body",
+          "url": "https://github.com/tilorc-bot/satassume/issues/149#issuecomment-6102880215",
+          "span_utf16": [
+            320,
+            353
+          ]
+        },
+        {
+          "comment_index": 1,
+          "quote": "R1a (Add/Mul rows + `tools/minimise.py`) first",
+          "field": "comment.body",
+          "url": "https://github.com/tilorc-bot/satassume/issues/149#issuecomment-6104941899",
+          "span_utf16": [
+            10114,
+            10160
+          ]
+        },
+        {
+          "comment_index": 1,
+          "quote": "prove against it, not `RULE_CLAUSES`",
+          "field": "comment.body",
+          "url": "https://github.com/tilorc-bot/satassume/issues/149#issuecomment-6104941899",
+          "span_utf16": [
+            4768,
+            4804
+          ]
+        }
+      ],
+      "url": "https://github.com/tilorc-bot/satassume/issues/149",
+      "title": "New theories that shrink the predicate rules (theory loop)",
+      "frozen_github_state": "open",
+      "coverage": {
+        "method": "Bounded windows; selected latest comments; focused specification sections. Not exhaustive.",
+        "body_reviewed_spans_utf16": [
+          [
+            0,
+            6500
+          ],
+          [
+            24095,
+            27095
+          ]
+        ],
+        "body_acquired_length_utf16": 27095,
+        "body_acquisition_truncated": false,
+        "comments_acquired": 2,
+        "declared_comment_count": 2,
+        "comments_complete_metadata": true,
+        "comments_reviewed": [
+          {
+            "comment_index": 0,
+            "url": "https://github.com/tilorc-bot/satassume/issues/149#issuecomment-6102880215",
+            "reviewed_span_utf16": [
+              0,
+              976
+            ],
+            "acquired_length_utf16": 976,
+            "acquisition_truncated": false
+          },
+          {
+            "comment_index": 1,
+            "url": "https://github.com/tilorc-bot/satassume/issues/149#issuecomment-6104941899",
+            "reviewed_span_utf16": [
+              0,
+              7000
+            ],
+            "acquired_length_utf16": 10779,
+            "acquisition_truncated": false
+          },
+          {
+            "comment_index": 1,
+            "url": "https://github.com/tilorc-bot/satassume/issues/149#issuecomment-6104941899",
+            "reviewed_span_utf16": [
+              8500,
+              10779
+            ],
+            "acquired_length_utf16": 10779,
+            "acquisition_truncated": false
+          }
+        ],
+        "extra_heading_triage": true
+      },
+      "finite_case_ids": []
+    },
+    {
+      "index": 16,
+      "classification": "standing_owner_collector_incomplete_acquisition",
+      "remaining_demand": "Collect/resolve owner decisions from existing project reviews. Reviewed items mostly struck or ruled; exact current pending proposals cannot be established.",
+      "requested_operation_and_constraints": "Collector is durability fallback, never automatically implementation. Declines retain revisit triggers. Embedded instructions analyzed only as content.",
+      "resolved_or_blocked_status": "Intentionally open while calibrated; not an unfinished implementation signal. Last nonempty comment partially truncated, later bodies absent.",
+      "uncertainties": [
+        "87 of 269 comment bodies empty and truncated; 89 comments truncated in total despite comments_complete=true.",
+        "Truncated historical body; only last two nonempty comments read, not unavailable later decisions.",
+        "No exhaustive absence claim."
+      ],
+      "finite_case_assessment": "None: missing owner decisions and standing coordination artifact cannot ground finite implementation demand.",
+      "evidence": [
+        {
+          "quote": "It is the durability fallback, not a queue",
+          "field": "body",
+          "url": "https://github.com/zwrose/superheroes/issues/695",
+          "span_utf16": [
+            3824,
+            3866
+          ]
+        },
+        {
+          "quote": "Never promoted to a build; never closed while the project is calibrated.",
+          "field": "body",
+          "url": "https://github.com/zwrose/superheroes/issues/695",
+          "span_utf16": [
+            4881,
+            4953
+          ]
+        }
+      ],
+      "url": "https://github.com/zwrose/superheroes/issues/695",
+      "title": "chore(superheroes): vet-proposals collector — standing (Tier-2 items awaiting the owner's word)",
+      "frozen_github_state": "open",
+      "coverage": {
+        "method": "Bounded windows; selected latest comments; focused specification sections. Not exhaustive.",
+        "body_reviewed_spans_utf16": [
+          [
+            0,
+            6500
+          ],
+          [
+            62536,
+            65536
+          ]
+        ],
+        "body_acquired_length_utf16": 65536,
+        "body_acquisition_truncated": true,
+        "comments_acquired": 269,
+        "declared_comment_count": 269,
+        "comments_complete_metadata": true,
+        "comments_reviewed": [
+          {
+            "comment_index": 180,
+            "url": "https://github.com/zwrose/superheroes/issues/695#issuecomment-5742450466",
+            "reviewed_span_utf16": [
+              0,
+              970
+            ],
+            "acquired_length_utf16": 970,
+            "acquisition_truncated": false
+          },
+          {
+            "comment_index": 181,
+            "url": "https://github.com/zwrose/superheroes/issues/695#issuecomment-5744178557",
+            "reviewed_span_utf16": [
+              0,
+              3322
+            ],
+            "acquired_length_utf16": 3322,
+            "acquisition_truncated": true
+          }
+        ],
+        "extra_heading_triage": false
+      },
+      "finite_case_ids": []
+    }
+  ],
+  "finite_cases": [
+    {
+      "id": "I7-C1",
+      "issue_index": 7,
+      "operation": "Convert an accepted decimal parameter to integer base-unit count",
+      "input": {
+        "row": "band-1-frequency",
+        "precision": 2,
+        "decimal": "120",
+        "assume_declared_bounds_include_value": true
+      },
+      "expected_output": {
+        "accepted": true,
+        "integer_count": 12000
+      },
+      "basis": "Explicit round-values table",
+      "evidence_indexes": [
+        1
+      ],
+      "scope_limit": "Domain contract; no API shape, binary conversion or full migration acceptance."
+    },
+    {
+      "id": "I7-C2",
+      "issue_index": 7,
+      "operation": "Normalize equivalent decimal spellings on precision-4 lattice",
+      "input": {
+        "precision": 4,
+        "min_count": 0,
+        "max_count": 10000,
+        "decimals": [
+          "0.3",
+          "0.30",
+          "+0.300",
+          "3e-1",
+          "0.3000000"
+        ]
+      },
+      "expected_output": {
+        "accepted": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "integer_counts": [
+          3000,
+          3000,
+          3000,
+          3000,
+          3000
+        ]
+      },
+      "basis": "Explicit spelling equivalence and decimal scaling law; synthetic valid bounds",
+      "evidence_indexes": [
+        2
+      ],
+      "scope_limit": "Integer identity only. Does not change session writer to fixed-width output: W-A leaves it unchanged."
+    },
+    {
+      "id": "I7-C3",
+      "issue_index": 7,
+      "operation": "Reject off-grid declared upper bound",
+      "input": {
+        "precision": 4,
+        "minimum": "0",
+        "maximum": "0.99999",
+        "default": "0.5"
+      },
+      "expected_output": {
+        "accepted": false,
+        "error_category": "Declaration"
+      },
+      "basis": "Explicit section 8.9 negative example",
+      "evidence_indexes": [
+        3
+      ],
+      "scope_limit": "Issue names error category; message/API exception type unspecified."
+    },
+    {
+      "id": "I7-C4",
+      "issue_index": 7,
+      "operation": "Locate declared off-grid Q default in ordered members",
+      "input": {
+        "precision": 4,
+        "minimum": "0.1",
+        "maximum": "18.0",
+        "off_grid_default": "0.70710677"
+      },
+      "expected_output": {
+        "accepted": true,
+        "rank": 6072,
+        "f32_bits_hex": "0x3f3504f3"
+      },
+      "basis": "Explicit section 8.9 positive acceptance for Q rows",
+      "evidence_indexes": [
+        4
+      ],
+      "scope_limit": "One declared default escape, not arbitrary off-grid values."
+    },
+    {
+      "id": "I12-C1",
+      "issue_index": 12,
+      "operation": "Commit mixed-source Move, then newest eligible Undo",
+      "input": {
+        "edition": "E",
+        "holdings_before": {
+          "A": 2,
+          "B": 3,
+          "C": 1
+        },
+        "selected_quantities": {
+          "A": 1,
+          "B": 2,
+          "C": 1
+        },
+        "destination": "C",
+        "preconditions": "All Storage Leaves of one owner; matching versions, sufficient quantities, no overflow. Immediate newest eligible Undo, no intervening changes."
+      },
+      "expected_output": {
+        "move": {
+          "holdings": {
+            "A": 1,
+            "B": 1,
+            "C": 4
+          },
+          "moved_copy_count": 3,
+          "moved_edition_count": 1,
+          "already_at_destination_copy_count": 1
+        },
+        "undo": {
+          "holdings": {
+            "A": 2,
+            "B": 3,
+            "C": 1
+          }
+        }
+      },
+      "basis": "Exclude items already at destination; atomic transfer and one Undo restoring original sources",
+      "evidence_indexes": [
+        1,
+        4
+      ],
+      "scope_limit": "Synthetic fixture. No guessed revision increment or source-count convention for excluded items."
+    },
+    {
+      "id": "I12-C2",
+      "issue_index": 12,
+      "operation": "Reject atomic Move with stale source version",
+      "input": {
+        "edition": "E",
+        "holdings_before": {
+          "A": 2,
+          "B": 3,
+          "C": 1
+        },
+        "selected_quantities": {
+          "A": 1,
+          "B": 2
+        },
+        "destination": "C",
+        "versions": {
+          "A": {
+            "expected": 1,
+            "actual": 1
+          },
+          "B": {
+            "expected": 1,
+            "actual": 2
+          }
+        },
+        "preconditions": "All other owner/leaf/quantity/overflow checks pass."
+      },
+      "expected_output": {
+        "accepted": false,
+        "error_category": "stale Holding",
+        "affected_source": "B",
+        "affected_edition": "E",
+        "holdings": {
+          "A": 2,
+          "B": 3,
+          "C": 1
+        },
+        "selection_preserved": true
+      },
+      "basis": "Any validation failure aborts whole operation; failure names source/edition and preserves selection",
+      "evidence_indexes": [
+        2
+      ],
+      "scope_limit": "Conceptual error category; existing wire code not supplied or guessed."
+    },
+    {
+      "id": "I12-C3",
+      "issue_index": 12,
+      "operation": "Reject Move where all selected copies already at destination",
+      "input": {
+        "edition": "E",
+        "holdings_before": {
+          "C": 2
+        },
+        "selected_quantities": {
+          "C": 1
+        },
+        "destination": "C",
+        "preconditions": "Valid owner/Storage Leaf/version; no other staged items."
+      },
+      "expected_output": {
+        "accepted": false,
+        "error_category": "no-op",
+        "holdings": {
+          "C": 2
+        }
+      },
+      "basis": "Explicit all-items-excluded commit rule",
+      "evidence_indexes": [
+        3
+      ],
+      "scope_limit": "Domain result, exact API error spelling unspecified."
+    }
+  ],
+  "frozen_at_utc": "2026-10-11T12:36:10.6894906Z",
+  "input_file": "blind-discussions.json",
+  "input_sha256": "7632d437e5287a75ec72b60c1adfa883b7304b643f0f22ee51f98f32b7b3460d",
+  "summary": {
+    "reviewed_issue_count": 17,
+    "issues_with_finite_cases": [
+      7,
+      12
+    ],
+    "finite_case_count": 7,
+    "critical_acquisition_gap": "Index 16 has 87 empty truncated comment bodies and 89 truncated comments of 269, despite comments_complete=true."
+  }
+}

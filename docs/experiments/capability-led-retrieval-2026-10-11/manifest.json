@@ -1,0 +1,74 @@
+{
+  "status": "prepared_not_executed",
+  "code_commit": "62398c8334f10589ef1cb364bcc6ef4fced335c5",
+  "prepared_at": "2026-10-11T12:18:20.146993+00:00",
+  "source_corpus_sha256": "38e39c089ede4b23b823cec55beb338986f06acf40d0ca45ea8dec0261a84fde",
+  "model": "gpt-6-luna",
+  "api_kind": "responses",
+  "response_format": "json_schema",
+  "reasoning_effort": "medium",
+  "streaming": true,
+  "max_tokens": 12000,
+  "max_request_bytes": 180000,
+  "input_usd_per_million": 0.1,
+  "output_usd_per_million": 0.5,
+  "new_cap_usd": 0.1,
+  "max_calls": 3,
+  "retries": 0,
+  "requests": [
+    {
+      "index": 0,
+      "repository": "more-itertools/more-itertools",
+      "request_file": "request-01.json",
+      "request_sha256": "c801ec5966aaa605dbf8d5d72f7bb765bbe5eca2f1095f558951ee5be0a6372f",
+      "request_bytes": 131874,
+      "reservation_usd": 0.019392200000000002,
+      "phase": "capabilities"
+    },
+    {
+      "index": 1,
+      "repository": "mahmoud/boltons",
+      "request_file": "request-02.json",
+      "request_sha256": "6910a0daa9aea5feb0a47652d7244f8cf43df360fd651b789702c0940e2e7b14",
+      "request_bytes": 57802,
+      "reservation_usd": 0.011985,
+      "phase": "capabilities"
+    },
+    {
+      "index": 2,
+      "repository": "networkx/networkx",
+      "request_file": "request-03.json",
+      "request_sha256": "02f564c26bf5aef2b7a89b21fd7c78ecaba49ebb73a02c39391319f8a59947e2",
+      "request_bytes": 129123,
+      "reservation_usd": 0.019117099999999998,
+      "phase": "capabilities"
+    }
+  ],
+  "baseline_queries": [
+    {
+      "repository": "more-itertools/more-itertools",
+      "queries": [
+        "take first items iterable list is:open in:title,body -repo:more-itertools/more-itertools",
+        "tabulate iterator over results func start is:open in:title,body -repo:more-itertools/more-itertools",
+        "tail iterator over last items iterable is:open in:title,body -repo:more-itertools/more-itertools"
+      ]
+    },
+    {
+      "repository": "mahmoud/boltons",
+      "queries": [
+        "clamp limit value given range is:open in:title,body -repo:mahmoud/boltons",
+        "ceil ceiling options smallest is:open in:title,body -repo:mahmoud/boltons",
+        "floor options largest is:open in:title,body -repo:mahmoud/boltons"
+      ]
+    },
+    {
+      "repository": "networkx/networkx",
+      "queries": [
+        "descendants all nodes reachable source is:open in:title,body -repo:networkx/networkx",
+        "ancestors all nodes having path source is:open in:title,body -repo:networkx/networkx",
+        "has cycle decides whether directed graph is:open in:title,body -repo:networkx/networkx"
+      ]
+    }
+  ],
+  "conservative_total_usd": 0.0504943
+}

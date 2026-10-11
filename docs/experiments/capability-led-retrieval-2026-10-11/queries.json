@@ -1,0 +1,200 @@
+[
+  {
+    "id": 0,
+    "arm": "structural",
+    "source_index": 0,
+    "source": "more-itertools/more-itertools",
+    "query_index": 0,
+    "query": "take first items iterable list is:open in:title,body -repo:more-itertools/more-itertools is:issue is:public",
+    "sort": "updated",
+    "order": "desc",
+    "topn": 3
+  },
+  {
+    "id": 1,
+    "arm": "structural",
+    "source_index": 0,
+    "source": "more-itertools/more-itertools",
+    "query_index": 1,
+    "query": "tabulate iterator over results func start is:open in:title,body -repo:more-itertools/more-itertools is:issue is:public",
+    "sort": "updated",
+    "order": "desc",
+    "topn": 3
+  },
+  {
+    "id": 2,
+    "arm": "structural",
+    "source_index": 0,
+    "source": "more-itertools/more-itertools",
+    "query_index": 2,
+    "query": "tail iterator over last items iterable is:open in:title,body -repo:more-itertools/more-itertools is:issue is:public",
+    "sort": "updated",
+    "order": "desc",
+    "topn": 3
+  },
+  {
+    "id": 3,
+    "arm": "structural",
+    "source_index": 1,
+    "source": "mahmoud/boltons",
+    "query_index": 0,
+    "query": "clamp limit value given range is:open in:title,body -repo:mahmoud/boltons is:issue is:public",
+    "sort": "updated",
+    "order": "desc",
+    "topn": 3
+  },
+  {
+    "id": 4,
+    "arm": "structural",
+    "source_index": 1,
+    "source": "mahmoud/boltons",
+    "query_index": 1,
+    "query": "ceil ceiling options smallest is:open in:title,body -repo:mahmoud/boltons is:issue is:public",
+    "sort": "updated",
+    "order": "desc",
+    "topn": 3
+  },
+  {
+    "id": 5,
+    "arm": "structural",
+    "source_index": 1,
+    "source": "mahmoud/boltons",
+    "query_index": 2,
+    "query": "floor options largest is:open in:title,body -repo:mahmoud/boltons is:issue is:public",
+    "sort": "updated",
+    "order": "desc",
+    "topn": 3
+  },
+  {
+    "id": 6,
+    "arm": "structural",
+    "source_index": 2,
+    "source": "networkx/networkx",
+    "query_index": 0,
+    "query": "descendants all nodes reachable source is:open in:title,body -repo:networkx/networkx is:issue is:public",
+    "sort": "updated",
+    "order": "desc",
+    "topn": 3
+  },
+  {
+    "id": 7,
+    "arm": "structural",
+    "source_index": 2,
+    "source": "networkx/networkx",
+    "query_index": 1,
+    "query": "ancestors all nodes having path source is:open in:title,body -repo:networkx/networkx is:issue is:public",
+    "sort": "updated",
+    "order": "desc",
+    "topn": 3
+  },
+  {
+    "id": 8,
+    "arm": "structural",
+    "source_index": 2,
+    "source": "networkx/networkx",
+    "query_index": 2,
+    "query": "has cycle decides whether directed graph is:open in:title,body -repo:networkx/networkx is:issue is:public",
+    "sort": "updated",
+    "order": "desc",
+    "topn": 3
+  },
+  {
+    "id": 9,
+    "arm": "interpreted",
+    "source_index": 0,
+    "source": "more-itertools/more-itertools",
+    "query_index": 0,
+    "query": "python take first iterable items is:open in:title,body -repo:more-itertools/more-itertools is:issue is:public",
+    "sort": "updated",
+    "order": "desc",
+    "topn": 3
+  },
+  {
+    "id": 10,
+    "arm": "interpreted",
+    "source_index": 0,
+    "source": "more-itertools/more-itertools",
+    "query_index": 1,
+    "query": "python iterable fixed size grouping is:open in:title,body -repo:more-itertools/more-itertools is:issue is:public",
+    "sort": "updated",
+    "order": "desc",
+    "topn": 3
+  },
+  {
+    "id": 11,
+    "arm": "interpreted",
+    "source_index": 0,
+    "source": "more-itertools/more-itertools",
+    "query_index": 2,
+    "query": "python lazy predicate partition is:open in:title,body -repo:more-itertools/more-itertools is:issue is:public",
+    "sort": "updated",
+    "order": "desc",
+    "topn": 3
+  },
+  {
+    "id": 12,
+    "arm": "interpreted",
+    "source_index": 1,
+    "source": "mahmoud/boltons",
+    "query_index": 0,
+    "query": "python clamp numeric range is:open in:title,body -repo:mahmoud/boltons is:issue is:public",
+    "sort": "updated",
+    "order": "desc",
+    "topn": 3
+  },
+  {
+    "id": 13,
+    "arm": "interpreted",
+    "source_index": 1,
+    "source": "mahmoud/boltons",
+    "query_index": 1,
+    "query": "python discrete ceiling selection is:open in:title,body -repo:mahmoud/boltons is:issue is:public",
+    "sort": "updated",
+    "order": "desc",
+    "topn": 3
+  },
+  {
+    "id": 14,
+    "arm": "interpreted",
+    "source_index": 1,
+    "source": "mahmoud/boltons",
+    "query_index": 2,
+    "query": "python discrete floor selection is:open in:title,body -repo:mahmoud/boltons is:issue is:public",
+    "sort": "updated",
+    "order": "desc",
+    "topn": 3
+  },
+  {
+    "id": 15,
+    "arm": "interpreted",
+    "source_index": 2,
+    "source": "networkx/networkx",
+    "query_index": 0,
+    "query": "directed acyclic graph validation is:open in:title,body -repo:networkx/networkx is:issue is:public",
+    "sort": "updated",
+    "order": "desc",
+    "topn": 3
+  },
+  {
+    "id": 16,
+    "arm": "interpreted",
+    "source_index": 2,
+    "source": "networkx/networkx",
+    "query_index": 1,
+    "query": "dag topological ordering is:open in:title,body -repo:networkx/networkx is:issue is:public",
+    "sort": "updated",
+    "order": "desc",
+    "topn": 3
+  },
+  {
+    "id": 17,
+    "arm": "interpreted",
+    "source_index": 2,
+    "source": "networkx/networkx",
+    "query_index": 2,
+    "query": "deterministic dag ordering is:open in:title,body -repo:networkx/networkx is:issue is:public",
+    "sort": "updated",
+    "order": "desc",
+    "topn": 3
+  }
+]

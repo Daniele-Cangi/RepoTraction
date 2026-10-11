@@ -1,0 +1,342 @@
+{
+  "search_tool_calls": 18,
+  "metadata_tool_calls": 46,
+  "comment_tool_calls": 9,
+  "search_slots": 53,
+  "unique_pool_urls": 46,
+  "selected_slots": 18,
+  "unique_selected_urls": 17,
+  "comments_acquired": 571,
+  "body_truncations": 5,
+  "comment_truncations": 89,
+  "comments_complete_counts": 17,
+  "historical_overlap": [],
+  "selection_replay": [
+    {
+      "arm": "structural",
+      "source": "more-itertools/more-itertools",
+      "pool_size": 8,
+      "replay_exact": true,
+      "median_query_and_selection_ms": 51.941,
+      "title_overlap": [
+        0,
+        0,
+        0
+      ],
+      "query_coverage": [
+        0,
+        1,
+        2
+      ]
+    },
+    {
+      "arm": "structural",
+      "source": "mahmoud/boltons",
+      "pool_size": 9,
+      "replay_exact": true,
+      "median_query_and_selection_ms": 7.865,
+      "title_overlap": [
+        0,
+        0,
+        0
+      ],
+      "query_coverage": [
+        0,
+        1,
+        2
+      ]
+    },
+    {
+      "arm": "structural",
+      "source": "networkx/networkx",
+      "pool_size": 9,
+      "replay_exact": true,
+      "median_query_and_selection_ms": 23.451,
+      "title_overlap": [
+        1,
+        0,
+        0
+      ],
+      "query_coverage": [
+        0,
+        1,
+        2
+      ]
+    },
+    {
+      "arm": "interpreted",
+      "source": "more-itertools/more-itertools",
+      "pool_size": 8,
+      "replay_exact": true,
+      "median_query_and_selection_ms": 44.072,
+      "title_overlap": [
+        1,
+        0,
+        0
+      ],
+      "query_coverage": [
+        0,
+        1,
+        2
+      ]
+    },
+    {
+      "arm": "interpreted",
+      "source": "mahmoud/boltons",
+      "pool_size": 9,
+      "replay_exact": true,
+      "median_query_and_selection_ms": 7.874,
+      "title_overlap": [
+        0,
+        0,
+        0
+      ],
+      "query_coverage": [
+        0,
+        1,
+        2
+      ]
+    },
+    {
+      "arm": "interpreted",
+      "source": "networkx/networkx",
+      "pool_size": 7,
+      "replay_exact": true,
+      "median_query_and_selection_ms": 19.479,
+      "title_overlap": [
+        0,
+        0,
+        0
+      ],
+      "query_coverage": [
+        0,
+        1,
+        2
+      ]
+    }
+  ],
+  "screening_replay": [
+    {
+      "index": 0,
+      "url": "https://github.com/APPARANYX/grasstex/issues/456",
+      "screen": {
+        "skip": false,
+        "code": "not_screened_out",
+        "policy": "bounded code-dump/manual, reference-only and automated-author hints; explicit issue/query bypass; no replacement or compatibility verdict",
+        "discussion_complete": false,
+        "proves_absence_of_demand": false
+      },
+      "author_type_available": false,
+      "bot_available": false
+    },
+    {
+      "index": 1,
+      "url": "https://github.com/Ankita7033/oss-autocontrib-inbox/issues/74",
+      "screen": {
+        "skip": false,
+        "code": "not_screened_out",
+        "policy": "bounded code-dump/manual, reference-only and automated-author hints; explicit issue/query bypass; no replacement or compatibility verdict",
+        "discussion_complete": false,
+        "proves_absence_of_demand": false
+      },
+      "author_type_available": false,
+      "bot_available": false
+    },
+    {
+      "index": 2,
+      "url": "https://github.com/asdf1589/WebSearchEngine/issues/5",
+      "screen": {
+        "skip": false,
+        "code": "not_screened_out",
+        "policy": "bounded code-dump/manual, reference-only and automated-author hints; explicit issue/query bypass; no replacement or compatibility verdict",
+        "discussion_complete": false,
+        "proves_absence_of_demand": false
+      },
+      "author_type_available": false,
+      "bot_available": false
+    },
+    {
+      "index": 3,
+      "url": "https://github.com/equinor/neqsim/issues/3154",
+      "screen": {
+        "skip": false,
+        "code": "not_screened_out",
+        "policy": "bounded code-dump/manual, reference-only and automated-author hints; explicit issue/query bypass; no replacement or compatibility verdict",
+        "discussion_complete": false,
+        "proves_absence_of_demand": false
+      },
+      "author_type_available": false,
+      "bot_available": false
+    },
+    {
+      "index": 4,
+      "url": "https://github.com/huangyue12120/Learning-Atlas/issues/24",
+      "screen": {
+        "skip": false,
+        "code": "not_screened_out",
+        "policy": "bounded code-dump/manual, reference-only and automated-author hints; explicit issue/query bypass; no replacement or compatibility verdict",
+        "discussion_complete": false,
+        "proves_absence_of_demand": false
+      },
+      "author_type_available": false,
+      "bot_available": false
+    },
+    {
+      "index": 5,
+      "url": "https://github.com/livestorejs/livestore/issues/1497",
+      "screen": {
+        "skip": false,
+        "code": "not_screened_out",
+        "policy": "bounded code-dump/manual, reference-only and automated-author hints; explicit issue/query bypass; no replacement or compatibility verdict",
+        "discussion_complete": false,
+        "proves_absence_of_demand": false
+      },
+      "author_type_available": false,
+      "bot_available": false
+    },
+    {
+      "index": 6,
+      "url": "https://github.com/marsninja/quakepassion/issues/73",
+      "screen": {
+        "skip": false,
+        "code": "not_screened_out",
+        "policy": "bounded code-dump/manual, reference-only and automated-author hints; explicit issue/query bypass; no replacement or compatibility verdict",
+        "discussion_complete": false,
+        "proves_absence_of_demand": false
+      },
+      "author_type_available": false,
+      "bot_available": false
+    },
+    {
+      "index": 7,
+      "url": "https://github.com/misofm/engine/issues/291",
+      "screen": {
+        "skip": false,
+        "code": "not_screened_out",
+        "policy": "bounded code-dump/manual, reference-only and automated-author hints; explicit issue/query bypass; no replacement or compatibility verdict",
+        "discussion_complete": false,
+        "proves_absence_of_demand": false
+      },
+      "author_type_available": false,
+      "bot_available": false
+    },
+    {
+      "index": 8,
+      "url": "https://github.com/mshamblin5150-code/clinical-skills/issues/596",
+      "screen": {
+        "skip": false,
+        "code": "not_screened_out",
+        "policy": "bounded code-dump/manual, reference-only and automated-author hints; explicit issue/query bypass; no replacement or compatibility verdict",
+        "discussion_complete": false,
+        "proves_absence_of_demand": false
+      },
+      "author_type_available": false,
+      "bot_available": false
+    },
+    {
+      "index": 9,
+      "url": "https://github.com/nickderobertis/crozier/issues/493",
+      "screen": {
+        "skip": false,
+        "code": "not_screened_out",
+        "policy": "bounded code-dump/manual, reference-only and automated-author hints; explicit issue/query bypass; no replacement or compatibility verdict",
+        "discussion_complete": false,
+        "proves_absence_of_demand": false
+      },
+      "author_type_available": false,
+      "bot_available": false
+    },
+    {
+      "index": 10,
+      "url": "https://github.com/nisavid/provingkit/issues/12",
+      "screen": {
+        "skip": false,
+        "code": "not_screened_out",
+        "policy": "bounded code-dump/manual, reference-only and automated-author hints; explicit issue/query bypass; no replacement or compatibility verdict",
+        "discussion_complete": false,
+        "proves_absence_of_demand": false
+      },
+      "author_type_available": false,
+      "bot_available": false
+    },
+    {
+      "index": 11,
+      "url": "https://github.com/rickylabs/netscript/issues/2103",
+      "screen": {
+        "skip": false,
+        "code": "not_screened_out",
+        "policy": "bounded code-dump/manual, reference-only and automated-author hints; explicit issue/query bypass; no replacement or compatibility verdict",
+        "discussion_complete": false,
+        "proves_absence_of_demand": false
+      },
+      "author_type_available": false,
+      "bot_available": false
+    },
+    {
+      "index": 12,
+      "url": "https://github.com/ry-cen/prizecheck/issues/79",
+      "screen": {
+        "skip": false,
+        "code": "not_screened_out",
+        "policy": "bounded code-dump/manual, reference-only and automated-author hints; explicit issue/query bypass; no replacement or compatibility verdict",
+        "discussion_complete": false,
+        "proves_absence_of_demand": false
+      },
+      "author_type_available": false,
+      "bot_available": false
+    },
+    {
+      "index": 13,
+      "url": "https://github.com/schwehr/jsdoctor/issues/88",
+      "screen": {
+        "skip": false,
+        "code": "not_screened_out",
+        "policy": "bounded code-dump/manual, reference-only and automated-author hints; explicit issue/query bypass; no replacement or compatibility verdict",
+        "discussion_complete": false,
+        "proves_absence_of_demand": false
+      },
+      "author_type_available": false,
+      "bot_available": false
+    },
+    {
+      "index": 14,
+      "url": "https://github.com/stevendaix/cfdx_dev/issues/34",
+      "screen": {
+        "skip": false,
+        "code": "not_screened_out",
+        "policy": "bounded code-dump/manual, reference-only and automated-author hints; explicit issue/query bypass; no replacement or compatibility verdict",
+        "discussion_complete": false,
+        "proves_absence_of_demand": false
+      },
+      "author_type_available": false,
+      "bot_available": false
+    },
+    {
+      "index": 15,
+      "url": "https://github.com/tilorc-bot/satassume/issues/149",
+      "screen": {
+        "skip": false,
+        "code": "not_screened_out",
+        "policy": "bounded code-dump/manual, reference-only and automated-author hints; explicit issue/query bypass; no replacement or compatibility verdict",
+        "discussion_complete": false,
+        "proves_absence_of_demand": false
+      },
+      "author_type_available": false,
+      "bot_available": false
+    },
+    {
+      "index": 16,
+      "url": "https://github.com/zwrose/superheroes/issues/695",
+      "screen": {
+        "skip": false,
+        "code": "not_screened_out",
+        "policy": "bounded code-dump/manual, reference-only and automated-author hints; explicit issue/query bypass; no replacement or compatibility verdict",
+        "discussion_complete": false,
+        "proves_absence_of_demand": false
+      },
+      "author_type_available": false,
+      "bot_available": false
+    }
+  ],
+  "timing_note": "50 warm local repetitions per arm/source, current Windows Python 3.13; measures only helper computation, not acquisition/review/AI latency. HTTP count and acquisition duration not instrumented."
+}
