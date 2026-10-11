@@ -47,6 +47,47 @@ def _dotted(node):
     return ""
 
 
+def _binding_events(body):
+    """Conservative scope-local writes, including conditional rebinding."""
+    class Writes(ast.NodeVisitor):
+        def __init__(self):
+            self.names = set()
+
+        def visit_Name(self, node):
+            if isinstance(node.ctx, (ast.Store, ast.Del)):
+                self.names.add(node.id)
+
+        def visit_FunctionDef(self, node):
+            self.names.add(node.name)  # Do not descend into another scope.
+
+        visit_AsyncFunctionDef = visit_FunctionDef
+        visit_ClassDef = visit_FunctionDef
+
+        def visit_Import(self, node):
+            self.names.update(a.asname or a.name.split('.')[0] for a in node.names)
+
+        def visit_ImportFrom(self, node):
+            self.names.update(a.asname or a.name for a in node.names)
+
+        def visit_ExceptHandler(self, node):
+            if node.name:
+                self.names.add(node.name)
+            self.generic_visit(node)
+
+        def visit_MatchAs(self, node):
+            if node.name:
+                self.names.add(node.name)
+            self.generic_visit(node)
+
+    result = {}
+    for node in body:
+        writes = Writes()
+        writes.visit(node)
+        for name in sorted(writes.names):
+            result.setdefault(name, []).append(node)
+    return result
+
+
 def package_candidates(repository, package_root, arities, *, limit=40):
     """Return API wrappers, omissions and complete supplied package artifacts.
 
@@ -99,11 +140,21 @@ def package_candidates(repository, package_root, arities, *, limit=40):
         modules[module] = (file, tree, parts[-1] == "__init__")
     if "project/" + package + "/__init__.py" not in package_files:
         raise ValueError("Supply the package initializer and its dependencies.")
-    if len(package_files) > 62 or sum(len(v.encode()) for v in package_files.values()) > MAX_TOTAL_ARTIFACT_BYTES:
+    # A fresh bridge needs four additional artifacts, not just a search driver.
+    if len(package_files) > 60 or sum(len(v.encode()) for v in package_files.values()) > MAX_TOTAL_ARTIFACT_BYTES:
         raise ValueError("Package exceeds existing WASI artifact bounds.")
 
-    aliases = {}
+    aliases, declarations = {}, {}
     for module, (file, tree, initializer) in modules.items():
+        events = _binding_events(tree.body)
+        definitions = {}
+        for symbol, nodes in events.items():
+            direct = [n for n in nodes if isinstance(n, (ast.FunctionDef, ast.ClassDef)) and n.name == symbol]
+            if direct and len(direct) == len(nodes):
+                definitions[symbol] = direct[-1]
+            elif direct:
+                omissions.append({"path": file["path"], "symbol": symbol, "reason": "Rebound module name; runtime source attribution is ambiguous."})
+        declarations[module] = definitions
         names = {}
         for node in tree.body:
             if isinstance(node, ast.ImportFrom):
@@ -111,11 +162,15 @@ def package_candidates(repository, package_root, arities, *, limit=40):
                 prefix = (parent[:len(parent) - node.level + 1] if node.level else [])
                 target = ".".join(prefix + (node.module or "").split(".")).strip(".")
                 for item in node.names:
-                    names[item.asname or item.name] = target + "." + item.name
+                    alias = item.asname or item.name
+                    if events.get(alias) == [node]:
+                        names[alias] = target + "." + item.name
             elif isinstance(node, ast.Import):
                 for item in node.names:
-                    names[item.asname or item.name.split(".")[0]] = item.name if item.asname else item.name.split(".")[0]
-            elif isinstance(node, ast.ClassDef):
+                    alias = item.asname or item.name.split(".")[0]
+                    if events.get(alias) == [node]:
+                        names[alias] = item.name if item.asname else item.name.split(".")[0]
+            elif isinstance(node, ast.ClassDef) and definitions.get(node.name) is node:
                 identity = module + "." + node.name
                 names[node.name] = identity
                 classes[identity] = (module, file, node)
@@ -125,13 +180,24 @@ def package_candidates(repository, package_root, arities, *, limit=40):
         if identity not in classes or identity in active:
             return {}
         module, file, cls = classes[identity]
+        if len(cls.bases) > 1:
+            raise ValueError("Multiple inheritance requires runtime MRO attribution; omitted.")
         result = {}
-        for base in reversed(cls.bases):
+        for base in cls.bases:
             dotted = _dotted(base).split(".")
-            target = ".".join([aliases[module].get(dotted[0], module + "." + dotted[0]), *dotted[1:]])
+            # A missing alias may have been rebound: do not silently fall back
+            # to an earlier class declaration with the same name.
+            target = ".".join([aliases[module].get(dotted[0], ""), *dotted[1:]])
             result.update(members(target, (*active, identity)))
+        events = _binding_events(cls.body)
+        rebound = {name for name, nodes in events.items()
+                   if any(not isinstance(n, ast.FunctionDef) or n.name != name for n in nodes)}
+        if "__init__" in rebound:
+            raise ValueError("Rebound constructor; runtime source attribution is ambiguous.")
+        for name in rebound:
+            result.pop(name, None)
         for node in cls.body:
-            if isinstance(node, ast.FunctionDef):
+            if isinstance(node, ast.FunctionDef) and node.name not in rebound:
                 decorators = {_dotted(d) for d in node.decorator_list}
                 if any(d.endswith((".setter", ".deleter")) for d in decorators):
                     continue
@@ -168,10 +234,7 @@ def package_candidates(repository, package_root, arities, *, limit=40):
     for module, (file, tree, _) in sorted(modules.items()):
         if any(part.startswith("_") for part in module.split(".")[1:]):
             continue  # Imported dependencies stay in the bundle, not in the API catalog.
-        # Overload declarations do not create additional runtime functions.
-        definitions = {node.name: node for node in tree.body
-                       if isinstance(node, (ast.FunctionDef, ast.ClassDef))}
-        for node in definitions.values():
+        for node in declarations[module].values():
             if isinstance(node, ast.FunctionDef) and not node.name.startswith("_"):
                 for arity in sorted(arities):
                     if _accepts(_arity(node), arity):
@@ -179,7 +242,11 @@ def package_candidates(repository, package_root, arities, *, limit=40):
                             {"kind": "function", "function": node.name})
             if not isinstance(node, ast.ClassDef) or node.name.startswith("_"):
                 continue
-            available = members(module + "." + node.name)
+            try:
+                available = members(module + "." + node.name)
+            except ValueError as exc:
+                omissions.append({"path": file["path"], "symbol": node.name, "reason": str(exc)})
+                continue
             init = available.get("__init__")
             factories = [(None, init[1] if init else None, init[0] if init else file)]
             factories += [(key, method, origin) for key, (origin, method, decorators) in available.items()

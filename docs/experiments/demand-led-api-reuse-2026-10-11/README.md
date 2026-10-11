@@ -45,7 +45,8 @@ bounded API grammar is small enough to implement and challenge now.
 
 - `api_reuse.py` parses supplied source without host imports. It enumerates
   public direct functions and one constructor/classmethod-factory followed by a
-  method/property. Inheritance follows literal same-package class bindings.
+  method/property. Inheritance follows literal same-package class bindings;
+  multiple inheritance and rebound module/member names are conservatively omitted.
   Positional arity gates eligibility; ordering is deterministic, not a learned
   or lexical ranking. No method name is supplied as an answer.
 - `prepare_behavior_search(..., package_root=...)` uses that optional catalog.
@@ -157,6 +158,13 @@ state and search order. Their matches carry `independent_replay_required=true`.
 A regression intentionally constructs a warm-only match and shows that its
 fresh export fails. Neither the search observation nor an export plan certifies
 that replay happened. The old slice-only path keeps its fresh-namespace behavior.
+
+Review follow-up excludes ambiguous inheritance/rebinding and reserves the four
+artifacts needed by an export (at most 60 package files). Authored regressions
+cover diamond inheritance, descendants, class/function/member rebinding and the
+60/61/62-file boundary. Regenerating all twelve frozen plans after these fixes
+produces identical candidate identities and executable artifact hashes. Their
+recorded observations still apply; no experiment or historical record was rewritten.
 
 The corrected 12-search study, one export and one stdlib comparison took
 **43.956 seconds** wall time, including bookkeeping. Search runner durations sum

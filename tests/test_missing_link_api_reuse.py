@@ -192,12 +192,52 @@ class PackageReuseTests(unittest.TestCase):
                 prepare_behavior_search(repo, [contract()], package_root="labpkg")
 
     def test_package_and_wrappers_share_existing_artifact_limits(self):
-        files = {**OWN_PACKAGE, **{f"labpkg/helper{i}.py": "" for i in range(58)}}
+        files = {**OWN_PACKAGE, **{f"labpkg/helper{i}.py": "" for i in range(57)}}
         plan = prepare_behavior_search(snapshot(files), [contract()], package_root="labpkg")
         self.assertLessEqual(len(plan["files"]), 64)
-        self.assertEqual(len(plan["candidates"]), 2)
+        self.assertEqual(len(plan["candidates"]), 3)
         self.assertTrue(plan["omissions"])
         self.assertLessEqual(sum(len(v.encode()) for v in plan["files"].values()), 2000000)
+        for extra in (1, 2):
+            oversized = {**files, **{f"labpkg/extra{i}.py": "" for i in range(extra)}}
+            with self.assertRaisesRegex(ValueError, "artifact bounds"):
+                prepare_behavior_search(snapshot(oversized), [contract()], package_root="labpkg")
+
+    def test_ambiguous_diamond_and_its_descendants_are_omitted(self):
+        source = '''class A:
+    def f(self, x, y): return "A"
+class B(A): pass
+class C(A):
+    def f(self, x, y): return "C"
+class D(B, C): pass
+class E(D): pass
+'''
+        plan = prepare_behavior_search(snapshot({"labpkg/__init__.py": source}), [contract()], package_root="labpkg")
+        self.assertTrue(any(":C." in c["entrypoint"] for c in plan["candidates"]))
+        self.assertFalse(any(":D." in c["entrypoint"] or ":E." in c["entrypoint"] for c in plan["candidates"]))
+        self.assertEqual({o["symbol"] for o in plan["omissions"]}, {"D", "E"})
+
+    def test_module_and_member_rebinding_cannot_cite_an_earlier_definition(self):
+        source = '''class Claimed:
+    def f(self, x, y): return "claimed"
+class Actual:
+    def f(self, x, y): return "actual"
+Claimed = Actual
+def f(x, y): return "first"
+from elsewhere import f
+class Member:
+    def f(self, x, y): return "first"
+    f = Actual.f
+class Conditional:
+    def f(self, x, y): return "first"
+if True:
+    Conditional = Actual
+class Child(Claimed): pass
+'''
+        plan = prepare_behavior_search(snapshot({"labpkg/__init__.py": source}), [contract()], package_root="labpkg")
+        entries = [c["entrypoint"] for c in plan["candidates"]]
+        self.assertEqual(entries, ["labpkg:Actual.__init__[0].f"])
+        self.assertEqual({o["symbol"] for o in plan["omissions"]}, {"Claimed", "f", "Conditional"})
 
 
 if __name__ == "__main__":
