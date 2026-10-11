@@ -1,0 +1,77 @@
+{
+  "case-01": {
+    "job_id": "895201520d0d49da95347c5be34bd206",
+    "candidate_index": 1,
+    "url": "https://github.com/Murdock135/dotfiles/issues/8"
+  },
+  "case-02": {
+    "job_id": "895201520d0d49da95347c5be34bd206",
+    "candidate_index": 4,
+    "url": "https://github.com/Q00/ouroboros/issues/2546"
+  },
+  "case-03": {
+    "job_id": "eef9a4f892bb4ea1bdf32690b086d144",
+    "candidate_index": 2,
+    "url": "https://github.com/grafana/loki/issues/22376"
+  },
+  "case-04": {
+    "job_id": "097ffc27b5a945d5b124259c7c204d5f",
+    "candidate_index": 3,
+    "url": "https://github.com/dcc-mcp/dcc-mcp-substance3d-painter/issues/18"
+  },
+  "case-05": {
+    "job_id": "097ffc27b5a945d5b124259c7c204d5f",
+    "candidate_index": 0,
+    "url": "https://github.com/Growth-Circle/cadis/issues/4614"
+  },
+  "case-06": {
+    "job_id": "eef9a4f892bb4ea1bdf32690b086d144",
+    "candidate_index": 3,
+    "url": "https://github.com/neohaskell/NeoHaskell/issues/884"
+  },
+  "case-07": {
+    "job_id": "eef9a4f892bb4ea1bdf32690b086d144",
+    "candidate_index": 4,
+    "url": "https://github.com/rubocop/rubocop-performance/issues/515"
+  },
+  "case-08": {
+    "job_id": "097ffc27b5a945d5b124259c7c204d5f",
+    "candidate_index": 2,
+    "url": "https://github.com/neurodesk/neurocontainers/issues/3399"
+  },
+  "case-09": {
+    "job_id": "eef9a4f892bb4ea1bdf32690b086d144",
+    "candidate_index": 0,
+    "url": "https://github.com/Fuzzy-Technologies/TKSBrokerAPI/issues/175"
+  },
+  "case-10": {
+    "job_id": "eef9a4f892bb4ea1bdf32690b086d144",
+    "candidate_index": 1,
+    "url": "https://github.com/usk6666/yorishiro-proxy/issues/137"
+  },
+  "case-11": {
+    "job_id": "895201520d0d49da95347c5be34bd206",
+    "candidate_index": 0,
+    "url": "https://github.com/dnut/Rewrap/issues/22"
+  },
+  "case-12": {
+    "job_id": "895201520d0d49da95347c5be34bd206",
+    "candidate_index": 3,
+    "url": "https://github.com/mozilla/moz-l10n/issues/201"
+  },
+  "case-13": {
+    "job_id": "895201520d0d49da95347c5be34bd206",
+    "candidate_index": 2,
+    "url": "https://github.com/cxu47/ML-big-five/issues/2"
+  },
+  "case-14": {
+    "job_id": "097ffc27b5a945d5b124259c7c204d5f",
+    "candidate_index": 1,
+    "url": "https://github.com/Aldrinerd/Netgrader/issues/19"
+  },
+  "case-15": {
+    "job_id": "097ffc27b5a945d5b124259c7c204d5f",
+    "candidate_index": 4,
+    "url": "https://github.com/C360Studio/semstreams/issues/1140"
+  }
+}
