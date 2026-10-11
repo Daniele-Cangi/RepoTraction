@@ -81,6 +81,26 @@ class DemandSpanTests(unittest.TestCase):
         self.assertTrue(all(item["quote"] in evidence_catalog({}, demand)["q0"]["quote"] for item in spans.values()))
         self.assertFalse(coverage["complete"])
 
+    def test_tab_separated_list_markers_keep_operations_in_distinct_citations(self):
+        for marker in ("-", "+", "*", "1.", "2)"):
+            for whitespace in ("\t", " \t", "\t "):
+                with self.subTest(marker=marker, whitespace=whitespace):
+                    prefix = marker + whitespace
+                    indent = " " * len(prefix)
+                    first = prefix + "Convert values\n" + indent + "without rounding."
+                    second = prefix + "Preserve spelling\n" + indent + "exactly."
+                    demand = dict(issue(), body=first + "\n" + second, comments=[])
+                    data, _ = build_context(None, demand, "request", 180000)
+                    catalog = evidence_catalog({}, demand)
+                    spans, _ = citation_spans(data["sources"], catalog, 18000)
+                    quotes = {entry["quote"] for entry in spans.values()}
+                    # Numeric-dot markers can be their own conservative sentence.
+                    for clause in (first, second):
+                        self.assertIn(clause[len(prefix):] if marker.endswith(".") else clause, quotes)
+                    self.assertFalse(any("Convert values" in quote and "Preserve spelling" in quote
+                                         for quote in quotes))
+                    self.assertTrue(all(quote in catalog["q0"]["quote"] for quote in quotes))
+
     def test_abbreviation_guards_keep_real_punctuation_boundaries_and_original_offsets(self):
         for line, expected in (
                 ("Must support e.g. Windows paths! Must retain i.e. URL casing?",

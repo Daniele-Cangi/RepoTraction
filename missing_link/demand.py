@@ -20,7 +20,7 @@ def _citation_blocks(piece, *, root_opening=False):
     for index, line in enumerate(re.finditer(r"[^\n]+", piece)):
         value = line[0]
         marker = re.match(r"[ \t]*(`{3,}|~{3,})", value)
-        item = re.match(r" *(?:[-+*]|\d+[.)]) +", value) if fence is None else None
+        item = re.match(r" *(?:[-+*]|\d+[.)])[ \t]+", value) if fence is None else None
         indent = len(value) - len(value.lstrip(" "))
         continuation = item_indent is not None and item_indent <= indent < item_indent + 4
         separate = (not value.strip() or fence is not None or marker is not None

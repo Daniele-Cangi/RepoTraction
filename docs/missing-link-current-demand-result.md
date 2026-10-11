@@ -175,10 +175,20 @@ index 11 sentence. No semantic gain or coverage equivalence is inferred.
 
 ## Validation and next decision
 
-Five generic regressions cover wrapped operation/constraint preservation,
+The next review reproduced adjacent list items merging when a marker was
+followed by a tab. The marker matcher now accepts spaces and tabs; the original
+text is never expanded or rewritten. A regression covers all three unordered
+markers, both ordered-marker forms, and mixed space/tab separators. Ten subcases
+failed before the one-line correction and all fifteen pass afterward. Replaying
+the 17 retained discussions produces byte-identical request bodies to the second
+offline comparison, so its measured coverage tradeoffs remain unchanged.
+
+Six generic regressions cover wrapped operation/constraint preservation,
 sentence and Markdown boundaries, omission seams, and long-text byte/quote
-bounds, including list continuations. All **118 focused tests** passed, including
-the citation-fairness suite. The full suite and all Windows/Linux
+bounds, including list continuations and tab-separated markers. All **119 focused
+tests** passed, including the citation-fairness suite. The preceding commit
+`304a965` passed all 1,883 local tests (one skip) and the full Windows/Linux CI;
+the tab-marker correction still requires its own CI. The full suite and all Windows/Linux
 Python 3.10/3.13 CI jobs remain merge requirements; consult the current
 [PR #119 checks](https://github.com/Daniele-Cangi/RepoTraction/pull/119/checks)
 for the exact reviewed commit rather than treating older CI as validation.
