@@ -1,0 +1,10 @@
+[
+  {"id":"reported-diacritic", "names":["Mitnick, Kevin", "Miéville, China"], "expected":["Miéville, China", "Mitnick, Kevin"]},
+  {"id":"reported-case", "names":["Zed, Alice", "van der Whatever, Jane"], "expected":["van der Whatever, Jane", "Zed, Alice"]},
+  {"id":"canonical-tie", "names":["Éclair", "Éclair", "Eclair"], "expected":["Eclair", "Éclair", "Éclair"]},
+  {"id":"original-tie", "names":["muller", "Müller", "Muller"], "expected":["Muller", "Müller", "muller"]},
+  {"id":"casefold", "names":["Straße", "STRASSE", "strasse"], "expected":["STRASSE", "Straße", "strasse"]},
+  {"id":"fallback-name", "names":["Zulu", "álpha"], "sort_names_absent":true, "expected":["álpha", "Zulu"]},
+  {"id":"retain-nonlatin", "names":["東京", "Αθήνα", "Alpha"], "expected":["Alpha", "Αθήνα", "東京"]},
+  {"id":"pagination", "names":["Zulu", "van der Whatever, Jane", "Mitnick, Kevin", "Miéville, China", "álpha", "Beta"], "per_page":2, "expected":["álpha", "Beta", "Miéville, China", "Mitnick, Kevin", "van der Whatever, Jane", "Zulu"]}
+]
