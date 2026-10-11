@@ -1,0 +1,24 @@
+{
+  "protocol_commit": "2a0e5a9",
+  "selection_rule": "First eligible unresolved concrete behavior in full discussion, in fixed three-result order.",
+  "target_revision": "587ebc501ba292539202a1aac3a7f5b0112a08ec",
+  "selected_issue": 13479,
+  "selected_source_url": "https://github.com/pytest-dev/pytest/issues/13479#issuecomment-4906223811",
+  "scope": "Maintainer's still-unresolved classmethod/autouse-fixture silent omission example; not the already fixed original freezegun report.",
+  "exclusions": [
+    {
+      "issue": 13669,
+      "reason": "Original specific symlink attack fixed by merged #14343; residual hardening has competing policy choices and no settled bounded reproduction/acceptance for this cohort.",
+      "resolution_url": "https://github.com/pytest-dev/pytest/pull/14343"
+    },
+    {
+      "issue": 13768,
+      "reason": "Broad thread-safety program with alternative fixture/capture semantics; no single self-contained native reproduction in the request."
+    }
+  ],
+  "caveats": [
+    "The original freezegun class-decoration defect was fixed by upstream #576 and is not the chosen unresolved behavior.",
+    "The selected latest comment permits studying silent fixture omission; exact public introspection API/support policy remains unspecified.",
+    "This is a purposive operational selection, not an unbiased estimate; no donor has been searched or chosen."
+  ]
+}
