@@ -28,6 +28,26 @@ The test exercises `Provider.interpret_request` on saved inputs, not the complet
 ordinary acquisition and Service path. Missing GitHub identities remain unknown;
 the experiment results are keyed by frozen index/URL, not null production IDs.
 
+### Execution boundary used for this diagnostic
+
+The preparation text did not specify the entrypoint clearly enough. Calling
+`Service._execute` would also acquire source/target context and invoke capability
+and match analysis, so it was **not used**. There is no claim that Service has an
+existing request-only mode. After authorization, a one-off local invocation
+called the existing `Provider.interpret_request` for exactly the six saved
+indices, composing the existing Store, Budget, WorkerLease and account verifier.
+No reusable runner, alternate transport or product entrypoint was introduced.
+
+Before the first call it checked the baseline implementation and all six frozen
+input/wire hashes, refused an existing diagnostic database, verified the active
+account and acquired the existing lease. The new persisted allowance and Budget
+had a six-attempt limit and USD 0.10 ceiling. Each call checked the exact outgoing
+wire bytes and used the existing atomic reservation, cancellation/account checks,
+attempt persistence and native-output persistence. There was no retry branch.
+The saved job records six `request` phases, zero GitHub requests, no capability
+or match phase, and completion. This is the concrete execution record for this
+authorized diagnostic, not a new recommended general-purpose execution system.
+
 ## Independent findings
 
 The authorized separate-context reviewer read all 79 requirements against both
