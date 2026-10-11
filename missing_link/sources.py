@@ -305,6 +305,15 @@ def _bot(user: Any) -> bool:
             or str(user.get("login", "")).casefold().endswith("[bot]")))
 
 
+def repository_search_terms(value):
+    if (not isinstance(value, str) or not 2 <= len(value) <= 120
+            or not re.fullmatch(r'[\w +#."-]+', value)
+            or re.search(r'\b(?:OR|AND|NOT)\b', value)
+            or not any(c.isalnum() for c in value)):
+        raise ValueError("Use bounded plain search terms, not qualifiers or URLs.")
+    return value.strip()
+
+
 class PublicGitHub:
     """GitHub data reader with no token access and no mutation methods."""
 
@@ -634,6 +643,36 @@ class PublicGitHub:
                   "limitations": limitations, "fetched_at": _now(), "public": True}
         result["fingerprint"] = _fingerprint({key: value for key, value in result.items() if key != "fetched_at"})
         return result
+
+    def search_repositories(self, terms: str) -> dict[str, Any]:
+        """One public metadata page for a model-chosen operation; no code execution."""
+        query = repository_search_terms(terms) + " is:public archived:false fork:false in:name,description,readme"
+        payload = self._read("search/repositories", {"q": query, "page": 1, "per_page": 20})
+        if not isinstance(payload, dict) or not isinstance(payload.get("items"), list):
+            raise ValueError("GitHub returned an invalid repository search response.")
+        candidates, seen = [], set()
+        for rank, item in enumerate(payload["items"][:20], 1):
+            if (not isinstance(item, dict) or item.get("private") is not False
+                    or item.get("visibility") not in (None, "public") or item.get("archived") or item.get("fork")):
+                continue
+            try:
+                name = validate_repository(item.get("full_name"))
+            except ValueError:
+                continue
+            if name.casefold() in seen:
+                continue
+            seen.add(name.casefold())
+            description, redacted, truncated = _redact(item.get("description"))
+            language, language_redacted, language_truncated = _redact(item.get("language"))
+            candidates.append({"full_name": name, "url": f"https://github.com/{name}",
+                "description": description[:1000], "description_redacted": redacted,
+                "description_truncated": truncated or len(description) > 1000,
+                "language": language[:80], "language_redacted": language_redacted,
+                "language_truncated": language_truncated or len(language) > 80,
+                "upstream_rank": rank, "metadata_only": True})
+        return {"query": query, "items": candidates, "complete": False,
+                "incomplete_results": bool(payload.get("incomplete_results")), "pages_read": 1,
+                "note": "One bounded metadata sample; empty results do not prove absence of implementations."}
 
     def search_issues(self, query: str, max_pages: int = 2, page_size: int = 20) -> dict[str, Any]:
         max_pages = _bounded_int(max_pages, 1, 10, "max_pages")

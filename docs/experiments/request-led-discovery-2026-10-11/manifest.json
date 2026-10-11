@@ -1,0 +1,119 @@
+{
+  "version": "request-led-discovery-v1",
+  "status": "prepared_not_authorized_or_run",
+  "product_base": "d3577eb60b1086ca00e1f3a2c1075835a3fc62ef",
+  "selection_rule": {
+    "query": "is:issue is:open is:public language:Python label:enhancement created:2025-01-01..2025-12-31 comments:>=2",
+    "sort": "created",
+    "order": "desc",
+    "topn": 1,
+    "replacements": false,
+    "frozen_before_search": "docs/missing-link-request-led-discovery.md"
+  },
+  "cases": [
+    {
+      "kind": "historical_control",
+      "url": "https://github.com/pganssle/audio-feeder/issues/81",
+      "baseline": "PR #122: lexical donor selection and native direct stdlib correction",
+      "held_out": false
+    },
+    {
+      "kind": "fresh_primary",
+      "url": "https://github.com/WilliamNT/tunesynctool/issues/21",
+      "issue_id": 3773903220,
+      "title": "Implement subsonic driver get track by isrc",
+      "created_at": "2025-12-31T23:38:26Z",
+      "updated_at": "2026-06-07T19:50:45Z",
+      "state": "open",
+      "comments": [
+        {
+          "id": 3852926908,
+          "url": "https://github.com/WilliamNT/tunesynctool/issues/21#issuecomment-3852926908",
+          "updated_at": "2026-02-05T11:13:33Z",
+          "author_association": "OWNER"
+        },
+        {
+          "id": 4638107577,
+          "url": "https://github.com/WilliamNT/tunesynctool/issues/21#issuecomment-4638107577",
+          "updated_at": "2026-06-06T09:25:59Z",
+          "author_association": "OWNER"
+        },
+        {
+          "id": 4639076356,
+          "url": "https://github.com/WilliamNT/tunesynctool/issues/21#issuecomment-4639076356",
+          "updated_at": "2026-06-06T13:57:28Z",
+          "author_association": "NONE"
+        },
+        {
+          "id": 4643821289,
+          "url": "https://github.com/WilliamNT/tunesynctool/issues/21#issuecomment-4643821289",
+          "updated_at": "2026-06-07T19:50:44Z",
+          "author_association": "OWNER"
+        }
+      ],
+      "target_revision": "b705691ba7d02d34ff3b6423ca03fcfca1514994",
+      "source_candidates_inspected": 0,
+      "prior_named_projects": [
+        "opensubsonic/open-subsonic-api",
+        "sentriz/gonic"
+      ],
+      "target_files": [
+        {
+          "url": "https://github.com/WilliamNT/tunesynctool/blob/b705691ba7d02d34ff3b6423ca03fcfca1514994/pyproject.toml",
+          "git_blob_sha": "970014ddcb72be824f6e1a8bafefec66b42891c7",
+          "characters": 1072
+        },
+        {
+          "url": "https://github.com/WilliamNT/tunesynctool/blob/b705691ba7d02d34ff3b6423ca03fcfca1514994/tunesynctool/drivers/common/subsonic/driver.py",
+          "git_blob_sha": "46d628acb52f66f4a5ff4b42ae58355ba228b95e",
+          "characters": 6751
+        },
+        {
+          "url": "https://github.com/WilliamNT/tunesynctool/blob/b705691ba7d02d34ff3b6423ca03fcfca1514994/tunesynctool/drivers/common/subsonic/async_driver.py",
+          "git_blob_sha": "0a24fe0ad364d8e798983bd4abb7ec3db6c47d4a",
+          "characters": 376
+        },
+        {
+          "url": "https://github.com/WilliamNT/tunesynctool/blob/b705691ba7d02d34ff3b6423ca03fcfca1514994/tunesynctool/drivers/common/subsonic/mapper.py",
+          "git_blob_sha": "6ea2cc13af6b7e597446d981659f6ae3b7cb01cc",
+          "characters": 1914
+        }
+      ]
+    }
+  ],
+  "limits": {
+    "jobs": 2,
+    "max_ai_calls_per_job": 5,
+    "max_calls_total": 10,
+    "max_github_requests_per_job": 120,
+    "max_operations": 3,
+    "repository_search_pages_per_operation": 1,
+    "repository_search_results_per_page": 20,
+    "max_source_inspections_per_job": 1,
+    "retry": false,
+    "resume": false,
+    "manual_donor": false,
+    "manual_query": false
+  },
+  "provider": {
+    "model": "gpt-6-luna",
+    "api_kind": "responses",
+    "response_format": "json_schema",
+    "reasoning_effort": "medium",
+    "streaming": true,
+    "max_prompt_bytes": 180000,
+    "max_output_tokens": 12000,
+    "configured_input_usd_per_million": 0.1,
+    "configured_output_usd_per_million": 0.5,
+    "prices": "existing local configured prices, not a newly verified tariff"
+  },
+  "reservation": {
+    "basis": "10 * (((180000 + 2048) * 0.1 + 12000 * 0.5) / 1000000)",
+    "per_call_upper_bound_usd": 0.0242048,
+    "cohort_upper_bound_usd": 0.242048,
+    "proposed_allowance_usd": 0.25,
+    "budget_id": "request-led-discovery-2026-10-11-v1",
+    "authorization": "not_requested_yet",
+    "actual_calls": 0
+  }
+}

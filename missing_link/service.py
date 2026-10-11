@@ -157,17 +157,18 @@ class Service:
 
     def start(self, data: dict, background=True):
         self._verify()
+        action = data.get("action", "discover")
+        if action not in {"analyze", "discover", "discover_from_request"}:
+            raise ValueError("Unknown investigation action.")
+        from_request = action == "discover_from_request"
         repo = text(data.get("repo", ""), 150)
-        if not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", repo):
+        if not from_request and not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", repo):
             raise ValueError("Choose a repository in OWNER/REPO form.")
         use_ai = data.get("use_ai", False)
         if not isinstance(use_ai, bool):
             raise ValueError("use_ai must be boolean.")
         if use_ai and not self.provider.describe()["configured"]:
             raise ValueError("No AI provider configured. Analyze structurally and export a coding-agent handoff instead.")
-        action = data.get("action", "discover")
-        if action not in {"analyze", "discover"}:
-            raise ValueError("Unknown investigation action.")
         behavioral_examples = data.get("behavioral_examples", False)
         if not isinstance(behavioral_examples, bool) or (behavioral_examples and (not use_ai or action != "discover")):
             raise ValueError("behavioral_examples requires an AI-enabled discover job and must be boolean.")
@@ -175,9 +176,13 @@ class Service:
         if issue and not re.fullmatch(r"https://github\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+/issues/[1-9][0-9]*", issue):
             raise ValueError("Use a public GitHub issue URL, without query or fragment.")
         query = text(data.get("query", ""), 220)
+        if from_request and (repo or query or not issue or not use_ai or behavioral_examples):
+            raise ValueError("Request-led discovery needs AI and one issue, without a supplied source, query or behavioral execution.")
+        if from_request and data.get("max_candidates", 1) != 1:
+            raise ValueError("Request-led discovery inspects at most one autonomously selected source.")
         normalized = {"repo": repo, "action": action, "issue_url": issue, "query": query, "use_ai": use_ai,
             "max_requests": self._bounded_integer(data.get("max_requests"), 80, 5, 200),
-            "max_candidates": self._bounded_integer(data.get("max_candidates"), 5, 1, 10)}
+            "max_candidates": self._bounded_integer(data.get("max_candidates"), 1 if from_request else 5, 1, 10)}
         if behavioral_examples:
             normalized["behavioral_examples"] = True
         with self.lock:
@@ -302,6 +307,14 @@ class Service:
                 if job.get("provider_identity", identity) != identity:
                     raise Paused("Provider/model/contract changed. Start a new job rather than mixing old interpretation checkpoints.")
                 job["provider_identity"] = identity
+            if job["input"]["action"] == "discover_from_request":
+                if not self._prepare_request_discovery(job, source, budget, stage, save):
+                    stage("completed", "Request-led decision saved; no candidate source inspection warranted.")
+                    with self.lock:
+                        budget.checkpoint()
+                        job["status"] = "completed"
+                        save()
+                    return
             stage("repository", "Reading public repository metadata and pinned source.")
             if "repository" not in checkpoints:
                 repository = source.fetch_repository(job["input"]["repo"])
@@ -483,6 +496,97 @@ class Service:
         except Exception as exc:
             job.update(**job_failure(exc, job=job))
         save()
+
+    def _prepare_request_discovery(self, job, source, budget, stage, save):
+        """One demand -> decision -> bounded search -> one source, in this same job.
+
+        The normal interpretation/comparison path below takes over after selection.
+        No replacement sources, extra worker, separate allowance or transport.
+        """
+        from .discovery_decisions import VERSION
+        checkpoints = job["checkpoint"]
+        if checkpoints.get("discovery_version", VERSION) != VERSION:
+            raise Paused("Request-led decision contract changed; start a new investigation.")
+        checkpoints["discovery_version"] = VERSION
+        discussions = checkpoints.setdefault("discussions", {})
+        stage("discussion", "Reading the public need before selecting any source software.")
+        if "0" not in discussions:
+            discussions["0"] = source.fetch_issue(job["input"]["issue_url"])
+            self.store.put("discussions", discussions["0"]["id"], discussions["0"])
+            save()
+        issue = discussions["0"]
+        requests = checkpoints.setdefault("requests", {})
+        if "0" not in requests:
+            stage("requirements", "Interpreting the demand independently of any source package.")
+            requests["0"] = self.provider.interpret_request(issue, budget)
+            save()
+        request = requests["0"]
+        if is_non_demand(request) or request["status"] == "resolved":
+            job["result"]["discovery_decision"] = {"decision": "no_unresolved_request",
+                "reason": request.get("status_reason", ""), "status": "unverified_decision", "qualified": False}
+            save()
+            return False
+        if "target_context" not in issue:
+            stage("target-context", "Reading the target's existing alternatives and constraints.")
+            context = source.fetch_reference_context(issue)
+            issue = dict(issue, target_context=context, fingerprint=digest({
+                "discussion": issue["fingerprint"], "target_context": context["fingerprint"]}))
+            discussions["0"] = issue
+            requests["0"] = request = dict(request, fingerprint=issue["fingerprint"])
+            self.store.put("discussions", issue["id"], issue)
+            save()
+        if "discovery_plan" not in checkpoints:
+            stage("discovery-decision", "Choosing useful operations or a direct solution before searching.")
+            checkpoints["discovery_plan"] = self.provider.plan_discovery(request, issue["target_context"], budget)
+            save()
+        plan = checkpoints["discovery_plan"]
+        job["result"]["discovery_decision"] = plan
+        if plan["decision"] != "search":
+            save()
+            return False
+        stage("source-search", "Searching for the operations selected from the demand.")
+        pools = checkpoints.setdefault("source_searches", {})
+        for operation in plan["operations"]:
+            if operation["id"] not in pools:
+                pools[operation["id"]] = source.search_repositories(operation["search_terms"])
+                save()
+        candidates, seen = [], {}
+        target, _ = parse_issue_url(issue["url"])
+        for operation in plan["operations"]:
+            for item in pools[operation["id"]]["items"]:
+                name = item["full_name"].casefold()
+                if name == target.casefold():
+                    continue
+                if name in seen:
+                    seen[name]["retrieved_for"].append(operation["id"])
+                    continue
+                candidate = dict(item, id=f"source{len(candidates)}", retrieved_for=[operation["id"]])
+                seen[name] = candidate
+                candidates.append(candidate)
+        job["result"]["search"] = {"automatic_source_search": True,
+            "queries": [pool["query"] for pool in pools.values()], "candidates_found": len(candidates),
+            "complete": False, "source_inspection_cap": 1}
+        if "source_selection" not in checkpoints:
+            stage("source-selection", "Comparing candidate mechanisms against the direct alternative.")
+            checkpoints["source_selection"] = (self.provider.select_source(plan, candidates, budget) if candidates else
+                {"decision": "none", "reason": "No eligible repository in the bounded public sample.",
+                 "repository": None, "qualified": False, "status": "unverified_selection"})
+            save()
+        selected = checkpoints["source_selection"]
+        job["result"]["source_selection"] = selected
+        if selected["decision"] == "none":
+            save()
+            return False
+        if "repository" not in checkpoints:
+            stage("repository", "Reading the autonomously selected public implementation.")
+            repository = source.fetch_repository(selected["repository"])
+            repository["capabilities"] = extract_structure(repository)
+            repository["analysis_at"] = now()
+            checkpoints["repository"] = repository
+            save()
+        checkpoints["candidates"] = [{"url": issue["url"]}]
+        save()
+        return True
 
     @staticmethod
     def queries(repository):

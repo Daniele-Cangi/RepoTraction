@@ -328,6 +328,26 @@ class Provider:
             # Never include arbitrary model/example text in public diagnostics.
             raise CandidateValidationError("Invalid independent behavioral proposal; no automatic retry.") from None
 
+    def plan_discovery(self, request: dict, target: dict, budget) -> dict:
+        from .discovery_decisions import PLAN_INSTRUCTION, plan_input, plan_schema, resolve_plan
+        data, schema = plan_input(request, target), plan_schema(request)
+        raw = self.complete(PLAN_INSTRUCTION, data, budget, schema, "request")
+        try:
+            return resolve_plan(raw, request, self.identity())
+        except (ValueError, TypeError, KeyError):
+            raise CandidateValidationError("Invalid request-led discovery decision; no automatic retry.") from None
+
+    def select_source(self, plan: dict, candidates: list, budget) -> dict:
+        from .discovery_decisions import SELECT_INSTRUCTION, selection_schema, resolve_selection
+        data = {"plan": plan, "candidates": candidates,
+                "context_coverage": {"decision_version": plan["version"],
+                                     "repository_metadata_only": True, "source_code_available": False}}
+        raw = self.complete(SELECT_INSTRUCTION, data, budget, selection_schema(plan, candidates), "request")
+        try:
+            return resolve_selection(raw, plan, candidates)
+        except (ValueError, TypeError, KeyError):
+            raise CandidateValidationError("Invalid source selection; no automatic retry.") from None
+
     def interpret_request(self, issue: dict, budget) -> dict:
         instruction = ("Independently extract this public demand without considering ANY candidate repository. "
             "Read subsequent comments for satisfied needs, duplicates, changed requirements, rejected approaches and automation. "
