@@ -332,16 +332,20 @@ def prepare_behavior_bridge(plan, match):
             "            for start, end in operation(universe, selected)]\n")
     cases = contract["examples"] + contract["checks"]
     check = ("import copy\nimport json\nfrom reuse import apply\n"
+        "from behavior_examples import _normal, _equal\n"
         f"cases = {cases!r}\n"
         "for case in cases:\n"
         "    args = copy.deepcopy(case['args'])\n"
-        "    actual = json.loads(json.dumps(apply(*args)))\n"
-        "    assert actual == case['expected'], (case, actual)\n"
-        "    assert args == case['args'], 'input mutation'\n"
+        "    actual = _normal(apply(*args))\n"
+        "    assert _equal(actual, case['expected']), (case, actual)\n"
+        "    assert _equal(args, case['args']), 'input mutation'\n"
         "print(json.dumps({'passed': len(cases), 'scope': 'exported partial adapter', 'target_integrated': False}))\n")
+    from . import behavior_examples
+    from pathlib import Path
+    evaluator = Path(behavior_examples.__file__).read_text(encoding="utf-8")
     return {"kind": "extraction", "entrypoint": "reviewed_tests/verify.py",
         "files": {"project/extracted.py": candidate["code"], "bridge/reuse.py": adapter,
-                  "reviewed_tests/verify.py": check},
+                  "reviewed_tests/verify.py": check, "reviewed_tests/behavior_examples.py": evaluator},
         "evidence": candidate["evidence"], "recipe": recipe,
         "existing_contribution": contract.get("operation", "Observed transformation"),
         "new_logic": "Input/output representation conversion; target-specific features remain unimplemented.",

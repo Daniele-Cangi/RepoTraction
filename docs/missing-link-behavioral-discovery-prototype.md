@@ -253,16 +253,25 @@ Local validation completed without failures:
 | --- | --- |
 | Complete suite, Windows / Python 3.13.5 | 1,847 tests, 1 skipped, 1,168.087 s |
 | Complete suite, Ubuntu WSL / Python 3.12.3 | 1,847 tests, 43 skipped, 1,013.415 s |
-| Latest focused regressions, both systems | 21 passed on each |
+| Latest focused regressions, both systems | 22 passed on each |
 | Application `--help`, both systems | Passed |
 | Staged whitespace check | Passed |
 
 The complete suites collected the earlier 20-test prototype module. The latest
-21-test focused run verifies the final missing-observation handling and export
+22-test focused run verifies the final missing-observation handling and export
 changes; no existing production module was edited. Full-suite logs are retained
 in the new experiment directory. The existing GitHub Actions matrix remains
-Windows/Linux × Python 3.10/3.13. Hosted CI has not run because the branch has not
-been published; the complete hosted matrix remains required before merge.
+Windows/Linux × Python 3.10/3.13. The branch is now published as draft PR #114;
+the complete hosted matrix on the latest head remains required before merge.
+
+The publication review reproduced an export mismatch for generator-valued
+functions: discovery normalized their output, while the exported check attempted
+direct JSON serialization. Exported checks now reuse the existing guest evaluator's
+normalization and strict equality, including boolean/number distinctions. The
+authored generator regression passes on both systems, and the updated RF proposal
+replays all 127 cases inside WASI. Its new receipt is retained separately as
+`data/behavioral-discovery-2026-10-11/proposal-replay-pr114.json`; the original
+experiment fixtures and receipts have not been rewritten.
 
 ## Next functional step
 

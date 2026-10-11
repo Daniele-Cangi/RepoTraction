@@ -2,6 +2,8 @@
 import copy
 import io
 import json
+import subprocess
+import sys
 from contextlib import redirect_stdout
 from pathlib import Path
 import tempfile
@@ -43,10 +45,14 @@ OWN_CODE = '''def hidden(records, selected):
     return result
 '''
 
+OWN_GENERATOR = '''def generated(value):
+    yield value + 1
+'''
+
 
 def execute_authored_fixture(plan):
-    """Exercise the guest evaluator using ONLY OWN_CODE, never acquired source."""
-    if any(c["evidence"]["quote"] != OWN_CODE for c in plan["candidates"]):
+    """Exercise the guest evaluator using ONLY authored fixtures, never acquired source."""
+    if any(c["evidence"]["quote"] not in (OWN_CODE, OWN_GENERATOR) for c in plan["candidates"]):
         raise AssertionError("Host evaluation is restricted to the authored unit fixture.")
     with tempfile.TemporaryDirectory() as directory:
         candidates = []
@@ -164,6 +170,36 @@ class BehavioralTests(unittest.TestCase):
         result = assess_behavior_search(plan, execute_authored_fixture(plan))
         self.assertEqual(result["matches"], [])
         self.assertTrue(any(c["first_failure"]["phase"] == "checks" for c in result["counterexamples"]))
+
+    def test_export_replays_generators_and_preserves_strict_example_types(self):
+        contract = {"id": "iterator", "kind": "synthetic_control", "input_kind": "arguments",
+                    "runtime": "python", "examples": [case([0], [1])], "checks": [case([1], [2])]}
+        plan = prepare_behavior_search(snapshot(OWN_GENERATOR), [contract])
+        result = assess_behavior_search(plan, execute_authored_fixture(plan))
+        proposal = prepare_behavior_bridge(plan, result["matches"][0])
+        # Only the explicitly authored generator and our exported adapter/check
+        # execute on the host. Acquired source fixtures remain data.
+        self.assertEqual(plan["candidates"][0]["evidence"]["quote"], OWN_GENERATOR)
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for path, content in proposal["files"].items():
+                destination = root / path
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                destination.write_text(content, encoding="utf-8")
+            launcher = ("import runpy,sys; from pathlib import Path; p=Path(sys.argv[1]); "
+                        "sys.path[:0]=[str(p/'project'),str(p/'bridge'),str(p/'reviewed_tests')]; "
+                        "runpy.run_path(str(p/'reviewed_tests'/'verify.py'),run_name='__main__')")
+            replay = subprocess.run([sys.executable, "-I", "-c", launcher, str(root)],
+                                    capture_output=True, text=True, timeout=10)
+            self.assertEqual(replay.returncode, 0, replay.stderr)
+            self.assertEqual(json.loads(replay.stdout)["passed"], 2)
+            check_path = root / proposal["entrypoint"]
+            check_path.write_text(check_path.read_text(encoding="utf-8").replace(
+                "'expected': [1]", "'expected': [True]"), encoding="utf-8")
+            replay = subprocess.run([sys.executable, "-I", "-c", launcher, str(root)],
+                                    capture_output=True, text=True, timeout=10)
+            self.assertNotEqual(replay.returncode, 0)
+            self.assertIn("AssertionError", replay.stderr)
 
     def test_similar_range_words_do_not_make_interval_union_match(self):
         contract = {"id": "ranges", "input_kind": "arguments", "kind": "synthetic_control", "runtime": "python",
