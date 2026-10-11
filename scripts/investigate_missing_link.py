@@ -15,14 +15,25 @@ from missing_link.investigation import local_request, run_investigation
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--url", default="http://127.0.0.1:8765")
-    parser.add_argument("--repo", required=True)
+    parser.add_argument("--repo", default="")
+    parser.add_argument("--from-request", action="store_true",
+                        help="Let Missing Link choose operations and one source from the issue; requires --use-ai.")
     parser.add_argument("--issue", action="append", default=[])
     parser.add_argument("--query", default="")
-    parser.add_argument("--max-candidates", type=int, default=2)
+    parser.add_argument("--max-candidates", type=int)
     parser.add_argument("--use-ai", action="store_true")
     parser.add_argument("--report", type=Path, help="New report path; existing reports are never replaced.")
     parser.add_argument("--resume", help="Explicitly resume a failed/paused job as the first selected issue.")
     args = parser.parse_args()
+    if args.from_request:
+        if args.repo or args.query or not args.use_ai or len(args.issue) != 1:
+            parser.error("--from-request needs one --issue and --use-ai, without --repo or --query.")
+        if args.max_candidates not in (None, 1):
+            parser.error("--from-request inspects one autonomously selected source.")
+    elif not args.repo:
+        parser.error("Supply --repo or use --from-request with one --issue.")
+    if args.max_candidates is None:
+        args.max_candidates = 1 if args.from_request else 2
     base = args.url.rstrip("/")
     parsed = urlparse(base)
     if (parsed.hostname not in {"localhost", "127.0.0.1", "::1"} or parsed.scheme != "http"

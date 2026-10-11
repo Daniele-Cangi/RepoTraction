@@ -1,0 +1,52 @@
+{
+  "purpose": "Pre-selection acceptance evidence; separate from the later ordinary Service acquisition.",
+  "url": "https://github.com/WilliamNT/tunesynctool/issues/21",
+  "id": 3773903220,
+  "title": "Implement subsonic driver get track by isrc",
+  "body": "The opensubsonic spec [now supports](https://github.com/opensubsonic/open-subsonic-api/pull/148) optionally returning ISRC values for a track.\n\nI'm working on a PR to add it to [gonic](https://github.com/sentriz/gonic/issues/642), but in the meantime I think it can be implemented here as well.\n\nThis can be really useful, since it will allow getting exact matches between Spotify tracks and subsonic tracks without making any Musicbrainz requests if the subsonic tracks are already properly tagged with an ISRC.",
+  "state": "open",
+  "updated_at": "2026-06-07T19:50:45Z",
+  "reported_comment_count": 4,
+  "comments": [
+    {
+      "id": 3852926908,
+      "url": "https://github.com/WilliamNT/tunesynctool/issues/21#issuecomment-3852926908",
+      "author": "WilliamNT",
+      "author_association": "OWNER",
+      "body": "Thank you for letting me know. Will look into it ASAP.",
+      "updated_at": "2026-02-05T11:13:33Z"
+    },
+    {
+      "id": 4638107577,
+      "url": "https://github.com/WilliamNT/tunesynctool/issues/21#issuecomment-4638107577",
+      "author": "WilliamNT",
+      "author_association": "OWNER",
+      "body": "I have updated the subsonic mapper in the core package to include the ISRC value if present in the server's response. This should already help in some cases. However I left `get_track_by_isrc` as is because I don't see an endpoint that would let us directly fetch by ISRC.",
+      "updated_at": "2026-06-06T09:25:59Z"
+    },
+    {
+      "id": 4639076356,
+      "url": "https://github.com/WilliamNT/tunesynctool/issues/21#issuecomment-4639076356",
+      "author": "gabeklavans",
+      "author_association": "NONE",
+      "body": "Awesome!\n\n> However I left `get_track_by_isrc` as is because I don't see an endpoint that would let us directly fetch by ISRC.\n\nYeah, I haven’t gotten around to solidifying that. \n\nI opened https://github.com/opensubsonic/open-subsonic-api/discussions/240 to try to address this directly (which you can weigh in on, if you’d like).\n\nBut searching in general in subsonic just doesn’t seem fully defined. Gonic now lets you just search by MBID directly in the search endpoint, but that’s just sort of an undocumented convenience. I can do the same with ISRC, but that would be yet another “custom” implementation detail. There’s https://github.com/opensubsonic/open-subsonic-api/discussions/195 trying to add more specifics to queries themselves, and likely other discussions about.\n\nI’d say, for now, you could implement the function by using search3 with the ISRC as the query and maybe throw up a warning that it might just not work. But I also think it’d be reasonable to hold off on calling this feature functional at all until there’s a more specific api support for it.",
+      "updated_at": "2026-06-06T13:57:28Z"
+    },
+    {
+      "id": 4643821289,
+      "url": "https://github.com/WilliamNT/tunesynctool/issues/21#issuecomment-4643821289",
+      "author": "WilliamNT",
+      "author_association": "OWNER",
+      "body": "> Gonic now lets you just search by MBID directly in the search endpoint, but that’s just sort of an undocumented convenience. I can do the same with ISRC, but that would be yet another “custom” implementation detail.\n\nWhile this is off topic for this repository, I like this idea if it conforms the (Open) Subsonic specification. I have to stick to the specification for maintainability and uniformity.\n\n> I’d say, for now, you could implement the function by using search3 with the ISRC as the query and maybe throw up a warning that it might just not work. But I also think it’d be reasonable to hold off on calling this feature functional at all until there’s a more specific api support for it.\n\nSure, this would have the benefit of being \"backwards compatible\" in the sense that even in the worst case scenario the provider just doesn't return any results. I'll look into this.",
+      "updated_at": "2026-06-07T19:50:44Z"
+    }
+  ],
+  "coverage": {
+    "issue_and_all_four_available_comments": true,
+    "timeline_fetched": false,
+    "linked_discussions_fetched": false,
+    "complete_context_claimed": false
+  },
+  "candidates_searched": false,
+  "model_calls": 0
+}
