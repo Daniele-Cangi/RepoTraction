@@ -81,7 +81,7 @@ def plan_input(request, target):
               "truncated": bool(f.get("reference_truncated") or f.get("truncated") or len(f["text"]) > 8000)}
              for f in target.get("files", [])[:4]]
     return {"decision_version": VERSION, "request": request,
-        "target": {"full_name": target["full_name"], "revision": target["revision"],
+        "target": {"id": target["id"], "full_name": target["full_name"], "revision": target["revision"],
                    "files": files, "coverage": target.get("coverage", {}), "sample_only": True},
         "context_coverage": {"decision_version": VERSION, "target_file_limit": 4, "target_characters_per_file": 8000,
             "target_files_omitted": max(0, len(target.get("files", [])) - len(files)),

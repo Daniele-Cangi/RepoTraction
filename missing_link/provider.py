@@ -333,9 +333,14 @@ class Provider:
         data, schema = plan_input(request, target), plan_schema(request)
         raw = self.complete(PLAN_INSTRUCTION, data, budget, schema, "request")
         try:
-            return resolve_plan(raw, request, self.identity())
+            result = resolve_plan(raw, request, self.identity())
         except (ValueError, TypeError, KeyError):
             raise CandidateValidationError("Invalid request-led discovery decision; no automatic retry.") from None
+        result["target_snapshot"] = {key: value for key, value in data["target"].items() if key != "files"}
+        result["target_snapshot"]["files"] = [{key: value for key, value in file.items() if key != "text"}
+                                              for file in data["target"]["files"]]
+        result["context_coverage"] = data["context_coverage"]
+        return result
 
     def select_source(self, plan: dict, candidates: list, budget) -> dict:
         from .discovery_decisions import SELECT_INSTRUCTION, selection_schema, resolve_selection

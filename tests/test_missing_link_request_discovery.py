@@ -115,6 +115,25 @@ class DecisionTests(unittest.TestCase):
             with self.assertRaises(CandidateValidationError):
                 provider.select_source(self.plan, candidates(), mock.Mock())
 
+    def test_provider_retains_exact_target_provenance_and_coverage_for_all_decisions(self):
+        provider = Provider({"REPOTRACTION_AI_URL": "http://localhost/v1", "REPOTRACTION_AI_MODEL": "fixture"})
+        target = repository()
+        target["files"][0].update(text="x" * 9000, sha="c" * 40, redacted=True)
+        for kind in ("search", "use_direct", "defer"):
+            with self.subTest(kind=kind), mock.patch.object(provider, "complete", return_value=decision(kind)) as call:
+                result = provider.plan_discovery(self.request, target, mock.Mock())
+            supplied = call.call_args.args[1]
+            snapshot = result["target_snapshot"]
+            self.assertEqual(snapshot["id"], target["id"])
+            self.assertEqual(snapshot["full_name"], target["full_name"])
+            self.assertEqual(snapshot["revision"], target["revision"])
+            self.assertEqual(snapshot["coverage"], supplied["target"]["coverage"])
+            self.assertEqual(result["context_coverage"], supplied["context_coverage"])
+            self.assertTrue(snapshot["files"][0]["truncated"])
+            self.assertTrue(snapshot["files"][0]["redacted"])
+            self.assertEqual(snapshot["files"][0]["sha"], "c" * 40)
+            self.assertNotIn("text", snapshot["files"][0])
+
     def test_atomic_allowance_rejection_does_not_count_or_dispatch_decision(self):
         provider = Provider({"REPOTRACTION_AI_URL": "http://localhost/v1", "REPOTRACTION_AI_MODEL": "fixture"})
         job = {"ai_calls_used": 0, "cost_reserved_usd": 0}
@@ -240,6 +259,10 @@ class RequestDiscoveryTests(unittest.TestCase):
                 self.assertEqual(job["ai_calls_used"], 2)
                 self.assertEqual(job["result"]["discovery_decision"]["decision"], mode)
                 self.assertEqual(job["result"]["match_ids"], [])
+                public = next(item for item in self.service.state()["jobs"] if item["id"] == job["id"])
+                self.assertNotIn("checkpoint", public)
+                self.assertEqual(public["result"]["discovery_decision"]["target_snapshot"]["revision"], "b" * 40)
+                self.assertFalse(public["result"]["discovery_decision"]["context_coverage"]["all_target_source_available"])
         self.source.search_repositories.assert_not_called()
         self.source.fetch_repository.assert_not_called()
 
