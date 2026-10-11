@@ -50,6 +50,9 @@ bounded API grammar is small enough to implement and challenge now.
   Decorated classes and their descendants are also omitted. Classmethod factories
   and instance methods must be bound to the indexed class and created instance;
   delegation to another receiver is outside this prototype's grammar.
+  Stable local re-exports are followed transitively. Unresolved/cyclic ancestry
+  abstains; only unshadowed `object`, `typing.Generic` and `abc.ABC` are accepted
+  as standard terminal bases with object initialization.
   Generated calls also check the runtime function's source location and factory
   result class before attributing an observation to the indexed method. Ordinary
   decorator/member replacement becomes a failed observation, not false evidence;
@@ -201,6 +204,17 @@ an exhaustive call trace or a claim that the quoted excerpts alone implement the
 operation: package initialization, dependencies and internal calls also matter.
 The experimental unit is the full supplied package, and all results remain
 unqualified. No adversarial execution-attestation guarantee is claimed.
+
+The re-export correction at `a71d232` is recorded in [its manifest](ancestry-manifest.json),
+[catalog](ancestry-plan-index.json) and [results](ancestry-results.json). The pathspec
+artifacts are byte-identical to the preceding execution, so those observations
+were reused. Packaging loses two email subclasses with unresolved ancestry;
+the unchanged 40-slot ordering admits two later tag functions. Its three changed
+plans were executed once and still exhaust fuel. This catalog change is an
+explicit consequence of the conservative ancestry rule, not a new source,
+request, score adjustment or successful packaging result. The six slice plans
+also remain unchanged. The final outcome remains one assisted suboperation and
+zero demonstrated novel advantageous discoveries.
 
 The review's proposed `candidate_0` name restriction was not adopted: a directory
 `candidate_0/` and a file `candidate_0.py` are distinct paths. An authored regression
