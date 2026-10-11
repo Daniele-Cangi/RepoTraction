@@ -1,0 +1,372 @@
+{
+  "reviewer": "Separate-context AI reviewer, not a human ground-truth oracle.",
+  "source_blind": true,
+  "source_execution_performed": false,
+  "network_used": false,
+  "demand_review_sha256": "884a8c6648ec495c2aa1b15dcf93a65b779de413026bb564d5ddffbc4322db92",
+  "frozen_before_source_matching": true,
+  "review_kind": "proposal review after frozen independent demand review",
+  "index_basis": "zero-based discussions/proposals index",
+  "assessment_rule": "Finite hypothesis validity is separate from remaining unmet demand and from an actionable opportunity. No software connection, source support or reuse advantage is assessed.",
+  "summary": {
+    "outcomes_reviewed": 12,
+    "contracts_reviewed": 4,
+    "finite_hypotheses_usable_with_stated_scope": [
+      2,
+      4,
+      10
+    ],
+    "contract_requiring_revision_before_independent_demand_use": [
+      6
+    ],
+    "qualified_connections": 0,
+    "actionable_opportunities_established": 0
+  },
+  "reviews": [
+    {
+      "index": 0,
+      "status": "undetermined",
+      "proposal_ids": [],
+      "operation_fidelity": "Abstention is defensible for this JSON-only executable-contract representation, not for deciding that demand is unclear or absent. Deep-pickle round-trip behavior is explicit.",
+      "case_labels": "No cases.",
+      "unsupported_assumptions": [
+        "Scope uncertainty is overstated: maintainer requests the C accelerator too; historical Python-only patch is a partial implementation, not evidence that both scopes are equally arbitrary.",
+        "No JSON fixture is a representation limitation; a deep nested Python object round-trip is already requested."
+      ],
+      "remaining_unmet_demand": [
+        {
+          "operation": "Stack-safe deep pickling",
+          "status": "yes_reported",
+          "reason": "2025 followup still reproduces at increased depth; precise runtime/depth guarantees unverified."
+        }
+      ],
+      "usable_as_finite_hypothesis": false,
+      "actionable_opportunity": "Not established by this abstention; real technical demand remains, but runtime/version/performance scope needs verification.",
+      "confidence": "High demand, medium reason for abstention.",
+      "unknowns": [
+        "No chosen JSON representation/protocol/depth bound; no current implementation evidence."
+      ]
+    },
+    {
+      "index": 1,
+      "status": "undetermined",
+      "proposal_ids": [],
+      "operation_fidelity": "Reasonable abstention from a cleanup/latency contract: no safe deletion policy or quantitative performance target is established.",
+      "case_labels": "No cases.",
+      "unsupported_assumptions": [
+        "Runtime uncertainty should be bounded: MySQL and Django/Python are explicit, although portability requirements are not.",
+        "Final fixed-in-django-kombu claim matters to unmet demand, even though it does not define a full contract."
+      ],
+      "remaining_unmet_demand": [
+        {
+          "operation": "Queue pop/index latency",
+          "status": "unknown",
+          "reason": "Fix claim not apportioned by suboperation."
+        },
+        {
+          "operation": "Processed-message cleanup",
+          "status": "unknown",
+          "reason": "Fix claim may cover it; cadence and retained-row semantics unsettled."
+        }
+      ],
+      "usable_as_finite_hypothesis": false,
+      "actionable_opportunity": "Not established; requires determining what the reported fix resolved.",
+      "confidence": "High abstention; low remaining demand.",
+      "unknowns": [
+        "Current users/version and per-suboperation fix scope."
+      ]
+    },
+    {
+      "index": 2,
+      "status": "proposed",
+      "proposal_ids": [
+        "demand-538210889178a4e75965"
+      ],
+      "operation_fidelity": "Faithful formula for a necessary substep, but substantially narrower than faulty randomization. The discussion says the formula is taken straight from batches(), so it is not evidence that batch counting itself is a missing capability.",
+      "case_labels": "Example (5,2)->3 and checks (4,2)->2, (0,2)->0 are correctly labeled inferred; they follow arithmetic in the issue, not explicit numerical fixtures.",
+      "unsupported_assumptions": [
+        "Standalone [dataset_length,batch_size] argument boundary is an explicit representational choice, reasonable for a hypothesis.",
+        "Nonnegative length and positive size correctly bound cases; no asserted invalid-input contract."
+      ],
+      "remaining_unmet_demand": [
+        {
+          "operation": "Compute number of batches",
+          "status": "not_demonstrated_as_standalone_gap",
+          "reason": "Existing batches formula is reused; required correction is how randomBatches chooses/shuffles/uses a permutation."
+        },
+        {
+          "operation": "Random batch or sample permutation",
+          "status": "yes_reported_but_uncovered",
+          "reason": "Unfixed report; semantics alternative remains open."
+        }
+      ],
+      "usable_as_finite_hypothesis": true,
+      "actionable_opportunity": "Not established for standalone arithmetic. A match would support only the formula, not repaired randomBatches behavior.",
+      "confidence": "High arithmetic validity and scope mismatch; medium current randomization demand.",
+      "unknowns": [
+        "Final desired permutation semantics/current fix state."
+      ]
+    },
+    {
+      "index": 3,
+      "status": "undetermined",
+      "proposal_ids": [],
+      "operation_fidelity": "Full validator or URI-to-local-ID abstention is reasonable. However, optional versus removed still shares a clear bounded requirement: an embedded item may omit the redundant item ID.",
+      "case_labels": "No cases.",
+      "unsupported_assumptions": [
+        "Do not equate lack of a complete validation/transformation API with lack of a settled minimal acceptance requirement.",
+        "Do not generalize itemID removal to citationID or processor input."
+      ],
+      "remaining_unmet_demand": [
+        {
+          "operation": "Allow omitted embedded item/itemData ID",
+          "status": "yes_reported",
+          "reason": "Implementers agree it is not needed in embedded metadata; merge unknown."
+        },
+        {
+          "operation": "Full URI resolution/transformation",
+          "status": "unknown",
+          "reason": "Not the narrow original requested operation."
+        }
+      ],
+      "usable_as_finite_hypothesis": false,
+      "actionable_opportunity": "Concrete schema-change demand exists; executable full schema not supplied, present state unverified.",
+      "confidence": "High minimal requirement, medium full-contract abstention.",
+      "unknowns": [
+        "Schema, additional-properties treatment, accepted removal vs optional choice."
+      ]
+    },
+    {
+      "index": 4,
+      "status": "proposed",
+      "proposal_ids": [
+        "demand-91043fa06d5c413b2fcb"
+      ],
+      "operation_fidelity": "Faithful to a first-value-wins candidate policy. Worked expected output combines parsing and SimpleCookie display; useful for that display wrapper but not a neutral parsed-value representation.",
+      "case_labels": "foo=33;foo=34 -> Set-Cookie: foo=33 is explicit. x=1;x=2 -> Set-Cookie: x=1 is properly inferred by renaming tokens and using the display convention.",
+      "unsupported_assumptions": [
+        "String return is an admitted representation choice: original example prints a cookie object rather than defining a function returning this string.",
+        "Do not infer broad RFC conformance or settled upstream adoption from first-wins examples.",
+        "General multiple-name ordering, malformed strings and attributes lack an output oracle; precondition alone does not fully exclude these."
+      ],
+      "remaining_unmet_demand": [
+        {
+          "operation": "First occurrence retained for duplicate names",
+          "status": "yes_reported_with_contested_adoption",
+          "reason": "Later compatibility debate and proposed alternatives do not demonstrate accepted resolution."
+        },
+        {
+          "operation": "Exact displayed string",
+          "status": "not_independent_demand",
+          "reason": "Observation format, not user need for a standalone serialization service."
+        }
+      ],
+      "usable_as_finite_hypothesis": true,
+      "finite_hypothesis_scope": "Simple valid repeated single-name cookie strings under the stated display convention.",
+      "actionable_opportunity": "Conditional technical candidate; policy acceptance, compatibility and current alternatives must be resolved before treating as actionable.",
+      "confidence": "High simple example fidelity; medium adoption/current need.",
+      "unknowns": [
+        "Pending PR decision, existing library sufficiency, broader cookie grammar."
+      ]
+    },
+    {
+      "index": 5,
+      "status": "undetermined",
+      "proposal_ids": [],
+      "operation_fidelity": "Printing/higher-derivative abstention is defensible. The reason overstates unresolved function construction and runtime: Function('F')(*x) is supplied and confirmed working, and Python/SymPy is explicit.",
+      "case_labels": "No cases.",
+      "unsupported_assumptions": [
+        "Actual error in rationale: list expansion is not wholly unresolved; author's confirmation is material.",
+        "Unknown exact printer switch/output remains uncertainty, not proof no notation demand.",
+        "Tentative later commit and implemented printer reports must qualify unmetness."
+      ],
+      "remaining_unmet_demand": [
+        {
+          "operation": "Shared-variable function declaration",
+          "status": "no_for_reported_usage",
+          "reason": "Explicit accepted tuple-unpacking workaround solves this suboperation."
+        },
+        {
+          "operation": "Compact function/derivative printing and printer selection",
+          "status": "mixed_or_unknown",
+          "reason": "Partial implementation and tentative commit; exact remaining features unconfirmed."
+        }
+      ],
+      "usable_as_finite_hypothesis": false,
+      "actionable_opportunity": "Not established without checking which printing features remain unmet.",
+      "confidence": "High correction to construction/runtime rationale; medium printing abstention.",
+      "unknowns": [
+        "Absent notation attachments/current feature status."
+      ]
+    },
+    {
+      "index": 6,
+      "status": "proposed",
+      "proposal_ids": [
+        "demand-fbc9c3dca5e19669b3cb"
+      ],
+      "operation_fidelity": "Identifying thresholds whose maxima fall below configured values is supported. Assigning each suggested threshold exactly that maximum, with exact ordered output strings, adds a policy and interface not fully established.",
+      "case_labels": "All cases correctly labeled inferred, but labeling alone does not justify their precise expected arrays. false->[] is a plausible gating interpretation, not an explicit negative-output requirement.",
+      "unsupported_assumptions": [
+        "Exact assignments to maximum observed quantities are unresolved by the proposal itself.",
+        "Multi-option ordering is unspecified, yet exact expected array imposes fullmsg before substr.",
+        "Boolean false means not all terms removed; assumption 'When no terms were removed' is narrower, while another assumption 'When terms were removed' is broader than all-removed. Wording should consistently use all-terms-removed.",
+        "Final reporter shows locs-needed=1 still produces zero terms and locs-needed=0 works. This does not logically refute the synthetic input maxima=1 fixture, but does refute treating the earlier real-data recommendation as proven effective.",
+        "Independent maxima can come from different terms; lowering to maxima need not leave any term satisfying all predicates. Do not claim guaranteed nonempty output."
+      ],
+      "remaining_unmet_demand": [
+        {
+          "operation": "Detect zero-term thresholding and identify blocking options",
+          "status": "yes_reported",
+          "reason": "Requested diagnostics not reported implemented."
+        },
+        {
+          "operation": "Assign maxima as suggested values",
+          "status": "unknown",
+          "reason": "Candidate policy only; threshold semantics and observed maxima absent."
+        },
+        {
+          "operation": "Return ordered option-string array",
+          "status": "not_independent_demand",
+          "reason": "Representation added by model."
+        }
+      ],
+      "usable_as_finite_hypothesis": false,
+      "finite_hypothesis_scope": "As written, only tests a stipulated model policy; requires explicit policy acceptance/narrowing before use as independently grounded demand contract.",
+      "actionable_opportunity": "Real diagnostic need; this exact contract is not yet an actionable specification.",
+      "confidence": "High unsupported exact ordering/assignments; medium diagnostic algorithm.",
+      "unknowns": [
+        "Threshold category logic, joint feasibility, maximum calculations, CLI formatting, runtime boundary."
+      ]
+    },
+    {
+      "index": 7,
+      "status": "undetermined",
+      "proposal_ids": [],
+      "operation_fidelity": "Reasonable abstention from fabricated SIP transition fixtures; request is substantive despite no JSON operation.",
+      "case_labels": "No cases.",
+      "unsupported_assumptions": [
+        "Twisted/Python runtime and transport context are visible, but complete event/message/timing semantics are not."
+      ],
+      "remaining_unmet_demand": [
+        {
+          "operation": "SIP transaction/transport integration",
+          "status": "yes_reported",
+          "reason": "Stalled work with no completion evidence; current implementation unknown."
+        }
+      ],
+      "usable_as_finite_hypothesis": false,
+      "actionable_opportunity": "Potential engineering need, not executable contract or established current opportunity.",
+      "confidence": "High abstention.",
+      "unknowns": [
+        "RFC not acquired, complete state transitions/current completion."
+      ]
+    },
+    {
+      "index": 8,
+      "status": "undetermined",
+      "proposal_ids": [],
+      "operation_fidelity": "Reasonable abstention due event/timing dependency and rejected prerequisite; JSON I/O absence is a harness limitation.",
+      "case_labels": "No cases.",
+      "unsupported_assumptions": [
+        "Windows/Cygwin historical testing and later rejected dependency are chronology, not necessarily contradictory observations.",
+        "Uniform readline behavior is an explicit requested goal; acceptance/implementation remains unknown."
+      ],
+      "remaining_unmet_demand": [
+        {
+          "operation": "Composable returning input/event hooks",
+          "status": "mixed_or_unknown",
+          "reason": "Historical motivations qualified and prerequisite rejected; no replacement design confirmed."
+        }
+      ],
+      "usable_as_finite_hypothesis": false,
+      "actionable_opportunity": "Not established for current runtime.",
+      "confidence": "High full-contract abstention; medium remaining need.",
+      "unknowns": [
+        "Current platform behavior and viable dependency."
+      ]
+    },
+    {
+      "index": 9,
+      "status": "undetermined",
+      "proposal_ids": [],
+      "operation_fidelity": "Reasonable abstention from a complete HTTP contract. Shared gzip-decode/header concerns are real; latest opt-in proposal is a candidate design rather than final resolution.",
+      "case_labels": "No cases.",
+      "unsupported_assumptions": [
+        "Do not imply no finite gzip/header behavior could ever be specified; no binary/stream/HTTP representation was chosen here.",
+        "Placement/default are unsettled, not evidence against demand."
+      ],
+      "remaining_unmet_demand": [
+        {
+          "operation": "Optional transparent gzip and consistent metadata",
+          "status": "yes_reported",
+          "reason": "Latest PR supplies design, no merge evidence."
+        }
+      ],
+      "usable_as_finite_hypothesis": false,
+      "actionable_opportunity": "Concrete technical demand, but not ready as this absent finite contract.",
+      "confidence": "High abstention scope and demand.",
+      "unknowns": [
+        "PR outcome, API/default, range/stream/resource behavior."
+      ]
+    },
+    {
+      "index": 10,
+      "status": "proposed",
+      "proposal_ids": [
+        "demand-6245e818166bdff79422"
+      ],
+      "operation_fidelity": "Faithful to later fully-qualified definition for ordinary paths; later fix establishes semantics but also undermines a claim of remaining demand for this suboperation.",
+      "case_labels": "'/'->false is explicit. C:\\foo->true and C:foo->false are conservatively labeled inferred from directly named categories; no invalid inference identified.",
+      "unsupported_assumptions": [
+        "JSON escaping and host-independent Windows interpretation are reasonable declared representations.",
+        "Operation promises arbitrary Windows path strings while edge/device/malformed grammar is uncovered; restrict evidential reach to justified cases.",
+        "Security/containment explicitly excluded correctly."
+      ],
+      "remaining_unmet_demand": [
+        {
+          "operation": "Fully qualified absolute classification",
+          "status": "no_on_reported_python_3_13_plus",
+          "reason": "Discussion explicitly reports fixed and later accepts implementation."
+        },
+        {
+          "operation": "isrelative/part-absolute API and older-version compatibility",
+          "status": "mixed_or_unknown_and_uncovered",
+          "reason": "Separate debated need; distutils instance solved; no supported-version requirement for proposal."
+        }
+      ],
+      "usable_as_finite_hypothesis": true,
+      "finite_hypothesis_scope": "Ordinary Windows path forms with independently justified expected booleans.",
+      "actionable_opportunity": "No remaining opportunity established for this already-reported-fixed suboperation. Do not convert a valid regression fixture into demand proof.",
+      "confidence": "High finite values and reported resolution; medium residual needs.",
+      "unknowns": [
+        "Current code unverified, device edge cases and cross-version user requirements."
+      ]
+    },
+    {
+      "index": 11,
+      "status": "undetermined",
+      "proposal_ids": [],
+      "operation_fidelity": "Reasonable abstention on a stable whole-core optimization contract; performance needs real workloads and missing later discussion is material.",
+      "case_labels": "No cases.",
+      "unsupported_assumptions": [
+        "Python/SymPy runtime context is explicit, even though a standalone callable/runtime boundary is not.",
+        "A missing JSON convention does not invalidate mathematical invariants; it limits this contract format.",
+        "Historical experiments/fixes are not a current unmet performance target."
+      ],
+      "remaining_unmet_demand": [
+        {
+          "operation": "Core optimization/benchmarking",
+          "status": "unknown",
+          "reason": "Historical demand and many implemented experiments; 47 later comments absent."
+        }
+      ],
+      "usable_as_finite_hypothesis": false,
+      "actionable_opportunity": "Not established from bounded historical discussion.",
+      "confidence": "High abstention; low current demand.",
+      "unknowns": [
+        "Later resolution, representative workload, accepted semantics and baseline."
+      ]
+    }
+  ]
+}

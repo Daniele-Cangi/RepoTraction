@@ -1,0 +1,2 @@
+# Preserve frozen evidence bytes and their hashes across Windows/Linux.
+*.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

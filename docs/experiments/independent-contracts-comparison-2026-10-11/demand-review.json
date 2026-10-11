@@ -1,0 +1,435 @@
+{
+  "review_kind": "independent preliminary demand review",
+  "reviewer": "Separate-context AI reviewer, not a human ground-truth oracle.",
+  "source_blind": true,
+  "proposals_opened": false,
+  "source_execution_performed": false,
+  "network_used": false,
+  "frozen_before_proposals": true,
+  "limits": [
+    "Judgments concern supplied bounded discussions, not verified current software state.",
+    "All twelve bodies and supplied comment content read; long previews expanded before freeze.",
+    "Quoted code was treated as text and never executed; links not opened.",
+    "Lack of JSON I/O is not evidence of lack of demand.",
+    "No candidate source, software connection, support or reuse advantage assessed."
+  ],
+  "issues": [
+    {
+      "index": 0,
+      "index_basis": "zero-based discussions.issues order",
+      "discussion_url": "https://github.com/python/cpython/issues/47369",
+      "real_unmet_demand": "yes",
+      "evidence": [
+        {
+          "url": "https://github.com/python/cpython/issues/47369#issuecomment-1093425896",
+          "quotation": "For deeply recursive data structures, the default recursion limit of 1000"
+        },
+        {
+          "url": "https://github.com/python/cpython/issues/47369#issuecomment-3315386484",
+          "quotation": "If we raise `N`, say to `N = 20000`, it somehow reproduces."
+        }
+      ],
+      "requested_operations": [
+        "Serialize deeply nested Python object structures without exhausting Python/C call stacks; preserve round-trip value and pickle behavior."
+      ],
+      "constraints_runtime": [
+        "CPython pickle and C accelerator; subclass/API compatibility, reducers, persistent IDs and dispatch tables; performance/readability."
+      ],
+      "later_resolution_contradictions": [
+        "Early positive patch review corrected after overflow tests failed; Python-only patch did not implement C version. 2025 comment reports original repro no longer fails but greater depth still does."
+      ],
+      "unknowns": [
+        "Current supported-version behavior, precise depth/resource guarantees, attachments and implementation unavailable."
+      ],
+      "confidence": "High reported historical and continuing depth limitation; medium present actionable scope.",
+      "coverage_gaps": [
+        "Timeline, linked issues, standards and attachments not acquired."
+      ]
+    },
+    {
+      "index": 1,
+      "index_basis": "zero-based discussions.issues order",
+      "discussion_url": "https://github.com/ask/ghettoq/issues/2",
+      "real_unmet_demand": "mixed",
+      "evidence": [
+        {
+          "url": "https://github.com/ask/ghettoq/issues/2",
+          "quotation": "roughly 2 sec per pop()"
+        },
+        {
+          "url": "https://github.com/ask/ghettoq/issues/2#issuecomment-820405",
+          "quotation": "Fixed in django-kombu v0.9.2 :)"
+        }
+      ],
+      "requested_operations": [
+        "Reduce large MySQL queue-pop latency, document load limits; improve cleanup of processed messages."
+      ],
+      "constraints_runtime": [
+        "MySQL (visible,timestamp,id) index suggested; Django deletion and cleanup scheduling; basic/testing workload intention."
+      ],
+      "later_resolution_contradictions": [
+        "Final comment claims fixed in django-kombu 0.9.2 but does not distinguish index, deletion and scheduling fixes. Open state does not establish unmet need."
+      ],
+      "unknowns": [
+        "Which suboperations were fixed, continued demand for original project, current workload and implementation."
+      ],
+      "confidence": "High historical demand; low remaining unmet demand.",
+      "coverage_gaps": [
+        "Timeline, linked issues, standards and attachments not acquired."
+      ]
+    },
+    {
+      "index": 2,
+      "index_basis": "zero-based discussions.issues order",
+      "discussion_url": "https://github.com/pybrain/pybrain/issues/71",
+      "real_unmet_demand": "yes",
+      "evidence": [
+        {
+          "url": "https://github.com/pybrain/pybrain/issues/71",
+          "quotation": "random.shuffle works in-place. It returns None."
+        },
+        {
+          "url": "https://github.com/pybrain/pybrain/issues/71",
+          "quotation": "randomizing the order in which the batches are delivered, not their contents."
+        }
+      ],
+      "requested_operations": [
+        "Retain shuffled permutation and use correct index domain; choose between random batch order and random sample composition."
+      ],
+      "constraints_runtime": [
+        "PyBrain labeled dataset arrays; partial final batch; permutation index domain depends on semantics; random output is not one fixed ordering."
+      ],
+      "later_resolution_contradictions": [
+        "No comments or resolution. Author offers two possible semantics without choosing one."
+      ],
+      "unknowns": [
+        "Intended API semantics, invalid batch sizes, reproducibility policy, current implementation."
+      ],
+      "confidence": "High historical bug; medium present unresolved scope.",
+      "coverage_gaps": [
+        "Timeline, linked issues, standards and attachments not acquired."
+      ]
+    },
+    {
+      "index": 3,
+      "index_basis": "zero-based discussions.issues order",
+      "discussion_url": "https://github.com/citation-style-language/schema/issues/70",
+      "real_unmet_demand": "yes",
+      "evidence": [
+        {
+          "url": "https://github.com/citation-style-language/schema/issues/70",
+          "quotation": "drop this property entirely or at least make it optional."
+        },
+        {
+          "url": "https://github.com/citation-style-language/schema/issues/70#issuecomment-1843337",
+          "quotation": "there is no need for the local ID to be stored in the document"
+        }
+      ],
+      "requested_operations": [
+        "Allow embedded citation item/itemData records without redundant local item ID; preserve URI associations and self-contained metadata."
+      ],
+      "constraints_runtime": [
+        "Embedded Word/ODF format differs from processor input; processors still need local itemIDs; citationID is separately important; legacy Mendeley adds item IDs."
+      ],
+      "later_resolution_contradictions": [
+        "Later agreement that embedded item IDs are redundant; removal vs optional and additional-properties compatibility unresolved."
+      ],
+      "unknowns": [
+        "Actual schema/merge unavailable; no basis to remove citationID or processor-required IDs."
+      ],
+      "confidence": "High bounded requirement; medium current status.",
+      "coverage_gaps": [
+        "Timeline, linked issues, standards and attachments not acquired."
+      ]
+    },
+    {
+      "index": 4,
+      "index_basis": "zero-based discussions.issues order",
+      "discussion_url": "https://github.com/python/cpython/issues/42664",
+      "real_unmet_demand": "yes",
+      "evidence": [
+        {
+          "url": "https://github.com/python/cpython/issues/42664#issuecomment-1094014533",
+          "quotation": "only use the first instance of duplicate"
+        },
+        {
+          "url": "https://github.com/python/cpython/issues/42664#issuecomment-1094014540",
+          "quotation": "There doesn't seem to be a consensus"
+        },
+        {
+          "url": "https://github.com/python/cpython/issues/42664#issuecomment-2226888867",
+          "quotation": "silently changing it can break things for them"
+        }
+      ],
+      "requested_operations": [
+        "Handle duplicate request cookie names without overwriting intended first/more-specific value; decide compatible migration."
+      ],
+      "constraints_runtime": [
+        "Request Cookie order differs from response Set-Cookie semantics; stdlib compatibility; RFC and sibling issue not supplied."
+      ],
+      "later_resolution_contradictions": [
+        "Patch/tests/docs reported but consensus disputed. 2024 comment suggests external library or new module; pending PR status absent."
+      ],
+      "unknowns": [
+        "First-wins is proposed, not proven universal RFC rule or accepted upstream policy; malformed syntax/attributes and current alternatives unknown."
+      ],
+      "confidence": "High historical demand; medium semantic acceptance/current status.",
+      "coverage_gaps": [
+        "Timeline, linked issues, standards and attachments not acquired."
+      ]
+    },
+    {
+      "index": 5,
+      "index_basis": "zero-based discussions.issues order",
+      "discussion_url": "https://github.com/sympy/sympy/issues/4238",
+      "real_unmet_demand": "mixed",
+      "evidence": [
+        {
+          "url": "https://github.com/sympy/sympy/issues/4238#issuecomment-36990151",
+          "quotation": "F = Function('F')(*x)"
+        },
+        {
+          "url": "https://github.com/sympy/sympy/issues/4238#issuecomment-36990152",
+          "quotation": "Comment 16 works find for me."
+        },
+        {
+          "url": "https://github.com/sympy/sympy/issues/4238#issuecomment-36990176",
+          "quotation": "Implicit Functions can be printed without argument lists."
+        },
+        {
+          "url": "https://github.com/sympy/sympy/issues/4238#issuecomment-36990182",
+          "quotation": "I think his was pushed here"
+        }
+      ],
+      "requested_operations": [
+        "Construct scalar coefficient functions from shared variables; suppress argument lists; compact derivative notation preserving symbolic operations; printer switching."
+      ],
+      "constraints_runtime": [
+        "SymPy Function/Derivative, ASCII/LaTeX; geometric algebra motivates scalar notation but user determines field structure."
+      ],
+      "later_resolution_contradictions": [
+        "Tuple unpacking explicitly solves declaration. Author reports printing extension largely implemented, derivative formats pending. Tentative later commit reference does not prove precise merged features."
+      ],
+      "unknowns": [
+        "Remaining print features/current behavior and missing PDFs; declaration-only utility not shown to address remaining demand."
+      ],
+      "confidence": "High declaration resolution; medium/low remaining printing scope.",
+      "coverage_gaps": [
+        "Timeline, linked issues, standards and attachments not acquired."
+      ]
+    },
+    {
+      "index": 6,
+      "index_basis": "zero-based discussions.issues order",
+      "discussion_url": "https://github.com/translate/translate/issues/582",
+      "real_unmet_demand": "yes",
+      "evidence": [
+        {
+          "url": "https://github.com/translate/translate/issues/582#issuecomment-50275603",
+          "quotation": "poterminology should suggest option settings"
+        },
+        {
+          "url": "https://github.com/translate/translate/issues/582#issuecomment-50275606",
+          "quotation": "--locs-needed=0"
+        },
+        {
+          "url": "https://github.com/translate/translate/issues/582#issuecomment-50275606",
+          "quotation": "31464 terms after subphrase reduction"
+        }
+      ],
+      "requested_operations": [
+        "When all terms are removed, explain blocking thresholds and suggest options based on observed maxima."
+      ],
+      "constraints_runtime": [
+        "poterminology PO/POT CLI, source-location comments, inputs/fullmsg/substr/locs thresholds; special handling single input."
+      ],
+      "later_resolution_contradictions": [
+        "Correcting quotes did not fix it; recommended locs-needed=1 failed, locs-needed=0 worked. Extraction workaround does not show diagnostics implemented."
+      ],
+      "unknowns": [
+        "Exact predicate/category semantics; independent maxima need not guarantee a jointly surviving term; attachment and present implementation unavailable."
+      ],
+      "confidence": "High diagnostics need and explicit contradictory followup; medium exact algorithm.",
+      "coverage_gaps": [
+        "Timeline, linked issues, standards and attachments not acquired."
+      ]
+    },
+    {
+      "index": 7,
+      "index_basis": "zero-based discussions.issues order",
+      "discussion_url": "https://github.com/twisted/twisted/issues/3584",
+      "real_unmet_demand": "yes",
+      "evidence": [
+        {
+          "url": "https://github.com/twisted/twisted/issues/3584",
+          "quotation": "Current SIP code doesn't provide any of that."
+        },
+        {
+          "url": "https://github.com/twisted/twisted/issues/3584#issuecomment-1167583421",
+          "quotation": "how does a server avoid having them pile up forever"
+        },
+        {
+          "url": "https://github.com/twisted/twisted/issues/3584#issuecomment-1288622051",
+          "quotation": "not** in progress"
+        }
+      ],
+      "requested_operations": [
+        "Implement SIP transaction state machines and transport integration: lifecycle, retries/timeouts, routing, cleanup and failures."
+      ],
+      "constraints_runtime": [
+        "Twisted reactor, UDP vs reliable/TCP, validation/DNS/interfaces; RFC 3261 cited but not supplied."
+      ],
+      "later_resolution_contradictions": [
+        "Branch and review contain partial fix claims. Latest comment says work not in progress; no merge or completion evidence."
+      ],
+      "unknowns": [
+        "Complete state transitions and current runtime/branch status unavailable; pure finite abstraction requires design."
+      ],
+      "confidence": "High historical enhancement; medium current demand.",
+      "coverage_gaps": [
+        "Timeline, linked issues, standards and attachments not acquired."
+      ]
+    },
+    {
+      "index": 8,
+      "index_basis": "zero-based discussions.issues order",
+      "discussion_url": "https://github.com/python/cpython/issues/42255",
+      "real_unmet_demand": "mixed",
+      "evidence": [
+        {
+          "url": "https://github.com/python/cpython/issues/42255#issuecomment-1094011429",
+          "quotation": "Tkinter's EventHook should return immediately"
+        },
+        {
+          "url": "https://github.com/python/cpython/issues/42255#issuecomment-1094011436",
+          "quotation": "patch on bpo-1049855 has been rejected"
+        },
+        {
+          "url": "https://github.com/python/cpython/issues/42255#issuecomment-5041712675",
+          "quotation": "Not yet."
+        }
+      ],
+      "requested_operations": [
+        "Service pending GUI events then return to allow hook composition; consistent hook invocation with/without readline."
+      ],
+      "constraints_runtime": [
+        "CPython C-level PyOS_InputHook, Tcl/Tk, interactive stdin, Windows/Cygwin/Unix, threading, latency and idle overhead."
+      ],
+      "later_resolution_contradictions": [
+        "Companion patch rejected and original IDLE failure rationale disputed as outdated. Recent close suggestion rejected with no completed design."
+      ],
+      "unknowns": [
+        "Persistent motivations on current runtime, replacement dependency and acceptable frequency; current resolution unknown."
+      ],
+      "confidence": "High historical request; low/medium present actionable scope.",
+      "coverage_gaps": [
+        "Timeline, linked issues, standards and attachments not acquired."
+      ]
+    },
+    {
+      "index": 9,
+      "index_basis": "zero-based discussions.issues order",
+      "discussion_url": "https://github.com/python/cpython/issues/43521",
+      "real_unmet_demand": "yes",
+      "evidence": [
+        {
+          "url": "https://github.com/python/cpython/issues/43521#issuecomment-1094020204",
+          "quotation": "decompress the body a second time"
+        },
+        {
+          "url": "https://github.com/python/cpython/issues/43521#issuecomment-5017322173",
+          "quotation": "HTTPGzipHandler that's not in build_opener()'s defaults"
+        }
+      ],
+      "requested_operations": [
+        "Optionally negotiate/decompress gzip HTTP streams, with consistent response metadata and user control of compressed reads."
+      ],
+      "constraints_runtime": [
+        "urllib vs http.client, optional gzip, sized/unsized reads, range requests, binary streams, remove/adjust encoding and length headers, opt-in/off and resource limits."
+      ],
+      "later_resolution_contradictions": [
+        "Default-on vs opt-in unresolved historically. Latest comment describes opt-in gzip-only PR decoding only when it supplied Accept-Encoding and stripping Content-Encoding/Length; merge unknown."
+      ],
+      "unknowns": [
+        "Accepted design/default, pending PR, partial decoding/header semantics and current runtime."
+      ],
+      "confidence": "High request; medium design and current status.",
+      "coverage_gaps": [
+        "Timeline, linked issues, standards and attachments not acquired."
+      ]
+    },
+    {
+      "index": 10,
+      "index_basis": "zero-based discussions.issues order",
+      "discussion_url": "https://github.com/python/cpython/issues/44626",
+      "real_unmet_demand": "mixed",
+      "evidence": [
+        {
+          "url": "https://github.com/python/cpython/issues/44626#issuecomment-1094028889",
+          "quotation": "4 different kinds of paths"
+        },
+        {
+          "url": "https://github.com/python/cpython/issues/44626#issuecomment-1890363203",
+          "quotation": "Fixed in 3.13+"
+        },
+        {
+          "url": "https://github.com/python/cpython/issues/44626#issuecomment-2571376678",
+          "quotation": "compatibility concerns are now moot for that use-case."
+        }
+      ],
+      "requested_operations": [
+        "Classify fully qualified, fully relative, root-only and drive-relative Windows paths; fix join; isrelative convenience."
+      ],
+      "constraints_runtime": [
+        "Windows drive/root/UNC, alternate separators, POSIX, version/deprecation compatibility; classification alone is not containment."
+      ],
+      "later_resolution_contradictions": [
+        "join reported fixed elsewhere; isabs fixed 3.13+. distutils compatibility concern subsequently solved with pathlib. Residual isrelative convenience disputed with splitroot recipe."
+      ],
+      "unknowns": [
+        "Already-fixed isabs/join are not current unmet operations on 3.13+; supported versions, residual users and namespace edge grammar unknown."
+      ],
+      "confidence": "High partial resolution; medium residual demand.",
+      "coverage_gaps": [
+        "Timeline, linked issues, standards and attachments not acquired."
+      ]
+    },
+    {
+      "index": 11,
+      "index_basis": "zero-based discussions.issues order",
+      "discussion_url": "https://github.com/sympy/sympy/issues/3461",
+      "real_unmet_demand": "unknown",
+      "evidence": [
+        {
+          "url": "https://github.com/sympy/sympy/issues/3461",
+          "quotation": "without losing"
+        },
+        {
+          "url": "https://github.com/sympy/sympy/issues/3461#issuecomment-36983492",
+          "quotation": "write a benchmark suite."
+        },
+        {
+          "url": "https://github.com/sympy/sympy/issues/3461#issuecomment-36983555",
+          "quotation": "Not using assumptions in sandbox"
+        }
+      ],
+      "requested_operations": [
+        "Improve core arithmetic, construction, comparison, hashing and expansion speed while preserving functionality; benchmark cold/warm regressions."
+      ],
+      "constraints_runtime": [
+        "Symbolic rational arithmetic, assumptions, noncommutativity/special values, caching/mutability and precision; measured workload/runtime required."
+      ],
+      "later_resolution_contradictions": [
+        "Many historical implementations and revised/disputed designs; speedups partly omit assumptions. Only first 100 of 147 comments supplied."
+      ],
+      "unknowns": [
+        "47 missing later comments material to resolution; no present performance target or validated unmet suboperation; no attachments/current code."
+      ],
+      "confidence": "High historical interest; low present unmet scope.",
+      "coverage_gaps": [
+        "Timeline, linked issues, standards and attachments not acquired.",
+        "Only first 100 of declared 147 comments acquired."
+      ]
+    }
+  ]
+}

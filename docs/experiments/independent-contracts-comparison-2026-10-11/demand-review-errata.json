@@ -1,0 +1,15 @@
+{
+  "reviewer": "Separate-context AI reviewer, not a human ground-truth oracle.",
+  "original_frozen_sha256": "884a8c6648ec495c2aa1b15dcf93a65b779de413026bb564d5ddffbc4322db92",
+  "semantic_judgments_unchanged": true,
+  "corrections": [
+    {
+      "index": 2,
+      "evidence_index": 0,
+      "original_quotation": "random.shuffle works in-place. It returns None.",
+      "exact_quotation": "`random.shuffle` works in-place. It returns None.",
+      "source_url": "https://github.com/pybrain/pybrain/issues/71",
+      "reason": "Original quotation omitted Markdown backticks; frozen file retained unchanged."
+    }
+  ]
+}

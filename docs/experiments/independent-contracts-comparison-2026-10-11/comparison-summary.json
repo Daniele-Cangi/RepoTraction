@@ -1,0 +1,118 @@
+{
+  "paid_calls": 0,
+  "new_acquisitions": 0,
+  "reconstructed_plans_and_reassessments_equal": 6,
+  "baseline_execution_and_selection_code_unchanged": true,
+  "public_redaction_unchanged": true,
+  "review_hashes_unchanged": true,
+  "runs": [
+    {
+      "cohort": "original_model",
+      "repository": "more-itertools/more-itertools",
+      "candidate_count": 40,
+      "contract_count": 4,
+      "reported_bindings": 83,
+      "unobserved": 0,
+      "load_errors": 0,
+      "extraction_omissions": 27,
+      "matches": 0,
+      "first_failures": {
+        "TypeError": 36,
+        "ValueError": 28,
+        "value_mismatch": 19
+      },
+      "run_seconds": 3.405
+    },
+    {
+      "cohort": "original_model",
+      "repository": "mahmoud/boltons",
+      "candidate_count": 1,
+      "contract_count": 4,
+      "reported_bindings": 4,
+      "unobserved": 0,
+      "load_errors": 0,
+      "extraction_omissions": 2,
+      "matches": 0,
+      "first_failures": {
+        "value_mismatch": 1,
+        "TypeError": 3
+      },
+      "run_seconds": 1.663
+    },
+    {
+      "cohort": "original_model",
+      "repository": "networkx/networkx",
+      "candidate_count": 0,
+      "contract_count": 4,
+      "reported_bindings": 0,
+      "unobserved": 0,
+      "load_errors": 0,
+      "extraction_omissions": 20,
+      "matches": 0,
+      "first_failures": {},
+      "run_seconds": 1.607
+    },
+    {
+      "cohort": "independent_challenges",
+      "repository": "more-itertools/more-itertools",
+      "candidate_count": 40,
+      "contract_count": 3,
+      "reported_bindings": 75,
+      "unobserved": 0,
+      "load_errors": 0,
+      "extraction_omissions": 27,
+      "matches": 0,
+      "first_failures": {
+        "TypeError": 29,
+        "ValueError": 27,
+        "value_mismatch": 18,
+        "AssertionError": 1
+      },
+      "run_seconds": 1.773
+    },
+    {
+      "cohort": "independent_challenges",
+      "repository": "mahmoud/boltons",
+      "candidate_count": 1,
+      "contract_count": 3,
+      "reported_bindings": 3,
+      "unobserved": 0,
+      "load_errors": 0,
+      "extraction_omissions": 2,
+      "matches": 0,
+      "first_failures": {
+        "value_mismatch": 1,
+        "TypeError": 2
+      },
+      "run_seconds": 1.737
+    },
+    {
+      "cohort": "independent_challenges",
+      "repository": "networkx/networkx",
+      "candidate_count": 0,
+      "contract_count": 3,
+      "reported_bindings": 0,
+      "unobserved": 0,
+      "load_errors": 0,
+      "extraction_omissions": 20,
+      "matches": 0,
+      "first_failures": {},
+      "run_seconds": 1.713
+    }
+  ],
+  "total_bindings": 165,
+  "source_execution_processes": 6,
+  "total_runner_seconds": 11.898,
+  "total_loop_seconds": 13.983,
+  "qualified_connections": 0,
+  "files": {
+    "baseline-replay.json": "324bcb2bf8357c6a0f11249b657900accc3f5cb1ff65c49c9538121d76e851c2",
+    "challenge-cases.json": "0be5f647958915efa5bf9192de803de5e7ef5f674435de5e8aeaddea4579c4cf",
+    "demand-review-errata.json": "9ca75fa5ebe2b16d7371452449b528249995c1896557820d696c5a9296a0ae54",
+    "demand-review.json": "884a8c6648ec495c2aa1b15dcf93a65b779de413026bb564d5ddffbc4322db92",
+    "execution-plan.json": "db4110e3890418264276843287825d38190f634f67b7d29cdb1637c4e70323f9",
+    "execution-results.json": "7fd9ccaf258a62b12d86f500866b39cf23071fb4dd256495dd62e5a142c73735",
+    "proposal-review.json": "9a7e01cc799ea4f17c0592cea2391b6a4d97396787d9740b8123c77b21d8175b",
+    "review-freeze.json": "d9d7dc50c96eac78aa18446aa6606b9b7430075c24a67d4f802ed116ca5b947b"
+  }
+}
