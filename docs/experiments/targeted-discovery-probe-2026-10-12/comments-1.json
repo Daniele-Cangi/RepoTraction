@@ -1,0 +1,18 @@
+[
+  {
+    "id": 3701845210,
+    "url": "https://github.com/hoangsonww/Agentic-AI-Pipeline/issues/23#issuecomment-3701845210",
+    "body": "Thank you for the offer — I’m open to such a PR.\n\nIMHO, the best entrypoint to wire RunLedger to is the core chat agent used everywhere else: `src/agentic_ai/graph.py` via `run_chat` (this is what `src/agentic_ai/app.py` and `src/agentic_ai/cli.py` ultimately call). I’d suggest a tiny adapter script under `evals/runledger/` that calls run_chat directly so you don’t need to boot FastAPI. The tool surface is registered in `src/agentic_ai/layers/tools.py` if you need to map/allowlist tools in the suite.\n\nIf you prefer the “bonus” coding pipeline instead, the CLI entrypoint is `Agentic-Coding-Pipeline/run.py`, but it’s heavier and touches external services, so it’s a less stable target for a minimal deterministic demo.\n",
+    "created_at": "2025-12-31T09:42:14Z",
+    "updated_at": "2025-12-31T09:42:14Z",
+    "author_association": "OWNER"
+  },
+  {
+    "id": 3704195300,
+    "url": "https://github.com/hoangsonww/Agentic-AI-Pipeline/issues/23#issuecomment-3704195300",
+    "body": "Thanks - I followed your suggestion and wired RunLedger to the core chat flow (src/agentic_ai/graph.py via run_chat), so it doesn't need to boot FastAPI.\n\nPR: https://github.com/hoangsonww/Agentic-AI-Pipeline/pull/24\n\nIt adds a deterministic CI regression check (record once, replay in CI) under evals/runledger, using recorded tool outputs so the run stays consistent without network calls or API keys.\n\nLocal run:\nrunledger run evals/runledger --mode replay --baseline baselines/runledger-demo.json\n",
+    "created_at": "2026-01-01T22:38:57Z",
+    "updated_at": "2026-01-01T22:40:55Z",
+    "author_association": "NONE"
+  }
+]

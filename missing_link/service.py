@@ -161,6 +161,9 @@ class Service:
         if action not in {"analyze", "discover", "discover_from_request"}:
             raise ValueError("Unknown investigation action.")
         from_request = action == "discover_from_request"
+        targeted_inquiry = data.get("targeted_inquiry", False)
+        if not isinstance(targeted_inquiry, bool) or (targeted_inquiry and not from_request):
+            raise ValueError("targeted_inquiry requires request-led discovery and must be boolean.")
         repo = text(data.get("repo", ""), 150)
         if not from_request and not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", repo):
             raise ValueError("Choose a repository in OWNER/REPO form.")
@@ -185,6 +188,8 @@ class Service:
             "max_candidates": self._bounded_integer(data.get("max_candidates"), 1 if from_request else 5, 1, 10)}
         if behavioral_examples:
             normalized["behavioral_examples"] = True
+        if targeted_inquiry:
+            normalized["targeted_inquiry"] = True
         with self.lock:
             if any(thread.is_alive() for thread in self.threads.values()):
                 raise ValueError("One investigation at a time per account. Cancel or wait for the current job.")
@@ -529,7 +534,8 @@ class Service:
             return False
         if "target_context" not in issue:
             stage("target-context", "Reading the target's existing alternatives and constraints.")
-            context = source.fetch_reference_context(issue)
+            context = (source.fetch_reference_context(issue, include_catalog=True)
+                       if job["input"].get("targeted_inquiry") else source.fetch_reference_context(issue))
             issue = dict(issue, target_context=context, fingerprint=digest({
                 "discussion": issue["fingerprint"], "target_context": context["fingerprint"]}))
             discussions["0"] = issue
@@ -537,9 +543,48 @@ class Service:
             self.store.put("discussions", issue["id"], issue)
             save()
         job["result"]["discovery_request"] = request
+        inquiry = None
+        if job["input"].get("targeted_inquiry"):
+            from .discovery_decisions import INQUIRY_VERSION
+            if checkpoints.get("inquiry_version", INQUIRY_VERSION) != INQUIRY_VERSION:
+                raise Paused("Target inquiry contract changed; start a new investigation.")
+            checkpoints["inquiry_version"] = INQUIRY_VERSION
+            target = issue["target_context"]
+            if "target_inquiry" not in checkpoints:
+                stage("target-inquiry", "Choosing one decision-changing target investigation.")
+                checkpoints["target_inquiry"] = self.provider.choose_target_inquiry(request, target, budget)
+                save()
+            inquiry = dict(checkpoints["target_inquiry"])
+            job["result"]["target_inquiry"] = inquiry
+            save()
+            if inquiry["decision"] == "read_target":
+                if "inquiry_evidence" not in checkpoints:
+                    stage("target-inquiry-read", "Reading the selected target files at the original revision.")
+                    evidence = source.fetch_repository(target["full_name"], max_files=3,
+                        pinned_revision=target["revision"], selected_paths=[f["path"] for f in inquiry["files"]])
+                    if evidence["id"] != target["id"] or evidence["revision"] != target["revision"]:
+                        raise ValueError("Target identity or revision changed during inquiry.")
+                    expected = {f["path"]: f["sha"] for f in inquiry["files"]}
+                    if any(f["path"] not in expected or f["sha"] != expected[f["path"]] for f in evidence["files"]):
+                        raise ValueError("Target inquiry file identity changed.")
+                    checkpoints["inquiry_evidence"] = evidence
+                    save()
+                evidence = checkpoints["inquiry_evidence"]
+                inquiry["evidence"] = {k: evidence[k] for k in ("id", "full_name", "revision", "coverage")}
+                inquiry["evidence"]["files"] = [{"path": f["path"], "sha": f["sha"], "url": f["url"],
+                    "text": f["text"][:8000], "truncated": bool(f.get("truncated") or len(f["text"]) > 8000),
+                    "redacted": bool(f.get("redacted"))} for f in evidence["files"][:3]]
+                # The public result keeps exact selected/acquired identities and prompt truncation,
+                # while original source text remains in the ordinary private checkpoint.
+                public = dict(inquiry, evidence=dict(inquiry["evidence"]))
+                public["evidence"]["files"] = [{k: v for k, v in f.items() if k != "text"}
+                                               for f in inquiry["evidence"]["files"]]
+                job["result"]["target_inquiry"] = public
+                save()
         if "discovery_plan" not in checkpoints:
             stage("discovery-decision", "Choosing useful operations or a direct solution before searching.")
-            checkpoints["discovery_plan"] = self.provider.plan_discovery(request, issue["target_context"], budget)
+            checkpoints["discovery_plan"] = (self.provider.plan_discovery(request, issue["target_context"], budget, inquiry=inquiry)
+                if inquiry is not None else self.provider.plan_discovery(request, issue["target_context"], budget))
             save()
         plan = checkpoints["discovery_plan"]
         job["result"]["discovery_decision"] = plan

@@ -1,0 +1,25 @@
+{
+  "query_url": "https://api.github.com/search/issues?q=is%3Aissue%20is%3Aopen%20is%3Apublic%20language%3APython%20label%3Aenhancement%20created%3A2025-01-01..2025-12-30%20comments%3A%3E%3D2&sort=created&order=desc&per_page=2&page=1",
+  "total_count": 13211,
+  "incomplete_results": false,
+  "items": [
+    {
+      "id": 3771608675,
+      "url": "https://github.com/hoangsonww/Agentic-AI-Pipeline/issues/23",
+      "title": "Optional deterministic CI regression check (record/replay)?",
+      "created_at": "2025-12-30T23:59:55Z",
+      "updated_at": "2026-01-01T22:40:55Z",
+      "comments": 2,
+      "body": "Hi! I maintain RunLedger (https://github.com/runledger/Runledger), a small CLI for deterministic CI regression checks for tool-using agents (record once, replay in CI).\n\nWould you be open to a small, optional PR that adds:\n\n- `evals/runledger/` (suite + one case + schema + cassette)\n- `baselines/runledger-demo.json`\n- an optional GitHub Actions workflow to run the CI check (manual or on PR, depending on what you prefer)\n\nIt's small and removable, and I'm happy to close it if you don't want it.\n\nThe goal is to catch agent/tool regressions in CI without live tool calls (record once, replay in CI; fail on mismatch).\n\nIf you're interested, what is the best existing agent/example entrypoint in this repo to wire the suite to?\n\n"
+    },
+    {
+      "id": 3771546444,
+      "url": "https://github.com/PINA-org/PINA/issues/761",
+      "title": "Named `einsum` support for `LabelTensor`",
+      "created_at": "2025-12-30T23:22:42Z",
+      "updated_at": "2026-07-24T09:20:23Z",
+      "comments": 5,
+      "body": "# Description\n\nCurrently, `LabelTensor` provides an excellent wrapper for keeping track of physical dimensions in SciML tasks. However, performing complex tensor contractions still requires users to remember the integer indices of dimensions (e.g., dim=1), which is error-prone and defeats the purpose of having labels.\n\nI propose adding a named `einsum` functionality to `LabelTensor`. This would allow users to perform contractions and rearrangements using the dimension names directly, making the code more readable and physically intuitive.\n\n## Proposed API\n\nThe goal is to allow a syntax similar to `einops`, but leveraging the internal labels of the `LabelTensor`:\n\n```python\nimport torch\nfrom pina import LabelTensor\n\n# Existing LabelTensor\ntensor_a = LabelTensor(torch.rand((200, 30, 30)), [\"batch\", \"width\", \"height\"])\n\n# Proposed: Named einsum (either as a static method or instance method)\n# This would sum over 'height' and return a LabelTensor with ['batch', 'width']\nresult = LabelTensor.einsum(\"batch width height -> batch width\", tensor_a)\nresult.labels# returns [\"batch\" \"width\"]\n```\n\n## Implementation Sketch\nThe implementation would involve:\n\n1. Parsing the input string to identify the requested dimensions.\n2. Mapping the labels of the input `LabelTensor` to the characters used in standard `torch.einsum`.\n3. Executing the native PyTorch operation.\n4. Re-wrapping the output in a `LabelTensor` with the new label subset. \n\n"
+    }
+  ]
+}
