@@ -1,0 +1,332 @@
+{
+  "schema_version": 1,
+  "review_type": "independent_source_blind_output_audit",
+  "run_id": "4a61553a6f194202b7186f0ff561073c",
+  "scope": "Six actual interpret_request outputs, indices 2, 7, 9, 12, 15, 16. Compare selected citations, visible request payload and full frozen discussion separately. No candidate implementation, source comparison, browsing, new acquisition or paid calls.",
+  "coverage": {
+    "outputs": "Read all 79 returned requirements, their selected quote/citation, inference, outcomes, missing_information and relevant prior_attempts. Mechanically checked every selected ID and quote against its actual request payload.",
+    "payload": "Read common instructions, coverage metadata, selected citations, targeted surrounding source passages and exact-term availability probes. No claim of exhaustive reading of all 101 selected sources for index 16.",
+    "full_frozen_discussion": "Used previous frozen review and its explicit bounded windows, plus targeted full-frozen/input comparisons. All six inputs.json body strings match blind-discussions.json. 'Full frozen' means this larger acquired record, not complete GitHub history. It remains truncated and does not include linked targets.",
+    "prior_review_preserved": true,
+    "requirement_cap": 30,
+    "no_universal_accuracy_claim": true
+  },
+  "mechanical_validation": {
+    "run_rows_validated": 6,
+    "requirement_count": 79,
+    "citation_identity_or_quote_mismatch_count": 0,
+    "observed_validation_failures": [],
+    "meaning": "All selected IDs and quote bytes are supplied; this does not establish semantic support, current demand or complete coverage. The incorrect citation below passed validation."
+  },
+  "payload_coverage": [
+    {
+      "index": 2,
+      "requirements": 1,
+      "sources": 1,
+      "empty_sources": 0,
+      "spans": 69,
+      "omitted_visible_spans": 237,
+      "omitted_sources": 0
+    },
+    {
+      "index": 7,
+      "requirements": 13,
+      "sources": 2,
+      "empty_sources": 0,
+      "spans": 152,
+      "omitted_visible_spans": 250,
+      "omitted_sources": 0
+    },
+    {
+      "index": 9,
+      "requirements": 21,
+      "sources": 1,
+      "empty_sources": 0,
+      "spans": 129,
+      "omitted_visible_spans": 65,
+      "omitted_sources": 0
+    },
+    {
+      "index": 12,
+      "requirements": 30,
+      "sources": 1,
+      "empty_sources": 0,
+      "spans": 130,
+      "omitted_visible_spans": 64,
+      "omitted_sources": 0
+    },
+    {
+      "index": 15,
+      "requirements": 11,
+      "sources": 3,
+      "empty_sources": 0,
+      "spans": 88,
+      "omitted_visible_spans": 100,
+      "omitted_sources": 0
+    },
+    {
+      "index": 16,
+      "requirements": 3,
+      "sources": 101,
+      "empty_sources": 87,
+      "spans": 64,
+      "omitted_visible_spans": 321,
+      "omitted_sources": 169
+    }
+  ],
+  "findings": [
+    {
+      "id": "F1",
+      "index": 7,
+      "rids": [
+        "r12"
+      ],
+      "classification": "selected_citation_semantically_unrelated",
+      "confidence": "high",
+      "requirement": "Do not introduce descriptor-aware re-rendering; keep spelling variance render-inert under the adopted W-A approach.",
+      "citation_id": "s9e06b2c657abd9af",
+      "selected_quote": "(`0x3f350481`) and `0.7072` (`0x3f350b0f`) against `0x3f3504f3` — distinct by **114 and 1564**",
+      "finding": "The selected quote concerns float-word separation around an intrinsic Q default. It supplies no writer, W-A or spelling-variance rule. The inference falsely says the cited excerpt preserves no descriptor-aware rendering.",
+      "visible_payload_assessment": "Requirement meaning is supported elsewhere in visible q1, but the chosen span is unrelated. The exact adopted W-A ruling is visible without a selectable span containing 'adopt W-A'. This explains citation scarcity, not the choice of an unrelated quote.",
+      "full_frozen_assessment": "Full frozen q1 explicitly records 'correcting amendment to B, and adopt W-A.' Thus the requirement itself is not invented; its selected provenance is wrong.",
+      "supporting_context": {
+        "source_id": "q1",
+        "quote": "correcting amendment to B, and adopt W-A.",
+        "url": "https://github.com/misofm/engine/issues/291#issuecomment-5466272594"
+      }
+    },
+    {
+      "id": "F2",
+      "index": 7,
+      "rids": [
+        "r0",
+        "r2",
+        "r4",
+        "r5",
+        "r6",
+        "r8",
+        "r10"
+      ],
+      "classification": "selected_span_partial_support",
+      "confidence": "high",
+      "finding": "Several requirements depend on neighboring lines that the single chosen span does not contain. Their meanings are generally supported by visible surrounding text, so this is narrower than semantic fabrication.",
+      "examples": [
+        {
+          "rid": "r0",
+          "citation_id": "s99b3e8fb5d2727d0",
+          "quote": "Ratified interpretation, and the whole of this design: **every continuous parameter gets one",
+          "missing_from_selected_span": "decimal resolution, native units and integer persisted count"
+        },
+        {
+          "rid": "r10",
+          "citation_id": "s56c23fe50fedc678",
+          "quote": "points' `f32`s**, checked at validation.",
+          "missing_from_selected_span": "escape value, both flanks and required distinctness"
+        },
+        {
+          "rid": "r6",
+          "citation_id": "s6e3ff438175ce63e",
+          "quote": "generation, `MAXIMUM_LATTICE_POINTS` as a validation concern, the `f32` step word on the wire, and",
+          "missing_from_selected_span": "the deletion predicate supplied by the preceding line"
+        }
+      ],
+      "visible_payload_assessment": "Adjacent source text and, for some, adjacent selectable spans support the paraphrase; a lone selected fragment does not fully substantiate it.",
+      "full_frozen_assessment": "Consistent with the design summary in the full frozen record. No incorrect numeric/API requirement inferred from this support weakness."
+    },
+    {
+      "id": "F3",
+      "index": 16,
+      "rids": [
+        "r2"
+      ],
+      "classification": "selected_citation_partial_support_with_better_available_span",
+      "confidence": "high",
+      "citation_id": "sc9b8f786561e2a31",
+      "selected_quote": "**Filter (duty 5):** each item names why it is the owner's (which of the line's ten owner categories it touches, the owner consequence it carries, or that the sort ended at unsure).",
+      "finding": "The selected quote supports per-item grounds, but not a separate list before batch 1. That placement is asserted by the requirement and inference and appears in another actually selectable span.",
+      "supporting_context": {
+        "citation_id": "sfa486f184575f7ec",
+        "source_id": "q0",
+        "quote": "never swallowed — separate short list before batch 1 with a one-line reason each; grounds per item,"
+      },
+      "visible_payload_assessment": "Meaning supported and proper supporting text available; citation chosen covers only part.",
+      "full_frozen_assessment": "Same distinction holds. This is established collector guidance, not proof of new software demand."
+    },
+    {
+      "id": "F4",
+      "index": 15,
+      "rids": [
+        "r3",
+        "r4",
+        "r5",
+        "r6",
+        "r7"
+      ],
+      "classification": "temporal_interpretation_incompletely_reconciled_despite_visible_evidence",
+      "confidence": "medium_high",
+      "finding": "Historical SIGN design is retained as mandatory/explicit requirements, while r4 inference says its implementation remains a proposal. The later visible round reports Sign attachments and measured SIGN variants, and explicitly does not recommend the two-argument expansion. The output qualifies these as design details rather than whole-issue acceptance, but does not reconcile this later implementation/experiment evidence in prior_attempts.",
+      "visible_payload_assessment": "q2 contains the full later round. 'Theory attachments' has an available span; the not-recommended subsection is visible but lacks its own selectable citation. Later evidence should constrain interpretation even if it cannot be emitted as a source-grounded requirement. This does not prove every historical SIGN behavior is implemented.",
+      "full_frozen_assessment": "The same later record supports a measured, partly implemented research program, not a wholly unimplemented SIGN proposal. Exact remaining SIGN sub-behaviors cannot be determined without source/PR evidence and are not invented here.",
+      "evidence": [
+        {
+          "source_id": "q2",
+          "citation_id": "s53a936b157025564",
+          "quote": "**Theory attachments** (sessions): stream Sign 620, IntLat 454, Trans 415, Closure 2, Relations 1,662, Transfer 288; gate2 Trans 326, Sign 264, IntLat 17, Closure 2."
+        },
+        {
+          "source_id": "q2",
+          "citation_id": null,
+          "quote": "**SIGN for two-argument nodes**: +25-37% (#165). R1 gets most of the clause win without the interface."
+        }
+      ]
+    }
+  ],
+  "per_discussion_assessment": [
+    {
+      "index": 2,
+      "rids_reviewed": "r0",
+      "visible_payload": "The historical scope is accurately paraphrased. Inference explicitly says it may be retrospective, outcome says present request is not established, and prior_attempts records stopping further corrections. Do not count r0 as fabricated new unresolved demand merely because mandatory=true.",
+      "full_frozen": "Consistent with report/stop classification. Larger record has next-week review/deployment/data coordination, but not a reopened generic metrics implementation need.",
+      "coverage_limit": "One broad scope row has little actionable residual detail; this is bounded coverage, not proven semantic error. Production crontab confirmation is visible/citable (s488ac31aa8c77710), while 'next-week plan' heading itself is omitted from source view.",
+      "disposition": "legitimate_status_uncertainty_with_low_residual_coverage"
+    },
+    {
+      "index": 7,
+      "rids_reviewed": "r0-r12",
+      "visible_payload": "Captures major integer-grid direction, no-FP arithmetic, SDK stepping, distinctness and sequencing. F1 is a wrong citation; F2 records fragment support. Status unclear follows explicit incomplete-context instruction, not inability to recognize pending design.",
+      "full_frozen": "Detailed bound/default/rank acceptance exists, but is not completely represented. Some information is absent from payload; some is visible without selectable spans. Do not score all omissions as interpretation failures.",
+      "coverage_limit": "13 of at most 30 rows; cap is not the immediate constraint here. Missing_information explicitly records bounded extraction. No complete acceptance claim.",
+      "disposition": "useful_partial_design_interpretation_with_citation_errors"
+    },
+    {
+      "index": 9,
+      "rids_reviewed": "r0-r20",
+      "visible_payload": "Concrete whole-record removal, privacy, behavior preservation and verification scope largely supported. Some compound requirements include neighboring sentences beyond chosen quotes (for example r4 synthetic replacement, r11 narrowed-term rule, r20 ready/merge prohibitions); these are contextual partial citations, not identified invented requirements.",
+      "full_frozen": "Private exact cleanup list remains unavailable. Manager's census baseline-comparison carveout exists in root metadata; output expressly records it as uncitable missing information rather than silently treating all census baseline failures as cleanup defects.",
+      "coverage_limit": "Manager carveout is visible but lacks demand-span citation. r4/r13 overlap. No execution or final completion claimed.",
+      "disposition": "mostly_supported_concrete_request_with_acknowledged_uncitable_scope"
+    },
+    {
+      "index": 12,
+      "rids_reviewed": "r0-r29",
+      "visible_payload": "Thirty rows mostly cover early gallery/filter/selection stories; r28/r29 correctly preserve atomic group Move/Removal and one Undo. Price/export prior work and current single-source authority are distinguished.",
+      "full_frozen": "Precise manifest/transaction/Undo rules exceed returned detail. However relevant test bullets survive in visible tail even where main contract was removed. Most such bullets lack selectable demand spans.",
+      "coverage_limit": "30-row cap reached; missing_information explicitly lists uncovered behaviors and validation details. No completeness demand or universal error assigned. Baseline finite cases are only partly represented, as recorded below.",
+      "disposition": "supported_but_capped_feature_subset"
+    },
+    {
+      "index": 15,
+      "rids_reviewed": "r0-r10",
+      "visible_payload": "Goal, no-slowdown criterion and MIN equivalence preserve meaning. F4 identifies incomplete temporal reconciliation of historical SIGN. R2-R6 are visible in q2 but largely not selectable as citations; output correctly distinguishes span absence in missing_information.",
+      "full_frozen": "Latest round prioritizes R1a/R2 then R3 and qualified followups. The requirement describing exploratory redund.py is accurate as a description, but not a substitute for the uncitable deliverable test against RULE_INSTANTIATED; output does not explicitly require the wrong rule block.",
+      "coverage_limit": "11 rows, no cap pressure. Missing later constraints are partly citation-selection limitations, not absent source text. No source-level completion inferred.",
+      "disposition": "partial_research_interpretation_with_temporal_status_gap"
+    },
+    {
+      "index": 16,
+      "rids_reviewed": "r0-r2",
+      "visible_payload": "Correctly treats the collector as ongoing and ruled/declined items as prior dispositions. Established process guidance is not evidence of an unimplemented software need. F3 concerns citation support only.",
+      "full_frozen": "87 later comment bodies are empty/truncated in acquisition. Cannot establish current pending set. Larger frozen history remains incomplete as well.",
+      "coverage_limit": "169 sources omitted, 321 visible spans omitted, 87 of 101 selected sources empty. Low extraction count cannot demonstrate exhaustive no-demand or semantic failure.",
+      "disposition": "legitimate_uncertainty_with_partial_guidance_citation"
+    }
+  ],
+  "baseline_finite_case_coverage": [
+    {
+      "case_id": "I7-C1",
+      "output_rids": [
+        "r0",
+        "r1"
+      ],
+      "coverage": "general integer-grid concept only",
+      "gap_class": "missing_payload_text",
+      "evidence": "Explicit 120 Hz / 12000 round-values row is absent from visible sources and selectable spans; present in full frozen acceptance table."
+    },
+    {
+      "case_id": "I7-C2",
+      "output_rids": [
+        "r2"
+      ],
+      "coverage": "general exact decimal mapping only",
+      "gap_class": "missing_payload_text",
+      "evidence": "Five spelling example containing 0.3000000 absent from visible sources/spans; full frozen parsing section supports it."
+    },
+    {
+      "case_id": "I7-C3",
+      "output_rids": [],
+      "coverage": "off-grid declared bound case not extracted",
+      "gap_class": "visible_but_unavailable_citation",
+      "evidence": "q0 includes maximum = 0.99999, but no selectable span contains it. Full frozen section 8.9 fixes expected declaration rejection."
+    },
+    {
+      "case_id": "I7-C4",
+      "output_rids": [
+        "r10"
+      ],
+      "coverage": "escape distinctness only; rank/bits acceptance omitted",
+      "gap_class": "visible_but_unavailable_citation",
+      "evidence": "q0 includes rank 6072 but no selectable span contains it. r10 selected quote itself is only a fragment. Full frozen section 8.9 gives rank and bits."
+    },
+    {
+      "case_id": "I12-C1",
+      "output_rids": [
+        "r28"
+      ],
+      "coverage": "atomic multi-source Move plus one Undo; no precise mixed-destination exclusion/counts",
+      "gap_class": "visible_but_unavailable_citation_and_count_cap",
+      "evidence": "Visible q0 HTTP-test bullets say 'already-at-destination exclusion and the all-no-op rejection' and 'atomic success across three sources'; no selectable span includes those bullets. Main detailed contract omitted. Thirty-row cap reached; omissions acknowledged."
+    },
+    {
+      "case_id": "I12-C2",
+      "output_rids": [
+        "r28"
+      ],
+      "coverage": "atomicity only; stale-source error/selection detail not extracted",
+      "gap_class": "mixed_missing_text_uncitable_text_and_count_cap",
+      "evidence": "Visible q0 tail says 'stale-version, insufficient-quantity, overflow and non-leaf failures with no mutation and the affected source named in the error', but lacks selectable span. expected_version is citable only as a SelectedGroup type field, which alone does not prove its validation semantics. Full frozen contract adds edition-specific failure and preserved selection."
+    },
+    {
+      "case_id": "I12-C3",
+      "output_rids": [],
+      "coverage": "all-destination no-op rejection omitted",
+      "gap_class": "visible_but_unavailable_citation_and_count_cap",
+      "evidence": "Visible q0 HTTP-test bullet states all-no-op rejection; no selectable span includes it. Exact main commit rule omitted. Not scored as semantic misinterpretation."
+    }
+  ],
+  "conclusion": "Baseline mechanically validates all six outputs and preserves useful high-level demand/status distinctions. It does not establish semantic citation correctness or complete demand coverage: one clear unrelated citation, several fragment/partial citations and a temporal SIGN qualification gap are observed. Most frozen-case detail losses arise at payload/span selection and, for index 12, the 30-row cap; they are not all model interpretation failures. No prompting or implementation fix is prescribed.",
+  "frozen_at_utc": "2026-10-11T13:20:57.5801180Z",
+  "reviewed_file_hashes": [
+    {
+      "file": "run-result.json",
+      "sha256": "d263454ca03579d9109b8e9d04a2861acd49b36f6efdeebb119f8442d7a89ee8"
+    },
+    {
+      "file": "inputs.json",
+      "sha256": "bd1d9396fd946ad47387d01d35738f3d81614cdbc4283443efaabb824b43c973"
+    },
+    {
+      "file": "request-02.json",
+      "sha256": "d5d01e9b5615bbad31c1ae171159ae160636349554561675680617ff4b1802ed"
+    },
+    {
+      "file": "request-07.json",
+      "sha256": "40e66bcd1fe9a80c01930f6fe4ec1c3c10688a122c75ef072af4971db41610e7"
+    },
+    {
+      "file": "request-09.json",
+      "sha256": "5c62cb013dcabcd90dea8fa92ad24c85308da94151def32bfaae3d70005c4cdb"
+    },
+    {
+      "file": "request-12.json",
+      "sha256": "c2841f4b65541a9ddc50d5217676aada175005270ec61c1bab3e49f8c028f169"
+    },
+    {
+      "file": "request-15.json",
+      "sha256": "98230999814757ccf96a77345ccdfe80361f9cba6e4efa4fb25bcb61f7be7506"
+    },
+    {
+      "file": "request-16.json",
+      "sha256": "180c3a8162765b5df1b3df6d8998207b767fe09e22eb96e62b274ab51fd703cc"
+    }
+  ]
+}
