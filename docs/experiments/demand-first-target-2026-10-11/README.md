@@ -63,6 +63,9 @@ build; their resolved versions and image ID are exported. Dependencies/base imag
 are not pinned by digest, so this is not a bit-for-bit reproducible environment.
 No downloaded target code runs in the local host Python. This is a target-specific
 integration test, not a replacement runner, transport, or production service.
+The first CI image build failed before any HTTP test: the credential-free Git
+archive lacked versioningit's VCS metadata. The image supplies a `PKG-INFO` version
+of `0.0.0+study.2a5b58d` for packaging only; the pinned application code is unchanged.
 
 **Protocol deviation:** the planned 9-repeat latency comparison at 1,000/10,000
 authors is not performed, because no selected source reached integration. There
