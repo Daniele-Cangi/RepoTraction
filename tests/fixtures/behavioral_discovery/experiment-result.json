@@ -1,0 +1,668 @@
+{
+  "baseline_commit": "2bf95680b9672fef17ca7b43c9a96c13b3ffbbcc",
+  "protocol_sha256": "cf132590cfd2554bcababe76a179757f3ec14d7712e4877bbafec1b07cdcae2a",
+  "contracts_sha256": "32052b729aeff847ffccd170bf1b8f3d9c7609542b923eb4abc36b1cf7e173d3",
+  "candidate_count": 12,
+  "contract_count": 8,
+  "attempted_bindings": 110,
+  "omitted_functions": 12,
+  "unobserved_bindings": [],
+  "load_errors": [],
+  "search_execution": {
+    "status": "exited_successfully",
+    "duration_seconds": 4.489,
+    "runtime": {
+      "wasmtime": "49.0.1",
+      "cpython_wasi": "3.14.7",
+      "engine_sha256": "ea76fcf3f3015b46020755fe76779f483240f8377a80bda767ee6e295c782aa8",
+      "module_sha256": "d24bd98d3071af6b17d51d53a08700b9acef59172a0afcb6adb733645c2a1715"
+    },
+    "isolation": {
+      "available": true,
+      "execution_enabled": true,
+      "backend": "wasmtime-wasi",
+      "scope": "Opt-in pure-Python isolated examples, not native/target/service integration.",
+      "network": false,
+      "guest_inherits_env": false,
+      "memory_bytes": 268435456,
+      "fuel": 5000000000,
+      "wasm_timeout_seconds": 15,
+      "host_timeout_seconds": 45,
+      "output_bytes_per_stream": 32768,
+      "persistent_guest_writes": false
+    }
+  },
+  "export_execution": {
+    "status": "exited_successfully",
+    "duration_seconds": 1.794,
+    "stdout": "{\"passed\": 127, \"scope\": \"exported partial adapter\", \"target_integrated\": false}\n"
+  },
+  "matches": [
+    {
+      "candidate_id": "5720c48158a397e26d15",
+      "entrypoint": "coverage/results.py:_line_ranges",
+      "contract_id": "ordered-selection-runs",
+      "disposition": "behavioral_witness",
+      "recipe": "identity",
+      "evidence": {
+        "url": "https://github.com/coveragepy/coveragepy/blob/0287d5da35d9dee0f7f464ddb86321e2d0b273cd/coverage/results.py#L422-L446",
+        "path": "coverage/results.py",
+        "line": 422,
+        "end_line": 446,
+        "quote": "def _line_ranges(\n    statements: Iterable[TLineNo],\n    lines: Iterable[TLineNo],\n) -> list[tuple[TLineNo, TLineNo]]:\n    \"\"\"Produce a list of ranges for `format_lines`.\"\"\"\n    statements = sorted(statements)\n    lines = sorted(lines)\n\n    pairs = []\n    start: TLineNo | None = None\n    lidx = 0\n    for stmt in statements:\n        if lidx >= len(lines):\n            break\n        if stmt == lines[lidx]:\n            lidx += 1\n            if not start:\n                start = stmt\n            end = stmt\n        elif start:\n            pairs.append((start, end))\n            start = None\n    if start:\n        pairs.append((start, end))\n    return pairs\n",
+        "file_sha256": "e5040bdc9e45559056700c9586977df83ac5d80048a21e770629f78929c48b12",
+        "slice_sha256": "d8a3384eb1ca95d4a45c0d8d226822e55be58215dfefda3fc96323cf4d16c921"
+      },
+      "source_scope": "extracted_function_with_resolved_same_file_bindings",
+      "private_name": true,
+      "examples_passed": 3,
+      "checks_passed": 126,
+      "ablation_passed": 1,
+      "input_mutation_observed": false,
+      "requested_operation": "Maximal selected runs relative to an ordered positive integer universe",
+      "interpretation_origin": "coding_agent_specification",
+      "uncovered_requirements": [],
+      "reuse_mode": "extraction_requires_review",
+      "qualified": false,
+      "target_integrated": false,
+      "complete_fit": "unestablished"
+    },
+    {
+      "candidate_id": "5720c48158a397e26d15",
+      "entrypoint": "coverage/results.py:_line_ranges",
+      "contract_id": "rf-transmission-regions",
+      "disposition": "behavioral_witness",
+      "recipe": "mask_one_halfopen",
+      "evidence": {
+        "url": "https://github.com/coveragepy/coveragepy/blob/0287d5da35d9dee0f7f464ddb86321e2d0b273cd/coverage/results.py#L422-L446",
+        "path": "coverage/results.py",
+        "line": 422,
+        "end_line": 446,
+        "quote": "def _line_ranges(\n    statements: Iterable[TLineNo],\n    lines: Iterable[TLineNo],\n) -> list[tuple[TLineNo, TLineNo]]:\n    \"\"\"Produce a list of ranges for `format_lines`.\"\"\"\n    statements = sorted(statements)\n    lines = sorted(lines)\n\n    pairs = []\n    start: TLineNo | None = None\n    lidx = 0\n    for stmt in statements:\n        if lidx >= len(lines):\n            break\n        if stmt == lines[lidx]:\n            lidx += 1\n            if not start:\n                start = stmt\n            end = stmt\n        elif start:\n            pairs.append((start, end))\n            start = None\n    if start:\n        pairs.append((start, end))\n    return pairs\n",
+        "file_sha256": "e5040bdc9e45559056700c9586977df83ac5d80048a21e770629f78929c48b12",
+        "slice_sha256": "d8a3384eb1ca95d4a45c0d8d226822e55be58215dfefda3fc96323cf4d16c921"
+      },
+      "source_scope": "extracted_function_with_resolved_same_file_bindings",
+      "private_name": true,
+      "examples_passed": 4,
+      "checks_passed": 123,
+      "ablation_passed": 0,
+      "input_mutation_observed": false,
+      "requested_operation": "Boundaries of every contiguous True region, preserving singleton bins",
+      "interpretation_origin": "coding_agent_specification",
+      "uncovered_requirements": [
+        "NumPy arrays and validation; frequency/power alignment; Spectrace-specific errors",
+        "Transmission dataclass; center/peak/bandwidth/noise-floor metadata",
+        "Full target test suite, performance, adoption and maintainability"
+      ],
+      "reuse_mode": "extraction_requires_review",
+      "qualified": false,
+      "target_integrated": false,
+      "complete_fit": "unestablished"
+    },
+    {
+      "candidate_id": "5720c48158a397e26d15",
+      "entrypoint": "coverage/results.py:_line_ranges",
+      "contract_id": "browser-only-regions",
+      "disposition": "runtime_blocked",
+      "recipe": "mask_one_halfopen",
+      "evidence": {
+        "url": "https://github.com/coveragepy/coveragepy/blob/0287d5da35d9dee0f7f464ddb86321e2d0b273cd/coverage/results.py#L422-L446",
+        "path": "coverage/results.py",
+        "line": 422,
+        "end_line": 446,
+        "quote": "def _line_ranges(\n    statements: Iterable[TLineNo],\n    lines: Iterable[TLineNo],\n) -> list[tuple[TLineNo, TLineNo]]:\n    \"\"\"Produce a list of ranges for `format_lines`.\"\"\"\n    statements = sorted(statements)\n    lines = sorted(lines)\n\n    pairs = []\n    start: TLineNo | None = None\n    lidx = 0\n    for stmt in statements:\n        if lidx >= len(lines):\n            break\n        if stmt == lines[lidx]:\n            lidx += 1\n            if not start:\n                start = stmt\n            end = stmt\n        elif start:\n            pairs.append((start, end))\n            start = None\n    if start:\n        pairs.append((start, end))\n    return pairs\n",
+        "file_sha256": "e5040bdc9e45559056700c9586977df83ac5d80048a21e770629f78929c48b12",
+        "slice_sha256": "d8a3384eb1ca95d4a45c0d8d226822e55be58215dfefda3fc96323cf4d16c921"
+      },
+      "source_scope": "extracted_function_with_resolved_same_file_bindings",
+      "private_name": true,
+      "examples_passed": 4,
+      "checks_passed": 20,
+      "ablation_passed": 0,
+      "input_mutation_observed": false,
+      "requested_operation": "Same region operation in a JavaScript-only recipient",
+      "interpretation_origin": "coding_agent_specification",
+      "uncovered_requirements": [
+        "A port is new work; Python extraction is incompatible with the stipulated runtime."
+      ],
+      "reuse_mode": "extraction_requires_review",
+      "qualified": false,
+      "target_integrated": false,
+      "complete_fit": "unestablished"
+    },
+    {
+      "candidate_id": "5720c48158a397e26d15",
+      "entrypoint": "coverage/results.py:_line_ranges",
+      "contract_id": "unknown-runtime-regions",
+      "disposition": "runtime_unknown",
+      "recipe": "mask_one_halfopen",
+      "evidence": {
+        "url": "https://github.com/coveragepy/coveragepy/blob/0287d5da35d9dee0f7f464ddb86321e2d0b273cd/coverage/results.py#L422-L446",
+        "path": "coverage/results.py",
+        "line": 422,
+        "end_line": 446,
+        "quote": "def _line_ranges(\n    statements: Iterable[TLineNo],\n    lines: Iterable[TLineNo],\n) -> list[tuple[TLineNo, TLineNo]]:\n    \"\"\"Produce a list of ranges for `format_lines`.\"\"\"\n    statements = sorted(statements)\n    lines = sorted(lines)\n\n    pairs = []\n    start: TLineNo | None = None\n    lidx = 0\n    for stmt in statements:\n        if lidx >= len(lines):\n            break\n        if stmt == lines[lidx]:\n            lidx += 1\n            if not start:\n                start = stmt\n            end = stmt\n        elif start:\n            pairs.append((start, end))\n            start = None\n    if start:\n        pairs.append((start, end))\n    return pairs\n",
+        "file_sha256": "e5040bdc9e45559056700c9586977df83ac5d80048a21e770629f78929c48b12",
+        "slice_sha256": "d8a3384eb1ca95d4a45c0d8d226822e55be58215dfefda3fc96323cf4d16c921"
+      },
+      "source_scope": "extracted_function_with_resolved_same_file_bindings",
+      "private_name": true,
+      "examples_passed": 4,
+      "checks_passed": 20,
+      "ablation_passed": 0,
+      "input_mutation_observed": false,
+      "requested_operation": "Same region operation with unknown recipient runtime",
+      "interpretation_origin": "coding_agent_specification",
+      "uncovered_requirements": [],
+      "reuse_mode": "extraction_requires_review",
+      "qualified": false,
+      "target_integrated": false,
+      "complete_fit": "unestablished"
+    }
+  ],
+  "helper_counterexamples": [
+    {
+      "candidate_id": "5720c48158a397e26d15",
+      "contract_id": "rf-transmission-regions",
+      "recipe": "mask_zero_closed",
+      "first_failure": {
+        "phase": "examples",
+        "case_index": 0,
+        "args": [
+          [
+            false,
+            false,
+            true,
+            true,
+            true,
+            false,
+            true
+          ]
+        ],
+        "expected": [
+          [
+            2,
+            5
+          ],
+          [
+            6,
+            7
+          ]
+        ],
+        "mutated_input": false,
+        "observed": [
+          [
+            2,
+            4
+          ],
+          [
+            6,
+            6
+          ]
+        ]
+      }
+    },
+    {
+      "candidate_id": "5720c48158a397e26d15",
+      "contract_id": "rf-transmission-regions",
+      "recipe": "mask_zero_halfopen",
+      "first_failure": {
+        "phase": "examples",
+        "case_index": 1,
+        "args": [
+          [
+            true,
+            false,
+            true
+          ]
+        ],
+        "expected": [
+          [
+            0,
+            1
+          ],
+          [
+            2,
+            3
+          ]
+        ],
+        "mutated_input": false,
+        "observed": [
+          [
+            2,
+            3
+          ]
+        ]
+      }
+    },
+    {
+      "candidate_id": "5720c48158a397e26d15",
+      "contract_id": "rf-transmission-regions",
+      "recipe": "mask_one_closed",
+      "first_failure": {
+        "phase": "examples",
+        "case_index": 0,
+        "args": [
+          [
+            false,
+            false,
+            true,
+            true,
+            true,
+            false,
+            true
+          ]
+        ],
+        "expected": [
+          [
+            2,
+            5
+          ],
+          [
+            6,
+            7
+          ]
+        ],
+        "mutated_input": false,
+        "observed": [
+          [
+            2,
+            4
+          ],
+          [
+            6,
+            6
+          ]
+        ]
+      }
+    },
+    {
+      "candidate_id": "5720c48158a397e26d15",
+      "contract_id": "browser-only-regions",
+      "recipe": "mask_zero_closed",
+      "first_failure": {
+        "phase": "examples",
+        "case_index": 0,
+        "args": [
+          [
+            false,
+            false,
+            true,
+            true,
+            true,
+            false,
+            true
+          ]
+        ],
+        "expected": [
+          [
+            2,
+            5
+          ],
+          [
+            6,
+            7
+          ]
+        ],
+        "mutated_input": false,
+        "observed": [
+          [
+            2,
+            4
+          ],
+          [
+            6,
+            6
+          ]
+        ]
+      }
+    },
+    {
+      "candidate_id": "5720c48158a397e26d15",
+      "contract_id": "browser-only-regions",
+      "recipe": "mask_zero_halfopen",
+      "first_failure": {
+        "phase": "examples",
+        "case_index": 1,
+        "args": [
+          [
+            true,
+            false,
+            true
+          ]
+        ],
+        "expected": [
+          [
+            0,
+            1
+          ],
+          [
+            2,
+            3
+          ]
+        ],
+        "mutated_input": false,
+        "observed": [
+          [
+            2,
+            3
+          ]
+        ]
+      }
+    },
+    {
+      "candidate_id": "5720c48158a397e26d15",
+      "contract_id": "browser-only-regions",
+      "recipe": "mask_one_closed",
+      "first_failure": {
+        "phase": "examples",
+        "case_index": 0,
+        "args": [
+          [
+            false,
+            false,
+            true,
+            true,
+            true,
+            false,
+            true
+          ]
+        ],
+        "expected": [
+          [
+            2,
+            5
+          ],
+          [
+            6,
+            7
+          ]
+        ],
+        "mutated_input": false,
+        "observed": [
+          [
+            2,
+            4
+          ],
+          [
+            6,
+            6
+          ]
+        ]
+      }
+    },
+    {
+      "candidate_id": "5720c48158a397e26d15",
+      "contract_id": "unknown-runtime-regions",
+      "recipe": "mask_zero_closed",
+      "first_failure": {
+        "phase": "examples",
+        "case_index": 0,
+        "args": [
+          [
+            false,
+            false,
+            true,
+            true,
+            true,
+            false,
+            true
+          ]
+        ],
+        "expected": [
+          [
+            2,
+            5
+          ],
+          [
+            6,
+            7
+          ]
+        ],
+        "mutated_input": false,
+        "observed": [
+          [
+            2,
+            4
+          ],
+          [
+            6,
+            6
+          ]
+        ]
+      }
+    },
+    {
+      "candidate_id": "5720c48158a397e26d15",
+      "contract_id": "unknown-runtime-regions",
+      "recipe": "mask_zero_halfopen",
+      "first_failure": {
+        "phase": "examples",
+        "case_index": 1,
+        "args": [
+          [
+            true,
+            false,
+            true
+          ]
+        ],
+        "expected": [
+          [
+            0,
+            1
+          ],
+          [
+            2,
+            3
+          ]
+        ],
+        "mutated_input": false,
+        "observed": [
+          [
+            2,
+            3
+          ]
+        ]
+      }
+    },
+    {
+      "candidate_id": "5720c48158a397e26d15",
+      "contract_id": "unknown-runtime-regions",
+      "recipe": "mask_one_closed",
+      "first_failure": {
+        "phase": "examples",
+        "case_index": 0,
+        "args": [
+          [
+            false,
+            false,
+            true,
+            true,
+            true,
+            false,
+            true
+          ]
+        ],
+        "expected": [
+          [
+            2,
+            5
+          ],
+          [
+            6,
+            7
+          ]
+        ],
+        "mutated_input": false,
+        "observed": [
+          [
+            2,
+            4
+          ],
+          [
+            6,
+            6
+          ]
+        ]
+      }
+    },
+    {
+      "candidate_id": "5720c48158a397e26d15",
+      "contract_id": "zero-index-selected-ranges",
+      "recipe": "identity",
+      "first_failure": {
+        "phase": "examples",
+        "case_index": 0,
+        "args": [
+          [
+            0,
+            1,
+            2
+          ],
+          [
+            0,
+            1
+          ]
+        ],
+        "expected": [
+          [
+            0,
+            1
+          ]
+        ],
+        "mutated_input": false,
+        "observed": [
+          [
+            1,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "candidate_id": "5720c48158a397e26d15",
+      "contract_id": "numeric-gap-ranges",
+      "recipe": "identity",
+      "first_failure": {
+        "phase": "examples",
+        "case_index": 0,
+        "args": [
+          [
+            1,
+            3,
+            4
+          ],
+          [
+            1,
+            3,
+            4
+          ]
+        ],
+        "expected": [
+          [
+            1,
+            1
+          ],
+          [
+            3,
+            4
+          ]
+        ],
+        "mutated_input": false,
+        "observed": [
+          [
+            1,
+            4
+          ]
+        ]
+      }
+    }
+  ],
+  "lexical_comparator": {
+    "scope": "Common local five-problem pool, original selector and structurally generated queries; not the native end-to-end baseline. Issue state normalized open for this controlled comparator only.",
+    "queries": [
+      "analysis file reporter create is:open in:title,body -repo:coveragepy/coveragepy",
+      "isolate module copy are isolated aggressive is:open in:title,body -repo:coveragepy/coveragepy",
+      "sys modules saved context manager remove is:open in:title,body -repo:coveragepy/coveragepy"
+    ],
+    "selected": [
+      {
+        "url": "https://github.com/databrickslabs/impulse/issues/117",
+        "repo": "databrickslabs/impulse",
+        "title": "StatsAggregator: per-interval statistics are O(intervals x samples), slow for TimeWindowEvent with many windows",
+        "state": "open",
+        "retrieval": [
+          {
+            "query_index": 0,
+            "upstream_rank": 4
+          },
+          {
+            "query_index": 1,
+            "upstream_rank": 4
+          },
+          {
+            "query_index": 2,
+            "upstream_rank": 4
+          }
+        ],
+        "title_term_overlap": 1,
+        "same_project": false,
+        "selection_order": 1
+      },
+      {
+        "url": "https://github.com/arts-link/screenshot-a-day/issues/12",
+        "repo": "arts-link/screenshot-a-day",
+        "title": "Collapse Consecutive Identical Captures Into Expandable Date Ranges",
+        "state": "open",
+        "retrieval": [
+          {
+            "query_index": 0,
+            "upstream_rank": 1
+          },
+          {
+            "query_index": 1,
+            "upstream_rank": 1
+          },
+          {
+            "query_index": 2,
+            "upstream_rank": 1
+          }
+        ],
+        "title_term_overlap": 0,
+        "same_project": false,
+        "selection_order": 2
+      },
+      {
+        "url": "https://github.com/liguowang/CrossMap/issues/86",
+        "repo": "liguowang/CrossMap",
+        "title": "Split ranges in GRCh38",
+        "state": "open",
+        "retrieval": [
+          {
+            "query_index": 0,
+            "upstream_rank": 2
+          },
+          {
+            "query_index": 1,
+            "upstream_rank": 2
+          },
+          {
+            "query_index": 2,
+            "upstream_rank": 2
+          }
+        ],
+        "title_term_overlap": 0,
+        "same_project": false,
+        "selection_order": 3
+      }
+    ],
+    "pool": 5,
+    "source_capabilities": 65
+  },
+  "paid_calls": 0,
+  "qualified_leads": 0,
+  "target_integrations": 0,
+  "evidence_scope": "Development corpus; agent selected files/problems and authored example contracts; functions and adapter chosen automatically by behavior. Not a blind autonomous-discovery evaluation.",
+  "snapshot_note": "Initial fixture storage appended one terminal LF. Restored exact acquired blobs; every executed artifact SHA256 remained identical. Original plan/execution retained, corrected source-file attribution in plan-exact-snapshot.json."
+}
