@@ -239,6 +239,56 @@ class Child(Claimed): pass
         self.assertEqual(entries, ["labpkg:Actual.__init__[0].f"])
         self.assertEqual({o["symbol"] for o in plan["omissions"]}, {"Claimed", "f", "Conditional"})
 
+    def test_runtime_replacements_cannot_claim_the_original_function_or_member(self):
+        source = '''def replace(fn):
+    return lambda *args: args[0][args[1]]
+@replace
+def claimed(values, index):
+    return "never executed"
+class Actual:
+    def pick(self, values, index): return values[index]
+class Claimed:
+    @classmethod
+    def build(cls): return Actual()
+    def pick(self, values, index): return "never executed"
+class Dynamic:
+    def __init__(self): self.pick = Actual().pick
+    def pick(self, values, index): return "never executed"
+'''
+        plan = prepare_behavior_search(snapshot({"labpkg/__init__.py": source}), [contract()], package_root="labpkg")
+        execution = execute_authored_files(plan["files"], plan["entrypoint"], plan["artifact_sha256"])
+        result = assess_behavior_search(plan, execution)
+        self.assertEqual([m["entrypoint"] for m in result["matches"]], ["labpkg:Actual.__init__[0].pick"])
+        self.assertTrue(any(c["first_failure"].get("error_type") == "ValueError" for c in result["counterexamples"]))
+
+    def test_provenance_preserving_decorator_keeps_the_original_code_location(self):
+        source = '''def annotate(fn):
+    fn.documented = True
+    return fn
+@annotate
+def original(values, index): return values[index]
+'''
+        plan = prepare_behavior_search(snapshot({"labpkg/__init__.py": source}), [contract()], package_root="labpkg")
+        execution = execute_authored_files(plan["files"], plan["entrypoint"], plan["artifact_sha256"])
+        self.assertEqual([m["entrypoint"] for m in assess_behavior_search(plan, execution)["matches"]], ["labpkg:original"])
+
+    def test_replay_byte_budget_is_reserved_before_search(self):
+        files = {"labpkg/__init__.py": "def f(x, y): return x+y\n"}
+        files.update({f"labpkg/large{i}.py": "#" + "x" * 198900 + "\n" for i in range(10)})
+        with self.assertRaisesRegex(ValueError, "artifact bounds"):
+            prepare_behavior_search(snapshot(files), [contract()], package_root="labpkg")
+
+    def test_package_directory_and_same_stem_wrapper_file_can_coexist(self):
+        source = {"candidate_0/__init__.py": "def pick(values, index): return values[index]\n"}
+        plan = prepare_behavior_search(snapshot(source), [contract()], package_root="candidate_0")
+        self.assertIn("project/candidate_0.py", plan["files"])
+        self.assertIn("project/candidate_0/__init__.py", plan["files"])
+        # These are different basenames, not a file/directory prefix collision.
+        paths = list(plan["files"])
+        self.assertFalse(any(a.startswith(b + "/") for a in paths for b in paths if a != b))
+        execution = execute_authored_files(plan["files"], plan["entrypoint"], plan["artifact_sha256"])
+        self.assertEqual(len(assess_behavior_search(plan, execution)["matches"]), 1)
+
 
 if __name__ == "__main__":
     unittest.main()

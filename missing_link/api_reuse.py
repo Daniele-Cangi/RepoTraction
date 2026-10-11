@@ -141,7 +141,9 @@ def package_candidates(repository, package_root, arities, *, limit=40):
     if "project/" + package + "/__init__.py" not in package_files:
         raise ValueError("Supply the package initializer and its dependencies.")
     # A fresh bridge needs four additional artifacts, not just a search driver.
-    if len(package_files) > 60 or sum(len(v.encode()) for v in package_files.values()) > MAX_TOTAL_ARTIFACT_BYTES:
+    # Each of the four export artifacts is independently capped by the runner.
+    if (len(package_files) > 60 or sum(len(v.encode()) for v in package_files.values())
+            > MAX_TOTAL_ARTIFACT_BYTES - 4 * MAX_ARTIFACT_BYTES):
         raise ValueError("Package exceeds existing WASI artifact bounds.")
 
     aliases, declarations = {}, {}
@@ -207,7 +209,7 @@ def package_candidates(repository, package_root, arities, *, limit=40):
 
     candidates = []
 
-    def add(module, label, expression, locations, arity, binding):
+    def add(module, label, locations, arity, binding):
         primary_file, primary_node = locations[-1]
         def evidence(file, node):
             lines = file["text"].splitlines(keepends=True)
@@ -216,11 +218,44 @@ def package_candidates(repository, package_root, arities, *, limit=40):
             return {"path": file["path"], "line": start, "end_line": node.end_lineno,
                 "url": f"https://github.com/{name}/blob/{revision}/{quote(file['path'], safe='/')}#L{start}-L{node.end_lineno}",
                 "quote": code, "file_sha256": _sha(file["text"]), "slice_sha256": _sha(code)}
+        def checked(expression, location):
+            file, node = location
+            path = '/sandbox/work/project/' + package + '/' + file['path'][len(root) + 1:]
+            line = min([node.lineno] + [d.lineno for d in node.decorator_list])
+            return f"_checked({expression}, {path!r}, {line})"
+
+        setup = ""
+        if binding["kind"] == "function":
+            expression = checked("module." + binding["function"], locations[-1]) + "(*args)"
+        else:
+            split, member = binding["constructor_inputs"], binding["member"]
+            setup = f"    cls = module.{binding['class']}\n"
+            create = "cls"
+            if binding["factory"]:
+                create = checked("cls." + binding["factory"], locations[0])
+            elif isinstance(locations[0][1], ast.FunctionDef):
+                setup += "    " + checked("cls.__init__", locations[0]) + "\n"
+            setup += (f"    instance = {create}(*args[:{split}])\n"
+                      "    if type(instance) is not cls:\n"
+                      "        raise ValueError('Factory returned a different runtime class')\n")
+            if binding["kind"] == "factory_property":
+                setup += (f"    descriptor = next(base.__dict__[{member!r}] for base in cls.__mro__ if {member!r} in base.__dict__)\n"
+                          "    if type(descriptor) is not property or cls.__getattribute__ is not object.__getattribute__:\n"
+                          "        raise ValueError('Property dispatch differs from the indexed declaration')\n")
+                expression = checked("descriptor.fget", locations[-1]) + "(instance)"
+            else:
+                expression = checked(f"getattr(instance, {member!r})", locations[-1]) + f"(*args[{split}:])"
         code = ("from importlib import import_module\n"
+                "def _checked(function, path, line):\n"
+                "    code = getattr(getattr(function, '__func__', function), '__code__', None)\n"
+                "    if code is None or code.co_filename.replace('\\\\', '/') != path or code.co_firstlineno != line:\n"
+                "        raise ValueError('Runtime callable differs from the indexed declaration')\n"
+                "    return function\n"
                 "def _reuse(*args):\n"
                 f"    module = import_module({module!r})\n"
                 f"    if not module.__file__.replace('\\\\', '/').startswith('/sandbox/work/project/{package}/'):\n"
                 "        raise ValueError('Callable module is not the supplied package')\n"
+                + setup +
                 f"    return {expression}\n")
         entry = module + ":" + label
         candidates.append({"id": _sha(name + revision + entry + str(arity))[:20],
@@ -238,7 +273,7 @@ def package_candidates(repository, package_root, arities, *, limit=40):
             if isinstance(node, ast.FunctionDef) and not node.name.startswith("_"):
                 for arity in sorted(arities):
                     if _accepts(_arity(node), arity):
-                        add(module, node.name, f"module.{node.name}(*args)", [(file, node)], arity,
+                        add(module, node.name, [(file, node)], arity,
                             {"kind": "function", "function": node.name})
             if not isinstance(node, ast.ClassDef) or node.name.startswith("_"):
                 continue
@@ -262,12 +297,10 @@ def package_candidates(repository, package_root, arities, *, limit=40):
                                 continue
                             if not _accepts((0, 0) if prop else _arity(method, 1), arity - split):
                                 continue
-                            create = f"module.{node.name}" + ("." + factory if factory else "")
-                            expression = f"{create}(*args[:{split}]).{key}" + ("" if prop else f"(*args[{split}:])")
                             locations = ([(constructor_file, constructor)] if constructor else [(file, node)]) + [(origin, method)]
                             binding = {"kind": "factory_property" if prop else "factory_method", "class": node.name,
                                 "factory": factory, "member": key, "constructor_inputs": split}
-                            add(module, f"{node.name}.{factory or '__init__'}[{split}].{key}", expression, locations, arity, binding)
+                            add(module, f"{node.name}.{factory or '__init__'}[{split}].{key}", locations, arity, binding)
     # Stable order, no names/docstrings/expected outputs used as relevance scores.
     candidates.sort(key=lambda c: (c["entrypoint"], c["required_args"]))
     bound = min(limit, 63 - len(package_files))
