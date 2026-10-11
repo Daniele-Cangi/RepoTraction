@@ -1,0 +1,48 @@
+name: Demand-first native target proof
+
+on:
+  pull_request:
+    paths:
+      - 'docs/experiments/demand-first-target-2026-10-11/**'
+      - '.github/workflows/demand-first-native.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  target-http:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: pganssle/audio-feeder
+          ref: 2a5b58dab43a5195ccc964916bbddaf7f8727c1d
+          path: external-target
+          persist-credentials: false
+      - name: Build isolated native target
+        shell: bash
+        run: |
+          mkdir -p "$RUNNER_TEMP/native-context/target" "$RUNNER_TEMP/native-context/study" "$RUNNER_TEMP/native-results"
+          git -C external-target archive HEAD | tar -x -C "$RUNNER_TEMP/native-context/target"
+          cp docs/experiments/demand-first-target-2026-10-11/{native_http.py,acceptance.json} "$RUNNER_TEMP/native-context/study/"
+          cp docs/experiments/demand-first-target-2026-10-11/Dockerfile "$RUNNER_TEMP/native-context/Dockerfile"
+          docker build -t demand-first-target "$RUNNER_TEMP/native-context"
+          docker image inspect demand-first-target --format '{{.Id}}' > "$RUNNER_TEMP/native-results/image-id.txt"
+      - name: Exercise actual application and upstream route regressions
+        shell: bash
+        run: |
+          docker run --rm --network none --cap-drop ALL --security-opt no-new-privileges \
+            --read-only --tmpfs /tmp:rw,size=512m \
+            -v "$RUNNER_TEMP/native-results:/results" demand-first-target \
+            sh -c 'cp /dependencies.txt /results/; python /study/native_http.py /results'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: demand-first-native-results
+          path: ${{ runner.temp }}/native-results
+          if-no-files-found: error

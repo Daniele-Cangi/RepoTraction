@@ -1,0 +1,559 @@
+{
+  "batches": [
+    {
+      "query": "natural sort language:Python archived:false fork:false in:name,description,readme",
+      "items": [
+        {
+          "full_name": "sebastianruder/NLP-progress",
+          "private": false,
+          "archived": false,
+          "default_branch": "master",
+          "id": "138331573",
+          "visibility": "public",
+          "clone_url": "https://github.com/sebastianruder/NLP-progress.git"
+        },
+        {
+          "full_name": "CreatCodeBuild/TensorFlow-and-DeepLearning-Tutorial",
+          "private": false,
+          "archived": false,
+          "default_branch": "master",
+          "id": "70307904",
+          "visibility": "public",
+          "clone_url": "https://github.com/CreatCodeBuild/TensorFlow-and-DeepLearning-Tutorial.git"
+        },
+        {
+          "full_name": "SethMMorton/natsort",
+          "private": false,
+          "archived": false,
+          "default_branch": "main",
+          "id": "4209988",
+          "visibility": "public",
+          "clone_url": "https://github.com/SethMMorton/natsort.git"
+        },
+        {
+          "full_name": "keon/algorithms",
+          "private": false,
+          "archived": false,
+          "default_branch": "main",
+          "id": "74073233",
+          "visibility": "public",
+          "clone_url": "https://github.com/keon/algorithms.git"
+        },
+        {
+          "full_name": "vprusso/youtube_tutorials",
+          "private": false,
+          "archived": false,
+          "default_branch": "master",
+          "id": "90099922",
+          "visibility": "public",
+          "clone_url": "https://github.com/vprusso/youtube_tutorials.git"
+        },
+        {
+          "full_name": "deepseek-ai/DeepSeek-Coder",
+          "private": false,
+          "archived": false,
+          "default_branch": "main",
+          "id": "707551301",
+          "visibility": "public",
+          "clone_url": "https://github.com/deepseek-ai/DeepSeek-Coder.git"
+        },
+        {
+          "full_name": "TabViewer/tabview",
+          "private": false,
+          "archived": false,
+          "default_branch": "main",
+          "id": "1489635",
+          "visibility": "public",
+          "clone_url": "https://github.com/TabViewer/tabview.git"
+        },
+        {
+          "full_name": "mbadry1/Top-Deep-Learning",
+          "private": false,
+          "archived": false,
+          "default_branch": "master",
+          "id": "125444399",
+          "visibility": "public",
+          "clone_url": "https://github.com/mbadry1/Top-Deep-Learning.git"
+        },
+        {
+          "full_name": "uber-common/metta",
+          "private": false,
+          "archived": false,
+          "default_branch": "master",
+          "id": "109185631",
+          "visibility": "public",
+          "clone_url": "https://github.com/uber-common/metta.git"
+        },
+        {
+          "full_name": "aixcoder-plugin/aiXcoder-7B",
+          "private": false,
+          "archived": false,
+          "default_branch": "main",
+          "id": "779669964",
+          "visibility": "public",
+          "clone_url": "https://github.com/aixcoder-plugin/aiXcoder-7B.git"
+        },
+        {
+          "full_name": "freelabz/secator",
+          "private": false,
+          "archived": false,
+          "default_branch": "main",
+          "id": "606381231",
+          "visibility": "public",
+          "clone_url": "https://github.com/freelabz/secator.git"
+        },
+        {
+          "full_name": "DmitryRyumin/AAAI-2024-Papers",
+          "private": false,
+          "archived": false,
+          "default_branch": "main",
+          "id": "758428232",
+          "visibility": "public",
+          "clone_url": "https://github.com/DmitryRyumin/AAAI-2024-Papers.git"
+        },
+        {
+          "full_name": "Doi9t/SortBy",
+          "private": false,
+          "archived": false,
+          "default_branch": "master",
+          "id": "12068833",
+          "visibility": "public",
+          "clone_url": "https://github.com/Doi9t/SortBy.git"
+        },
+        {
+          "full_name": "anshrathod/Basic-Python-Scripts",
+          "private": false,
+          "archived": false,
+          "default_branch": "master",
+          "id": "300252537",
+          "visibility": "public",
+          "clone_url": "https://github.com/anshrathod/Basic-Python-Scripts.git"
+        },
+        {
+          "full_name": "mbadry1/Trending-Deep-Learning",
+          "private": false,
+          "archived": false,
+          "default_branch": "master",
+          "id": "126902549",
+          "visibility": "public",
+          "clone_url": "https://github.com/mbadry1/Trending-Deep-Learning.git"
+        },
+        {
+          "full_name": "SamirPaulb/DSAlgo",
+          "private": false,
+          "archived": false,
+          "default_branch": "main",
+          "id": "429315948",
+          "visibility": "public",
+          "clone_url": "https://github.com/SamirPaulb/DSAlgo.git"
+        },
+        {
+          "full_name": "OpenLemur/Lemur",
+          "private": false,
+          "archived": false,
+          "default_branch": "main",
+          "id": "682124318",
+          "visibility": "public",
+          "clone_url": "https://github.com/OpenLemur/Lemur.git"
+        },
+        {
+          "full_name": "punitarani/fli",
+          "private": false,
+          "archived": false,
+          "default_branch": "main",
+          "id": "912645774",
+          "visibility": "public",
+          "clone_url": "https://github.com/punitarani/fli.git"
+        },
+        {
+          "full_name": "gumyr/build123d",
+          "private": false,
+          "archived": false,
+          "default_branch": "dev",
+          "id": "510925389",
+          "visibility": "public",
+          "clone_url": "https://github.com/gumyr/build123d.git"
+        },
+        {
+          "full_name": "jina-ai/thinkgpt",
+          "private": false,
+          "archived": false,
+          "default_branch": "main",
+          "id": "627959104",
+          "visibility": "public",
+          "clone_url": "https://github.com/jina-ai/thinkgpt.git"
+        }
+      ]
+    },
+    {
+      "query": "diacritic language:Python archived:false fork:false in:name,description,readme",
+      "items": [
+        {
+          "full_name": "dmort27/panphon",
+          "private": false,
+          "archived": false,
+          "default_branch": "master",
+          "id": "55159660",
+          "visibility": "public",
+          "clone_url": "https://github.com/dmort27/panphon.git"
+        },
+        {
+          "full_name": "duyet/vietnamese-namedb",
+          "private": false,
+          "archived": false,
+          "default_branch": "master",
+          "id": "77470051",
+          "visibility": "public",
+          "clone_url": "https://github.com/duyet/vietnamese-namedb.git"
+        },
+        {
+          "full_name": "emres/turkish-deasciifier",
+          "private": false,
+          "archived": false,
+          "default_branch": "master",
+          "id": "575817",
+          "visibility": "public",
+          "clone_url": "https://github.com/emres/turkish-deasciifier.git"
+        },
+        {
+          "full_name": "motazsaad/process-arabic-text",
+          "private": false,
+          "archived": false,
+          "default_branch": "master",
+          "id": "85335953",
+          "visibility": "public",
+          "clone_url": "https://github.com/motazsaad/process-arabic-text.git"
+        },
+        {
+          "full_name": "slp-rl/HebTTS",
+          "private": false,
+          "archived": false,
+          "default_branch": "main",
+          "id": "810993678",
+          "visibility": "public",
+          "clone_url": "https://github.com/slp-rl/HebTTS.git"
+        },
+        {
+          "full_name": "AliOsm/arabic-text-diacritization",
+          "private": false,
+          "archived": false,
+          "default_branch": "master",
+          "id": "172094673",
+          "visibility": "public",
+          "clone_url": "https://github.com/AliOsm/arabic-text-diacritization.git"
+        },
+        {
+          "full_name": "phonikud/phonikud",
+          "private": false,
+          "archived": false,
+          "default_branch": "main",
+          "id": "928627574",
+          "visibility": "public",
+          "clone_url": "https://github.com/phonikud/phonikud.git"
+        },
+        {
+          "full_name": "Legisign/Praat-textgrids",
+          "private": false,
+          "archived": false,
+          "default_branch": "master",
+          "id": "170898928",
+          "visibility": "public",
+          "clone_url": "https://github.com/Legisign/Praat-textgrids.git"
+        },
+        {
+          "full_name": "CUNY-CL/wikipron",
+          "private": false,
+          "archived": false,
+          "default_branch": "master",
+          "id": "191615600",
+          "visibility": "public",
+          "clone_url": "https://github.com/CUNY-CL/wikipron.git"
+        },
+        {
+          "full_name": "HusseinYoussef/Arabic-OCR",
+          "private": false,
+          "archived": false,
+          "default_branch": "master",
+          "id": "220806719",
+          "visibility": "public",
+          "clone_url": "https://github.com/HusseinYoussef/Arabic-OCR.git"
+        },
+        {
+          "full_name": "Niger-Volta-LTI/yoruba-adr",
+          "private": false,
+          "archived": false,
+          "default_branch": "master",
+          "id": "124837678",
+          "visibility": "public",
+          "clone_url": "https://github.com/Niger-Volta-LTI/yoruba-adr.git"
+        },
+        {
+          "full_name": "hci-lab/PyQuran",
+          "private": false,
+          "archived": false,
+          "default_branch": "release",
+          "id": "139259534",
+          "visibility": "public",
+          "clone_url": "https://github.com/hci-lab/PyQuran.git"
+        },
+        {
+          "full_name": "almodhfer/Arabic_Diacritization",
+          "private": false,
+          "archived": false,
+          "default_branch": "master",
+          "id": "354900083",
+          "visibility": "public",
+          "clone_url": "https://github.com/almodhfer/Arabic_Diacritization.git"
+        },
+        {
+          "full_name": "IdreesInc/Monocraft",
+          "private": false,
+          "archived": false,
+          "default_branch": "main",
+          "id": "522358431",
+          "visibility": "public",
+          "clone_url": "https://github.com/IdreesInc/Monocraft.git"
+        },
+        {
+          "full_name": "bonaventuredossou/ffr-v1",
+          "private": false,
+          "archived": false,
+          "default_branch": "master",
+          "id": "240002660",
+          "visibility": "public",
+          "clone_url": "https://github.com/bonaventuredossou/ffr-v1.git"
+        },
+        {
+          "full_name": "silnrsi/font-gentium",
+          "private": false,
+          "archived": false,
+          "default_branch": "master",
+          "id": "39499633",
+          "visibility": "public",
+          "clone_url": "https://github.com/silnrsi/font-gentium.git"
+        },
+        {
+          "full_name": "JulietaUla/Montserrat",
+          "private": false,
+          "archived": false,
+          "default_branch": "master",
+          "id": "32418566",
+          "visibility": "public",
+          "clone_url": "https://github.com/JulietaUla/Montserrat.git"
+        },
+        {
+          "full_name": "roshan-research/hazm",
+          "private": false,
+          "archived": false,
+          "default_branch": "master",
+          "id": "13956112",
+          "visibility": "public",
+          "clone_url": "https://github.com/roshan-research/hazm.git"
+        },
+        {
+          "full_name": "dchaplinsky/translit-ua",
+          "private": false,
+          "archived": false,
+          "default_branch": "master",
+          "id": "26531793",
+          "visibility": "public",
+          "clone_url": "https://github.com/dchaplinsky/translit-ua.git"
+        },
+        {
+          "full_name": "pudo/normality",
+          "private": false,
+          "archived": false,
+          "default_branch": "master",
+          "id": "29775021",
+          "visibility": "public",
+          "clone_url": "https://github.com/pudo/normality.git"
+        }
+      ]
+    },
+    {
+      "query": "case normalize language:Python archived:false fork:false in:name,description,readme",
+      "items": [
+        {
+          "full_name": "hearsaycorp/normalize",
+          "private": false,
+          "archived": false,
+          "default_branch": "master",
+          "id": "16792286",
+          "visibility": "public",
+          "clone_url": "https://github.com/hearsaycorp/normalize.git"
+        },
+        {
+          "full_name": "datasets/covid-19",
+          "private": false,
+          "archived": false,
+          "default_branch": "main",
+          "id": "245619303",
+          "visibility": "public",
+          "clone_url": "https://github.com/datasets/covid-19.git"
+        },
+        {
+          "full_name": "repology/repology-rules",
+          "private": false,
+          "archived": false,
+          "default_branch": "master",
+          "id": "126047919",
+          "visibility": "public",
+          "clone_url": "https://github.com/repology/repology-rules.git"
+        },
+        {
+          "full_name": "vacancy/Synchronized-BatchNorm-PyTorch",
+          "private": false,
+          "archived": false,
+          "default_branch": "master",
+          "id": "119073677",
+          "visibility": "public",
+          "clone_url": "https://github.com/vacancy/Synchronized-BatchNorm-PyTorch.git"
+        },
+        {
+          "full_name": "0xacb/recollapse",
+          "private": false,
+          "archived": false,
+          "default_branch": "main",
+          "id": "565317054",
+          "visibility": "public",
+          "clone_url": "https://github.com/0xacb/recollapse.git"
+        },
+        {
+          "full_name": "kotartemiy/newscatcher",
+          "private": false,
+          "archived": false,
+          "default_branch": "master",
+          "id": "242815587",
+          "visibility": "public",
+          "clone_url": "https://github.com/kotartemiy/newscatcher.git"
+        },
+        {
+          "full_name": "jawah/charset_normalizer",
+          "private": false,
+          "archived": false,
+          "default_branch": "master",
+          "id": "200259335",
+          "visibility": "public",
+          "clone_url": "https://github.com/jawah/charset_normalizer.git"
+        },
+        {
+          "full_name": "openai/baselines",
+          "private": false,
+          "archived": false,
+          "default_branch": "master",
+          "id": "92238803",
+          "visibility": "public",
+          "clone_url": "https://github.com/openai/baselines.git"
+        },
+        {
+          "full_name": "caoyu-noob/CASe",
+          "private": false,
+          "archived": false,
+          "default_branch": "master",
+          "id": "220920704",
+          "visibility": "public",
+          "clone_url": "https://github.com/caoyu-noob/CASe.git"
+        },
+        {
+          "full_name": "jeanphorn/wordlist",
+          "private": false,
+          "archived": false,
+          "default_branch": "master",
+          "id": "33676429",
+          "visibility": "public",
+          "clone_url": "https://github.com/jeanphorn/wordlist.git"
+        },
+        {
+          "full_name": "speechio/chinese_text_normalization",
+          "private": false,
+          "archived": false,
+          "default_branch": "master",
+          "id": "210089267",
+          "visibility": "public",
+          "clone_url": "https://github.com/speechio/chinese_text_normalization.git"
+        },
+        {
+          "full_name": "VincentStimper/normalizing-flows",
+          "private": false,
+          "archived": false,
+          "default_branch": "master",
+          "id": "236765661",
+          "visibility": "public",
+          "clone_url": "https://github.com/VincentStimper/normalizing-flows.git"
+        },
+        {
+          "full_name": "janosh/awesome-normalizing-flows",
+          "private": false,
+          "archived": false,
+          "default_branch": "main",
+          "id": "227366838",
+          "visibility": "public",
+          "clone_url": "https://github.com/janosh/awesome-normalizing-flows.git"
+        },
+        {
+          "full_name": "Totoro97/NeuS",
+          "private": false,
+          "archived": false,
+          "default_branch": "main",
+          "id": "398804195",
+          "visibility": "public",
+          "clone_url": "https://github.com/Totoro97/NeuS.git"
+        },
+        {
+          "full_name": "cisagov/Malcolm",
+          "private": false,
+          "archived": false,
+          "default_branch": "main",
+          "id": "186475440",
+          "visibility": "public",
+          "clone_url": "https://github.com/cisagov/Malcolm.git"
+        },
+        {
+          "full_name": "someengineering/fixinventory",
+          "private": false,
+          "archived": false,
+          "default_branch": "main",
+          "id": "255744821",
+          "visibility": "public",
+          "clone_url": "https://github.com/someengineering/fixinventory.git"
+        },
+        {
+          "full_name": "AirtestProject/Poco",
+          "private": false,
+          "archived": false,
+          "default_branch": "master",
+          "id": "118706014",
+          "visibility": "public",
+          "clone_url": "https://github.com/AirtestProject/Poco.git"
+        },
+        {
+          "full_name": "JoshData/python-email-validator",
+          "private": false,
+          "archived": false,
+          "default_branch": "main",
+          "id": "34234240",
+          "visibility": "public",
+          "clone_url": "https://github.com/JoshData/python-email-validator.git"
+        },
+        {
+          "full_name": "python-pendulum/pendulum",
+          "private": false,
+          "archived": false,
+          "default_branch": "master",
+          "id": "62095504",
+          "visibility": "public",
+          "clone_url": "https://github.com/python-pendulum/pendulum.git"
+        },
+        {
+          "full_name": "ikhlestov/vision_networks",
+          "private": false,
+          "archived": false,
+          "default_branch": "master",
+          "id": "80234478",
+          "visibility": "public",
+          "clone_url": "https://github.com/ikhlestov/vision_networks.git"
+        }
+      ]
+    }
+  ]
+}
