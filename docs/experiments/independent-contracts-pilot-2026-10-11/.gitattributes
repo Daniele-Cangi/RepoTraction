@@ -1,0 +1,2 @@
+# Preserve the frozen export bytes and their recorded SHA-256 on every platform.
+*.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
