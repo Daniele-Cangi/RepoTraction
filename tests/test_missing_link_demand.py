@@ -13,6 +13,94 @@ from test_missing_link import issue, request_raw, request_completion, repository
 
 
 class DemandSpanTests(unittest.TestCase):
+    def test_wrapped_operation_and_constraints_remain_one_original_citation(self):
+        clause = ("Convert each decimal amount to an integer count\n"
+                  "of its declared base unit without floating-point\n"
+                  "rounding or changing the original document spelling.")
+        demand = dict(issue(), body=clause + "\n\nKeep the source untouched.", comments=[])
+        data, _ = build_context(None, demand, "request", 180000)
+        spans, coverage = citation_spans(data["sources"], evidence_catalog({}, demand), 18000)
+        quotes = [item["quote"] for item in spans.values()]
+        self.assertIn(clause, quotes)
+        self.assertIn(demand["title"], quotes)
+        self.assertIn("Keep the source untouched.", quotes)
+        self.assertNotIn("Convert each decimal amount to an integer count", quotes)
+        self.assertTrue(coverage["complete"])
+        self.assertTrue(all(quote in evidence_catalog({}, demand)["q0"]["quote"] for quote in quotes))
+
+    def test_wrapped_prose_keeps_sentence_and_markdown_boundaries(self):
+        body = ("Read the first\nrecord. Preserve the last\nrecord.\n\n"
+                "- Keep first item\n- Keep second item\n"
+                "| left | right |\n| one | two |\n"
+                "```python\nfirst = 1\nsecond = 2\n```\n"
+                "> Quoted line\n# Next heading\nA separate paragraph.")
+        demand = dict(issue(), body=body, comments=[])
+        data, _ = build_context(None, demand, "request", 180000)
+        spans, _ = citation_spans(data["sources"], evidence_catalog({}, demand), 18000)
+        quotes = {item["quote"] for item in spans.values()}
+        for quote in ("Read the first\nrecord.", "Preserve the last\nrecord.",
+                      "- Keep first item", "- Keep second item", "| left | right |",
+                      "| one | two |", "first = 1", "second = 2", "> Quoted line",
+                      "# Next heading", "A separate paragraph."):
+            self.assertIn(quote, quotes)
+
+    def test_wrapped_citation_does_not_join_omission_seams(self):
+        original = "Keep the first\nrecord.\nHidden unrelated middle.\nPreserve the last\nrecord."
+        visible = "Keep the first\nrecord.\n[OMITTED MIDDLE]\nPreserve the last\nrecord."
+        catalog = {"q1": {"url": "https://github.com/example/project/issues/1#issuecomment-1",
+                           "quote": original}}
+        sources = {"q1": dict(catalog["q1"], quote=visible)}
+        spans, _ = citation_spans(sources, catalog, 18000)
+        self.assertEqual([item["quote"] for item in spans.values()],
+                         ["Keep the first\nrecord.", "Preserve the last\nrecord."])
+        self.assertTrue(all(item["quote"] in original for item in spans.values()))
+
+    def test_wrapped_list_constraints_stay_with_their_item(self):
+        first = "- Convert each amount to an integer count\n  of its base unit without rounding."
+        second = "12. Preserve document spelling\n    and reject values outside the bounds."
+        nested = "  - Keep the nested constraint\n    with its own operation."
+        code = "        untouched_code()"
+        demand = dict(issue(), body="\n".join([first, second, nested, code,
+                                              "A separate unindented paragraph."]), comments=[])
+        data, _ = build_context(None, demand, "request", 180000)
+        spans, _ = citation_spans(data["sources"], evidence_catalog({}, demand), 18000)
+        quotes = {item["quote"] for item in spans.values()}
+        # The conservative sentence splitter can separate the numeric marker;
+        # the complete operation and constraint must still share a citation.
+        for quote in (first, second[4:], nested.strip(), code.strip(), "A separate unindented paragraph."):
+            self.assertIn(quote, quotes)
+        self.assertFalse(any(first in quote and second in quote for quote in quotes))
+
+    def test_long_wrapped_paragraph_keeps_existing_quote_and_byte_limits(self):
+        body = "\n".join("Retain the original decimal spelling and operation constraints" for _ in range(100))
+        demand = dict(issue(), body=body, comments=[])
+        data, _ = build_context(None, demand, "request", 180000)
+        spans, coverage = citation_spans(data["sources"], evidence_catalog({}, demand), 4000)
+        self.assertLessEqual(len(json.dumps(spans, ensure_ascii=False).encode()), 4000)
+        self.assertTrue(all(len(item["quote"]) <= 1600 for item in spans.values()))
+        self.assertTrue(all(item["quote"] in evidence_catalog({}, demand)["q0"]["quote"] for item in spans.values()))
+        self.assertFalse(coverage["complete"])
+
+    def test_tab_separated_list_markers_keep_operations_in_distinct_citations(self):
+        for marker in ("-", "+", "*", "1.", "2)"):
+            for whitespace in ("\t", " \t", "\t "):
+                with self.subTest(marker=marker, whitespace=whitespace):
+                    prefix = marker + whitespace
+                    indent = " " * len(prefix)
+                    first = prefix + "Convert values\n" + indent + "without rounding."
+                    second = prefix + "Preserve spelling\n" + indent + "exactly."
+                    demand = dict(issue(), body=first + "\n" + second, comments=[])
+                    data, _ = build_context(None, demand, "request", 180000)
+                    catalog = evidence_catalog({}, demand)
+                    spans, _ = citation_spans(data["sources"], catalog, 18000)
+                    quotes = {entry["quote"] for entry in spans.values()}
+                    # Numeric-dot markers can be their own conservative sentence.
+                    for clause in (first, second):
+                        self.assertIn(clause[len(prefix):] if marker.endswith(".") else clause, quotes)
+                    self.assertFalse(any("Convert values" in quote and "Preserve spelling" in quote
+                                         for quote in quotes))
+                    self.assertTrue(all(quote in catalog["q0"]["quote"] for quote in quotes))
+
     def test_abbreviation_guards_keep_real_punctuation_boundaries_and_original_offsets(self):
         for line, expected in (
                 ("Must support e.g. Windows paths! Must retain i.e. URL casing?",

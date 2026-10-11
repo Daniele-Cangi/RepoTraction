@@ -11,7 +11,42 @@ def sentence_spans(line):
     """Conservative original sentence spans shared by citations and review hints."""
     # These abbreviation dots do not end a clause even before a capitalized
     # example. Keep original match offsets; this is not a semantic sentence parser.
-    return re.finditer(r".+?(?:(?:(?<!\b[eE]\.[gG])(?<!\b[iI]\.[eE])\.|[!?])(?=\s+[A-Z]|$)|$)", line)
+    return re.finditer(r".+?(?:(?:(?<!\b[eE]\.[gG])(?<!\b[iI]\.[eE])\.|[!?])(?=\s+[A-Z]|$)|$)", line, re.S)
+
+
+def _citation_blocks(piece, *, root_opening=False):
+    """Keep soft-wrapped prose together without joining Markdown items or code."""
+    start, end, fence, item_indent = None, None, None, None
+    for index, line in enumerate(re.finditer(r"[^\n]+", piece)):
+        value = line[0]
+        marker = re.match(r"[ \t]*(`{3,}|~{3,})", value)
+        item = re.match(r" *(?:[-+*]|\d+[.)])[ \t]+", value) if fence is None else None
+        indent = len(value) - len(value.lstrip(" "))
+        continuation = item_indent is not None and item_indent <= indent < item_indent + 4
+        separate = (not value.strip() or fence is not None or marker is not None
+                    or (root_opening and index == 0)
+                    or re.match(r"[ \t]*(?:#{1,6}\s|[|>])", value)
+                    or (not continuation and re.match(r"(?: {4}|\t)", value)))
+        if start is not None and (separate or item or (item_indent is not None and not continuation)
+                                  or piece[end:line.start()] != "\n"):
+            yield start, end
+            start = end = item_indent = None
+        if separate:
+            if value.strip():
+                yield line.start(), line.end()
+        else:
+            start = line.start() if start is None else start
+            end = line.end()
+            if item:
+                item_indent = item.end()
+        if marker:
+            token = marker[1]
+            if fence is None:
+                fence = token
+            elif token[0] == fence[0] and len(token) >= len(fence):
+                fence = None
+    if start is not None:
+        yield start, end
 
 
 def citation_spans(sources, catalog, byte_limit):
@@ -37,11 +72,12 @@ def citation_spans(sources, catalog, byte_limit):
             if base < 0:
                 omitted += 1
                 continue
-            # Split sentences/lines from actually supplied pieces: a truncated
-            # middle hint can be selected even if the original line is enormous.
-            for match in re.finditer(r"[^\n]+", piece):
-                for sentence in sentence_spans(match[0]):
-                    start, end = match.start() + sentence.start(), match.start() + sentence.end()
+            # A newline used to wrap prose must not split the operation from its
+            # inputs/constraints. Offsets and line breaks remain original; no
+            # block crosses a synthetic omission seam or Markdown item boundary.
+            for block_start, block_end in _citation_blocks(piece, root_opening=ref == "q0" and base == 0):
+                for sentence in sentence_spans(piece[block_start:block_end]):
+                    start, end = block_start + sentence.start(), block_start + sentence.end()
                     for first in range(start, end, 1600):
                         quote = piece[first:min(end, first + 1600)].strip()
                         if not quote:
