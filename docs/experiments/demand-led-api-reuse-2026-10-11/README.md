@@ -47,6 +47,9 @@ bounded API grammar is small enough to implement and challenge now.
   public direct functions and one constructor/classmethod-factory followed by a
   method/property. Inheritance follows literal same-package class bindings;
   multiple inheritance and rebound module/member names are conservatively omitted.
+  Decorated classes and their descendants are also omitted. Classmethod factories
+  and instance methods must be bound to the indexed class and created instance;
+  delegation to another receiver is outside this prototype's grammar.
   Generated calls also check the runtime function's source location and factory
   result class before attributing an observation to the indexed method. Ordinary
   decorator/member replacement becomes a failed observation, not false evidence;
@@ -183,6 +186,21 @@ Final positive search: 3.562 seconds; fresh export: 3.474 seconds; complete
 matrix/export/stdlib comparison: 49.924 seconds. Packaging remains unassessed
 after fuel exhaustion. This replay is a regression check, not a new independent
 sample or improvement in discovery yield.
+
+The final receiver/class restrictions at `e9a5fac` were separately frozen and
+replayed for all six API searches: [manifest](receiver-manifest.json),
+[catalog](receiver-plan-index.json), [results](receiver-results.json). All original
+candidate identities and cases remain the same. The six slice artifacts remain
+byte-identical and were not executed again. The positive API search still reports
+one match (3.662 seconds) and **9/9 fresh export cases**; the negative pathspec
+controls still report none, and packaging still exhausts fuel. These review
+regressions do not add independent discovery examples.
+
+Evidence locations identify entry points in the retained package. They are not
+an exhaustive call trace or a claim that the quoted excerpts alone implement the
+operation: package initialization, dependencies and internal calls also matter.
+The experimental unit is the full supplied package, and all results remain
+unqualified. No adversarial execution-attestation guarantee is claimed.
 
 The review's proposed `candidate_0` name restriction was not adopted: a directory
 `candidate_0/` and a file `candidate_0.py` are distinct paths. An authored regression
