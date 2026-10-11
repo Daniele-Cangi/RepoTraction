@@ -47,12 +47,19 @@ bounded API grammar is small enough to implement and challenge now.
   public direct functions and one constructor/classmethod-factory followed by a
   method/property. Inheritance follows literal same-package class bindings;
   multiple inheritance and rebound module/member names are conservatively omitted.
+  Generated calls also check the runtime function's source location and factory
+  result class before attributing an observation to the indexed method. Ordinary
+  decorator/member replacement becomes a failed observation, not false evidence;
+  this is not adversarial execution attestation.
   Positional arity gates eligibility; ordering is deterministic, not a learned
   or lexical ranking. No method name is supplied as an answer.
 - `prepare_behavior_search(..., package_root=...)` uses that optional catalog.
   The default extractor remains unchanged. Source files and wrappers share the
   existing 64-file, 256-KiB/file, 2-MB/total and 40-candidate bounds. Omitted
   candidates remain explicit; whole files are never shortened to execute them.
+  Package bundles reserve the maximum four-artifact export overhead: at most
+  60 package files and 951,424 source bytes. This tighter opt-in bundle limit
+  leaves the runner and ordinary Discover's acquisition limits unchanged.
 - `Service.behavioral_plan(..., reuse_repository=..., package_root=...)` can
   apply a saved Discover demand to another explicitly supplied public pinned
   package. It preserves account/discussion checks and writes no job or result.
@@ -165,6 +172,23 @@ cover diamond inheritance, descendants, class/function/member rebinding and the
 60/61/62-file boundary. Regenerating all twelve frozen plans after these fixes
 produces identical candidate identities and executable artifact hashes. Their
 recorded observations still apply; no experiment or historical record was rewritten.
+
+A second review correction verifies the actual callable's file/definition line
+before invocation, checks that a factory returns the cataloged class, and reserves
+export bytes as well as file slots. This changes executable wrappers, so the
+same complete matrix was frozen and rerun at `74b43df`: [manifest](guard-manifest.json),
+[catalog](guard-plan-index.json), [results](guard-results.json). It confirms the
+same outcomes, including the sole pathspec match and **9/9 fresh export cases**.
+Final positive search: 3.562 seconds; fresh export: 3.474 seconds; complete
+matrix/export/stdlib comparison: 49.924 seconds. Packaging remains unassessed
+after fuel exhaustion. This replay is a regression check, not a new independent
+sample or improvement in discovery yield.
+
+The review's proposed `candidate_0` name restriction was not adopted: a directory
+`candidate_0/` and a file `candidate_0.py` are distinct paths. An authored regression
+passes through both the evaluator and actual WASI (one witness, 2.437 seconds).
+The unit suite also covers transformed decorators, provenance-preserving
+annotations, different factory result classes and dynamically replaced methods.
 
 The corrected 12-search study, one export and one stdlib comparison took
 **43.956 seconds** wall time, including bookkeeping. Search runner durations sum
