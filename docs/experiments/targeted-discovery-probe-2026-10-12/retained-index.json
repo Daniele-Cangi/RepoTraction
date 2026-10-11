@@ -1,0 +1,386 @@
+{
+  "files": [
+    {
+      "path": "frozen-acquisition.json",
+      "sha256": "90fad3c154dffda0aec3394da449cd0df07d97ac2aaba1009545f83250b2b913"
+    },
+    {
+      "path": "additional-acquisition.json",
+      "sha256": "52158a10b69a35067f0d73ce91cd2ddeed2f415e0336a9c97ab390d9f8b4ad67"
+    },
+    {
+      "path": "invoke.py",
+      "sha256": "4228aa0d1eee34398c126a531f53d5e07e0f3571927897110bc33fad155b2a10"
+    },
+    {
+      "path": "execution-start.json",
+      "sha256": "71884de94c555853d5531e3f7742ca32d9bdd502f5324ff9205fe8c200e98405"
+    },
+    {
+      "path": "execution-progress.json",
+      "sha256": "a3df28167e02b88658d441868f62b7ad565b59434ac8c825b374ec984e308742"
+    },
+    {
+      "path": "execution-result.json",
+      "sha256": "43660358503ad6f86c8b6b633edea9de407df59109a3285ff100a8912a05e65b"
+    }
+  ],
+  "execution_github_reads": [
+    {
+      "endpoint": "repos/pganssle/audio-feeder",
+      "params": null,
+      "replayed": true
+    },
+    {
+      "endpoint": "repos/pganssle/audio-feeder/issues/81",
+      "params": null,
+      "replayed": true
+    },
+    {
+      "endpoint": "repos/pganssle/audio-feeder/issues/81/comments",
+      "params": {
+        "per_page": 100,
+        "page": 1
+      },
+      "replayed": true
+    },
+    {
+      "endpoint": "repos/pganssle/audio-feeder/issues/81/timeline",
+      "params": {
+        "per_page": 100,
+        "page": 1
+      },
+      "replayed": true
+    },
+    {
+      "endpoint": "repos/pganssle/audio-feeder",
+      "params": null,
+      "replayed": true
+    },
+    {
+      "endpoint": "repos/pganssle/audio-feeder/commits/main",
+      "params": null,
+      "replayed": true
+    },
+    {
+      "endpoint": "repos/pganssle/audio-feeder/git/trees/d9cd90a8d9f8761d9006a585a9b3e8590952ff03",
+      "params": {
+        "recursive": 1
+      },
+      "replayed": true
+    },
+    {
+      "endpoint": "repos/pganssle/audio-feeder/git/blobs/603a69de2608ec3036a713f1e96758a7a8e28391",
+      "params": null,
+      "replayed": true
+    },
+    {
+      "endpoint": "repos/pganssle/audio-feeder/git/blobs/2e25e48cd8b88de1424ea90bc6282446a89bd61d",
+      "params": null,
+      "replayed": true
+    },
+    {
+      "endpoint": "repos/pganssle/audio-feeder",
+      "params": null,
+      "replayed": true
+    },
+    {
+      "endpoint": "repos/pganssle/audio-feeder/commits/2a5b58dab43a5195ccc964916bbddaf7f8727c1d",
+      "params": null,
+      "replayed": false
+    },
+    {
+      "endpoint": "repos/pganssle/audio-feeder/git/blobs/0ada4115ea8cdc60539f7572d7867b33f744f366",
+      "params": null,
+      "replayed": false
+    },
+    {
+      "endpoint": "repos/pganssle/audio-feeder/git/blobs/a0ae8e8e9aa0a54e1e5500e1a397956199d4dbdc",
+      "params": null,
+      "replayed": false
+    },
+    {
+      "endpoint": "repos/pganssle/audio-feeder/git/blobs/2dacdf7e2e612a86456d158ccd5d3722e85934c7",
+      "params": null,
+      "replayed": false
+    },
+    {
+      "endpoint": "repos/WilliamNT/tunesynctool",
+      "params": null,
+      "replayed": true
+    },
+    {
+      "endpoint": "repos/WilliamNT/tunesynctool/issues/21",
+      "params": null,
+      "replayed": true
+    },
+    {
+      "endpoint": "repos/WilliamNT/tunesynctool/issues/21/comments",
+      "params": {
+        "per_page": 100,
+        "page": 1
+      },
+      "replayed": true
+    },
+    {
+      "endpoint": "repos/WilliamNT/tunesynctool/issues/21/timeline",
+      "params": {
+        "per_page": 100,
+        "page": 1
+      },
+      "replayed": true
+    },
+    {
+      "endpoint": "repos/WilliamNT/tunesynctool",
+      "params": null,
+      "replayed": true
+    },
+    {
+      "endpoint": "repos/WilliamNT/tunesynctool/commits/main",
+      "params": null,
+      "replayed": true
+    },
+    {
+      "endpoint": "repos/WilliamNT/tunesynctool/git/trees/67f22d6d517e8eabda7bac00f9cd245902988c4d",
+      "params": {
+        "recursive": 1
+      },
+      "replayed": true
+    },
+    {
+      "endpoint": "repos/WilliamNT/tunesynctool/git/blobs/970014ddcb72be824f6e1a8bafefec66b42891c7",
+      "params": null,
+      "replayed": true
+    },
+    {
+      "endpoint": "repos/WilliamNT/tunesynctool/git/blobs/b3b885c7921e1cb256a42dd77af91dd13e172bde",
+      "params": null,
+      "replayed": true
+    },
+    {
+      "endpoint": "repos/WilliamNT/tunesynctool",
+      "params": null,
+      "replayed": true
+    },
+    {
+      "endpoint": "repos/WilliamNT/tunesynctool/commits/b705691ba7d02d34ff3b6423ca03fcfca1514994",
+      "params": null,
+      "replayed": false
+    },
+    {
+      "endpoint": "repos/WilliamNT/tunesynctool/git/blobs/46d628acb52f66f4a5ff4b42ae58355ba228b95e",
+      "params": null,
+      "replayed": false
+    },
+    {
+      "endpoint": "repos/WilliamNT/tunesynctool/git/blobs/0a24fe0ad364d8e798983bd4abb7ec3db6c47d4a",
+      "params": null,
+      "replayed": false
+    },
+    {
+      "endpoint": "search/repositories",
+      "params": {
+        "q": "Python Subsonic OpenSubsonic ISRC track lookup search API is:public archived:false fork:false in:name,description,readme",
+        "page": 1,
+        "per_page": 20
+      },
+      "replayed": false
+    },
+    {
+      "endpoint": "repos/hoangsonww/Agentic-AI-Pipeline",
+      "params": null,
+      "replayed": true
+    },
+    {
+      "endpoint": "repos/hoangsonww/Agentic-AI-Pipeline/issues/23",
+      "params": null,
+      "replayed": true
+    },
+    {
+      "endpoint": "repos/hoangsonww/Agentic-AI-Pipeline/issues/23/comments",
+      "params": {
+        "per_page": 100,
+        "page": 1
+      },
+      "replayed": true
+    },
+    {
+      "endpoint": "repos/hoangsonww/Agentic-AI-Pipeline/issues/23/timeline",
+      "params": {
+        "per_page": 100,
+        "page": 1
+      },
+      "replayed": true
+    },
+    {
+      "endpoint": "repos/hoangsonww/Agentic-AI-Pipeline",
+      "params": null,
+      "replayed": true
+    },
+    {
+      "endpoint": "repos/hoangsonww/Agentic-AI-Pipeline/commits/master",
+      "params": null,
+      "replayed": true
+    },
+    {
+      "endpoint": "repos/hoangsonww/Agentic-AI-Pipeline/git/trees/87fe619cb5fd83d26557781d83ab20af3a65f142",
+      "params": {
+        "recursive": 1
+      },
+      "replayed": true
+    },
+    {
+      "endpoint": "repos/hoangsonww/Agentic-AI-Pipeline/git/blobs/fbcce547c1c67893042435e6fae51d27b3fb567a",
+      "params": null,
+      "replayed": true
+    },
+    {
+      "endpoint": "repos/hoangsonww/Agentic-AI-Pipeline/git/blobs/d10d119578b17d89a007782629f155fe472203a2",
+      "params": null,
+      "replayed": true
+    },
+    {
+      "endpoint": "repos/hoangsonww/Agentic-AI-Pipeline/git/blobs/afa171180ac07e11abcd4228b3a21942f2250e76",
+      "params": null,
+      "replayed": true
+    },
+    {
+      "endpoint": "repos/hoangsonww/Agentic-AI-Pipeline/git/blobs/bd9ead62768c669f1209e8e68b70465b60b82e01",
+      "params": null,
+      "replayed": true
+    },
+    {
+      "endpoint": "search/repositories",
+      "params": {
+        "q": "Python LangGraph LangChain tool call cassette record replay offline pytest is:public archived:false fork:false in:name,description,readme",
+        "page": 1,
+        "per_page": 20
+      },
+      "replayed": false
+    },
+    {
+      "endpoint": "repos/Tejasdk04/agent-golden-harness",
+      "params": null,
+      "replayed": false
+    },
+    {
+      "endpoint": "repos/Tejasdk04/agent-golden-harness/commits/main",
+      "params": null,
+      "replayed": false
+    },
+    {
+      "endpoint": "repos/Tejasdk04/agent-golden-harness/git/trees/f5c8687935b5973e2eca7347612d100f705a368f",
+      "params": {
+        "recursive": 1
+      },
+      "replayed": false
+    },
+    {
+      "endpoint": "repos/Tejasdk04/agent-golden-harness/git/blobs/f92b4ab371ae300e0d2849e63fb289b735343934",
+      "params": null,
+      "replayed": false
+    },
+    {
+      "endpoint": "repos/Tejasdk04/agent-golden-harness/git/blobs/6fa523ba91f51a4c9849a8f3432b0ab743dff36a",
+      "params": null,
+      "replayed": false
+    },
+    {
+      "endpoint": "repos/Tejasdk04/agent-golden-harness/git/blobs/c54a2ec67d589061e3b022945c40f921e49097a6",
+      "params": null,
+      "replayed": false
+    },
+    {
+      "endpoint": "repos/Tejasdk04/agent-golden-harness/git/blobs/acdd7d7b6b78d19d9c66e639b254e03009d2ea5a",
+      "params": null,
+      "replayed": false
+    },
+    {
+      "endpoint": "repos/Tejasdk04/agent-golden-harness/git/blobs/9a1369187d421837335067e1c83cbbff3d91001b",
+      "params": null,
+      "replayed": false
+    },
+    {
+      "endpoint": "repos/Tejasdk04/agent-golden-harness/git/blobs/f33d19482b841347da8c6d85d9c1c1d9db385984",
+      "params": null,
+      "replayed": false
+    },
+    {
+      "endpoint": "repos/Tejasdk04/agent-golden-harness/git/blobs/58333de71165a4cdcbcfd2d1dbdefa21dc9c0843",
+      "params": null,
+      "replayed": false
+    },
+    {
+      "endpoint": "repos/Tejasdk04/agent-golden-harness/git/blobs/4dce99b3051e97a7ccec924522f1b32c68a6d125",
+      "params": null,
+      "replayed": false
+    },
+    {
+      "endpoint": "repos/Tejasdk04/agent-golden-harness/git/blobs/2d6b24365f6c73ad9fa38d271c1a5cfc01b179e8",
+      "params": null,
+      "replayed": false
+    },
+    {
+      "endpoint": "repos/Tejasdk04/agent-golden-harness/git/blobs/dbae75de7f33e8794a69ef2234ee041b182eb948",
+      "params": null,
+      "replayed": false
+    },
+    {
+      "endpoint": "repos/Tejasdk04/agent-golden-harness/git/blobs/eea7f8ab7a92c4c29f863ebbd00c5b61050bb7ca",
+      "params": null,
+      "replayed": false
+    },
+    {
+      "endpoint": "repos/Tejasdk04/agent-golden-harness/git/blobs/4d016ba6d31e9a0bc3f30432878c5c98f3eb1bb5",
+      "params": null,
+      "replayed": false
+    },
+    {
+      "endpoint": "repos/Tejasdk04/agent-golden-harness/git/blobs/54b1850d7268b7438ac49547c437bb1b9b2400f0",
+      "params": null,
+      "replayed": false
+    },
+    {
+      "endpoint": "repos/Tejasdk04/agent-golden-harness/git/blobs/5e3ae0998a6ac050178ba0e7f644ec69016f7368",
+      "params": null,
+      "replayed": false
+    },
+    {
+      "endpoint": "repos/Tejasdk04/agent-golden-harness/git/blobs/5941ebe0a5939cfe20884ed0ed194dd7b8090640",
+      "params": null,
+      "replayed": false
+    },
+    {
+      "endpoint": "repos/Tejasdk04/agent-golden-harness/git/blobs/0bcbf72e8374916fab770609ac43ad472e29ff1b",
+      "params": null,
+      "replayed": false
+    },
+    {
+      "endpoint": "repos/hoangsonww/Agentic-AI-Pipeline",
+      "params": null,
+      "replayed": true
+    },
+    {
+      "endpoint": "repos/hoangsonww/Agentic-AI-Pipeline/issues/23",
+      "params": null,
+      "replayed": true
+    },
+    {
+      "endpoint": "repos/hoangsonww/Agentic-AI-Pipeline/issues/23/comments",
+      "params": {
+        "per_page": 100,
+        "page": 1
+      },
+      "replayed": true
+    },
+    {
+      "endpoint": "repos/hoangsonww/Agentic-AI-Pipeline/issues/23/timeline",
+      "params": {
+        "per_page": 100,
+        "page": 1
+      },
+      "replayed": true
+    }
+  ],
+  "note": "Local originals are in ignored data/targeted-discovery-probe-2026-10-12. Public export preserves native outputs and results, references exact catalogues once, and avoids duplicating full source/discussion text in every match."
+}
