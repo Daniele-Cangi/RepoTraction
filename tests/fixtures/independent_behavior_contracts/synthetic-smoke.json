@@ -1,0 +1,2197 @@
+{
+  "scope": "Synthetic protocol/execution controls only; no public issue or AI quality result.",
+  "paid_calls": 0,
+  "contracts": [
+    {
+      "id": "synthetic-stable-first-python",
+      "kind": "synthetic_control",
+      "operation": "Retain first occurrences in input order",
+      "input_kind": "arguments",
+      "runtime": "python",
+      "examples": [
+        {
+          "args": [
+            [
+              3,
+              1,
+              3
+            ]
+          ],
+          "expected": [
+            3,
+            1
+          ]
+        }
+      ],
+      "checks": [
+        {
+          "args": [
+            []
+          ],
+          "expected": []
+        }
+      ],
+      "preconditions": [
+        "JSON-compatible scalar readings"
+      ],
+      "assumptions": [
+        "Runtime overridden as a synthetic compatibility control, not a public demand interpretation."
+      ],
+      "uncovered_requirements": [
+        "Integration and performance"
+      ],
+      "interpretation_origin": "authored_protocol_fixture_not_AI",
+      "check_origin": "same_model_response_not_independent_oracle",
+      "qualified": false
+    },
+    {
+      "id": "synthetic-stable-first-javascript",
+      "kind": "synthetic_control",
+      "operation": "Retain first occurrences in input order",
+      "input_kind": "arguments",
+      "runtime": "javascript",
+      "examples": [
+        {
+          "args": [
+            [
+              3,
+              1,
+              3
+            ]
+          ],
+          "expected": [
+            3,
+            1
+          ]
+        }
+      ],
+      "checks": [
+        {
+          "args": [
+            []
+          ],
+          "expected": []
+        }
+      ],
+      "preconditions": [
+        "JSON-compatible scalar readings"
+      ],
+      "assumptions": [
+        "Runtime overridden as a synthetic compatibility control, not a public demand interpretation."
+      ],
+      "uncovered_requirements": [
+        "Integration and performance"
+      ],
+      "interpretation_origin": "authored_protocol_fixture_not_AI",
+      "check_origin": "same_model_response_not_independent_oracle",
+      "qualified": false
+    },
+    {
+      "id": "synthetic-stable-first-unknown",
+      "kind": "synthetic_control",
+      "operation": "Retain first occurrences in input order",
+      "input_kind": "arguments",
+      "runtime": "unknown",
+      "examples": [
+        {
+          "args": [
+            [
+              3,
+              1,
+              3
+            ]
+          ],
+          "expected": [
+            3,
+            1
+          ]
+        }
+      ],
+      "checks": [
+        {
+          "args": [
+            []
+          ],
+          "expected": []
+        }
+      ],
+      "preconditions": [
+        "JSON-compatible scalar readings"
+      ],
+      "assumptions": [
+        "Runtime overridden as a synthetic compatibility control, not a public demand interpretation."
+      ],
+      "uncovered_requirements": [
+        "Integration and performance"
+      ],
+      "interpretation_origin": "authored_protocol_fixture_not_AI",
+      "check_origin": "same_model_response_not_independent_oracle",
+      "qualified": false
+    }
+  ],
+  "source_executions": 3,
+  "rows": [
+    {
+      "repository": "more-itertools/more-itertools",
+      "revision": "b21ec4ee8e139ebe297e2221980a694bebb69523",
+      "execution_status": "exited_successfully",
+      "duration_seconds": 3.125,
+      "artifact_sha256": {
+        "project/candidate_0.py": "e6170e9f8c2f0df61d7651d539898af632be6519e43350d0d8649baa3a8f05ca",
+        "project/candidate_1.py": "62e6d55d3b6589462a9bdc38c09dde889e4d7db7130658849c286a512efd8385",
+        "project/candidate_2.py": "2ead05ee6b2e8a526fdba69495762a44c15d37e2260768008ea7ba27e8837ee1",
+        "project/candidate_3.py": "236297bd6354e0acf102384cc8002ee7fbeeed6acae0581ac494bec2405de4ae",
+        "project/candidate_4.py": "a38b555cc64b2e6bdc0b2bfbe30f97256eb55110b996115271b2d028b9558a17",
+        "project/candidate_5.py": "17d140ea542ce6d37e1f5e3a79407f83aa56171f2cde346e3cf445c21a8266db",
+        "project/candidate_6.py": "75e695ce0dbd8ba135d048d8d2dc86f8ba89ac45ed641e8e53d9ec59bd967f1f",
+        "project/candidate_7.py": "f3774adb30b4c1fc7b87a443388aa61b3de71518f0ad4bfbeb6923da171aeba7",
+        "project/candidate_8.py": "2a0f74e1dab225c5fd3946f61d2e8eeb9cfb14c15a6c720a36f71518b14ae7e0",
+        "project/candidate_9.py": "626af745b5ef7bb0c80931e368b6d69b3f84bad187cff9e1c181ebccb86714f8",
+        "project/candidate_10.py": "e919f91f3d351569ba3397d00086d18ed6b6f8198f6013c7506bb7a78d67d83a",
+        "project/candidate_11.py": "394bdc49d56d5cc44fbb78840a2303c9ab18662115df3ac9b25511d8edbf7a67",
+        "project/candidate_12.py": "245d6d7f528e40c9f3c19471baf47d867df6e0635528ceb3bc2a470a6522f2c0",
+        "project/candidate_13.py": "a52fe497bbc6e79aceeb456f71dc3bbb3e55562c9960762f690f2ce06d0e139b",
+        "project/candidate_14.py": "1f65d8b123e30425ddb82f32c55019d5a1762bf5a5f3e2c2949ac502464a0682",
+        "project/candidate_15.py": "00ef980f0d13327c2dc9a66a887a03d19fa61dab913dd7c0b44aa826d0f7760c",
+        "project/candidate_16.py": "c3dc17527bc2a32caea5b1559721a05d4a00f3c38803ddf43ea5f92947796b24",
+        "project/candidate_17.py": "cf5f6f3e2da144c7edf762391fd2e7fb76f0f51b6c71a2773df3be9d7bd81193",
+        "project/candidate_18.py": "c3a405dd582e4851bddc3e8c5264c2ec6a6fac78359ed34b10c24f9f81d0fb1c",
+        "project/candidate_19.py": "dc4abae923fd45199fa1b1e73e2d2a2bc72eae6634bd25e5a529b5065ec9dcfb",
+        "project/candidate_20.py": "c88c1d686f8e0bec1cd2a99a74d7034fe0fd07a4ee862ddc5cc213b052a15163",
+        "project/candidate_21.py": "1e3d8b8195efe2117af95f309405bad70a7c274342945fed32eba86508fb1532",
+        "project/candidate_22.py": "be66646cea455f1cd06e428c6053f17431edc5fd2a49c4fdaf037150a9202bc5",
+        "project/candidate_23.py": "e41e46b4bbf3ad7eaab3fd53d715dd50d6ca97453078475b91a97ba1bd84d7f5",
+        "project/candidate_24.py": "3d0bbd8817c2153faec9c187c19c26439fda1e65707df6368a19b590fbcaf29a",
+        "project/candidate_25.py": "c849b98008eab5ded223049d61668d29d53392e99109d6191c31c98cd995426f",
+        "project/candidate_26.py": "23ec29f56d23717793e09112f3ca4b0aa19dc59fe105742f7f2f4cf245b3fb74",
+        "project/candidate_27.py": "2a29f838c59de0413358509f61ff118552a70128942eaa0e04eafe98b30d509d",
+        "project/candidate_28.py": "bebe7fe9700358070755303f4f9a072a01e02790b6f7d0e09e3ca4fecb825821",
+        "project/candidate_29.py": "d10b68a6bb23c751a980ab3b7edb136787469d5d52d4bd388490fe3ed98874cf",
+        "project/candidate_30.py": "1e095be239556239568ede70ccc5b86dd58ba20876130114677187cb5157fb5f",
+        "project/candidate_31.py": "ca993a18c5c03f15eea52fa33285f196d0b4af1e0afbf5150667cb5af88bed1f",
+        "project/candidate_32.py": "c29a261aa44e569d5294888586e2681703d382e04aafff8d3fdef99ca2d3db37",
+        "project/candidate_33.py": "2c02bf40d081c889a59fbf6e6f6c1f3451d758e27eb1de04f7c46d625aa07c1f",
+        "project/candidate_34.py": "784aa0557c0169059999eeb96f2f8d66e2b6013392d841d5bc6561a551bdadf8",
+        "project/candidate_35.py": "c9442fe021ac35fbd2275039980ea39561588ec9731f40fd2c94dae8f205006b",
+        "project/candidate_36.py": "8a147013f6938f9a8cc13961c1d6b3000a64ffedbeaf10fe96ab939106fa464b",
+        "project/candidate_37.py": "900afd58c481db5b5e9f0f129fb72469335d6fbae069970890df96d4c80e788b",
+        "project/candidate_38.py": "d0c6f356f8aaff5498aabd14c2afcba1173485e9cd73526b11c06d973d926825",
+        "project/candidate_39.py": "63a1aaf2376d942d640480851a024ab5d40062ee76d6d1b7a54301f637911977",
+        "reviewed_tests/search.py": "c37301feed8fa7c3dcf77a7e618988e23e1da389fe1241b3db24eef67ec183d1"
+      },
+      "runtime": {
+        "wasmtime": "49.0.1",
+        "cpython_wasi": "3.14.7",
+        "engine_sha256": "ea76fcf3f3015b46020755fe76779f483240f8377a80bda767ee6e295c782aa8",
+        "module_sha256": "d24bd98d3071af6b17d51d53a08700b9acef59172a0afcb6adb733645c2a1715"
+      },
+      "assessment_status": "observed",
+      "candidate_count": 40,
+      "attempted_bindings": 72,
+      "unobserved_bindings": 0,
+      "matches": [
+        {
+          "entrypoint": "more_itertools/recipes.py:unique_everseen",
+          "contract_id": "synthetic-stable-first-python",
+          "disposition": "behavioral_witness",
+          "qualified": false,
+          "target_integrated": false
+        },
+        {
+          "entrypoint": "more_itertools/recipes.py:unique_everseen",
+          "contract_id": "synthetic-stable-first-javascript",
+          "disposition": "runtime_blocked",
+          "qualified": false,
+          "target_integrated": false
+        },
+        {
+          "entrypoint": "more_itertools/recipes.py:unique_everseen",
+          "contract_id": "synthetic-stable-first-unknown",
+          "disposition": "runtime_unknown",
+          "qualified": false,
+          "target_integrated": false
+        }
+      ],
+      "counterexamples": [
+        {
+          "candidate_id": "7ac6aff2e31e9ec573a3",
+          "contract_id": "synthetic-stable-first-python",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "error_type": "ValueError"
+          },
+          "function": "tabulate"
+        },
+        {
+          "candidate_id": "7ac6aff2e31e9ec573a3",
+          "contract_id": "synthetic-stable-first-javascript",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "error_type": "ValueError"
+          },
+          "function": "tabulate"
+        },
+        {
+          "candidate_id": "7ac6aff2e31e9ec573a3",
+          "contract_id": "synthetic-stable-first-unknown",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "error_type": "ValueError"
+          },
+          "function": "tabulate"
+        },
+        {
+          "candidate_id": "ab4bf079a27a26da3594",
+          "contract_id": "synthetic-stable-first-python",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "observed": null
+          },
+          "function": "consume"
+        },
+        {
+          "candidate_id": "ab4bf079a27a26da3594",
+          "contract_id": "synthetic-stable-first-javascript",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "observed": null
+          },
+          "function": "consume"
+        },
+        {
+          "candidate_id": "ab4bf079a27a26da3594",
+          "contract_id": "synthetic-stable-first-unknown",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "observed": null
+          },
+          "function": "consume"
+        },
+        {
+          "candidate_id": "188aece3aa92bae9092c",
+          "contract_id": "synthetic-stable-first-python",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "observed": false
+          },
+          "function": "all_equal"
+        },
+        {
+          "candidate_id": "188aece3aa92bae9092c",
+          "contract_id": "synthetic-stable-first-javascript",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "observed": false
+          },
+          "function": "all_equal"
+        },
+        {
+          "candidate_id": "188aece3aa92bae9092c",
+          "contract_id": "synthetic-stable-first-unknown",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "observed": false
+          },
+          "function": "all_equal"
+        },
+        {
+          "candidate_id": "4c895798406676777568",
+          "contract_id": "synthetic-stable-first-python",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "observed": 3
+          },
+          "function": "quantify"
+        },
+        {
+          "candidate_id": "4c895798406676777568",
+          "contract_id": "synthetic-stable-first-javascript",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "observed": 3
+          },
+          "function": "quantify"
+        },
+        {
+          "candidate_id": "4c895798406676777568",
+          "contract_id": "synthetic-stable-first-unknown",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "observed": 3
+          },
+          "function": "quantify"
+        },
+        {
+          "candidate_id": "a7789163be9d8f113c2c",
+          "contract_id": "synthetic-stable-first-python",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "error_type": "ValueError"
+          },
+          "function": "pad_none"
+        },
+        {
+          "candidate_id": "a7789163be9d8f113c2c",
+          "contract_id": "synthetic-stable-first-javascript",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "error_type": "ValueError"
+          },
+          "function": "pad_none"
+        },
+        {
+          "candidate_id": "a7789163be9d8f113c2c",
+          "contract_id": "synthetic-stable-first-unknown",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "error_type": "ValueError"
+          },
+          "function": "pad_none"
+        },
+        {
+          "candidate_id": "513541fa85aa2cbb8b88",
+          "contract_id": "synthetic-stable-first-python",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "error_type": "ValueError"
+          },
+          "function": "flatten"
+        },
+        {
+          "candidate_id": "513541fa85aa2cbb8b88",
+          "contract_id": "synthetic-stable-first-javascript",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "error_type": "ValueError"
+          },
+          "function": "flatten"
+        },
+        {
+          "candidate_id": "513541fa85aa2cbb8b88",
+          "contract_id": "synthetic-stable-first-unknown",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "error_type": "ValueError"
+          },
+          "function": "flatten"
+        },
+        {
+          "candidate_id": "44f28ee75f4d480a1880",
+          "contract_id": "synthetic-stable-first-python",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "error_type": "ValueError"
+          },
+          "function": "repeatfunc"
+        },
+        {
+          "candidate_id": "44f28ee75f4d480a1880",
+          "contract_id": "synthetic-stable-first-javascript",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "error_type": "ValueError"
+          },
+          "function": "repeatfunc"
+        },
+        {
+          "candidate_id": "44f28ee75f4d480a1880",
+          "contract_id": "synthetic-stable-first-unknown",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "error_type": "ValueError"
+          },
+          "function": "repeatfunc"
+        },
+        {
+          "candidate_id": "36527a6fcfa23f742eba",
+          "contract_id": "synthetic-stable-first-python",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "error_type": "ValueError"
+          },
+          "function": "pairwise"
+        },
+        {
+          "candidate_id": "36527a6fcfa23f742eba",
+          "contract_id": "synthetic-stable-first-javascript",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "error_type": "ValueError"
+          },
+          "function": "pairwise"
+        },
+        {
+          "candidate_id": "36527a6fcfa23f742eba",
+          "contract_id": "synthetic-stable-first-unknown",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "error_type": "ValueError"
+          },
+          "function": "pairwise"
+        },
+        {
+          "candidate_id": "7ab6e5e72c07b9ea6e48",
+          "contract_id": "synthetic-stable-first-python",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "observed": [
+              3,
+              1,
+              3
+            ]
+          },
+          "function": "roundrobin"
+        },
+        {
+          "candidate_id": "7ab6e5e72c07b9ea6e48",
+          "contract_id": "synthetic-stable-first-javascript",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "observed": [
+              3,
+              1,
+              3
+            ]
+          },
+          "function": "roundrobin"
+        },
+        {
+          "candidate_id": "7ab6e5e72c07b9ea6e48",
+          "contract_id": "synthetic-stable-first-unknown",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "observed": [
+              3,
+              1,
+              3
+            ]
+          },
+          "function": "roundrobin"
+        },
+        {
+          "candidate_id": "58ffaa909780725716c1",
+          "contract_id": "synthetic-stable-first-python",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "error_type": "ValueError"
+          },
+          "function": "powerset"
+        },
+        {
+          "candidate_id": "58ffaa909780725716c1",
+          "contract_id": "synthetic-stable-first-javascript",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "error_type": "ValueError"
+          },
+          "function": "powerset"
+        },
+        {
+          "candidate_id": "58ffaa909780725716c1",
+          "contract_id": "synthetic-stable-first-unknown",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "error_type": "ValueError"
+          },
+          "function": "powerset"
+        },
+        {
+          "candidate_id": "dc7cf037c39f257e57bd",
+          "contract_id": "synthetic-stable-first-python",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "error_type": "ValueError"
+          },
+          "function": "unique_justseen"
+        },
+        {
+          "candidate_id": "dc7cf037c39f257e57bd",
+          "contract_id": "synthetic-stable-first-javascript",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "error_type": "ValueError"
+          },
+          "function": "unique_justseen"
+        },
+        {
+          "candidate_id": "dc7cf037c39f257e57bd",
+          "contract_id": "synthetic-stable-first-unknown",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "error_type": "ValueError"
+          },
+          "function": "unique_justseen"
+        },
+        {
+          "candidate_id": "4c82fd65278fbe0d0996",
+          "contract_id": "synthetic-stable-first-python",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "error_type": "ValueError"
+          },
+          "function": "unique"
+        },
+        {
+          "candidate_id": "4c82fd65278fbe0d0996",
+          "contract_id": "synthetic-stable-first-javascript",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "error_type": "ValueError"
+          },
+          "function": "unique"
+        },
+        {
+          "candidate_id": "4c82fd65278fbe0d0996",
+          "contract_id": "synthetic-stable-first-unknown",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "error_type": "ValueError"
+          },
+          "function": "unique"
+        },
+        {
+          "candidate_id": "125dc413d335917eacb8",
+          "contract_id": "synthetic-stable-first-python",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "observed": 3
+          },
+          "function": "first_true"
+        },
+        {
+          "candidate_id": "125dc413d335917eacb8",
+          "contract_id": "synthetic-stable-first-javascript",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "observed": 3
+          },
+          "function": "first_true"
+        },
+        {
+          "candidate_id": "125dc413d335917eacb8",
+          "contract_id": "synthetic-stable-first-unknown",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "observed": 3
+          },
+          "function": "first_true"
+        },
+        {
+          "candidate_id": "68d6c29e931d3ffe1475",
+          "contract_id": "synthetic-stable-first-python",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "error_type": "ValueError"
+          },
+          "function": "triplewise"
+        },
+        {
+          "candidate_id": "68d6c29e931d3ffe1475",
+          "contract_id": "synthetic-stable-first-javascript",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "error_type": "ValueError"
+          },
+          "function": "triplewise"
+        },
+        {
+          "candidate_id": "68d6c29e931d3ffe1475",
+          "contract_id": "synthetic-stable-first-unknown",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "error_type": "ValueError"
+          },
+          "function": "triplewise"
+        },
+        {
+          "candidate_id": "26591dc42ba7f1d61007",
+          "contract_id": "synthetic-stable-first-python",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "error_type": "ValueError"
+          },
+          "function": "subslices"
+        },
+        {
+          "candidate_id": "26591dc42ba7f1d61007",
+          "contract_id": "synthetic-stable-first-javascript",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "error_type": "ValueError"
+          },
+          "function": "subslices"
+        },
+        {
+          "candidate_id": "26591dc42ba7f1d61007",
+          "contract_id": "synthetic-stable-first-unknown",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "error_type": "ValueError"
+          },
+          "function": "subslices"
+        },
+        {
+          "candidate_id": "2390457404c0f0282cdc",
+          "contract_id": "synthetic-stable-first-python",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "error_type": "TypeError"
+          },
+          "function": "transpose"
+        },
+        {
+          "candidate_id": "2390457404c0f0282cdc",
+          "contract_id": "synthetic-stable-first-javascript",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "error_type": "TypeError"
+          },
+          "function": "transpose"
+        },
+        {
+          "candidate_id": "2390457404c0f0282cdc",
+          "contract_id": "synthetic-stable-first-unknown",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "error_type": "TypeError"
+          },
+          "function": "transpose"
+        },
+        {
+          "candidate_id": "0e70c4765709ba80a43c",
+          "contract_id": "synthetic-stable-first-python",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "observed": false
+          },
+          "function": "_is_scalar"
+        },
+        {
+          "candidate_id": "0e70c4765709ba80a43c",
+          "contract_id": "synthetic-stable-first-javascript",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "observed": false
+          },
+          "function": "_is_scalar"
+        },
+        {
+          "candidate_id": "0e70c4765709ba80a43c",
+          "contract_id": "synthetic-stable-first-unknown",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "observed": false
+          },
+          "function": "_is_scalar"
+        },
+        {
+          "candidate_id": "c9efce45a2d1d2c9902a",
+          "contract_id": "synthetic-stable-first-python",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "error_type": "ValueError"
+          },
+          "function": "_flatten_tensor"
+        },
+        {
+          "candidate_id": "c9efce45a2d1d2c9902a",
+          "contract_id": "synthetic-stable-first-javascript",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "error_type": "ValueError"
+          },
+          "function": "_flatten_tensor"
+        },
+        {
+          "candidate_id": "c9efce45a2d1d2c9902a",
+          "contract_id": "synthetic-stable-first-unknown",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "error_type": "ValueError"
+          },
+          "function": "_flatten_tensor"
+        },
+        {
+          "candidate_id": "fb236d8e5341544f9749",
+          "contract_id": "synthetic-stable-first-python",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "error_type": "TypeError"
+          },
+          "function": "_factor_pollard"
+        },
+        {
+          "candidate_id": "fb236d8e5341544f9749",
+          "contract_id": "synthetic-stable-first-javascript",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "error_type": "TypeError"
+          },
+          "function": "_factor_pollard"
+        },
+        {
+          "candidate_id": "fb236d8e5341544f9749",
+          "contract_id": "synthetic-stable-first-unknown",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "error_type": "TypeError"
+          },
+          "function": "_factor_pollard"
+        },
+        {
+          "candidate_id": "4ec70812d6062c56c850",
+          "contract_id": "synthetic-stable-first-python",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "observed": [
+              6,
+              1
+            ]
+          },
+          "function": "polynomial_derivative"
+        },
+        {
+          "candidate_id": "4ec70812d6062c56c850",
+          "contract_id": "synthetic-stable-first-javascript",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "observed": [
+              6,
+              1
+            ]
+          },
+          "function": "polynomial_derivative"
+        },
+        {
+          "candidate_id": "4ec70812d6062c56c850",
+          "contract_id": "synthetic-stable-first-unknown",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "observed": [
+              6,
+              1
+            ]
+          },
+          "function": "polynomial_derivative"
+        },
+        {
+          "candidate_id": "8d0c3fbe0dcb2e1aef22",
+          "contract_id": "synthetic-stable-first-python",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "error_type": "TypeError"
+          },
+          "function": "_shift_to_odd"
+        },
+        {
+          "candidate_id": "8d0c3fbe0dcb2e1aef22",
+          "contract_id": "synthetic-stable-first-javascript",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "error_type": "TypeError"
+          },
+          "function": "_shift_to_odd"
+        },
+        {
+          "candidate_id": "8d0c3fbe0dcb2e1aef22",
+          "contract_id": "synthetic-stable-first-unknown",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "error_type": "TypeError"
+          },
+          "function": "_shift_to_odd"
+        },
+        {
+          "candidate_id": "8f08eacc3ad2639c3ef0",
+          "contract_id": "synthetic-stable-first-python",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "error_type": "TypeError"
+          },
+          "function": "loops"
+        },
+        {
+          "candidate_id": "8f08eacc3ad2639c3ef0",
+          "contract_id": "synthetic-stable-first-javascript",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "error_type": "TypeError"
+          },
+          "function": "loops"
+        },
+        {
+          "candidate_id": "8f08eacc3ad2639c3ef0",
+          "contract_id": "synthetic-stable-first-unknown",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "error_type": "TypeError"
+          },
+          "function": "loops"
+        },
+        {
+          "candidate_id": "0ab511ee44094b42e34b",
+          "contract_id": "synthetic-stable-first-python",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "error_type": "TypeError"
+          },
+          "function": "multinomial"
+        },
+        {
+          "candidate_id": "0ab511ee44094b42e34b",
+          "contract_id": "synthetic-stable-first-javascript",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "error_type": "TypeError"
+          },
+          "function": "multinomial"
+        },
+        {
+          "candidate_id": "0ab511ee44094b42e34b",
+          "contract_id": "synthetic-stable-first-unknown",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "error_type": "TypeError"
+          },
+          "function": "multinomial"
+        }
+      ],
+      "load_errors": [],
+      "omissions": [
+        {
+          "path": "more_itertools/recipes.py",
+          "symbol": "iter_except",
+          "reason": "Dependency outside the extracted stdlib slice: suppress"
+        },
+        {
+          "path": "more_itertools/recipes.py",
+          "symbol": "random_product",
+          "reason": "Dependency outside the extracted stdlib slice: choice"
+        },
+        {
+          "path": "more_itertools/recipes.py",
+          "symbol": "random_permutation",
+          "reason": "Dependency outside the extracted stdlib slice: sample"
+        },
+        {
+          "path": "more_itertools/recipes.py",
+          "symbol": "random_combination",
+          "reason": "Dependency outside the extracted stdlib slice: sample"
+        },
+        {
+          "path": "more_itertools/recipes.py",
+          "symbol": "random_combination_with_replacement",
+          "reason": "Dependency outside the extracted stdlib slice: randrange"
+        },
+        {
+          "path": "more_itertools/recipes.py",
+          "symbol": "convolve",
+          "reason": "Unsupported module binding: _sumprod"
+        },
+        {
+          "path": "more_itertools/recipes.py",
+          "symbol": "polynomial_from_roots",
+          "reason": "Unsupported module binding: _sumprod"
+        },
+        {
+          "path": "more_itertools/recipes.py",
+          "symbol": "iter_index",
+          "reason": "Dependency outside the extracted stdlib slice: suppress"
+        },
+        {
+          "path": "more_itertools/recipes.py",
+          "symbol": "sieve",
+          "reason": "Dependency outside the extracted stdlib slice: suppress"
+        },
+        {
+          "path": "more_itertools/recipes.py",
+          "symbol": "reshape",
+          "reason": "Unsupported module binding: batched"
+        },
+        {
+          "path": "more_itertools/recipes.py",
+          "symbol": "matmul",
+          "reason": "Unsupported module binding: _sumprod"
+        },
+        {
+          "path": "more_itertools/recipes.py",
+          "symbol": "factor",
+          "reason": "Computed module state: _primes_below_211"
+        },
+        {
+          "path": "more_itertools/recipes.py",
+          "symbol": "polynomial_eval",
+          "reason": "Unsupported module binding: _sumprod"
+        },
+        {
+          "path": "more_itertools/recipes.py",
+          "symbol": "sum_of_squares",
+          "reason": "Unsupported module binding: _sumprod"
+        },
+        {
+          "path": "more_itertools/recipes.py",
+          "symbol": "totient",
+          "reason": "Computed module state: _primes_below_211"
+        },
+        {
+          "path": "more_itertools/recipes.py",
+          "symbol": "is_prime",
+          "reason": "Computed module state: _private_randrange"
+        },
+        {
+          "path": "more_itertools/recipes.py",
+          "symbol": "_running_median_minheap_and_maxheap",
+          "reason": "Dependency outside the extracted stdlib slice: heappush"
+        },
+        {
+          "path": "more_itertools/recipes.py",
+          "symbol": "_running_median_minheap_only",
+          "reason": "Dependency outside the extracted stdlib slice: heappush"
+        },
+        {
+          "path": "more_itertools/recipes.py",
+          "symbol": "_running_median_windowed",
+          "reason": "Dependency outside the extracted stdlib slice: bisect_left"
+        },
+        {
+          "path": "more_itertools/recipes.py",
+          "symbol": "running_median",
+          "reason": "Unresolved or ambiguous global: _max_heap_available"
+        },
+        {
+          "path": "more_itertools/recipes.py",
+          "symbol": "running_mean",
+          "reason": "Callable limit reached."
+        },
+        {
+          "path": "more_itertools/recipes.py",
+          "symbol": "_windowed_running_min",
+          "reason": "Callable limit reached."
+        },
+        {
+          "path": "more_itertools/recipes.py",
+          "symbol": "running_min",
+          "reason": "Callable limit reached."
+        },
+        {
+          "path": "more_itertools/recipes.py",
+          "symbol": "_windowed_running_max",
+          "reason": "Callable limit reached."
+        },
+        {
+          "path": "more_itertools/recipes.py",
+          "symbol": "running_max",
+          "reason": "Callable limit reached."
+        },
+        {
+          "path": "more_itertools/recipes.py",
+          "symbol": "running_statistics",
+          "reason": "Callable limit reached."
+        },
+        {
+          "path": "more_itertools/recipes.py",
+          "symbol": "random_derangement",
+          "reason": "Callable limit reached."
+        }
+      ],
+      "qualified_leads": 0
+    },
+    {
+      "repository": "mahmoud/boltons",
+      "revision": "4e5faa3d7e4008d89e0d8bf1ea87b6d9a061a16d",
+      "execution_status": "exited_successfully",
+      "duration_seconds": 2.396,
+      "artifact_sha256": {
+        "project/candidate_0.py": "68648b306ec4688028ae9c2dc3c02e2edf98e925da87fe8612b0852854e27bf8",
+        "reviewed_tests/search.py": "5b218facb193ddb564c2524358bb328e8342c9402801e187355dcab9f288c0a3"
+      },
+      "runtime": {
+        "wasmtime": "49.0.1",
+        "cpython_wasi": "3.14.7",
+        "engine_sha256": "ea76fcf3f3015b46020755fe76779f483240f8377a80bda767ee6e295c782aa8",
+        "module_sha256": "d24bd98d3071af6b17d51d53a08700b9acef59172a0afcb6adb733645c2a1715"
+      },
+      "assessment_status": "observed",
+      "candidate_count": 1,
+      "attempted_bindings": 3,
+      "unobserved_bindings": 0,
+      "matches": [],
+      "counterexamples": [
+        {
+          "candidate_id": "7a6f1787610e89dd8fab",
+          "contract_id": "synthetic-stable-first-python",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "error_type": "TypeError"
+          },
+          "function": "clamp"
+        },
+        {
+          "candidate_id": "7a6f1787610e89dd8fab",
+          "contract_id": "synthetic-stable-first-javascript",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "error_type": "TypeError"
+          },
+          "function": "clamp"
+        },
+        {
+          "candidate_id": "7a6f1787610e89dd8fab",
+          "contract_id": "synthetic-stable-first-unknown",
+          "recipe": "identity",
+          "first_failure": {
+            "phase": "examples",
+            "case_index": 0,
+            "args": [
+              [
+                3,
+                1,
+                3
+              ]
+            ],
+            "expected": [
+              3,
+              1
+            ],
+            "mutated_input": false,
+            "error_type": "TypeError"
+          },
+          "function": "clamp"
+        }
+      ],
+      "load_errors": [],
+      "omissions": [
+        {
+          "path": "boltons/mathutils.py",
+          "symbol": "ceil",
+          "reason": "Dependency outside the extracted stdlib slice: bisect"
+        },
+        {
+          "path": "boltons/mathutils.py",
+          "symbol": "floor",
+          "reason": "Dependency outside the extracted stdlib slice: bisect"
+        }
+      ],
+      "qualified_leads": 0
+    },
+    {
+      "repository": "networkx/networkx",
+      "revision": "6da4704cbf32ba6f50f6d9c46cc0a071e3a87985",
+      "execution_status": "exited_successfully",
+      "duration_seconds": 2.25,
+      "artifact_sha256": {
+        "reviewed_tests/search.py": "210a08803ef3c0745e5a7ea4ad4e52bde53ce4e7e6cdf1aad4de2f64a8cedddf"
+      },
+      "runtime": {
+        "wasmtime": "49.0.1",
+        "cpython_wasi": "3.14.7",
+        "engine_sha256": "ea76fcf3f3015b46020755fe76779f483240f8377a80bda767ee6e295c782aa8",
+        "module_sha256": "d24bd98d3071af6b17d51d53a08700b9acef59172a0afcb6adb733645c2a1715"
+      },
+      "assessment_status": "observed",
+      "candidate_count": 0,
+      "attempted_bindings": 0,
+      "unobserved_bindings": 0,
+      "matches": [],
+      "counterexamples": [],
+      "load_errors": [],
+      "omissions": [
+        {
+          "path": "networkx/algorithms/dag.py",
+          "symbol": "descendants",
+          "reason": "Dependency outside the extracted stdlib slice: nx"
+        },
+        {
+          "path": "networkx/algorithms/dag.py",
+          "symbol": "ancestors",
+          "reason": "Dependency outside the extracted stdlib slice: nx"
+        },
+        {
+          "path": "networkx/algorithms/dag.py",
+          "symbol": "has_cycle",
+          "reason": "Dependency outside the extracted stdlib slice: nx"
+        },
+        {
+          "path": "networkx/algorithms/dag.py",
+          "symbol": "is_directed_acyclic_graph",
+          "reason": "Dependency outside the extracted stdlib slice: nx"
+        },
+        {
+          "path": "networkx/algorithms/dag.py",
+          "symbol": "antichain_width",
+          "reason": "Dependency outside the extracted stdlib slice: not_implemented_for"
+        },
+        {
+          "path": "networkx/algorithms/dag.py",
+          "symbol": "topological_generations",
+          "reason": "Dependency outside the extracted stdlib slice: nx"
+        },
+        {
+          "path": "networkx/algorithms/dag.py",
+          "symbol": "topological_sort",
+          "reason": "Dependency outside the extracted stdlib slice: nx"
+        },
+        {
+          "path": "networkx/algorithms/dag.py",
+          "symbol": "lexicographical_topological_sort",
+          "reason": "Dependency outside the extracted stdlib slice: heapq"
+        },
+        {
+          "path": "networkx/algorithms/dag.py",
+          "symbol": "all_topological_sorts",
+          "reason": "Dependency outside the extracted stdlib slice: not_implemented_for"
+        },
+        {
+          "path": "networkx/algorithms/dag.py",
+          "symbol": "is_aperiodic",
+          "reason": "Dependency outside the extracted stdlib slice: not_implemented_for"
+        },
+        {
+          "path": "networkx/algorithms/dag.py",
+          "symbol": "transitive_closure",
+          "reason": "Dependency outside the extracted stdlib slice: nx"
+        },
+        {
+          "path": "networkx/algorithms/dag.py",
+          "symbol": "transitive_closure_dag",
+          "reason": "Dependency outside the extracted stdlib slice: not_implemented_for"
+        },
+        {
+          "path": "networkx/algorithms/dag.py",
+          "symbol": "transitive_reduction",
+          "reason": "Dependency outside the extracted stdlib slice: nx"
+        },
+        {
+          "path": "networkx/algorithms/dag.py",
+          "symbol": "antichains",
+          "reason": "Dependency outside the extracted stdlib slice: not_implemented_for"
+        },
+        {
+          "path": "networkx/algorithms/dag.py",
+          "symbol": "dag_longest_path",
+          "reason": "Dependency outside the extracted stdlib slice: not_implemented_for"
+        },
+        {
+          "path": "networkx/algorithms/dag.py",
+          "symbol": "dag_longest_path_length",
+          "reason": "Dependency outside the extracted stdlib slice: not_implemented_for"
+        },
+        {
+          "path": "networkx/algorithms/dag.py",
+          "symbol": "root_to_leaf_paths",
+          "reason": "Dependency outside the extracted stdlib slice: nx"
+        },
+        {
+          "path": "networkx/algorithms/dag.py",
+          "symbol": "dag_to_branching",
+          "reason": "Dependency outside the extracted stdlib slice: nx"
+        },
+        {
+          "path": "networkx/algorithms/dag.py",
+          "symbol": "v_structures",
+          "reason": "Dependency outside the extracted stdlib slice: not_implemented_for"
+        },
+        {
+          "path": "networkx/algorithms/dag.py",
+          "symbol": "colliders",
+          "reason": "Dependency outside the extracted stdlib slice: not_implemented_for"
+        }
+      ],
+      "qualified_leads": 0
+    }
+  ]
+}
