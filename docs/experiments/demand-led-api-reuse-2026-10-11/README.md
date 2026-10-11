@@ -47,12 +47,15 @@ bounded API grammar is small enough to implement and challenge now.
   public direct functions and one constructor/classmethod-factory followed by a
   method/property. Inheritance follows literal same-package class bindings;
   multiple inheritance and rebound module/member names are conservatively omitted.
-  Decorated classes and their descendants are also omitted. Classmethod factories
+  Decorated classes, explicit class keywords (including metaclasses), and their
+  descendants are also omitted. Classmethod factories
   and instance methods must be bound to the indexed class and created instance;
   delegation to another receiver is outside this prototype's grammar.
   Stable local re-exports are followed transitively. Unresolved/cyclic ancestry
   abstains; only unshadowed `object`, `typing.Generic` and `abc.ABC` are accepted
-  as standard terminal bases with object initialization.
+  as standard terminal bases with object initialization. Qualified attribute
+  writes invalidate imported base aliases; runtime construction also rejects
+  custom metaclass calls and unindexed default initializers.
   Generated calls also check the runtime function's source location and factory
   result class before attributing an observation to the indexed method. Ordinary
   decorator/member replacement becomes a failed observation, not false evidence;
@@ -90,7 +93,7 @@ The follow-up [manifest](followup-manifest.json), [catalog](followup-plan-index.
 and [results](followup-results.json) retain the same sources, cases, candidate
 identities and order. No outcome-dependent candidate or case was added.
 
-| Supplied source | Revision | Python files | Slice candidates / eligible per contract | API candidates |
+| Supplied source | Revision | Python files | Slice candidates / eligible per contract | Initial API candidates |
 | --- | --- | ---: | ---: | ---: |
 | pypa/packaging | `332d716676eb934b67ede4054a3e3e0d4022b2d3` | 22 | 40 / 5 | 40 |
 | cpburnz/python-pathspec | `cd79e3c74e2af8d8eadcc0d74d979db518c80f12` | 31 | 13 / 2 | 32 |
@@ -216,6 +219,20 @@ request, score adjustment or successful packaging result. The six slice plans
 also remain unchanged. The final outcome remains one assisted suboperation and
 zero demonstrated novel advantageous discoveries.
 
+The final callable/construction correction at `6ca299f` is retained in
+[its manifest](callable-manifest.json), [catalog](callable-plan-index.json) and
+[results](callable-results.json). All six API plans were rerun after adding real
+function/method type checks, metaclass abstention, qualified-base rebinding checks
+and default-initializer guards. Pathspec keeps the same 32 bindings and sole
+positive (3.376 seconds), with **9/9 fresh export cases** (3.132 seconds). Its
+cross-domain controls remain negative. Packaging still exhausts fuel; its catalog
+is now narrower: the explicit `ABCMeta` base is outside this conservative grammar,
+removing 19 bindings and admitting three later functions, for 24 candidates.
+In particular, Specifier/SpecifierSet compositions are now omitted, so this
+version does not assess their PEP 440 capability even apart from fuel exhaustion.
+This is a coverage loss, not an equivalent guarantee or a semantic rejection.
+No source, contract, case, ranking rule or historical record was changed.
+
 The review's proposed `candidate_0` name restriction was not adopted: a directory
 `candidate_0/` and a file `candidate_0.py` are distinct paths. An authored regression
 passes through both the evaluator and actual WASI (one witness, 2.437 seconds).
@@ -268,8 +285,8 @@ The next decisive experiment should start with independently sourced unmet
 target behavior and a fixed software corpus chosen without reading the answer
 in that target's discussion. Its success criterion must include a target-level
 change and benefit relative to the target's best available alternative. More
-API witnesses alone would not satisfy that criterion. No such paid experiment
-or target modification is authorized or initiated by this report.
+API witnesses alone would not satisfy that criterion. No paid experiment or
+target modification was initiated in this study.
 
 ## Attribution
 
