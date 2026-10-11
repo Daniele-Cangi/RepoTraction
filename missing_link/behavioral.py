@@ -208,6 +208,9 @@ def _validate_contracts(contracts):
 def prepare_behavior_search(repository, contracts, *, limit=40):
     """Prepare inspectable WASI artifacts. No imports or execution of source."""
     _validate_contracts(contracts)
+    # Use one JSON representation for execution, retained evidence and replay.
+    # Otherwise repr() can preserve Python tuples that the saved plan turns into lists.
+    contracts = json.loads(json.dumps(contracts, ensure_ascii=False, allow_nan=False))
     from .wasi_runner import MAX_OUTPUT, MAX_ARTIFACT_BYTES, MAX_TOTAL_ARTIFACT_BYTES
     candidates, omissions = extract_callables(repository, limit=limit)
     # Keep the guest driver in one ordinary module, shared by tests and the
@@ -238,7 +241,7 @@ def prepare_behavior_search(repository, contracts, *, limit=40):
         omissions.append({"path": omitted["evidence"]["path"], "symbol": omitted["name"],
                           "reason": "Existing WASI artifact byte limit reached; source not truncated."})
     return {"version": 1, "repository": repository["full_name"], "revision": repository["revision"],
-        "candidates": candidates, "omissions": omissions, "contracts": json.loads(json.dumps(contracts)),
+        "candidates": candidates, "omissions": omissions, "contracts": contracts,
         "files": files, "entrypoint": "reviewed_tests/search.py",
         "artifact_sha256": {path: _sha(content) for path, content in files.items()},
         "limitations": ["Top-level Python functions in supplied files; not whole-repository coverage.",

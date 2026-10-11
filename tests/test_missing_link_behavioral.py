@@ -10,7 +10,7 @@ import tempfile
 import unittest
 
 from missing_link.behavioral import extract_callables, prepare_behavior_search, assess_behavior_search, prepare_behavior_bridge
-from missing_link.behavior_examples import observe, run
+from missing_link.behavior_examples import observe
 from missing_link.wasi_runner import MAX_OUTPUT
 
 
@@ -56,20 +56,38 @@ OWN_NOISY = '''def noisy(value, initial=print("loaded")):
     yield value + 1
 '''
 
+OWN_STATEFUL_DEFAULT = '''def stateful(value, history=[]):
+    history.append(value)
+    return len(history)
+'''
+
+OWN_STATEFUL_GLOBAL = '''def stateful(value):
+    HISTORY.append(value)
+    return len(HISTORY)
+'''
+
+OWN_TYPE_SENSITIVE = '''def tuple_only(value):
+    return 1 if isinstance(value, tuple) else 0
+'''
+
 
 def execute_authored_fixture(plan):
     """Exercise the guest evaluator using ONLY authored fixtures, never acquired source."""
-    if any(c["evidence"]["quote"] not in (OWN_CODE, OWN_GENERATOR, OWN_NOISY) for c in plan["candidates"]):
+    authored = (OWN_CODE, OWN_GENERATOR, OWN_NOISY, OWN_STATEFUL_DEFAULT,
+                OWN_STATEFUL_GLOBAL, OWN_TYPE_SENSITIVE)
+    if any(c["evidence"]["quote"] not in authored for c in plan["candidates"]):
         raise AssertionError("Host evaluation is restricted to the authored unit fixture.")
     with tempfile.TemporaryDirectory() as directory:
-        candidates = []
+        driver = plan["files"][plan["entrypoint"]]
         for i, candidate in enumerate(plan["candidates"]):
             path = Path(directory) / f"fixture{i}.py"
             path.write_text(candidate["code"], encoding="utf-8")
-            candidates.append({**candidate, "file": str(path)})
+            driver = driver.replace(repr(f"/sandbox/work/project/candidate_{i}.py"), repr(str(path)))
         output = io.StringIO()
         with redirect_stdout(output):
-            run({"candidates": candidates, "contracts": plan["contracts"], "output_limit": MAX_OUTPUT})
+            # Execute the actual generated payload, not a reconstruction from
+            # plan metadata that could conceal representation differences.
+            exec(compile(driver, "<authored-fixture-driver>", "exec"), {"__name__": "__main__"})
     return {"status": "exited_successfully", "context": "isolated_wasi_example",
             "artifact_sha256": plan["artifact_sha256"], "stdout": output.getvalue()}
 
@@ -152,6 +170,29 @@ class ExtractionTests(unittest.TestCase):
 
 
 class BehavioralTests(unittest.TestCase):
+    def test_bindings_do_not_inherit_mutable_defaults_or_literal_globals(self):
+        cold = {"id": "cold", "kind": "synthetic_control", "input_kind": "arguments",
+                "runtime": "python", "examples": [case([0], 1)], "checks": [case([0], 2)]}
+        warmed = {**cold, "id": "warmed", "examples": [case([0], 3)], "checks": [case([0], 4)]}
+        for source in (OWN_STATEFUL_DEFAULT, "HISTORY = []\n" + OWN_STATEFUL_GLOBAL):
+            for contracts in ([cold, warmed], [warmed, cold]):
+                with self.subTest(source=source, order=[c["id"] for c in contracts]):
+                    plan = prepare_behavior_search(snapshot(source), contracts)
+                    result = assess_behavior_search(plan, execute_authored_fixture(plan))
+                    self.assertEqual([m["contract_id"] for m in result["matches"]], ["cold"])
+                    self.assertEqual(result["unobserved_bindings"], [])
+
+    def test_guest_uses_the_same_normalized_json_inputs_as_the_retained_plan(self):
+        contract = {"id": "tuples", "kind": "synthetic_control", "input_kind": "arguments",
+                    "runtime": "python", "examples": [case([(1, 2)], 1)], "checks": [case([(3, 4)], 1)]}
+        original = copy.deepcopy(contract)
+        plan = prepare_behavior_search(snapshot(OWN_TYPE_SENSITIVE), [contract])
+        self.assertEqual(plan["contracts"][0]["examples"][0]["args"], [[1, 2]])
+        result = assess_behavior_search(plan, execute_authored_fixture(plan))
+        self.assertEqual(result["matches"], [])
+        self.assertEqual(result["counterexamples"][0]["first_failure"]["observed"], 0)
+        self.assertEqual(contract, original)
+
     def test_loading_and_lazy_callable_output_do_not_corrupt_search_json(self):
         contract = {"id": "noisy", "kind": "synthetic_control", "input_kind": "arguments",
                     "runtime": "python", "examples": [case([0], [1])], "checks": [case([1], [2])]}

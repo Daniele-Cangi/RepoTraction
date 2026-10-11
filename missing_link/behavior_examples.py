@@ -123,15 +123,16 @@ def _search(payload):
 
     for candidate in payload["candidates"]:
         try:
-            namespace = {"__name__": "behavior_slice", "__file__": candidate["file"]}
             with open(candidate["file"], encoding="utf-8") as stream:
                 code = stream.read()
-            exec(compile(code, candidate["file"], "exec"), namespace)
-            function = namespace[candidate["name"]]
+            compiled = compile(code, candidate["file"], "exec")
         except Exception as exc:
             load_errors.append({"candidate_id": candidate["id"], "error_type": type(exc).__name__[:64]})
             continue
+        load_failed = False
         for contract in payload["contracts"]:
+            if load_failed:
+                break
             recipes = ["identity"]
             if contract["input_kind"] == "boolean_mask":
                 recipes += ["mask_zero_closed", "mask_zero_halfopen", "mask_one_closed", "mask_one_halfopen"]
@@ -140,6 +141,17 @@ def _search(payload):
                 if (candidate["required_keywords"] or arity < candidate["required_args"]
                         or (arity > candidate["positional_args"] and not candidate["variadic"])):
                     continue
+                # Every contract/recipe starts like an exported fresh import.
+                # State may evolve across that binding's examples/checks, but
+                # another binding must not warm defaults, globals or decorators.
+                try:
+                    namespace = {"__name__": "behavior_slice", "__file__": candidate["file"]}
+                    exec(compiled, namespace)
+                    function = namespace[candidate["name"]]
+                except Exception as exc:
+                    load_errors.append({"candidate_id": candidate["id"], "error_type": type(exc).__name__[:64]})
+                    load_failed = True
+                    break
                 row = observe(function, contract, recipe)
                 # Keep one counterexample per binding. Suppress redundant null
                 # fields so an ordinary experiment fits the existing output cap.
