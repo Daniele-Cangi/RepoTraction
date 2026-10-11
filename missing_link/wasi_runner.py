@@ -19,6 +19,8 @@ ENGINE_HASH = "ea76fcf3f3015b46020755fe76779f483240f8377a80bda767ee6e295c782aa8"
 PYTHON_HASH = "d24bd98d3071af6b17d51d53a08700b9acef59172a0afcb6adb733645c2a1715"
 MAX_MEMORY = 268435456
 MAX_OUTPUT = 32768
+MAX_ARTIFACT_BYTES = 262144
+MAX_TOTAL_ARTIFACT_BYTES = 2000000
 FUEL = 5000000000
 
 
@@ -81,7 +83,7 @@ class WasiRunner:
         manifest, portable, total = {}, set(), 0
         for path, content in files.items():
             path = safe_relative_path(path)
-            if not isinstance(content, str) or len(content.encode()) > 262144:
+            if not isinstance(content, str) or len(content.encode()) > MAX_ARTIFACT_BYTES:
                 raise ValueError("WASI artifacts must be bounded text.")
             key = path.casefold()
             if key in portable or any(key.startswith(other + "/") or other.startswith(key + "/") for other in portable):
@@ -89,7 +91,7 @@ class WasiRunner:
             portable.add(key)
             total += len(content.encode())
             manifest[path] = hashlib.sha256(content.encode()).hexdigest()
-        if total > 2000000:
+        if total > MAX_TOTAL_ARTIFACT_BYTES:
             raise ValueError("WASI artifact byte limit exceeded.")
         started = time.monotonic()
         with tempfile.TemporaryDirectory(prefix="repotraction-wasi-") as scratch:

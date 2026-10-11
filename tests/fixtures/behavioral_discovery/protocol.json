@@ -1,0 +1,77 @@
+{
+  "hypothesis": "Finite input/output behavior plus small representation adapters can retrieve cross-domain source primitives missed by names, while producing counterexamples for incompatible operations.",
+  "development_corpus": true,
+  "source_files_fixed": [
+    {
+      "path": "coverage/results.py",
+      "fixture": "coverage-results.py.txt",
+      "blob_sha": "9cd553be00833e25a6b425693c36996d310c3d04"
+    },
+    {
+      "path": "coverage/misc.py",
+      "fixture": "coverage-misc.py.txt",
+      "blob_sha": "8d273a741dade50934e7ae8b370641d115ef1167"
+    }
+  ],
+  "source_revision": "0287d5da35d9dee0f7f464ddb86321e2d0b273cd",
+  "contracts": [
+    {
+      "id": "ordered-selection-runs",
+      "examples": 3,
+      "checks": 126
+    },
+    {
+      "id": "rf-transmission-regions",
+      "examples": 4,
+      "checks": 123
+    },
+    {
+      "id": "browser-only-regions",
+      "examples": 4,
+      "checks": 20
+    },
+    {
+      "id": "unknown-runtime-regions",
+      "examples": 4,
+      "checks": 20
+    },
+    {
+      "id": "zero-index-selected-ranges",
+      "examples": 2,
+      "checks": 1
+    },
+    {
+      "id": "numeric-gap-ranges",
+      "examples": 2,
+      "checks": 1
+    },
+    {
+      "id": "genome-interval-union",
+      "examples": 2,
+      "checks": 1
+    },
+    {
+      "id": "pedestrian-assignment",
+      "examples": 2,
+      "checks": 1
+    }
+  ],
+  "adapters_fixed": [
+    "identity",
+    "mask_zero_closed",
+    "mask_zero_halfopen",
+    "mask_one_closed",
+    "mask_one_halfopen"
+  ],
+  "success": "At least one nontrivial held-out behavioral witness from an automatically extracted function; negative operation/zero-index cases fail; runtime conflict blocks reuse; adapter-only ablation fails.",
+  "limits": [
+    "No blind real-world discovery claim: agent chose the development files and translated issue prose.",
+    "No model calls. No package or target integration. Source execution only in existing WASI.",
+    "No policy tuning after results; semantic labels and adapter algebra fixed before execution."
+  ],
+  "comparators": [
+    "Original 2bf9568 problem_queries/select_candidates over a declared local problem corpus (no native model enrichment)",
+    "Behavior search identity binding only",
+    "Behavior search with the fixed representation adapters"
+  ]
+}

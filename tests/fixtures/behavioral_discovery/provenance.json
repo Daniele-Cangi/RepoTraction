@@ -1,0 +1,21 @@
+{
+  "source": "coveragepy/coveragepy",
+  "revision": "0287d5da35d9dee0f7f464ddb86321e2d0b273cd",
+  "files": [
+    {
+      "path": "coverage/results.py",
+      "fixture": "coverage-results.py.txt",
+      "blob_sha": "9cd553be00833e25a6b425693c36996d310c3d04"
+    },
+    {
+      "path": "coverage/misc.py",
+      "fixture": "coverage-misc.py.txt",
+      "blob_sha": "8d273a741dade50934e7ae8b370641d115ef1167"
+    }
+  ],
+  "license": "Apache-2.0",
+  "source_role": "reporting internals of a Python code coverage tool",
+  "target_revision": "c2ac62c145a75958207b674b9d8b9313c3fe55a0",
+  "acquired_on": "2026-10-11",
+  "scope": "Development corpus selected by the coding agent, not a blind/held-out discovery cohort. Original source is text only until explicit existing WASI execution."
+}
