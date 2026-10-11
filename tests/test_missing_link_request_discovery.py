@@ -240,6 +240,8 @@ class RequestDiscoveryTests(unittest.TestCase):
         self.assertNotIn("checkpoint", public)
         self.assertEqual(public["result"]["source_selection"]["acquired_source"], {
             "id": 42, "full_name": "example/words", "revision": "a" * 40})
+        self.assertEqual(public["result"]["search"]["candidates"], self.wires[2]["candidates"])
+        self.assertEqual(public["result"]["discovery_request"], self.wires[1]["request"])
 
     def test_zero_capabilities_still_exports_pinned_source_without_extra_ai_calls(self):
         self.structure = []
@@ -273,6 +275,9 @@ class RequestDiscoveryTests(unittest.TestCase):
         self.assertEqual(job["ai_calls_used"], 3)
         self.source.fetch_repository.assert_not_called()
         self.assertEqual(self.source.search_repositories.call_count, 1)
+        public = next(item for item in self.service.state()["jobs"] if item["id"] == job["id"])
+        self.assertEqual(public["result"]["search"]["candidates"], self.wires[2]["candidates"])
+        self.assertEqual(public["result"]["discovery_request"]["requirements"][0]["id"], "r0")
 
     def test_selected_source_still_fails_existing_hard_runtime_constraint(self):
         match = raw_match()

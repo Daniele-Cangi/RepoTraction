@@ -521,6 +521,7 @@ class Service:
             requests["0"] = self.provider.interpret_request(issue, budget)
             save()
         request = requests["0"]
+        job["result"]["discovery_request"] = request
         if is_non_demand(request) or request["status"] == "resolved":
             job["result"]["discovery_decision"] = {"decision": "no_unresolved_request",
                 "reason": request.get("status_reason", ""), "status": "unverified_decision", "qualified": False}
@@ -535,6 +536,7 @@ class Service:
             requests["0"] = request = dict(request, fingerprint=issue["fingerprint"])
             self.store.put("discussions", issue["id"], issue)
             save()
+        job["result"]["discovery_request"] = request
         if "discovery_plan" not in checkpoints:
             stage("discovery-decision", "Choosing useful operations or a direct solution before searching.")
             checkpoints["discovery_plan"] = self.provider.plan_discovery(request, issue["target_context"], budget)
@@ -565,7 +567,7 @@ class Service:
                 candidates.append(candidate)
         job["result"]["search"] = {"automatic_source_search": True,
             "queries": [pool["query"] for pool in pools.values()], "candidates_found": len(candidates),
-            "complete": False, "source_inspection_cap": 1}
+            "candidates": candidates, "complete": False, "source_inspection_cap": 1}
         if "source_selection" not in checkpoints:
             stage("source-selection", "Comparing candidate mechanisms against the direct alternative.")
             checkpoints["source_selection"] = (self.provider.select_source(plan, candidates, budget) if candidates else
