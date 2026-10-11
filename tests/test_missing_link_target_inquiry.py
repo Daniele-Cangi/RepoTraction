@@ -115,6 +115,26 @@ class InquiryTests(unittest.TestCase):
         self.source.fetch_repository.assert_called_once()
         self.assertEqual(sum("inquiry_version" in w for w in self.wires), 1)
 
+    def test_missing_selected_file_stops_before_final_decision_without_replacement(self):
+        self.evidence["files"] = []
+        self.evidence["coverage"]["excluded"] = {"credential_looking_content": 1}
+        job = self.run_job()
+        self.assertEqual(job["status"], "failed", job.get("error"))
+        self.assertEqual(job["ai_calls_used"], 2)
+        self.assertNotIn("inquiry_evidence", job["checkpoint"])
+        self.assertNotIn("discovery_decision", job["result"])
+        self.source.fetch_repository.assert_called_once()
+        self.source.search_repositories.assert_not_called()
+
+    def test_partial_selected_set_cannot_be_checkpointed_as_completed_inquiry(self):
+        self.target["file_catalog"]["entries"].append({"id": "f1", "path": "src/other.py", "sha": "d" * 40, "kind": "source"})
+        self.probe["file_ids"].append("f1")
+        job = self.run_job()
+        self.assertEqual(job["status"], "failed", job.get("error"))
+        self.assertEqual(job["ai_calls_used"], 2)
+        self.assertNotIn("inquiry_evidence", job["checkpoint"])
+        self.source.fetch_repository.assert_called_once()
+
     def test_account_switch_after_choice_prevents_the_read(self):
         response = self.response
         def changed(req, **kwargs):

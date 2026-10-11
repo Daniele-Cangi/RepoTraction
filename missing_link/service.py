@@ -565,8 +565,9 @@ class Service:
                     if evidence["id"] != target["id"] or evidence["revision"] != target["revision"]:
                         raise ValueError("Target identity or revision changed during inquiry.")
                     expected = {f["path"]: f["sha"] for f in inquiry["files"]}
-                    if any(f["path"] not in expected or f["sha"] != expected[f["path"]] for f in evidence["files"]):
-                        raise ValueError("Target inquiry file identity changed.")
+                    acquired = {f["path"]: f["sha"] for f in evidence["files"]}
+                    if acquired != expected or len(evidence["files"]) != len(expected):
+                        raise ValueError("Target inquiry files are incomplete or their identities changed.")
                     checkpoints["inquiry_evidence"] = evidence
                     save()
                 evidence = checkpoints["inquiry_evidence"]
