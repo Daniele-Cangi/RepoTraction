@@ -1,0 +1,57 @@
+{
+  "status": "prepared_not_executed_awaiting_authorization",
+  "baseline_commit": "5598fe17f6ad74b0d61c591b4e6fe383e376d6fb",
+  "selection": "Three purposively selected new Python application domains; metadata-only preparation, no target search or source inspection; no replacement after outcomes.",
+  "account": "Daniele-Cangi",
+  "entrypoint": "missing_link.service.Service.start(request, background=False)",
+  "database": "data/end-to-end-discovery-2026-10-11/pilot.sqlite3",
+  "allowance_id": "end-to-end-discovery-2026-10-11",
+  "repository_identities": [
+    {"full_name": "pallets/jinja", "id": 994551, "default_branch_at_preparation": "main"},
+    {"full_name": "psf/black", "id": 125266328, "default_branch_at_preparation": "main"},
+    {"full_name": "scrapy/scrapy", "id": 529502, "default_branch_at_preparation": "master"}
+  ],
+  "jobs": [
+    {"repo": "pallets/jinja", "action": "discover", "use_ai": true, "behavioral_examples": true, "issue_url": "", "query": "", "max_candidates": 5, "max_requests": 200},
+    {"repo": "psf/black", "action": "discover", "use_ai": true, "behavioral_examples": true, "issue_url": "", "query": "", "max_candidates": 5, "max_requests": 200},
+    {"repo": "scrapy/scrapy", "action": "discover", "use_ai": true, "behavioral_examples": true, "issue_url": "", "query": "", "max_candidates": 5, "max_requests": 200}
+  ],
+  "source_revision_policy": "Existing PublicGitHub acquisition pins the actual default-branch commit and blob revisions at job start; no externally seeded snapshot or selected file overrides.",
+  "provider_overrides_after_authorization": {
+    "REPOTRACTION_AI_MODEL": "gpt-6-luna",
+    "REPOTRACTION_AI_API_KIND": "responses",
+    "REPOTRACTION_AI_RESPONSE_FORMAT": "json_schema",
+    "REPOTRACTION_AI_REASONING_EFFORT": "medium",
+    "REPOTRACTION_AI_STREAMING": "1",
+    "REPOTRACTION_AI_MAX_OUTPUT_TOKENS": "12000",
+    "REPOTRACTION_AI_MAX_PROMPT_BYTES": "180000",
+    "REPOTRACTION_AI_INPUT_USD_PER_MILLION": "0.10",
+    "REPOTRACTION_AI_OUTPUT_USD_PER_MILLION": "0.50",
+    "REPOTRACTION_AI_MAX_CALLS": "16",
+    "REPOTRACTION_AI_MAX_COST_USD": "0.40",
+    "REPOTRACTION_AI_TOTAL_BUDGET_USD": "1.20",
+    "REPOTRACTION_AI_BUDGET_ID": "end-to-end-discovery-2026-10-11"
+  },
+  "bounds": {
+    "jobs": 3,
+    "selected_candidates_per_job": 5,
+    "selected_candidate_slots_total": 15,
+    "github_requests_per_job": 200,
+    "github_requests_total": 600,
+    "ai_attempts_per_job": 16,
+    "ai_attempts_total": 48,
+    "retries": 0,
+    "resumes_or_replacement_jobs": 0,
+    "maximum_reservation_per_call_usd": "0.0242048",
+    "maximum_reservation_per_job_usd": "0.3872768",
+    "maximum_reservation_total_usd": "1.1618304",
+    "proposed_new_allowance_usd": "1.20",
+    "isolated_executions_total": 60,
+    "independent_challenge_cases_per_contract": 4
+  },
+  "primary_outcome": "Autonomously discovered, independently supported partial-reuse opportunities with concrete advantage over a credible simpler alternative; target integration and assisted suggestions reported separately.",
+  "stop_rule": "Complete the fixed cohort without tuning. Zero useful opportunities is a negative cohort result, not an automatic mandate to repair the first failed stage.",
+  "paid_calls_executed_during_preparation": 0,
+  "target_searches_during_preparation": 0,
+  "new_runner_or_product_changes": false
+}
