@@ -1,0 +1,21 @@
+{
+  "code_commit": "5fdad305def8d371d81935d3475eff1180206bb9",
+  "corpus_sha256": "38e39c089ede4b23b823cec55beb338986f06acf40d0ca45ea8dec0261a84fde",
+  "redecoded_proposals_equal": 12,
+  "completed_responses": 12,
+  "unique_attempts": 12,
+  "request_wire_sha256_matches_manifest": 12,
+  "request_canonical_digest_matches_trace": 12,
+  "request_sizes_match": 12,
+  "saved_job_equals_export": true,
+  "public_redaction_unchanged": true,
+  "source_executions": 0,
+  "independent_judgments": 0,
+  "quality_comparison": "pending_independent_review",
+  "files": {
+    "manifest.json": "335278d2b17eded78de2ce3f77296a05a70dc416505c16fb00aa8d1359801ebc",
+    "run-result.json": "3906c924b9462563dd11cc89e98c6ebd4c968d1cac2a6840dbb13d48eb76bb7d",
+    "blind-review-input.json": "3b98dd0548efcad9b00241d93bc8997f3b1a00ea395ee68dc4abe315b3cf22d8",
+    "review-form.json": "10adb42d85c61028c20af49de1c21aa77b9ead406d52bc8c4f35e253a766c0fa"
+  }
+}

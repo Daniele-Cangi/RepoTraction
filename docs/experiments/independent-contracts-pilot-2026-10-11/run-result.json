@@ -1,0 +1,2945 @@
+{
+  "id": "9fe5b1a629df499baea3fba493b620f0",
+  "account": "Daniele-Cangi",
+  "input": {
+    "action": "offline_behavioral_proposals",
+    "use_ai": true,
+    "max_requests": 0,
+    "max_candidates": 12
+  },
+  "status": "completed",
+  "stage": "completed",
+  "created_at": "2026-10-11T11:03:58+00:00",
+  "updated_at": "2026-10-11T11:06:18+00:00",
+  "requests_used": 0,
+  "ai_calls_used": 12,
+  "cost_reserved_usd": 0.1396736,
+  "cache_hits": 0,
+  "error": null,
+  "checkpoint": {
+    "behavioral_proposals": {
+      "0": {
+        "version": "behavioral-demand-v1",
+        "status": "undetermined",
+        "reason": "The discussion indicates a goal of handling deeply nested structures, but it does not settle the implementation scope: the Python implementation, the C accelerator, and their compatibility are discussed with conflicting or unresolved requirements. Although a deep tuple construction is shown, the discussion does not provide a concrete JSON-compatible input and expected output pair for an executable contract. Supplying one would require representation or operation choices not established by the discussion.",
+        "contracts": [],
+        "unknowns": [
+          "Whether the required behavior applies to the Python implementation, the C accelerator, or both.",
+          "A concrete JSON-compatible input and expected output for testing deep-nesting support without inventing representation or serialization semantics.",
+          "Whether the intended nesting limit is finite or unlimited.",
+          "Discussion context is incomplete; omitted requirements may change the operation."
+        ],
+        "analysis_context": {
+          "phase": "request",
+          "source_ids": [
+            "q0",
+            "q13",
+            "q18",
+            "q17",
+            "q16",
+            "q15",
+            "q14",
+            "q12",
+            "q11",
+            "q10",
+            "q9",
+            "q8",
+            "q7",
+            "q6",
+            "q5",
+            "q4",
+            "q3",
+            "q2",
+            "q1"
+          ],
+          "omitted_source_ids": [],
+          "source_id_limit": 400,
+          "source_id_limit_omissions": 0,
+          "shortened_discussion_ids": [],
+          "discussion_complete": false,
+          "note": "Selected evidence is not the whole repository. Missing context remains unknown; omitted discussion prevents a qualified positive.",
+          "optional_field_hint_scan_complete": true,
+          "target_reference_context": {
+            "revision": null,
+            "source_ids": [],
+            "omitted_source_ids": [],
+            "reference_only": true,
+            "absence_proves_novelty": false
+          },
+          "omitted_constraint_ids": [],
+          "constraint_hint_scan_complete": true,
+          "omitted_source_count": 0,
+          "payload_bytes": 20699,
+          "demand_span_coverage": {
+            "span_count": 156,
+            "omitted_visible_spans": 52,
+            "complete": false,
+            "sources_without_spans": [],
+            "source_count_without_spans": 0,
+            "method": "exact original spans; bounded root opening then round-robin discussion coverage, not semantic validation"
+          },
+          "interpretation_contract": "behavioral-demand-v1"
+        },
+        "issue_url": "https://github.com/python/cpython/issues/47369",
+        "issue_fingerprint": "e4e298621318950212aa58d132dd76e34e3473c2492f85ca2b3e2e5b014e825c",
+        "provider_identity": "cdcd5f4d30c98d6930cf75d7b2fc8c965d48b0d5a52560b0475019c45ad41426",
+        "qualified": false,
+        "semantic_status": "model_proposed_unreviewed",
+        "execution_status": "not_requested",
+        "attempt_id": "9fe5b1a629df499baea3fba493b620f0:1"
+      },
+      "1": {
+        "version": "behavioral-demand-v1",
+        "status": "undetermined",
+        "reason": "The discussion reports performance and storage problems and floats possible remedies, but does not settle a precise operation or its input/output behavior. Cleanup cadence and deletion semantics are explicitly uncertain, and the index suggestion is documentation/database guidance rather than an executable behavioral contract. No defensible examples can be specified without inventing requirements.",
+        "contracts": [],
+        "unknowns": [
+          "Whether cleanup should delete records marked visible=0, and whether that is safe for queue behavior or signals.",
+          "Whether cleanup is automatic or manual, and whether it runs after every N pop() calls.",
+          "What inputs and outputs any cleanup or pop operation should have.",
+          "Whether the proposed MySQL index is required, optional, or sufficient, and what performance behavior is expected.",
+          "The intended runtime and database portability requirements.",
+          "The reported fix in django-kombu v0.9.2 does not specify the behavior or establish a contract for this discussion.",
+          "Discussion context is incomplete; omitted requirements may change the operation."
+        ],
+        "analysis_context": {
+          "phase": "request",
+          "source_ids": [
+            "q0",
+            "q4",
+            "q3",
+            "q2",
+            "q1"
+          ],
+          "omitted_source_ids": [],
+          "source_id_limit": 400,
+          "source_id_limit_omissions": 0,
+          "shortened_discussion_ids": [],
+          "discussion_complete": false,
+          "note": "Selected evidence is not the whole repository. Missing context remains unknown; omitted discussion prevents a qualified positive.",
+          "optional_field_hint_scan_complete": true,
+          "target_reference_context": {
+            "revision": null,
+            "source_ids": [],
+            "omitted_source_ids": [],
+            "reference_only": true,
+            "absence_proves_novelty": false
+          },
+          "omitted_constraint_ids": [],
+          "constraint_hint_scan_complete": true,
+          "omitted_source_count": 0,
+          "payload_bytes": 5275,
+          "demand_span_coverage": {
+            "span_count": 29,
+            "omitted_visible_spans": 0,
+            "complete": true,
+            "sources_without_spans": [],
+            "source_count_without_spans": 0,
+            "method": "exact original spans; bounded root opening then round-robin discussion coverage, not semantic validation"
+          },
+          "interpretation_contract": "behavioral-demand-v1"
+        },
+        "issue_url": "https://github.com/ask/ghettoq/issues/2",
+        "issue_fingerprint": "cc6b6bad2b6894d59185128a97aff0e8803f413f376d5858262e528a06efcab1",
+        "provider_identity": "cdcd5f4d30c98d6930cf75d7b2fc8c965d48b0d5a52560b0475019c45ad41426",
+        "qualified": false,
+        "semantic_status": "model_proposed_unreviewed",
+        "execution_status": "not_requested",
+        "attempt_id": "9fe5b1a629df499baea3fba493b620f0:2"
+      },
+      "2": {
+        "version": "behavioral-demand-v1",
+        "status": "proposed",
+        "reason": "The discussion gives a concrete formula for the number of batches, so that limited suboperation can be specified without selecting an implementation or adapter. The discussion is open and incomplete; this proposal does not resolve how batches are ordered or how their contents are selected.",
+        "contracts": [
+          {
+            "id": "demand-538210889178a4e75965",
+            "kind": "public_demand",
+            "operation": "Compute the number of batches from dataset length and batch size",
+            "input_kind": "arguments",
+            "runtime": "python",
+            "examples": [
+              {
+                "args": [
+                  5,
+                  2
+                ],
+                "expected": 3
+              }
+            ],
+            "checks": [
+              {
+                "args": [
+                  4,
+                  2
+                ],
+                "expected": 2
+              },
+              {
+                "args": [
+                  0,
+                  2
+                ],
+                "expected": 0
+              }
+            ],
+            "evidence": {
+              "url": "https://github.com/pybrain/pybrain/issues/71",
+              "quote": "full_batches, rest = divmod(len(self), n)",
+              "body": "Random batches seem wrong\nIn `pybrain.datasets.dataset`, the `random.shuffle` function is called to create a permutation vector to be used by `batches`. \n\nHowever, `random.shuffle` works in-place. It returns None. So `batches` is then called with `permutation = None`, which is the standard ordering. But that's easy enough to fix. Unfortunately, the permutation indices produced aren't right. `batches` apparently expects you to index the batches themselves rather than the items in the dataset. So `randomBatches` needs to compute the number of batches rather than using the dataset length:\n\n``` python\ndef randomBatches(self, label, n):\n    \"\"\"Like .batches(), but the order is random.\"\"\"\n    # Taken straight from .batches()\n    full_batches, rest = divmod(len(self), n)\n    number_of_batches = full_batches if rest == 0 else full_batches + 1\n    permutation = range(number_of_batches)\n    random.shuffle(permutation)\n    return self.batches(label, n, permutation)\n```\n\nHowever, all this accomplishes is randomizing the order in which the batches are delivered, not their contents. If we wanted the contents randomized, then maybe something like this for the last few lines of `batches`:\n\n``` python\nif permutation is None:\n    for start, stop in indexes:\n        yield self.data[label][start:stop]\nelse:\n    for start, stop in indexes:\n        yield self.data[label][permutation[start:stop]]\n```\n\nIn this case, `randomBatches` would need to use `permutation = range(len(self))` as it currently tries to.\n"
+            },
+            "citations": [
+              {
+                "citation_id": "se5ec801483ae7c02",
+                "source_id": "q0",
+                "url": "https://github.com/pybrain/pybrain/issues/71",
+                "quote": "full_batches, rest = divmod(len(self), n)"
+              },
+              {
+                "citation_id": "s56451dab597b3635",
+                "source_id": "q0",
+                "url": "https://github.com/pybrain/pybrain/issues/71",
+                "quote": "number_of_batches = full_batches if rest == 0 else full_batches + 1"
+              },
+              {
+                "citation_id": "s56a0120b72de5a4b",
+                "source_id": "q0",
+                "url": "https://github.com/pybrain/pybrain/issues/71",
+                "quote": "So `randomBatches` needs to compute the number of batches rather than using the dataset length:"
+              }
+            ],
+            "runtime_evidence": [
+              {
+                "citation_id": "s8f36c6f71a98fe30",
+                "source_id": "q0",
+                "url": "https://github.com/pybrain/pybrain/issues/71",
+                "quote": "def randomBatches(self, label, n):"
+              },
+              {
+                "citation_id": "se5ec801483ae7c02",
+                "source_id": "q0",
+                "url": "https://github.com/pybrain/pybrain/issues/71",
+                "quote": "full_batches, rest = divmod(len(self), n)"
+              }
+            ],
+            "case_evidence": {
+              "examples": [
+                {
+                  "citations": [
+                    {
+                      "citation_id": "se5ec801483ae7c02",
+                      "source_id": "q0",
+                      "url": "https://github.com/pybrain/pybrain/issues/71",
+                      "quote": "full_batches, rest = divmod(len(self), n)"
+                    },
+                    {
+                      "citation_id": "s56451dab597b3635",
+                      "source_id": "q0",
+                      "url": "https://github.com/pybrain/pybrain/issues/71",
+                      "quote": "number_of_batches = full_batches if rest == 0 else full_batches + 1"
+                    }
+                  ],
+                  "basis": "inferred",
+                  "semantic_status": "model_proposed_unreviewed"
+                }
+              ],
+              "checks": [
+                {
+                  "citations": [
+                    {
+                      "citation_id": "se5ec801483ae7c02",
+                      "source_id": "q0",
+                      "url": "https://github.com/pybrain/pybrain/issues/71",
+                      "quote": "full_batches, rest = divmod(len(self), n)"
+                    },
+                    {
+                      "citation_id": "s56451dab597b3635",
+                      "source_id": "q0",
+                      "url": "https://github.com/pybrain/pybrain/issues/71",
+                      "quote": "number_of_batches = full_batches if rest == 0 else full_batches + 1"
+                    }
+                  ],
+                  "basis": "inferred",
+                  "semantic_status": "model_proposed_unreviewed"
+                },
+                {
+                  "citations": [
+                    {
+                      "citation_id": "se5ec801483ae7c02",
+                      "source_id": "q0",
+                      "url": "https://github.com/pybrain/pybrain/issues/71",
+                      "quote": "full_batches, rest = divmod(len(self), n)"
+                    },
+                    {
+                      "citation_id": "s56451dab597b3635",
+                      "source_id": "q0",
+                      "url": "https://github.com/pybrain/pybrain/issues/71",
+                      "quote": "number_of_batches = full_batches if rest == 0 else full_batches + 1"
+                    }
+                  ],
+                  "basis": "inferred",
+                  "semantic_status": "model_proposed_unreviewed"
+                }
+              ]
+            },
+            "preconditions": [
+              "Dataset length is a nonnegative integer.",
+              "Batch size is a positive integer."
+            ],
+            "assumptions": [
+              "Arguments are represented as [dataset_length, batch_size].",
+              "The formula means the smallest whole number of batches sufficient to cover the dataset, including a final partial batch when there is a remainder."
+            ],
+            "uncovered_requirements": [
+              "Random order of batch delivery is not specified by this suboperation.",
+              "Randomizing batch contents is a separate, tentative alternative in the discussion and is not specified here.",
+              "Permutation indexing, batch slicing, and error behavior are not specified. A later discussion or resolution may change the requirements."
+            ],
+            "interpretation_origin": "model_proposed_unreviewed",
+            "check_origin": "same_model_response_not_independent_oracle",
+            "qualified": false
+          }
+        ],
+        "unknowns": [
+          "Whether the proposed calculation reflects the final intended behavior; the issue is open and the discussion context is incomplete.",
+          "The intended permutation semantics and exact batch contents are not established.",
+          "Discussion context is incomplete; omitted requirements may change the operation."
+        ],
+        "analysis_context": {
+          "phase": "request",
+          "source_ids": [
+            "q0"
+          ],
+          "omitted_source_ids": [],
+          "source_id_limit": 400,
+          "source_id_limit_omissions": 0,
+          "shortened_discussion_ids": [],
+          "discussion_complete": false,
+          "note": "Selected evidence is not the whole repository. Missing context remains unknown; omitted discussion prevents a qualified positive.",
+          "optional_field_hint_scan_complete": true,
+          "target_reference_context": {
+            "revision": null,
+            "source_ids": [],
+            "omitted_source_ids": [],
+            "reference_only": true,
+            "absence_proves_novelty": false
+          },
+          "omitted_constraint_ids": [],
+          "constraint_hint_scan_complete": true,
+          "omitted_source_count": 0,
+          "payload_bytes": 3317,
+          "demand_span_coverage": {
+            "span_count": 29,
+            "omitted_visible_spans": 0,
+            "complete": true,
+            "sources_without_spans": [],
+            "source_count_without_spans": 0,
+            "method": "exact original spans; bounded root opening then round-robin discussion coverage, not semantic validation"
+          },
+          "interpretation_contract": "behavioral-demand-v1"
+        },
+        "issue_url": "https://github.com/pybrain/pybrain/issues/71",
+        "issue_fingerprint": "a0f5ec6f7b677aa8d45878c9568e2b3cdea688162dd9e3ea42415c0d813596e1",
+        "provider_identity": "cdcd5f4d30c98d6930cf75d7b2fc8c965d48b0d5a52560b0475019c45ad41426",
+        "qualified": false,
+        "semantic_status": "model_proposed_unreviewed",
+        "execution_status": "not_requested",
+        "attempt_id": "9fe5b1a629df499baea3fba493b620f0:3"
+      },
+      "3": {
+        "version": "behavioral-demand-v1",
+        "status": "undetermined",
+        "reason": "The discussion does not establish a single, agreed executable operation. It alternates between making the document-level item ID optional and removing it, while later comments distinguish that field from the local itemID required by a processor. The portability and URI-linking goals do not specify a complete validation or transformation contract with expected outputs.",
+        "contracts": [],
+        "unknowns": [
+          "Whether the document-level item ID should be omitted or merely optional remains unsettled.",
+          "The discussion does not define a complete input/output contract for resolving document URIs to processor-local itemIDs.",
+          "The discussion is marked incomplete, and the issue remains open.",
+          "Discussion context is incomplete; omitted requirements may change the operation."
+        ],
+        "analysis_context": {
+          "phase": "request",
+          "source_ids": [
+            "q0",
+            "q24",
+            "q22",
+            "q23",
+            "q21",
+            "q20",
+            "q19",
+            "q18",
+            "q17",
+            "q16",
+            "q15",
+            "q14",
+            "q13",
+            "q12",
+            "q11",
+            "q10",
+            "q9",
+            "q8",
+            "q7",
+            "q6",
+            "q5",
+            "q4",
+            "q3",
+            "q2",
+            "q1"
+          ],
+          "omitted_source_ids": [],
+          "source_id_limit": 400,
+          "source_id_limit_omissions": 0,
+          "shortened_discussion_ids": [],
+          "discussion_complete": false,
+          "note": "Selected evidence is not the whole repository. Missing context remains unknown; omitted discussion prevents a qualified positive.",
+          "optional_field_hint_scan_complete": true,
+          "target_reference_context": {
+            "revision": null,
+            "source_ids": [],
+            "omitted_source_ids": [],
+            "reference_only": true,
+            "absence_proves_novelty": false
+          },
+          "omitted_constraint_ids": [],
+          "constraint_hint_scan_complete": true,
+          "omitted_source_count": 0,
+          "payload_bytes": 24654,
+          "demand_span_coverage": {
+            "span_count": 118,
+            "omitted_visible_spans": 47,
+            "complete": false,
+            "sources_without_spans": [],
+            "source_count_without_spans": 0,
+            "method": "exact original spans; bounded root opening then round-robin discussion coverage, not semantic validation"
+          },
+          "interpretation_contract": "behavioral-demand-v1"
+        },
+        "issue_url": "https://github.com/citation-style-language/schema/issues/70",
+        "issue_fingerprint": "95c1ae6fc8261683065493918fc31af289ff806b8d724e7daafe934c81514f8b",
+        "provider_identity": "cdcd5f4d30c98d6930cf75d7b2fc8c965d48b0d5a52560b0475019c45ad41426",
+        "qualified": false,
+        "semantic_status": "model_proposed_unreviewed",
+        "execution_status": "not_requested",
+        "attempt_id": "9fe5b1a629df499baea3fba493b620f0:4"
+      },
+      "4": {
+        "version": "behavioral-demand-v1",
+        "status": "proposed",
+        "reason": "The discussion gives a specific first-duplicate-wins request and a worked parsing example. Later comments raise broader RFC 6265 ordering and compatibility concerns, so this contract is limited to duplicate-name parsing and does not imply a decision to change the existing library.",
+        "contracts": [
+          {
+            "id": "demand-91043fa06d5c413b2fcb",
+            "kind": "public_demand",
+            "operation": "Parse a cookie string so that, when the same cookie name occurs more than once, the first occurrence supplies the retained value.",
+            "input_kind": "arguments",
+            "runtime": "python",
+            "examples": [
+              {
+                "args": [
+                  "foo=33;foo=34"
+                ],
+                "expected": "Set-Cookie: foo=33"
+              }
+            ],
+            "checks": [
+              {
+                "args": [
+                  "x=1;x=2"
+                ],
+                "expected": "Set-Cookie: x=1"
+              }
+            ],
+            "evidence": {
+              "url": "https://github.com/python/cpython/issues/42664#issuecomment-1094014533",
+              "quote": "This patch changes Cookie.py to only use the first instance of duplicate",
+              "body": "This patch implements part of bug 1372650.\n\nSometimes a web client will send 2 instances of the same name:\n\nCookie: mycookie=foo; mycookie=bar\n\nThe specs listed here:\n\nhttp://wp.netscape.com/newsref/std/cookie_spec.html\n\nstate that the first one is the one that should be used. The other \ncookies listed are the inherited ones from paths that a prefix of the \ncurrent URL. When this is parsed by the Cookie module, mycookie gets \nset to bar when it should be foo.\n\nThis patch changes Cookie.py to only use the first instance of duplicate \ncookies when parsing cookie strings."
+            },
+            "citations": [
+              {
+                "citation_id": "s4a4fb76125b25965",
+                "source_id": "q1",
+                "url": "https://github.com/python/cpython/issues/42664#issuecomment-1094014533",
+                "quote": "This patch changes Cookie.py to only use the first instance of duplicate"
+              },
+              {
+                "citation_id": "s450a1b4bab080b36",
+                "source_id": "q1",
+                "url": "https://github.com/python/cpython/issues/42664#issuecomment-1094014533",
+                "quote": "state that the first one is the one that should be used."
+              },
+              {
+                "citation_id": "sf6344447289ab131",
+                "source_id": "q2",
+                "url": "https://github.com/python/cpython/issues/42664#issuecomment-1094014535",
+                "quote": "Set-Cookie: foo=33"
+              },
+              {
+                "citation_id": "s0511f42eb7525558",
+                "source_id": "q5",
+                "url": "https://github.com/python/cpython/issues/42664#issuecomment-1094014540",
+                "quote": "Of course, a decision still needs to be made whether or not this should be applied; the behavior is more correct now, but I don't know if it is worth potentially breaking applications that have come to expect the old behavior."
+              }
+            ],
+            "runtime_evidence": [
+              {
+                "citation_id": "s979fe676c8e4f3ea",
+                "source_id": "q13",
+                "url": "https://github.com/python/cpython/issues/42664#issuecomment-2226888867",
+                "quote": "If I understand correctly, we want to have an up-to-date http.cookies library that conforms to https://datatracker.ietf.org/doc/html/rfc6265, whereas the current cookies library conforms to a relaxed version of RFC 2109/RFC 2965 (as seen in the documentation https://docs.python.org/3/library/http.cookies.html#module-http.cookies and in the code https://github.com/python/cpython/blob/main/Lib/http/cookies.py)."
+              },
+              {
+                "citation_id": "s5e3d801a09e6ec29",
+                "source_id": "q2",
+                "url": "https://github.com/python/cpython/issues/42664#issuecomment-1094014535",
+                "quote": ">>> c = SimpleCookie('foo=33;foo=34')"
+              }
+            ],
+            "case_evidence": {
+              "examples": [
+                {
+                  "citations": [
+                    {
+                      "citation_id": "s5e3d801a09e6ec29",
+                      "source_id": "q2",
+                      "url": "https://github.com/python/cpython/issues/42664#issuecomment-1094014535",
+                      "quote": ">>> c = SimpleCookie('foo=33;foo=34')"
+                    },
+                    {
+                      "citation_id": "sf6344447289ab131",
+                      "source_id": "q2",
+                      "url": "https://github.com/python/cpython/issues/42664#issuecomment-1094014535",
+                      "quote": "Set-Cookie: foo=33"
+                    }
+                  ],
+                  "basis": "explicit_example",
+                  "semantic_status": "model_proposed_unreviewed"
+                }
+              ],
+              "checks": [
+                {
+                  "citations": [
+                    {
+                      "citation_id": "s4a4fb76125b25965",
+                      "source_id": "q1",
+                      "url": "https://github.com/python/cpython/issues/42664#issuecomment-1094014533",
+                      "quote": "This patch changes Cookie.py to only use the first instance of duplicate"
+                    },
+                    {
+                      "citation_id": "s450a1b4bab080b36",
+                      "source_id": "q1",
+                      "url": "https://github.com/python/cpython/issues/42664#issuecomment-1094014533",
+                      "quote": "state that the first one is the one that should be used."
+                    }
+                  ],
+                  "basis": "inferred",
+                  "semantic_status": "model_proposed_unreviewed"
+                }
+              ]
+            },
+            "preconditions": [
+              "Input is a cookie string containing at least two occurrences of the same cookie name."
+            ],
+            "assumptions": [
+              "The result is represented as the displayed serialized cookie string in the discussion's worked example."
+            ],
+            "uncovered_requirements": [
+              "The discussion does not establish whether this behavior should replace existing behavior; compatibility concerns and lack of consensus are noted.",
+              "RFC 6265 path-length and creation-time ordering are not specified by this duplicate-only contract.",
+              "Behavior for differing paths, creation times, additional attributes, malformed input, or other parsing cases is not established."
+            ],
+            "interpretation_origin": "model_proposed_unreviewed",
+            "check_origin": "same_model_response_not_independent_oracle",
+            "qualified": false
+          }
+        ],
+        "unknowns": [
+          "Whether the proposed behavior should be adopted in the existing library remains unsettled.",
+          "The discussion does not establish how the broader RFC 6265 ordering requirement interacts with duplicate parsing.",
+          "Discussion context is incomplete; omitted requirements may change the operation."
+        ],
+        "analysis_context": {
+          "phase": "request",
+          "source_ids": [
+            "q0",
+            "q13",
+            "q12",
+            "q11",
+            "q10",
+            "q9",
+            "q8",
+            "q7",
+            "q6",
+            "q5",
+            "q4",
+            "q3",
+            "q2",
+            "q1"
+          ],
+          "omitted_source_ids": [],
+          "source_id_limit": 400,
+          "source_id_limit_omissions": 0,
+          "shortened_discussion_ids": [],
+          "discussion_complete": false,
+          "note": "Selected evidence is not the whole repository. Missing context remains unknown; omitted discussion prevents a qualified positive.",
+          "optional_field_hint_scan_complete": true,
+          "target_reference_context": {
+            "revision": null,
+            "source_ids": [],
+            "omitted_source_ids": [],
+            "reference_only": true,
+            "absence_proves_novelty": false
+          },
+          "omitted_constraint_ids": [],
+          "constraint_hint_scan_complete": true,
+          "omitted_source_count": 0,
+          "payload_bytes": 13229,
+          "demand_span_coverage": {
+            "span_count": 118,
+            "omitted_visible_spans": 0,
+            "complete": true,
+            "sources_without_spans": [],
+            "source_count_without_spans": 0,
+            "method": "exact original spans; bounded root opening then round-robin discussion coverage, not semantic validation"
+          },
+          "interpretation_contract": "behavioral-demand-v1"
+        },
+        "issue_url": "https://github.com/python/cpython/issues/42664",
+        "issue_fingerprint": "65af70445271387fd7e7013e577a2b9c2558cab73aff527359dbecf0eb712221",
+        "provider_identity": "cdcd5f4d30c98d6930cf75d7b2fc8c965d48b0d5a52560b0475019c45ad41426",
+        "qualified": false,
+        "semantic_status": "model_proposed_unreviewed",
+        "execution_status": "not_requested",
+        "attempt_id": "9fe5b1a629df499baea3fba493b620f0:5"
+      },
+      "5": {
+        "version": "behavioral-demand-v1",
+        "status": "undetermined",
+        "reason": "The discussion expresses a goal of declaring scalar coefficient functions of a shared variable list and controlling whether function arguments appear in printed output, but does not specify a sufficiently precise executable input/output contract for either behavior. Later examples concern exploratory SymPy usage and unresolved problems; they do not establish a resolved behavior or a complete output oracle. No contracts are proposed.",
+        "contracts": [],
+        "unknowns": [
+          "Whether the requested function declaration accepts a list directly, expands it into positional arguments, or uses another representation is not established as a requirement.",
+          "The requested compact function display and derivative notation depend on an unspecified output switch and printer; exact output strings and switch semantics are not specified.",
+          "Derivative behavior, including repeated partial derivatives and higher-order notation, is raised but not resolved.",
+          "The discussion includes conflicting exploratory examples about subclassing and function construction; their behavior is not established as the requested contract.",
+          "Runtime cannot be established for a contract from the cited demand spans.",
+          "The discussion and demand-span coverage are incomplete, and referenced attachments and later context are unavailable.",
+          "Discussion context is incomplete; omitted requirements may change the operation."
+        ],
+        "analysis_context": {
+          "phase": "request",
+          "source_ids": [
+            "q0",
+            "q22",
+            "q15",
+            "q10",
+            "q8",
+            "q47",
+            "q46",
+            "q45",
+            "q44",
+            "q43",
+            "q42",
+            "q41",
+            "q40",
+            "q39",
+            "q38",
+            "q37",
+            "q36",
+            "q35",
+            "q34",
+            "q33",
+            "q32",
+            "q31",
+            "q30",
+            "q29",
+            "q28",
+            "q27",
+            "q26",
+            "q25",
+            "q24",
+            "q23",
+            "q21",
+            "q20",
+            "q19",
+            "q18",
+            "q17",
+            "q16",
+            "q14",
+            "q13",
+            "q12",
+            "q11",
+            "q9",
+            "q7",
+            "q6",
+            "q5",
+            "q4",
+            "q3",
+            "q2",
+            "q1"
+          ],
+          "omitted_source_ids": [],
+          "source_id_limit": 400,
+          "source_id_limit_omissions": 0,
+          "shortened_discussion_ids": [],
+          "discussion_complete": false,
+          "note": "Selected evidence is not the whole repository. Missing context remains unknown; omitted discussion prevents a qualified positive.",
+          "optional_field_hint_scan_complete": true,
+          "target_reference_context": {
+            "revision": null,
+            "source_ids": [],
+            "omitted_source_ids": [],
+            "reference_only": true,
+            "absence_proves_novelty": false
+          },
+          "omitted_constraint_ids": [],
+          "constraint_hint_scan_complete": true,
+          "omitted_source_count": 0,
+          "payload_bytes": 52800,
+          "demand_span_coverage": {
+            "span_count": 200,
+            "omitted_visible_spans": 604,
+            "complete": false,
+            "sources_without_spans": [],
+            "source_count_without_spans": 0,
+            "method": "exact original spans; bounded root opening then round-robin discussion coverage, not semantic validation"
+          },
+          "interpretation_contract": "behavioral-demand-v1"
+        },
+        "issue_url": "https://github.com/sympy/sympy/issues/4238",
+        "issue_fingerprint": "9020755a7c80ebc54727a8256b4b93d539a908567e065c6d0580a2ba224faf1d",
+        "provider_identity": "cdcd5f4d30c98d6930cf75d7b2fc8c965d48b0d5a52560b0475019c45ad41426",
+        "qualified": false,
+        "semantic_status": "model_proposed_unreviewed",
+        "execution_status": "not_requested",
+        "attempt_id": "9fe5b1a629df499baea3fba493b620f0:6"
+      },
+      "6": {
+        "version": "behavioral-demand-v1",
+        "status": "proposed",
+        "reason": "The discussion requests threshold-option suggestions when thresholding removes all terms, and describes selecting options whose maximum observed threshold quantity is below the configured threshold. A small abstract contract for deriving those suggestions is defensible, but its input representation and output formatting are not specified in the discussion; the examples below are inferred and require independent technical review.",
+        "contracts": [
+          {
+            "id": "demand-fbc9c3dca5e19669b3cb",
+            "kind": "public_demand",
+            "operation": "derive_threshold_option_suggestions",
+            "input_kind": "arguments",
+            "runtime": "unknown",
+            "examples": [
+              {
+                "args": [
+                  true,
+                  {
+                    "--locs-needed": 2
+                  },
+                  {
+                    "--locs-needed": 1
+                  }
+                ],
+                "expected": [
+                  "--locs-needed=1"
+                ]
+              }
+            ],
+            "checks": [
+              {
+                "args": [
+                  false,
+                  {
+                    "--locs-needed": 2
+                  },
+                  {
+                    "--locs-needed": 1
+                  }
+                ],
+                "expected": []
+              },
+              {
+                "args": [
+                  true,
+                  {
+                    "--locs-needed": 1,
+                    "--fullmsg-needed": 3,
+                    "--substr-needed": 4
+                  },
+                  {
+                    "--locs-needed": 1,
+                    "--fullmsg-needed": 2,
+                    "--substr-needed": 1
+                  }
+                ],
+                "expected": [
+                  "--fullmsg-needed=2",
+                  "--substr-needed=1"
+                ]
+              }
+            ],
+            "evidence": {
+              "url": "https://github.com/translate/translate/issues/582#issuecomment-50275603",
+              "quote": "Rather than reject this bug, I will take it as a suggestion for improvement, which is that poterminology should suggest option settings (based on the maximum observed values of all threshold quantities) if thresholding removes all terms.",
+              "body": "You need to specify --locs-needed=1 if you have an input file that lacks any location information, but poterminology can work with such a file.  Note that this is already explained in the (excellent) wiki documentation http://translate.sourceforge.net/wiki/toolkit/poterminology:\n\n--locs-needed\n\nRather than requiring that a term appear in multiple input PO or POT files, this requires that it have been present in multiple source code files, as evidenced by location comments in the PO/POT sources. \n...\nNot all PO/POT files contain proper location comments. If your input files don't have (good) location comments and the output terminology file is reduced to zero or very few entries by thresholding, you may need to override the default value for this threshold and set it to 1, which disables this check.\n\n[There is also a very relevant comment a bit further down:]\n\n--fullmsg-needed\n--substr-needed\n\nThese two thresholds specify the number of different translation units (messages) in which a term must appear; they both work in the same way, but the first one applies to terms which appear as complete translation units in one or more of the source files (full message terms), and the second one to all other terms (substring terms). Note that translations are extracted only for full message terms; poterminology cannot identify the corresponding substring in a translation. \n\nIf you are working with a single input file without useful location comments, increasing these thresholds may be the only way to effectively reduce the output terminology. Generally, you should increase the --substr-needed threshold first, as the full message terms are more likely to be useful terminology. \n\n---\n\nGiven that you are trying to get useful terminology from a single file with no location information, I suspect you will need to use the above thresholds.\n\nRather than reject this bug, I will take it as a suggestion for improvement, which is that poterminology should suggest option settings (based on the maximum observed values of all threshold quantities) if thresholding removes all terms.  This would provide output something like the following:\n\nC:>poterminology ansi.po ansi_terms.po\nprocessing 1 files...\n[###########################################] 100%\n106960 terms from 141261 units in 1 files\n0 terms after thresholding\n0 terms after subphrase reduction\nCurrent threshold settings have removed all terms.  In order to generate\nnon-empty output, run poterminology with the following options:\n--locs-needed=1\n\nThe suggestion text would include all options where the maximum threshold\nquantity was less than the configured threshold; the other threshold options are --inputs-needed (which is automatically reduced to 1 if only one file is provided) --fullmsg-needed and --substr-needed\n\n@alex\n"
+            },
+            "citations": [
+              {
+                "citation_id": "s87971b7359a5d206",
+                "source_id": "q3",
+                "url": "https://github.com/translate/translate/issues/582#issuecomment-50275603",
+                "quote": "Rather than reject this bug, I will take it as a suggestion for improvement, which is that poterminology should suggest option settings (based on the maximum observed values of all threshold quantities) if thresholding removes all terms."
+              },
+              {
+                "citation_id": "sae95fd3f189e3eed",
+                "source_id": "q3",
+                "url": "https://github.com/translate/translate/issues/582#issuecomment-50275603",
+                "quote": "The suggestion text would include all options where the maximum threshold"
+              },
+              {
+                "citation_id": "s02d7216333003eaa",
+                "source_id": "q3",
+                "url": "https://github.com/translate/translate/issues/582#issuecomment-50275603",
+                "quote": "quantity was less than the configured threshold; the other threshold options are --inputs-needed (which is automatically reduced to 1 if only one file is provided) --fullmsg-needed and --substr-needed"
+              },
+              {
+                "citation_id": "s5b648bec5cf7150d",
+                "source_id": "q3",
+                "url": "https://github.com/translate/translate/issues/582#issuecomment-50275603",
+                "quote": "--locs-needed=1"
+              }
+            ],
+            "runtime_evidence": [],
+            "case_evidence": {
+              "examples": [
+                {
+                  "citations": [
+                    {
+                      "citation_id": "s87971b7359a5d206",
+                      "source_id": "q3",
+                      "url": "https://github.com/translate/translate/issues/582#issuecomment-50275603",
+                      "quote": "Rather than reject this bug, I will take it as a suggestion for improvement, which is that poterminology should suggest option settings (based on the maximum observed values of all threshold quantities) if thresholding removes all terms."
+                    },
+                    {
+                      "citation_id": "sae95fd3f189e3eed",
+                      "source_id": "q3",
+                      "url": "https://github.com/translate/translate/issues/582#issuecomment-50275603",
+                      "quote": "The suggestion text would include all options where the maximum threshold"
+                    },
+                    {
+                      "citation_id": "s5b648bec5cf7150d",
+                      "source_id": "q3",
+                      "url": "https://github.com/translate/translate/issues/582#issuecomment-50275603",
+                      "quote": "--locs-needed=1"
+                    }
+                  ],
+                  "basis": "inferred",
+                  "semantic_status": "model_proposed_unreviewed"
+                }
+              ],
+              "checks": [
+                {
+                  "citations": [
+                    {
+                      "citation_id": "s87971b7359a5d206",
+                      "source_id": "q3",
+                      "url": "https://github.com/translate/translate/issues/582#issuecomment-50275603",
+                      "quote": "Rather than reject this bug, I will take it as a suggestion for improvement, which is that poterminology should suggest option settings (based on the maximum observed values of all threshold quantities) if thresholding removes all terms."
+                    }
+                  ],
+                  "basis": "inferred",
+                  "semantic_status": "model_proposed_unreviewed"
+                },
+                {
+                  "citations": [
+                    {
+                      "citation_id": "sae95fd3f189e3eed",
+                      "source_id": "q3",
+                      "url": "https://github.com/translate/translate/issues/582#issuecomment-50275603",
+                      "quote": "The suggestion text would include all options where the maximum threshold"
+                    },
+                    {
+                      "citation_id": "s02d7216333003eaa",
+                      "source_id": "q3",
+                      "url": "https://github.com/translate/translate/issues/582#issuecomment-50275603",
+                      "quote": "quantity was less than the configured threshold; the other threshold options are --inputs-needed (which is automatically reduced to 1 if only one file is provided) --fullmsg-needed and --substr-needed"
+                    }
+                  ],
+                  "basis": "inferred",
+                  "semantic_status": "model_proposed_unreviewed"
+                }
+              ]
+            },
+            "preconditions": [
+              "The first argument indicates whether thresholding removed all terms.",
+              "The second and third arguments are mappings with corresponding threshold-option keys and comparable numeric values."
+            ],
+            "assumptions": [
+              "Mappings represent configured threshold values and maximum observed threshold quantities, respectively.",
+              "When no terms were removed, the result is an empty list.",
+              "When terms were removed, each option whose maximum observed quantity is strictly less than its configured value is represented as an option assignment using the maximum value.",
+              "The result is a JSON array of command-line option strings; this representation and formatting are not specified by the discussion."
+            ],
+            "uncovered_requirements": [
+              "The exact output format and whether suggested values equal the maximum observed quantities are not fully specified.",
+              "The precise meaning of the all-terms-removed condition, including its relationship to subphrase reduction, is not specified.",
+              "The discussion names --inputs-needed, --locs-needed, --fullmsg-needed, and --substr-needed, but does not fully specify their maximum-quantity calculations or all multi-file behavior.",
+              "No runtime is stated or established."
+            ],
+            "interpretation_origin": "model_proposed_unreviewed",
+            "check_origin": "same_model_response_not_independent_oracle",
+            "qualified": false
+          }
+        ],
+        "unknowns": [
+          "Whether the proposed abstract operation matches the intended implementation boundary.",
+          "Whether suggestions should use maximum observed quantities as their assigned values.",
+          "Exact output syntax, ordering, and treatment of options with missing or incomparable quantities.",
+          "Precise threshold and subphrase-reduction stage at which the all-terms-removed condition applies.",
+          "Runtime and error behavior.",
+          "Discussion context is incomplete; omitted requirements may change the operation."
+        ],
+        "analysis_context": {
+          "phase": "request",
+          "source_ids": [
+            "q0",
+            "q3",
+            "q6",
+            "q5",
+            "q4",
+            "q2",
+            "q1"
+          ],
+          "omitted_source_ids": [],
+          "source_id_limit": 400,
+          "source_id_limit_omissions": 0,
+          "shortened_discussion_ids": [],
+          "discussion_complete": false,
+          "note": "Selected evidence is not the whole repository. Missing context remains unknown; omitted discussion prevents a qualified positive.",
+          "optional_field_hint_scan_complete": true,
+          "target_reference_context": {
+            "revision": null,
+            "source_ids": [],
+            "omitted_source_ids": [],
+            "reference_only": true,
+            "absence_proves_novelty": false
+          },
+          "omitted_constraint_ids": [],
+          "constraint_hint_scan_complete": true,
+          "omitted_source_count": 0,
+          "payload_bytes": 9251,
+          "demand_span_coverage": {
+            "span_count": 76,
+            "omitted_visible_spans": 0,
+            "complete": true,
+            "sources_without_spans": [],
+            "source_count_without_spans": 0,
+            "method": "exact original spans; bounded root opening then round-robin discussion coverage, not semantic validation"
+          },
+          "interpretation_contract": "behavioral-demand-v1"
+        },
+        "issue_url": "https://github.com/translate/translate/issues/582",
+        "issue_fingerprint": "5c5c4e2106e5ec52a2ee84145eacfb4f2e0a64a5c48ef5944e66a86a7f3f5acc",
+        "provider_identity": "cdcd5f4d30c98d6930cf75d7b2fc8c965d48b0d5a52560b0475019c45ad41426",
+        "qualified": false,
+        "semantic_status": "model_proposed_unreviewed",
+        "execution_status": "not_requested",
+        "attempt_id": "9fe5b1a629df499baea3fba493b620f0:7"
+      },
+      "7": {
+        "version": "behavioral-demand-v1",
+        "status": "undetermined",
+        "reason": "The discussion identifies a broad SIP transaction-layer request and contains review comments, proposed changes, and status updates, but does not provide enough input/output behavior to define a defensible executable contract without inventing message representations, transaction states, ordering, or runtime semantics.",
+        "contracts": [],
+        "unknowns": [
+          "The concrete inputs and observable outputs for SIP transaction operations are unspecified.",
+          "The discussion refers to RFC 3261 state machines but does not include their transition rules.",
+          "The required message representation, transport behavior, timing, and error semantics are not specified.",
+          "Some review points were later reported as fixed, while other concerns remain unresolved; the discussion does not establish a complete, final behavioral specification.",
+          "The issue notes that the work was not in progress as of 2022, which does not establish whether the requested behavior was completed elsewhere.",
+          "Discussion context is incomplete; omitted requirements may change the operation."
+        ],
+        "analysis_context": {
+          "phase": "request",
+          "source_ids": [
+            "q0",
+            "q13",
+            "q11",
+            "q25",
+            "q24",
+            "q23",
+            "q22",
+            "q21",
+            "q20",
+            "q19",
+            "q18",
+            "q17",
+            "q16",
+            "q15",
+            "q14",
+            "q12",
+            "q10",
+            "q9",
+            "q8",
+            "q7",
+            "q6",
+            "q5",
+            "q4",
+            "q3",
+            "q2",
+            "q1"
+          ],
+          "omitted_source_ids": [],
+          "source_id_limit": 400,
+          "source_id_limit_omissions": 0,
+          "shortened_discussion_ids": [],
+          "discussion_complete": false,
+          "note": "Selected evidence is not the whole repository. Missing context remains unknown; omitted discussion prevents a qualified positive.",
+          "optional_field_hint_scan_complete": true,
+          "target_reference_context": {
+            "revision": null,
+            "source_ids": [],
+            "omitted_source_ids": [],
+            "reference_only": true,
+            "absence_proves_novelty": false
+          },
+          "omitted_constraint_ids": [],
+          "constraint_hint_scan_complete": true,
+          "omitted_source_count": 0,
+          "payload_bytes": 32360,
+          "demand_span_coverage": {
+            "span_count": 141,
+            "omitted_visible_spans": 179,
+            "complete": false,
+            "sources_without_spans": [],
+            "source_count_without_spans": 0,
+            "method": "exact original spans; bounded root opening then round-robin discussion coverage, not semantic validation"
+          },
+          "interpretation_contract": "behavioral-demand-v1"
+        },
+        "issue_url": "https://github.com/twisted/twisted/issues/3584",
+        "issue_fingerprint": "12330533be49e135b4bb5d11ab6f5a1ab9ba3f61ea191885e94020055bd7cd47",
+        "provider_identity": "cdcd5f4d30c98d6930cf75d7b2fc8c965d48b0d5a52560b0475019c45ad41426",
+        "qualified": false,
+        "semantic_status": "model_proposed_unreviewed",
+        "execution_status": "not_requested",
+        "attempt_id": "9fe5b1a629df499baea3fba493b620f0:8"
+      },
+      "8": {
+        "version": "behavioral-demand-v1",
+        "status": "undetermined",
+        "reason": "The discussion describes a proposed event-loop redesign, but does not establish a sufficiently precise, independently testable operation with JSON inputs and expected outputs. The claimed behavior is also unsettled: an early description says the patch was tested on Windows and Cygwin (s1e1913fef9797f86), while a later comment says the prerequisite patch was rejected and there was no longer a fix for the first problem (s25418da353fc7ec9). Later comments also qualify the claim that applications require mainloop (sad08873b588065b5). No contracts are proposed.",
+        "contracts": [],
+        "unknowns": [
+          "Whether any redesign or replacement patch was accepted or implemented; the discussion is incomplete and points to unacquired linked issues and attachments.",
+          "Exact executable input/output semantics for event handling, hook chaining, keyboard input, timing, and platform-specific behavior.",
+          "Whether the proposed behavior is intended to apply uniformly across readline configurations and platforms.",
+          "Discussion context is incomplete; omitted requirements may change the operation."
+        ],
+        "analysis_context": {
+          "phase": "request",
+          "source_ids": [
+            "q0",
+            "q5",
+            "q3",
+            "q11",
+            "q10",
+            "q9",
+            "q8",
+            "q7",
+            "q6",
+            "q4",
+            "q2",
+            "q1"
+          ],
+          "omitted_source_ids": [],
+          "source_id_limit": 400,
+          "source_id_limit_omissions": 0,
+          "shortened_discussion_ids": [],
+          "discussion_complete": false,
+          "note": "Selected evidence is not the whole repository. Missing context remains unknown; omitted discussion prevents a qualified positive.",
+          "optional_field_hint_scan_complete": true,
+          "target_reference_context": {
+            "revision": null,
+            "source_ids": [],
+            "omitted_source_ids": [],
+            "reference_only": true,
+            "absence_proves_novelty": false
+          },
+          "omitted_constraint_ids": [],
+          "constraint_hint_scan_complete": true,
+          "omitted_source_count": 0,
+          "payload_bytes": 25183,
+          "demand_span_coverage": {
+            "span_count": 194,
+            "omitted_visible_spans": 274,
+            "complete": false,
+            "sources_without_spans": [],
+            "source_count_without_spans": 0,
+            "method": "exact original spans; bounded root opening then round-robin discussion coverage, not semantic validation"
+          },
+          "interpretation_contract": "behavioral-demand-v1"
+        },
+        "issue_url": "https://github.com/python/cpython/issues/42255",
+        "issue_fingerprint": "c43a4e969e0476b96581316cf988a283e3534ab38c32679416b5d8cbae965ba6",
+        "provider_identity": "cdcd5f4d30c98d6930cf75d7b2fc8c965d48b0d5a52560b0475019c45ad41426",
+        "qualified": false,
+        "semantic_status": "model_proposed_unreviewed",
+        "execution_status": "not_requested",
+        "attempt_id": "9fe5b1a629df499baea3fba493b620f0:9"
+      },
+      "9": {
+        "version": "behavioral-demand-v1",
+        "status": "undetermined",
+        "reason": "The discussion does not settle a single executable contract: it conflicts over opt-in versus default-on behavior and urllib versus http.client placement. It also raises unresolved safety and compatibility concerns, including partial-range requests, .tar.gz files, and decompression bombs. The later opt-in handler description is a proposed design, not an established resolution. Specifying inputs and expected outputs would require choosing among these alternatives and inventing interface and representation semantics.",
+        "contracts": [],
+        "unknowns": [
+          "Whether transparent gzip handling is opt-in or default-on, and how it is enabled or disabled.",
+          "Whether handling belongs at the urllib level or the http.client level.",
+          "How behavior should interact with partial-range requests and downloads where compressed content is intended to remain compressed.",
+          "How to constrain or otherwise address decompression-bomb risks.",
+          "What exact request, response, header, and body representations an executable contract should use.",
+          "What happens when gzip support is unavailable, beyond the proposal that normal request-response processing may proceed.",
+          "Discussion context is incomplete; omitted requirements may change the operation."
+        ],
+        "analysis_context": {
+          "phase": "request",
+          "source_ids": [
+            "q0",
+            "q15",
+            "q10",
+            "q24",
+            "q23",
+            "q22",
+            "q21",
+            "q20",
+            "q19",
+            "q18",
+            "q17",
+            "q16",
+            "q14",
+            "q13",
+            "q12",
+            "q11",
+            "q9",
+            "q8",
+            "q7",
+            "q6",
+            "q5",
+            "q4",
+            "q3",
+            "q2",
+            "q1"
+          ],
+          "omitted_source_ids": [],
+          "source_id_limit": 400,
+          "source_id_limit_omissions": 0,
+          "shortened_discussion_ids": [],
+          "discussion_complete": false,
+          "note": "Selected evidence is not the whole repository. Missing context remains unknown; omitted discussion prevents a qualified positive.",
+          "optional_field_hint_scan_complete": true,
+          "target_reference_context": {
+            "revision": null,
+            "source_ids": [],
+            "omitted_source_ids": [],
+            "reference_only": true,
+            "absence_proves_novelty": false
+          },
+          "omitted_constraint_ids": [],
+          "constraint_hint_scan_complete": true,
+          "omitted_source_count": 0,
+          "payload_bytes": 19558,
+          "demand_span_coverage": {
+            "span_count": 130,
+            "omitted_visible_spans": 0,
+            "complete": true,
+            "sources_without_spans": [],
+            "source_count_without_spans": 0,
+            "method": "exact original spans; bounded root opening then round-robin discussion coverage, not semantic validation"
+          },
+          "interpretation_contract": "behavioral-demand-v1"
+        },
+        "issue_url": "https://github.com/python/cpython/issues/43521",
+        "issue_fingerprint": "67fe81944d2bfd8d48b74e03a59658db0e474ec28affdd7b0a3389150f8aa47a",
+        "provider_identity": "cdcd5f4d30c98d6930cf75d7b2fc8c965d48b0d5a52560b0475019c45ad41426",
+        "qualified": false,
+        "semantic_status": "model_proposed_unreviewed",
+        "execution_status": "not_requested",
+        "attempt_id": "9fe5b1a629df499baea3fba493b620f0:10"
+      },
+      "10": {
+        "version": "behavioral-demand-v1",
+        "status": "proposed",
+        "reason": "Later discussion supports interpreting Windows “absolute” as fully qualified and reports that the changed implementation was accepted and fixed in Python 3.13+. This contract captures that interpretation, not the older behavior or the separate proposal for an absolute-but-not-fully-qualified check. Independent technical review is required before qualification.",
+        "contracts": [
+          {
+            "id": "demand-6245e818166bdff79422",
+            "kind": "public_demand",
+            "operation": "Classify whether a Windows path is fully qualified absolute: it identifies a drive or device and starts at that device's root.",
+            "input_kind": "arguments",
+            "runtime": "python",
+            "examples": [
+              {
+                "args": [
+                  "/"
+                ],
+                "expected": false
+              }
+            ],
+            "checks": [
+              {
+                "args": [
+                  "C:\\foo"
+                ],
+                "expected": true
+              },
+              {
+                "args": [
+                  "C:foo"
+                ],
+                "expected": false
+              }
+            ],
+            "evidence": {
+              "url": "https://github.com/python/cpython/issues/44626#issuecomment-1881752389",
+              "quote": "We think an absolute path is fully qualified, and so `abspath` and `isabs` should always return a fully qualified path, and the fact that Microsoft uses a different name for this is their problem and not ours.",
+              "body": "I think 10-years-ago-@zware has the right position:\r\n\r\n> That gives me the impression that Windows has notions of \"fully qualified\" paths (r\"C:\\foo\", \"C:\\\\\", r\"\\\\any\\UNC\\path\"), absolute paths (r\"\\foo\", etc.), and relative paths (r\"foo\\bar\", \"C:foo\", and annoyingly, \"C:\\foo\\..\\bar\"). My opinion is that we should just declare \"we don't quite agree with MS on this one\"\r\n\r\nBut I'm choosing to assume that the bit we disagree with is the definition of \"absolute path\". We think an absolute path is fully qualified, and so `abspath` and `isabs` should always return a fully qualified path, and the fact that Microsoft uses a different name for this is their problem and not ours.\r\n\r\nI'm also encouraged to this view because, as you noted, the hypothetical `isabs(path, strict=None)` (current behaviour) isn't particularly useful. A path that returns True for the current check may or may not require additional context in order to be resolved, and so it's not \"absolute\" in our sense.\r\n\r\nTo be \"absolute\" in our sense, we need to be able to identify the device the path belongs to, and allow the device to resolve the rest of the path (and we pretend that devices are always going to use POSIX-ish path semantics, which is usually close enough). So an absolute path _must_ identify a device (i.e. `C:`, `\\\\.\\C:\\` or `\\\\machine\\share\\`), and _must_ start from the root of that device (i.e. `C:\\path` - note that formats starting with `\\\\.\\` or `\\\\?\\` can only start from the root)."
+            },
+            "citations": [
+              {
+                "citation_id": "se9e9b43d6ebe4341",
+                "source_id": "q19",
+                "url": "https://github.com/python/cpython/issues/44626#issuecomment-1881752389",
+                "quote": "We think an absolute path is fully qualified, and so `abspath` and `isabs` should always return a fully qualified path, and the fact that Microsoft uses a different name for this is their problem and not ours."
+              },
+              {
+                "citation_id": "s6989993ade526d33",
+                "source_id": "q27",
+                "url": "https://github.com/python/cpython/issues/44626#issuecomment-2661050534",
+                "quote": "My recommendation, unless there are other reports of use-cases adversely affected by this change, let's accept the new implementation and charge ahead."
+              },
+              {
+                "citation_id": "s8fef6ea0e149eceb",
+                "source_id": "q21",
+                "url": "https://github.com/python/cpython/issues/44626#issuecomment-1890363203",
+                "quote": "Fixed in 3.13+ / [e4ff131](https://github.com/python/cpython/commit/e4ff131e01184b68d868cfd241a03f8b7d2e0ff9) / #113829"
+              }
+            ],
+            "runtime_evidence": [
+              {
+                "citation_id": "sa1d739f47c196355",
+                "source_id": "q15",
+                "url": "https://github.com/python/cpython/issues/44626#issuecomment-1094028905",
+                "quote": "To kick this along a bit, do the following testcases seem like the right behavior to others, based on Mark Hammond's roadmap in [msg51983](https://bugs.python.org/msg51983)?"
+              }
+            ],
+            "case_evidence": {
+              "examples": [
+                {
+                  "citations": [
+                    {
+                      "citation_id": "s106edc4b0a3c64a7",
+                      "source_id": "q28",
+                      "url": "https://github.com/python/cpython/issues/44626#issuecomment-2661616854",
+                      "quote": "Just wanted to point out that it might be a security risk that paths like `/` and `\\` return `False` on Windows [as of Python 3.13](https://docs.python.org/3/library/os.path.html#os.path.isabs), even though in Windows (at least Windows 10) both paths refer to the root of the drive."
+                    }
+                  ],
+                  "basis": "explicit_example",
+                  "semantic_status": "model_proposed_unreviewed"
+                }
+              ],
+              "checks": [
+                {
+                  "citations": [
+                    {
+                      "citation_id": "sac910d7ba1a62182",
+                      "source_id": "q19",
+                      "url": "https://github.com/python/cpython/issues/44626#issuecomment-1881752389",
+                      "quote": "> That gives me the impression that Windows has notions of \"fully qualified\" paths (r\"C:\\foo\", \"C:\\\\\", r\"\\\\any\\UNC\\path\"), absolute paths (r\"\\foo\", etc.), and relative paths (r\"foo\\bar\", \"C:foo\", and annoyingly, \"C:\\foo\\..\\bar\")."
+                    },
+                    {
+                      "citation_id": "se9e9b43d6ebe4341",
+                      "source_id": "q19",
+                      "url": "https://github.com/python/cpython/issues/44626#issuecomment-1881752389",
+                      "quote": "We think an absolute path is fully qualified, and so `abspath` and `isabs` should always return a fully qualified path, and the fact that Microsoft uses a different name for this is their problem and not ours."
+                    }
+                  ],
+                  "basis": "inferred",
+                  "semantic_status": "model_proposed_unreviewed"
+                },
+                {
+                  "citations": [
+                    {
+                      "citation_id": "sac910d7ba1a62182",
+                      "source_id": "q19",
+                      "url": "https://github.com/python/cpython/issues/44626#issuecomment-1881752389",
+                      "quote": "> That gives me the impression that Windows has notions of \"fully qualified\" paths (r\"C:\\foo\", \"C:\\\\\", r\"\\\\any\\UNC\\path\"), absolute paths (r\"\\foo\", etc.), and relative paths (r\"foo\\bar\", \"C:foo\", and annoyingly, \"C:\\foo\\..\\bar\")."
+                    },
+                    {
+                      "citation_id": "se9e9b43d6ebe4341",
+                      "source_id": "q19",
+                      "url": "https://github.com/python/cpython/issues/44626#issuecomment-1881752389",
+                      "quote": "We think an absolute path is fully qualified, and so `abspath` and `isabs` should always return a fully qualified path, and the fact that Microsoft uses a different name for this is their problem and not ours."
+                    }
+                  ],
+                  "basis": "inferred",
+                  "semantic_status": "model_proposed_unreviewed"
+                }
+              ]
+            },
+            "preconditions": [
+              "The argument is a JSON string representing a Windows path.",
+              "Interpret the path using Windows path syntax, independent of the host platform."
+            ],
+            "assumptions": [
+              "A JSON string represents the path string; JSON escaping represents any backslashes.",
+              "The fully-qualified definition in the later discussion takes precedence over earlier meanings of “absolute.”"
+            ],
+            "uncovered_requirements": [
+              "Classification of paths that are rooted but not fully qualified as a separate category.",
+              "The proposed isrelative API, joining behavior, and deprecation or warning behavior.",
+              "Path containment or security validation; absolute-path classification alone does not establish containment.",
+              "Detailed handling of device-path variants, malformed paths, non-string inputs, and errors."
+            ],
+            "interpretation_origin": "model_proposed_unreviewed",
+            "check_origin": "same_model_response_not_independent_oracle",
+            "qualified": false
+          }
+        ],
+        "unknowns": [
+          "The discussion is incomplete; omitted repository context could affect the final requirements.",
+          "Exact handling of all Windows device and UNC path forms is not specified by this contract.",
+          "The discussion does not establish a complete input-type or error contract.",
+          "Discussion context is incomplete; omitted requirements may change the operation."
+        ],
+        "analysis_context": {
+          "phase": "request",
+          "source_ids": [
+            "q0",
+            "q16",
+            "q11",
+            "q29",
+            "q28",
+            "q27",
+            "q26",
+            "q25",
+            "q24",
+            "q23",
+            "q22",
+            "q21",
+            "q20",
+            "q19",
+            "q18",
+            "q17",
+            "q15",
+            "q14",
+            "q13",
+            "q12",
+            "q10",
+            "q9",
+            "q8",
+            "q7",
+            "q6",
+            "q5",
+            "q4",
+            "q3",
+            "q2",
+            "q1"
+          ],
+          "omitted_source_ids": [],
+          "source_id_limit": 400,
+          "source_id_limit_omissions": 0,
+          "shortened_discussion_ids": [],
+          "discussion_complete": false,
+          "note": "Selected evidence is not the whole repository. Missing context remains unknown; omitted discussion prevents a qualified positive.",
+          "optional_field_hint_scan_complete": true,
+          "target_reference_context": {
+            "revision": null,
+            "source_ids": [],
+            "omitted_source_ids": [],
+            "reference_only": true,
+            "absence_proves_novelty": false
+          },
+          "omitted_constraint_ids": [],
+          "constraint_hint_scan_complete": true,
+          "omitted_source_count": 0,
+          "payload_bytes": 37228,
+          "demand_span_coverage": {
+            "span_count": 130,
+            "omitted_visible_spans": 188,
+            "complete": false,
+            "sources_without_spans": [],
+            "source_count_without_spans": 0,
+            "method": "exact original spans; bounded root opening then round-robin discussion coverage, not semantic validation"
+          },
+          "interpretation_contract": "behavioral-demand-v1"
+        },
+        "issue_url": "https://github.com/python/cpython/issues/44626",
+        "issue_fingerprint": "87ecfd34ed44fff4a11ef3fba35b08f856915a348558c96dc9fdb5facff2c0fb",
+        "provider_identity": "cdcd5f4d30c98d6930cf75d7b2fc8c965d48b0d5a52560b0475019c45ad41426",
+        "qualified": false,
+        "semantic_status": "model_proposed_unreviewed",
+        "execution_status": "not_requested",
+        "attempt_id": "9fe5b1a629df499baea3fba493b620f0:11"
+      },
+      "11": {
+        "version": "behavioral-demand-v1",
+        "status": "undetermined",
+        "reason": "The discussion contains exploratory proposals, explicitly unresolved alternatives, and implementation/context reports rather than a stable, independently executable operation contract. The cited spans do not establish a suitable input/output representation, and the later comments include conflicting requirements (for example, whether Float and Rational comparisons should be equal).",
+        "contracts": [],
+        "unknowns": [
+          "Which proposed behaviors, if any, were ultimately adopted is unknown; the discussion is incomplete.",
+          "No common JSON argument representation or serialized expected-output convention for symbolic expressions is specified.",
+          "Runtime requirements for any independently testable suboperation are not established by the demand spans.",
+          "Discussion context is incomplete; omitted requirements may change the operation."
+        ],
+        "analysis_context": {
+          "phase": "request",
+          "source_ids": [
+            "q0",
+            "q98",
+            "q95",
+            "q91",
+            "q89",
+            "q87",
+            "q85",
+            "q69",
+            "q57",
+            "q43",
+            "q39",
+            "q28",
+            "q25",
+            "q100",
+            "q99",
+            "q97",
+            "q96",
+            "q94",
+            "q93",
+            "q92",
+            "q90",
+            "q88",
+            "q86",
+            "q84",
+            "q83",
+            "q82",
+            "q81",
+            "q80",
+            "q79",
+            "q78",
+            "q77",
+            "q76",
+            "q75",
+            "q74",
+            "q73",
+            "q72",
+            "q71",
+            "q70",
+            "q68",
+            "q67",
+            "q66",
+            "q65",
+            "q64",
+            "q63",
+            "q62",
+            "q61",
+            "q60",
+            "q59",
+            "q58",
+            "q56",
+            "q55",
+            "q54",
+            "q53",
+            "q52",
+            "q51",
+            "q50",
+            "q49",
+            "q48",
+            "q47",
+            "q46",
+            "q45",
+            "q44",
+            "q42",
+            "q41",
+            "q40",
+            "q38",
+            "q37",
+            "q36",
+            "q35",
+            "q34",
+            "q33",
+            "q32",
+            "q31",
+            "q30",
+            "q29",
+            "q27",
+            "q26",
+            "q24",
+            "q23",
+            "q22",
+            "q21",
+            "q20",
+            "q19",
+            "q18",
+            "q17",
+            "q16",
+            "q15",
+            "q11"
+          ],
+          "omitted_source_ids": [
+            "q14",
+            "q13",
+            "q12",
+            "q10",
+            "q9",
+            "q8",
+            "q7",
+            "q6",
+            "q5",
+            "q4",
+            "q3",
+            "q2",
+            "q1"
+          ],
+          "source_id_limit": 400,
+          "source_id_limit_omissions": 0,
+          "shortened_discussion_ids": [],
+          "discussion_complete": false,
+          "note": "Selected evidence is not the whole repository. Missing context remains unknown; omitted discussion prevents a qualified positive.",
+          "optional_field_hint_scan_complete": true,
+          "target_reference_context": {
+            "revision": null,
+            "source_ids": [],
+            "omitted_source_ids": [],
+            "reference_only": true,
+            "absence_proves_novelty": false
+          },
+          "omitted_constraint_ids": [],
+          "constraint_hint_scan_complete": false,
+          "omitted_source_count": 13,
+          "payload_bytes": 108916,
+          "demand_span_coverage": {
+            "span_count": 195,
+            "omitted_visible_spans": 1356,
+            "complete": false,
+            "sources_without_spans": [],
+            "source_count_without_spans": 0,
+            "method": "exact original spans; bounded root opening then round-robin discussion coverage, not semantic validation"
+          },
+          "interpretation_contract": "behavioral-demand-v1"
+        },
+        "issue_url": "https://github.com/sympy/sympy/issues/3461",
+        "issue_fingerprint": "8cbcfbcb94cc2b3a650971977115847aa33907167f3eace6fb59056c2114eb8b",
+        "provider_identity": "cdcd5f4d30c98d6930cf75d7b2fc8c965d48b0d5a52560b0475019c45ad41426",
+        "qualified": false,
+        "semantic_status": "model_proposed_unreviewed",
+        "execution_status": "not_requested",
+        "attempt_id": "9fe5b1a629df499baea3fba493b620f0:12"
+      }
+    },
+    "candidate_failures": {},
+    "ai_outputs": [
+      {
+        "phase": "request",
+        "call_number": 1,
+        "attempt_id": "9fe5b1a629df499baea3fba493b620f0:1",
+        "output": {
+          "status": "undetermined",
+          "reason": "The discussion indicates a goal of handling deeply nested structures, but it does not settle the implementation scope: the Python implementation, the C accelerator, and their compatibility are discussed with conflicting or unresolved requirements. Although a deep tuple construction is shown, the discussion does not provide a concrete JSON-compatible input and expected output pair for an executable contract. Supplying one would require representation or operation choices not established by the discussion.",
+          "contracts": [],
+          "unknowns": [
+            "Whether the required behavior applies to the Python implementation, the C accelerator, or both.",
+            "A concrete JSON-compatible input and expected output for testing deep-nesting support without inventing representation or serialization semantics.",
+            "Whether the intended nesting limit is finite or unlimited."
+          ]
+        }
+      },
+      {
+        "phase": "request",
+        "call_number": 2,
+        "attempt_id": "9fe5b1a629df499baea3fba493b620f0:2",
+        "output": {
+          "status": "undetermined",
+          "reason": "The discussion reports performance and storage problems and floats possible remedies, but does not settle a precise operation or its input/output behavior. Cleanup cadence and deletion semantics are explicitly uncertain, and the index suggestion is documentation/database guidance rather than an executable behavioral contract. No defensible examples can be specified without inventing requirements.",
+          "contracts": [],
+          "unknowns": [
+            "Whether cleanup should delete records marked visible=0, and whether that is safe for queue behavior or signals.",
+            "Whether cleanup is automatic or manual, and whether it runs after every N pop() calls.",
+            "What inputs and outputs any cleanup or pop operation should have.",
+            "Whether the proposed MySQL index is required, optional, or sufficient, and what performance behavior is expected.",
+            "The intended runtime and database portability requirements.",
+            "The reported fix in django-kombu v0.9.2 does not specify the behavior or establish a contract for this discussion."
+          ]
+        }
+      },
+      {
+        "phase": "request",
+        "call_number": 3,
+        "attempt_id": "9fe5b1a629df499baea3fba493b620f0:3",
+        "output": {
+          "status": "proposed",
+          "reason": "The discussion gives a concrete formula for the number of batches, so that limited suboperation can be specified without selecting an implementation or adapter. The discussion is open and incomplete; this proposal does not resolve how batches are ordered or how their contents are selected.",
+          "contracts": [
+            {
+              "operation": "Compute the number of batches from dataset length and batch size",
+              "citation_ids": [
+                "se5ec801483ae7c02",
+                "s56451dab597b3635",
+                "s56a0120b72de5a4b"
+              ],
+              "input_kind": "arguments",
+              "runtime": "python",
+              "runtime_citation_ids": [
+                "s8f36c6f71a98fe30",
+                "se5ec801483ae7c02"
+              ],
+              "preconditions": [
+                "Dataset length is a nonnegative integer.",
+                "Batch size is a positive integer."
+              ],
+              "assumptions": [
+                "Arguments are represented as [dataset_length, batch_size].",
+                "The formula means the smallest whole number of batches sufficient to cover the dataset, including a final partial batch when there is a remainder."
+              ],
+              "uncovered_requirements": [
+                "Random order of batch delivery is not specified by this suboperation.",
+                "Randomizing batch contents is a separate, tentative alternative in the discussion and is not specified here.",
+                "Permutation indexing, batch slicing, and error behavior are not specified. A later discussion or resolution may change the requirements."
+              ],
+              "examples": [
+                {
+                  "args_json": "[5,2]",
+                  "expected_json": "3",
+                  "citation_ids": [
+                    "se5ec801483ae7c02",
+                    "s56451dab597b3635"
+                  ],
+                  "basis": "inferred"
+                }
+              ],
+              "checks": [
+                {
+                  "args_json": "[4,2]",
+                  "expected_json": "2",
+                  "citation_ids": [
+                    "se5ec801483ae7c02",
+                    "s56451dab597b3635"
+                  ],
+                  "basis": "inferred"
+                },
+                {
+                  "args_json": "[0,2]",
+                  "expected_json": "0",
+                  "citation_ids": [
+                    "se5ec801483ae7c02",
+                    "s56451dab597b3635"
+                  ],
+                  "basis": "inferred"
+                }
+              ]
+            }
+          ],
+          "unknowns": [
+            "Whether the proposed calculation reflects the final intended behavior; the issue is open and the discussion context is incomplete.",
+            "The intended permutation semantics and exact batch contents are not established."
+          ]
+        }
+      },
+      {
+        "phase": "request",
+        "call_number": 4,
+        "attempt_id": "9fe5b1a629df499baea3fba493b620f0:4",
+        "output": {
+          "status": "undetermined",
+          "reason": "The discussion does not establish a single, agreed executable operation. It alternates between making the document-level item ID optional and removing it, while later comments distinguish that field from the local itemID required by a processor. The portability and URI-linking goals do not specify a complete validation or transformation contract with expected outputs.",
+          "contracts": [],
+          "unknowns": [
+            "Whether the document-level item ID should be omitted or merely optional remains unsettled.",
+            "The discussion does not define a complete input/output contract for resolving document URIs to processor-local itemIDs.",
+            "The discussion is marked incomplete, and the issue remains open."
+          ]
+        }
+      },
+      {
+        "phase": "request",
+        "call_number": 5,
+        "attempt_id": "9fe5b1a629df499baea3fba493b620f0:5",
+        "output": {
+          "status": "proposed",
+          "reason": "The discussion gives a specific first-duplicate-wins request and a worked parsing example. Later comments raise broader RFC 6265 ordering and compatibility concerns, so this contract is limited to duplicate-name parsing and does not imply a decision to change the existing library.",
+          "contracts": [
+            {
+              "operation": "Parse a cookie string so that, when the same cookie name occurs more than once, the first occurrence supplies the retained value.",
+              "citation_ids": [
+                "s4a4fb76125b25965",
+                "s450a1b4bab080b36",
+                "sf6344447289ab131",
+                "s0511f42eb7525558"
+              ],
+              "input_kind": "arguments",
+              "runtime": "python",
+              "runtime_citation_ids": [
+                "s979fe676c8e4f3ea",
+                "s5e3d801a09e6ec29"
+              ],
+              "preconditions": [
+                "Input is a cookie string containing at least two occurrences of the same cookie name."
+              ],
+              "assumptions": [
+                "The result is represented as the displayed serialized cookie string in the discussion's worked example."
+              ],
+              "uncovered_requirements": [
+                "The discussion does not establish whether this behavior should replace existing behavior; compatibility concerns and lack of consensus are noted.",
+                "RFC 6265 path-length and creation-time ordering are not specified by this duplicate-only contract.",
+                "Behavior for differing paths, creation times, additional attributes, malformed input, or other parsing cases is not established."
+              ],
+              "examples": [
+                {
+                  "args_json": "[\"foo=33;foo=34\"]",
+                  "expected_json": "\"Set-Cookie: foo=33\"",
+                  "citation_ids": [
+                    "s5e3d801a09e6ec29",
+                    "sf6344447289ab131"
+                  ],
+                  "basis": "explicit_example"
+                }
+              ],
+              "checks": [
+                {
+                  "args_json": "[\"x=1;x=2\"]",
+                  "expected_json": "\"Set-Cookie: x=1\"",
+                  "citation_ids": [
+                    "s4a4fb76125b25965",
+                    "s450a1b4bab080b36"
+                  ],
+                  "basis": "inferred"
+                }
+              ]
+            }
+          ],
+          "unknowns": [
+            "Whether the proposed behavior should be adopted in the existing library remains unsettled.",
+            "The discussion does not establish how the broader RFC 6265 ordering requirement interacts with duplicate parsing."
+          ]
+        }
+      },
+      {
+        "phase": "request",
+        "call_number": 6,
+        "attempt_id": "9fe5b1a629df499baea3fba493b620f0:6",
+        "output": {
+          "status": "undetermined",
+          "reason": "The discussion expresses a goal of declaring scalar coefficient functions of a shared variable list and controlling whether function arguments appear in printed output, but does not specify a sufficiently precise executable input/output contract for either behavior. Later examples concern exploratory SymPy usage and unresolved problems; they do not establish a resolved behavior or a complete output oracle. No contracts are proposed.",
+          "contracts": [],
+          "unknowns": [
+            "Whether the requested function declaration accepts a list directly, expands it into positional arguments, or uses another representation is not established as a requirement.",
+            "The requested compact function display and derivative notation depend on an unspecified output switch and printer; exact output strings and switch semantics are not specified.",
+            "Derivative behavior, including repeated partial derivatives and higher-order notation, is raised but not resolved.",
+            "The discussion includes conflicting exploratory examples about subclassing and function construction; their behavior is not established as the requested contract.",
+            "Runtime cannot be established for a contract from the cited demand spans.",
+            "The discussion and demand-span coverage are incomplete, and referenced attachments and later context are unavailable."
+          ]
+        }
+      },
+      {
+        "phase": "request",
+        "call_number": 7,
+        "attempt_id": "9fe5b1a629df499baea3fba493b620f0:7",
+        "output": {
+          "status": "proposed",
+          "reason": "The discussion requests threshold-option suggestions when thresholding removes all terms, and describes selecting options whose maximum observed threshold quantity is below the configured threshold. A small abstract contract for deriving those suggestions is defensible, but its input representation and output formatting are not specified in the discussion; the examples below are inferred and require independent technical review.",
+          "contracts": [
+            {
+              "operation": "derive_threshold_option_suggestions",
+              "citation_ids": [
+                "s87971b7359a5d206",
+                "sae95fd3f189e3eed",
+                "s02d7216333003eaa",
+                "s5b648bec5cf7150d"
+              ],
+              "input_kind": "arguments",
+              "runtime": "unknown",
+              "runtime_citation_ids": [],
+              "preconditions": [
+                "The first argument indicates whether thresholding removed all terms.",
+                "The second and third arguments are mappings with corresponding threshold-option keys and comparable numeric values."
+              ],
+              "assumptions": [
+                "Mappings represent configured threshold values and maximum observed threshold quantities, respectively.",
+                "When no terms were removed, the result is an empty list.",
+                "When terms were removed, each option whose maximum observed quantity is strictly less than its configured value is represented as an option assignment using the maximum value.",
+                "The result is a JSON array of command-line option strings; this representation and formatting are not specified by the discussion."
+              ],
+              "uncovered_requirements": [
+                "The exact output format and whether suggested values equal the maximum observed quantities are not fully specified.",
+                "The precise meaning of the all-terms-removed condition, including its relationship to subphrase reduction, is not specified.",
+                "The discussion names --inputs-needed, --locs-needed, --fullmsg-needed, and --substr-needed, but does not fully specify their maximum-quantity calculations or all multi-file behavior.",
+                "No runtime is stated or established."
+              ],
+              "examples": [
+                {
+                  "args_json": "[true,{\"--locs-needed\":2},{\"--locs-needed\":1}]",
+                  "expected_json": "[\"--locs-needed=1\"]",
+                  "citation_ids": [
+                    "s87971b7359a5d206",
+                    "sae95fd3f189e3eed",
+                    "s5b648bec5cf7150d"
+                  ],
+                  "basis": "inferred"
+                }
+              ],
+              "checks": [
+                {
+                  "args_json": "[false,{\"--locs-needed\":2},{\"--locs-needed\":1}]",
+                  "expected_json": "[]",
+                  "citation_ids": [
+                    "s87971b7359a5d206"
+                  ],
+                  "basis": "inferred"
+                },
+                {
+                  "args_json": "[true,{\"--locs-needed\":1,\"--fullmsg-needed\":3,\"--substr-needed\":4},{\"--locs-needed\":1,\"--fullmsg-needed\":2,\"--substr-needed\":1}]",
+                  "expected_json": "[\"--fullmsg-needed=2\",\"--substr-needed=1\"]",
+                  "citation_ids": [
+                    "sae95fd3f189e3eed",
+                    "s02d7216333003eaa"
+                  ],
+                  "basis": "inferred"
+                }
+              ]
+            }
+          ],
+          "unknowns": [
+            "Whether the proposed abstract operation matches the intended implementation boundary.",
+            "Whether suggestions should use maximum observed quantities as their assigned values.",
+            "Exact output syntax, ordering, and treatment of options with missing or incomparable quantities.",
+            "Precise threshold and subphrase-reduction stage at which the all-terms-removed condition applies.",
+            "Runtime and error behavior."
+          ]
+        }
+      },
+      {
+        "phase": "request",
+        "call_number": 8,
+        "attempt_id": "9fe5b1a629df499baea3fba493b620f0:8",
+        "output": {
+          "status": "undetermined",
+          "reason": "The discussion identifies a broad SIP transaction-layer request and contains review comments, proposed changes, and status updates, but does not provide enough input/output behavior to define a defensible executable contract without inventing message representations, transaction states, ordering, or runtime semantics.",
+          "contracts": [],
+          "unknowns": [
+            "The concrete inputs and observable outputs for SIP transaction operations are unspecified.",
+            "The discussion refers to RFC 3261 state machines but does not include their transition rules.",
+            "The required message representation, transport behavior, timing, and error semantics are not specified.",
+            "Some review points were later reported as fixed, while other concerns remain unresolved; the discussion does not establish a complete, final behavioral specification.",
+            "The issue notes that the work was not in progress as of 2022, which does not establish whether the requested behavior was completed elsewhere."
+          ]
+        }
+      },
+      {
+        "phase": "request",
+        "call_number": 9,
+        "attempt_id": "9fe5b1a629df499baea3fba493b620f0:9",
+        "output": {
+          "status": "undetermined",
+          "reason": "The discussion describes a proposed event-loop redesign, but does not establish a sufficiently precise, independently testable operation with JSON inputs and expected outputs. The claimed behavior is also unsettled: an early description says the patch was tested on Windows and Cygwin (s1e1913fef9797f86), while a later comment says the prerequisite patch was rejected and there was no longer a fix for the first problem (s25418da353fc7ec9). Later comments also qualify the claim that applications require mainloop (sad08873b588065b5). No contracts are proposed.",
+          "contracts": [],
+          "unknowns": [
+            "Whether any redesign or replacement patch was accepted or implemented; the discussion is incomplete and points to unacquired linked issues and attachments.",
+            "Exact executable input/output semantics for event handling, hook chaining, keyboard input, timing, and platform-specific behavior.",
+            "Whether the proposed behavior is intended to apply uniformly across readline configurations and platforms."
+          ]
+        }
+      },
+      {
+        "phase": "request",
+        "call_number": 10,
+        "attempt_id": "9fe5b1a629df499baea3fba493b620f0:10",
+        "output": {
+          "status": "undetermined",
+          "reason": "The discussion does not settle a single executable contract: it conflicts over opt-in versus default-on behavior and urllib versus http.client placement. It also raises unresolved safety and compatibility concerns, including partial-range requests, .tar.gz files, and decompression bombs. The later opt-in handler description is a proposed design, not an established resolution. Specifying inputs and expected outputs would require choosing among these alternatives and inventing interface and representation semantics.",
+          "contracts": [],
+          "unknowns": [
+            "Whether transparent gzip handling is opt-in or default-on, and how it is enabled or disabled.",
+            "Whether handling belongs at the urllib level or the http.client level.",
+            "How behavior should interact with partial-range requests and downloads where compressed content is intended to remain compressed.",
+            "How to constrain or otherwise address decompression-bomb risks.",
+            "What exact request, response, header, and body representations an executable contract should use.",
+            "What happens when gzip support is unavailable, beyond the proposal that normal request-response processing may proceed."
+          ]
+        }
+      },
+      {
+        "phase": "request",
+        "call_number": 11,
+        "attempt_id": "9fe5b1a629df499baea3fba493b620f0:11",
+        "output": {
+          "status": "proposed",
+          "reason": "Later discussion supports interpreting Windows “absolute” as fully qualified and reports that the changed implementation was accepted and fixed in Python 3.13+. This contract captures that interpretation, not the older behavior or the separate proposal for an absolute-but-not-fully-qualified check. Independent technical review is required before qualification.",
+          "contracts": [
+            {
+              "operation": "Classify whether a Windows path is fully qualified absolute: it identifies a drive or device and starts at that device's root.",
+              "citation_ids": [
+                "se9e9b43d6ebe4341",
+                "s6989993ade526d33",
+                "s8fef6ea0e149eceb"
+              ],
+              "input_kind": "arguments",
+              "runtime": "python",
+              "runtime_citation_ids": [
+                "sa1d739f47c196355"
+              ],
+              "preconditions": [
+                "The argument is a JSON string representing a Windows path.",
+                "Interpret the path using Windows path syntax, independent of the host platform."
+              ],
+              "assumptions": [
+                "A JSON string represents the path string; JSON escaping represents any backslashes.",
+                "The fully-qualified definition in the later discussion takes precedence over earlier meanings of “absolute.”"
+              ],
+              "uncovered_requirements": [
+                "Classification of paths that are rooted but not fully qualified as a separate category.",
+                "The proposed isrelative API, joining behavior, and deprecation or warning behavior.",
+                "Path containment or security validation; absolute-path classification alone does not establish containment.",
+                "Detailed handling of device-path variants, malformed paths, non-string inputs, and errors."
+              ],
+              "examples": [
+                {
+                  "args_json": "[\"/\"]",
+                  "expected_json": "false",
+                  "citation_ids": [
+                    "s106edc4b0a3c64a7"
+                  ],
+                  "basis": "explicit_example"
+                }
+              ],
+              "checks": [
+                {
+                  "args_json": "[\"C:\\\\foo\"]",
+                  "expected_json": "true",
+                  "citation_ids": [
+                    "sac910d7ba1a62182",
+                    "se9e9b43d6ebe4341"
+                  ],
+                  "basis": "inferred"
+                },
+                {
+                  "args_json": "[\"C:foo\"]",
+                  "expected_json": "false",
+                  "citation_ids": [
+                    "sac910d7ba1a62182",
+                    "se9e9b43d6ebe4341"
+                  ],
+                  "basis": "inferred"
+                }
+              ]
+            }
+          ],
+          "unknowns": [
+            "The discussion is incomplete; omitted repository context could affect the final requirements.",
+            "Exact handling of all Windows device and UNC path forms is not specified by this contract.",
+            "The discussion does not establish a complete input-type or error contract."
+          ]
+        }
+      },
+      {
+        "phase": "request",
+        "call_number": 12,
+        "attempt_id": "9fe5b1a629df499baea3fba493b620f0:12",
+        "output": {
+          "status": "undetermined",
+          "reason": "The discussion contains exploratory proposals, explicitly unresolved alternatives, and implementation/context reports rather than a stable, independently executable operation contract. The cited spans do not establish a suitable input/output representation, and the later comments include conflicting requirements (for example, whether Float and Rational comparisons should be equal).",
+          "contracts": [],
+          "unknowns": [
+            "Which proposed behaviors, if any, were ultimately adopted is unknown; the discussion is incomplete.",
+            "No common JSON argument representation or serialized expected-output convention for symbolic expressions is specified.",
+            "Runtime requirements for any independently testable suboperation are not established by the demand spans."
+          ]
+        }
+      }
+    ]
+  },
+  "result": {
+    "match_ids": [],
+    "rows": [
+      {
+        "index": 0,
+        "issue_url": "https://github.com/python/cpython/issues/47369",
+        "elapsed_seconds": 9.52,
+        "status": "undetermined",
+        "contract_count": 0
+      },
+      {
+        "index": 1,
+        "issue_url": "https://github.com/ask/ghettoq/issues/2",
+        "elapsed_seconds": 4.741,
+        "status": "undetermined",
+        "contract_count": 0
+      },
+      {
+        "index": 2,
+        "issue_url": "https://github.com/pybrain/pybrain/issues/71",
+        "elapsed_seconds": 16.992,
+        "status": "proposed",
+        "contract_count": 1
+      },
+      {
+        "index": 3,
+        "issue_url": "https://github.com/citation-style-language/schema/issues/70",
+        "elapsed_seconds": 5.58,
+        "status": "undetermined",
+        "contract_count": 0
+      },
+      {
+        "index": 4,
+        "issue_url": "https://github.com/python/cpython/issues/42664",
+        "elapsed_seconds": 31.817,
+        "status": "proposed",
+        "contract_count": 1
+      },
+      {
+        "index": 5,
+        "issue_url": "https://github.com/sympy/sympy/issues/4238",
+        "elapsed_seconds": 6.012,
+        "status": "undetermined",
+        "contract_count": 0
+      },
+      {
+        "index": 6,
+        "issue_url": "https://github.com/translate/translate/issues/582",
+        "elapsed_seconds": 19.684,
+        "status": "proposed",
+        "contract_count": 1
+      },
+      {
+        "index": 7,
+        "issue_url": "https://github.com/twisted/twisted/issues/3584",
+        "elapsed_seconds": 4.897,
+        "status": "undetermined",
+        "contract_count": 0
+      },
+      {
+        "index": 8,
+        "issue_url": "https://github.com/python/cpython/issues/42255",
+        "elapsed_seconds": 5.83,
+        "status": "undetermined",
+        "contract_count": 0
+      },
+      {
+        "index": 9,
+        "issue_url": "https://github.com/python/cpython/issues/43521",
+        "elapsed_seconds": 7.143,
+        "status": "undetermined",
+        "contract_count": 0
+      },
+      {
+        "index": 10,
+        "issue_url": "https://github.com/python/cpython/issues/44626",
+        "elapsed_seconds": 20.414,
+        "status": "proposed",
+        "contract_count": 1
+      },
+      {
+        "index": 11,
+        "issue_url": "https://github.com/sympy/sympy/issues/3461",
+        "elapsed_seconds": 6.427,
+        "status": "undetermined",
+        "contract_count": 0
+      }
+    ],
+    "total_seconds": 139.429,
+    "persisted_reserved_usd": 0.1396736,
+    "reported_cost_usd": 0.0241608
+  },
+  "provider_identity": "cdcd5f4d30c98d6930cf75d7b2fc8c965d48b0d5a52560b0475019c45ad41426",
+  "allowance_id": "independent-contracts-pilot-2026-10-11-authorized",
+  "authorization": "User: se serve di piu usalo, procedi; bounded pilot stays at USD0.20 and 12 attempts.",
+  "candidate_index": 11,
+  "reported_usage": [
+    {
+      "input_tokens": 13390,
+      "output_tokens": 758,
+      "estimated_cost_usd_at_configured_prices": 0.001718
+    },
+    {
+      "input_tokens": 4063,
+      "output_tokens": 354,
+      "estimated_cost_usd_at_configured_prices": 0.0005832999999999999
+    },
+    {
+      "input_tokens": 3296,
+      "output_tokens": 1902,
+      "estimated_cost_usd_at_configured_prices": 0.0012806
+    },
+    {
+      "input_tokens": 13093,
+      "output_tokens": 429,
+      "estimated_cost_usd_at_configured_prices": 0.0015238000000000003
+    },
+    {
+      "input_tokens": 9960,
+      "output_tokens": 3458,
+      "estimated_cost_usd_at_configured_prices": 0.002725
+    },
+    {
+      "input_tokens": 23645,
+      "output_tokens": 373,
+      "estimated_cost_usd_at_configured_prices": 0.002551
+    },
+    {
+      "input_tokens": 6701,
+      "output_tokens": 2219,
+      "estimated_cost_usd_at_configured_prices": 0.0017795999999999999
+    },
+    {
+      "input_tokens": 16608,
+      "output_tokens": 348,
+      "estimated_cost_usd_at_configured_prices": 0.0018348000000000001
+    },
+    {
+      "input_tokens": 15009,
+      "output_tokens": 463,
+      "estimated_cost_usd_at_configured_prices": 0.0017324
+    },
+    {
+      "input_tokens": 12296,
+      "output_tokens": 648,
+      "estimated_cost_usd_at_configured_prices": 0.0015536
+    },
+    {
+      "input_tokens": 17442,
+      "output_tokens": 2167,
+      "estimated_cost_usd_at_configured_prices": 0.0028277
+    },
+    {
+      "input_tokens": 38190,
+      "output_tokens": 464,
+      "estimated_cost_usd_at_configured_prices": 0.004051
+    }
+  ],
+  "ai_trace": [
+    {
+      "phase": "request",
+      "model": "gpt-6-luna",
+      "api_kind": "responses",
+      "response_id": "resp_0018ca58817bdfe3016acb6d20b36887d29a548db85c475e2e",
+      "response_status": "completed",
+      "request_sha256": "dbffb67d3ed50ff84ac2c241a6e4d1881bf18ee468536d800fbaaea61b4b42bf",
+      "request_bytes": 49050,
+      "context_coverage": {
+        "phase": "request",
+        "source_ids": [
+          "q0",
+          "q13",
+          "q18",
+          "q17",
+          "q16",
+          "q15",
+          "q14",
+          "q12",
+          "q11",
+          "q10",
+          "q9",
+          "q8",
+          "q7",
+          "q6",
+          "q5",
+          "q4",
+          "q3",
+          "q2",
+          "q1"
+        ],
+        "omitted_source_ids": [],
+        "source_id_limit": 400,
+        "source_id_limit_omissions": 0,
+        "shortened_discussion_ids": [],
+        "discussion_complete": false,
+        "note": "Selected evidence is not the whole repository. Missing context remains unknown; omitted discussion prevents a qualified positive.",
+        "optional_field_hint_scan_complete": true,
+        "target_reference_context": {
+          "revision": null,
+          "source_ids": [],
+          "omitted_source_ids": [],
+          "reference_only": true,
+          "absence_proves_novelty": false
+        },
+        "omitted_constraint_ids": [],
+        "constraint_hint_scan_complete": true,
+        "omitted_source_count": 0,
+        "payload_bytes": 20699,
+        "demand_span_coverage": {
+          "span_count": 156,
+          "omitted_visible_spans": 52,
+          "complete": false,
+          "sources_without_spans": [],
+          "source_count_without_spans": 0,
+          "method": "exact original spans; bounded root opening then round-robin discussion coverage, not semantic validation"
+        },
+        "interpretation_contract": "behavioral-demand-v1"
+      },
+      "call_number": 1,
+      "attempt_id": "9fe5b1a629df499baea3fba493b620f0:1"
+    },
+    {
+      "phase": "request",
+      "model": "gpt-6-luna",
+      "api_kind": "responses",
+      "response_id": "resp_0fe21914ada508a0016acb6d2918f087d29cde7aa2a88b4c04",
+      "response_status": "completed",
+      "request_sha256": "f7e51c2c6c594ce4c7b7f6d2d412668e55483382b52e4b49f0e9fe6af784cabd",
+      "request_bytes": 17373,
+      "context_coverage": {
+        "phase": "request",
+        "source_ids": [
+          "q0",
+          "q4",
+          "q3",
+          "q2",
+          "q1"
+        ],
+        "omitted_source_ids": [],
+        "source_id_limit": 400,
+        "source_id_limit_omissions": 0,
+        "shortened_discussion_ids": [],
+        "discussion_complete": false,
+        "note": "Selected evidence is not the whole repository. Missing context remains unknown; omitted discussion prevents a qualified positive.",
+        "optional_field_hint_scan_complete": true,
+        "target_reference_context": {
+          "revision": null,
+          "source_ids": [],
+          "omitted_source_ids": [],
+          "reference_only": true,
+          "absence_proves_novelty": false
+        },
+        "omitted_constraint_ids": [],
+        "constraint_hint_scan_complete": true,
+        "omitted_source_count": 0,
+        "payload_bytes": 5275,
+        "demand_span_coverage": {
+          "span_count": 29,
+          "omitted_visible_spans": 0,
+          "complete": true,
+          "sources_without_spans": [],
+          "source_count_without_spans": 0,
+          "method": "exact original spans; bounded root opening then round-robin discussion coverage, not semantic validation"
+        },
+        "interpretation_contract": "behavioral-demand-v1"
+      },
+      "call_number": 2,
+      "attempt_id": "9fe5b1a629df499baea3fba493b620f0:2"
+    },
+    {
+      "phase": "request",
+      "model": "gpt-6-luna",
+      "api_kind": "responses",
+      "response_id": "resp_026adb3783f3dd7c016acb6d2dc17887d2bda386f747da42d9",
+      "response_status": "completed",
+      "request_sha256": "bc64d09172ffdefa0ebed1d225a060929a3f29bee47a6bba68200b97d7bc29d0",
+      "request_bytes": 14405,
+      "context_coverage": {
+        "phase": "request",
+        "source_ids": [
+          "q0"
+        ],
+        "omitted_source_ids": [],
+        "source_id_limit": 400,
+        "source_id_limit_omissions": 0,
+        "shortened_discussion_ids": [],
+        "discussion_complete": false,
+        "note": "Selected evidence is not the whole repository. Missing context remains unknown; omitted discussion prevents a qualified positive.",
+        "optional_field_hint_scan_complete": true,
+        "target_reference_context": {
+          "revision": null,
+          "source_ids": [],
+          "omitted_source_ids": [],
+          "reference_only": true,
+          "absence_proves_novelty": false
+        },
+        "omitted_constraint_ids": [],
+        "constraint_hint_scan_complete": true,
+        "omitted_source_count": 0,
+        "payload_bytes": 3317,
+        "demand_span_coverage": {
+          "span_count": 29,
+          "omitted_visible_spans": 0,
+          "complete": true,
+          "sources_without_spans": [],
+          "source_count_without_spans": 0,
+          "method": "exact original spans; bounded root opening then round-robin discussion coverage, not semantic validation"
+        },
+        "interpretation_contract": "behavioral-demand-v1"
+      },
+      "call_number": 3,
+      "attempt_id": "9fe5b1a629df499baea3fba493b620f0:3"
+    },
+    {
+      "phase": "request",
+      "model": "gpt-6-luna",
+      "api_kind": "responses",
+      "response_id": "resp_03f574bcf82457f9016acb6d3f10ec87d2bdcc2040d4be62e8",
+      "response_status": "completed",
+      "request_sha256": "c03647a782633db4c4fc5fb6e5414fc9416fe3a59ab1aa312467478282387b43",
+      "request_bytes": 52976,
+      "context_coverage": {
+        "phase": "request",
+        "source_ids": [
+          "q0",
+          "q24",
+          "q22",
+          "q23",
+          "q21",
+          "q20",
+          "q19",
+          "q18",
+          "q17",
+          "q16",
+          "q15",
+          "q14",
+          "q13",
+          "q12",
+          "q11",
+          "q10",
+          "q9",
+          "q8",
+          "q7",
+          "q6",
+          "q5",
+          "q4",
+          "q3",
+          "q2",
+          "q1"
+        ],
+        "omitted_source_ids": [],
+        "source_id_limit": 400,
+        "source_id_limit_omissions": 0,
+        "shortened_discussion_ids": [],
+        "discussion_complete": false,
+        "note": "Selected evidence is not the whole repository. Missing context remains unknown; omitted discussion prevents a qualified positive.",
+        "optional_field_hint_scan_complete": true,
+        "target_reference_context": {
+          "revision": null,
+          "source_ids": [],
+          "omitted_source_ids": [],
+          "reference_only": true,
+          "absence_proves_novelty": false
+        },
+        "omitted_constraint_ids": [],
+        "constraint_hint_scan_complete": true,
+        "omitted_source_count": 0,
+        "payload_bytes": 24654,
+        "demand_span_coverage": {
+          "span_count": 118,
+          "omitted_visible_spans": 47,
+          "complete": false,
+          "sources_without_spans": [],
+          "source_count_without_spans": 0,
+          "method": "exact original spans; bounded root opening then round-robin discussion coverage, not semantic validation"
+        },
+        "interpretation_contract": "behavioral-demand-v1"
+      },
+      "call_number": 4,
+      "attempt_id": "9fe5b1a629df499baea3fba493b620f0:4"
+    },
+    {
+      "phase": "request",
+      "model": "gpt-6-luna",
+      "api_kind": "responses",
+      "response_id": "resp_0a13c93a0f994912016acb6d44828c87d2a966de97552c22c6",
+      "response_status": "completed",
+      "request_sha256": "864438d9533c5ee6123596fabd6bc865c78da6bb796dea1d9dc00e4be742cf37",
+      "request_bytes": 36217,
+      "context_coverage": {
+        "phase": "request",
+        "source_ids": [
+          "q0",
+          "q13",
+          "q12",
+          "q11",
+          "q10",
+          "q9",
+          "q8",
+          "q7",
+          "q6",
+          "q5",
+          "q4",
+          "q3",
+          "q2",
+          "q1"
+        ],
+        "omitted_source_ids": [],
+        "source_id_limit": 400,
+        "source_id_limit_omissions": 0,
+        "shortened_discussion_ids": [],
+        "discussion_complete": false,
+        "note": "Selected evidence is not the whole repository. Missing context remains unknown; omitted discussion prevents a qualified positive.",
+        "optional_field_hint_scan_complete": true,
+        "target_reference_context": {
+          "revision": null,
+          "source_ids": [],
+          "omitted_source_ids": [],
+          "reference_only": true,
+          "absence_proves_novelty": false
+        },
+        "omitted_constraint_ids": [],
+        "constraint_hint_scan_complete": true,
+        "omitted_source_count": 0,
+        "payload_bytes": 13229,
+        "demand_span_coverage": {
+          "span_count": 118,
+          "omitted_visible_spans": 0,
+          "complete": true,
+          "sources_without_spans": [],
+          "source_count_without_spans": 0,
+          "method": "exact original spans; bounded root opening then round-robin discussion coverage, not semantic validation"
+        },
+        "interpretation_contract": "behavioral-demand-v1"
+      },
+      "call_number": 5,
+      "attempt_id": "9fe5b1a629df499baea3fba493b620f0:5"
+    },
+    {
+      "phase": "request",
+      "model": "gpt-6-luna",
+      "api_kind": "responses",
+      "response_id": "resp_0f840c5e5bef4a11016acb6d64faf087d2900b23a8c570027c",
+      "response_status": "completed",
+      "request_sha256": "b30c31d994bdd82e111808a9bd0732431f809c29f47751cf92750468d7632cf5",
+      "request_bytes": 83643,
+      "context_coverage": {
+        "phase": "request",
+        "source_ids": [
+          "q0",
+          "q22",
+          "q15",
+          "q10",
+          "q8",
+          "q47",
+          "q46",
+          "q45",
+          "q44",
+          "q43",
+          "q42",
+          "q41",
+          "q40",
+          "q39",
+          "q38",
+          "q37",
+          "q36",
+          "q35",
+          "q34",
+          "q33",
+          "q32",
+          "q31",
+          "q30",
+          "q29",
+          "q28",
+          "q27",
+          "q26",
+          "q25",
+          "q24",
+          "q23",
+          "q21",
+          "q20",
+          "q19",
+          "q18",
+          "q17",
+          "q16",
+          "q14",
+          "q13",
+          "q12",
+          "q11",
+          "q9",
+          "q7",
+          "q6",
+          "q5",
+          "q4",
+          "q3",
+          "q2",
+          "q1"
+        ],
+        "omitted_source_ids": [],
+        "source_id_limit": 400,
+        "source_id_limit_omissions": 0,
+        "shortened_discussion_ids": [],
+        "discussion_complete": false,
+        "note": "Selected evidence is not the whole repository. Missing context remains unknown; omitted discussion prevents a qualified positive.",
+        "optional_field_hint_scan_complete": true,
+        "target_reference_context": {
+          "revision": null,
+          "source_ids": [],
+          "omitted_source_ids": [],
+          "reference_only": true,
+          "absence_proves_novelty": false
+        },
+        "omitted_constraint_ids": [],
+        "constraint_hint_scan_complete": true,
+        "omitted_source_count": 0,
+        "payload_bytes": 52800,
+        "demand_span_coverage": {
+          "span_count": 200,
+          "omitted_visible_spans": 604,
+          "complete": false,
+          "sources_without_spans": [],
+          "source_count_without_spans": 0,
+          "method": "exact original spans; bounded root opening then round-robin discussion coverage, not semantic validation"
+        },
+        "interpretation_contract": "behavioral-demand-v1"
+      },
+      "call_number": 6,
+      "attempt_id": "9fe5b1a629df499baea3fba493b620f0:6"
+    },
+    {
+      "phase": "request",
+      "model": "gpt-6-luna",
+      "api_kind": "responses",
+      "response_id": "resp_091f7d969f69e439016acb6d6a59ac87d29754ff9783f58022",
+      "response_status": "completed",
+      "request_sha256": "5436fa2f53ea16db52a8c4b44688e39f022c0a21ca2aa34fbbc0d6a328368f43",
+      "request_bytes": 27273,
+      "context_coverage": {
+        "phase": "request",
+        "source_ids": [
+          "q0",
+          "q3",
+          "q6",
+          "q5",
+          "q4",
+          "q2",
+          "q1"
+        ],
+        "omitted_source_ids": [],
+        "source_id_limit": 400,
+        "source_id_limit_omissions": 0,
+        "shortened_discussion_ids": [],
+        "discussion_complete": false,
+        "note": "Selected evidence is not the whole repository. Missing context remains unknown; omitted discussion prevents a qualified positive.",
+        "optional_field_hint_scan_complete": true,
+        "target_reference_context": {
+          "revision": null,
+          "source_ids": [],
+          "omitted_source_ids": [],
+          "reference_only": true,
+          "absence_proves_novelty": false
+        },
+        "omitted_constraint_ids": [],
+        "constraint_hint_scan_complete": true,
+        "omitted_source_count": 0,
+        "payload_bytes": 9251,
+        "demand_span_coverage": {
+          "span_count": 76,
+          "omitted_visible_spans": 0,
+          "complete": true,
+          "sources_without_spans": [],
+          "source_count_without_spans": 0,
+          "method": "exact original spans; bounded root opening then round-robin discussion coverage, not semantic validation"
+        },
+        "interpretation_contract": "behavioral-demand-v1"
+      },
+      "call_number": 7,
+      "attempt_id": "9fe5b1a629df499baea3fba493b620f0:7"
+    },
+    {
+      "phase": "request",
+      "model": "gpt-6-luna",
+      "api_kind": "responses",
+      "response_id": "resp_0f8da88253338d65016acb6d7e669087d2ac232036542f3b00",
+      "response_status": "completed",
+      "request_sha256": "4891721d1fc78244c215eeea8f691fcc9f223197436184afed22064737ff8a27",
+      "request_bytes": 61657,
+      "context_coverage": {
+        "phase": "request",
+        "source_ids": [
+          "q0",
+          "q13",
+          "q11",
+          "q25",
+          "q24",
+          "q23",
+          "q22",
+          "q21",
+          "q20",
+          "q19",
+          "q18",
+          "q17",
+          "q16",
+          "q15",
+          "q14",
+          "q12",
+          "q10",
+          "q9",
+          "q8",
+          "q7",
+          "q6",
+          "q5",
+          "q4",
+          "q3",
+          "q2",
+          "q1"
+        ],
+        "omitted_source_ids": [],
+        "source_id_limit": 400,
+        "source_id_limit_omissions": 0,
+        "shortened_discussion_ids": [],
+        "discussion_complete": false,
+        "note": "Selected evidence is not the whole repository. Missing context remains unknown; omitted discussion prevents a qualified positive.",
+        "optional_field_hint_scan_complete": true,
+        "target_reference_context": {
+          "revision": null,
+          "source_ids": [],
+          "omitted_source_ids": [],
+          "reference_only": true,
+          "absence_proves_novelty": false
+        },
+        "omitted_constraint_ids": [],
+        "constraint_hint_scan_complete": true,
+        "omitted_source_count": 0,
+        "payload_bytes": 32360,
+        "demand_span_coverage": {
+          "span_count": 141,
+          "omitted_visible_spans": 179,
+          "complete": false,
+          "sources_without_spans": [],
+          "source_count_without_spans": 0,
+          "method": "exact original spans; bounded root opening then round-robin discussion coverage, not semantic validation"
+        },
+        "interpretation_contract": "behavioral-demand-v1"
+      },
+      "call_number": 8,
+      "attempt_id": "9fe5b1a629df499baea3fba493b620f0:8"
+    },
+    {
+      "phase": "request",
+      "model": "gpt-6-luna",
+      "api_kind": "responses",
+      "response_id": "resp_04687a086f707e87016acb6d8351cc87d2a110907613f7d58e",
+      "response_status": "completed",
+      "request_sha256": "52e2ffb5d933ce58534f3c01a30a96f5326de2bebaa2381f013c792da2ce7434",
+      "request_bytes": 53958,
+      "context_coverage": {
+        "phase": "request",
+        "source_ids": [
+          "q0",
+          "q5",
+          "q3",
+          "q11",
+          "q10",
+          "q9",
+          "q8",
+          "q7",
+          "q6",
+          "q4",
+          "q2",
+          "q1"
+        ],
+        "omitted_source_ids": [],
+        "source_id_limit": 400,
+        "source_id_limit_omissions": 0,
+        "shortened_discussion_ids": [],
+        "discussion_complete": false,
+        "note": "Selected evidence is not the whole repository. Missing context remains unknown; omitted discussion prevents a qualified positive.",
+        "optional_field_hint_scan_complete": true,
+        "target_reference_context": {
+          "revision": null,
+          "source_ids": [],
+          "omitted_source_ids": [],
+          "reference_only": true,
+          "absence_proves_novelty": false
+        },
+        "omitted_constraint_ids": [],
+        "constraint_hint_scan_complete": true,
+        "omitted_source_count": 0,
+        "payload_bytes": 25183,
+        "demand_span_coverage": {
+          "span_count": 194,
+          "omitted_visible_spans": 274,
+          "complete": false,
+          "sources_without_spans": [],
+          "source_count_without_spans": 0,
+          "method": "exact original spans; bounded root opening then round-robin discussion coverage, not semantic validation"
+        },
+        "interpretation_contract": "behavioral-demand-v1"
+      },
+      "call_number": 9,
+      "attempt_id": "9fe5b1a629df499baea3fba493b620f0:9"
+    },
+    {
+      "phase": "request",
+      "model": "gpt-6-luna",
+      "api_kind": "responses",
+      "response_id": "resp_0872fbe4651da484016acb6d88faf487d2bcc3451e80644b6c",
+      "response_status": "completed",
+      "request_sha256": "1aa7b5d18cf8afeb54d9e6c41f6f6c14a9fb3c1cd183d4f8e7cc43994eb60ebe",
+      "request_bytes": 45988,
+      "context_coverage": {
+        "phase": "request",
+        "source_ids": [
+          "q0",
+          "q15",
+          "q10",
+          "q24",
+          "q23",
+          "q22",
+          "q21",
+          "q20",
+          "q19",
+          "q18",
+          "q17",
+          "q16",
+          "q14",
+          "q13",
+          "q12",
+          "q11",
+          "q9",
+          "q8",
+          "q7",
+          "q6",
+          "q5",
+          "q4",
+          "q3",
+          "q2",
+          "q1"
+        ],
+        "omitted_source_ids": [],
+        "source_id_limit": 400,
+        "source_id_limit_omissions": 0,
+        "shortened_discussion_ids": [],
+        "discussion_complete": false,
+        "note": "Selected evidence is not the whole repository. Missing context remains unknown; omitted discussion prevents a qualified positive.",
+        "optional_field_hint_scan_complete": true,
+        "target_reference_context": {
+          "revision": null,
+          "source_ids": [],
+          "omitted_source_ids": [],
+          "reference_only": true,
+          "absence_proves_novelty": false
+        },
+        "omitted_constraint_ids": [],
+        "constraint_hint_scan_complete": true,
+        "omitted_source_count": 0,
+        "payload_bytes": 19558,
+        "demand_span_coverage": {
+          "span_count": 130,
+          "omitted_visible_spans": 0,
+          "complete": true,
+          "sources_without_spans": [],
+          "source_count_without_spans": 0,
+          "method": "exact original spans; bounded root opening then round-robin discussion coverage, not semantic validation"
+        },
+        "interpretation_contract": "behavioral-demand-v1"
+      },
+      "call_number": 10,
+      "attempt_id": "9fe5b1a629df499baea3fba493b620f0:10"
+    },
+    {
+      "phase": "request",
+      "model": "gpt-6-luna",
+      "api_kind": "responses",
+      "response_id": "resp_0c3e02bf55df72a0016acb6d905c1887d2a11c1671db913fd7",
+      "response_status": "completed",
+      "request_sha256": "480c5228bba30084a1f402317efb14b3247dcf4286a7282d8b8dfc98cc4f17ba",
+      "request_bytes": 66873,
+      "context_coverage": {
+        "phase": "request",
+        "source_ids": [
+          "q0",
+          "q16",
+          "q11",
+          "q29",
+          "q28",
+          "q27",
+          "q26",
+          "q25",
+          "q24",
+          "q23",
+          "q22",
+          "q21",
+          "q20",
+          "q19",
+          "q18",
+          "q17",
+          "q15",
+          "q14",
+          "q13",
+          "q12",
+          "q10",
+          "q9",
+          "q8",
+          "q7",
+          "q6",
+          "q5",
+          "q4",
+          "q3",
+          "q2",
+          "q1"
+        ],
+        "omitted_source_ids": [],
+        "source_id_limit": 400,
+        "source_id_limit_omissions": 0,
+        "shortened_discussion_ids": [],
+        "discussion_complete": false,
+        "note": "Selected evidence is not the whole repository. Missing context remains unknown; omitted discussion prevents a qualified positive.",
+        "optional_field_hint_scan_complete": true,
+        "target_reference_context": {
+          "revision": null,
+          "source_ids": [],
+          "omitted_source_ids": [],
+          "reference_only": true,
+          "absence_proves_novelty": false
+        },
+        "omitted_constraint_ids": [],
+        "constraint_hint_scan_complete": true,
+        "omitted_source_count": 0,
+        "payload_bytes": 37228,
+        "demand_span_coverage": {
+          "span_count": 130,
+          "omitted_visible_spans": 188,
+          "complete": false,
+          "sources_without_spans": [],
+          "source_count_without_spans": 0,
+          "method": "exact original spans; bounded root opening then round-robin discussion coverage, not semantic validation"
+        },
+        "interpretation_contract": "behavioral-demand-v1"
+      },
+      "call_number": 11,
+      "attempt_id": "9fe5b1a629df499baea3fba493b620f0:11"
+    },
+    {
+      "phase": "request",
+      "model": "gpt-6-luna",
+      "api_kind": "responses",
+      "response_id": "resp_0f703bd9e1b40400016acb6da5732c87d2a12911e89aa1772f",
+      "response_status": "completed",
+      "request_sha256": "dde4e4a603be78bee1578343b3158968aa522cf0ce7910b75801a585b7232d2c",
+      "request_bytes": 142747,
+      "context_coverage": {
+        "phase": "request",
+        "source_ids": [
+          "q0",
+          "q98",
+          "q95",
+          "q91",
+          "q89",
+          "q87",
+          "q85",
+          "q69",
+          "q57",
+          "q43",
+          "q39",
+          "q28",
+          "q25",
+          "q100",
+          "q99",
+          "q97",
+          "q96",
+          "q94",
+          "q93",
+          "q92",
+          "q90",
+          "q88",
+          "q86",
+          "q84",
+          "q83",
+          "q82",
+          "q81",
+          "q80",
+          "q79",
+          "q78",
+          "q77",
+          "q76",
+          "q75",
+          "q74",
+          "q73",
+          "q72",
+          "q71",
+          "q70",
+          "q68",
+          "q67",
+          "q66",
+          "q65",
+          "q64",
+          "q63",
+          "q62",
+          "q61",
+          "q60",
+          "q59",
+          "q58",
+          "q56",
+          "q55",
+          "q54",
+          "q53",
+          "q52",
+          "q51",
+          "q50",
+          "q49",
+          "q48",
+          "q47",
+          "q46",
+          "q45",
+          "q44",
+          "q42",
+          "q41",
+          "q40",
+          "q38",
+          "q37",
+          "q36",
+          "q35",
+          "q34",
+          "q33",
+          "q32",
+          "q31",
+          "q30",
+          "q29",
+          "q27",
+          "q26",
+          "q24",
+          "q23",
+          "q22",
+          "q21",
+          "q20",
+          "q19",
+          "q18",
+          "q17",
+          "q16",
+          "q15",
+          "q11"
+        ],
+        "omitted_source_ids": [
+          "q14",
+          "q13",
+          "q12",
+          "q10",
+          "q9",
+          "q8",
+          "q7",
+          "q6",
+          "q5",
+          "q4",
+          "q3",
+          "q2",
+          "q1"
+        ],
+        "source_id_limit": 400,
+        "source_id_limit_omissions": 0,
+        "shortened_discussion_ids": [],
+        "discussion_complete": false,
+        "note": "Selected evidence is not the whole repository. Missing context remains unknown; omitted discussion prevents a qualified positive.",
+        "optional_field_hint_scan_complete": true,
+        "target_reference_context": {
+          "revision": null,
+          "source_ids": [],
+          "omitted_source_ids": [],
+          "reference_only": true,
+          "absence_proves_novelty": false
+        },
+        "omitted_constraint_ids": [],
+        "constraint_hint_scan_complete": false,
+        "omitted_source_count": 13,
+        "payload_bytes": 108916,
+        "demand_span_coverage": {
+          "span_count": 195,
+          "omitted_visible_spans": 1356,
+          "complete": false,
+          "sources_without_spans": [],
+          "source_count_without_spans": 0,
+          "method": "exact original spans; bounded root opening then round-robin discussion coverage, not semantic validation"
+        },
+        "interpretation_contract": "behavioral-demand-v1"
+      },
+      "call_number": 12,
+      "attempt_id": "9fe5b1a629df499baea3fba493b620f0:12"
+    }
+  ]
+}
