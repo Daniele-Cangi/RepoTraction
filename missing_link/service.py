@@ -495,12 +495,16 @@ class Service:
             raise ValueError("Repository acquisition has not completed yet.")
         return job, repository
 
-    def behavioral_plan(self, job_id, candidate_index):
+    def behavioral_plan(self, job_id, candidate_index, *, reuse_repository=None, package_root=None):
         """Prepare the existing opt-in WASI prototype from a saved Discover proposal.
 
         No provider call, acquisition, execution or qualification occurs here.
+        An explicit package snapshot lets a saved demand search another source;
+        the stored job and its original source/proposal remain unchanged.
         """
         self._verify()
+        if (reuse_repository is None) != (package_root is None):
+            raise ValueError("Package reuse needs both an explicit snapshot and its package root.")
         from .behavioral import prepare_behavior_search
         from .behavior_contracts import VERSION
         job, repository = self.repository_for_job(job_id)
@@ -514,7 +518,8 @@ class Service:
         if not proposal["contracts"]:
             return {"status": "undetermined", "proposal": proposal, "plan": None}
         return {"status": "prepared", "proposal": proposal,
-                "plan": prepare_behavior_search(repository, proposal["contracts"])}
+                "plan": prepare_behavior_search(repository if reuse_repository is None else reuse_repository,
+                                                proposal["contracts"], package_root=package_root)}
 
     def context(self, job_id):
         self._verify()

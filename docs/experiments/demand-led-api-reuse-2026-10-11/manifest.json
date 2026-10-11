@@ -1,0 +1,32 @@
+{
+  "frozen_at": "2026-10-11T16:22:47.830620+00:00",
+  "historical_pr": 120,
+  "historical_head": "c5d2246bc05857844d5e0b06603534b2775c23a8",
+  "historical_observations_sha256": "b8963559c73dbf36a2af78a82d3e1580953b6418d14f754dfa8fef74f3969f59",
+  "paid_calls_authorized": 0,
+  "paid_calls": 0,
+  "execution_backend": "Existing WasiRunner; original limits unchanged",
+  "candidate_limit": 40,
+  "artifacts_limit": 64,
+  "comparison": "Two supplied packages x two search modes x three contracts, one execution each. No post-result tuning.",
+  "success": "At least one API composition passes all frozen examples/checks while slices over the same package do not.",
+  "novelty": "Known-solution/assisted controls only. No autonomous open-world novelty or advantageous target integration is claimed.",
+  "selection": "Operator chose packaging from the PR120 demand naming it, and pathspec from a related issue already naming a working solution. Neither is a blind source choice.",
+  "negative_controls": "Both cross-domain package/contract pairings and the historical raw-HTTP contract. Unknown runtime remains unknown.",
+  "export_rule": "First behavioral_witness in stable candidate order per positive contract; replay same frozen cases, not new validation.",
+  "ablation": "Compare direct API functions with compositions within the same enumerated catalog. Existing evaluator also applies its first-input identity ablation.",
+  "simple_alternative": "One stdlib baseline: any(fnmatchcase(path, pattern) for pattern in patterns), frozen before execution. A plausible incomplete shortcut, not the best known solution.",
+  "timing": "Runner duration and host prepare/assess durations kept separate; do not compare end-to-end PR120 cost with these offline-only runs.",
+  "code_sha256": {
+    "missing_link/api_reuse.py": "5241ea824763a095e87f16babd51cd482a234854a2ee1085b8c182044f6200ef",
+    "missing_link/behavioral.py": "29c832f5d22f51ea4a92b9de2b1f2c956c1029436723a2119e5b7fb9757c12c3",
+    "missing_link/behavior_examples.py": "4c9c561672b851ac34f5034a53eea7de4adf6aa08b9542d189c701624fe6f07d",
+    "missing_link/wasi_runner.py": "8ee7384cdd0e74479adbd815342bf2fa5bec7dfb058e267c2dfdaa5dfbfe5838"
+  },
+  "input_sha256": {
+    "contracts.json": "2e60371e2db3d711b1a63db1c1858dc5c80dd671e99156a9273ae0975c3dbe8b",
+    "packaging-snapshot.json": "b2cf4a5d7893519797792a5ab978065cf6fdc5e90fed362c61b597b53e6c5afb",
+    "plan-index.json": "2fad6b1a1da0586ccfcbb478ab4fb3b275b7580c9f4df5c1cf7cd2d19cbaf486",
+    "python-pathspec-snapshot.json": "bd2c220a7447f6a07106f54b4f3e38f5a86eb7f15a068207e3ebbb23f62d0dd4"
+  }
+}

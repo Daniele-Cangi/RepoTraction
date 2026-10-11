@@ -3,7 +3,7 @@
 This is a functional prototype, not a semantic oracle or a qualification path.
 The host parses source as data. Only an explicitly supplied WASI runner executes
 extracted functions. A witness describes finite observations of an extracted
-slice, not the behavior of an imported package or fulfillment of a whole issue.
+slice or supplied package API, never fulfillment of a whole issue.
 """
 from __future__ import annotations
 
@@ -205,14 +205,22 @@ def _validate_contracts(contracts):
         raise ValueError("Example contracts exceed the bounded experiment size.")
 
 
-def prepare_behavior_search(repository, contracts, *, limit=40):
+def prepare_behavior_search(repository, contracts, *, limit=40, package_root=None):
     """Prepare inspectable WASI artifacts. No imports or execution of source."""
     _validate_contracts(contracts)
     # Use one JSON representation for execution, retained evidence and replay.
     # Otherwise repr() can preserve Python tuples that the saved plan turns into lists.
     contracts = json.loads(json.dumps(contracts, ensure_ascii=False, allow_nan=False))
     from .wasi_runner import MAX_OUTPUT, MAX_ARTIFACT_BYTES, MAX_TOTAL_ARTIFACT_BYTES
-    candidates, omissions = extract_callables(repository, limit=limit)
+    package_files = {}
+    if package_root is None:
+        candidates, omissions = extract_callables(repository, limit=limit)
+    else:
+        from .api_reuse import package_candidates
+        arities = {len(case["args"]) for c in contracts for phase in ("examples", "checks") for case in c[phase]}
+        if any(c["input_kind"] == "boolean_mask" for c in contracts):
+            arities.add(2)  # Existing mask adapters supply two positional inputs.
+        candidates, omissions, package_files = package_candidates(repository, package_root, arities, limit=limit)
     # Keep the guest driver in one ordinary module, shared by tests and the
     # generated artifact. No new process runner, transport, store or scheduler.
     from . import behavior_examples
@@ -221,7 +229,7 @@ def prepare_behavior_search(repository, contracts, *, limit=40):
     # Account for source copies AND the generated evaluator/payload. Drop excess
     # slices without truncating executable code or changing the runner's limits.
     while True:
-        files = {f"project/candidate_{i}.py": c["code"] for i, c in enumerate(candidates)}
+        files = {**package_files, **{f"project/candidate_{i}.py": c["code"] for i, c in enumerate(candidates)}}
         payload = {"candidates": [{"id": c["id"], "name": c["name"],
             "file": f"/sandbox/work/project/candidate_{i}.py", "required_args": c["required_args"],
             "positional_args": c["positional_args"], "required_keywords": c["required_keywords"],
@@ -232,7 +240,7 @@ def prepare_behavior_search(repository, contracts, *, limit=40):
         sizes = {path: len(content.encode("utf-8")) for path, content in files.items()}
         oversized = next((i for i in range(len(candidates))
                           if sizes[f"project/candidate_{i}.py"] > MAX_ARTIFACT_BYTES), None)
-        if (oversized is None and max(sizes.values()) <= MAX_ARTIFACT_BYTES
+        if (oversized is None and len(files) <= 64 and max(sizes.values()) <= MAX_ARTIFACT_BYTES
                 and sum(sizes.values()) <= MAX_TOTAL_ARTIFACT_BYTES):
             break
         if not candidates:
@@ -240,7 +248,7 @@ def prepare_behavior_search(repository, contracts, *, limit=40):
         omitted = candidates.pop(oversized if oversized is not None else -1)
         omissions.append({"path": omitted["evidence"]["path"], "symbol": omitted["name"],
                           "reason": "Existing WASI artifact byte limit reached; source not truncated."})
-    return {"version": 1, "repository": repository["full_name"], "revision": repository["revision"],
+    plan = {"version": 1, "repository": repository["full_name"], "revision": repository["revision"],
         "candidates": candidates, "omissions": omissions, "contracts": contracts,
         "files": files, "entrypoint": "reviewed_tests/search.py",
         "artifact_sha256": {path: _sha(content) for path, content in files.items()},
@@ -248,6 +256,16 @@ def prepare_behavior_search(repository, contracts, *, limit=40):
             "Examples are specifications supplied by an operator/model, not autonomously understood prose.",
             "Finite behavioral observations do not prove equivalence, performance or target integration.",
             "Module initialization is omitted; annotations are deferred; only extracted-slice behavior is observed."]}
+    if package_root is not None:
+        plan["package_files"] = package_files
+        plan["limitations"] = [
+            "Public Python definitions in the supplied package; bounded positional calls and one construction/factory then method/property.",
+            "Package initialization runs only in WASI; unavailable modules, data or native dependencies are not stubbed.",
+            "The supplied snapshot may omit dependencies; static inheritance and runtime rebinding can limit catalog coverage.",
+            "Package modules reload between bindings; state may evolve across one binding's examples and checks.",
+            "Examples are supplied specifications; package selection is external to this search.",
+            "Finite observations do not establish equivalence, advantage, API stability, licensing suitability or target integration."]
+    return plan
 
 
 def assess_behavior_search(plan, execution):
@@ -325,7 +343,7 @@ def assess_behavior_search(plan, execution):
             "requested_operation": contract.get("operation", ""),
             "interpretation_origin": contract.get("interpretation_origin", "operator_supplied"),
             "uncovered_requirements": contract.get("uncovered_requirements", []),
-            "reuse_mode": "extraction_requires_review",
+            "reuse_mode": "package_api_requires_review" if candidate.get("api_binding") else "extraction_requires_review",
             "qualified": False, "target_integrated": False, "complete_fit": "unestablished"})
     return {"status": "observed", "matches": matches, "counterexamples": counterexamples,
         "candidate_count": len(candidates), "contract_count": len(contracts),
@@ -384,8 +402,8 @@ def prepare_behavior_bridge(plan, match):
     from . import behavior_examples
     from pathlib import Path
     evaluator = Path(behavior_examples.__file__).read_text(encoding="utf-8")
-    return {"kind": "extraction", "entrypoint": "reviewed_tests/verify.py",
-        "files": {"project/extracted.py": candidate["code"], "bridge/reuse.py": adapter,
+    proposal = {"kind": "extraction", "entrypoint": "reviewed_tests/verify.py",
+        "files": {**plan.get("package_files", {}), "project/extracted.py": candidate["code"], "bridge/reuse.py": adapter,
                   "reviewed_tests/verify.py": check, "reviewed_tests/behavior_examples.py": evaluator},
         "evidence": candidate["evidence"], "recipe": recipe,
         "existing_contribution": contract.get("operation", "Observed transformation"),
@@ -395,3 +413,14 @@ def prepare_behavior_bridge(plan, match):
                         "The slice is an internal helper; package API stability is not established.",
                         "List-based examples do not establish NumPy or target-application compatibility."],
         "qualified": False, "target_integrated": False}
+    if candidate.get("api_binding"):
+        proposal.update(kind="package_api", api_binding=candidate["api_binding"],
+            new_logic="Positional argument routing through an existing package API; no implementation of the requested operation.",
+            assumptions=["Review the pinned package and all license/notice obligations before adoption or redistribution.",
+                         "This bundle verifies a supplied snapshot, not an installed distribution or target dependency resolution.",
+                         "Runtime resources, API stability, performance and target integration remain unestablished."])
+    from .wasi_runner import MAX_ARTIFACT_BYTES, MAX_TOTAL_ARTIFACT_BYTES
+    sizes = [len(content.encode("utf-8")) for content in proposal["files"].values()]
+    if len(sizes) > 64 or max(sizes) > MAX_ARTIFACT_BYTES or sum(sizes) > MAX_TOTAL_ARTIFACT_BYTES:
+        raise ValueError("Export exceeds the existing WASI artifact limits.")
+    return proposal
