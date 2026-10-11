@@ -1,0 +1,475 @@
+[
+  {
+    "id": "demand-5958e7a5e9f0a93f5b85",
+    "kind": "public_demand",
+    "operation": "Return true if an active root-package PEP 440 version constraint permits the selected target version; otherwise return false.",
+    "input_kind": "arguments",
+    "runtime": "python",
+    "examples": [
+      {
+        "args": [
+          "==0.55.4",
+          "0.55.6"
+        ],
+        "expected": false
+      }
+    ],
+    "checks": [
+      {
+        "args": [
+          "<0.55.6",
+          "0.55.6"
+        ],
+        "expected": false
+      },
+      {
+        "args": [
+          ">=0.55,<0.56",
+          "0.55.6"
+        ],
+        "expected": true
+      },
+      {
+        "args": [
+          "==0.55.*",
+          "0.55.6"
+        ],
+        "expected": true
+      },
+      {
+        "args": [
+          ">=2.0,!=2.4.1,<3.0",
+          "2.4.1"
+        ],
+        "expected": false
+      },
+      {
+        "args": [
+          ">=2.4,<2.5",
+          "2.5"
+        ],
+        "expected": false
+      },
+      {
+        "args": [
+          "==2.4.*",
+          "2.4.9"
+        ],
+        "expected": true
+      },
+      {
+        "args": [
+          "==2.4.1",
+          "2.4.1"
+        ],
+        "expected": true
+      }
+    ],
+    "evidence": {
+      "url": "https://github.com/Q00/ouroboros/issues/2546",
+      "quote": "- **Supported conditions:** receipt-backed PyPI uv tool installations; active root-package PEP 440 constraints.",
+      "body": "[Bug] update invokes uv upgrade when the recorded version constraint excludes its target\n## Summary\n\n`ouroboros update` attempts a uv upgrade even when the running installation's receipt contains a root-package version constraint that excludes the selected update target. uv respects the constraint; Ouroboros then reports a package-step success before its version check detects that the package did not advance.\n\nThe proposed fix preserves intentional constraints and detects this conflict before package mutation, with actionable recovery guidance. It does not automatically remove pins.\n\n## Impact\n\nUsers of version-constrained persistent uv tool installs cannot complete the advertised update through this command. In an existing installation, dependencies changed while Ouroboros remained at 0.55.4; a fresh isolated reproduction had no dependency changes. Both paths ended with an unchanged Ouroboros version and exit code 1. The final stale-version guard works, but runs after the avoidable upgrade attempt and its intermediate success message.\n\n## Environment and evidence\n\n- Windows, uv 0.10.5, CPython 3.13.5.\n- Persistent uv tool installation: `ouroboros-ai[mcp]==0.55.4`; selected PyPI target: 0.55.6.\n- Explicit environment-local console, `update --yes --runtime none`, with isolated `UV_TOOL_DIR`, `UV_TOOL_BIN_DIR`, and cache. No model/provider is required.\n- The updater source in 0.55.4, 0.55.6 and current main `f587795674999a09b51530779640730eda55b174` is byte-identical (SHA-256 `39c33c09ac02d18aa65e4ffaf333e750efe6e579059e307ed42601bb41c6a3c3`).\n- Also executed the exact current-main `update.py` directly with `runpy.run_path` in that isolated installation (using its real 0.55.4 metadata and receipt, with no version mocks). It exited 1 and stayed at 0.55.4; uv updated an unrelated dependency during this run. The receipt retained `[mcp]` and `==0.55.4`. The real user's receipt and two runtime configuration files were unchanged by both reproductions.\n\n## Steps to reproduce\n\nIn a disposable PowerShell session with uv and Python 3.13 installed:\n\n```powershell\n$repro = Join-Path $env:TEMP ('ouroboros-pin-repro-' + [guid]::NewGuid().ToString('N'))\n$env:UV_TOOL_DIR = Join-Path $repro 'tools'\n$env:UV_TOOL_BIN_DIR = Join-Path $repro 'bin'\n$env:UV_CACHE_DIR = Join-Path $repro 'cache'\n$env:PYTHONUTF8 = '1'\nuv tool install --python 3.13 --no-python-downloads --no-config --default-index https://pypi.org/simple 'ouroboros-ai[mcp]==0.55.4'\n$ooo = Join-Path $env:UV_TOOL_DIR 'ouroboros-ai\\Scripts\\ouroboros.exe'\n& $ooo update --yes --runtime none\n$LASTEXITCODE\n& $ooo --version\n```\n\nThis reproduction needs a published target newer than the pinned installation. The target observed here was 0.55.6.\n\n## Expected behavior\n\nBefore invoking a package manager, detect that the recorded root-package requirement excludes the selected target. Report the constraint and target, preserve the intentional pin, exit unsuccessfully without package/setup/plugin mutation, and explain how an operator can deliberately revise the constraint while preserving the original uv environment, interpreter, extras, added requirements, and source options.\n\nOnly claim that the package was upgraded after verifying the installed version.\n\n## Actual behavior and relevant output\n\n```text\nInstalled: v0.55.4\nLatest:    v0.55.6\nUpdate available: v0.55.4 -> v0.55.6\nInstaller: uv\nProfile: ouroboros-ai==0.55.4\nNothing to upgrade\nhint: `ouroboros-ai` is pinned to `0.55.4` (installed with an exact version pin)\nSuccess: Upgraded ouroboros-ai==0.55.4 via uv\nWarning: Package upgrade returned success, but the refreshed installation is v0.55.4 (expected at least v0.55.6).\nRuntime integration was not refreshed.\n```\n\nThe receipt still contains `extras = [\"mcp\"]`; the missing brackets in the rendered profile above are display behavior, not evidence that extras were removed.\n\n[uv documents](https://docs.astral.sh/uv/guides/tools/#upgrading-tools) that tool upgrades retain installation-time version constraints. The updater currently calls `uv tool upgrade <tool_name>` without checking whether its selected target satisfies that constraint.\n\n## Proposed review boundary\n\n- **User problem:** predictable failure and premature success reporting when the uv receipt's root requirement excludes the update target.\n- **Supported conditions:** receipt-backed PyPI uv tool installations; active root-package PEP 440 constraints. Unconstrained or target-compatible requirements keep existing behavior.\n- **Owner/components:** existing CLI updater and its tests/documentation; a bounded `packaging` runtime dependency for standard specifier/marker handling rather than a custom parser.\n- **Non-goals:** automatic unpinning or receipt rewriting, selecting an intermediate version, solving added/transitive package constraints, pipx policy changes, integration recovery, or Windows executable-path repair.\n- **Policy:** the intentional constraint remains authoritative. Any later opt-in automatic unpin feature is a separate decision.\n\n## Acceptance criteria\n\n- [ ] A conflicting uv root requirement is detected before confirmation or package/setup/plugin subprocesses; the receipt and environment are not modified.\n- [ ] The diagnostic includes the blocking constraint, selected target, and receipt location, with guidance to deliberately revise only the version requirement while retaining the original manager/root, Python, extras, added requirements and index/options. Do not generate an incomplete reinstall command that silently drops those settings.\n- [ ] Exact pins, upper bounds and exclusions that reject the target are blocked; matching ranges/wildcards, inactive markers and unconstrained roots retain normal behavior. Additional packages' version constraints are not interpreted as Ouroboros constraints.\n- [ ] `--dry-run` reports the conflict and exits 1 without mutation. `--check` remains the existing version-only, non-mutating query.\n- [ ] A package-manager zero exit does not emit an upgrade-success claim before installed-version verification. The existing stale/unverifiable-version failure guard remains.\n- [ ] Regression tests cover blocked-path absence of mutations and compatible-path preservation.\n\n## Related work / duplicate search\n\nSearched open and closed issues/PRs for update, exact pins, version constraints, uv receipts and `uv tool upgrade`; no exact duplicate was found as of 2026-10-10.\n\n- #1859 established receipt-preserving updates and the post-upgrade version guard; this proposal keeps that contract.\n- #2541 concerns recovery after a successful, version-verified package upgrade and excludes package-manager failures.\n- #2536 concerns installed Codex plugin drift; #2066 concerned ephemeral uvx caching."
+    },
+    "citations": [
+      {
+        "citation_id": "s38cac1a6dd9db58b",
+        "source_id": "q0",
+        "url": "https://github.com/Q00/ouroboros/issues/2546",
+        "quote": "- **Supported conditions:** receipt-backed PyPI uv tool installations; active root-package PEP 440 constraints."
+      },
+      {
+        "citation_id": "sdee9e962bc281e01",
+        "source_id": "q0",
+        "url": "https://github.com/Q00/ouroboros/issues/2546",
+        "quote": "- [ ] Exact pins, upper bounds and exclusions that reject the target are blocked; matching ranges/wildcards, inactive markers and unconstrained roots retain normal behavior."
+      },
+      {
+        "citation_id": "s95248acee591fc32",
+        "source_id": "q0",
+        "url": "https://github.com/Q00/ouroboros/issues/2546",
+        "quote": "Unconstrained or target-compatible requirements keep existing behavior."
+      }
+    ],
+    "runtime_evidence": [
+      {
+        "citation_id": "s9c7ccbebe1a29574",
+        "source_id": "q0",
+        "url": "https://github.com/Q00/ouroboros/issues/2546",
+        "quote": "- **Owner/components:** existing CLI updater and its tests/documentation; a bounded `packaging` runtime dependency for standard specifier/marker handling rather than a custom parser."
+      }
+    ],
+    "case_evidence": {
+      "examples": [
+        {
+          "citations": [
+            {
+              "citation_id": "s33a8db1db2ed8ad8",
+              "source_id": "q0",
+              "url": "https://github.com/Q00/ouroboros/issues/2546",
+              "quote": "- Persistent uv tool installation: `ouroboros-ai[mcp]==0.55.4`; selected PyPI target: 0.55.6."
+            },
+            {
+              "citation_id": "s4a910f4ddd039ae2",
+              "source_id": "q0",
+              "url": "https://github.com/Q00/ouroboros/issues/2546",
+              "quote": "Before invoking a package manager, detect that the recorded root-package requirement excludes the selected target."
+            }
+          ],
+          "basis": "inferred",
+          "semantic_status": "model_proposed_unreviewed"
+        }
+      ],
+      "checks": [
+        {
+          "citations": [
+            {
+              "citation_id": "sdee9e962bc281e01",
+              "source_id": "q0",
+              "url": "https://github.com/Q00/ouroboros/issues/2546",
+              "quote": "- [ ] Exact pins, upper bounds and exclusions that reject the target are blocked; matching ranges/wildcards, inactive markers and unconstrained roots retain normal behavior."
+            }
+          ],
+          "basis": "inferred",
+          "semantic_status": "model_proposed_unreviewed"
+        },
+        {
+          "citations": [
+            {
+              "citation_id": "s95248acee591fc32",
+              "source_id": "q0",
+              "url": "https://github.com/Q00/ouroboros/issues/2546",
+              "quote": "Unconstrained or target-compatible requirements keep existing behavior."
+            },
+            {
+              "citation_id": "sdee9e962bc281e01",
+              "source_id": "q0",
+              "url": "https://github.com/Q00/ouroboros/issues/2546",
+              "quote": "- [ ] Exact pins, upper bounds and exclusions that reject the target are blocked; matching ranges/wildcards, inactive markers and unconstrained roots retain normal behavior."
+            }
+          ],
+          "basis": "inferred",
+          "semantic_status": "model_proposed_unreviewed"
+        },
+        {
+          "citations": [
+            {
+              "citation_id": "sdee9e962bc281e01",
+              "source_id": "q0",
+              "url": "https://github.com/Q00/ouroboros/issues/2546",
+              "quote": "- [ ] Exact pins, upper bounds and exclusions that reject the target are blocked; matching ranges/wildcards, inactive markers and unconstrained roots retain normal behavior."
+            }
+          ],
+          "basis": "inferred",
+          "semantic_status": "model_proposed_unreviewed"
+        }
+      ]
+    },
+    "preconditions": [
+      "The constraint is from the receipt-backed uv tool installation's root package, not an added or transitive package.",
+      "The constraint is valid PEP 440 syntax, and any environment marker has already been determined to be active.",
+      "The target is a valid version string."
+    ],
+    "assumptions": [
+      "The JSON arguments are ordered as [constraint, target_version].",
+      "The result is a JSON boolean: true means the target is permitted; false means it is rejected.",
+      "The named packaging runtime dependency supports implementing the requested standard constraint semantics."
+    ],
+    "uncovered_requirements": [
+      "Detecting the conflict before confirmation or package/setup/plugin subprocesses, and ensuring no mutation.",
+      "Reporting the constraint, target and receipt location, and providing recovery guidance that preserves installation settings.",
+      "Inactive marker evaluation and unconstrained-root representation.",
+      "Dry-run and check command behavior.",
+      "Upgrade-success reporting only after installed-version verification.",
+      "Diagnostic wording and behavior for malformed constraints or versions."
+    ],
+    "interpretation_origin": "model_proposed_unreviewed",
+    "check_origin": "Historical model checks followed by the frozen separate-context AI reviewer checks; neither is newly blind here.",
+    "qualified": false
+  },
+  {
+    "id": "ordered-ignore-patterns-control",
+    "kind": "synthetic_control",
+    "input_kind": "arguments",
+    "runtime": "python",
+    "operation": "Return whether an already-enumerated relative POSIX file path matches ordered gitignore-style patterns from one directory.",
+    "examples": [
+      {
+        "args": [
+          [
+            "*.py"
+          ],
+          "src/main.py"
+        ],
+        "expected": true
+      },
+      {
+        "args": [
+          [
+            "*.py"
+          ],
+          "README.md"
+        ],
+        "expected": false
+      }
+    ],
+    "checks": [
+      {
+        "args": [
+          [
+            "*.tmp",
+            "!keep.tmp"
+          ],
+          "keep.tmp"
+        ],
+        "expected": false
+      },
+      {
+        "args": [
+          [
+            "/build/"
+          ],
+          "build/out.txt"
+        ],
+        "expected": true
+      },
+      {
+        "args": [
+          [
+            "/build/"
+          ],
+          "src/build/out.txt"
+        ],
+        "expected": false
+      },
+      {
+        "args": [
+          [
+            "docs/**/*.txt"
+          ],
+          "docs/readme.txt"
+        ],
+        "expected": true
+      },
+      {
+        "args": [
+          [
+            "docs/**/*.txt"
+          ],
+          "docs/a/b/readme.txt"
+        ],
+        "expected": true
+      },
+      {
+        "args": [
+          [
+            "# comment",
+            "\\#literal"
+          ],
+          "#literal"
+        ],
+        "expected": true
+      },
+      {
+        "args": [
+          [
+            "*.tmp",
+            "!keep.tmp",
+            "keep.tmp"
+          ],
+          "keep.tmp"
+        ],
+        "expected": true
+      }
+    ],
+    "interpretation_origin": "operator_authored_control_after_reading_related_demand_and_package_signatures",
+    "check_origin": "operator_authored_not_independent_holdout",
+    "reference": "https://git-scm.com/docs/gitignore",
+    "uncovered_requirements": [
+      "Nested .gitignore traversal, excluded-parent pruning and precedence across files.",
+      "Target integration, performance and whether an owner needs or would adopt this solution."
+    ],
+    "qualified": false
+  },
+  {
+    "id": "demand-eb97596b6b64e856972c",
+    "kind": "public_demand",
+    "operation": "Preserve the complete raw request target, including percent-encoding and query text, through flow recording and HTTP/1 or HTTP/2 resend.",
+    "input_kind": "arguments",
+    "runtime": "unknown",
+    "examples": [
+      {
+        "args": [
+          "HTTP/1.1",
+          "/check_uuid/https%3A%2F%2Fsync.example%2Fsetuid%3Fa%3D1?q=x%3Ay"
+        ],
+        "expected": "/check_uuid/https%3A%2F%2Fsync.example%2Fsetuid%3Fa%3D1?q=x%3Ay"
+      }
+    ],
+    "checks": [
+      {
+        "args": [
+          "HTTP/2",
+          "/check_uuid/https%3A%2F%2Fsync.example%2Fsetuid%3Fa%3D1?q=x%3Ay"
+        ],
+        "expected": "/check_uuid/https%3A%2F%2Fsync.example%2Fsetuid%3Fa%3D1?q=x%3Ay"
+      },
+      {
+        "args": [
+          "HTTP/1.1",
+          "/x%3Fy?q=a%3Ab"
+        ],
+        "expected": "/x%3Fy?q=a%3Ab"
+      },
+      {
+        "args": [
+          "HTTP/1.1",
+          "/a%2Fb%3Fc?x=%2F&y=%3F"
+        ],
+        "expected": "/a%2Fb%3Fc?x=%2F&y=%3F"
+      },
+      {
+        "args": [
+          "HTTP/2",
+          "/a%2fb%3fc?x=%3a&x=%3A"
+        ],
+        "expected": "/a%2fb%3fc?x=%3a&x=%3A"
+      },
+      {
+        "args": [
+          "HTTP/1.1",
+          "/percent%252Fvalue?literal=%2525"
+        ],
+        "expected": "/percent%252Fvalue?literal=%2525"
+      },
+      {
+        "args": [
+          "HTTP/2",
+          "/plain/path?a=1&a=2&empty="
+        ],
+        "expected": "/plain/path?a=1&a=2&empty="
+      }
+    ],
+    "evidence": {
+      "url": "https://github.com/usk6666/yorishiro-proxy/issues/137",
+      "quote": "/check_uuid/https%3A%2F%2Fsync.example%2Fsetuid%3Fa%3D1?q=x%3Ay",
+      "body": "Request path stored with altered percent-encoding (HTTP/2 double-escaped, HTTP/1 decoded), and HTTP/1 resend sends a different path\n**Version:** v0.19.1 (0660409), macOS arm64. Same code on `main` (ee2f1c0). Separate from #135 and #136.\n\n### Symptom\n\nBytes forwarded upstream are correct. What is recorded is not, and an HTTP/1 resend rebuilds the request from that recorded form.\n\nI used a local HTTPS server that echoes the raw request target (hypercorn, ASGI `scope[\"raw_path\"]`), a proxy started with `-insecure`, and this path:\n\n```\n/check_uuid/https%3A%2F%2Fsync.example%2Fsetuid%3Fa%3D1?q=x%3Ay\n```\n\n| | HTTP/2 | HTTP/1.1 |\n|---|---|---|\n| received by the server through the proxy | exact | exact |\n| `url` stored in the flow | `/check_uuid/https%253A%252F%252Fsync.example%252Fsetuid%253Fa%253D1` | `/check_uuid/https://sync.example/setuid%3Fa=1` |\n| received by the server after `resend_http flow_id=\u2026` | exact | `/check_uuid/https://sync.example/setuid` (the decoded `%3F` became the query delimiter) |\n\nSo `query` shows a URL the client never sent. For HTTP/1, the decoded `%2F` and `%3F` change which resource the path names, and resending the flow sends a different request. The query string is never affected.\n\nI found it by matching flows against Chrome DevTools Protocol events, which carry the URL as the browser sent it. Ad-tech cookie-sync URLs (`\u2026/check_uuid/https%3A%2F%2F\u2026`) are where it shows up in real traffic.\n\n### Cause\n\n`HTTPMessage.Path` does not have the same meaning in both layers:\n\n- HTTP/2: the `:path` pseudo-header, in wire form (percent-encoding preserved).\n- HTTP/1: `parseRequestURI` in `internal/layer/http1/channel.go` returns `u.Path` from `url.ParseRequestURI`, which is the decoded form.\n\nThen `envelopeToFlow` in `internal/pipeline/record_step.go` builds `&url.URL{Path: m.Path, \u2026}`. `String()` escapes `Path`:\n\n- HTTP/2: the wire form is escaped a second time (`%3A` \u2192 `%253A`).\n- HTTP/1: the decoded form is re-escaped with the default rules, which do not escape `:` or `/`, so the original encoding is lost.\n\nOn resend, `resend_http_helpers.go` takes `sendFlow.URL.Path`, the decoded form. HTTP/2 comes back right only because decoding once undoes the double escape. The HTTP/1 wire encoder (`wireencode.go`) writes `msg.Path` verbatim into the request line, so the decoded `?` splits the target.\n\n### Fix tried locally\n\nKeep `Path` in wire form everywhere and convert to and from `net/url` in exactly one place (`Path` for the decoded form, `RawPath` for the wire bytes):\n\n- New `internal/envelope/wirepath.go`:\n  - `URLFromWirePath(scheme, host, wirePath, rawQuery)` sets `Path` to the unescaped form and `RawPath` to the wire bytes, so `String()` returns the wire bytes unchanged.\n  - `WirePath(u)` returns `RawPath` while it still encodes `Path`, otherwise `EscapedPath()`. It therefore stays correct after a consumer rewrites `Path`, as the fuzzer does.\n- `parseRequestURI` returns `envelope.WirePath(u)` instead of `u.Path`.\n- These call sites now use the helpers instead of building `url.URL{Path: \u2026}` or reading `URL.Path`:\n  - `record_step.go` (HTTP and gRPC branches);\n  - `resend_http_helpers.go` (path inherited from the flow, scope URL);\n  - `resend_ws_helpers.go` and `fuzz_ws_helpers.go` (upgrade path);\n  - `job/http_source.go` and `job/fuzz_http_source.go`.\n\nWith that change, all six cells of the table above are exact. Tests that fail without the change:\n\n- `TestParseRequestURI`, with three encoded cases added;\n- `TestRecordStep_FlowURLKeepsWirePathEncoding`;\n- `TestURLFromWirePathRoundTrip`, which covers `String()` \u2192 `url.Parse` \u2192 `WirePath`, the round trip the flow store does.\n\n`go test -race` passes on cmd, envelope, pipeline, layer/http1, layer/http2, mcp, job and flow.\n\nI can share the diff if it helps.\n\nThanks!\n"
+    },
+    "citations": [
+      {
+        "citation_id": "sea38c92ef9f54da3",
+        "source_id": "q0",
+        "url": "https://github.com/usk6666/yorishiro-proxy/issues/137",
+        "quote": "/check_uuid/https%3A%2F%2Fsync.example%2Fsetuid%3Fa%3D1?q=x%3Ay"
+      },
+      {
+        "citation_id": "sbf66611ff7ec8e1f",
+        "source_id": "q0",
+        "url": "https://github.com/usk6666/yorishiro-proxy/issues/137",
+        "quote": "What is recorded is not, and an HTTP/1 resend rebuilds the request from that recorded form."
+      },
+      {
+        "citation_id": "s6d2c61c3ece8cd5a",
+        "source_id": "q0",
+        "url": "https://github.com/usk6666/yorishiro-proxy/issues/137",
+        "quote": "Keep `Path` in wire form everywhere and convert to and from `net/url` in exactly one place (`Path` for the decoded form, `RawPath` for the wire bytes):"
+      },
+      {
+        "citation_id": "s48d64cad6ad87078",
+        "source_id": "q0",
+        "url": "https://github.com/usk6666/yorishiro-proxy/issues/137",
+        "quote": "With that change, all six cells of the table above are exact."
+      }
+    ],
+    "runtime_evidence": [],
+    "case_evidence": {
+      "examples": [
+        {
+          "citations": [
+            {
+              "citation_id": "sea38c92ef9f54da3",
+              "source_id": "q0",
+              "url": "https://github.com/usk6666/yorishiro-proxy/issues/137",
+              "quote": "/check_uuid/https%3A%2F%2Fsync.example%2Fsetuid%3Fa%3D1?q=x%3Ay"
+            },
+            {
+              "citation_id": "s48d64cad6ad87078",
+              "source_id": "q0",
+              "url": "https://github.com/usk6666/yorishiro-proxy/issues/137",
+              "quote": "With that change, all six cells of the table above are exact."
+            }
+          ],
+          "basis": "inferred",
+          "semantic_status": "model_proposed_unreviewed"
+        }
+      ],
+      "checks": [
+        {
+          "citations": [
+            {
+              "citation_id": "sea38c92ef9f54da3",
+              "source_id": "q0",
+              "url": "https://github.com/usk6666/yorishiro-proxy/issues/137",
+              "quote": "/check_uuid/https%3A%2F%2Fsync.example%2Fsetuid%3Fa%3D1?q=x%3Ay"
+            },
+            {
+              "citation_id": "s112fef7d65d10390",
+              "source_id": "q0",
+              "url": "https://github.com/usk6666/yorishiro-proxy/issues/137",
+              "quote": "- HTTP/2: the `:path` pseudo-header, in wire form (percent-encoding preserved)."
+            },
+            {
+              "citation_id": "s48d64cad6ad87078",
+              "source_id": "q0",
+              "url": "https://github.com/usk6666/yorishiro-proxy/issues/137",
+              "quote": "With that change, all six cells of the table above are exact."
+            }
+          ],
+          "basis": "inferred",
+          "semantic_status": "model_proposed_unreviewed"
+        },
+        {
+          "citations": [
+            {
+              "citation_id": "s4914dd792416f887",
+              "source_id": "q0",
+              "url": "https://github.com/usk6666/yorishiro-proxy/issues/137",
+              "quote": "For HTTP/1, the decoded `%2F` and `%3F` change which resource the path names, and resending the flow sends a different request."
+            },
+            {
+              "citation_id": "s0f40a467a7be10f3",
+              "source_id": "q0",
+              "url": "https://github.com/usk6666/yorishiro-proxy/issues/137",
+              "quote": "The query string is never affected."
+            },
+            {
+              "citation_id": "s6d2c61c3ece8cd5a",
+              "source_id": "q0",
+              "url": "https://github.com/usk6666/yorishiro-proxy/issues/137",
+              "quote": "Keep `Path` in wire form everywhere and convert to and from `net/url` in exactly one place (`Path` for the decoded form, `RawPath` for the wire bytes):"
+            }
+          ],
+          "basis": "inferred",
+          "semantic_status": "model_proposed_unreviewed"
+        }
+      ]
+    },
+    "preconditions": [
+      "The input is a valid raw HTTP request target.",
+      "The operation concerns flow recording and resend, not URL validation."
+    ],
+    "assumptions": [
+      "Represent the protocol and complete request target as positional JSON arguments.",
+      "Represent the result as the complete request target string.",
+      "A target is preserved byte-for-byte when the discussion says the corrected flow cells are exact."
+    ],
+    "uncovered_requirements": [
+      "URL scheme and host handling.",
+      "Malformed or unsupported request-target behavior.",
+      "Other WebSocket, gRPC, fuzzing, or job call-site behavior.",
+      "Whether every possible valid request target is supported."
+    ],
+    "interpretation_origin": "model_proposed_unreviewed",
+    "check_origin": "Historical model checks followed by the frozen separate-context AI reviewer checks; neither is newly blind here.",
+    "qualified": false
+  }
+]

@@ -233,6 +233,24 @@ class DiscoverProposalTests(unittest.TestCase):
         self.assertNotIn("behavioral_proposals", self.service.context(job["id"]))
         self.opener.assert_not_called()
 
+    def test_saved_demand_can_search_an_explicit_package_without_new_calls_or_writes(self):
+        job = self.run_job()
+        other = {"full_name": "example/other", "revision": "c" * 40, "public": True,
+                 "files": [{"path": "other/__init__.py", "text": "def unique(x): return list(dict.fromkeys(x))\n"}]}
+        with mock.patch("missing_link.wasi_runner.WasiRunner.run") as run:
+            prepared = self.service.behavioral_plan(job["id"], 0, reuse_repository=other, package_root="other")
+        run.assert_not_called()
+        self.assertEqual(prepared["plan"]["repository"], "example/other")
+        self.assertEqual(prepared["plan"]["contracts"], job["checkpoint"]["behavioral_proposals"]["0"]["contracts"])
+        self.assertEqual(self.service.store.get("jobs", job["id"]), job)
+        self.opener.return_value.open.assert_called_once()
+        for args in ({"reuse_repository": other}, {"package_root": "other"}):
+            with self.assertRaises(ValueError):
+                self.service.behavioral_plan(job["id"], 0, **args)
+        self.account = "bob"
+        with self.assertRaises(ActiveAccountChangedError):
+            self.service.behavioral_plan(job["id"], 0, reuse_repository=other, package_root="other")
+
     def test_undetermined_proposal_has_no_executable_plan(self):
         def unavailable(request, **kwargs):
             return io.BytesIO(json.dumps({"choices": [{"message": {"content": json.dumps({
