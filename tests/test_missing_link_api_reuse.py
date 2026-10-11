@@ -272,6 +272,25 @@ def original(values, index): return values[index]
         execution = execute_authored_files(plan["files"], plan["entrypoint"], plan["artifact_sha256"])
         self.assertEqual([m["entrypoint"] for m in assess_behavior_search(plan, execution)["matches"]], ["labpkg:original"])
 
+    def test_callable_proxy_or_function_metadata_cannot_impersonate_original_code(self):
+        source = '''def proxy(fn):
+    class Proxy:
+        __code__ = fn.__code__
+        def __call__(self, values, index): return values[index]
+    return Proxy()
+def redirect(fn):
+    def wrapper(values, index): return values[index]
+    wrapper.__func__ = fn
+    return wrapper
+@proxy
+def original(values, index): return "never called"
+@redirect
+def other(values, index): return "never called"
+'''
+        plan = prepare_behavior_search(snapshot({"labpkg/__init__.py": source}), [contract()], package_root="labpkg")
+        execution = execute_authored_files(plan["files"], plan["entrypoint"], plan["artifact_sha256"])
+        self.assertEqual(assess_behavior_search(plan, execution)["matches"], [])
+
     def test_replay_byte_budget_is_reserved_before_search(self):
         files = {"labpkg/__init__.py": "def f(x, y): return x+y\n"}
         files.update({f"labpkg/large{i}.py": "#" + "x" * 198900 + "\n" for i in range(10)})
@@ -333,6 +352,31 @@ Engine.build = Other.build
         plan = prepare_behavior_search(snapshot({"labpkg/__init__.py": factory}), [contract()], package_root="labpkg")
         execution = execute_authored_files(plan["files"], plan["entrypoint"], plan["artifact_sha256"])
         self.assertEqual(assess_behavior_search(plan, execution)["matches"], [])
+
+    def test_custom_metaclass_and_descendants_abstain(self):
+        source = '''class Meta(type):
+    def __call__(cls, values):
+        result = object.__new__(cls)
+        result.values = values
+        return result
+class Claimed(metaclass=Meta):
+    def __init__(self, values): raise AssertionError("never called")
+    def pick(self, index): return self.values[index]
+class Child(Claimed): pass
+'''
+        plan = prepare_behavior_search(snapshot({"labpkg/__init__.py": source}), [contract()], package_root="labpkg")
+        self.assertFalse(any(":" + name + "." in c["entrypoint"] for c in plan["candidates"] for name in ("Claimed", "Child")))
+        self.assertTrue(all(any(o.get("symbol") == name and "metaclass" in o["reason"] for o in plan["omissions"]) for name in ("Claimed", "Child")))
+
+    def test_writes_to_qualified_standard_bases_abstain(self):
+        for module, name in (("typing", "Generic"), ("abc", "ABC"), ("builtins", "object")):
+            with self.subTest(base=module + "." + name):
+                source = (f"import {module}\nclass Hidden:\n    def __init__(self): self.values = [0]\n"
+                          f"{module}.{name} = Hidden\nclass Claimed({module}.{name}):\n"
+                          "    def pick(self, values, index): return self.values[index]\n")
+                plan = prepare_behavior_search(snapshot({"labpkg/__init__.py": source}), [contract()], package_root="labpkg")
+                self.assertFalse(any(":Claimed." in c["entrypoint"] for c in plan["candidates"]))
+                self.assertTrue(any(o.get("symbol") == "Claimed" and "Unresolved" in o["reason"] for o in plan["omissions"]))
 
     def test_reexported_decorated_ancestor_and_unknown_base_abstain(self):
         files = {"labpkg/__init__.py": "",

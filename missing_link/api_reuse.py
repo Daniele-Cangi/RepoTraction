@@ -57,6 +57,10 @@ def _binding_events(body):
             if isinstance(node.ctx, (ast.Store, ast.Del)):
                 self.names.add(node.id)
 
+        def visit_Attribute(self, node):
+            if isinstance(node.ctx, (ast.Store, ast.Del)):
+                self.names.add(_dotted(node))
+
         def visit_FunctionDef(self, node):
             self.names.add(node.name)  # Do not descend into another scope.
 
@@ -125,7 +129,7 @@ def package_candidates(repository, package_root, arities, *, limit=40):
                 or len(content.encode("utf-8")) > MAX_ARTIFACT_BYTES
                 or redact_payload(content) != content):
             raise ValueError("Do not import altered, unsafe or oversized package source.")
-        artifact = "project/" + package + "/" + relative
+        artifact = safe_relative_path("project/" + package + "/" + relative)
         if artifact.casefold() in portable:
             raise ValueError("Duplicate package module path.")
         portable.add(artifact.casefold())
@@ -166,12 +170,12 @@ def package_candidates(repository, package_root, arities, *, limit=40):
                 target = ".".join(prefix + (node.module or "").split(".")).strip(".")
                 for item in node.names:
                     alias = item.asname or item.name
-                    if events.get(alias) == [node]:
+                    if events.get(alias) == [node] and not any(k.startswith(alias + '.') for k in events):
                         names[alias] = target + "." + item.name
             elif isinstance(node, ast.Import):
                 for item in node.names:
                     alias = item.asname or item.name.split(".")[0]
-                    if events.get(alias) == [node]:
+                    if events.get(alias) == [node] and not any(k.startswith(alias + '.') for k in events):
                         names[alias] = item.name if item.asname else item.name.split(".")[0]
             elif isinstance(node, ast.ClassDef) and definitions.get(node.name) is node:
                 identity = module + "." + node.name
@@ -195,6 +199,8 @@ def package_candidates(repository, package_root, arities, *, limit=40):
         module, file, cls = classes[identity]
         if cls.decorator_list:
             raise ValueError("Decorated classes may replace construction; omitted.")
+        if cls.keywords:
+            raise ValueError("Custom metaclass or class keywords may replace construction; omitted.")
         if len(cls.bases) > 1:
             raise ValueError("Multiple inheritance requires runtime MRO attribution; omitted.")
         result = {}
@@ -244,7 +250,9 @@ def package_candidates(repository, package_root, arities, *, limit=40):
             expression = checked("module." + binding["function"], locations[-1]) + "(*args)"
         else:
             split, member = binding["constructor_inputs"], binding["member"]
-            setup = f"    cls = module.{binding['class']}\n"
+            setup = (f"    cls = module.{binding['class']}\n"
+                     "    if type(cls).__call__ is not type.__call__:\n"
+                     "        raise ValueError('Custom metaclass construction is outside this grammar')\n")
             create = "cls"
             if binding["factory"]:
                 setup += (f"    factory = cls.{binding['factory']}\n"
@@ -253,6 +261,9 @@ def package_candidates(repository, package_root, arities, *, limit=40):
                 create = checked("factory", locations[0])
             elif isinstance(locations[0][1], ast.FunctionDef):
                 setup += "    " + checked("cls.__init__", locations[0]) + "\n"
+            else:
+                setup += ("    if cls.__init__ is not object.__init__:\n"
+                          "        raise ValueError('Unindexed runtime initializer')\n")
             setup += (f"    instance = {create}(*args[:{split}])\n"
                       "    if type(instance) is not cls:\n"
                       "        raise ValueError('Factory returned a different runtime class')\n")
@@ -267,9 +278,12 @@ def package_candidates(repository, package_root, arities, *, limit=40):
                           "        raise ValueError('Method is bound to a different instance')\n")
                 expression = checked("method", locations[-1]) + f"(*args[{split}:])"
         code = ("from importlib import import_module\n"
+                "from types import FunctionType, MethodType\n"
                 "def _checked(function, path, line):\n"
-                "    code = getattr(getattr(function, '__func__', function), '__code__', None)\n"
-                "    if code is None or code.co_filename.replace('\\\\', '/') != path or code.co_firstlineno != line:\n"
+                "    if type(function) not in (FunctionType, MethodType):\n"
+                "        raise ValueError('Callable is not an indexed Python function or method')\n"
+                "    code = (function.__func__ if type(function) is MethodType else function).__code__\n"
+                "    if code.co_filename.replace('\\\\', '/') != path or code.co_firstlineno != line:\n"
                 "        raise ValueError('Runtime callable differs from the indexed declaration')\n"
                 "    return function\n"
                 "def _reuse(*args):\n"
