@@ -1,0 +1,35 @@
+{
+  "verified_at": "2026-10-11",
+  "baseline_commit": "62398c8334f10589ef1cb364bcc6ef4fced335c5",
+  "query_freeze_commit": "e974715",
+  "acquisition_freeze_commit": "0b0d504",
+  "review_freeze_commit": "971243c",
+  "artifact_sha256": {
+    "blind-demand-review.json": "5bc9c2503c75acacaa8749ca34497c189fbcc2cbee8cfb0198171f93f8ea30ce",
+    "discussions.json": "7632d437e5287a75ec72b60c1adfa883b7304b643f0f22ee51f98f32b7b3460d",
+    "manifest.json": "506a625a66b1997336d5b83ce89d604de368de78af057512d0d082f477bfbc5f",
+    "queries.json": "460cc9bb0c1632fac59430c24c060626ddf2010b08974d08aeb5b604a94b5a2e",
+    "retrieval-metrics.json": "7a3ac691924460aafdc8f57da54063e31416705be90022ae54c6e56fd77ce8d1",
+    "run-result.json": "0798d4f262a0e82b700bd81bdeaf3436f8c297d5d626b91bfc99d18c9d23f6b7",
+    "search-pools.json": "42f183be3391ec4ce75b5b51bcf25e53ec91578fb3bc4951ca151dd8e3028392",
+    "selections.json": "dae408bb784c08900b6366c16bec0652f3726cab9bc4d0743de7f2ff0bf630f8",
+    "source-comparison.json": "ffa098ec1a4c9a87a89f9dda405c50cc43c8885ade1660e70b2088d9f76ebff3"
+  },
+  "checks": {
+    "all_json_parse": true,
+    "existing_redactor_idempotent": true,
+    "review_input_hash_matches": true,
+    "verbatim_quote_spans_verified": 47,
+    "exact_query_and_selection_replays": 6,
+    "paid_calls": 3,
+    "reserved_under_authorized_cap": true,
+    "source_code_executed_on_host": false,
+    "wasi_runs": 0,
+    "app_help_passed": true
+  },
+  "limitations": [
+    "No hash proves semantic correctness.",
+    "Independent review is bounded AI judgment.",
+    "Tests and CI status are reported separately in the PR."
+  ]
+}
