@@ -182,6 +182,8 @@ def package_candidates(repository, package_root, arities, *, limit=40):
         if identity not in classes or identity in active:
             return {}
         module, file, cls = classes[identity]
+        if cls.decorator_list:
+            raise ValueError("Decorated classes may replace construction; omitted.")
         if len(cls.bases) > 1:
             raise ValueError("Multiple inheritance requires runtime MRO attribution; omitted.")
         result = {}
@@ -232,7 +234,10 @@ def package_candidates(repository, package_root, arities, *, limit=40):
             setup = f"    cls = module.{binding['class']}\n"
             create = "cls"
             if binding["factory"]:
-                create = checked("cls." + binding["factory"], locations[0])
+                setup += (f"    factory = cls.{binding['factory']}\n"
+                          "    if getattr(factory, '__self__', None) is not cls:\n"
+                          "        raise ValueError('Factory is bound to a different class')\n")
+                create = checked("factory", locations[0])
             elif isinstance(locations[0][1], ast.FunctionDef):
                 setup += "    " + checked("cls.__init__", locations[0]) + "\n"
             setup += (f"    instance = {create}(*args[:{split}])\n"
@@ -244,7 +249,10 @@ def package_candidates(repository, package_root, arities, *, limit=40):
                           "        raise ValueError('Property dispatch differs from the indexed declaration')\n")
                 expression = checked("descriptor.fget", locations[-1]) + "(instance)"
             else:
-                expression = checked(f"getattr(instance, {member!r})", locations[-1]) + f"(*args[{split}:])"
+                setup += (f"    method = getattr(instance, {member!r})\n"
+                          "    if getattr(method, '__self__', None) is not instance:\n"
+                          "        raise ValueError('Method is bound to a different instance')\n")
+                expression = checked("method", locations[-1]) + f"(*args[{split}:])"
         code = ("from importlib import import_module\n"
                 "def _checked(function, path, line):\n"
                 "    code = getattr(getattr(function, '__func__', function), '__code__', None)\n"

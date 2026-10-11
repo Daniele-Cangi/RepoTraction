@@ -289,6 +289,51 @@ def original(values, index): return values[index]
         execution = execute_authored_files(plan["files"], plan["entrypoint"], plan["artifact_sha256"])
         self.assertEqual(len(assess_behavior_search(plan, execution)["matches"]), 1)
 
+    def test_decorated_classes_and_descendants_abstain_before_construction(self):
+        source = '''def replace(cls):
+    class Different(cls):
+        def __new__(kind):
+            value = object.__new__(kind)
+            value.values = ["replacement"]
+            return value
+    return Different
+@replace
+class Claimed:
+    def pick(self, values, index): return self.values[index]
+class Child(Claimed): pass
+'''
+        plan = prepare_behavior_search(snapshot({"labpkg/__init__.py": source}), [contract()], package_root="labpkg")
+        self.assertEqual(plan["candidates"], [])
+        self.assertEqual({o["symbol"] for o in plan["omissions"]}, {"Claimed", "Child"})
+
+    def test_same_class_delegation_is_outside_this_instance_composition_grammar(self):
+        source = '''class Engine:
+    def __init__(self, values):
+        self.values = ["not the requested values"]
+        other = object.__new__(type(self))
+        other.values = values
+        self.pick = other.pick
+    def pick(self, index): return self.values[index]
+'''
+        plan = prepare_behavior_search(snapshot({"labpkg/__init__.py": source}), [contract()], package_root="labpkg")
+        execution = execute_authored_files(plan["files"], plan["entrypoint"], plan["artifact_sha256"])
+        result = assess_behavior_search(plan, execution)
+        self.assertEqual(result["matches"], [])
+        self.assertTrue(any(c["first_failure"].get("error_type") == "ValueError" for c in result["counterexamples"]))
+        factory = '''class Engine:
+    @classmethod
+    def build(cls, values):
+        result = Engine()
+        result.values = values
+        return result
+    def pick(self, index): return self.values[index]
+class Other(Engine): pass
+Engine.build = Other.build
+'''
+        plan = prepare_behavior_search(snapshot({"labpkg/__init__.py": factory}), [contract()], package_root="labpkg")
+        execution = execute_authored_files(plan["files"], plan["entrypoint"], plan["artifact_sha256"])
+        self.assertEqual(assess_behavior_search(plan, execution)["matches"], [])
+
 
 if __name__ == "__main__":
     unittest.main()
