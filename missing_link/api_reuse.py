@@ -154,6 +154,10 @@ def package_candidates(repository, package_root, arities, *, limit=40):
     for module, (file, tree, initializer) in modules.items():
         events = _binding_events(tree.body)
         module_bindings[module] = events
+        if "*" in events:
+            omissions.append({"path": file["path"], "reason": "Wildcard imports make runtime declarations ambiguous; module catalog omitted."})
+            declarations[module], aliases[module] = {}, {}
+            continue
         definitions = {}
         for symbol, nodes in events.items():
             direct = [n for n in nodes if isinstance(n, (ast.FunctionDef, ast.ClassDef)) and n.name == symbol]
@@ -229,8 +233,14 @@ def package_candidates(repository, package_root, arities, *, limit=40):
         return result
 
     candidates = []
+    bound = min(limit, 63 - len(package_files))
 
     def add(module, label, locations, arity, binding):
+        if len(candidates) >= bound:
+            omissions.append({"entrypoint": module + ":" + label,
+                              "reason": "Existing callable/artifact count limit reached.",
+                              "remaining_catalog_not_enumerated": True})
+            return False
         primary_file, primary_node = locations[-1]
         def evidence(file, node):
             lines = file["text"].splitlines(keepends=True)
@@ -300,16 +310,20 @@ def package_candidates(repository, package_root, arities, *, limit=40):
             "dependencies": [evidence(f, n) for f, n in locations[:-1]],
             "runtime": "python", "scope": "imported_pinned_package_api",
             "api_binding": binding, "package": package})
+        return True
 
-    for module, (file, tree, _) in sorted(modules.items()):
+    # Enumerate in the final entrypoint order so the bound applies before wrapper
+    # creation. A package's submodules sort before its own colon-delimited names.
+    for module, (file, tree, _) in sorted(modules.items(), key=lambda item: item[0] + ":"):
         if any(part.startswith("_") for part in module.split(".")[1:]):
             continue  # Imported dependencies stay in the bundle, not in the API catalog.
-        for node in declarations[module].values():
+        for node in sorted(declarations[module].values(), key=lambda n: n.name + ("." if isinstance(n, ast.ClassDef) else "")):
             if isinstance(node, ast.FunctionDef) and not node.name.startswith("_"):
                 for arity in sorted(arities):
                     if _accepts(_arity(node), arity):
-                        add(module, node.name, [(file, node)], arity,
-                            {"kind": "function", "function": node.name})
+                        if not add(module, node.name, [(file, node)], arity,
+                                   {"kind": "function", "function": node.name}):
+                            return candidates, omissions, package_files
             if not isinstance(node, ast.ClassDef) or node.name.startswith("_"):
                 continue
             try:
@@ -321,24 +335,28 @@ def package_candidates(repository, package_root, arities, *, limit=40):
             factories = [(None, init[1] if init else None, init[0] if init else file)]
             factories += [(key, method, origin) for key, (origin, method, decorators) in available.items()
                           if not key.startswith("_") and "classmethod" in decorators]
-            for factory, constructor, constructor_file in factories:
-                for key, (origin, method, decorators) in available.items():
-                    if key.startswith("_") or decorators & {"classmethod", "staticmethod"}:
+            by_arity = {n: [] for n in range(max(arities) + 1)}
+            for key, (origin, method, decorators) in sorted(available.items()):
+                if key.startswith("_") or decorators & {"classmethod", "staticmethod"}:
+                    continue
+                prop = "property" in decorators
+                bounds = (0, 0) if prop else _arity(method, 1)
+                for n, options in by_arity.items():
+                    if _accepts(bounds, n):
+                        options.append((key, origin, method, prop))
+            for factory, constructor, constructor_file in sorted(factories, key=lambda f: (f[0] or "__init__") + "["):
+                for split in range(max(arities) + 1):
+                    if not _accepts(_arity(constructor, 1 if constructor else 0), split):
                         continue
-                    prop = "property" in decorators
-                    for arity in sorted(arities):
-                        for split in range(arity + 1):
-                            if not _accepts(_arity(constructor, 1 if constructor else 0), split):
-                                continue
-                            if not _accepts((0, 0) if prop else _arity(method, 1), arity - split):
-                                continue
-                            locations = ([(constructor_file, constructor)] if constructor else [(file, node)]) + [(origin, method)]
-                            binding = {"kind": "factory_property" if prop else "factory_method", "class": node.name,
-                                "factory": factory, "member": key, "constructor_inputs": split}
-                            add(module, f"{node.name}.{factory or '__init__'}[{split}].{key}", locations, arity, binding)
-    # Stable order, no names/docstrings/expected outputs used as relevance scores.
-    candidates.sort(key=lambda c: (c["entrypoint"], c["required_args"]))
-    bound = min(limit, 63 - len(package_files))
-    for candidate in candidates[bound:]:
-        omissions.append({"entrypoint": candidate["entrypoint"], "reason": "Existing callable/artifact count limit reached."})
-    return candidates[:bound], omissions, package_files
+                    # At most five small prefixes; never materialize the Cartesian
+                    # product of factories and members, including ineligible pairs.
+                    options = sorted((key, arity, origin, method, prop)
+                                     for arity in sorted(arities) if arity >= split
+                                     for key, origin, method, prop in by_arity[arity - split][:bound + 1])
+                    for key, arity, origin, method, prop in options:
+                        locations = ([(constructor_file, constructor)] if constructor else [(file, node)]) + [(origin, method)]
+                        binding = {"kind": "factory_property" if prop else "factory_method", "class": node.name,
+                            "factory": factory, "member": key, "constructor_inputs": split}
+                        if not add(module, f"{node.name}.{factory or '__init__'}[{split}].{key}", locations, arity, binding):
+                            return candidates, omissions, package_files
+    return candidates, omissions, package_files

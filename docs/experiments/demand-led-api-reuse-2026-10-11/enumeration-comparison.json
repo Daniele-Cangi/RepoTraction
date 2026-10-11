@@ -1,0 +1,686 @@
+{
+  "at": "2026-10-11T18:00:50.115873+00:00",
+  "paid_calls": 0,
+  "new_executions": 0,
+  "change": "Omit wildcard-import catalogs and apply the existing candidate bound during lexicographically ordered enumeration. Summarize unenumerated remainder instead of expanding all omitted compositions.",
+  "code_sha256": "2e536642da9362227e13655cb89a3fcf47498ae041c57b384d68d3d0336ee730",
+  "prior_manifest_sha256": "ef19d5abc4df476f6d86e0062dd6e9e75ec53cee4324dde7d83b03286dcded8c",
+  "comparisons": [
+    {
+      "key": "packaging-package_api-demand-5958e7a5e9f0a93f5b85",
+      "candidate_count": 24,
+      "same_candidate_ids_and_order": true,
+      "same_executable_artifact_hashes": true,
+      "plan_sha256": "2ef264e4a5573672596b2abaf54ab7279e6c539dbab0727cf228fdcb7243f0b5",
+      "omissions": [
+        {
+          "path": "src/packaging/dependency_groups.py",
+          "symbol": "CyclicDependencyGroup",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/dependency_groups.py",
+          "symbol": "DuplicateGroupNames",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/dependency_groups.py",
+          "symbol": "InvalidDependencyGroupObject",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/direct_url.py",
+          "symbol": "ArchiveInfo",
+          "reason": "Decorated classes may replace construction; omitted."
+        },
+        {
+          "path": "src/packaging/direct_url.py",
+          "symbol": "DirInfo",
+          "reason": "Decorated classes may replace construction; omitted."
+        },
+        {
+          "path": "src/packaging/direct_url.py",
+          "symbol": "DirectUrl",
+          "reason": "Decorated classes may replace construction; omitted."
+        },
+        {
+          "path": "src/packaging/direct_url.py",
+          "symbol": "DirectUrlValidationError",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/direct_url.py",
+          "symbol": "VcsInfo",
+          "reason": "Decorated classes may replace construction; omitted."
+        },
+        {
+          "path": "src/packaging/licenses/__init__.py",
+          "symbol": "InvalidLicenseExpression",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/markers.py",
+          "symbol": "Environment",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/markers.py",
+          "symbol": "InvalidMarker",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/markers.py",
+          "symbol": "UndefinedComparison",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/markers.py",
+          "symbol": "UndefinedEnvironmentName",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/metadata.py",
+          "symbol": "InvalidMetadata",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/metadata.py",
+          "symbol": "RFC822Message",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/metadata.py",
+          "symbol": "RFC822Policy",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/metadata.py",
+          "symbol": "RawMetadata",
+          "reason": "Custom metaclass or class keywords may replace construction; omitted."
+        },
+        {
+          "path": "src/packaging/pylock.py",
+          "symbol": "Package",
+          "reason": "Decorated classes may replace construction; omitted."
+        },
+        {
+          "path": "src/packaging/pylock.py",
+          "symbol": "PackageArchive",
+          "reason": "Decorated classes may replace construction; omitted."
+        },
+        {
+          "path": "src/packaging/pylock.py",
+          "symbol": "PackageDirectory",
+          "reason": "Decorated classes may replace construction; omitted."
+        },
+        {
+          "path": "src/packaging/pylock.py",
+          "symbol": "PackageSdist",
+          "reason": "Decorated classes may replace construction; omitted."
+        },
+        {
+          "path": "src/packaging/pylock.py",
+          "symbol": "PackageVcs",
+          "reason": "Decorated classes may replace construction; omitted."
+        },
+        {
+          "path": "src/packaging/pylock.py",
+          "symbol": "PackageWheel",
+          "reason": "Decorated classes may replace construction; omitted."
+        },
+        {
+          "path": "src/packaging/pylock.py",
+          "symbol": "Pylock",
+          "reason": "Decorated classes may replace construction; omitted."
+        },
+        {
+          "path": "src/packaging/pylock.py",
+          "symbol": "PylockSelectError",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/pylock.py",
+          "symbol": "PylockUnsupportedVersionError",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/pylock.py",
+          "symbol": "PylockValidationError",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/requirements.py",
+          "symbol": "InvalidRequirement",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/specifiers.py",
+          "symbol": "BaseSpecifier",
+          "reason": "Custom metaclass or class keywords may replace construction; omitted."
+        },
+        {
+          "path": "src/packaging/specifiers.py",
+          "symbol": "InvalidSpecifier",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/specifiers.py",
+          "symbol": "Specifier",
+          "reason": "Custom metaclass or class keywords may replace construction; omitted."
+        },
+        {
+          "path": "src/packaging/specifiers.py",
+          "symbol": "SpecifierSet",
+          "reason": "Custom metaclass or class keywords may replace construction; omitted."
+        },
+        {
+          "path": "src/packaging/tags.py",
+          "symbol": "InvalidTag",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/tags.py",
+          "symbol": "TooManyTagsError",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/tags.py",
+          "symbol": "UnsortedTagsError",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/utils.py",
+          "symbol": "InvalidName",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/utils.py",
+          "symbol": "InvalidSdistFilename",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/utils.py",
+          "symbol": "InvalidWheelFilename",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/version.py",
+          "symbol": "InvalidVersion",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        }
+      ],
+      "execution_reused_from": "callable-results.json"
+    },
+    {
+      "key": "packaging-package_api-ordered-ignore-patterns-control",
+      "candidate_count": 24,
+      "same_candidate_ids_and_order": true,
+      "same_executable_artifact_hashes": true,
+      "plan_sha256": "21f11205dc72a65b806161779a239ecb10af4fa3461c96a2c4083ef9929ae0d0",
+      "omissions": [
+        {
+          "path": "src/packaging/dependency_groups.py",
+          "symbol": "CyclicDependencyGroup",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/dependency_groups.py",
+          "symbol": "DuplicateGroupNames",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/dependency_groups.py",
+          "symbol": "InvalidDependencyGroupObject",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/direct_url.py",
+          "symbol": "ArchiveInfo",
+          "reason": "Decorated classes may replace construction; omitted."
+        },
+        {
+          "path": "src/packaging/direct_url.py",
+          "symbol": "DirInfo",
+          "reason": "Decorated classes may replace construction; omitted."
+        },
+        {
+          "path": "src/packaging/direct_url.py",
+          "symbol": "DirectUrl",
+          "reason": "Decorated classes may replace construction; omitted."
+        },
+        {
+          "path": "src/packaging/direct_url.py",
+          "symbol": "DirectUrlValidationError",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/direct_url.py",
+          "symbol": "VcsInfo",
+          "reason": "Decorated classes may replace construction; omitted."
+        },
+        {
+          "path": "src/packaging/licenses/__init__.py",
+          "symbol": "InvalidLicenseExpression",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/markers.py",
+          "symbol": "Environment",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/markers.py",
+          "symbol": "InvalidMarker",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/markers.py",
+          "symbol": "UndefinedComparison",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/markers.py",
+          "symbol": "UndefinedEnvironmentName",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/metadata.py",
+          "symbol": "InvalidMetadata",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/metadata.py",
+          "symbol": "RFC822Message",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/metadata.py",
+          "symbol": "RFC822Policy",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/metadata.py",
+          "symbol": "RawMetadata",
+          "reason": "Custom metaclass or class keywords may replace construction; omitted."
+        },
+        {
+          "path": "src/packaging/pylock.py",
+          "symbol": "Package",
+          "reason": "Decorated classes may replace construction; omitted."
+        },
+        {
+          "path": "src/packaging/pylock.py",
+          "symbol": "PackageArchive",
+          "reason": "Decorated classes may replace construction; omitted."
+        },
+        {
+          "path": "src/packaging/pylock.py",
+          "symbol": "PackageDirectory",
+          "reason": "Decorated classes may replace construction; omitted."
+        },
+        {
+          "path": "src/packaging/pylock.py",
+          "symbol": "PackageSdist",
+          "reason": "Decorated classes may replace construction; omitted."
+        },
+        {
+          "path": "src/packaging/pylock.py",
+          "symbol": "PackageVcs",
+          "reason": "Decorated classes may replace construction; omitted."
+        },
+        {
+          "path": "src/packaging/pylock.py",
+          "symbol": "PackageWheel",
+          "reason": "Decorated classes may replace construction; omitted."
+        },
+        {
+          "path": "src/packaging/pylock.py",
+          "symbol": "Pylock",
+          "reason": "Decorated classes may replace construction; omitted."
+        },
+        {
+          "path": "src/packaging/pylock.py",
+          "symbol": "PylockSelectError",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/pylock.py",
+          "symbol": "PylockUnsupportedVersionError",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/pylock.py",
+          "symbol": "PylockValidationError",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/requirements.py",
+          "symbol": "InvalidRequirement",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/specifiers.py",
+          "symbol": "BaseSpecifier",
+          "reason": "Custom metaclass or class keywords may replace construction; omitted."
+        },
+        {
+          "path": "src/packaging/specifiers.py",
+          "symbol": "InvalidSpecifier",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/specifiers.py",
+          "symbol": "Specifier",
+          "reason": "Custom metaclass or class keywords may replace construction; omitted."
+        },
+        {
+          "path": "src/packaging/specifiers.py",
+          "symbol": "SpecifierSet",
+          "reason": "Custom metaclass or class keywords may replace construction; omitted."
+        },
+        {
+          "path": "src/packaging/tags.py",
+          "symbol": "InvalidTag",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/tags.py",
+          "symbol": "TooManyTagsError",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/tags.py",
+          "symbol": "UnsortedTagsError",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/utils.py",
+          "symbol": "InvalidName",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/utils.py",
+          "symbol": "InvalidSdistFilename",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/utils.py",
+          "symbol": "InvalidWheelFilename",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/version.py",
+          "symbol": "InvalidVersion",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        }
+      ],
+      "execution_reused_from": "callable-results.json"
+    },
+    {
+      "key": "packaging-package_api-demand-eb97596b6b64e856972c",
+      "candidate_count": 24,
+      "same_candidate_ids_and_order": true,
+      "same_executable_artifact_hashes": true,
+      "plan_sha256": "b1e60211aeb4e36160edcac391a89ab9a64403146b444c8281773bdb53490b39",
+      "omissions": [
+        {
+          "path": "src/packaging/dependency_groups.py",
+          "symbol": "CyclicDependencyGroup",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/dependency_groups.py",
+          "symbol": "DuplicateGroupNames",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/dependency_groups.py",
+          "symbol": "InvalidDependencyGroupObject",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/direct_url.py",
+          "symbol": "ArchiveInfo",
+          "reason": "Decorated classes may replace construction; omitted."
+        },
+        {
+          "path": "src/packaging/direct_url.py",
+          "symbol": "DirInfo",
+          "reason": "Decorated classes may replace construction; omitted."
+        },
+        {
+          "path": "src/packaging/direct_url.py",
+          "symbol": "DirectUrl",
+          "reason": "Decorated classes may replace construction; omitted."
+        },
+        {
+          "path": "src/packaging/direct_url.py",
+          "symbol": "DirectUrlValidationError",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/direct_url.py",
+          "symbol": "VcsInfo",
+          "reason": "Decorated classes may replace construction; omitted."
+        },
+        {
+          "path": "src/packaging/licenses/__init__.py",
+          "symbol": "InvalidLicenseExpression",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/markers.py",
+          "symbol": "Environment",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/markers.py",
+          "symbol": "InvalidMarker",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/markers.py",
+          "symbol": "UndefinedComparison",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/markers.py",
+          "symbol": "UndefinedEnvironmentName",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/metadata.py",
+          "symbol": "InvalidMetadata",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/metadata.py",
+          "symbol": "RFC822Message",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/metadata.py",
+          "symbol": "RFC822Policy",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/metadata.py",
+          "symbol": "RawMetadata",
+          "reason": "Custom metaclass or class keywords may replace construction; omitted."
+        },
+        {
+          "path": "src/packaging/pylock.py",
+          "symbol": "Package",
+          "reason": "Decorated classes may replace construction; omitted."
+        },
+        {
+          "path": "src/packaging/pylock.py",
+          "symbol": "PackageArchive",
+          "reason": "Decorated classes may replace construction; omitted."
+        },
+        {
+          "path": "src/packaging/pylock.py",
+          "symbol": "PackageDirectory",
+          "reason": "Decorated classes may replace construction; omitted."
+        },
+        {
+          "path": "src/packaging/pylock.py",
+          "symbol": "PackageSdist",
+          "reason": "Decorated classes may replace construction; omitted."
+        },
+        {
+          "path": "src/packaging/pylock.py",
+          "symbol": "PackageVcs",
+          "reason": "Decorated classes may replace construction; omitted."
+        },
+        {
+          "path": "src/packaging/pylock.py",
+          "symbol": "PackageWheel",
+          "reason": "Decorated classes may replace construction; omitted."
+        },
+        {
+          "path": "src/packaging/pylock.py",
+          "symbol": "Pylock",
+          "reason": "Decorated classes may replace construction; omitted."
+        },
+        {
+          "path": "src/packaging/pylock.py",
+          "symbol": "PylockSelectError",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/pylock.py",
+          "symbol": "PylockUnsupportedVersionError",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/pylock.py",
+          "symbol": "PylockValidationError",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/requirements.py",
+          "symbol": "InvalidRequirement",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/specifiers.py",
+          "symbol": "BaseSpecifier",
+          "reason": "Custom metaclass or class keywords may replace construction; omitted."
+        },
+        {
+          "path": "src/packaging/specifiers.py",
+          "symbol": "InvalidSpecifier",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/specifiers.py",
+          "symbol": "Specifier",
+          "reason": "Custom metaclass or class keywords may replace construction; omitted."
+        },
+        {
+          "path": "src/packaging/specifiers.py",
+          "symbol": "SpecifierSet",
+          "reason": "Custom metaclass or class keywords may replace construction; omitted."
+        },
+        {
+          "path": "src/packaging/tags.py",
+          "symbol": "InvalidTag",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/tags.py",
+          "symbol": "TooManyTagsError",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/tags.py",
+          "symbol": "UnsortedTagsError",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/utils.py",
+          "symbol": "InvalidName",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/utils.py",
+          "symbol": "InvalidSdistFilename",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/utils.py",
+          "symbol": "InvalidWheelFilename",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        },
+        {
+          "path": "src/packaging/version.py",
+          "symbol": "InvalidVersion",
+          "reason": "Unresolved ancestor; construction provenance is unknown."
+        }
+      ],
+      "execution_reused_from": "callable-results.json"
+    },
+    {
+      "key": "python-pathspec-package_api-demand-5958e7a5e9f0a93f5b85",
+      "candidate_count": 32,
+      "same_candidate_ids_and_order": true,
+      "same_executable_artifact_hashes": true,
+      "plan_sha256": "9ae8de2696f3dc7d2dfff468c48539513a306b8f166ade4bd1b25ed9d04dcd2f",
+      "omissions": [
+        {
+          "path": "pathspec/pattern.py",
+          "symbol": "RegexMatchResult",
+          "reason": "Decorated classes may replace construction; omitted."
+        },
+        {
+          "entrypoint": "pathspec.pattern:RegexPattern.__init__[1].match_file",
+          "reason": "Existing callable/artifact count limit reached.",
+          "remaining_catalog_not_enumerated": true
+        }
+      ],
+      "execution_reused_from": "callable-results.json"
+    },
+    {
+      "key": "python-pathspec-package_api-ordered-ignore-patterns-control",
+      "candidate_count": 32,
+      "same_candidate_ids_and_order": true,
+      "same_executable_artifact_hashes": true,
+      "plan_sha256": "8ba8492a4f04ba29fb977dfc05f3a591a78d7191cd3184f8e042094ac3be5455",
+      "omissions": [
+        {
+          "path": "pathspec/pattern.py",
+          "symbol": "RegexMatchResult",
+          "reason": "Decorated classes may replace construction; omitted."
+        },
+        {
+          "entrypoint": "pathspec.pattern:RegexPattern.__init__[1].match_file",
+          "reason": "Existing callable/artifact count limit reached.",
+          "remaining_catalog_not_enumerated": true
+        }
+      ],
+      "execution_reused_from": "callable-results.json"
+    },
+    {
+      "key": "python-pathspec-package_api-demand-eb97596b6b64e856972c",
+      "candidate_count": 32,
+      "same_candidate_ids_and_order": true,
+      "same_executable_artifact_hashes": true,
+      "plan_sha256": "5a84956086f712e9fdb474aa806abcaaffe2c7477256b6699623a2f71dcdfd1e",
+      "omissions": [
+        {
+          "path": "pathspec/pattern.py",
+          "symbol": "RegexMatchResult",
+          "reason": "Decorated classes may replace construction; omitted."
+        },
+        {
+          "entrypoint": "pathspec.pattern:RegexPattern.__init__[1].match_file",
+          "reason": "Existing callable/artifact count limit reached.",
+          "remaining_catalog_not_enumerated": true
+        }
+      ],
+      "execution_reused_from": "callable-results.json"
+    }
+  ],
+  "limitations": "Coverage beyond the first omitted eligible binding is no longer enumerated or counted. Existing candidate limits and selected bindings are unchanged on all frozen study inputs."
+}

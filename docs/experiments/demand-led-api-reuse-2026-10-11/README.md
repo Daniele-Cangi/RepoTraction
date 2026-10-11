@@ -61,7 +61,11 @@ bounded API grammar is small enough to implement and challenge now.
   decorator/member replacement becomes a failed observation, not false evidence;
   this is not adversarial execution attestation.
   Positional arity gates eligibility; ordering is deterministic, not a learned
-  or lexical ranking. No method name is supplied as an answer.
+  or lexical ranking. No method name is supplied as an answer. Modules with
+  wildcard imports have no catalog; dependent unresolved classes also abstain.
+  Enumeration stops at the existing candidate bound before creating additional
+  wrappers. Unenumerated remainder is explicit but is no longer exhaustively
+  counted or listed.
 - `prepare_behavior_search(..., package_root=...)` uses that optional catalog.
   The default extractor remains unchanged. Source files and wrappers share the
   existing 64-file, 256-KiB/file, 2-MB/total and 40-candidate bounds. Omitted
@@ -232,6 +236,14 @@ In particular, Specifier/SpecifierSet compositions are now omitted, so this
 version does not assess their PEP 440 capability even apart from fuel exhaustion.
 This is a coverage loss, not an equivalent guarantee or a semantic rejection.
 No source, contract, case, ranking rule or historical record was changed.
+
+The wildcard-import and bounded-enumeration review fixes were checked against
+all six final API plans ([comparison](enumeration-comparison.json)). Selected
+candidate identities, order and every executable artifact hash are unchanged;
+the preceding executions and fresh export therefore still apply. Only omission
+metadata changes: after the first excess eligible binding, the remaining catalog
+is explicitly unenumerated. An authored 202-factory/200-method regression checks
+that only the first 40 wrappers are materialized in the same lexical order.
 
 The review's proposed `candidate_0` name restriction was not adopted: a directory
 `candidate_0/` and a file `candidate_0.py` are distinct paths. An authored regression

@@ -6,6 +6,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 from missing_link.behavioral import prepare_behavior_search, assess_behavior_search, prepare_behavior_bridge
 
@@ -377,6 +378,36 @@ class Child(Claimed): pass
                 plan = prepare_behavior_search(snapshot({"labpkg/__init__.py": source}), [contract()], package_root="labpkg")
                 self.assertFalse(any(":Claimed." in c["entrypoint"] for c in plan["candidates"]))
                 self.assertTrue(any(o.get("symbol") == "Claimed" and "Unresolved" in o["reason"] for o in plan["omissions"]))
+
+    def test_wildcard_imports_omit_module_declarations_and_dependents(self):
+        files = {"labpkg/__init__.py": "",
+                 "labpkg/base.py": "class Claimed:\n    def pick(self, values, index): return values[index]\nfrom replacement import *\n",
+                 "labpkg/api.py": "from .base import Claimed\nclass Child(Claimed): pass\n"}
+        plan = prepare_behavior_search(snapshot(files), [contract()], package_root="labpkg")
+        self.assertEqual(plan["candidates"], [])
+        self.assertTrue(any("Wildcard" in o["reason"] for o in plan["omissions"]))
+        self.assertTrue(any(o.get("symbol") == "Child" and "Unresolved" in o["reason"] for o in plan["omissions"]))
+
+    def test_composition_limit_precedes_wrapper_materialization_in_stable_order(self):
+        from missing_link.api_reuse import _sha
+        source = "class Engine:\n    def __init__(self, a, b, c): pass\n"
+        factories = ["F", "FA"] + [f"make{i:03}" for i in range(200)]
+        for name in factories:
+            source += f"    @classmethod\n    def {name}(cls): return cls(None, None, None)\n"
+        for i in range(200):
+            source += f"    def m{i:03}(self, values, index): return values[index]\n"
+        calls = 0
+        def bounded_sha(value):
+            nonlocal calls
+            calls += 1
+            if calls > 220:
+                self.fail("Materialized wrappers beyond the 40-candidate limit")
+            return _sha(value)
+        with patch("missing_link.api_reuse._sha", side_effect=bounded_sha):
+            plan = prepare_behavior_search(snapshot({"labpkg/__init__.py": source}), [contract()], package_root="labpkg")
+        self.assertEqual([c["entrypoint"] for c in plan["candidates"]],
+                         [f"labpkg:Engine.FA[0].m{i:03}" for i in range(40)])
+        self.assertEqual(sum(bool(o.get("remaining_catalog_not_enumerated")) for o in plan["omissions"]), 1)
 
     def test_reexported_decorated_ancestor_and_unknown_base_abstain(self):
         files = {"labpkg/__init__.py": "",
