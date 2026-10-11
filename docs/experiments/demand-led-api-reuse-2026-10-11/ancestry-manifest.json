@@ -1,0 +1,37 @@
+{
+  "frozen_at": "2026-10-11T17:34:02.293710+00:00",
+  "historical_pr": 120,
+  "historical_head": "c5d2246bc05857844d5e0b06603534b2775c23a8",
+  "historical_observations_sha256": "b8963559c73dbf36a2af78a82d3e1580953b6418d14f754dfa8fef74f3969f59",
+  "paid_calls_authorized": 0,
+  "paid_calls": 0,
+  "execution_backend": "Existing WasiRunner; original limits unchanged",
+  "candidate_limit": 40,
+  "artifacts_limit": 64,
+  "comparison": "Re-execute three changed packaging API plans. Reuse three byte-identical pathspec API executions from receiver-results.json and six byte-identical slice plans from guard-results.json.",
+  "success": "At least one API composition passes all frozen examples/checks while slices over the same package do not.",
+  "novelty": "Known-solution/assisted controls only. No autonomous open-world novelty or advantageous target integration is claimed.",
+  "selection": "Operator chose packaging from the PR120 demand naming it, and pathspec from a related issue already naming a working solution. Neither is a blind source choice.",
+  "negative_controls": "Both cross-domain package/contract pairings and the historical raw-HTTP contract. Unknown runtime remains unknown.",
+  "export_rule": "First behavioral_witness in stable candidate order per positive contract; replay same frozen cases, not new validation.",
+  "ablation": "Compare direct API functions with compositions within the same enumerated catalog. Existing evaluator also applies its first-input identity ablation.",
+  "simple_alternative": "One stdlib baseline: any(fnmatchcase(path, pattern) for pattern in patterns), frozen before execution. A plausible incomplete shortcut, not the best known solution.",
+  "timing": "Runner duration and host prepare/assess durations kept separate; do not compare end-to-end PR120 cost with these offline-only runs.",
+  "code_sha256": {
+    "missing_link/api_reuse.py": "ccd8f8510548ec4d6edf8a8de48a0e272a0c4c2511ba6fd716f0915ce0f28b4a",
+    "missing_link/behavioral.py": "6d2678abc6e29d2d2e6c138a745044c7d7641b46cb171ceed0d7cc38a122d7cc",
+    "missing_link/behavior_examples.py": "2798914a248f3b5c8a9e8168426b05f71050befdd8d04403470228046794d869",
+    "missing_link/wasi_runner.py": "8ee7384cdd0e74479adbd815342bf2fa5bec7dfb058e267c2dfdaa5dfbfe5838"
+  },
+  "input_sha256": {
+    "contracts.json": "2e60371e2db3d711b1a63db1c1858dc5c80dd671e99156a9273ae0975c3dbe8b",
+    "packaging-snapshot.json": "b2cf4a5d7893519797792a5ab978065cf6fdc5e90fed362c61b597b53e6c5afb",
+    "python-pathspec-snapshot.json": "bd2c220a7447f6a07106f54b4f3e38f5a86eb7f15a068207e3ebbb23f62d0dd4",
+    "ancestry-plan-index.json": "08983d56876466fc6592d904d8d6246b3780bbd19fcacb3d3fc2805981ce4c5b"
+  },
+  "supersedes_execution_only": "3a1b84c6874710e29aa6bdacbe3adb287b6d38ef530ee4b6369b5f0917f57fee",
+  "changes": "Follow stable local re-export aliases; reject unresolved/cyclic ancestry except unshadowed object/typing.Generic/abc.ABC. Packaging loses two unresolved email subclasses; the unchanged 40-slot prefix admits two later tag functions. Pathspec artifacts remain identical.",
+  "same_candidates_and_contracts": false,
+  "timing_note": "Observed latency, not a controlled performance benchmark. Local full suite is no longer running.",
+  "same_contracts": true
+}

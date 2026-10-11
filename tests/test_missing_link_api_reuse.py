@@ -237,7 +237,7 @@ class Child(Claimed): pass
         plan = prepare_behavior_search(snapshot({"labpkg/__init__.py": source}), [contract()], package_root="labpkg")
         entries = [c["entrypoint"] for c in plan["candidates"]]
         self.assertEqual(entries, ["labpkg:Actual.__init__[0].f"])
-        self.assertEqual({o["symbol"] for o in plan["omissions"]}, {"Claimed", "f", "Conditional"})
+        self.assertEqual({o["symbol"] for o in plan["omissions"]}, {"Claimed", "f", "Conditional", "Child"})
 
     def test_runtime_replacements_cannot_claim_the_original_function_or_member(self):
         source = '''def replace(fn):
@@ -333,6 +333,34 @@ Engine.build = Other.build
         plan = prepare_behavior_search(snapshot({"labpkg/__init__.py": factory}), [contract()], package_root="labpkg")
         execution = execute_authored_files(plan["files"], plan["entrypoint"], plan["artifact_sha256"])
         self.assertEqual(assess_behavior_search(plan, execution)["matches"], [])
+
+    def test_reexported_decorated_ancestor_and_unknown_base_abstain(self):
+        files = {"labpkg/__init__.py": "",
+                 "labpkg/base.py": "def decorate(cls): return cls\n@decorate\nclass Base: pass\n",
+                 "labpkg/alias.py": "from .base import Base as Export\n",
+                 "labpkg/api.py": "from .alias import Export\nclass Child(Export):\n    def pick(self, x, y): return x[y]\n"}
+        plan = prepare_behavior_search(snapshot(files), [contract()], package_root="labpkg")
+        self.assertFalse(any(":Child." in c["entrypoint"] for c in plan["candidates"]))
+        self.assertTrue(any(o.get("symbol") == "Child" and "Decorated" in o["reason"] for o in plan["omissions"]))
+        files["labpkg/api.py"] = "from external import Unknown\nclass Child(Unknown):\n    def pick(self, x, y): return x[y]\n"
+        plan = prepare_behavior_search(snapshot(files), [contract()], package_root="labpkg")
+        self.assertFalse(any(":Child." in c["entrypoint"] for c in plan["candidates"]))
+        self.assertTrue(any(o.get("symbol") == "Child" and "Unresolved" in o["reason"] for o in plan["omissions"]))
+
+    def test_known_reexports_and_unshadowed_standard_generic_base_are_resolved(self):
+        files = {"labpkg/__init__.py": "",
+                 "labpkg/base.py": "class Base(object):\n    def pick(self, values, index): return values[index]\n",
+                 "labpkg/alias.py": "from .base import Base as Export\n",
+                 "labpkg/api.py": "from .alias import Export\nclass Child(Export): pass\n"}
+        plan = prepare_behavior_search(snapshot(files), [contract()], package_root="labpkg")
+        child = next(c for c in plan["candidates"] if ":Child." in c["entrypoint"])
+        self.assertEqual(child["evidence"]["path"], "labpkg/base.py")
+        files["labpkg/api.py"] = "from typing import Generic, TypeVar\nT = TypeVar('T')\nclass Child(Generic[T]):\n    def pick(self, values, index): return values[index]\n"
+        plan = prepare_behavior_search(snapshot(files), [contract()], package_root="labpkg")
+        self.assertTrue(any(":Child." in c["entrypoint"] for c in plan["candidates"]))
+        files["labpkg/api.py"] = "object = external()\nclass Child(object):\n    def pick(self, values, index): return values[index]\n"
+        plan = prepare_behavior_search(snapshot(files), [contract()], package_root="labpkg")
+        self.assertFalse(any(":Child." in c["entrypoint"] for c in plan["candidates"]))
 
 
 if __name__ == "__main__":

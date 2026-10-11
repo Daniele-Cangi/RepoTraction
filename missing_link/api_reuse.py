@@ -146,9 +146,10 @@ def package_candidates(repository, package_root, arities, *, limit=40):
             > MAX_TOTAL_ARTIFACT_BYTES - 4 * MAX_ARTIFACT_BYTES):
         raise ValueError("Package exceeds existing WASI artifact bounds.")
 
-    aliases, declarations = {}, {}
+    aliases, declarations, module_bindings = {}, {}, {}
     for module, (file, tree, initializer) in modules.items():
         events = _binding_events(tree.body)
+        module_bindings[module] = events
         definitions = {}
         for symbol, nodes in events.items():
             direct = [n for n in nodes if isinstance(n, (ast.FunctionDef, ast.ClassDef)) and n.name == symbol]
@@ -179,8 +180,18 @@ def package_candidates(repository, package_root, arities, *, limit=40):
         aliases[module] = names
 
     def members(identity, active=()):
-        if identity not in classes or identity in active:
-            return {}
+        if identity in active:
+            raise ValueError("Cyclic ancestry or re-export; omitted.")
+        if identity not in classes:
+            module, _, symbol = identity.rpartition('.')
+            target = aliases.get(module, {}).get(symbol)
+            if target and target != identity:
+                return members(target, (*active, identity))
+            # These standard bases provide object initialization, not an unseen
+            # package constructor. Other unresolved ancestors are not guessed.
+            if identity in {"builtins.object", "typing.Generic", "abc.ABC"}:
+                return {}
+            raise ValueError("Unresolved ancestor; construction provenance is unknown.")
         module, file, cls = classes[identity]
         if cls.decorator_list:
             raise ValueError("Decorated classes may replace construction; omitted.")
@@ -192,6 +203,8 @@ def package_candidates(repository, package_root, arities, *, limit=40):
             # A missing alias may have been rebound: do not silently fall back
             # to an earlier class declaration with the same name.
             target = ".".join([aliases[module].get(dotted[0], ""), *dotted[1:]])
+            if dotted == ["object"] and "object" not in module_bindings[module]:
+                target = "builtins.object"
             result.update(members(target, (*active, identity)))
         events = _binding_events(cls.body)
         rebound = {name for name, nodes in events.items()
