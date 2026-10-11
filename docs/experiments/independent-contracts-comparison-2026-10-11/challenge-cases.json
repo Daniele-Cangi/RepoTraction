@@ -1,0 +1,199 @@
+{
+  "reviewer": "Separate-context AI reviewer, not a human ground-truth oracle.",
+  "source_blind": true,
+  "source_execution_performed": false,
+  "network_used": false,
+  "demand_review_sha256": "884a8c6648ec495c2aa1b15dcf93a65b779de413026bb564d5ddffbc4322db92",
+  "frozen_before_source_matching": true,
+  "artifact_kind": "independently authored challenge cases",
+  "oracle_limit": "These are separate-context AI judgments derived from discussion text and logic; not human ground truth, source-derived tests or proof of universal behavior.",
+  "authorship": "Authored after demand freeze and proposal review, before any candidate code inspection or source execution.",
+  "cases": [
+    {
+      "index": 2,
+      "proposal_id": "demand-538210889178a4e75965",
+      "scope": "Nonnegative integral length and positive integral size; batch count only.",
+      "examples": [
+        {
+          "args": [
+            1,
+            5
+          ],
+          "expected": 1
+        }
+      ],
+      "checks": [
+        {
+          "args": [
+            7,
+            3
+          ],
+          "expected": 3
+        },
+        {
+          "args": [
+            6,
+            3
+          ],
+          "expected": 2
+        },
+        {
+          "args": [
+            9,
+            1
+          ],
+          "expected": 9
+        }
+      ],
+      "justification": [
+        {
+          "cases": "all",
+          "basis": "inferred_from_explicit_formula",
+          "url": "https://github.com/pybrain/pybrain/issues/71",
+          "quotation": "number_of_batches = full_batches if rest == 0 else full_batches + 1",
+          "reason": "One partial batch for 1/5; quotient 2 remainder 1 for 7/3; exact quotient 2 for 6/3; nine unit-sized batches. Arithmetic derived independently without running the quoted code."
+        }
+      ],
+      "limitations": [
+        "Does not test randomization, permutation construction or indexing.",
+        "Passing is not proof batch count is an unmet standalone need."
+      ]
+    },
+    {
+      "index": 4,
+      "proposal_id": "demand-91043fa06d5c413b2fcb",
+      "scope": "Valid single cookie name repeated with uncomplicated unquoted token values; adopts proposal's displayed-string convention only.",
+      "examples": [
+        {
+          "args": [
+            "session=alpha;session=beta;session=gamma"
+          ],
+          "expected": "Set-Cookie: session=alpha"
+        }
+      ],
+      "checks": [
+        {
+          "args": [
+            "n=7;n=7;n=8"
+          ],
+          "expected": "Set-Cookie: n=7"
+        }
+      ],
+      "justification": [
+        {
+          "cases": "all",
+          "basis": "inferred_from_explicit_duplicate_rule_and_display_example",
+          "url": "https://github.com/python/cpython/issues/42664#issuecomment-1094014533",
+          "quotation": "only use the first instance of duplicate",
+          "reason": "First occurrence supplies retained value regardless of further repetitions; renaming one cookie/token does not alter this stated policy. Display prefix follows the explicit SimpleCookie printed example in comment 1094014535."
+        }
+      ],
+      "limitations": [
+        "Independent derivation still conditional on the model's printed-string representation.",
+        "No new expectations for attributes, malformed syntax, multiple-name sorting or repeated load calls.",
+        "Not evidence of accepted upstream policy or RFC-wide compliance."
+      ]
+    },
+    {
+      "index": 10,
+      "proposal_id": "demand-6245e818166bdff79422",
+      "scope": "Ordinary Windows path forms; fully qualified definition chosen in later discussion, independent of host OS.",
+      "examples": [
+        {
+          "args": [
+            "\\\\server\\share\\folder"
+          ],
+          "expected": true
+        }
+      ],
+      "checks": [
+        {
+          "args": [
+            "\\folder"
+          ],
+          "expected": false
+        },
+        {
+          "args": [
+            "folder\\child"
+          ],
+          "expected": false
+        },
+        {
+          "args": [
+            "D:\\folder"
+          ],
+          "expected": true
+        },
+        {
+          "args": [
+            "D:folder"
+          ],
+          "expected": false
+        }
+      ],
+      "justification": [
+        {
+          "cases": "all",
+          "basis": "inferred_from_explicit_path_categories",
+          "url": "https://github.com/python/cpython/issues/44626#issuecomment-1094028889",
+          "quotation": "4 different kinds of paths",
+          "reason": "UNC share and drive-root paths identify both device and root; root-only lacks drive/device; plain relative lacks both; drive-relative lacks a root. Later fully-qualified interpretation is explicit in comment 1881752389."
+        }
+      ],
+      "limitations": [
+        "No malformed/device namespace or mixed-separator edge grammar invented.",
+        "Fixture checks a reported-fixed operation and cannot show new unmet demand or containment safety."
+      ]
+    }
+  ],
+  "abstentions": [
+    {
+      "index": 6,
+      "proposal_id": "demand-fbc9c3dca5e19669b3cb",
+      "reason": "No independently grounded exact expected option array: maximum assignment policy, ordering, false-condition behavior and threshold semantics require choices not settled by discussion. Final locs=0 report lacks corresponding observed maxima, so encoding it as a synthetic args fixture would invent data."
+    },
+    {
+      "index": 0,
+      "proposal_id": null,
+      "reason": "Proposal abstained; no argument/expected representation to preserve. Do not invent an executable contract to force a challenge."
+    },
+    {
+      "index": 1,
+      "proposal_id": null,
+      "reason": "Proposal abstained; no argument/expected representation to preserve. Do not invent an executable contract to force a challenge."
+    },
+    {
+      "index": 3,
+      "proposal_id": null,
+      "reason": "Proposal abstained; no argument/expected representation to preserve. Do not invent an executable contract to force a challenge."
+    },
+    {
+      "index": 5,
+      "proposal_id": null,
+      "reason": "Proposal abstained; no argument/expected representation to preserve. Do not invent an executable contract to force a challenge."
+    },
+    {
+      "index": 7,
+      "proposal_id": null,
+      "reason": "Proposal abstained; no argument/expected representation to preserve. Do not invent an executable contract to force a challenge."
+    },
+    {
+      "index": 8,
+      "proposal_id": null,
+      "reason": "Proposal abstained; no argument/expected representation to preserve. Do not invent an executable contract to force a challenge."
+    },
+    {
+      "index": 9,
+      "proposal_id": null,
+      "reason": "Proposal abstained; no argument/expected representation to preserve. Do not invent an executable contract to force a challenge."
+    },
+    {
+      "index": 11,
+      "proposal_id": null,
+      "reason": "Proposal abstained; no argument/expected representation to preserve. Do not invent an executable contract to force a challenge."
+    }
+  ],
+  "total_examples": 3,
+  "total_checks": 8
+}

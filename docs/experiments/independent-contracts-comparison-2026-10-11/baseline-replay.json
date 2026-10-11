@@ -1,0 +1,158 @@
+[
+  {
+    "repository": "more-itertools/more-itertools",
+    "pool_size": 12,
+    "selected": [
+      {
+        "url": "https://github.com/python/cpython/issues/42255",
+        "repo": "python/cpython",
+        "title": "Simplying Tkinter's event loop",
+        "state": "open",
+        "retrieval": [
+          {
+            "query_index": 2,
+            "upstream_rank": 1
+          }
+        ],
+        "title_term_overlap": 0,
+        "same_project": false,
+        "selection_order": 1
+      },
+      {
+        "url": "https://github.com/ask/ghettoq/issues/2",
+        "repo": "ask/ghettoq",
+        "title": "Performance for larger queues in mysql is not ok",
+        "state": "open",
+        "retrieval": [
+          {
+            "query_index": 0,
+            "upstream_rank": 2
+          }
+        ],
+        "title_term_overlap": 0,
+        "same_project": false,
+        "selection_order": 2
+      },
+      {
+        "url": "https://github.com/sympy/sympy/issues/4238",
+        "repo": "sympy/sympy",
+        "title": "Description and Differentiation of vector, tensor, and multivector fields.",
+        "state": "open",
+        "retrieval": [
+          {
+            "query_index": 1,
+            "upstream_rank": 2
+          }
+        ],
+        "title_term_overlap": 0,
+        "same_project": false,
+        "selection_order": 3
+      }
+    ],
+    "equals_frozen_baseline": true
+  },
+  {
+    "repository": "mahmoud/boltons",
+    "pool_size": 12,
+    "selected": [
+      {
+        "url": "https://github.com/python/cpython/issues/42255",
+        "repo": "python/cpython",
+        "title": "Simplying Tkinter's event loop",
+        "state": "open",
+        "retrieval": [
+          {
+            "query_index": 2,
+            "upstream_rank": 1
+          }
+        ],
+        "title_term_overlap": 0,
+        "same_project": false,
+        "selection_order": 1
+      },
+      {
+        "url": "https://github.com/ask/ghettoq/issues/2",
+        "repo": "ask/ghettoq",
+        "title": "Performance for larger queues in mysql is not ok",
+        "state": "open",
+        "retrieval": [
+          {
+            "query_index": 0,
+            "upstream_rank": 2
+          }
+        ],
+        "title_term_overlap": 0,
+        "same_project": false,
+        "selection_order": 2
+      },
+      {
+        "url": "https://github.com/sympy/sympy/issues/4238",
+        "repo": "sympy/sympy",
+        "title": "Description and Differentiation of vector, tensor, and multivector fields.",
+        "state": "open",
+        "retrieval": [
+          {
+            "query_index": 1,
+            "upstream_rank": 2
+          }
+        ],
+        "title_term_overlap": 0,
+        "same_project": false,
+        "selection_order": 3
+      }
+    ],
+    "equals_frozen_baseline": true
+  },
+  {
+    "repository": "networkx/networkx",
+    "pool_size": 12,
+    "selected": [
+      {
+        "url": "https://github.com/python/cpython/issues/42255",
+        "repo": "python/cpython",
+        "title": "Simplying Tkinter's event loop",
+        "state": "open",
+        "retrieval": [
+          {
+            "query_index": 2,
+            "upstream_rank": 1
+          }
+        ],
+        "title_term_overlap": 0,
+        "same_project": false,
+        "selection_order": 1
+      },
+      {
+        "url": "https://github.com/ask/ghettoq/issues/2",
+        "repo": "ask/ghettoq",
+        "title": "Performance for larger queues in mysql is not ok",
+        "state": "open",
+        "retrieval": [
+          {
+            "query_index": 0,
+            "upstream_rank": 2
+          }
+        ],
+        "title_term_overlap": 0,
+        "same_project": false,
+        "selection_order": 2
+      },
+      {
+        "url": "https://github.com/sympy/sympy/issues/4238",
+        "repo": "sympy/sympy",
+        "title": "Description and Differentiation of vector, tensor, and multivector fields.",
+        "state": "open",
+        "retrieval": [
+          {
+            "query_index": 1,
+            "upstream_rank": 2
+          }
+        ],
+        "title_term_overlap": 0,
+        "same_project": false,
+        "selection_order": 3
+      }
+    ],
+    "equals_frozen_baseline": true
+  }
+]

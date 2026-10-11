@@ -1,0 +1,17 @@
+{
+  "frozen_at": "2026-10-11T11:48:16.672344+00:00",
+  "source_matching_started": false,
+  "reviewer": "separate-context AI; no candidate source or matching results provided",
+  "authorizing_user_reply": "Si, usa un subagente con contesto separato",
+  "files": {
+    "demand-review.json": "884a8c6648ec495c2aa1b15dcf93a65b779de413026bb564d5ddffbc4322db92",
+    "demand-review-errata.json": "9ca75fa5ebe2b16d7371452449b528249995c1896557820d696c5a9296a0ae54",
+    "proposal-review.json": "9a7e01cc799ea4f17c0592cea2391b6a4d97396787d9740b8123c77b21d8175b",
+    "challenge-cases.json": "0be5f647958915efa5bf9192de803de5e7ef5f674435de5e8aeaddea4579c4cf",
+    "execution-plan.json": "db4110e3890418264276843287825d38190f634f67b7d29cdb1637c4e70323f9",
+    "baseline-replay.json": "324bcb2bf8357c6a0f11249b657900accc3f5cb1ff65c49c9538121d76e851c2"
+  },
+  "exact_demand_quotes_after_errata": true,
+  "original_pilot": "../independent-contracts-pilot-2026-10-11/run-result.json",
+  "historical_inputs_modified": false
+}

@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "scope": "Fixed-pool adjudication then diagnostic behavioral comparison; no paid calls or new acquisition",
+  "baseline_commit": "c1d2d67",
+  "code_commit": "3f1b7a507d445daecde1fc89ed7f548fb7b60e7d",
+  "review_order": [
+    "discussion-only independent-context AI review",
+    "proposal review and separately authored challenges",
+    "freeze judgments and challenge bytes",
+    "existing WASI comparison"
+  ],
+  "raw_proposal_indices": [
+    2,
+    4,
+    6,
+    10
+  ],
+  "raw_cohort": "All four unchanged original model contracts, including rejected/unknown operations, as diagnostics only",
+  "challenge_cohort": "Only reviewer-authored finite cases the independent reviewer marks defensible; retain original proposal metadata/unknowns and distinct challenge origin",
+  "no_rescue_changes": [
+    "No prompt tuning",
+    "No adapter additions",
+    "No extractor expansion",
+    "No candidate replacement",
+    "No edits to original expected outputs or historical evidence"
+  ],
+  "candidate_limit_per_source": 40,
+  "source_families": 3,
+  "normal_discover_candidate_limit_unchanged": 3,
+  "execution_backend": "existing WasiRunner",
+  "interpretation_caveat": "Separate-context AI review, not human ground truth. Evidence of finite behavior does not establish novelty, reuse advantage or integration.",
+  "baseline_comparison": "Same frozen source set, selector and execution code as c1d2d67. No invented historical operator-contract quality result."
+}
