@@ -1,0 +1,66 @@
+{
+  "code_commit": "0760d6b40f5ccb6806aa9fca4f5df9af0702a871",
+  "started_at": "2026-10-11T21:20:11+00:00",
+  "completed_at": "2026-10-11T21:21:19+00:00",
+  "seconds": 67.445,
+  "jobs": [
+    {
+      "url": "https://github.com/pganssle/audio-feeder/issues/81",
+      "job_id": "e6af6e8b85b44691bf4eb61d1fa36d80",
+      "status": "completed",
+      "stage": "completed",
+      "ai_calls": 2,
+      "github_requests": 9,
+      "reserved_usd": 0.0153359,
+      "seconds": 34.904,
+      "error": null,
+      "error_diagnostic": null
+    },
+    {
+      "url": "https://github.com/WilliamNT/tunesynctool/issues/21",
+      "job_id": "50cdc79b35454ae98b285fbdfd79eeea",
+      "status": "completed",
+      "stage": "completed",
+      "ai_calls": 2,
+      "github_requests": 9,
+      "reserved_usd": 0.016329299999999998,
+      "seconds": 32.539,
+      "error": null,
+      "error_diagnostic": null
+    }
+  ],
+  "ai_calls": 4,
+  "complete_native_outputs": 4,
+  "github_requests": 18,
+  "repository_searches": 0,
+  "source_inspections": 0,
+  "new_target_integrations": 0,
+  "demonstrated_advantageous_reuses": 0,
+  "decisions": {
+    "use_direct": 1,
+    "defer": 1,
+    "search": 0
+  },
+  "reserved_usd": 0.0316652,
+  "input_tokens": 16025,
+  "output_tokens": 4608,
+  "usage_estimate_usd": 0.0039065,
+  "prices_note": "Existing configured USD 0.10/0.50 per million input/output tokens; not a billing receipt.",
+  "budget_authorization_usd": 0.25,
+  "unused_allowance_authorizes_no_other_cohort": true,
+  "offline_reconciliation": {
+    "unique_attempt_ids": 4,
+    "reservation_rows": 4,
+    "ledger_reserved_usd": 0.0316652,
+    "all_completed": true,
+    "no_retries_or_resumes": true,
+    "historical_evidence_changed": false
+  },
+  "limitations": [
+    "Two purposive cases, one historical; no estimate of general decision accuracy.",
+    "Neither automatically acquired target sample contains product implementation source.",
+    "No live exercise of query generation, semantic donor selection or useful target integration.",
+    "The exact-match/no-MusicBrainz benefit is not separately represented in normalized tunesynctool requirements.",
+    "The historical audio-feeder direct baseline does not establish numeric natural-sort behavior."
+  ]
+}

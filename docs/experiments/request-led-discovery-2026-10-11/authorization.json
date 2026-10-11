@@ -1,0 +1,18 @@
+{
+  "authorization": "Autorizzo 0,25 USD per questa coorte",
+  "cohort": "request-led-discovery-2026-10-11-v1",
+  "maximum_usd": 0.25,
+  "maximum_ai_calls": 10,
+  "maximum_jobs": 2,
+  "conditions": [
+    "Codex review passed",
+    "Linux/Windows Python 3.10/3.13 CI passed"
+  ],
+  "retry": false,
+  "resume": false,
+  "replacements": false,
+  "issues": [
+    "https://github.com/pganssle/audio-feeder/issues/81",
+    "https://github.com/WilliamNT/tunesynctool/issues/21"
+  ]
+}

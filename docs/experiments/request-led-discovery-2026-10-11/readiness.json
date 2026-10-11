@@ -1,0 +1,38 @@
+{
+  "commit": "0760d6b40f5ccb6806aa9fca4f5df9af0702a871",
+  "ci_passed": true,
+  "ci_run": 38174755193,
+  "ci_url": "https://github.com/Daniele-Cangi/RepoTraction/actions/runs/38174755193",
+  "jobs": [
+    {
+      "id": 114574691656,
+      "name": "tests (ubuntu-latest, 3.10)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 114574691852,
+      "name": "tests (windows-latest, 3.13)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 114574691908,
+      "name": "tests (windows-latest, 3.10)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 114574691952,
+      "name": "tests (ubuntu-latest, 3.13)",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ],
+  "review_passed": true,
+  "review_commit": "0760d6b40f5ccb6806aa9fca4f5df9af0702a871",
+  "review_completed_at": "2026-10-11T21:08:36.799846Z",
+  "review_summary": "https://github.com/Daniele-Cangi/RepoTraction/pull/123#issuecomment-6113499733",
+  "open_review_threads": 0,
+  "resolved_review_threads": 3
+}
