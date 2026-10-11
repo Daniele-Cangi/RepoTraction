@@ -314,6 +314,20 @@ class Provider:
                 break
         raise ValueError("Source context exceeds AI prompt bound. Select a smaller source subset or use a coding-agent handoff.")
 
+    def propose_behavior_contracts(self, issue: dict, budget) -> dict:
+        """Opt-in, source-blind demand examples; uses the existing paid-call boundary."""
+        from .behavior_contracts import INSTRUCTION, VERSION, proposal_schema, resolve_proposal
+        data, report = self._bounded_context(None, issue, "request", INSTRUCTION)
+        data["schema"] = proposal_schema()
+        data["interpretation_contract"] = VERSION
+        report["interpretation_contract"] = VERSION
+        raw = self.complete(INSTRUCTION, data, budget, data["schema"], "request")
+        try:
+            return resolve_proposal(raw, data, report, issue, self.identity())
+        except (ValueError, TypeError, KeyError, RecursionError):
+            # Never include arbitrary model/example text in public diagnostics.
+            raise CandidateValidationError("Invalid independent behavioral proposal; no automatic retry.") from None
+
     def interpret_request(self, issue: dict, budget) -> dict:
         instruction = ("Independently extract this public demand without considering ANY candidate repository. "
             "Read subsequent comments for satisfied needs, duplicates, changed requirements, rejected approaches and automation. "

@@ -1,0 +1,964 @@
+{
+  "version": 1,
+  "baseline_commit": "c1d2d67",
+  "paid_calls": 0,
+  "source_executions": 0,
+  "quality_comparison": "pending_separate_model_budget_and_independent_judgment",
+  "repositories": [
+    {
+      "repository": "more-itertools/more-itertools",
+      "revision": "b21ec4ee8e139ebe297e2221980a694bebb69523",
+      "extraction_seconds": 0.047247500042431056,
+      "candidate_count": 40,
+      "candidates": [
+        {
+          "id": "a55409279dcea4d68d66",
+          "name": "take",
+          "entrypoint": "more_itertools/recipes.py:take",
+          "required_args": 2,
+          "required_keywords": false,
+          "variadic": false
+        },
+        {
+          "id": "7ac6aff2e31e9ec573a3",
+          "name": "tabulate",
+          "entrypoint": "more_itertools/recipes.py:tabulate",
+          "required_args": 1,
+          "required_keywords": false,
+          "variadic": false
+        },
+        {
+          "id": "599b5bdd9e84ae602044",
+          "name": "tail",
+          "entrypoint": "more_itertools/recipes.py:tail",
+          "required_args": 2,
+          "required_keywords": false,
+          "variadic": false
+        },
+        {
+          "id": "ab4bf079a27a26da3594",
+          "name": "consume",
+          "entrypoint": "more_itertools/recipes.py:consume",
+          "required_args": 1,
+          "required_keywords": false,
+          "variadic": false
+        },
+        {
+          "id": "e267118c77901786b369",
+          "name": "nth",
+          "entrypoint": "more_itertools/recipes.py:nth",
+          "required_args": 2,
+          "required_keywords": false,
+          "variadic": false
+        },
+        {
+          "id": "188aece3aa92bae9092c",
+          "name": "all_equal",
+          "entrypoint": "more_itertools/recipes.py:all_equal",
+          "required_args": 1,
+          "required_keywords": false,
+          "variadic": false
+        },
+        {
+          "id": "4c895798406676777568",
+          "name": "quantify",
+          "entrypoint": "more_itertools/recipes.py:quantify",
+          "required_args": 1,
+          "required_keywords": false,
+          "variadic": false
+        },
+        {
+          "id": "a7789163be9d8f113c2c",
+          "name": "pad_none",
+          "entrypoint": "more_itertools/recipes.py:pad_none",
+          "required_args": 1,
+          "required_keywords": false,
+          "variadic": false
+        },
+        {
+          "id": "b02d1b8470bce56b2a59",
+          "name": "ncycles",
+          "entrypoint": "more_itertools/recipes.py:ncycles",
+          "required_args": 2,
+          "required_keywords": false,
+          "variadic": false
+        },
+        {
+          "id": "84027264d78bd113a953",
+          "name": "dotproduct",
+          "entrypoint": "more_itertools/recipes.py:dotproduct",
+          "required_args": 2,
+          "required_keywords": false,
+          "variadic": false
+        },
+        {
+          "id": "513541fa85aa2cbb8b88",
+          "name": "flatten",
+          "entrypoint": "more_itertools/recipes.py:flatten",
+          "required_args": 1,
+          "required_keywords": false,
+          "variadic": false
+        },
+        {
+          "id": "44f28ee75f4d480a1880",
+          "name": "repeatfunc",
+          "entrypoint": "more_itertools/recipes.py:repeatfunc",
+          "required_args": 1,
+          "required_keywords": false,
+          "variadic": true
+        },
+        {
+          "id": "36527a6fcfa23f742eba",
+          "name": "pairwise",
+          "entrypoint": "more_itertools/recipes.py:pairwise",
+          "required_args": 1,
+          "required_keywords": false,
+          "variadic": false
+        },
+        {
+          "id": "ad5aee0f84ab4b96d199",
+          "name": "grouper",
+          "entrypoint": "more_itertools/recipes.py:grouper",
+          "required_args": 2,
+          "required_keywords": false,
+          "variadic": false
+        },
+        {
+          "id": "7ab6e5e72c07b9ea6e48",
+          "name": "roundrobin",
+          "entrypoint": "more_itertools/recipes.py:roundrobin",
+          "required_args": 0,
+          "required_keywords": false,
+          "variadic": true
+        },
+        {
+          "id": "9ab6dde538a36727641f",
+          "name": "partition",
+          "entrypoint": "more_itertools/recipes.py:partition",
+          "required_args": 2,
+          "required_keywords": false,
+          "variadic": false
+        },
+        {
+          "id": "58ffaa909780725716c1",
+          "name": "powerset",
+          "entrypoint": "more_itertools/recipes.py:powerset",
+          "required_args": 1,
+          "required_keywords": false,
+          "variadic": false
+        },
+        {
+          "id": "a66648904e70d0a8d174",
+          "name": "unique_everseen",
+          "entrypoint": "more_itertools/recipes.py:unique_everseen",
+          "required_args": 1,
+          "required_keywords": false,
+          "variadic": false
+        },
+        {
+          "id": "dc7cf037c39f257e57bd",
+          "name": "unique_justseen",
+          "entrypoint": "more_itertools/recipes.py:unique_justseen",
+          "required_args": 1,
+          "required_keywords": false,
+          "variadic": false
+        },
+        {
+          "id": "4c82fd65278fbe0d0996",
+          "name": "unique",
+          "entrypoint": "more_itertools/recipes.py:unique",
+          "required_args": 1,
+          "required_keywords": false,
+          "variadic": false
+        },
+        {
+          "id": "125dc413d335917eacb8",
+          "name": "first_true",
+          "entrypoint": "more_itertools/recipes.py:first_true",
+          "required_args": 1,
+          "required_keywords": false,
+          "variadic": false
+        },
+        {
+          "id": "39285a86d0eb9ac90560",
+          "name": "nth_combination",
+          "entrypoint": "more_itertools/recipes.py:nth_combination",
+          "required_args": 3,
+          "required_keywords": false,
+          "variadic": false
+        },
+        {
+          "id": "39ec97347e4ccd92243a",
+          "name": "prepend",
+          "entrypoint": "more_itertools/recipes.py:prepend",
+          "required_args": 2,
+          "required_keywords": false,
+          "variadic": false
+        },
+        {
+          "id": "6dd2d0119aac9361a780",
+          "name": "before_and_after",
+          "entrypoint": "more_itertools/recipes.py:before_and_after",
+          "required_args": 2,
+          "required_keywords": false,
+          "variadic": false
+        },
+        {
+          "id": "68d6c29e931d3ffe1475",
+          "name": "triplewise",
+          "entrypoint": "more_itertools/recipes.py:triplewise",
+          "required_args": 1,
+          "required_keywords": false,
+          "variadic": false
+        },
+        {
+          "id": "6f053477b0b024a0cf05",
+          "name": "_sliding_window_islice",
+          "entrypoint": "more_itertools/recipes.py:_sliding_window_islice",
+          "required_args": 2,
+          "required_keywords": false,
+          "variadic": false
+        },
+        {
+          "id": "0e12883513780b4aca80",
+          "name": "_sliding_window_deque",
+          "entrypoint": "more_itertools/recipes.py:_sliding_window_deque",
+          "required_args": 2,
+          "required_keywords": false,
+          "variadic": false
+        },
+        {
+          "id": "54e7c72a405d0c8b6962",
+          "name": "sliding_window",
+          "entrypoint": "more_itertools/recipes.py:sliding_window",
+          "required_args": 2,
+          "required_keywords": false,
+          "variadic": false
+        },
+        {
+          "id": "26591dc42ba7f1d61007",
+          "name": "subslices",
+          "entrypoint": "more_itertools/recipes.py:subslices",
+          "required_args": 1,
+          "required_keywords": false,
+          "variadic": false
+        },
+        {
+          "id": "db652eeb26303313579c",
+          "name": "_batched",
+          "entrypoint": "more_itertools/recipes.py:_batched",
+          "required_args": 2,
+          "required_keywords": false,
+          "variadic": false
+        },
+        {
+          "id": "2390457404c0f0282cdc",
+          "name": "transpose",
+          "entrypoint": "more_itertools/recipes.py:transpose",
+          "required_args": 1,
+          "required_keywords": false,
+          "variadic": false
+        },
+        {
+          "id": "0e70c4765709ba80a43c",
+          "name": "_is_scalar",
+          "entrypoint": "more_itertools/recipes.py:_is_scalar",
+          "required_args": 1,
+          "required_keywords": false,
+          "variadic": false
+        },
+        {
+          "id": "c9efce45a2d1d2c9902a",
+          "name": "_flatten_tensor",
+          "entrypoint": "more_itertools/recipes.py:_flatten_tensor",
+          "required_args": 1,
+          "required_keywords": false,
+          "variadic": false
+        },
+        {
+          "id": "fb236d8e5341544f9749",
+          "name": "_factor_pollard",
+          "entrypoint": "more_itertools/recipes.py:_factor_pollard",
+          "required_args": 1,
+          "required_keywords": false,
+          "variadic": false
+        },
+        {
+          "id": "4ec70812d6062c56c850",
+          "name": "polynomial_derivative",
+          "entrypoint": "more_itertools/recipes.py:polynomial_derivative",
+          "required_args": 1,
+          "required_keywords": false,
+          "variadic": false
+        },
+        {
+          "id": "8d0c3fbe0dcb2e1aef22",
+          "name": "_shift_to_odd",
+          "entrypoint": "more_itertools/recipes.py:_shift_to_odd",
+          "required_args": 1,
+          "required_keywords": false,
+          "variadic": false
+        },
+        {
+          "id": "a6f75c5eb7cc97482317",
+          "name": "_strong_probable_prime",
+          "entrypoint": "more_itertools/recipes.py:_strong_probable_prime",
+          "required_args": 2,
+          "required_keywords": false,
+          "variadic": false
+        },
+        {
+          "id": "8f08eacc3ad2639c3ef0",
+          "name": "loops",
+          "entrypoint": "more_itertools/recipes.py:loops",
+          "required_args": 1,
+          "required_keywords": false,
+          "variadic": false
+        },
+        {
+          "id": "0ab511ee44094b42e34b",
+          "name": "multinomial",
+          "entrypoint": "more_itertools/recipes.py:multinomial",
+          "required_args": 0,
+          "required_keywords": false,
+          "variadic": true
+        },
+        {
+          "id": "fdb2b71ddd589e7c841d",
+          "name": "_windowed_running_mean",
+          "entrypoint": "more_itertools/recipes.py:_windowed_running_mean",
+          "required_args": 2,
+          "required_keywords": false,
+          "variadic": false
+        }
+      ],
+      "omissions": [
+        {
+          "path": "more_itertools/recipes.py",
+          "symbol": "iter_except",
+          "reason": "Dependency outside the extracted stdlib slice: suppress"
+        },
+        {
+          "path": "more_itertools/recipes.py",
+          "symbol": "random_product",
+          "reason": "Dependency outside the extracted stdlib slice: choice"
+        },
+        {
+          "path": "more_itertools/recipes.py",
+          "symbol": "random_permutation",
+          "reason": "Dependency outside the extracted stdlib slice: sample"
+        },
+        {
+          "path": "more_itertools/recipes.py",
+          "symbol": "random_combination",
+          "reason": "Dependency outside the extracted stdlib slice: sample"
+        },
+        {
+          "path": "more_itertools/recipes.py",
+          "symbol": "random_combination_with_replacement",
+          "reason": "Dependency outside the extracted stdlib slice: randrange"
+        },
+        {
+          "path": "more_itertools/recipes.py",
+          "symbol": "convolve",
+          "reason": "Unsupported module binding: _sumprod"
+        },
+        {
+          "path": "more_itertools/recipes.py",
+          "symbol": "polynomial_from_roots",
+          "reason": "Unsupported module binding: _sumprod"
+        },
+        {
+          "path": "more_itertools/recipes.py",
+          "symbol": "iter_index",
+          "reason": "Dependency outside the extracted stdlib slice: suppress"
+        },
+        {
+          "path": "more_itertools/recipes.py",
+          "symbol": "sieve",
+          "reason": "Dependency outside the extracted stdlib slice: suppress"
+        },
+        {
+          "path": "more_itertools/recipes.py",
+          "symbol": "reshape",
+          "reason": "Unsupported module binding: batched"
+        },
+        {
+          "path": "more_itertools/recipes.py",
+          "symbol": "matmul",
+          "reason": "Unsupported module binding: _sumprod"
+        },
+        {
+          "path": "more_itertools/recipes.py",
+          "symbol": "factor",
+          "reason": "Computed module state: _primes_below_211"
+        },
+        {
+          "path": "more_itertools/recipes.py",
+          "symbol": "polynomial_eval",
+          "reason": "Unsupported module binding: _sumprod"
+        },
+        {
+          "path": "more_itertools/recipes.py",
+          "symbol": "sum_of_squares",
+          "reason": "Unsupported module binding: _sumprod"
+        },
+        {
+          "path": "more_itertools/recipes.py",
+          "symbol": "totient",
+          "reason": "Computed module state: _primes_below_211"
+        },
+        {
+          "path": "more_itertools/recipes.py",
+          "symbol": "is_prime",
+          "reason": "Computed module state: _private_randrange"
+        },
+        {
+          "path": "more_itertools/recipes.py",
+          "symbol": "_running_median_minheap_and_maxheap",
+          "reason": "Dependency outside the extracted stdlib slice: heappush"
+        },
+        {
+          "path": "more_itertools/recipes.py",
+          "symbol": "_running_median_minheap_only",
+          "reason": "Dependency outside the extracted stdlib slice: heappush"
+        },
+        {
+          "path": "more_itertools/recipes.py",
+          "symbol": "_running_median_windowed",
+          "reason": "Dependency outside the extracted stdlib slice: bisect_left"
+        },
+        {
+          "path": "more_itertools/recipes.py",
+          "symbol": "running_median",
+          "reason": "Unresolved or ambiguous global: _max_heap_available"
+        },
+        {
+          "path": "more_itertools/recipes.py",
+          "symbol": "running_mean",
+          "reason": "Callable limit reached."
+        },
+        {
+          "path": "more_itertools/recipes.py",
+          "symbol": "_windowed_running_min",
+          "reason": "Callable limit reached."
+        },
+        {
+          "path": "more_itertools/recipes.py",
+          "symbol": "running_min",
+          "reason": "Callable limit reached."
+        },
+        {
+          "path": "more_itertools/recipes.py",
+          "symbol": "_windowed_running_max",
+          "reason": "Callable limit reached."
+        },
+        {
+          "path": "more_itertools/recipes.py",
+          "symbol": "running_max",
+          "reason": "Callable limit reached."
+        },
+        {
+          "path": "more_itertools/recipes.py",
+          "symbol": "running_statistics",
+          "reason": "Callable limit reached."
+        },
+        {
+          "path": "more_itertools/recipes.py",
+          "symbol": "random_derangement",
+          "reason": "Callable limit reached."
+        }
+      ],
+      "baseline_selected": [
+        {
+          "url": "https://github.com/python/cpython/issues/42255",
+          "repo": "python/cpython",
+          "title": "Simplying Tkinter's event loop",
+          "state": "open",
+          "retrieval": [
+            {
+              "query_index": 2,
+              "upstream_rank": 1
+            }
+          ],
+          "title_term_overlap": 0,
+          "same_project": false,
+          "selection_order": 1
+        },
+        {
+          "url": "https://github.com/ask/ghettoq/issues/2",
+          "repo": "ask/ghettoq",
+          "title": "Performance for larger queues in mysql is not ok",
+          "state": "open",
+          "retrieval": [
+            {
+              "query_index": 0,
+              "upstream_rank": 2
+            }
+          ],
+          "title_term_overlap": 0,
+          "same_project": false,
+          "selection_order": 2
+        },
+        {
+          "url": "https://github.com/sympy/sympy/issues/4238",
+          "repo": "sympy/sympy",
+          "title": "Description and Differentiation of vector, tensor, and multivector fields.",
+          "state": "open",
+          "retrieval": [
+            {
+              "query_index": 1,
+              "upstream_rank": 2
+            }
+          ],
+          "title_term_overlap": 0,
+          "same_project": false,
+          "selection_order": 3
+        }
+      ],
+      "pool_size": 12
+    },
+    {
+      "repository": "mahmoud/boltons",
+      "revision": "4e5faa3d7e4008d89e0d8bf1ea87b6d9a061a16d",
+      "extraction_seconds": 0.007549199974164367,
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "id": "7a6f1787610e89dd8fab",
+          "name": "clamp",
+          "entrypoint": "boltons/mathutils.py:clamp",
+          "required_args": 1,
+          "required_keywords": false,
+          "variadic": false
+        }
+      ],
+      "omissions": [
+        {
+          "path": "boltons/mathutils.py",
+          "symbol": "ceil",
+          "reason": "Dependency outside the extracted stdlib slice: bisect"
+        },
+        {
+          "path": "boltons/mathutils.py",
+          "symbol": "floor",
+          "reason": "Dependency outside the extracted stdlib slice: bisect"
+        }
+      ],
+      "baseline_selected": [
+        {
+          "url": "https://github.com/python/cpython/issues/42255",
+          "repo": "python/cpython",
+          "title": "Simplying Tkinter's event loop",
+          "state": "open",
+          "retrieval": [
+            {
+              "query_index": 2,
+              "upstream_rank": 1
+            }
+          ],
+          "title_term_overlap": 0,
+          "same_project": false,
+          "selection_order": 1
+        },
+        {
+          "url": "https://github.com/ask/ghettoq/issues/2",
+          "repo": "ask/ghettoq",
+          "title": "Performance for larger queues in mysql is not ok",
+          "state": "open",
+          "retrieval": [
+            {
+              "query_index": 0,
+              "upstream_rank": 2
+            }
+          ],
+          "title_term_overlap": 0,
+          "same_project": false,
+          "selection_order": 2
+        },
+        {
+          "url": "https://github.com/sympy/sympy/issues/4238",
+          "repo": "sympy/sympy",
+          "title": "Description and Differentiation of vector, tensor, and multivector fields.",
+          "state": "open",
+          "retrieval": [
+            {
+              "query_index": 1,
+              "upstream_rank": 2
+            }
+          ],
+          "title_term_overlap": 0,
+          "same_project": false,
+          "selection_order": 3
+        }
+      ],
+      "pool_size": 12
+    },
+    {
+      "repository": "networkx/networkx",
+      "revision": "6da4704cbf32ba6f50f6d9c46cc0a071e3a87985",
+      "extraction_seconds": 0.028567500005010515,
+      "candidate_count": 0,
+      "candidates": [],
+      "omissions": [
+        {
+          "path": "networkx/algorithms/dag.py",
+          "symbol": "descendants",
+          "reason": "Dependency outside the extracted stdlib slice: nx"
+        },
+        {
+          "path": "networkx/algorithms/dag.py",
+          "symbol": "ancestors",
+          "reason": "Dependency outside the extracted stdlib slice: nx"
+        },
+        {
+          "path": "networkx/algorithms/dag.py",
+          "symbol": "has_cycle",
+          "reason": "Dependency outside the extracted stdlib slice: nx"
+        },
+        {
+          "path": "networkx/algorithms/dag.py",
+          "symbol": "is_directed_acyclic_graph",
+          "reason": "Dependency outside the extracted stdlib slice: nx"
+        },
+        {
+          "path": "networkx/algorithms/dag.py",
+          "symbol": "antichain_width",
+          "reason": "Dependency outside the extracted stdlib slice: not_implemented_for"
+        },
+        {
+          "path": "networkx/algorithms/dag.py",
+          "symbol": "topological_generations",
+          "reason": "Dependency outside the extracted stdlib slice: nx"
+        },
+        {
+          "path": "networkx/algorithms/dag.py",
+          "symbol": "topological_sort",
+          "reason": "Dependency outside the extracted stdlib slice: nx"
+        },
+        {
+          "path": "networkx/algorithms/dag.py",
+          "symbol": "lexicographical_topological_sort",
+          "reason": "Dependency outside the extracted stdlib slice: heapq"
+        },
+        {
+          "path": "networkx/algorithms/dag.py",
+          "symbol": "all_topological_sorts",
+          "reason": "Dependency outside the extracted stdlib slice: not_implemented_for"
+        },
+        {
+          "path": "networkx/algorithms/dag.py",
+          "symbol": "is_aperiodic",
+          "reason": "Dependency outside the extracted stdlib slice: not_implemented_for"
+        },
+        {
+          "path": "networkx/algorithms/dag.py",
+          "symbol": "transitive_closure",
+          "reason": "Dependency outside the extracted stdlib slice: nx"
+        },
+        {
+          "path": "networkx/algorithms/dag.py",
+          "symbol": "transitive_closure_dag",
+          "reason": "Dependency outside the extracted stdlib slice: not_implemented_for"
+        },
+        {
+          "path": "networkx/algorithms/dag.py",
+          "symbol": "transitive_reduction",
+          "reason": "Dependency outside the extracted stdlib slice: nx"
+        },
+        {
+          "path": "networkx/algorithms/dag.py",
+          "symbol": "antichains",
+          "reason": "Dependency outside the extracted stdlib slice: not_implemented_for"
+        },
+        {
+          "path": "networkx/algorithms/dag.py",
+          "symbol": "dag_longest_path",
+          "reason": "Dependency outside the extracted stdlib slice: not_implemented_for"
+        },
+        {
+          "path": "networkx/algorithms/dag.py",
+          "symbol": "dag_longest_path_length",
+          "reason": "Dependency outside the extracted stdlib slice: not_implemented_for"
+        },
+        {
+          "path": "networkx/algorithms/dag.py",
+          "symbol": "root_to_leaf_paths",
+          "reason": "Dependency outside the extracted stdlib slice: nx"
+        },
+        {
+          "path": "networkx/algorithms/dag.py",
+          "symbol": "dag_to_branching",
+          "reason": "Dependency outside the extracted stdlib slice: nx"
+        },
+        {
+          "path": "networkx/algorithms/dag.py",
+          "symbol": "v_structures",
+          "reason": "Dependency outside the extracted stdlib slice: not_implemented_for"
+        },
+        {
+          "path": "networkx/algorithms/dag.py",
+          "symbol": "colliders",
+          "reason": "Dependency outside the extracted stdlib slice: not_implemented_for"
+        }
+      ],
+      "baseline_selected": [
+        {
+          "url": "https://github.com/python/cpython/issues/42255",
+          "repo": "python/cpython",
+          "title": "Simplying Tkinter's event loop",
+          "state": "open",
+          "retrieval": [
+            {
+              "query_index": 2,
+              "upstream_rank": 1
+            }
+          ],
+          "title_term_overlap": 0,
+          "same_project": false,
+          "selection_order": 1
+        },
+        {
+          "url": "https://github.com/ask/ghettoq/issues/2",
+          "repo": "ask/ghettoq",
+          "title": "Performance for larger queues in mysql is not ok",
+          "state": "open",
+          "retrieval": [
+            {
+              "query_index": 0,
+              "upstream_rank": 2
+            }
+          ],
+          "title_term_overlap": 0,
+          "same_project": false,
+          "selection_order": 2
+        },
+        {
+          "url": "https://github.com/sympy/sympy/issues/4238",
+          "repo": "sympy/sympy",
+          "title": "Description and Differentiation of vector, tensor, and multivector fields.",
+          "state": "open",
+          "retrieval": [
+            {
+              "query_index": 1,
+              "upstream_rank": 2
+            }
+          ],
+          "title_term_overlap": 0,
+          "same_project": false,
+          "selection_order": 3
+        }
+      ],
+      "pool_size": 12
+    }
+  ],
+  "contexts": [
+    {
+      "url": "https://github.com/python/cpython/issues/47369",
+      "prompt_bytes": 46844,
+      "preparation_seconds": 0.05594380002003163,
+      "discussion_complete": false,
+      "demand_spans": 156,
+      "omitted_source_ids": [],
+      "demand_span_coverage": {
+        "span_count": 156,
+        "omitted_visible_spans": 52,
+        "complete": false,
+        "sources_without_spans": [],
+        "source_count_without_spans": 0,
+        "method": "exact original spans; bounded root opening then round-robin discussion coverage, not semantic validation"
+      }
+    },
+    {
+      "url": "https://github.com/ask/ghettoq/issues/2",
+      "prompt_bytes": 15167,
+      "preparation_seconds": 0.0044639999978244305,
+      "discussion_complete": false,
+      "demand_spans": 29,
+      "omitted_source_ids": [],
+      "demand_span_coverage": {
+        "span_count": 29,
+        "omitted_visible_spans": 0,
+        "complete": true,
+        "sources_without_spans": [],
+        "source_count_without_spans": 0,
+        "method": "exact original spans; bounded root opening then round-robin discussion coverage, not semantic validation"
+      }
+    },
+    {
+      "url": "https://github.com/pybrain/pybrain/issues/71",
+      "prompt_bytes": 12199,
+      "preparation_seconds": 0.00342249998357147,
+      "discussion_complete": false,
+      "demand_spans": 29,
+      "omitted_source_ids": [],
+      "demand_span_coverage": {
+        "span_count": 29,
+        "omitted_visible_spans": 0,
+        "complete": true,
+        "sources_without_spans": [],
+        "source_count_without_spans": 0,
+        "method": "exact original spans; bounded root opening then round-robin discussion coverage, not semantic validation"
+      }
+    },
+    {
+      "url": "https://github.com/citation-style-language/schema/issues/70",
+      "prompt_bytes": 50770,
+      "preparation_seconds": 0.048892099992372096,
+      "discussion_complete": false,
+      "demand_spans": 118,
+      "omitted_source_ids": [],
+      "demand_span_coverage": {
+        "span_count": 118,
+        "omitted_visible_spans": 47,
+        "complete": false,
+        "sources_without_spans": [],
+        "source_count_without_spans": 0,
+        "method": "exact original spans; bounded root opening then round-robin discussion coverage, not semantic validation"
+      }
+    },
+    {
+      "url": "https://github.com/python/cpython/issues/42664",
+      "prompt_bytes": 34011,
+      "preparation_seconds": 0.028805999958422035,
+      "discussion_complete": false,
+      "demand_spans": 118,
+      "omitted_source_ids": [],
+      "demand_span_coverage": {
+        "span_count": 118,
+        "omitted_visible_spans": 0,
+        "complete": true,
+        "sources_without_spans": [],
+        "source_count_without_spans": 0,
+        "method": "exact original spans; bounded root opening then round-robin discussion coverage, not semantic validation"
+      }
+    },
+    {
+      "url": "https://github.com/sympy/sympy/issues/4238",
+      "prompt_bytes": 81437,
+      "preparation_seconds": 0.27386710001155734,
+      "discussion_complete": false,
+      "demand_spans": 200,
+      "omitted_source_ids": [],
+      "demand_span_coverage": {
+        "span_count": 200,
+        "omitted_visible_spans": 604,
+        "complete": false,
+        "sources_without_spans": [],
+        "source_count_without_spans": 0,
+        "method": "exact original spans; bounded root opening then round-robin discussion coverage, not semantic validation"
+      }
+    },
+    {
+      "url": "https://github.com/translate/translate/issues/582",
+      "prompt_bytes": 25067,
+      "preparation_seconds": 0.009617300005629659,
+      "discussion_complete": false,
+      "demand_spans": 76,
+      "omitted_source_ids": [],
+      "demand_span_coverage": {
+        "span_count": 76,
+        "omitted_visible_spans": 0,
+        "complete": true,
+        "sources_without_spans": [],
+        "source_count_without_spans": 0,
+        "method": "exact original spans; bounded root opening then round-robin discussion coverage, not semantic validation"
+      }
+    },
+    {
+      "url": "https://github.com/twisted/twisted/issues/3584",
+      "prompt_bytes": 59451,
+      "preparation_seconds": 0.07948059996124357,
+      "discussion_complete": false,
+      "demand_spans": 141,
+      "omitted_source_ids": [],
+      "demand_span_coverage": {
+        "span_count": 141,
+        "omitted_visible_spans": 179,
+        "complete": false,
+        "sources_without_spans": [],
+        "source_count_without_spans": 0,
+        "method": "exact original spans; bounded root opening then round-robin discussion coverage, not semantic validation"
+      }
+    },
+    {
+      "url": "https://github.com/python/cpython/issues/42255",
+      "prompt_bytes": 51752,
+      "preparation_seconds": 0.11615349998464808,
+      "discussion_complete": false,
+      "demand_spans": 194,
+      "omitted_source_ids": [],
+      "demand_span_coverage": {
+        "span_count": 194,
+        "omitted_visible_spans": 274,
+        "complete": false,
+        "sources_without_spans": [],
+        "source_count_without_spans": 0,
+        "method": "exact original spans; bounded root opening then round-robin discussion coverage, not semantic validation"
+      }
+    },
+    {
+      "url": "https://github.com/python/cpython/issues/43521",
+      "prompt_bytes": 43782,
+      "preparation_seconds": 0.0375602999702096,
+      "discussion_complete": false,
+      "demand_spans": 130,
+      "omitted_source_ids": [],
+      "demand_span_coverage": {
+        "span_count": 130,
+        "omitted_visible_spans": 0,
+        "complete": true,
+        "sources_without_spans": [],
+        "source_count_without_spans": 0,
+        "method": "exact original spans; bounded root opening then round-robin discussion coverage, not semantic validation"
+      }
+    },
+    {
+      "url": "https://github.com/python/cpython/issues/44626",
+      "prompt_bytes": 64667,
+      "preparation_seconds": 0.08383550000144169,
+      "discussion_complete": false,
+      "demand_spans": 130,
+      "omitted_source_ids": [],
+      "demand_span_coverage": {
+        "span_count": 130,
+        "omitted_visible_spans": 188,
+        "complete": false,
+        "sources_without_spans": [],
+        "source_count_without_spans": 0,
+        "method": "exact original spans; bounded root opening then round-robin discussion coverage, not semantic validation"
+      }
+    },
+    {
+      "url": "https://github.com/sympy/sympy/issues/3461",
+      "prompt_bytes": 140541,
+      "preparation_seconds": 0.5976747999666259,
+      "discussion_complete": false,
+      "demand_spans": 195,
+      "omitted_source_ids": [
+        "q14",
+        "q13",
+        "q12",
+        "q10",
+        "q9",
+        "q8",
+        "q7",
+        "q6",
+        "q5",
+        "q4",
+        "q3",
+        "q2",
+        "q1"
+      ],
+      "demand_span_coverage": {
+        "span_count": 195,
+        "omitted_visible_spans": 1356,
+        "complete": false,
+        "sources_without_spans": [],
+        "source_count_without_spans": 0,
+        "method": "exact original spans; bounded root opening then round-robin discussion coverage, not semantic validation"
+      }
+    }
+  ],
+  "top_three_changed": 0
+}
