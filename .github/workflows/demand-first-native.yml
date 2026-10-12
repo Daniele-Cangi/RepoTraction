@@ -4,6 +4,8 @@ on:
   pull_request:
     paths:
       - 'docs/experiments/demand-first-target-2026-10-11/**'
+      - 'docs/experiments/recursion-direct-attempt-2026-10-12/**'
+      - 'docs/experiments/technical-obstacle-selection-2026-10-12/**'
       - '.github/workflows/demand-first-native.yml'
   workflow_dispatch:
 
@@ -11,6 +13,122 @@ permissions:
   contents: read
 
 jobs:
+  pytest-recursion:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: pytest-dev/pytest
+          ref: aec0291ed14c724873bfcea99d5dfd739f75a68f
+          path: pytest-target
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13.5'
+      - name: Install native test dependencies
+        run: >-
+          python -m pip install --only-binary=:all:
+          iniconfig==2.3.1 packaging==26.3 pluggy==1.6.0
+          pygments==2.21.0 colorama==0.4.6 hypothesis==6.169.0
+          attrs==26.1.0 sortedcontainers==2.4.0
+      - name: Compare the frozen reproduction and run native regressions
+        shell: python {0}
+        run: |
+          import ast, hashlib, json, os, platform, subprocess, sys, time
+          from pathlib import Path
+
+          repo = Path.cwd()
+          target = repo / 'pytest-target'
+          study = repo / 'docs/experiments/recursion-direct-attempt-2026-10-12'
+          frozen = repo / 'docs/experiments/technical-obstacle-selection-2026-10-12'
+          output = Path(os.environ['RUNNER_TEMP']) / 'pytest-recursion-results'
+          output.mkdir(parents=True, exist_ok=True)
+          canonical = lambda path: path.read_bytes().replace(b'\r\n', b'\n')
+          sha = lambda data: hashlib.sha256(data).hexdigest()
+          preparation = json.loads((study / 'preparation.json').read_text())
+          manifest = json.loads((study / 'candidate-manifest.json').read_text())
+          revision = subprocess.check_output(['git', '-C', str(target), 'rev-parse', 'HEAD'], text=True).strip()
+          assert revision == preparation['target_revision'] == manifest['target_revision']
+          assert sha(canonical(target / 'src/_pytest/_code/code.py')) == preparation['target_module_canonical_sha256']
+          for name, expected in preparation['inputs'].items():
+              assert sha(canonical(frozen / name)) == expected['canonical_sha256'], name
+          assert sha((study / 'agent.patch').read_bytes()) == manifest['patch_sha256']
+          patch = output / 'candidate.patch'
+          patch.write_bytes(canonical(study / 'agent.patch'))
+          assert sha(patch.read_bytes()) == manifest['patch_canonical_sha256']
+          # Only ignored packaging metadata; the pinned implementation is unchanged.
+          (target / 'src/_pytest/_version.py').write_text(
+              "__version__ = version = '9.2.0.dev0'\n"
+              "__version_tuple__ = version_tuple = (9, 2, 0, 'dev0')\n"
+              "__commit_id__ = commit_id = None\n", encoding='utf-8')
+          reproduction = output / 'reported_recursion.py'
+          reproduction.write_bytes(canonical(frozen / 'reported_recursion.py'))
+          env = dict(os.environ, PYTHONPATH=str(target / 'src'), PYTEST_DISABLE_PLUGIN_AUTOLOAD='1')
+          result = dict(target_revision=revision, python=sys.version, platform=platform.platform(), observations=[])
+
+          def observe(label, arguments, timeout=15):
+              command = [sys.executable, *arguments]
+              start = time.perf_counter()
+              try:
+                  completed = subprocess.run(command, cwd=target, env=env, capture_output=True, timeout=timeout)
+                  code, data, expired = completed.returncode, completed.stdout + completed.stderr, False
+              except subprocess.TimeoutExpired as error:
+                  code, data, expired = None, (error.stdout or b'') + (error.stderr or b''), True
+              row = dict(label=label, command=command, timeout_seconds=timeout,
+                         exit_code=code, timed_out=expired, wall_seconds=time.perf_counter()-start,
+                         output_sha256=sha(data), output=data.decode('utf-8', errors='replace'))
+              result['observations'].append(row)
+              (output / 'assessment.json').write_text(json.dumps(result, indent=2)+'\n', encoding='utf-8')
+              print(label, code, expired, round(row['wall_seconds'], 3), flush=True)
+              return row
+
+          def useful(row):
+              assert not row['timed_out'] and row['exit_code'] == 2, row['label']
+              assert all(s in row['output'] for s in ('RecursionError', 'reported_recursion.py', 'in func')), row['label']
+
+          arguments = ['-m', 'pytest', '-q', str(reproduction), '--capture=no']
+          baseline = observe('original-ordinary', arguments)
+          if not baseline['timed_out']:
+              useful(baseline)  # A faster platform need not reproduce the Windows timeout.
+          useful(observe('original-native', arguments + ['--tb=native']))
+          assert observe('original-frozen-probe', [str(frozen / 'native_diagnostic_probe.py')])['exit_code'] == 0
+          subprocess.run(['git', '-C', str(target), 'apply', str(patch)], check=True)
+          for name, expected in manifest['files'].items():
+              assert sha(canonical(target / name)) == expected['canonical_sha256'], name
+          for number in range(1, 4):
+              ordinary = observe(f'candidate-ordinary-{number}', arguments)
+              useful(ordinary)
+              useful(observe(f'candidate-native-{number}', arguments + ['--tb=native']))
+              assert 'a repeated state may have been missed' in ordinary['output']
+              assert 'same locals & position' not in ordinary['output']
+          # Retain the full historical probe failure: its large exact no-match
+          # expectation is incompatible with the explicitly disclosed work cap.
+          observe('candidate-unmodified-frozen-probe', [str(frozen / 'native_diagnostic_probe.py')])
+          tree = ast.parse((frozen / 'native_diagnostic_probe.py').read_text())
+          removed = [n for n in tree.body if isinstance(n, ast.For) and isinstance(n.target, ast.Name) and n.target.id == 'n']
+          assert len(removed) == 1 and ast.literal_eval(removed[0].iter) == (20, 40, 80, 160)
+          semantic = ast.Module(body=[n for n in tree.body if n not in removed], type_ignores=[])
+          controls = observe('candidate-original-six-controls', ['-c', ast.unparse(semantic)])
+          assert controls['exit_code'] == 0 and len(json.loads(controls['output'])['semantic_controls']) == 6
+          tests = observe('candidate-native-code-directory', ['-m', 'pytest', '-q', 'testing/code', '-rs'], timeout=120)
+          print(tests['output'])
+          assert tests['exit_code'] == 0
+          result['complete'] = True
+          (output / 'assessment.json').write_text(json.dumps(result, indent=2)+'\n', encoding='utf-8')
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pytest-recursion-${{ matrix.os }}
+          path: ${{ runner.temp }}/pytest-recursion-results
+          if-no-files-found: error
   target-http:
     runs-on: ubuntu-latest
     timeout-minutes: 15

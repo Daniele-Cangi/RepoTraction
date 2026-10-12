@@ -1,0 +1,23 @@
+{
+  "target_revision": "aec0291ed14c724873bfcea99d5dfd739f75a68f",
+  "patch_sha256": "640be100f311b6e20412e35d664e08265d80d003f679792a103fc9fe4219183e",
+  "patch_canonical_sha256": "640be100f311b6e20412e35d664e08265d80d003f679792a103fc9fe4219183e",
+  "patch_bytes": 9360,
+  "patch_rule": "Preserve agent.patch bytes; canonicalize CRLF pairs to LF for Git apply and text content verification, no other transformation",
+  "files": {
+    "src/_pytest/_code/code.py": {
+      "canonical_sha256": "0b7648f531c599ec844ec6163b5fdf450390e6647e4e641becb16697e08c858f",
+      "bytes_in_agent_checkout": 65712
+    },
+    "testing/code/test_recursionindex_limits.py": {
+      "canonical_sha256": "85c6fbcd9d9c6f82abe7830daef9082088d87b6bbedd51f55375ff309d481ce5",
+      "bytes_in_agent_checkout": 4301
+    }
+  },
+  "agent_report_sha256": "240ef63352e8e701f45e591710e5b2d0aec9e53c3e217f2c40bd2b6746f7e13a",
+  "freeze_reported_utc": "2026-10-12 11:41:58 UTC",
+  "completion_received_and_observed_before_deadline": true,
+  "deadline_utc": "2026-10-12 11:45:50 UTC",
+  "agent_self_report_is_not_parent_assessment": true,
+  "source_license": "LICENSE.pytest.txt"
+}

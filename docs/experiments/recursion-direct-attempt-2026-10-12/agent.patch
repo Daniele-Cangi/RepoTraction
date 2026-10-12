@@ -1,0 +1,227 @@
+diff --git a/src/_pytest/_code/code.py b/src/_pytest/_code/code.py
+index f6d2f27..a6e0c4a 100644
+--- a/src/_pytest/_code/code.py
++++ b/src/_pytest/_code/code.py
+@@ -21,6 +21,7 @@ from traceback import StackSummary
+ from traceback import TracebackException
+ from types import CodeType
+ from types import FrameType
++from types import FunctionType
+ from types import TracebackType
+ from typing import Any
+ from typing import ClassVar
+@@ -445,10 +446,20 @@ class Traceback(list[TracebackEntry]):
+             fn = excinfo_or_fn
+         return Traceback(filter(fn, self))
+ 
+-    def recursionindex(self) -> int | None:
++    def recursionindex(self, *, max_comparisons: int | None = 500) -> int | None:
+         """Return the index of the frame/TracebackEntry where recursion originates if
+-        appropriate, None if no recursion occurred."""
++        appropriate, None if no recursion occurred.
++
++        Comparing arbitrary locals can execute expensive user code. After
++        ``max_comparisons`` such comparisons, raise an exception rather than
++        guessing an origin. Pass ``None`` for an unlimited, exact search.
++        """
+         cache: dict[tuple[Any, int, int], list[dict[str, Any]]] = {}
++        safe_cache: dict[
++            tuple[Any, int, int], dict[frozenset[tuple[str, Any]], list[int]]
++        ] = {}
++        unsafe_cache: dict[tuple[Any, int, int], list[int]] = {}
++        comparisons = 0
+         for i, entry in enumerate(self):
+             # id for the code.raw is needed to work around
+             # the strange metaprogramming in the decorator lib from pypi
+@@ -458,14 +469,42 @@ class Traceback(list[TracebackEntry]):
+             values = cache.setdefault(key, [])
+             # Since Python 3.13 f_locals is a proxy, freeze it.
+             loc = dict(entry.frame.f_locals)
+-            if values:
+-                for otherloc in values:
+-                    if otherloc == loc:
+-                        return i
++            # Only these exact types have inexpensive, compatible hash/equality
++            # semantics. In particular, never hash arbitrary user objects or
++            # assume that unequal hashes rule out their custom equality.
++            safe = all(
++                type(name) is str
++                and type(value)
++                in (str, bytes, int, float, complex, bool, type(None), FunctionType)
++                for name, value in loc.items()
++            )
++            by_value = safe_cache.setdefault(key, {})
++            unsafe = unsafe_cache.setdefault(key, [])
++            if safe:
++                signature = frozenset(loc.items())
++                # Preserve the original comparison order, including comparisons
++                # with earlier arbitrary values that may equal a simple value.
++                candidates = sorted(by_value.get(signature, []) + unsafe)
++            else:
++                candidates = range(len(values))
++            for index in candidates:
++                if max_comparisons is not None and comparisons >= max_comparisons:
++                    raise _RecursionSearchLimitExceeded
++                comparisons += 1
++                if values[index] == loc:
++                    return i
++            if safe:
++                by_value.setdefault(signature, []).append(len(values))
++            else:
++                unsafe.append(len(values))
+             values.append(loc)
+         return None
+ 
+ 
++class _RecursionSearchLimitExceeded(Exception):
++    """The origin search stopped before proving or excluding a repeated state."""
++
++
+ def stringify_exception(
+     exc: BaseException, include_subexception_msg: bool = True
+ ) -> str:
+@@ -1180,6 +1219,18 @@ class ExceptionInfoFormatter:
+         max_frames = 10
+         try:
+             recursionindex = traceback.recursionindex()
++        except _RecursionSearchLimitExceeded:
++            extraline = (
++                "!!! Recursion error detected, but the origin of the recursion "
++                "could not be located within the locals comparison limit.\n"
++                "  Locals comparison stopped; a repeated state may have been missed."
++            )
++            if self.tbfilter is not False and len(traceback) > 2 * max_frames:
++                extraline += (
++                    f"\n  Displaying first and last {max_frames} stack frames out of {len(traceback)}.\n"
++                    "  Pass `--full-trace` to see all frames."
++                )
++                traceback = traceback[:max_frames] + traceback[-max_frames:]  # type: ignore
+         except Exception as e:
+             extraline: str | None = (
+                 "!!! Recursion error detected, but an error occurred locating the origin of recursion.\n"
+diff --git a/testing/code/test_recursionindex_limits.py b/testing/code/test_recursionindex_limits.py
+new file mode 100644
+index 0000000..3d5fc0a
+--- /dev/null
++++ b/testing/code/test_recursionindex_limits.py
+@@ -0,0 +1,120 @@
++from __future__ import annotations
++
++import sys
++from types import FunctionType
++from types import TracebackType
++from typing import Any
++
++from _pytest._code.code import ExceptionInfoFormatter
++from _pytest._code.code import _RecursionSearchLimitExceeded
++from _pytest._code.code import Traceback
++from _pytest._code.code import TracebackEntry
++import pytest
++
++
++def _make_traceback(values: list[Any]) -> Traceback:
++    # Native traceback entries at the same position, with only the argument local.
++    return Traceback(TracebackEntry(_capture_argument(value)) for value in values)
++
++
++def _capture_argument(value: Any) -> TracebackType:
++    try:
++        raise RecursionError("native frame for origin search")
++    except RecursionError:
++        return sys.exc_info()[2]  # type: ignore[return-value]
++
++
++@pytest.mark.parametrize(
++    ("values", "expected"),
++    [
++        ([1, 1], 1),
++        ([0, 0, 1, 2, 3], 1),  # Withdrawn #8651's distinct-tail counterexample.
++        ([0, 1, 2, 3], None),
++        ([[1], [1], [2]], 1),  # Equal, distinct, unhashable values.
++    ],
++)
++def test_first_repeated_native_state(values: list[Any], expected: int | None) -> None:
++    assert _make_traceback(values).recursionindex() == expected
++
++
++def test_equality_failure_remains_an_error() -> None:
++    class Unavailable:
++        def __eq__(self, other: object) -> bool:
++            raise ValueError("equality unavailable")
++
++    tb = _make_traceback([Unavailable(), Unavailable()])
++    with pytest.raises(ValueError, match="equality unavailable"):
++        tb.recursionindex()
++    _, warning = ExceptionInfoFormatter()._truncate_recursive_traceback(tb)
++    assert warning is not None
++    assert "ValueError: equality unavailable" in warning
++    assert "same locals & position" not in warning
++
++
++def test_equal_distinct_code_objects_do_not_share_state() -> None:
++    clone = FunctionType(_capture_argument.__code__.replace(), globals())
++    assert clone.__code__ == _capture_argument.__code__
++    assert clone.__code__ is not _capture_argument.__code__
++    tb = Traceback(
++        [TracebackEntry(_capture_argument(1)), TracebackEntry(clone(1))]
++    )
++    assert tb.recursionindex() is None
++
++
++def test_arbitrary_equality_can_match_a_simple_value() -> None:
++    class EqualToOne:
++        def __eq__(self, other: object) -> bool:
++            return other == 1
++
++        def __hash__(self) -> int:
++            raise AssertionError("must not hash arbitrary values")
++
++    assert _make_traceback([EqualToOne(), 1]).recursionindex() == 1
++    assert _make_traceback([1, EqualToOne()]).recursionindex() == 1
++
++
++@pytest.mark.parametrize("size", [20, 40, 80, 160])
++def test_arbitrary_comparisons_are_bounded(size: int) -> None:
++    class Distinct:
++        calls = 0
++
++        def __eq__(self, other: object) -> bool:
++            type(self).calls += 1
++            return False
++
++    tb = _make_traceback([Distinct() for _ in range(size)])
++    if size == 20:
++        assert tb.recursionindex() is None
++        assert Distinct.calls == 190
++    else:
++        with pytest.raises(_RecursionSearchLimitExceeded):
++            tb.recursionindex()
++        assert Distinct.calls == 500
++
++
++def test_simple_distinct_values_do_not_exhaust_the_budget() -> None:
++    assert _make_traceback(list(range(160))).recursionindex(max_comparisons=0) is None
++
++
++def test_unlimited_search_retains_first_repetition_after_the_budget() -> None:
++    values = [[value] for value in range(40)] + [[0]]
++    tb = _make_traceback(values)
++    with pytest.raises(_RecursionSearchLimitExceeded):
++        tb.recursionindex()
++    assert tb.recursionindex(max_comparisons=None) == 40
++
++
++@pytest.mark.parametrize("full_trace", [False, True])
++def test_budget_warning_does_not_claim_a_detected_cycle(full_trace: bool) -> None:
++    tb = _make_traceback([[value] for value in range(40)])
++    formatter = ExceptionInfoFormatter(tbfilter=not full_trace)
++    shown, warning = formatter._truncate_recursive_traceback(tb)
++    assert len(shown) == (40 if full_trace else 20)
++    assert warning is not None
++    assert "locals comparison limit" in warning
++    assert "a repeated state may have been missed" in warning
++    assert "same locals & position" not in warning
++    if not full_trace:
++        assert shown[:10] == tb[:10]
++        assert shown[-10:] == tb[-10:]
++        assert "--full-trace" in warning

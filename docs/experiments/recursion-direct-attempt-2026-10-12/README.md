@@ -57,3 +57,9 @@ Windows/Linux product CI before merge. Native target verification and product CI
 are distinct; native Windows/Linux validation is required before treating a target
 implementation as ready for integration. No upstream submission is part of this
 stage. Preparation alone demonstrates no new discovery or assistance capability.
+
+## Appended result
+
+The authorized attempt has completed. See the [outcome](outcome.md), exact
+[candidate manifest](candidate-manifest.json) and [independent parent assessment](parent-assessment.json).
+The preparation and instructions above remain the pre-dispatch record.
