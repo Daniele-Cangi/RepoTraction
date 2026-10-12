@@ -1,0 +1,48 @@
+{
+  "stage": "frozen_common_attempt",
+  "patch_sha256": "98eac5c7f0c4596f672e0bcc90ab01ce057221bd9acbb084a9bad12b995897ba",
+  "source_sha256": "108bfbeb0eddbb3a1235d551c3d8fd055c7bdba83903d4d3c9d439631a6380d5",
+  "actual_module_path": "C:\\Users\\dacan\\Documents\\Codex\\2026-08-17\\vo\\outputs\\github-pulse\\data\\agent-assistance-probe-2026-10-12\\target-common\\src\\_pytest\\monkeypatch.py",
+  "results": [
+    {
+      "check": "reported",
+      "exit_code": 0,
+      "wall_seconds": 0.9638416999951005,
+      "log_sha256": "213e7d69730d580643d7992407f884b06d136118668df0636d528458e79724e5",
+      "tail": [
+        "..                                                                       [100%]",
+        "2 passed in 0.09s"
+      ]
+    },
+    {
+      "check": "acceptance",
+      "exit_code": 1,
+      "wall_seconds": 0.6685790999908932,
+      "log_sha256": "38f255e73906376d5e87bb3e51834d3cc322a680d823bf93e616f0fb2aee4800",
+      "tail": [
+        "  File \"C:\\Users\\dacan\\Documents\\Codex\\2026-08-17\\vo\\outputs\\github-pulse\\docs\\experiments\\agent-assistance-probe-2026-10-12\\native_acceptance.py\", line 54, in test_passthrough_hook_does_not_shadow_inherited_attribute",
+        "    self.assertNotIn(\"flag\", vars(obj))",
+        "    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^",
+        "AssertionError: 'flag' unexpectedly found in {'flag': 1}",
+        "",
+        "----------------------------------------------------------------------",
+        "Ran 8 tests in 0.005s",
+        "",
+        "FAILED (failures=2)"
+      ]
+    },
+    {
+      "check": "native-monkeypatch",
+      "exit_code": 0,
+      "wall_seconds": 3.893498899997212,
+      "log_sha256": "35bfc7d006dd76c2fdab438bf53262faaa73b1d4de13e2891705764cccaa1ca1",
+      "tail": [
+        ".......................................s.........s                       [100%]",
+        "48 passed, 2 skipped in 2.73s"
+      ]
+    }
+  ],
+  "paid_calls": 0,
+  "donor_searches": 0,
+  "assessor_changes": 0
+}

@@ -1,0 +1,62 @@
+{
+  "protocol_commit": "2a0e5a9",
+  "query": "repo:pytest-dev/pytest is:issue is:open created:2025-01-01..2025-12-31 comments:>=2",
+  "sort": "comments",
+  "order": "desc",
+  "issues": [
+    {
+      "url": "https://github.com/pytest-dev/pytest/issues/13669",
+      "title": "Vulnerable tmpdir handling (CVE-2025-71176)",
+      "issue_number": 13669,
+      "body": "Starting around https://github.com/pytest-dev/pytest/blob/main/src/_pytest/tmpdir.py#L156, there are some heuristics to make sure that the tmpdir is safe:\n\n```python\n            temproot = Path(from_env or tempfile.gettempdir()).resolve()\n            user = get_user() or \"unknown\"\n            # use a sub-directory in the temproot to speed-up                                                                                                  \n            # make_numbered_dir() call                                                                                                                         \n            rootdir = temproot.joinpath(f\"pytest-of-{user}\")\n            try:\n                rootdir.mkdir(mode=0o700, exist_ok=True)\n            except OSError:\n                # getuser() likely returned illegal characters for the platform, use unknown back off mechanism                                                \n                rootdir = temproot.joinpath(\"pytest-of-unknown\")\n                rootdir.mkdir(mode=0o700, exist_ok=True)\n            # Because we use exist_ok=True with a predictable name, make sure                                                                                  \n            # we are the owners, to prevent any funny business (on unix, where                                                                                 \n            # temproot is usually shared).                                                                                                                     \n            # Also, to keep things private, fixup any world-readable temp                                                                                      \n            # rootdir's permissions. Historically 0o755 was used, so we can't                                                                                  \n            # just error out on this, at least for a while.                                                                                                    \n            uid = get_user_id()\n            if uid is not None:\n                rootdir_stat = rootdir.stat()\n                if rootdir_stat.st_uid != uid:\n                    raise OSError(\n                        f\"The temporary directory {rootdir} is not owned by the current user. \"\n                        \"Fix this and try again.\"\n                    )\n```\n\nThis is vulnerable to symlink attacks, and probably TOCTOU attacks (see e.g. https://owasp.org/www-community/vulnerabilities/Insecure_Temporary_File). The linux kernel has protections for some of these in the `fs.protected_hardlinks` and `fs.protected_symlinks` sysctls, but they violate POSIX and are not enabled by default (though most distros enable them). In any case, they are linux-only.\n\nFor a proof of concept, create a symlink as some other user from `/tmp/pytest-of-youruser` to a directory you own (this will require `fs.protected_symlinks` to be disabled). Run pytest as yourself, and it will start writing junk to the directory that the attacker chose. It will also change the permissions on the directory he chose.\n\nObviously whoever wrote this was aware of these issues, but maybe not of how hard they can be to fix completely. This can be made a little bit better by telling `stat()` not to follow symlinks, but I would instead recommend getting a random base directory in a secure way (using the python tempdir functions) rather than using a predictable name.\nThere are just too many ways it can go wrong.",
+      "state": null,
+      "user": null,
+      "assignees": null,
+      "labels": null,
+      "milestone": null,
+      "state_reason": null,
+      "comments": null,
+      "created_at": null,
+      "updated_at": null,
+      "closed_at": null,
+      "display_url": "https://github.com/pytest-dev/pytest/issues/13669",
+      "display_title": "Vulnerable tmpdir handling (CVE-2025-71176)"
+    },
+    {
+      "url": "https://github.com/pytest-dev/pytest/issues/13768",
+      "title": "Thread safety and Pytest",
+      "issue_number": 13768,
+      "body": "(This is a high-level issue that proposes making pytest more thread safe; I'm definitely looking for feedback, discussion, and confirmation this is a good direction here.)\n\n### Background\n\nThis issue comes out of a brief conversation on the pytest discord:\n\n> [@ngoldbaum] out of curiosity, if there were funding for work on improving pytest’s thread safety, is that something that the project might be interested in? For the work we’ve been doing so far we’ve contracted David Woods to work on Cython, David Hewitt to work on PyO3, and Liam DeVoe to work on Hypothesis. Is there an opportunity for pytest as well? \n\n> [@The-Compiler] Personally I'm not too interested in it being thread-safe, but I'd absolutely support using our Opencollective funds to make it happen\n\n> [@ronnypfannschmidt] my sentinent is the same - but i also want to note that i'd prefer thread safety in a manner that uses queues and non-shared state for fixtures & co (aka xdist-alike, just without separate node objects) - the key contention would be log/stdio capture state + managing pytest stores on nodes in a controlled manner\n\nI don't presume to know the best direction for thread-safety in pytest, so I'm opening this issue to get some feedback on my understanding.\n\nWhile this may be obvious to all involved, I want to at least give a brief motivation for thread-safety here. Python is working towards removing the [global interpreter lock](https://docs.python.org/3/glossary.html#term-global-interpreter-lock), in a python build version called [free-threading](https://peps.python.org/pep-0703/). As free-threading progresses, it seems likely that more people will want to run multiple tests simultaneously in separate threads. In particular, it would be nice for free-threading development if [pytest-xdist](https://github.com/pytest-dev/pytest-xdist) supported threading (in place of multiprocessing) as its worker primitive, so existing test suites can be run with pytest-xdist in threading mode to flush out concurrency bugs.\n\n<details>\n<summary><h3>Initial proposal</h3></summary>\n\n### Proposal\n\nI would summarize all of pytest as two (very complex) steps:\n1. Test collection.\n2. Test execution.\n\nwith some calls to [pluggy](https://github.com/pytest-dev/pluggy) thrown in during both.\n\nFrom talking with @zac-hd, I understand there's some appetite for parallelizing collection in pytest itself using threads, perhaps as a consequence of folding pytest-xdist into pytest. This would require making (1) test collection thread safe. I think that parallelized test collection is \"merely\" a performance improvement, so I'm not proposing it in this issue, though it may be something to keep in mind.\n\nInstead I want to focus on (2); making test execution thread-safe. Here is my understanding of the required work there:\n- [ ] Make pluggy thread-safe, as hooks will be called from multiple threads.\n  - It's possible this work is either minimal or zero, if pluggy is already thread safe.\n- [ ] Guarantee all (feasible) built-in fixtures are thread-safe.\n  - I don't (yet) know pytest internals enough to judge how difficult this will be.\n  - Some fixtures, like `monkeypatch` and `capsys`, don't seem possible to make thread-safe. Perhaps someone knows an arcanely cursed way to achieve this?\n- [ ] Make pytest data collection during tests thread-safe.\n  - the tracking of the number of xfails, successes, failures, etc.\n- [ ] Document the thread-safety guarantees, including what is and is not safe.\n- [ ] Add an opt-in execution model to pytest-xdist which uses threads instead of processes.\n  - If we're done our job right up to this point, this should be *conceptually* simple, though it may require some involved changes to pytest-xdist to support this.\n\nAnd finally;\n\n- [ ] Test the heck out of this.\n  - I put a substantial amount of effort into testing thread-safety when migrating Hypothesis: https://github.com/HypothesisWorks/hypothesis/pull/4489. I would expect to do so again here, though I don't yet know the best way to do so.\n\n### Open questions\n\n- If we do leave fixtures like `monkeypatch` thread-unsafe, how should this interact with pytest-xdist's proposed threading mode? A few options: do nothing; print a warning; error; or skip the test. I don't like half of these!\n\ncc: @ngoldbaum, @lysnikolaou\n</details>\n\n### Refined Proposal\n\n- [ ] separate `SetupState` from `Session`\n  - [ ] one `Session` collection-tree should be shared among all threads\n  - [ ] each thread gets a separate `SetupState` and therefore a separate instance of each fixture\n- [ ] audit `Stash` uses for thread-safety\n- [ ] audit [`cacheprovider`](https://docs.pytest.org/en/stable/how-to/cache.html#the-new-config-cache-object) for thread-safety\n- [ ] make `capsys` thread-aware, with integrations for the per-thread `SetupState`\n\n### Issues and PRs\n\n- https://github.com/pytest-dev/pytest/issues/13844\n- https://github.com/pytest-dev/pytest/pull/13837\n",
+      "state": null,
+      "user": null,
+      "assignees": null,
+      "labels": null,
+      "milestone": null,
+      "state_reason": null,
+      "comments": null,
+      "created_at": null,
+      "updated_at": null,
+      "closed_at": null,
+      "display_url": "https://github.com/pytest-dev/pytest/issues/13768",
+      "display_title": "Thread safety and Pytest"
+    },
+    {
+      "url": "https://github.com/pytest-dev/pytest/issues/13479",
+      "title": "Pytest 8.4 fails to discover a test fixture withtin a test class when combined with the usage of freezegun",
+      "issue_number": 13479,
+      "body": "<!--\nThanks for submitting an issue!\n\nQuick check-list while reporting bugs:\n-->\n\n- [x] a detailed description of the bug or problem you are having\n- [ ] output of `pip list` from the virtual environment you are using\n- [x] pytest and operating system versions\n- [x] minimal example if possible\n\nEnvironment:\npytest 8.4.1\nfreezegun 1.5.2\n\nDescription:\nPytest 8.4 fails to discover a test fixture withtin a test class when combined with the usage of freezegun.\nThe below minimal example runs with pytest 8.3.x\n\nMinimal example:\n\n```python\nimport pytest\nfrom freezegun import freeze_time\n\n@freeze_time()\nclass TestA:\n    @pytest.fixture\n    def ff(self):\n        return 1\n\n    def test_a(self, ff):\n        assert ff == 1\n```\n\n\n\n\n\n\n\n",
+      "state": null,
+      "user": null,
+      "assignees": null,
+      "labels": null,
+      "milestone": null,
+      "state_reason": null,
+      "comments": null,
+      "created_at": null,
+      "updated_at": null,
+      "closed_at": null,
+      "display_url": "https://github.com/pytest-dev/pytest/issues/13479",
+      "display_title": "Pytest 8.4 fails to discover a test fixture withtin a test class when combined with the usage of freezegun"
+    }
+  ]
+}

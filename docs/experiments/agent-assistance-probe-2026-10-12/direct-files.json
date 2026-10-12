@@ -1,0 +1,38 @@
+[
+  {
+    "sha": "e94aa99afebf129431c9fe9a8e1facf0993499ab",
+    "filename": "changelog/15099.bugfix.rst",
+    "status": "added",
+    "additions": 3,
+    "deletions": 0,
+    "changes": 3,
+    "blob_url": "https://github.com/pytest-dev/pytest/blob/68cb1befd6baf84432b046fe9d703315e5f7221d/changelog%2F15099.bugfix.rst",
+    "raw_url": "https://github.com/pytest-dev/pytest/raw/68cb1befd6baf84432b046fe9d703315e5f7221d/changelog%2F15099.bugfix.rst",
+    "contents_url": "https://api.github.com/repos/pytest-dev/pytest/contents/changelog%2F15099.bugfix.rst?ref=68cb1befd6baf84432b046fe9d703315e5f7221d",
+    "patch": "@@ -0,0 +1,3 @@\n+``monkeypatch.setattr()`` no longer fails to undo an attribute of an object which defines a custom ``__setattr__``.\n+\n+Previously the old value was looked up in the instance ``__dict__``, which such an object may not use to store it, so ``undo()`` tried to delete the attribute instead of restoring it, raising :exc:`AttributeError` and leaking the patched value into later tests."
+  },
+  {
+    "sha": "1e3cafac09c54b6bc3b30fddb373462eb1323629",
+    "filename": "src/_pytest/monkeypatch.py",
+    "status": "modified",
+    "additions": 25,
+    "deletions": 7,
+    "changes": 32,
+    "blob_url": "https://github.com/pytest-dev/pytest/blob/68cb1befd6baf84432b046fe9d703315e5f7221d/src%2F_pytest%2Fmonkeypatch.py",
+    "raw_url": "https://github.com/pytest-dev/pytest/raw/68cb1befd6baf84432b046fe9d703315e5f7221d/src%2F_pytest%2Fmonkeypatch.py",
+    "contents_url": "https://api.github.com/repos/pytest-dev/pytest/contents/src%2F_pytest%2Fmonkeypatch.py?ref=68cb1befd6baf84432b046fe9d703315e5f7221d",
+    "patch": "@@ -124,6 +124,20 @@ def _is_data_descriptor(cls: type, name: str) -> bool:\n     return False\n \n \n+def _writes_to_instance_dict(cls: type) -> bool:\n+    \"\"\"Return True if ``setattr()`` on an instance of ``cls`` writes to the instance ``__dict__``.\n+\n+    A class which defines ``__setattr__`` may store the value anywhere -- in a\n+    proxy object's private mapping, for example -- so for those the old value\n+    has to be read with ``getattr()`` and restored through the same hook.\n+    \"\"\"\n+    return all(\n+        \"__setattr__\" not in klass.__dict__\n+        for klass in cls.__mro__\n+        if klass is not object\n+    )\n+\n+\n @final\n class MonkeyPatch:\n     \"\"\"Helper to conveniently monkeypatch attributes/items/environment\n@@ -258,13 +272,17 @@ def setattr(\n         # avoid class descriptors like staticmethod/classmethod\n         if inspect.isclass(target):\n             oldval = target.__dict__.get(name, NOTSET)\n-        elif not _is_data_descriptor(type(target), name):\n-            # With no data descriptor in the way, the `setattr()` below writes\n-            # into the instance `__dict__`, so `undo()` has to restore that\n-            # `__dict__` entry. Assigning an inherited `oldval` back onto the\n-            # instance would instead leave behind a new entry shadowing the\n-            # class attribute, which permanently freezes descriptors that\n-            # resolve dynamically (#10644).\n+        elif not _is_data_descriptor(type(target), name) and _writes_to_instance_dict(\n+            type(target)\n+        ):\n+            # With no data descriptor in the way and a plain `__setattr__`, the\n+            # `setattr()` below writes into the instance `__dict__`, so `undo()`\n+            # has to restore that `__dict__` entry. Assigning an inherited\n+            # `oldval` back onto the instance would instead leave behind a new\n+            # entry shadowing the class attribute, which permanently freezes\n+            # descriptors that resolve dynamically (#10644).\n+            # A custom `__setattr__` can store the value anywhere, so for those\n+            # the `getattr()` value is what has to be restored (#15099).\n             target_dict = getattr(target, \"__dict__\", None)\n             if isinstance(target_dict, Mapping):\n                 oldval = target_dict.get(name, NOTSET)"
+  },
+  {
+    "sha": "fee2ecdd680b99e2ef5cde9c2d2b57d935e40c83",
+    "filename": "testing/test_monkeypatch.py",
+    "status": "modified",
+    "additions": 39,
+    "deletions": 0,
+    "changes": 39,
+    "blob_url": "https://github.com/pytest-dev/pytest/blob/68cb1befd6baf84432b046fe9d703315e5f7221d/testing%2Ftest_monkeypatch.py",
+    "raw_url": "https://github.com/pytest-dev/pytest/raw/68cb1befd6baf84432b046fe9d703315e5f7221d/testing%2Ftest_monkeypatch.py",
+    "contents_url": "https://api.github.com/repos/pytest-dev/pytest/contents/testing%2Ftest_monkeypatch.py?ref=68cb1befd6baf84432b046fe9d703315e5f7221d",
+    "patch": "@@ -525,6 +525,45 @@ class Sample:\n     assert third != fourth\n \n \n+def test_undo_attribute_stored_outside_instance_dict() -> None:\n+    \"\"\"Undo must restore an attribute which the object stores outside its ``__dict__``.\n+\n+    A class with a custom ``__setattr__`` can keep the value anywhere, so the\n+    old value has to be read with ``getattr()`` and written back through the\n+    same hook.\n+\n+    See #15099.\n+    \"\"\"\n+\n+    class Config:\n+        _data: dict[str, object]\n+\n+        def __init__(self) -> None:\n+            object.__setattr__(self, \"_data\", {\"debug\": False})\n+\n+        def __getattr__(self, name: str) -> object:\n+            try:\n+                return self._data[name]\n+            except KeyError:\n+                raise AttributeError(name) from None\n+\n+        def __setattr__(self, name: str, value: object) -> None:\n+            self._data[name] = value\n+\n+    config = Config()\n+    monkeypatch = MonkeyPatch()\n+\n+    with pytest.raises(AttributeError):\n+        config.missing  # noqa: B018\n+\n+    monkeypatch.setattr(config, \"debug\", True)\n+    assert config.debug is True\n+    assert \"debug\" not in vars(config)\n+\n+    monkeypatch.undo()\n+    assert config.debug is False\n+\n+\n def test_undo_inherited_method_on_instance() -> None:\n     \"\"\"Patching a method on an instance must not leave a bound method behind.\"\"\"\n "
+  }
+]

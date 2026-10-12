@@ -1,0 +1,174 @@
+{
+  "finished_at": "2026-10-12T01:17:44.868930+00:00",
+  "wall_seconds": 246.22830909996992,
+  "reviewed_head": "fc315c218d6b806c3fd4dc4ba5aff56615b5d587",
+  "job": {
+    "id": "36a8fc28d28243c49293aa5f0f5843dd",
+    "account": "Daniele-Cangi",
+    "input": {
+      "repo": "",
+      "action": "discover_from_request",
+      "issue_url": "https://github.com/pytest-dev/pytest/issues/15099",
+      "query": "",
+      "use_ai": true,
+      "max_requests": 120,
+      "max_candidates": 1,
+      "targeted_inquiry": true
+    },
+    "status": "failed",
+    "stage": "requirements",
+    "progress": "Interpreting the demand independently of any source package.",
+    "created_at": "2026-10-12T01:13:39+00:00",
+    "updated_at": "2026-10-12T01:17:44+00:00",
+    "requests_used": 0,
+    "ai_calls_used": 1,
+    "cost_reserved_usd": 0.0089864,
+    "cache_hits": 0,
+    "error": "AI stream time limit exceeded; partial analysis is discarded. Reserved budget remains charged conservatively. No automatic retry.",
+    "error_diagnostic": {
+      "category": "ai_transport",
+      "code": "ai_stream_deadline_exceeded",
+      "phase": "request",
+      "reservation_retained": true,
+      "response_receipt": "unavailable",
+      "call_number": 1,
+      "attempt_id": "36a8fc28d28243c49293aa5f0f5843dd:1"
+    },
+    "checkpoint": {
+      "discovery_version": "request-led-discovery-v1",
+      "discussions": {
+        "0": {
+          "id": 5572346647,
+          "repo": "pytest-dev/pytest",
+          "repo_id": 37489525,
+          "number": 15099,
+          "url": "https://github.com/pytest-dev/pytest/issues/15099",
+          "title": "monkeypatch.setattr fails to undo on objects with a custom __setattr__ (regression from #14969)",
+          "body": "Since #14969 (0c601d510, not released yet), `monkeypatch.setattr` doesn't restore attributes on objects that store them somewhere other than `__dict__` through a custom `__setattr__`/`__getattr__`. Undo raises `AttributeError`, and the patched value leaks into later tests.\n\n```python\nclass Config:\n    \"\"\"Stores attributes in a private dict instead of __dict__.\"\"\"\n    def __init__(self):\n        object.__setattr__(self, \"_data\", {\"debug\": False})\n    def __getattr__(self, name):\n        try:\n            return self._data[name]\n        except KeyError:\n            raise AttributeError(name) from None\n    def __setattr__(self, name, value):\n        self._data[name] = value\n\ncfg = Config()\n\ndef test_patch(monkeypatch):\n    monkeypatch.setattr(cfg, \"debug\", True)\n    assert cfg.debug is True\n\ndef test_restored():\n    assert cfg.debug is False\n```\n\nOn main:\n\n```\nERROR test_proxy.py::test_patch - AttributeError: 'Config' object has no attribute 'debug'\nFAILED test_proxy.py::test_restored - assert True is False\n1 failed, 1 passed, 1 error\n```\n\nJust before 0c601d510, the same file passes (`2 passed`).\n\nThe new branch in `MonkeyPatch.setattr` takes the old value from `target.__dict__.get(name, NOTSET)` whenever `target` has a `__dict__`. It assumes that a plain `setattr()` writes into that dict. With a custom `__setattr__` it doesn't, so the old value is recorded as `NOTSET`. `undo()` then calls `delattr(cfg, \"debug\")` instead of setting it back to `False`. That `delattr` fails, and the value stays patched.\n\n@Shriprasad-P pointed out this exact case in a review on #14969, but it wasn't addressed before the merge. I'm opening this issue so it gets fixed before the next release.\n\nOne possible direction: only use the `__dict__` lookup when `name` is actually present in the instance `__dict__`, or when the type uses `object.__setattr__`. Otherwise fall back to the value from `getattr()`, as before.\n\npytest 9.2.0.dev345+g872117358, Python 3.13.5, Windows 11.\n",
+          "state": "open",
+          "state_reason": null,
+          "updated_at": "2026-10-07T16:41:55Z",
+          "created_at": "2026-09-24T17:51:31Z",
+          "closed_at": null,
+          "author": "Aditya-XR",
+          "author_association": "NONE",
+          "repo_archived": false,
+          "author_type": "User",
+          "bot": false,
+          "labels": [],
+          "comments": [
+            {
+              "id": 5922200424,
+              "url": "https://github.com/pytest-dev/pytest/issues/15099#issuecomment-5922200424",
+              "body": "Reproduced on main (9.2.0.dev450, Python 3.13): `undo()` raises `AttributeError: 'Config' object has no attribute 'debug'` and the patched value leaks into the next test.\n\nThe `__dict__` lookup added in 0c601d510 assumes that `setattr()` writes into the instance `__dict__`, which is not true when the class defines `__setattr__`. For those objects the old value has to come from `getattr()` and be restored through the same hook, so the old value is wrongly recorded as `NOTSET` and `undo()` tries to delete the attribute.\n\nI'll send a pull request which keeps the `__dict__` lookup for the case it was added for (a plain `object.__setattr__`), with a regression test and a changelog entry.\n\nDisclosure per the project's AI/LLM policy: this is an AI-assisted contribution; the pull request states what was machine-produced and what I verified manually.",
+              "author": "Tejas5405",
+              "author_association": "NONE",
+              "author_type": "User",
+              "bot": false,
+              "updated_at": "2026-10-01T00:26:00Z",
+              "created_at": "2026-10-01T00:26:00Z",
+              "redacted": false,
+              "truncated": false
+            },
+            {
+              "id": 5984775866,
+              "url": "https://github.com/pytest-dev/pytest/issues/15099#issuecomment-5984775866",
+              "body": "I'd like to work on this.\n\nThe fix direction is clear: only use the `__dict__` lookup when `name` is actually present in the instance `__dict__`, or when the type uses `object.__setattr__`. Otherwise fall back to the value from `getattr()`, as before.\n\nI'll add a regression test and implement the fix.",
+              "author": "DawnofGenX",
+              "author_association": "NONE",
+              "author_type": "User",
+              "bot": false,
+              "updated_at": "2026-10-04T21:50:45Z",
+              "created_at": "2026-10-04T21:50:45Z",
+              "redacted": false,
+              "truncated": false
+            },
+            {
+              "id": 5985039682,
+              "url": "https://github.com/pytest-dev/pytest/issues/15099#issuecomment-5985039682",
+              "body": "Heads up: this already has an open PR â€” #15118, up since 2026-10-01, with the regression test and a changelog entry.\n\nYour proposed direction matches what it does (`__dict__` lookup only when the name is really there or the type uses `object.__setattr`, otherwise fall back to `getattr()`). Worth checking that first. Happy to coordinate here if you still want to take the regression-test side.",
+              "author": "Tejas5405",
+              "author_association": "NONE",
+              "author_type": "User",
+              "bot": false,
+              "updated_at": "2026-10-04T22:16:23Z",
+              "created_at": "2026-10-04T22:16:23Z",
+              "redacted": false,
+              "truncated": false
+            },
+            {
+              "id": 6042436811,
+              "url": "https://github.com/pytest-dev/pytest/issues/15099#issuecomment-6042436811",
+              "body": "Thanks @Tejas5405 â€” noted. I did end up going with #15130 for this (merged and green); leaving #15118 to the maintainers to reconcile. Nothing further from me here.",
+              "author": "DawnofGenX",
+              "author_association": "NONE",
+              "author_type": "User",
+              "bot": false,
+              "updated_at": "2026-10-07T16:40:57Z",
+              "created_at": "2026-10-07T16:40:57Z",
+              "redacted": false,
+              "truncated": false
+            },
+            {
+              "id": 6042445925,
+              "url": "https://github.com/pytest-dev/pytest/issues/15099#issuecomment-6042445925",
+              "body": "Correction to my previous comment: I mis-stated that #15130 was merged â€” it is still open (green, 36/36 checks). So there are two open PRs for this: #15118 and #15130. Leaving it to the maintainers to pick one; I'll stand down on whichever they don't take.",
+              "author": "DawnofGenX",
+              "author_association": "NONE",
+              "author_type": "User",
+              "bot": false,
+              "updated_at": "2026-10-07T16:41:27Z",
+              "created_at": "2026-10-07T16:41:27Z",
+              "redacted": false,
+              "truncated": false
+            },
+            {
+              "id": 6042454555,
+              "url": "https://github.com/pytest-dev/pytest/issues/15099#issuecomment-6042454555",
+              "body": "Second correction, and this one matters: #15118 was opened Oct 1 by @Tejas5405, three days before my #15130 (Oct 4) â€” and @Tejas5405 flagged exactly that on Oct 4, which I did not act on. So mine is the later duplicate, not the other way round. I've closed #15130 to leave the field to #15118.",
+              "author": "DawnofGenX",
+              "author_association": "NONE",
+              "author_type": "User",
+              "bot": false,
+              "updated_at": "2026-10-07T16:41:55Z",
+              "created_at": "2026-10-07T16:41:55Z",
+              "redacted": false,
+              "truncated": false
+            }
+          ],
+          "timeline": [],
+          "context_complete": false,
+          "limitations": [
+            "Preselection retained the full six-comment discussion, but no issue timeline; timeline status remains unknown. No synthetic empty timeline establishes completeness."
+          ],
+          "fetched_at": "2026-10-12T00:06:26+00:00",
+          "public": true,
+          "fingerprint": "2063e60c2265a131fe12fb6d80eea712dbef29d57186fabbd9ea1a7de8c8c5ba"
+        }
+      },
+      "requests": {}
+    },
+    "result": {
+      "match_ids": []
+    },
+    "provider_identity": "cdcd5f4d30c98d6930cf75d7b2fc8c965d48b0d5a52560b0475019c45ad41426"
+  },
+  "provider": {
+    "configured": true,
+    "kind": "OpenAI-compatible",
+    "model": "gpt-6-luna",
+    "remote": true,
+    "error": "",
+    "outbound_description": "Selected PUBLIC source excerpts, signatures, issue body/comments, requirements and compatibility results. No tokens, account history or private repositories.",
+    "limits": {
+      "max_calls_per_job": 6,
+      "max_cost_usd_per_job": 0.15,
+      "max_prompt_bytes": 180000,
+      "max_output_tokens": 12000,
+      "total_budget_usd": 0.25,
+      "allowance_id": "agent-assistance-probe-2026-10-12-v1"
+    },
+    "api_kind": "responses",
+    "response_format": "json_schema"
+  }
+}

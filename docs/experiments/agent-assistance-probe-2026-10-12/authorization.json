@@ -1,0 +1,21 @@
+{
+  "approved_by": "human_user",
+  "source": "Explicit user reply to the PR #125 cohort authorization question in this chat",
+  "answer": "Autorizzo tre subagenti e 0,25 USD",
+  "approved_at_utc_date": "2026-10-11",
+  "scope": "agent-assistance-probe-2026-10-12-v1 only",
+  "ceiling_usd": 0.25,
+  "max_paid_calls": 6,
+  "provider_model": "gpt-6-luna",
+  "max_isolated_development_agents": 3,
+  "common_attempt_wall_minutes": 15,
+  "continuation_wall_minutes_each": 15,
+  "paid_gate": "Common attempt remains blocked; review and full Windows/Linux CI green",
+  "common_attempt": "Offline development only; no paid API call",
+  "previous_allowances_reused": false,
+  "retries": 0,
+  "resumes": 0,
+  "source_replacements": 0,
+  "automatic_merge": false,
+  "original_execution_bounds": "execution-bounds.json; kept unchanged as proposed before approval"
+}

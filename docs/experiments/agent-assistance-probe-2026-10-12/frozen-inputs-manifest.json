@@ -1,0 +1,57 @@
+{
+  "fingerprint": "9b45c38282d1ab028e6cd0ac4609f483dcb81658898866e6ca718f8fbd75470d",
+  "target_repository_id": 37489525,
+  "target_revision": "587ebc501ba292539202a1aac3a7f5b0112a08ec",
+  "target_tree_sha": "029224885229ff6ae959f5f7e289d9f85baec5ad",
+  "discussion_source": "demand.json retained before agents/donors; all six comments preserved. Timeline was not retained and remains explicitly unknown.",
+  "target_source": "Unmodified pinned local Git objects, with Git blob SHA-1 verification, processed through existing PublicGitHub sampling/normalization. Public repository/commit metadata acquired read-only via GitHub connector.",
+  "target_files": [
+    {
+      "path": "pyproject.toml",
+      "sha": "e7dcef6e007235ebd473ca5697e2faa0346bee6d"
+    }
+  ],
+  "normalization_reads": [
+    {
+      "endpoint": "repos/pytest-dev/pytest",
+      "params": null
+    },
+    {
+      "endpoint": "repos/pytest-dev/pytest/issues/15099",
+      "params": null
+    },
+    {
+      "endpoint": "repos/pytest-dev/pytest/issues/15099/comments",
+      "params": {
+        "per_page": 100,
+        "page": 1
+      }
+    },
+    {
+      "endpoint": "repos/pytest-dev/pytest/issues/15099/timeline",
+      "params": {
+        "per_page": 100,
+        "page": 1
+      }
+    },
+    {
+      "endpoint": "repos/pytest-dev/pytest",
+      "params": null
+    },
+    {
+      "endpoint": "repos/pytest-dev/pytest/commits/main",
+      "params": null
+    },
+    {
+      "endpoint": "repos/pytest-dev/pytest/git/trees/029224885229ff6ae959f5f7e289d9f85baec5ad",
+      "params": {
+        "recursive": 1
+      }
+    },
+    {
+      "endpoint": "repos/pytest-dev/pytest/git/blobs/e7dcef6e007235ebd473ca5697e2faa0346bee6d",
+      "params": null
+    }
+  ],
+  "new_paid_calls": 0
+}

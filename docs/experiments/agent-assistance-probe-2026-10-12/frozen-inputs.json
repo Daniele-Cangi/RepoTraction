@@ -1,0 +1,1364 @@
+{
+  "issue": {
+    "id": 5572346647,
+    "repo": "pytest-dev/pytest",
+    "repo_id": 37489525,
+    "number": 15099,
+    "url": "https://github.com/pytest-dev/pytest/issues/15099",
+    "title": "monkeypatch.setattr fails to undo on objects with a custom __setattr__ (regression from #14969)",
+    "body": "Since #14969 (0c601d510, not released yet), `monkeypatch.setattr` doesn't restore attributes on objects that store them somewhere other than `__dict__` through a custom `__setattr__`/`__getattr__`. Undo raises `AttributeError`, and the patched value leaks into later tests.\n\n```python\nclass Config:\n    \"\"\"Stores attributes in a private dict instead of __dict__.\"\"\"\n    def __init__(self):\n        object.__setattr__(self, \"_data\", {\"debug\": False})\n    def __getattr__(self, name):\n        try:\n            return self._data[name]\n        except KeyError:\n            raise AttributeError(name) from None\n    def __setattr__(self, name, value):\n        self._data[name] = value\n\ncfg = Config()\n\ndef test_patch(monkeypatch):\n    monkeypatch.setattr(cfg, \"debug\", True)\n    assert cfg.debug is True\n\ndef test_restored():\n    assert cfg.debug is False\n```\n\nOn main:\n\n```\nERROR test_proxy.py::test_patch - AttributeError: 'Config' object has no attribute 'debug'\nFAILED test_proxy.py::test_restored - assert True is False\n1 failed, 1 passed, 1 error\n```\n\nJust before 0c601d510, the same file passes (`2 passed`).\n\nThe new branch in `MonkeyPatch.setattr` takes the old value from `target.__dict__.get(name, NOTSET)` whenever `target` has a `__dict__`. It assumes that a plain `setattr()` writes into that dict. With a custom `__setattr__` it doesn't, so the old value is recorded as `NOTSET`. `undo()` then calls `delattr(cfg, \"debug\")` instead of setting it back to `False`. That `delattr` fails, and the value stays patched.\n\n@Shriprasad-P pointed out this exact case in a review on #14969, but it wasn't addressed before the merge. I'm opening this issue so it gets fixed before the next release.\n\nOne possible direction: only use the `__dict__` lookup when `name` is actually present in the instance `__dict__`, or when the type uses `object.__setattr__`. Otherwise fall back to the value from `getattr()`, as before.\n\npytest 9.2.0.dev345+g872117358, Python 3.13.5, Windows 11.\n",
+    "state": "open",
+    "state_reason": null,
+    "updated_at": "2026-10-07T16:41:55Z",
+    "created_at": "2026-09-24T17:51:31Z",
+    "closed_at": null,
+    "author": "Aditya-XR",
+    "author_association": "NONE",
+    "repo_archived": false,
+    "author_type": "User",
+    "bot": false,
+    "labels": [],
+    "comments": [
+      {
+        "id": 5922200424,
+        "url": "https://github.com/pytest-dev/pytest/issues/15099#issuecomment-5922200424",
+        "body": "Reproduced on main (9.2.0.dev450, Python 3.13): `undo()` raises `AttributeError: 'Config' object has no attribute 'debug'` and the patched value leaks into the next test.\n\nThe `__dict__` lookup added in 0c601d510 assumes that `setattr()` writes into the instance `__dict__`, which is not true when the class defines `__setattr__`. For those objects the old value has to come from `getattr()` and be restored through the same hook, so the old value is wrongly recorded as `NOTSET` and `undo()` tries to delete the attribute.\n\nI'll send a pull request which keeps the `__dict__` lookup for the case it was added for (a plain `object.__setattr__`), with a regression test and a changelog entry.\n\nDisclosure per the project's AI/LLM policy: this is an AI-assisted contribution; the pull request states what was machine-produced and what I verified manually.",
+        "author": "Tejas5405",
+        "author_association": "NONE",
+        "author_type": "User",
+        "bot": false,
+        "updated_at": "2026-10-01T00:26:00Z",
+        "created_at": "2026-10-01T00:26:00Z",
+        "redacted": false,
+        "truncated": false
+      },
+      {
+        "id": 5984775866,
+        "url": "https://github.com/pytest-dev/pytest/issues/15099#issuecomment-5984775866",
+        "body": "I'd like to work on this.\n\nThe fix direction is clear: only use the `__dict__` lookup when `name` is actually present in the instance `__dict__`, or when the type uses `object.__setattr__`. Otherwise fall back to the value from `getattr()`, as before.\n\nI'll add a regression test and implement the fix.",
+        "author": "DawnofGenX",
+        "author_association": "NONE",
+        "author_type": "User",
+        "bot": false,
+        "updated_at": "2026-10-04T21:50:45Z",
+        "created_at": "2026-10-04T21:50:45Z",
+        "redacted": false,
+        "truncated": false
+      },
+      {
+        "id": 5985039682,
+        "url": "https://github.com/pytest-dev/pytest/issues/15099#issuecomment-5985039682",
+        "body": "Heads up: this already has an open PR â€” #15118, up since 2026-10-01, with the regression test and a changelog entry.\n\nYour proposed direction matches what it does (`__dict__` lookup only when the name is really there or the type uses `object.__setattr`, otherwise fall back to `getattr()`). Worth checking that first. Happy to coordinate here if you still want to take the regression-test side.",
+        "author": "Tejas5405",
+        "author_association": "NONE",
+        "author_type": "User",
+        "bot": false,
+        "updated_at": "2026-10-04T22:16:23Z",
+        "created_at": "2026-10-04T22:16:23Z",
+        "redacted": false,
+        "truncated": false
+      },
+      {
+        "id": 6042436811,
+        "url": "https://github.com/pytest-dev/pytest/issues/15099#issuecomment-6042436811",
+        "body": "Thanks @Tejas5405 â€” noted. I did end up going with #15130 for this (merged and green); leaving #15118 to the maintainers to reconcile. Nothing further from me here.",
+        "author": "DawnofGenX",
+        "author_association": "NONE",
+        "author_type": "User",
+        "bot": false,
+        "updated_at": "2026-10-07T16:40:57Z",
+        "created_at": "2026-10-07T16:40:57Z",
+        "redacted": false,
+        "truncated": false
+      },
+      {
+        "id": 6042445925,
+        "url": "https://github.com/pytest-dev/pytest/issues/15099#issuecomment-6042445925",
+        "body": "Correction to my previous comment: I mis-stated that #15130 was merged â€” it is still open (green, 36/36 checks). So there are two open PRs for this: #15118 and #15130. Leaving it to the maintainers to pick one; I'll stand down on whichever they don't take.",
+        "author": "DawnofGenX",
+        "author_association": "NONE",
+        "author_type": "User",
+        "bot": false,
+        "updated_at": "2026-10-07T16:41:27Z",
+        "created_at": "2026-10-07T16:41:27Z",
+        "redacted": false,
+        "truncated": false
+      },
+      {
+        "id": 6042454555,
+        "url": "https://github.com/pytest-dev/pytest/issues/15099#issuecomment-6042454555",
+        "body": "Second correction, and this one matters: #15118 was opened Oct 1 by @Tejas5405, three days before my #15130 (Oct 4) â€” and @Tejas5405 flagged exactly that on Oct 4, which I did not act on. So mine is the later duplicate, not the other way round. I've closed #15130 to leave the field to #15118.",
+        "author": "DawnofGenX",
+        "author_association": "NONE",
+        "author_type": "User",
+        "bot": false,
+        "updated_at": "2026-10-07T16:41:55Z",
+        "created_at": "2026-10-07T16:41:55Z",
+        "redacted": false,
+        "truncated": false
+      }
+    ],
+    "timeline": [],
+    "context_complete": false,
+    "limitations": [
+      "Preselection retained the full six-comment discussion, but no issue timeline; timeline status remains unknown. No synthetic empty timeline establishes completeness."
+    ],
+    "fetched_at": "2026-10-12T00:06:26+00:00",
+    "public": true,
+    "fingerprint": "2063e60c2265a131fe12fb6d80eea712dbef29d57186fabbd9ea1a7de8c8c5ba"
+  },
+  "target": {
+    "id": 37489525,
+    "full_name": "pytest-dev/pytest",
+    "revision": "587ebc501ba292539202a1aac3a7f5b0112a08ec",
+    "default_branch": "main",
+    "description": "The pytest framework makes it easy to write small tests, yet scales to support complex functional testing",
+    "license": {
+      "key": "mit",
+      "name": "MIT License",
+      "spdx_id": "MIT",
+      "url": "https://api.github.com/licenses/mit",
+      "node_id": "MDc6TGljZW5zZTEz"
+    },
+    "files": [
+      {
+        "path": "pyproject.toml",
+        "sha": "e7dcef6e007235ebd473ca5697e2faa0346bee6d",
+        "text": "[build-system]\nbuild-backend = \"setuptools.build_meta\"\nrequires = [\n    \"setuptools>=77\",\n    \"setuptools-scm[toml]>=10.1\",\n]\n\n[project]\nname = \"pytest\"\ndescription = \"pytest: simple powerful testing with Python\"\nreadme = \"README.rst\"\nkeywords = [\n    \"test\",\n    \"unittest\",\n]\nlicense = \"MIT\"\nlicense-files = [ \"LICENSE\" ]\nauthors = [\n    { name = \"Brianna Laugher\" },\n    { name = \"Bruno Oliveira\" },\n    { name = \"Floris Bruynooghe\" },\n    { name = \"Freya Bruhin\" },\n    { name = \"Holger Krekel\" },\n    { name = \"Others (See AUTHORS)\" },\n    { name = \"Ronny Pfannschmidt\" },\n]\nrequires-python = \">=3.10\"\nclassifiers = [\n    \"Development Status :: 6 - Mature\",\n    \"Intended Audience :: Developers\",\n    \"Operating System :: MacOS\",\n    \"Operating System :: Microsoft :: Windows\",\n    \"Operating System :: POSIX\",\n    \"Operating System :: Unix\",\n    \"Programming Language :: Python :: 3 :: Only\",\n    \"Programming Language :: Python :: 3.10\",\n    \"Programming Language :: Python :: 3.11\",\n    \"Programming Language :: Python :: 3.12\",\n    \"Programming Language :: Python :: 3.13\",\n    \"Programming Language :: Python :: 3.14\",\n    \"Programming Language :: Python :: 3.15\",\n    \"Topic :: Software Development :: Libraries\",\n    \"Topic :: Software Development :: Testing\",\n    \"Topic :: Utilities\",\n]\ndynamic = [\n    \"version\",\n]\ndependencies = [\n    \"colorama>=0.4; sys_platform=='win32'\",\n    \"exceptiongroup>=1; python_version<'3.11'\",\n    \"iniconfig>=2\",\n    \"packaging>=24\",\n    \"pluggy>=1.5,<2\",\n    \"pygments>=2.15\",\n    \"tomli>=2; python_version<'3.11'\",\n]\n# Kept as a published extra because many external repos still install\n# `pytest[dev]` / `.[dev]`. Prefer the `dev` dependency group for local\n# development of pytest itself (see CONTRIBUTING.rst).\noptional-dependencies.dev = [\n    # Core test dependencies\n    \"argcomplete\",\n    \"asynctest; python_version<'3.11'\",\n    \"attrs>=23.1\",\n    # Test execution and coverage\n    \"coverage>=7.5\",\n    \"hypothesis>=6.75\",\n    \"mock\",\n    \"numpy>=1.26\",\n    \"pexpect>=4.9\",\n    \"pytest-xdist>=3.5\",\n    # Additional test dependencies\n    \"pyyaml\",\n    \"requests\",\n    \"setuptools\",\n    \"xmlschema\",\n]\nurls.Changelog = \"https://docs.pytest.org/en/stable/changelog.html\"\nurls.Contact = \"https://docs.pytest.org/en/stable/contact.html\"\nurls.Funding = \"https://docs.pytest.org/en/stable/sponsor.html\"\nurls.Homepage = \"https://docs.pytest.org/en/latest/\"\nurls.Source = \"https://github.com/pytest-dev/pytest\"\nurls.Tracker = \"https://github.com/pytest-dev/pytest/issues\"\nscripts.\"py.test\" = \"_pytest.config:_console_main\"\nscripts.pytest = \"_pytest.config:_console_main\"\n\n[dependency-groups]\n# Preferred entry point for developing pytest; pulls from optional-dependencies.dev.\ndev = [\n    \"pytest[dev]\",\n]\n\n[tool.setuptools.package-data]\n\"_pytest\" = [\n    \"py.typed\",\n]\n\"pytest\" = [\n    \"py.typed\",\n]\n\n[tool.setuptools_scm]\nversion_file = \"src/_pytest/_version.py\"\n# keep writing _version.py into the checkout: running pytest from a source\n# tree relies on it. The setuptools-scm default flips in a future major.\nwrite_to_source = true\n\n[tool.black]\n# See https://black.readthedocs.io/en/stable/usage_and_configuration/the_basics.html#t-target-version\ntarget-version = [ \"py310\", \"py311\", \"py312\", \"py313\" ]\n\n[tool.ruff]\ntarget-version = \"py310\"\nline-length = 88\nsrc = [\n    \"src\",\n]\nformat.docstring-code-format = true\nlint.extend-select = [\n    \"B\",      # bugbear\n    \"D\",      # pydocstyle\n    \"E\",      # pycodestyle\n    \"F\",      # pyflakes\n    \"FA100\",  # add future annotations\n    \"I\",      # isort\n    \"PGH004\", # pygrep-hooks - Use specific rule codes when using noqa\n    \"PIE\",    # flake8-pie\n    \"PLC\",    # pylint convention\n    \"PLE\",    # pylint error\n    \"PLR\",    # pylint refactor\n    \"PLW\",    # pylint warning\n    \"PYI\",    # flake8-pyi\n    \"RUF\",    # ruff\n    \"T100\",   # flake8-debugger\n    \"UP\",     # pyupgrade\n    \"W\",      # pycodestyle\n]\nlint.ignore = [\n    # flake8-async ignore\n    \"ASYNC115\", # Use `lowlevel.checkpoint()` instead of `sleep(0)`\n    # bugbear ignore\n    \"B004\", # Using `hasattr(x, \"__call__\")` to test if x is callable is unreliable.\n    \"B007\", # Loop control variable `i` not used within loop body\n    \"B009\", # Do not call `getattr` with a constant attribute value\n    \"B010\", # [*] Do not call `setattr` with a constant attribute value.\n    \"B011\", # Do not `assert False` (`python -O` removes these calls)\n    \"B028\", # No explicit `stacklevel` keyword argument found\n    # flake8-blind-except ignore\n    \"BLE001\", # Do not catch blind exception\n    # flake8-comprehensions ignore\n    \"C408\", # Unnecessary `dict()`/`list()`/`tuple()` call (rewrite as a literal)\n    # pydocstyle ignore\n    \"D100\", # Missing docstring in public module\n    \"D101\", # Missing docstring in public class\n    \"D102\", # Missing docstring in public method\n    \"D103\", # Missing docstring in public function\n    \"D104\", # Missing docstring in public package\n    \"D105\", # Missing docstring in magic method\n    \"D106\", # Missing docstring in public nested class\n    \"D107\", # Missing docstring in `__init__`\n    \"D205\", # 1 blank line required between summary line and description\n    \"D209\", # [*] Multi-line docstring closing quotes should be on a separate line\n    \"D400\", # First line should end with a period\n    \"D401\", # First line of docstring should be in imperative mood\n    \"D402\", # First line should not be the function's signature\n    \"D404\", # First word of the docstring should not be \"This\"\n    \"D415\", # First line should end with a period, question mark, or exclamation point\n    # flake8-datetimez ignore\n    \"DTZ001\", # `datetime.datetime()` called without a `tzinfo` argument\n    \"DTZ005\", # `datetime.datetime.now()` called without a `tz` argument\n    # pytest can do weird low-level things, and we usually know\n    # what we're doing when we use type(..) is ...\n    \"E721\", # Do not compare types, use `isinstance()`\n    # flynt ignore\n    \"FLY002\", # Consider an f-string instead of string join\n    # flake8-implicit-str-concat ignore\n    \"ISC004\", # Unparenthesized implicit string concatenation in collection\n    # flake8-logging ignore\n    \"LOG015\", # Call on root logger\n    # pylint ignore\n    \"PLC0105\", # `TypeVar` name \"E\" does not reflect its covariance;\n    \"PLC0414\", # Import alias does not rename original package\n    \"PLC0415\", # import should be at top level of package\n    \"PLR0124\", # Name compared with itself\n    \"PLR0133\", # Two constants compared in a comparison (lots of those in tests)\n    \"PLR0402\", # Use `from x.y import z` in lieu of alias\n    \"PLR0911\", # Too many return statements\n    \"PLR0912\", # Too many branches\n    \"PLR0913\", # Too many arguments in function definition\n    \"PLR0915\", # Too many statements\n    \"PLR0917\", # Too many positional arguments\n    \"PLR2004\", # Magic value used in comparison\n    \"PLR2044\", # Line with empty comment\n    \"PLR5501\", # Use `elif` instead of `else` then `if`\n    \"PLW0120\", # remove the else and dedent its contents\n    \"PLW0603\", # Using the global statement\n    \"PLW1641\", # Does not implement the __hash__ method\n    \"PLW2901\", # for loop variable overwritten by assignment target\n    # flake8-pytest-style ignore\n    \"PT020\", # `@pytest.yield_fixture` is deprecated, use `@pytest.fixture`\n    \"PT025\", # `pytest.mark.usefixtures` has no effect on fixtures\n    \"PT031\", # `pytest.warns()` block should contain a single simple statement\n    # flake8-use-pathlib ignore\n    \"PTH124\", # `py.path` is in maintenance mode, use `pathlib` instead\n    # ruff ignore\n    \"RUF012\", # Mutable class attributes should be annotated with `typing.ClassVar`\n    \"RUF061\", # Use context-manager form of `pytest.raises()`\n    # flake8-bandit ignore\n    \"S102\", # Use of `exec` detected\n    \"S110\", # `try`-`except`-`pass` detected, consider logging the exception\n    # flake8-simplify ignore\n    \"SIM102\", # Use a single `if` statement instead of nested `if` statements\n    \"SIM103\", # Return the condition directly\n    \"SIM114\", # Combine `if` branches using logical `or` operator\n    \"SIM115\", # Use a context manager for opening files\n    \"SIM117\", # Use a single `with` statement with multiple contexts instead of nested `with` statements\n    \"SIM201\", # Use `!=` instead of `not ... == ...`\n    \"SIM211\", # Use `not ...` instead of `False if ... else True`\n    # tryceratops ignore\n    \"TRY002\", # Create your own exception\n    \"TRY004\", # Prefer `TypeError` exception for invalid type\n]\nlint.per-file-ignores.\"doc/**/*.py\" = [\n    \"PLR0133\", # Two constants compared in a comparison,\n    \"RUF059\",  # Unpacked variable is never used\n    \"S102\",    # Use of `exec` detected\n    \"TRY002\",  # Create your own exception\n]\nlint.per-file-ignores.\"src/_pytest/_py/**/*.py\" = [\n    \"B\",\n    \"PYI\",\n]\nlint.per-file-ignores.\"src/_pytest/_version.py\" = [\n    \"I001\",\n]\nlint.per-file-ignores.\"testing/**/*.py\" = [\n    \"RUF060\", # 'Unnecessary membership test on empty collection', always voluntary in tests\n]\n# can't be disabled on a line-by-line basis in file\nlint.per-file-ignores.\"testing/code/test_source.py\" = [\n    \"F841\",\n]\nlint.per-file-ignores.\"testing/python/approx.py\" = [\n    \"B015\",\n]\nlint.extend-safe-fixes = [\n    \"UP006\",\n    \"UP007\",\n]\nlint.isort.combine-as-imports = true\nlint.isort.force-single-line = true\nlint.isort.force-sort-within-sections = true\nlint.isort.known-local-folder = [\n    \"pytest\",\n    \"_pytest\",\n]\nlint.isort.lines-after-imports = 2\nlint.isort.order-by-type = false\nlint.isort.required-imports = [\n    \"from __future__ import annotations\",\n]\n# In order to be able to format for 88 char in ruff format\nlint.pycodestyle.max-line-length = 120\nlint.pydocstyle.convention = \"pep257\"\nlint.pyupgrade.keep-runtime-typing = false\n\n[tool.pylint.main]\n# Maximum number of characters on a single line.\nmax-line-length = 120\ndisable = [\n    \"abstract-method\",\n    \"arguments-differ\",\n    \"arguments-renamed\",\n    \"assigning-non-slot\",\n    \"attribute-defined-outside-init\",\n    \"bad-builtin\",\n    \"bad-classmethod-argument\",\n    \"bad-dunder-name\",\n    \"bad-mcs-method-argument\",\n    \"broad-exception-caught\",\n    \"broad-exception-raised\",\n    \"cell-var-from-loop\",                     # B023 from ruff / flake8-bugbear\n    \"comparison-of-constants\",                # disabled in ruff (PLR0133)\n    \"comparison-with-callable\",\n    \"comparison-with-itself\",                 # PLR0124 from ruff\n    \"condition-evals-to-constant\",\n    \"confusing-consecutive-elif\",\n    \"consider-alternative-union-syntax\",\n    \"consider-ternary-expression\",\n    \"consider-using-assignment-expr\",\n    \"consider-using-dict-items\",\n    \"consider-using-from-import\",             # not activated by default, PLR0402 disabled in ruff\n    \"consider-using-f-string\",\n    \"consider-using-in\",\n    \"consider-using-namedtuple-or-dataclass\",\n    \"consider-using-ternary\",\n    \"consider-using-tuple\",\n    \"consider-using-with\",\n    \"cyclic-import\",\n    \"deprecated-argument\",\n    \"deprecated-attribute\",\n    \"deprecated-class\",\n    \"differing-param-doc\",\n    \"disallowed-name\",                        # foo / bar are used often in tests\n    \"docstring-first-line-empty\",\n    \"duplicate-code\",\n    \"else-if-used\",                           # not activated by default, PLR5501 disabled in ruff\n    \"empty-comment\",                          # not activated by default, PLR2044 disabled in ruff\n    \"eq-without-hash\",                        # PLW1641 disabled in ruff\n    \"eval-used\",\n    \"exec-used\",\n    \"expression-not-assigned\",\n    \"fixme\",\n    \"global-statement\",                       # PLW0603 disabled in ruff\n    \"import-error\",\n    \"import-outside-toplevel\",                # PLC0415 disabled in ruff\n    \"import-private-name\",\n    \"inconsistent-return-statements\",\n    \"invalid-bool-returned\",\n    \"invalid-name\",\n    \"invalid-repr-returned\",\n    \"invalid-str-returned\",\n    \"keyword-arg-before-vararg\",\n    \"line-too-long\",\n    \"magic-value-comparison\",                 # not activated by default, PLR2004 disabled in ruff\n    \"method-hidden\",\n    \"misplaced-bare-raise\",                   # PLE0704 from ruff\n    \"misplaced-comparison-constant\",\n    \"missing-docstring\",\n    \"missing-param-doc\",\n    \"missing-raises-doc\",\n    \"missing-timeout\",\n    \"missing-type-doc\",\n    \"multiple-statements\",                    # multiple-statements-on-one-line-colon (E701) from ruff\n    \"no-else-break\",\n    \"no-else-continue\",\n    \"no-else-raise\",\n    \"no-else-return\",\n    \"no-member\",\n    \"no-name-in-module\",\n    \"no-self-argument\",\n    \"no-self-use\",\n    \"not-an-iterable\",\n    \"not-callable\",\n    \"pointless-exception-statement\",          # https://github.com/pytest-dev/pytest/pull/12379\n    \"pointless-statement\",                    # https://github.com/pytest-dev/pytest/pull/12379\n    \"pointless-string-statement\",             # https://github.com/pytest-dev/pytest/pull/12379\n    \"possibly-used-before-assignment\",\n    \"protected-access\",\n    \"raise-missing-from\",\n    \"redefined-argument-from-local\",\n    \"redefined-builtin\",\n    \"redefined-loop-name\",                    # PLW2901 disabled in ruff\n    \"redefined-outer-name\",\n    \"redefined-variable-type\",\n    \"reimported\",\n    \"simplifiable-condition\",\n    \"simplifiable-if-expression\",\n    \"singleton-comparison\",\n    \"superfluous-parens\",\n    \"super-init-not-called\",\n    \"too-complex\",\n    \"too-few-public-methods\",\n    \"too-many-ancestors\",\n    \"too-many-arguments\",                     # disabled in ruff\n    \"too-many-branches\",                      # disabled in ruff\n    \"too-many-function-args\",\n    \"too-many-instance-attributes\",\n    \"too-many-lines\",\n    \"too-many-locals\",\n    \"too-many-nested-blocks\",\n    \"too-many-positional-arguments\",\n    \"too-many-public-methods\",\n    \"too-many-return-statements\",             # disabled in ruff\n    \"too-many-statements\",                    # disabled in ruff\n    \"too-many-try-statements\",\n    \"try-except-raise\",\n    \"typevar-name-incorrect-variance\",        # PLC0105 disabled in ruff\n    \"unbalanced-tuple-unpacking\",\n    \"undefined-loop-variable\",\n    \"undefined-variable\",\n    \"unexpected-keyword-arg\",\n    \"unidiomatic-typecheck\",\n    \"unnecessary-comprehension\",\n    \"unnecessary-dunder-call\",\n    \"unnecessary-lambda\",\n    \"unnecessary-lambda-assignment\",\n    \"unpacking-non-sequence\",\n    \"unspecified-encoding\",\n    \"unsubscriptable-object\",\n    \"unused-argument\",\n    \"unused-import\",\n    \"unused-variable\",\n    \"used-before-assignment\",\n    \"use-dict-literal\",\n    \"use-implicit-booleaness-not-comparison\",\n    \"use-implicit-booleaness-not-len\",\n    \"useless-else-on-loop\",                   # PLC0414 disabled in ruff\n    \"useless-import-alias\",\n    \"useless-return\",\n    \"use-set-for-membership\",\n    \"using-constant-test\",\n    \"while-used\",\n    \"wrong-import-order\",                     # handled by isort / ruff\n    \"wrong-import-position\",                  # handled by isort / ruff\n]\n\n[tool.codespell]\nignore-words-list = \"afile,asend,asser,assertio,feld,hove,ned,noes,notin,paramete,parth,tesults,varius,wil\"\nskip = \"AUTHORS,*/plugin_list.rst\"\nwrite-changes = true\n\n[tool.check-wheel-contents]\n# check-wheel-contents is executed by the build-and-inspect-python-package action.\n# W009: Wheel contains multiple toplevel library entries\nignore = \"W009\"\n\n[tool.pyproject-fmt]\nindent = 4\nmax_supported_python = \"3.15\"\n\n[tool.pytest]\nminversion = \"2.0\"\naddopts = [ \"-rfEX\", \"-p\", \"pytester\" ]\npython_files = [\n    \"test_*.py\",\n    \"*_test.py\",\n    \"testing/python/*.py\",\n]\npython_classes = [\n    \"Test\",\n    \"Acceptance\",\n]\npython_functions = [\n    \"test\",\n]\n# NOTE: \"doc\" is not included here, but gets tested explicitly via \"doctesting\".\ntestpaths = [\n    \"testing\",\n]\nnorecursedirs = [\n    \"testing/example_scripts\",\n    \"testing/plugins_integration\",\n    \".*\",\n    \"build\",\n    \"dist\",\n]\nstrict = true\nfilterwarnings = [\n    'error',\n    'default:Using or importing the ABCs:DeprecationWarning:unittest2.*',\n    # produced by older pyparsing<=2.2.0.\n    'default:Using or importing the ABCs:DeprecationWarning:pyparsing.*',\n    'default:the imp module is deprecated in favour of importlib:DeprecationWarning:nose.*',\n    # distutils is deprecated in 3.10, scheduled for removal in 3.12\n    'ignore:The distutils package is deprecated:DeprecationWarning',\n    # produced by pytest-xdist\n    'ignore:.*type argument to addoption.*:DeprecationWarning',\n    # produced on execnet (pytest-xdist)\n    'ignore:.*inspect.getargspec.*deprecated, use inspect.signature.*:DeprecationWarning',\n    # pytest's own futurewarnings\n    'ignore::pytest.PytestExperimentalApiWarning',\n    # Do not cause SyntaxError for invalid escape sequences in py37.\n    # Those are caught/handled by pyupgrade, and not easy to filter with the\n    # module being the filename (with .py removed).\n    'default:invalid escape sequence:DeprecationWarning',\n    # ignore not yet fixed warnings for hook markers\n    'default:.*not marked using pytest.hook.*',\n    'ignore:.*not marked using pytest.hook.*::xdist.*',\n    # ignore use of unregistered marks, because we use many to test the implementation\n    'ignore::_pytest.warning_types.PytestUnknownMarkWarning',\n    # https://github.com/benjaminp/six/issues/341\n    'ignore:_SixMetaPathImporter\\.exec_module\\(\\) not found; falling back to load_module\\(\\):ImportWarning',\n    # https://github.com/benjaminp/six/pull/352\n    'ignore:_SixMetaPathImporter\\.find_spec\\(\\) not found; falling back to find_module\\(\\):ImportWarning',\n    # https://github.com/pypa/setuptools/pull/2517\n    'ignore:VendorImporter\\.find_spec\\(\\) not found; falling back to find_module\\(\\):ImportWarning',\n    # https://github.com/pytest-dev/execnet/pull/127\n    'ignore:isSet\\(\\) is deprecated, use is_set\\(\\) instead:DeprecationWarning',\n    # https://github.com/pytest-dev/pytest/issues/2366\n    # https://github.com/pytest-dev/pytest/pull/13057\n    'default::pytest.PytestFDWarning',\n    # https://github.com/pexpect/pexpect/issues/827\n    # CPython emits this from os.forkpty() with stacklevel=1, so it is attributed\n    # to stdlib pty (caller of os.forkpty via pty.fork), not ptyprocess. Match on\n    # message only: module attribution must not be required if stacklevel changes.\n    # Becomes a hard failure under filterwarnings=error only on 3.15+\n    # (python/cpython#136796 stopped clearing the warning). Often seen on macOS\n    # because Mach task_threads counts extra runtime threads.\n    'ignore:.*use of forkpty\\(\\) may lead to deadlocks in the child:DeprecationWarning',\n    # Cython-compiled numpy.random warns on import under PyPy 3.11.16 (PyPy 8.0);\n    # hypothesis imports it whenever numpy is loaded, failing any @given test.\n    'ignore:cython.collection_type only works on PyPy:RuntimeWarning',\n]\npytester_example_dir = \"testing/example_scripts\"\nmarkers = [\n    # dummy markers for testing\n    \"foo\",\n    \"bar\",\n    \"baz\",\n    \"number_mark\",\n    \"builtin_matchers_mark\",\n    \"str_mark\",\n    # conftest.py reorders tests moving slow ones to the end of the list\n    \"slow\",\n    # experimental mark for all tests using pexpect\n    \"uses_pexpect\",\n    # Disables the `remove_ci_env_var` autouse fixture on a given test that\n    # actually inspects whether the CI environment variable is set.\n    \"keep_ci_var\",\n]\n\n[tool.coverage.paths]\nsource = [\n    'src/',\n    '*/lib/python*/site-packages/',\n    '*/pypy*/site-packages/',\n    '*\\Lib\\site-packages\\',\n]\n\n[tool.coverage.report]\nskip_covered = true\nshow_missing = true\nexclude_lines = [\n    '\\#\\s*pragma: no cover',\n    '^\\s*raise NotImplementedError\\b',\n    '^\\s*return NotImplemented\\b',\n    '^\\s*assert False(,|$)',\n    '^\\s*case unreachable:',\n    '^\\s*assert_never\\(',\n    '^\\s*if TYPE_CHECKING:',\n    '^\\s*(el)?if TYPE_CHECKING:',\n    '^\\s*@overload( |$)',\n    '^\\s*def .+: \\.\\.\\.$',\n    '^\\s*@pytest\\.mark\\.xfail',\n]\n\n[tool.coverage.run]\ninclude = [\n    'src/*',\n    'testing/*',\n    '*/lib/python*/site-packages/_pytest/*',\n    '*/lib/python*/site-packages/pytest.py',\n    '*/pypy*/site-packages/_pytest/*',\n    '*/pypy*/site-packages/pytest.py',\n    '*\\Lib\\site-packages\\_pytest\\*',\n    '*\\Lib\\site-packages\\pytest.py',\n]\nparallel = true\nbranch = true\npatch = [ \"subprocess\" ]\n# The sysmon core (default since Python 3.14) is much slower.\n# Perhaps: https://github.com/coveragepy/coveragepy/issues/2082\ncore = \"ctrace\"\n\n[tool.towncrier]\npackage = \"pytest\"\npackage_dir = \"src\"\nfilename = \"doc/en/changelog.rst\"\ndirectory = \"changelog/\"\ntitle_format = \"pytest {version} ({project_date})\"\ntemplate = \"changelog/_template.rst\"\n\n# NOTE: The types are declared because:\n# NOTE: - there is no mechanism to override just the value of\n# NOTE:   `tool.towncrier.type.misc.showcontent`;\n# NOTE: - and, we want to declare extra non-default types for\n# NOTE:   clarity and flexibility.\n\n[[tool.towncrier.type]]\n# When something public gets removed in a breaking way. Could be\n# deprecated in an earlier release.\ndirectory = \"breaking\"\nname = \"Removals and backward incompatible breaking changes\"\nshowcontent = true\n\n[[tool.towncrier.type]]\n# Declarations of future API removals and breaking changes in behavior.\ndirectory = \"deprecation\"\nname = \"Deprecations (removal in next major release)\"\nshowcontent = true\n\n[[tool.towncrier.type]]\n# New behaviors, public APIs. That sort of stuff.\ndirectory = \"feature\"\nname = \"New features\"\nshowcontent = true\n\n[[tool.towncrier.type]]\n# New behaviors in existing features.\ndirectory = \"improvement\"\nname = \"Improvements in existing functionality\"\nshowcontent = true\n\n[[tool.towncrier.type]]\n# Something we deemed an improper undesired behavior that got corrected\n# in the release to match pre-agreed expectations.\ndirectory = \"bugfix\"\nname = \"Bug fixes\"\nshowcontent = true\n\n[[tool.towncrier.type]]\n# Updates regarding bundling dependencies.\ndirectory = \"vendor\"\nname = \"Vendored libraries\"\nshowcontent = true\n\n[[tool.towncrier.type]]\n# Notable updates to the documentation structure or build process.\ndirectory = \"doc\"\nname = \"Improved documentation\"\nshowcontent = true\n\n[[tool.towncrier.type]]\n# Notes for downstreams about unobvious side effects and tooling. Changes\n# in the test invocation considerations and runtime assumptions.\ndirectory = \"packaging\"\nname = \"Packaging updates and notes for downstreams\"\nshowcontent = true\n\n[[tool.towncrier.type]]\n# Stuff that affects the contributor experience. e.g. Running tests,\n# building the docs, setting up the development environment.\ndirectory = \"contrib\"\nname = \"Contributor-facing changes\"\nshowcontent = true\n\n[[tool.towncrier.type]]\n# Changes that are hard to assign to any of the above categories.\ndirectory = \"misc\"\nname = \"Miscellaneous internal changes\"\nshowcontent = true\n\n[tool.mypy]\nfiles = [\n    \"src\",\n    \"testing\",\n    \"scripts\",\n]\nmypy_path = [\n    \"src\",\n]\npython_version = \"3.10\"\ncheck_untyped_defs = true\ndisallow_any_generics = true\ndisallow_untyped_defs = true\nignore_missing_imports = true\nshow_error_codes = true\nstrict_equality = true\nwarn_redundant_casts = true\nwarn_return_any = true\nwarn_unreachable = true\nwarn_unused_configs = true\nno_implicit_reexport = true\nwarn_unused_ignores = true\nenable_error_code = [ \"deprecated\" ]\n\n[tool.pyright]\ninclude = [\n    \"src\",\n    \"testing\",\n    \"scripts\",\n]\nextraPaths = [\n    \"src\",\n]\npythonVersion = \"3.10\"\ntypeCheckingMode = \"basic\"\nreportMissingImports = \"none\"\nreportMissingModuleSource = \"none\"\n",
+        "url": "https://github.com/pytest-dev/pytest/blob/587ebc501ba292539202a1aac3a7f5b0112a08ec/pyproject.toml",
+        "kind": "manifest",
+        "language": "Documentation/manifest",
+        "bytes": 23294,
+        "reference_truncated": false
+      }
+    ],
+    "fetched_at": "2026-10-12T00:06:26+00:00",
+    "public": true,
+    "license_files": [],
+    "coverage": {
+      "tree_truncated": false,
+      "tree_entries": 727,
+      "eligible_files": 647,
+      "files_scanned": 1,
+      "file_budget": 4,
+      "bytes_scanned": 23294,
+      "language_counts": {
+        "Documentation/manifest": 1
+      },
+      "tree_language_counts": {
+        "Other": 453,
+        "Python": 274
+      },
+      "excluded": {
+        "unsupported_file_type": 78,
+        "file_size": 2
+      },
+      "sampling_policy": "Root manifests and explicitly cited source paths only; bounded prior-reference sample, not target compatibility.",
+      "static_export_hints": [],
+      "export_hints_complete": true,
+      "omitted_export_paths": [],
+      "initializer_import_hints": [],
+      "initializer_import_hints_complete": true,
+      "initializer_hint_limit": 64,
+      "omitted_initializer_imports": [],
+      "eligible_source_roles": {
+        "infrastructure": 35,
+        "implementation": 106
+      },
+      "acquired_source_roles": {},
+      "runtime_bin_entrypoints": {},
+      "metadata_redacted": false,
+      "metadata_truncated": false,
+      "complete": false,
+      "eligible_sample_complete": false,
+      "limitations": [
+        "Bounded source sample; declarations and test references are not execution proof.",
+        "File budget sampled 4 of 647 eligible files.",
+        "Some files were excluded for safety, size, encoding or unsupported type.",
+        "No implementation source was acquired; this sample cannot represent product capabilities."
+      ]
+    },
+    "file_catalog": {
+      "entries": [
+        {
+          "id": "f0",
+          "path": "LICENSE",
+          "sha": "c3f1657fce94589bd1ec7cead810639047f3d359",
+          "kind": "documentation"
+        },
+        {
+          "id": "f1",
+          "path": "pyproject.toml",
+          "sha": "e7dcef6e007235ebd473ca5697e2faa0346bee6d",
+          "kind": "manifest"
+        },
+        {
+          "id": "f2",
+          "path": "src/_pytest/main.py",
+          "sha": "d43a68b4679d4119f4b02d51b378164551823ce5",
+          "kind": "source"
+        },
+        {
+          "id": "f3",
+          "path": "extra/get_issues.py",
+          "sha": "851d2f6d7f34d01828b8a8ccbfb95d9102ca6aae",
+          "kind": "source"
+        },
+        {
+          "id": "f4",
+          "path": "testing/acceptance_test.py",
+          "sha": "3983bd0007d00ef4a64d53836f44922340eec769",
+          "kind": "test"
+        },
+        {
+          "id": "f5",
+          "path": "src/py.py",
+          "sha": "5c661e66c1fa1c66721b3a330a5bc583937d08c9",
+          "kind": "source"
+        },
+        {
+          "id": "f6",
+          "path": "README.rst",
+          "sha": "253db05370e6add96414d95afe2d40483b7dd392",
+          "kind": "documentation"
+        },
+        {
+          "id": "f7",
+          "path": "doc/en/Makefile",
+          "sha": "f2db6891211d697544a1145ea4a100514983678a",
+          "kind": "manifest"
+        },
+        {
+          "id": "f8",
+          "path": "testing/typing_checks.py",
+          "sha": "1179f3f5d19d20e3d42da077f8ebdeb77abb231b",
+          "kind": "source"
+        },
+        {
+          "id": "f9",
+          "path": "testing/typing_raises_group.py",
+          "sha": "081ffd59bca21d6f76df4de536cc310bc05a9c6f",
+          "kind": "source"
+        },
+        {
+          "id": "f10",
+          "path": "testing/deprecated_test.py",
+          "sha": "5de659a481ffa8e17fc3d29c67e265c150de0dad",
+          "kind": "test"
+        },
+        {
+          "id": "f11",
+          "path": "src/_pytest/__init__.py",
+          "sha": "8eb8ec9605c73aeba33b5a2031d59a84d6841225",
+          "kind": "source"
+        },
+        {
+          "id": "f12",
+          "path": "changelog/README.rst",
+          "sha": "f1ba2cbd0bdebbcad9fe4543c4b065cd158a19b5",
+          "kind": "documentation"
+        },
+        {
+          "id": "f13",
+          "path": "doc/en/requirements.txt",
+          "sha": "ecaf889cd9eb89cde075fc689643c9f7f6960953",
+          "kind": "manifest"
+        },
+        {
+          "id": "f14",
+          "path": "src/_pytest/_argcomplete.py",
+          "sha": "59426ef949ed9276b5708f9f44e6893f2333f2e1",
+          "kind": "source"
+        },
+        {
+          "id": "f15",
+          "path": "src/_pytest/approx.py",
+          "sha": "70a881e3326a7277c3233a2fc3c686d4d358922e",
+          "kind": "source"
+        },
+        {
+          "id": "f16",
+          "path": "testing/test_argcomplete.py",
+          "sha": "c2c80f272a6e544134695daddc6e2fbd7bdb0530",
+          "kind": "test"
+        },
+        {
+          "id": "f17",
+          "path": "src/_pytest/cacheprovider.py",
+          "sha": "5d4a528077dd04daae897a5ce16fe20396ec21f6",
+          "kind": "source"
+        },
+        {
+          "id": "f18",
+          "path": "doc/en/license.rst",
+          "sha": "acbfb8bdb110e96798813a1b96fc4f871d74f826",
+          "kind": "documentation"
+        },
+        {
+          "id": "f19",
+          "path": "testing/plugins_integration/requirements.txt",
+          "sha": "08cd781e3ea49af9752c80530e21b6d16b5c2809",
+          "kind": "manifest"
+        },
+        {
+          "id": "f20",
+          "path": "src/_pytest/capture.py",
+          "sha": "b914bc2831cea2802fb3686f3b344fd5da30a334",
+          "kind": "source"
+        },
+        {
+          "id": "f21",
+          "path": "src/_pytest/compat.py",
+          "sha": "1389c6bb6b80b895e0a99e381fc4ceff08a70c7f",
+          "kind": "source"
+        },
+        {
+          "id": "f22",
+          "path": "testing/test_assertion.py",
+          "sha": "035aad31c5401c560933a4b542468f60d5aa746d",
+          "kind": "test"
+        },
+        {
+          "id": "f23",
+          "path": "src/_pytest/debugging.py",
+          "sha": "b256f83c8bf3d0e02e3c82ea2b444288b12f9309",
+          "kind": "source"
+        },
+        {
+          "id": "f24",
+          "path": "testing/example_scripts/README.rst",
+          "sha": "324673443a34063b991dfec71d0c6a9dfcec59f4",
+          "kind": "documentation"
+        },
+        {
+          "id": "f25",
+          "path": "src/_pytest/deprecated.py",
+          "sha": "a94aeb735e55d9b9316393cc4415f9d4a2dd625f",
+          "kind": "source"
+        },
+        {
+          "id": "f26",
+          "path": "src/_pytest/doctest.py",
+          "sha": "04d707113ccc11998f0faf3a93a772f43b29099a",
+          "kind": "source"
+        },
+        {
+          "id": "f27",
+          "path": "testing/test_assertrewrite.py",
+          "sha": "47792df79fc7943d321c0ef61cc92157a5b96a64",
+          "kind": "test"
+        },
+        {
+          "id": "f28",
+          "path": "src/_pytest/faulthandler.py",
+          "sha": "e92b9893622e10ad05b9dfafa799ccbc37dda997",
+          "kind": "source"
+        },
+        {
+          "id": "f29",
+          "path": "testing/plugins_integration/README.rst",
+          "sha": "7d813c5026e56a675e73fad2e3ae173d8d705542",
+          "kind": "documentation"
+        },
+        {
+          "id": "f30",
+          "path": "src/_pytest/freeze_support.py",
+          "sha": "959ff071d86be285aecf76a1c49c1e5de27c5cd2",
+          "kind": "source"
+        },
+        {
+          "id": "f31",
+          "path": "src/_pytest/helpconfig.py",
+          "sha": "8d9d44699c1fb2d687630e24f44de5127acde04b",
+          "kind": "source"
+        },
+        {
+          "id": "f32",
+          "path": "testing/test_assertrewrite_coverage.py",
+          "sha": "43a3f668f732d061ba785795d31ff19ea217d1e5",
+          "kind": "test"
+        },
+        {
+          "id": "f33",
+          "path": "src/_pytest/hookspec.py",
+          "sha": "0f4caa024c2b6debf940367d734ba4a50b657562",
+          "kind": "source"
+        },
+        {
+          "id": "f34",
+          "path": "CHANGELOG.rst",
+          "sha": "481f277813a5bf545b772aec31fb69ae11bdb514",
+          "kind": "documentation"
+        },
+        {
+          "id": "f35",
+          "path": "src/_pytest/junitxml.py",
+          "sha": "d33b81a74ac1a73447ccc5f30488ee8f5cbcfead",
+          "kind": "source"
+        },
+        {
+          "id": "f36",
+          "path": "src/_pytest/legacypath.py",
+          "sha": "e1fc38d19edcabb7624ddba29bba0e486ae40d1a",
+          "kind": "source"
+        },
+        {
+          "id": "f37",
+          "path": "testing/test_cacheprovider.py",
+          "sha": "a38a72c601102ce79fd007473d1fc2e47b4f7a16",
+          "kind": "test"
+        },
+        {
+          "id": "f38",
+          "path": "src/_pytest/logging.py",
+          "sha": "6e80e6ba3535fbee38d04207b04a9148467202af",
+          "kind": "source"
+        },
+        {
+          "id": "f39",
+          "path": "CODE_OF_CONDUCT.md",
+          "sha": "14d56263449934d16ce04e71a6875531ce30df15",
+          "kind": "documentation"
+        },
+        {
+          "id": "f40",
+          "path": "src/_pytest/monkeypatch.py",
+          "sha": "9b9bcd3fb95c481c9bbded64ea1e75092b9e2d8e",
+          "kind": "source"
+        },
+        {
+          "id": "f41",
+          "path": "src/_pytest/nodeid.py",
+          "sha": "f859b15347567130b8537a06604f5b2e16cdfbb2",
+          "kind": "source"
+        },
+        {
+          "id": "f42",
+          "path": "testing/test_capture.py",
+          "sha": "a0a4f044d625bee34546484cc008e5be48866956",
+          "kind": "test"
+        },
+        {
+          "id": "f43",
+          "path": "src/_pytest/nodes.py",
+          "sha": "2b510907122d8e59069ff67c1747ee7dfd1ef588",
+          "kind": "source"
+        },
+        {
+          "id": "f44",
+          "path": "CONTRIBUTING.rst",
+          "sha": "92c40c208dda489ca57db8a88121c8625b4285ef",
+          "kind": "documentation"
+        },
+        {
+          "id": "f45",
+          "path": "src/_pytest/outcomes.py",
+          "sha": "257b95cf5857af0145ac4702172c6bb35c8aae05",
+          "kind": "source"
+        },
+        {
+          "id": "f46",
+          "path": "src/_pytest/pastebin.py",
+          "sha": "5e1c06ca9e5e760a248a63a34b09572c18317439",
+          "kind": "source"
+        },
+        {
+          "id": "f47",
+          "path": "testing/test_collect_imported_tests.py",
+          "sha": "28b92e17f6fe76d12a1654878fe4c50ec84b3a7d",
+          "kind": "test"
+        },
+        {
+          "id": "f48",
+          "path": "src/_pytest/pathlib.py",
+          "sha": "8eb593d194dd55aa1755a20b25231f9c80768a6e",
+          "kind": "source"
+        },
+        {
+          "id": "f49",
+          "path": "OPENCOLLECTIVE.rst",
+          "sha": "8c1c90281e44db7450ba7984111972e9405bf3ab",
+          "kind": "documentation"
+        },
+        {
+          "id": "f50",
+          "path": "src/_pytest/pytester.py",
+          "sha": "bbc740e95829a6666a500f33da001c6f2dc7f0c1",
+          "kind": "source"
+        },
+        {
+          "id": "f51",
+          "path": "src/_pytest/pytester_assertions.py",
+          "sha": "b8d8a195241e68ac93880ae53e052464b7cd4408",
+          "kind": "source"
+        },
+        {
+          "id": "f52",
+          "path": "testing/test_collection.py",
+          "sha": "f7cdc60a1c388a3c2c4966910e6b703eeb3a79a9",
+          "kind": "test"
+        },
+        {
+          "id": "f53",
+          "path": "src/_pytest/python.py",
+          "sha": "1ce7f71a7bd1fff227a78470e4cbacfebcfb0cba",
+          "kind": "source"
+        },
+        {
+          "id": "f54",
+          "path": "RELEASING.rst",
+          "sha": "76929ef7043f31e180a94c0eca34b8441857bfc1",
+          "kind": "documentation"
+        },
+        {
+          "id": "f55",
+          "path": "src/_pytest/raises.py",
+          "sha": "898683a85b96be92b742a467410086d8e78d27f5",
+          "kind": "source"
+        },
+        {
+          "id": "f56",
+          "path": "src/_pytest/recwarn.py",
+          "sha": "3e36fc7d2863827067b3c6b231e04587b1ab72b7",
+          "kind": "source"
+        },
+        {
+          "id": "f57",
+          "path": "testing/test_compat.py",
+          "sha": "2c86f06c9ddbfed0112827ba1548daef73851ccd",
+          "kind": "test"
+        },
+        {
+          "id": "f58",
+          "path": "src/_pytest/reports.py",
+          "sha": "722f71909d4efda32fbcd3c725ffc423daca23d4",
+          "kind": "source"
+        },
+        {
+          "id": "f59",
+          "path": "SECURITY.md",
+          "sha": "637f4f51122bbd62e54bff8ea90b3c18b1bbd643",
+          "kind": "documentation"
+        },
+        {
+          "id": "f60",
+          "path": "src/_pytest/runner.py",
+          "sha": "27c5739845a4ea82f1091f76a49ee16ebba71747",
+          "kind": "source"
+        },
+        {
+          "id": "f61",
+          "path": "src/_pytest/scope.py",
+          "sha": "68a9da0e6b896bc663f5fba4d1f15f4a91077234",
+          "kind": "source"
+        },
+        {
+          "id": "f62",
+          "path": "testing/test_config.py",
+          "sha": "282e66409f77ba9436488f711c7a4b9c76e62b30",
+          "kind": "test"
+        },
+        {
+          "id": "f63",
+          "path": "src/_pytest/setuponly.py",
+          "sha": "7e6b46bcdb4ab6e646653df9f847b11b5f50e943",
+          "kind": "source"
+        },
+        {
+          "id": "f64",
+          "path": "TIDELIFT.rst",
+          "sha": "1ba246bd86846f71a65764f0c60d33f60798efd0",
+          "kind": "documentation"
+        },
+        {
+          "id": "f65",
+          "path": "src/_pytest/setupplan.py",
+          "sha": "4e124cce2434e02d928c8ceb8cc8eaf63e271404",
+          "kind": "source"
+        },
+        {
+          "id": "f66",
+          "path": "src/_pytest/skipping.py",
+          "sha": "aa97e3b7dc6658207df6c014bcbbf10b2eb1c0cf",
+          "kind": "source"
+        },
+        {
+          "id": "f67",
+          "path": "testing/test_conftest.py",
+          "sha": "e1d0e432b4a269b67c49fb9a3a08d910e883fcea",
+          "kind": "test"
+        },
+        {
+          "id": "f68",
+          "path": "src/_pytest/stash.py",
+          "sha": "6a9ff884e04880129db61e4b521be72e18c31919",
+          "kind": "source"
+        },
+        {
+          "id": "f69",
+          "path": ".github/PULL_REQUEST_TEMPLATE.md",
+          "sha": "ab9e1640d0680d262b899b28516db021d045d958",
+          "kind": "documentation"
+        },
+        {
+          "id": "f70",
+          "path": "src/_pytest/stepwise.py",
+          "sha": "c14b6fc250bacbb02e66843d6ad354ad1e4f0fb8",
+          "kind": "source"
+        },
+        {
+          "id": "f71",
+          "path": "src/_pytest/subtests.py",
+          "sha": "0c66e289a4dcf58c5ad29d23275a4c080647ca2f",
+          "kind": "source"
+        },
+        {
+          "id": "f72",
+          "path": "testing/test_debugging.py",
+          "sha": "3a67cfa8cd6062b88d7943f550aaf3b5f4e4837f",
+          "kind": "test"
+        },
+        {
+          "id": "f73",
+          "path": "src/_pytest/terminal.py",
+          "sha": "b77a649d28a449e0459fca771f95cf9fe497b73c",
+          "kind": "source"
+        },
+        {
+          "id": "f74",
+          "path": "changelog/10128.bugfix.rst",
+          "sha": "ef07d3d555e146b6a36573d917d2243428910c3a",
+          "kind": "documentation"
+        },
+        {
+          "id": "f75",
+          "path": "src/_pytest/terminalprogress.py",
+          "sha": "287f0d569ffdd0714b2e3997c52ef101d34a8066",
+          "kind": "source"
+        },
+        {
+          "id": "f76",
+          "path": "src/_pytest/threadexception.py",
+          "sha": "7464087325947b069157407f9510d823fac49428",
+          "kind": "source"
+        },
+        {
+          "id": "f77",
+          "path": "testing/test_doctest.py",
+          "sha": "a322e9eb2a3e1319550b99d00901d0bbb66f7604",
+          "kind": "test"
+        },
+        {
+          "id": "f78",
+          "path": "src/_pytest/timing.py",
+          "sha": "639bd99bd3e284bc3019d059a6ab2cc9cc4ca752",
+          "kind": "source"
+        },
+        {
+          "id": "f79",
+          "path": "changelog/10210.bugfix.rst",
+          "sha": "d89cbb02c55b53ace10418d6ba0e6330e413ba10",
+          "kind": "documentation"
+        },
+        {
+          "id": "f80",
+          "path": "src/_pytest/tmpdir.py",
+          "sha": "616a09d1b27adcd851e4864b8cfde7b6efe13fd8",
+          "kind": "source"
+        },
+        {
+          "id": "f81",
+          "path": "src/_pytest/tracemalloc.py",
+          "sha": "5d0b19855c734ed8885c1ceb7bec20b34ac66b52",
+          "kind": "source"
+        },
+        {
+          "id": "f82",
+          "path": "testing/test_entry_points.py",
+          "sha": "543f3252b22d7e709555faf05eadc62796d40454",
+          "kind": "test"
+        },
+        {
+          "id": "f83",
+          "path": "src/_pytest/unittest.py",
+          "sha": "2c9e0dcb80b9954215248793bc31054aa1d5dc97",
+          "kind": "source"
+        },
+        {
+          "id": "f84",
+          "path": "changelog/10644.bugfix.rst",
+          "sha": "d7135f80f5b045931eb3afcf0f18d11abee1d4f9",
+          "kind": "documentation"
+        },
+        {
+          "id": "f85",
+          "path": "src/_pytest/unraisableexception.py",
+          "sha": "32f1258038b20666290c8f4e79b303425cf0863c",
+          "kind": "source"
+        },
+        {
+          "id": "f86",
+          "path": "src/_pytest/warning_types.py",
+          "sha": "c5b339dec4c280011014cea998d40f17df5b23f7",
+          "kind": "source"
+        },
+        {
+          "id": "f87",
+          "path": "testing/test_error_diffs.py",
+          "sha": "653559c8a9997a871d7e12398cce371481621def",
+          "kind": "test"
+        },
+        {
+          "id": "f88",
+          "path": "src/_pytest/warnings.py",
+          "sha": "2c721d6e3c9c5d52724521fd5308be80037eee2d",
+          "kind": "source"
+        },
+        {
+          "id": "f89",
+          "path": "changelog/10721.doc.rst",
+          "sha": "345dc98d8e320bc1ace6620f5cc9d828d64bebef",
+          "kind": "documentation"
+        },
+        {
+          "id": "f90",
+          "path": "src/pytest/__init__.py",
+          "sha": "f6ea24f95a1063cd2a2a256b3e6bec2cca385839",
+          "kind": "source"
+        },
+        {
+          "id": "f91",
+          "path": "src/pytest/__main__.py",
+          "sha": "9912fa0b5aca86b16fab3e0bd447e3b4d5075a4a",
+          "kind": "source"
+        },
+        {
+          "id": "f92",
+          "path": "testing/test_faulthandler.py",
+          "sha": "78681d572aa792dfb50f57085fc1a3051b5a7788",
+          "kind": "test"
+        },
+        {
+          "id": "f93",
+          "path": "testing/example_scripts/issue_519.py",
+          "sha": "138c07e95be7804a371cd14a08066c01c217d1be",
+          "kind": "source"
+        },
+        {
+          "id": "f94",
+          "path": "changelog/10745.improvement.1.rst",
+          "sha": "0732ce8427d7c796fc3a870a51df4cd08c8ae498",
+          "kind": "documentation"
+        },
+        {
+          "id": "f95",
+          "path": "testing/freeze/create_executable.py",
+          "sha": "2015d22c7c0a7a2d758426b5adc892d1c9aa9eec",
+          "kind": "source"
+        },
+        {
+          "id": "f96",
+          "path": "testing/freeze/runtests_script.py",
+          "sha": "286c98ac5397b9a62dcd96ae6278a7daece55afb",
+          "kind": "source"
+        },
+        {
+          "id": "f97",
+          "path": "testing/test_findpaths.py",
+          "sha": "cae2b2883fe5a29a6c59cc7454d9aeef91977b48",
+          "kind": "test"
+        },
+        {
+          "id": "f98",
+          "path": "testing/freeze/tox_run.py",
+          "sha": "8d588dda56c0dfaa603232337d5eb8ad776a11d7",
+          "kind": "source"
+        },
+        {
+          "id": "f99",
+          "path": "changelog/10745.improvement.2.rst",
+          "sha": "0700434703783d22410354df36c37d5364400b09",
+          "kind": "documentation"
+        },
+        {
+          "id": "f100",
+          "path": "testing/plugins_integration/bdd_wallet.py",
+          "sha": "d748028842a2f6f73ddb9938538d0977d1e47a43",
+          "kind": "source"
+        },
+        {
+          "id": "f101",
+          "path": "testing/plugins_integration/django_settings.py",
+          "sha": "e36e554db9a2c91fb167f5ca3fef690e26d01b9a",
+          "kind": "source"
+        },
+        {
+          "id": "f102",
+          "path": "testing/test_helpconfig.py",
+          "sha": "a833e0e6fa280f41345db7575cd922d51c41999d",
+          "kind": "test"
+        },
+        {
+          "id": "f103",
+          "path": "testing/plugins_integration/pytest_anyio_integration.py",
+          "sha": "41ffad18a6e42a76ad0f0274e1ae43d867342c2b",
+          "kind": "source"
+        },
+        {
+          "id": "f104",
+          "path": "changelog/1139.bugfix.rst",
+          "sha": "2f4f631a356ef550a8f91b90527b00f27012662c",
+          "kind": "documentation"
+        },
+        {
+          "id": "f105",
+          "path": "testing/plugins_integration/pytest_asyncio_integration.py",
+          "sha": "cef67f83ea691454dbb33509eed064d434e5cc3c",
+          "kind": "source"
+        },
+        {
+          "id": "f106",
+          "path": "testing/plugins_integration/pytest_mock_integration.py",
+          "sha": "a49129cf0c9a4d9572f84b9d29832a42c877fb81",
+          "kind": "source"
+        },
+        {
+          "id": "f107",
+          "path": "testing/test_junitxml.py",
+          "sha": "c607d9f68dbe7b42574dcf1511c523648e144db1",
+          "kind": "test"
+        },
+        {
+          "id": "f108",
+          "path": "testing/plugins_integration/pytest_rerunfailures_integration.py",
+          "sha": "449661f7294b883fd7d184d30001ffacd19be18b",
+          "kind": "source"
+        },
+        {
+          "id": "f109",
+          "path": "changelog/11418.improvement.rst",
+          "sha": "6517ba422fd55342dea6d9bbde0993ff26b03b6b",
+          "kind": "documentation"
+        },
+        {
+          "id": "f110",
+          "path": "testing/plugins_integration/pytest_trio_integration.py",
+          "sha": "eceac5076a99304d9a78e8cd442a3d90c189335d",
+          "kind": "source"
+        },
+        {
+          "id": "f111",
+          "path": "testing/plugins_integration/pytest_twisted_integration.py",
+          "sha": "4f386bf1b9fdf30077b4be34fac7605014e409b1",
+          "kind": "source"
+        },
+        {
+          "id": "f112",
+          "path": "testing/test_legacypath.py",
+          "sha": "c80ec89a8e9445cff8cc482b746495b401ae1565",
+          "kind": "test"
+        },
+        {
+          "id": "f113",
+          "path": "testing/plugins_integration/simple_integration.py",
+          "sha": "ed504ae4bf12fcfde4f8768810b09321a20126a9",
+          "kind": "source"
+        },
+        {
+          "id": "f114",
+          "path": "changelog/11502.bugfix.rst",
+          "sha": "49e2b7e3b0e8508c3bbd559b2be75a533871c3ea",
+          "kind": "documentation"
+        },
+        {
+          "id": "f115",
+          "path": "testing/python/approx.py",
+          "sha": "e0bfc37f85d85472b774b63cc83d63067dd56469",
+          "kind": "source"
+        },
+        {
+          "id": "f116",
+          "path": "testing/python/collect.py",
+          "sha": "dddd15b8f67d340d214448af03511be62347b402",
+          "kind": "source"
+        },
+        {
+          "id": "f117",
+          "path": "testing/test_link_resolve.py",
+          "sha": "0557dae669db706be90a9c98a5accf5b3c53d5d7",
+          "kind": "test"
+        },
+        {
+          "id": "f118",
+          "path": "testing/python/integration.py",
+          "sha": "d8f8d0ffae9cee12dac13b046442421bcd1d9f12",
+          "kind": "source"
+        },
+        {
+          "id": "f119",
+          "path": "changelog/11680.packaging.rst",
+          "sha": "75cf6b1c954ee0ecde80a8e17f80a20ae9ca8ae1",
+          "kind": "documentation"
+        },
+        {
+          "id": "f120",
+          "path": "testing/python/metafunc.py",
+          "sha": "685ce5066638e9cf025f182105ffb06f3b7584b7",
+          "kind": "source"
+        },
+        {
+          "id": "f121",
+          "path": "testing/python/raises.py",
+          "sha": "e70db1e4c28a3f21d3cd8193fbb86da488cd4fd1",
+          "kind": "source"
+        },
+        {
+          "id": "f122",
+          "path": "testing/test_main.py",
+          "sha": "41d7055df263c81bfe06488d0fdaa9d471b2a3f1",
+          "kind": "test"
+        },
+        {
+          "id": "f123",
+          "path": "testing/python/raises_group.py",
+          "sha": "950e71753c2b8572588f1d1f96a0968ebb8abd83",
+          "kind": "source"
+        },
+        {
+          "id": "f124",
+          "path": "changelog/11783.bugfix.rst",
+          "sha": "3ff6aa504bc79a5fcda1f648cc4dd1953bf6b62c",
+          "kind": "documentation"
+        },
+        {
+          "id": "f125",
+          "path": "src/_pytest/_code/__init__.py",
+          "sha": "7f67a2e3e0a6f34e04444d9410f517d59d21c422",
+          "kind": "source"
+        },
+        {
+          "id": "f126",
+          "path": "src/_pytest/_code/code.py",
+          "sha": "f6d2f27672c70b1b0301ca4d185de25856df9100",
+          "kind": "source"
+        },
+        {
+          "id": "f127",
+          "path": "testing/test_mark.py",
+          "sha": "82a941df0d6e41ce8b2c5a5c4ebb2c3e5bc2b90a",
+          "kind": "test"
+        },
+        {
+          "id": "f128",
+          "path": "src/_pytest/_code/source.py",
+          "sha": "0f1ac00f7b948d008373a57b8e4931b683a977e2",
+          "kind": "source"
+        },
+        {
+          "id": "f129",
+          "path": "changelog/11933.bugfix.rst",
+          "sha": "d9192acf626378b0c35fba737e43f03489e569a5",
+          "kind": "documentation"
+        },
+        {
+          "id": "f130",
+          "path": "src/_pytest/_io/__init__.py",
+          "sha": "b0155b18b605326ba0a3104deaefde938b7d651a",
+          "kind": "source"
+        },
+        {
+          "id": "f131",
+          "path": "src/_pytest/_io/pprint.py",
+          "sha": "a550b65b0c8f9aba85487673d7edc32e94a51d69",
+          "kind": "source"
+        },
+        {
+          "id": "f132",
+          "path": "testing/test_mark_expression.py",
+          "sha": "ac9c882e61ee3349fe35a5c719782de8b75efdf7",
+          "kind": "test"
+        },
+        {
+          "id": "f133",
+          "path": "src/_pytest/_io/saferepr.py",
+          "sha": "3f5c956d9cf7eba3355e8097568a22705f82889f",
+          "kind": "source"
+        },
+        {
+          "id": "f134",
+          "path": "changelog/12175.bugfix.rst",
+          "sha": "51b431df12c25165e78fd4494258a3371b0faa48",
+          "kind": "documentation"
+        },
+        {
+          "id": "f135",
+          "path": "src/_pytest/_io/terminalwriter.py",
+          "sha": "9191b4edace06d673febe36b708fdefd53bae9be",
+          "kind": "source"
+        },
+        {
+          "id": "f136",
+          "path": "src/_pytest/_io/wcwidth.py",
+          "sha": "23886ff1581a16aa97e5c375e62261622e24c169",
+          "kind": "source"
+        },
+        {
+          "id": "f137",
+          "path": "testing/test_meta.py",
+          "sha": "e7d836f7acee7d72a9965402723c0b250edff9df",
+          "kind": "test"
+        },
+        {
+          "id": "f138",
+          "path": "src/_pytest/_py/error.py",
+          "sha": "dace23764ffb4da9744cf23b668c9e7011674c67",
+          "kind": "source"
+        },
+        {
+          "id": "f139",
+          "path": "changelog/12223.bugfix.rst",
+          "sha": "f2379c80bd724a07c22e3b8aea72db638e825dd1",
+          "kind": "documentation"
+        },
+        {
+          "id": "f140",
+          "path": "src/_pytest/_py/path.py",
+          "sha": "998a7819972ac010a535887ab8f2a4c6560621af",
+          "kind": "source"
+        },
+        {
+          "id": "f141",
+          "path": "src/_pytest/assertion/__init__.py",
+          "sha": "a171633f3209ce27a76bc41b90675f749f164151",
+          "kind": "source"
+        },
+        {
+          "id": "f142",
+          "path": "testing/test_monkeypatch.py",
+          "sha": "0d07783b05b848c8e2cfa0c4677628b9a61bc67f",
+          "kind": "test"
+        },
+        {
+          "id": "f143",
+          "path": "src/_pytest/assertion/_compare_any.py",
+          "sha": "9a1e124bc5b852c1fc970304d7b0e8ed2652cec9",
+          "kind": "source"
+        },
+        {
+          "id": "f144",
+          "path": "changelog/12307.bugfix.rst",
+          "sha": "d1368d977d0f11c47bc7f456cb161abc341e93a1",
+          "kind": "documentation"
+        },
+        {
+          "id": "f145",
+          "path": "src/_pytest/assertion/_compare_mapping.py",
+          "sha": "9b7f392d9a90ded7dd8550b479c19eebcb9ca2f5",
+          "kind": "source"
+        },
+        {
+          "id": "f146",
+          "path": "src/_pytest/assertion/_compare_sequence.py",
+          "sha": "cada856cc853861d3158b6e8a4bf6f104d975cc8",
+          "kind": "source"
+        },
+        {
+          "id": "f147",
+          "path": "testing/test_nodeid.py",
+          "sha": "c6c545ea2067603cbd2e40e0936d3d997ef1934c",
+          "kind": "test"
+        },
+        {
+          "id": "f148",
+          "path": "src/_pytest/assertion/_compare_set.py",
+          "sha": "2817133790dad90b9e438a09df70be9ca2247cf9",
+          "kind": "source"
+        },
+        {
+          "id": "f149",
+          "path": "changelog/12624.improvement.rst",
+          "sha": "df87da9aa1407749e62914901a240dc7662defbb",
+          "kind": "documentation"
+        },
+        {
+          "id": "f150",
+          "path": "src/_pytest/assertion/_guards.py",
+          "sha": "d8d786ece6fba741643fe6399bb27221f7500eee",
+          "kind": "source"
+        },
+        {
+          "id": "f151",
+          "path": "src/_pytest/assertion/_typing.py",
+          "sha": "689bd867ae3fd13330947a6522d34a043a35a82c",
+          "kind": "source"
+        },
+        {
+          "id": "f152",
+          "path": "testing/test_nodes.py",
+          "sha": "e976b9e6f119c54f013a79b46821b5d811068a67",
+          "kind": "test"
+        },
+        {
+          "id": "f153",
+          "path": "src/_pytest/assertion/compare_text.py",
+          "sha": "9bee86a0b9318883cf438888b1df20cd78092a36",
+          "kind": "source"
+        },
+        {
+          "id": "f154",
+          "path": "changelog/12658.doc.rst",
+          "sha": "edf9d4cb48cb78825b9ad05f16586e97667dc19a",
+          "kind": "documentation"
+        },
+        {
+          "id": "f155",
+          "path": "src/_pytest/assertion/highlight.py",
+          "sha": "9ae833f19e6e5ab51d25ad3a22ad22292e572834",
+          "kind": "source"
+        },
+        {
+          "id": "f156",
+          "path": "src/_pytest/assertion/rewrite.py",
+          "sha": "476ea9c3547d1c270ecbd6c53ce1272c5ee5d80f",
+          "kind": "source"
+        },
+        {
+          "id": "f157",
+          "path": "testing/test_parseopt.py",
+          "sha": "8457cc6e6bad77af7704b89a53c053dff8e3ed5e",
+          "kind": "test"
+        },
+        {
+          "id": "f158",
+          "path": "src/_pytest/assertion/truncate.py",
+          "sha": "cb9fe79186b3d5467d2d7aa2bd07139de3e10595",
+          "kind": "source"
+        },
+        {
+          "id": "f159",
+          "path": "changelog/12697.improvement.rst",
+          "sha": "31d940c3ca205ec45860b57cc3b825014f3dd411",
+          "kind": "documentation"
+        },
+        {
+          "id": "f160",
+          "path": "src/_pytest/assertion/util.py",
+          "sha": "dd993d7bcaed05c7768a474564200e851e2cfd58",
+          "kind": "source"
+        },
+        {
+          "id": "f161",
+          "path": "src/_pytest/config/__init__.py",
+          "sha": "60ba5f54a8979e861452c070702165165d80a8fd",
+          "kind": "source"
+        },
+        {
+          "id": "f162",
+          "path": "testing/test_pastebin.py",
+          "sha": "0cf05c475b5e96d8c4e5ff244712338575c21b2f",
+          "kind": "test"
+        },
+        {
+          "id": "f163",
+          "path": "src/_pytest/config/argparsing.py",
+          "sha": "7180cde2c4c7654e6b4e737cb89fad753eb83202",
+          "kind": "source"
+        },
+        {
+          "id": "f164",
+          "path": "changelog/12824.bugfix.rst",
+          "sha": "0bf95533816ac6c88d99af0fd42a9a7d9ed427f1",
+          "kind": "documentation"
+        },
+        {
+          "id": "f165",
+          "path": "src/_pytest/config/exceptions.py",
+          "sha": "d84a9ea67e07f3d9591883360fb5ee0c92422787",
+          "kind": "source"
+        },
+        {
+          "id": "f166",
+          "path": "src/_pytest/config/findpaths.py",
+          "sha": "337e279cdc38d5c0828ac85944d47ca80cd0e85c",
+          "kind": "source"
+        },
+        {
+          "id": "f167",
+          "path": "testing/test_pathlib.py",
+          "sha": "76edc9e33ee70122c6a3e32b22a0aa6f28ee7a9b",
+          "kind": "test"
+        },
+        {
+          "id": "f168",
+          "path": "src/_pytest/mark/__init__.py",
+          "sha": "996322d93f14366112669fbd11205ccbc832ba8a",
+          "kind": "source"
+        },
+        {
+          "id": "f169",
+          "path": "changelog/12857.doc.rst",
+          "sha": "08b2af9727712c2248c1ebedd4006f2618cf536a",
+          "kind": "documentation"
+        },
+        {
+          "id": "f170",
+          "path": "src/_pytest/mark/expression.py",
+          "sha": "65a77620226d88ae1d7f8bd628c537328c44acf2",
+          "kind": "source"
+        },
+        {
+          "id": "f171",
+          "path": "src/_pytest/mark/structures.py",
+          "sha": "34a004f4881e8d1ea35dc757e89c2b32be0653e3",
+          "kind": "source"
+        },
+        {
+          "id": "f172",
+          "path": "testing/test_pluginmanager.py",
+          "sha": "03887de61d9395e697862bf43ccfed85b1a5a033",
+          "kind": "test"
+        },
+        {
+          "id": "f173",
+          "path": "testing/example_scripts/doctest/main_py/__main__.py",
+          "sha": "3a0f6bed1d6deb025132feafb028672cefb0624b",
+          "kind": "source"
+        },
+        {
+          "id": "f174",
+          "path": "changelog/12860.improvement.rst",
+          "sha": "2ea7492bc1052d1ecdbd28ca4c643db9f2b67841",
+          "kind": "documentation"
+        },
+        {
+          "id": "f175",
+          "path": "testing/example_scripts/perf_examples/collect_stats/generate_folders.py",
+          "sha": "3b580aa341aae4743b15b80318a2e3c0c3b6ad32",
+          "kind": "source"
+        },
+        {
+          "id": "f176",
+          "path": "testing/example_scripts/__init__.py",
+          "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "kind": "source"
+        },
+        {
+          "id": "f177",
+          "path": "testing/test_pytester.py",
+          "sha": "e9a20f1063cac74e530746e4f0b1fff7380a5740",
+          "kind": "test"
+        },
+        {
+          "id": "f178",
+          "path": "src/_pytest/_py/__init__.py",
+          "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "kind": "source"
+        },
+        {
+          "id": "f179",
+          "path": "changelog/13292.bugfix.rst",
+          "sha": "279541e7661c851f5594e50ad5ba0c4c7548b758",
+          "kind": "documentation"
+        },
+        {
+          "id": "f180",
+          "path": "testing/example_scripts/collect/package_init_given_as_arg/pkg/__init__.py",
+          "sha": "5e30bb15883061a902a8cc8a58b12f584f7b21ed",
+          "kind": "source"
+        },
+        {
+          "id": "f181",
+          "path": "bench/bench.py",
+          "sha": "139c292ecd84ae4d32dce22395c4b7a98f6b6688",
+          "kind": "source"
+        },
+        {
+          "id": "f182",
+          "path": "testing/test_python_path.py",
+          "sha": "f75bcb6bb57052b34c118b1459aadb01c7809e08",
+          "kind": "test"
+        },
+        {
+          "id": "f183",
+          "path": "bench/bench_argcomplete.py",
+          "sha": "468c59217df48329e15d486424d811b7f2a46e04",
+          "kind": "source"
+        },
+        {
+          "id": "f184",
+          "path": "changelog/13354.improvement.rst",
+          "sha": "9b90b284cd2393f22a3b021cdf066571fc25b607",
+          "kind": "documentation"
+        },
+        {
+          "id": "f185",
+          "path": "bench/empty.py",
+          "sha": "346b79d5e33a73def43b8469804d896c3c935e1d",
+          "kind": "source"
+        },
+        {
+          "id": "f186",
+          "path": "bench/manyparam.py",
+          "sha": "579f7b2488d14c2026bacc71e32da1839952e19e",
+          "kind": "source"
+        },
+        {
+          "id": "f187",
+          "path": "testing/test_recwarn.py",
+          "sha": "d6de42a4c5cb50ba419a59202af40c35ff9dab57",
+          "kind": "test"
+        },
+        {
+          "id": "f188",
+          "path": "bench/skip.py",
+          "sha": "9145cc0ceeda2f1dfd6d86532bbf8fdfaeb0111f",
+          "kind": "source"
+        },
+        {
+          "id": "f189",
+          "path": "changelog/13369.improvement.rst",
+          "sha": "b8cb8d244cb77e8a5f7a78b363c6c47d078f6068",
+          "kind": "documentation"
+        },
+        {
+          "id": "f190",
+          "path": "bench/xunit.py",
+          "sha": "31ab432441c99fa795764b4cbdcaa93d0e1152d7",
+          "kind": "source"
+        },
+        {
+          "id": "f191",
+          "path": "scripts/diff-assert-rewrite.py",
+          "sha": "551f54591d3c2872d2b620be2be430e6642c0dff",
+          "kind": "source"
+        },
+        {
+          "id": "f192",
+          "path": "testing/test_reports.py",
+          "sha": "b476f8bf780d2c30e509b0b57d9ceaa61d31fde7",
+          "kind": "test"
+        },
+        {
+          "id": "f193",
+          "path": "scripts/generate-gh-release-notes.py",
+          "sha": "d293a3bb695a5c0c2c03bc8e2b719866d4bf848e",
+          "kind": "source"
+        },
+        {
+          "id": "f194",
+          "path": "changelog/13564.improvement.rst",
+          "sha": "af8346eef17f1b6ee16d26e961e934d9333472e4",
+          "kind": "documentation"
+        }
+      ],
+      "entry_limit": 300,
+      "byte_limit": 24000,
+      "omitted": 452,
+      "complete": false,
+      "sampling_policy": "Existing _select_files docs/source/test ordering, within catalogue bounds.",
+      "note": "Eligible path metadata only; a filename is not implementation evidence."
+    },
+    "reference_only": true,
+    "fingerprint": "56f1ec7565dcc1714bd9eb1af1d436831204381acda04b845379e6e71502d73c"
+  }
+}
