@@ -1,0 +1,11 @@
+ImportError while loading conftest 'C:\Users\dacan\Documents\Codex\2026-08-17\vo\outputs\github-pulse\data\arborescence-obstacle-2026-10-12\target\networkx\conftest.py'.
+networkx\__init__.py:19: in <module>
+    from networkx import utils
+networkx\utils\__init__.py:8: in <module>
+    from networkx.utils.backends import *
+networkx\utils\backends.py:102: in <module>
+    backends = _get_backends("networkx.backends")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+networkx\utils\backends.py:73: in _get_backends
+    warnings.warn(
+E   RuntimeWarning: networkx backend name is not a valid identifier: 'nx-loopback'. Ignoring.

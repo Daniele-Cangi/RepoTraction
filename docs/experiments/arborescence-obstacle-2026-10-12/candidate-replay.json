@@ -1,0 +1,10 @@
+{
+  "target_pin": "6da4704cbf32ba6f50f6d9c46cc0a071e3a87985",
+  "patch_canonical_sha256": "e567e7e45776fd5544df2a6663129709bb1872a8e66663e24db4d18b1f5ec464",
+  "canonical_rule": "File bytes with CRLF replaced by LF; no other normalization",
+  "files_canonical_sha256": {
+    "networkx/algorithms/tree/branchings.py": "12ec6bc70709f16ac161c52f11d89e94984130894914dee8a826d27872b9c858",
+    "networkx/algorithms/tree/tests/test_branchings_integer.py": "7e6546973a9666654472a89b02eb41d24bffb0f3ee1e6daae0af5245a27c87de"
+  },
+  "reason": "Agent freeze.json preserves raw Windows source SHA256. Git checkout/replay can change CRLF/LF bytes; these additional canonical hashes identify the exact unchanged Python source on both platforms."
+}

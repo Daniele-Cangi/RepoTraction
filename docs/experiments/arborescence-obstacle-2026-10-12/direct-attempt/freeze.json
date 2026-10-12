@@ -1,0 +1,17 @@
+{
+  "status": "direct_local_success_pending_independent_assessment",
+  "freeze_utc": "2026-10-12T14:31:04.9645731Z",
+  "dispatch_utc": "2026-10-12T14:19:35.0000000Z",
+  "elapsed_seconds": 689.9645731,
+  "deadline_utc": "2026-10-12T14:34:35Z",
+  "patch": "complete.patch",
+  "patch_sha256": "e567e7e45776fd5544df2a6663129709bb1872a8e66663e24db4d18b1f5ec464",
+  "implementation_sha256": "6af0af184e37ece3da81a235526f6045a2a6c0ed7633d965fe7d02b11fdcb0bd",
+  "regression_sha256": "7e6546973a9666654472a89b02eb41d24bffb0f3ee1e6daae0af5245a27c87de",
+  "baseline_pin": "6da4704cbf32ba6f50f6d9c46cc0a071e3a87985",
+  "measurement_processes": 30,
+  "censored_observations": 0,
+  "new_dependencies": 0,
+  "paid_api_calls": 0,
+  "delegated_agents": 0
+}

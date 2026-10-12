@@ -1,0 +1,76 @@
+Ordinary direct NetworkX #3825 attempt: frozen local success
+
+Status and scope
+The patch meets the frozen local correctness and synthetic performance gates in this Windows environment. Parent independent assessment is still required. This is direct work, not Missing Link work. It does not establish performance on the original unavailable user matrix or complete Tarjan/Gabow asymptotic improvements. It is not merge-ready: native Linux validation and complete modified product CI have not been run here. Preparation CI is not evidence for this patch.
+
+Pin: 6da4704cbf32ba6f50f6d9c46cc0a071e3a87985
+Checkout: C:\Users\dacan\Documents\Codex\2026-08-17\vo\outputs\github-pulse\data\arborescence-obstacle-2026-10-12\direct-target
+Outputs: C:\Users\dacan\Documents\Codex\2026-08-17\vo\outputs\github-pulse\data\arborescence-obstacle-2026-10-12\direct-attempt
+Dispatch: 2026-10-12 14:19:35 UTC (inferred from supplied 14:34:35 UTC deadline and 15-minute allowance)
+First observed clock: 2026-10-12 14:20:23 UTC
+Final freeze and elapsed runtime: freeze.json
+
+Changed native scope
+networkx/algorithms/tree/branchings.py: 105 inserted lines. Adds private _minimum_spanning_arborescence_integer and routes directed graphs with partition=None through it when every actual/default weight is a built-in Python int. Supports both DiGraph and MultiDiGraph, mixed node labels, default/custom weight attributes, preserved edge attributes, negative and arbitrarily large integers, self-loops and arbitrary root choice. Empty graphs, floats/custom numeric types, undirected inputs and partition-constrained inputs retain the original public path. Existing API signature is unchanged. Missing integer weights are read with the default and no longer filled on the fast path; the frozen default-normalization criterion explicitly permits this.
+networkx/algorithms/tree/tests/test_branchings_integer.py: new 81-line file, 83 regression cases. Existing upstream tests were not edited.
+
+Implementation rationale
+This is compact batched Edmonds contraction, not a completed GGST implementation. An artificial root with penalty n*(max_weight-min_weight)+1 gives an exact integer reduction from unrestricted root choice to a rooted arborescence. Original weights are shifted by their minimum. A feasible optimum uses exactly one artificial edge; after expansion it is removed. Otherwise the existing no-spanning exception is raised. Each round chooses incoming edges and contracts all disjoint cycles together. Edge records carry original identities. Expansion stores chosen incoming edges plus original-vertex membership rather than retaining whole intermediate graphs. Output uses original endpoints and original attributes. This avoids NetworkX graph copying and mutation inside the contraction loop. It does not introduce a new public API or dependency, and does not claim a better generalized asymptotic bound than classical Edmonds.
+
+Observed correctness and checks
+1. Frozen native_acceptance.py passed all 7 tests, initially in 0.025 s and finally in 0.020 s. Its seeded cases use an independent exhaustive parent-choice oracle. Logs: acceptance.log and acceptance-final.log.
+2. The unchanged upstream networkx/algorithms/tree/tests directory passed 219 tests, skipped 2, and xfailed 1 in 8.82 s, before the new regression file was created. Log: tree-tests.log. Skips are test_mst.py:578 and :704, both requiring --runslow. Expected failure: TestCenter::test_center_non_tree[G8], reason 'no check for self-loops'. These are explicitly retained, not hidden.
+3. New regressions passed 83/83 in 0.56 s. They compare 80 seeded simple/multi directed graphs against unchanged minimal_branching, check original graph preservation and original edge data, and cover huge exact integers, root choice, disjoint-then-nested cycles, and float fallback. Log: new-regressions.log. These comparisons are baseline comparisons; the frozen oracle is the independent optimum control.
+4. Ruff checks and format checks passed for both changed files. An initial import-order/format warning in the new test was corrected before its successful run. git diff --check passed. git apply --reverse --check complete.patch passed against the final working tree. No code changed after the paired measurements; implementation file SHA256 remained 6af0af184e37ece3da81a235526f6045a2a6c0ed7633d965fe7d02b11fdcb0bd.
+
+Performance observations
+All 30 observations are fresh processes, alternating original then candidate in each of 3 pairs per case. Actual native source file was copied from branchings-original.py or branchings-candidate.py before each launch, then candidate restored in a finally block. Both files are retained. Baseline source was copied from the clean pin before editing. No imported package replacement or donor-only benchmark was used. Every process used frozen measure_native.py unmodified, native PYTHONPATH, and the supplied venv. The 30-second process observation cap was enforced using WaitForExit(30000), with Stop-Process on timeout; no timeout occurred. All exits were 0, all hashes and output weights match within each case, all answers span with n-1 edges, and all input preservation assertions pass.
+
+n,seed,original median algorithm wall,candidate median algorithm wall,ratio,original median total process wall,candidate median total process wall,weight
+50,20261012,0.3041595001,0.0125839000,24.1705,1.7783737,1.4096378,831069
+100,20261012,2.2603633000,0.1169136000,19.3336,3.8133093,1.7320892,1038891
+200,20261012,19.5089608000,1.0337710000,18.8716,21.4543102,3.0529267,1078246
+75,20261013,0.8854234000,0.0594915000,14.8832,2.4532285,1.8286895,1051336
+150,20261013,7.1162212000,0.3227379000,22.0495,8.6970076,1.9400112,1022318
+
+The n=100/200 and fixed n=75/150 median algorithm improvements exceed 2x. n=50 improves rather than regresses. These are observed practical gates on the frozen synthetic cases, not a broad workload or complexity proof. Raw per-process stdout JSON records include algorithm wall/CPU and module identity. process-times.jsonl records total process wall including startup. measurements-all.json retains every observation, CPU time, process time, and total minus algorithm time. This residual includes startup/import, graph construction, signature/topology checking and teardown; it is not an isolated interpreter-startup timing. performance-summary.json includes the exact medians and hashes. One exploratory n=200 candidate measurement (0.8856555 s) preceded the paired series and is not included in any median.
+
+Native commands and environment
+Every native Python invocation set:
+$env:PYTHONPATH = 'C:\Users\dacan\Documents\Codex\2026-08-17\vo\outputs\github-pulse\data\arborescence-obstacle-2026-10-12\direct-target'
+$env:PYTEST_DISABLE_PLUGIN_AUTOLOAD = '1'
+Interpreter:
+C:\Users\dacan\Documents\Codex\2026-08-17\vo\outputs\github-pulse\data\arborescence-obstacle-2026-10-12\venv\Scripts\python.exe
+Frozen fixtures directory:
+C:\Users\dacan\Documents\Codex\2026-08-17\vo\outputs\github-pulse\docs\experiments\arborescence-obstacle-2026-10-12
+Commands under the native checkout:
+python -c 'import networkx as nx; print(nx.__file__)'
+python <fixtures>\native_acceptance.py
+python -m pytest networkx/algorithms/tree/tests -q -r a
+python <fixtures>\measure_native.py 200 20261012 (one exploratory observation)
+python <fixtures>\measure_native.py <n> <seed> (30 capped alternating observations; exact arguments in filenames and process-times.jsonl)
+python -m pytest networkx/algorithms/tree/tests/test_branchings_integer.py -q -r a
+python <fixtures>\native_acceptance.py (final check)
+ruff check --fix networkx/algorithms/tree/tests/test_branchings_integer.py
+ruff format networkx/algorithms/tree/tests/test_branchings_integer.py
+ruff check networkx/algorithms/tree/branchings.py networkx/algorithms/tree/tests/test_branchings_integer.py
+ruff format --check networkx/algorithms/tree/branchings.py networkx/algorithms/tree/tests/test_branchings_integer.py
+git diff --check
+git add -N -- networkx/algorithms/tree/tests/test_branchings_integer.py
+git diff --binary --output=<outputs>\complete.patch 6da4704cbf32ba6f50f6d9c46cc0a071e3a87985 -- networkx/algorithms/tree/branchings.py networkx/algorithms/tree/tests/test_branchings_integer.py
+git apply --reverse --check <outputs>\complete.patch
+
+Cap/original-candidate orchestration used PowerShell directly, without adding a runner:
+For cases (50,20261012),(100,20261012),(200,20261012),(75,20261013),(150,20261013), for trial 1..3, for mode original,candidate: Copy-Item <outputs>\branchings-<mode>.py to native branchings.py; Stopwatch.StartNew(); Start-Process supplied_python -ArgumentList quoted_frozen_measure_file,n,seed -PassThru -RedirectStandardOutput <mode>-<n>-<seed>-<trial>.json -RedirectStandardError corresponding.stderr.txt -WindowStyle Hidden; WaitForExit(30000); Stop-Process if timeout; write elapsed total process time and exit/censor status to process-times.jsonl. Finally restore branchings-candidate.py. No concurrent native test was run while the implementation was switching. Summary extraction subsequently verified all observation counts, topology flags, weights, and hashes.
+
+Environment/dependencies
+Verified networkx.__file__ resolves to direct-target/networkx/__init__.py initially and in every benchmark JSON. Python 3.13.5 (MSC v.1943 AMD64); Windows-11-10.0.26300-SP0; NetworkX 3.7.1rc0.dev0. Supplied venv was not changed. No dependency installation, paid API, new runner/framework, delegated development, product code change, original target modification, frozen fixture modification or historical artifact modification. Ruff was already available locally. Working tree contains only the implementation edit and new regression file (new file has intent-to-add to include it in the complete patch). No commit or remote push was made.
+
+Public investigation and source usage
+Read frozen common-agent.md, demand.json, acceptance-before-source-search.md, measure_native.py and native_acceptance.py. Read target AGENTS.md and CONTRIBUTING.rst. Read automated contribution policy at https://networkx.org/documentation/latest/developer/contribute.html#automated-contributions-policy. Its restrictions apply to submissions, and none were made. Ran gh issue view 3825 --repo networkx/networkx --json number,title,labels,state; current labels are 'type: Enhancements' and 'Needs PR', state OPEN. The issue text/comments supplied in demand were used as the ordinary request; no new issue or PR was created or suggested.
+CyberMobius source: https://raw.githubusercontent.com/CyberMobius/networkx/bee3058f88b26364af1a1e22d81e2a909fede77c/networkx/algorithms/tree/branchings.py
+Loveuse PR #2117 source: https://raw.githubusercontent.com/Loveuse/networkx/9786a132a31d82e0c6d08c60cf8873d30c4b6453/networkx/algorithms/tree/branchings.py
+Both source snapshots are retained in this output directory. Initial web opens of the CyberMobius blob and PR page failed (restricted URL and timeout); raw source fetches then succeeded with HTTP 200. Relevant sections were inspected after the initial implementation. CyberMobius GGST find_optimum still has no expansion/output return at the inspected revision; Loveuse contains historical unroll-based graph reconstruction and old API signatures. Neither was executed, adapted or benchmarked. Their current performance remains unmeasured; this report does not claim the pinned baseline is the best possible direct implementation. The disclosed #2117 idea of avoiding retained graphs was already part of the ordinary investigation context; no code was copied from either source. The compact original-edge/membership implementation was written directly from Edmonds contraction/reconstruction reasoning, with the existing module's Edmonds reference and code as context. No other donor or source search was used.
+
+Failures, residual limitations, and stop
+No observed optimum, topology, preservation, regression or performance failure remains in the frozen controls. Explicit failures were the two initial web page fetches and the corrected test formatting warning. Explicit unrun checks are the two upstream slow tests, native Linux tests and complete modified product CI. Fast path performance does not extend to float/custom numeric or partition-constrained cases; those retain the baseline. There is no claim to have solved the public Tarjan/Gabow TODO in full. Parent must independently assess the exact patch, including its synthetic-root reduction and nested expansion. If independent assessment confirms these results, stop the assistance case as a direct success. This ordinary attempt is now frozen and will not be resumed or retried.

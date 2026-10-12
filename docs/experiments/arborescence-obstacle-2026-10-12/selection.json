@@ -1,0 +1,175 @@
+{
+  "selection": "Purposive engineering reconnaissance after #127; not random, not frozen before demand reading. No donor/source technique availability was used.",
+  "selected_issue": "https://github.com/networkx/networkx/issues/3825",
+  "target_revision": "6da4704cbf32ba6f50f6d9c46cc0a071e3a87985",
+  "reason": "An existing numerical graph API with a real request for a faster algorithm, a specific publicly unfinished implementation, and correctness measurable against exact small-graph enumeration. Current native cost measured on matrix-shaped synthetic inputs. No original user matrix or latency target supplied.",
+  "earlier_candidates": [
+    {
+      "url": "https://github.com/python-jsonschema/jsonschema/issues/1536",
+      "decision": "Do not select; the discussion already links a claimed working focused direct fix and tests. Not independently executed."
+    },
+    {
+      "url": "https://github.com/python-jsonschema/jsonschema/issues/1132",
+      "decision": "Do not select now; relative error relevance remains a broader policy choice. No native reproduction in this reconnaissance."
+    },
+    {
+      "url": "https://github.com/python-jsonschema/jsonschema/issues/1026",
+      "decision": "Do not select now; linked diagnostic policy examples, not an independently agreed error-ranking oracle. No native reproduction."
+    }
+  ],
+  "pools": [
+    {
+      "query": "repo:pytest-dev/pytest is:issue is:open label:bug",
+      "sort": "comments descending",
+      "returned": []
+    },
+    {
+      "query": "repo:networkx/networkx is:issue is:open",
+      "sort": "comments descending",
+      "returned": [
+        {
+          "url": "https://github.com/networkx/networkx/issues/4973",
+          "title": "Request for adding more centrality algorithms",
+          "comments": 25
+        },
+        {
+          "url": "https://github.com/networkx/networkx/issues/6873",
+          "title": "Review maximum cardinality search algorithm in `complete_to_chordal_graph`",
+          "comments": 22
+        },
+        {
+          "url": "https://github.com/networkx/networkx/issues/3825",
+          "title": "ENH: New algorithm for nx.minimum_spanning_arborescence()",
+          "comments": 16
+        },
+        {
+          "url": "https://github.com/networkx/networkx/issues/4516",
+          "title": "Add edge ID attribute to nx.readwrite.json_graph.cytoscape_data(G)",
+          "comments": 15
+        },
+        {
+          "url": "https://github.com/networkx/networkx/issues/3010",
+          "title": "partial mappings for subgraph-isomorphism",
+          "comments": 14
+        },
+        {
+          "url": "https://github.com/networkx/networkx/issues/3995",
+          "title": "Use of \"is True\" throughout the code",
+          "comments": 13
+        }
+      ],
+      "scope": "Read returned bodies; full discussion inspected only for #3825. Other entries were not comprehensively assessed or proven unsuitable."
+    },
+    {
+      "query": "repo:sympy/sympy is:issue is:open label:bug",
+      "sort": "comments descending",
+      "returned": [
+        {
+          "url": "https://github.com/sympy/sympy/issues/4986",
+          "title": "Separate boolean and symbolic relationals",
+          "comments": 73
+        },
+        {
+          "url": "https://github.com/sympy/sympy/issues/4719",
+          "title": "Derivative operator",
+          "comments": 62
+        },
+        {
+          "url": "https://github.com/sympy/sympy/issues/4596",
+          "title": "Remove automatic distribution 2*(x + y) => 2*x + 2*y",
+          "comments": 49
+        },
+        {
+          "url": "https://github.com/sympy/sympy/issues/5642",
+          "title": "lambdify of constant functions",
+          "comments": 47
+        },
+        {
+          "url": "https://github.com/sympy/sympy/issues/6841",
+          "title": "rref very slow",
+          "comments": 39
+        },
+        {
+          "url": "https://github.com/sympy/sympy/issues/5324",
+          "title": "Enhancing Matrix Norm",
+          "comments": 38
+        }
+      ],
+      "scope": "Returned bodies/metadata read only; no native assessment or complete discussion review."
+    }
+  ],
+  "direct_pr_searches": [
+    {
+      "query": "repo:networkx/networkx is:pr arborescence Tarjan",
+      "returned": [
+        1145
+      ]
+    },
+    {
+      "query": "repo:networkx/networkx is:pr \"branchings\"",
+      "returned": [
+        {
+          "url": "https://github.com/networkx/networkx/pull/8572",
+          "title": "MAINT: remove unused functions and imports",
+          "state": "closed"
+        },
+        {
+          "url": "https://github.com/networkx/networkx/pull/7794",
+          "title": "Make `forceatlas2_layout` dispatchable",
+          "state": "closed"
+        },
+        {
+          "url": "https://github.com/networkx/networkx/pull/6785",
+          "title": "deprecate Edmonds class",
+          "state": "closed"
+        },
+        {
+          "url": "https://github.com/networkx/networkx/pull/7345",
+          "title": "ENH: Cache graphs objects when converting to a backend",
+          "state": "closed"
+        },
+        {
+          "url": "https://github.com/networkx/networkx/pull/7280",
+          "title": "Fix minimum_spanning_arborescence regression",
+          "state": "closed"
+        },
+        {
+          "url": "https://github.com/networkx/networkx/pull/6523",
+          "title": "improve test coverage for branchings.py",
+          "state": "closed"
+        },
+        {
+          "url": "https://github.com/networkx/networkx/pull/4740",
+          "title": "GSoC Asadpour ATSP Implementation Pull Request",
+          "state": "closed"
+        },
+        {
+          "url": "https://github.com/networkx/networkx/pull/5718",
+          "title": "Add durations flag to coverage run on CI.",
+          "state": "closed"
+        },
+        {
+          "url": "https://github.com/networkx/networkx/pull/2117",
+          "title": " Branchings.py - Removed graphs and branchings structures in favor of an unique for unrolling the circuits",
+          "state": "open"
+        },
+        {
+          "url": "https://github.com/networkx/networkx/pull/2585",
+          "title": "One attempt to meld graphviews with base classes",
+          "state": "closed"
+        }
+      ],
+      "page_limit": 10,
+      "total_results": 13,
+      "scope": "Bounded search, not exhaustive absence proof; #2117 discussion and branchings patch inspected."
+    }
+  ],
+  "github_labels_checked_with": "gh issue view 3825 --repo networkx/networkx --json labels,title,state,createdAt,url",
+  "upstream_policy": {
+    "url": "https://networkx.org/documentation/latest/developer/contribute.html#automated-contributions-policy",
+    "reviewed": true,
+    "scope": "Local experiment only. No upstream PR, issue or comment is part of this stage. Existing open direct work must be disclosed; an eventual upstream contribution requires personal human review under NetworkX policy."
+  },
+  "missing_link_source_searches": 0,
+  "paid_ai_calls": 0
+}

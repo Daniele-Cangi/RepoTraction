@@ -1,0 +1,99 @@
+{
+  "target_revision": "6da4704cbf32ba6f50f6d9c46cc0a071e3a87985",
+  "observation_cap_seconds_per_process": 30,
+  "observations": [
+    {
+      "nodes": 50,
+      "command": [
+        "C:\\Users\\dacan\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+        "C:\\Users\\dacan\\Documents\\Codex\\2026-08-17\\vo\\outputs\\github-pulse\\data\\arborescence-obstacle-2026-10-12\\measure_original.py",
+        "50"
+      ],
+      "exit_code": 0,
+      "timed_out": false,
+      "subprocess_wall_seconds": 1.8962470999686047,
+      "stdout": "{\r\n  \"nodes\": 50,\r\n  \"edges\": 2450,\r\n  \"seed\": 20261012,\r\n  \"graph_sha256\": \"9b0ccb8b5deb15fad7b482adfaea20f28e8d2d762b943e955fe2f83a7587ef84\",\r\n  \"algorithm_wall_seconds\": 0.3179823000100441,\r\n  \"algorithm_cpu_seconds\": 0.3125,\r\n  \"weight\": 831069,\r\n  \"answer_edges\": 49,\r\n  \"is_spanning_arborescence\": true,\r\n  \"input_unchanged\": true,\r\n  \"networkx_version\": \"3.7.1rc0.dev0\",\r\n  \"networkx_module\": \"C:\\\\Users\\\\dacan\\\\Documents\\\\Codex\\\\2026-08-17\\\\vo\\\\outputs\\\\github-pulse\\\\data\\\\arborescence-obstacle-2026-10-12\\\\target\\\\networkx\\\\__init__.py\",\r\n  \"python\": \"3.13.5 (tags/v3.13.5:6cb20a2, Jun 11 2025, 16:15:46) [MSC v.1943 64 bit (AMD64)]\",\r\n  \"platform\": \"Windows-11-10.0.26300-SP0\",\r\n  \"scope\": \"Synthetic complete weighted digraph; the issue supplied no original matrix or latency requirement.\"\r\n}\r\n",
+      "stderr": "C:\\Users\\dacan\\Documents\\Codex\\2026-08-17\\vo\\outputs\\github-pulse\\data\\arborescence-obstacle-2026-10-12\\target\\networkx\\utils\\backends.py:102: RuntimeWarning: networkx backend name is not a valid identifier: 'nx-loopback'. Ignoring.\r\n  backends = _get_backends(\"networkx.backends\")\r\n",
+      "output_sha256": "def8eda1e2654ad761ff688bf81eedf93746c3e6d3a8720b66a8488199142ce1",
+      "measurement": {
+        "nodes": 50,
+        "edges": 2450,
+        "seed": 20261012,
+        "graph_sha256": "9b0ccb8b5deb15fad7b482adfaea20f28e8d2d762b943e955fe2f83a7587ef84",
+        "algorithm_wall_seconds": 0.3179823000100441,
+        "algorithm_cpu_seconds": 0.3125,
+        "weight": 831069,
+        "answer_edges": 49,
+        "is_spanning_arborescence": true,
+        "input_unchanged": true,
+        "networkx_version": "3.7.1rc0.dev0",
+        "networkx_module": "C:\\Users\\dacan\\Documents\\Codex\\2026-08-17\\vo\\outputs\\github-pulse\\data\\arborescence-obstacle-2026-10-12\\target\\networkx\\__init__.py",
+        "python": "3.13.5 (tags/v3.13.5:6cb20a2, Jun 11 2025, 16:15:46) [MSC v.1943 64 bit (AMD64)]",
+        "platform": "Windows-11-10.0.26300-SP0",
+        "scope": "Synthetic complete weighted digraph; the issue supplied no original matrix or latency requirement."
+      }
+    },
+    {
+      "nodes": 100,
+      "command": [
+        "C:\\Users\\dacan\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+        "C:\\Users\\dacan\\Documents\\Codex\\2026-08-17\\vo\\outputs\\github-pulse\\data\\arborescence-obstacle-2026-10-12\\measure_original.py",
+        "100"
+      ],
+      "exit_code": 0,
+      "timed_out": false,
+      "subprocess_wall_seconds": 3.8034011000418104,
+      "stdout": "{\r\n  \"nodes\": 100,\r\n  \"edges\": 9900,\r\n  \"seed\": 20261012,\r\n  \"graph_sha256\": \"97143e7e5b87fb6444a88b4acb02f9b6cb9c2c827e7971fa9cb1f253dcdfc8ef\",\r\n  \"algorithm_wall_seconds\": 2.2340671000420116,\r\n  \"algorithm_cpu_seconds\": 2.21875,\r\n  \"weight\": 1038891,\r\n  \"answer_edges\": 99,\r\n  \"is_spanning_arborescence\": true,\r\n  \"input_unchanged\": true,\r\n  \"networkx_version\": \"3.7.1rc0.dev0\",\r\n  \"networkx_module\": \"C:\\\\Users\\\\dacan\\\\Documents\\\\Codex\\\\2026-08-17\\\\vo\\\\outputs\\\\github-pulse\\\\data\\\\arborescence-obstacle-2026-10-12\\\\target\\\\networkx\\\\__init__.py\",\r\n  \"python\": \"3.13.5 (tags/v3.13.5:6cb20a2, Jun 11 2025, 16:15:46) [MSC v.1943 64 bit (AMD64)]\",\r\n  \"platform\": \"Windows-11-10.0.26300-SP0\",\r\n  \"scope\": \"Synthetic complete weighted digraph; the issue supplied no original matrix or latency requirement.\"\r\n}\r\n",
+      "stderr": "C:\\Users\\dacan\\Documents\\Codex\\2026-08-17\\vo\\outputs\\github-pulse\\data\\arborescence-obstacle-2026-10-12\\target\\networkx\\utils\\backends.py:102: RuntimeWarning: networkx backend name is not a valid identifier: 'nx-loopback'. Ignoring.\r\n  backends = _get_backends(\"networkx.backends\")\r\n",
+      "output_sha256": "f39feb770af0ddf5cc85baa1d5ab20247811b0310dbcab6557eb7bf9d2c975e6",
+      "measurement": {
+        "nodes": 100,
+        "edges": 9900,
+        "seed": 20261012,
+        "graph_sha256": "97143e7e5b87fb6444a88b4acb02f9b6cb9c2c827e7971fa9cb1f253dcdfc8ef",
+        "algorithm_wall_seconds": 2.2340671000420116,
+        "algorithm_cpu_seconds": 2.21875,
+        "weight": 1038891,
+        "answer_edges": 99,
+        "is_spanning_arborescence": true,
+        "input_unchanged": true,
+        "networkx_version": "3.7.1rc0.dev0",
+        "networkx_module": "C:\\Users\\dacan\\Documents\\Codex\\2026-08-17\\vo\\outputs\\github-pulse\\data\\arborescence-obstacle-2026-10-12\\target\\networkx\\__init__.py",
+        "python": "3.13.5 (tags/v3.13.5:6cb20a2, Jun 11 2025, 16:15:46) [MSC v.1943 64 bit (AMD64)]",
+        "platform": "Windows-11-10.0.26300-SP0",
+        "scope": "Synthetic complete weighted digraph; the issue supplied no original matrix or latency requirement."
+      }
+    },
+    {
+      "nodes": 200,
+      "command": [
+        "C:\\Users\\dacan\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+        "C:\\Users\\dacan\\Documents\\Codex\\2026-08-17\\vo\\outputs\\github-pulse\\data\\arborescence-obstacle-2026-10-12\\measure_original.py",
+        "200"
+      ],
+      "exit_code": 0,
+      "timed_out": false,
+      "subprocess_wall_seconds": 20.439797200029716,
+      "stdout": "{\r\n  \"nodes\": 200,\r\n  \"edges\": 39800,\r\n  \"seed\": 20261012,\r\n  \"graph_sha256\": \"277ea320b27e2a941e62b128d597d53c2d4334b3243e97b1c3c43ed9493e2c5e\",\r\n  \"algorithm_wall_seconds\": 18.59825350000756,\r\n  \"algorithm_cpu_seconds\": 18.46875,\r\n  \"weight\": 1078246,\r\n  \"answer_edges\": 199,\r\n  \"is_spanning_arborescence\": true,\r\n  \"input_unchanged\": true,\r\n  \"networkx_version\": \"3.7.1rc0.dev0\",\r\n  \"networkx_module\": \"C:\\\\Users\\\\dacan\\\\Documents\\\\Codex\\\\2026-08-17\\\\vo\\\\outputs\\\\github-pulse\\\\data\\\\arborescence-obstacle-2026-10-12\\\\target\\\\networkx\\\\__init__.py\",\r\n  \"python\": \"3.13.5 (tags/v3.13.5:6cb20a2, Jun 11 2025, 16:15:46) [MSC v.1943 64 bit (AMD64)]\",\r\n  \"platform\": \"Windows-11-10.0.26300-SP0\",\r\n  \"scope\": \"Synthetic complete weighted digraph; the issue supplied no original matrix or latency requirement.\"\r\n}\r\n",
+      "stderr": "C:\\Users\\dacan\\Documents\\Codex\\2026-08-17\\vo\\outputs\\github-pulse\\data\\arborescence-obstacle-2026-10-12\\target\\networkx\\utils\\backends.py:102: RuntimeWarning: networkx backend name is not a valid identifier: 'nx-loopback'. Ignoring.\r\n  backends = _get_backends(\"networkx.backends\")\r\n",
+      "output_sha256": "d6e6b43ea8aad6a66bb3890b9a74eced0887f17e44eea48edccb358be39b871e",
+      "measurement": {
+        "nodes": 200,
+        "edges": 39800,
+        "seed": 20261012,
+        "graph_sha256": "277ea320b27e2a941e62b128d597d53c2d4334b3243e97b1c3c43ed9493e2c5e",
+        "algorithm_wall_seconds": 18.59825350000756,
+        "algorithm_cpu_seconds": 18.46875,
+        "weight": 1078246,
+        "answer_edges": 199,
+        "is_spanning_arborescence": true,
+        "input_unchanged": true,
+        "networkx_version": "3.7.1rc0.dev0",
+        "networkx_module": "C:\\Users\\dacan\\Documents\\Codex\\2026-08-17\\vo\\outputs\\github-pulse\\data\\arborescence-obstacle-2026-10-12\\target\\networkx\\__init__.py",
+        "python": "3.13.5 (tags/v3.13.5:6cb20a2, Jun 11 2025, 16:15:46) [MSC v.1943 64 bit (AMD64)]",
+        "platform": "Windows-11-10.0.26300-SP0",
+        "scope": "Synthetic complete weighted digraph; the issue supplied no original matrix or latency requirement."
+      }
+    }
+  ]
+}
