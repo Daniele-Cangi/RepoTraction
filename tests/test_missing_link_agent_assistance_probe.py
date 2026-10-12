@@ -100,7 +100,7 @@ class AssistanceProbeContractTests(unittest.TestCase):
         job = {"checkpoint": {}, "result": {}, "input": {"issue_url": frozen["issue"]["url"]}}
         with tempfile.TemporaryDirectory() as temporary:
             service = PROBE.FrozenAssistanceService(Path(temporary) / "store.sqlite3", "fixture", Mock(),
-                lambda: "fixture", provider=self.provider, frozen_inputs=frozen, expected_fingerprint=digest(frozen))
+                lambda: "fixture", provider=self.provider, frozen_inputs=frozen)
             self.assertFalse(service._prepare_request_discovery(job, source, Mock(), Mock(), Mock()))
         supplied = self.provider.interpret_request.call_args.args[0]
         self.assertEqual(supplied["body"], frozen["issue"]["body"])
@@ -112,10 +112,9 @@ class AssistanceProbeContractTests(unittest.TestCase):
     def test_changed_frozen_content_is_rejected_before_store_or_provider(self):
         directory = ROOT / "docs/experiments/agent-assistance-probe-2026-10-12"
         frozen = json.loads((directory / "frozen-inputs.json").read_text(encoding="utf-8"))
-        expected = digest(frozen)
         frozen["issue"]["body"] += "changed later discussion"
         with self.assertRaises(ValueError):
-            PROBE.FrozenAssistanceService(frozen_inputs=frozen, expected_fingerprint=expected)
+            PROBE.FrozenAssistanceService(frozen_inputs=frozen, expected_fingerprint=digest(frozen))
 
     def test_packet_is_deterministic_bridge_free_and_contains_exact_source(self):
         match, repository = self.packet_fixture()

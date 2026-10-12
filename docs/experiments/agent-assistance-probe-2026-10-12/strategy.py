@@ -18,14 +18,15 @@ from missing_link.sources import _redact
 
 PROMPTS = json.loads(Path(__file__).with_name("prompts.json").read_text(encoding="utf-8"))
 TARGET_REVISION = "587ebc501ba292539202a1aac3a7f5b0112a08ec"
+FROZEN_INPUT_FINGERPRINT = "9b45c38282d1ab028e6cd0ac4609f483dcb81658898866e6ca718f8fbd75470d"
 
 
 class FrozenAssistanceService(Service):
     """Reuse Service execution with two explicitly frozen experiment inputs."""
-    def __init__(self, *args, frozen_inputs, expected_fingerprint, **kwargs):
+    def __init__(self, *args, frozen_inputs, **kwargs):
         frozen = copy.deepcopy(frozen_inputs)
         issue, target = frozen["issue"], frozen["target"]
-        if (digest(frozen) != expected_fingerprint or target["revision"] != TARGET_REVISION
+        if (digest(frozen) != FROZEN_INPUT_FINGERPRINT or target["revision"] != TARGET_REVISION
                 or target["full_name"] != "pytest-dev/pytest" or target.get("public") is not True
                 or issue.get("public") is not True or issue["repo_id"] != target["id"]
                 or issue["url"] != "https://github.com/pytest-dev/pytest/issues/15099"):

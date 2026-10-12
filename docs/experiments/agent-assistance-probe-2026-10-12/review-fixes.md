@@ -46,6 +46,13 @@ projection with exact source text, and invalid/oversized evidence rejection.
 Together with the original four contract tests, eight tests pass. Existing frozen
 selection, acceptance, prompts, bounds and preparation results are unchanged.
 
+The follow-up review identified that a caller-provided expected fingerprint could
+be recomputed from altered inputs. The experiment fingerprint is now a committed
+constant in `strategy.py`, not a caller parameter. The rejection regression
+deliberately supplies a freshly recomputed digest of changed discussion: that
+cannot override the committed identity. This is a local constant binding, not a
+new integrity or coordination subsystem. The frozen input data remains unchanged.
+
 The common direct attempt is now frozen in `common-patch.json` and
 `common-report.md`. Independent parent checks pass the public reproduction and
 48 native monkeypatch tests; the fixed assessor cases remain 6 passed / 2 failed
