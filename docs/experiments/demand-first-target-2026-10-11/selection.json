@@ -1,0 +1,20 @@
+[
+  {
+    "repository": "sebastianruder/NLP-progress",
+    "query_index": 0,
+    "upstream_rank": 1,
+    "qualification": "unassessed"
+  },
+  {
+    "repository": "dmort27/panphon",
+    "query_index": 1,
+    "upstream_rank": 1,
+    "qualification": "unassessed"
+  },
+  {
+    "repository": "hearsaycorp/normalize",
+    "query_index": 2,
+    "upstream_rank": 1,
+    "qualification": "unassessed"
+  }
+]
