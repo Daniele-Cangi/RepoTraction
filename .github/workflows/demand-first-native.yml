@@ -60,6 +60,9 @@ jobs:
           assert sha(canonical(target / 'src/_pytest/_code/code.py')) == preparation['target_module_canonical_sha256']
           for name, expected in preparation['inputs'].items():
               assert sha(canonical(frozen / name)) == expected['canonical_sha256'], name
+          fixtures = json.loads((frozen / 'portable-fixture-manifest.json').read_text())['fixtures']
+          for name, expected in fixtures.items():
+              assert sha(canonical(frozen / name)) == expected['canonical_sha256'], name
           assert sha((study / 'agent.patch').read_bytes()) == manifest['patch_sha256']
           patch = output / 'candidate.patch'
           patch.write_bytes(canonical(study / 'agent.patch'))
@@ -111,7 +114,9 @@ jobs:
               assert 'same locals & position' not in ordinary['output']
           # Retain the full historical probe failure: its large exact no-match
           # expectation is incompatible with the explicitly disclosed work cap.
-          observe('candidate-unmodified-frozen-probe', [str(frozen / 'native_diagnostic_probe.py')])
+          retained = observe('candidate-unmodified-frozen-probe', [str(frozen / 'native_diagnostic_probe.py')])
+          assert not retained['timed_out'] and retained['exit_code'] == 1
+          assert '_RecursionSearchLimitExceeded' in retained['output']
           tree = ast.parse((frozen / 'native_diagnostic_probe.py').read_text())
           removed = [n for n in tree.body if isinstance(n, ast.For) and isinstance(n.target, ast.Name) and n.target.id == 'n']
           assert len(removed) == 1 and ast.literal_eval(removed[0].iter) == (20, 40, 80, 160)
