@@ -157,17 +157,21 @@ class Service:
 
     def start(self, data: dict, background=True):
         self._verify()
+        action = data.get("action", "discover")
+        if action not in {"analyze", "discover", "discover_from_request"}:
+            raise ValueError("Unknown investigation action.")
+        from_request = action == "discover_from_request"
+        targeted_inquiry = data.get("targeted_inquiry", False)
+        if not isinstance(targeted_inquiry, bool) or (targeted_inquiry and not from_request):
+            raise ValueError("targeted_inquiry requires request-led discovery and must be boolean.")
         repo = text(data.get("repo", ""), 150)
-        if not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", repo):
+        if not from_request and not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", repo):
             raise ValueError("Choose a repository in OWNER/REPO form.")
         use_ai = data.get("use_ai", False)
         if not isinstance(use_ai, bool):
             raise ValueError("use_ai must be boolean.")
         if use_ai and not self.provider.describe()["configured"]:
             raise ValueError("No AI provider configured. Analyze structurally and export a coding-agent handoff instead.")
-        action = data.get("action", "discover")
-        if action not in {"analyze", "discover"}:
-            raise ValueError("Unknown investigation action.")
         behavioral_examples = data.get("behavioral_examples", False)
         if not isinstance(behavioral_examples, bool) or (behavioral_examples and (not use_ai or action != "discover")):
             raise ValueError("behavioral_examples requires an AI-enabled discover job and must be boolean.")
@@ -175,11 +179,17 @@ class Service:
         if issue and not re.fullmatch(r"https://github\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+/issues/[1-9][0-9]*", issue):
             raise ValueError("Use a public GitHub issue URL, without query or fragment.")
         query = text(data.get("query", ""), 220)
+        if from_request and (repo or query or not issue or not use_ai or behavioral_examples):
+            raise ValueError("Request-led discovery needs AI and one issue, without a supplied source, query or behavioral execution.")
+        if from_request and data.get("max_candidates", 1) != 1:
+            raise ValueError("Request-led discovery inspects at most one autonomously selected source.")
         normalized = {"repo": repo, "action": action, "issue_url": issue, "query": query, "use_ai": use_ai,
             "max_requests": self._bounded_integer(data.get("max_requests"), 80, 5, 200),
-            "max_candidates": self._bounded_integer(data.get("max_candidates"), 5, 1, 10)}
+            "max_candidates": self._bounded_integer(data.get("max_candidates"), 1 if from_request else 5, 1, 10)}
         if behavioral_examples:
             normalized["behavioral_examples"] = True
+        if targeted_inquiry:
+            normalized["targeted_inquiry"] = True
         with self.lock:
             if any(thread.is_alive() for thread in self.threads.values()):
                 raise ValueError("One investigation at a time per account. Cancel or wait for the current job.")
@@ -302,6 +312,14 @@ class Service:
                 if job.get("provider_identity", identity) != identity:
                     raise Paused("Provider/model/contract changed. Start a new job rather than mixing old interpretation checkpoints.")
                 job["provider_identity"] = identity
+            if job["input"]["action"] == "discover_from_request":
+                if not self._prepare_request_discovery(job, source, budget, stage, save):
+                    stage("completed", "Request-led decision saved; no candidate source inspection warranted.")
+                    with self.lock:
+                        budget.checkpoint()
+                        job["status"] = "completed"
+                        save()
+                    return
             stage("repository", "Reading public repository metadata and pinned source.")
             if "repository" not in checkpoints:
                 repository = source.fetch_repository(job["input"]["repo"])
@@ -484,6 +502,143 @@ class Service:
             job.update(**job_failure(exc, job=job))
         save()
 
+    def _prepare_request_discovery(self, job, source, budget, stage, save):
+        """One demand -> decision -> bounded search -> one source, in this same job.
+
+        The normal interpretation/comparison path below takes over after selection.
+        No replacement sources, extra worker, separate allowance or transport.
+        """
+        from .discovery_decisions import VERSION
+        checkpoints = job["checkpoint"]
+        if checkpoints.get("discovery_version", VERSION) != VERSION:
+            raise Paused("Request-led decision contract changed; start a new investigation.")
+        checkpoints["discovery_version"] = VERSION
+        discussions = checkpoints.setdefault("discussions", {})
+        stage("discussion", "Reading the public need before selecting any source software.")
+        if "0" not in discussions:
+            discussions["0"] = source.fetch_issue(job["input"]["issue_url"])
+            self.store.put("discussions", discussions["0"]["id"], discussions["0"])
+            save()
+        issue = discussions["0"]
+        requests = checkpoints.setdefault("requests", {})
+        if "0" not in requests:
+            stage("requirements", "Interpreting the demand independently of any source package.")
+            requests["0"] = self.provider.interpret_request(issue, budget)
+            save()
+        request = requests["0"]
+        job["result"]["discovery_request"] = request
+        if is_non_demand(request) or request["status"] == "resolved":
+            job["result"]["discovery_decision"] = {"decision": "no_unresolved_request",
+                "reason": request.get("status_reason", ""), "status": "unverified_decision", "qualified": False}
+            save()
+            return False
+        if "target_context" not in issue:
+            stage("target-context", "Reading the target's existing alternatives and constraints.")
+            context = (source.fetch_reference_context(issue, include_catalog=True)
+                       if job["input"].get("targeted_inquiry") else source.fetch_reference_context(issue))
+            issue = dict(issue, target_context=context, fingerprint=digest({
+                "discussion": issue["fingerprint"], "target_context": context["fingerprint"]}))
+            discussions["0"] = issue
+            requests["0"] = request = dict(request, fingerprint=issue["fingerprint"])
+            self.store.put("discussions", issue["id"], issue)
+            save()
+        job["result"]["discovery_request"] = request
+        inquiry = None
+        if job["input"].get("targeted_inquiry"):
+            from .discovery_decisions import INQUIRY_VERSION
+            if checkpoints.get("inquiry_version", INQUIRY_VERSION) != INQUIRY_VERSION:
+                raise Paused("Target inquiry contract changed; start a new investigation.")
+            checkpoints["inquiry_version"] = INQUIRY_VERSION
+            target = issue["target_context"]
+            if "target_inquiry" not in checkpoints:
+                stage("target-inquiry", "Choosing one decision-changing target investigation.")
+                checkpoints["target_inquiry"] = self.provider.choose_target_inquiry(request, target, budget)
+                save()
+            inquiry = dict(checkpoints["target_inquiry"])
+            job["result"]["target_inquiry"] = inquiry
+            save()
+            if inquiry["decision"] == "read_target":
+                if "inquiry_evidence" not in checkpoints:
+                    stage("target-inquiry-read", "Reading the selected target files at the original revision.")
+                    evidence = source.fetch_repository(target["full_name"], max_files=3,
+                        pinned_revision=target["revision"], selected_paths=[f["path"] for f in inquiry["files"]])
+                    if evidence["id"] != target["id"] or evidence["revision"] != target["revision"]:
+                        raise ValueError("Target identity or revision changed during inquiry.")
+                    expected = {f["path"]: f["sha"] for f in inquiry["files"]}
+                    acquired = {f["path"]: f["sha"] for f in evidence["files"]}
+                    if acquired != expected or len(evidence["files"]) != len(expected):
+                        raise ValueError("Target inquiry files are incomplete or their identities changed.")
+                    checkpoints["inquiry_evidence"] = evidence
+                    save()
+                evidence = checkpoints["inquiry_evidence"]
+                inquiry["evidence"] = {k: evidence[k] for k in ("id", "full_name", "revision", "coverage")}
+                inquiry["evidence"]["files"] = [{"path": f["path"], "sha": f["sha"], "url": f["url"],
+                    "text": f["text"][:8000], "truncated": bool(f.get("truncated") or len(f["text"]) > 8000),
+                    "redacted": bool(f.get("redacted"))} for f in evidence["files"][:3]]
+                # The public result keeps exact selected/acquired identities and prompt truncation,
+                # while original source text remains in the ordinary private checkpoint.
+                public = dict(inquiry, evidence=dict(inquiry["evidence"]))
+                public["evidence"]["files"] = [{k: v for k, v in f.items() if k != "text"}
+                                               for f in inquiry["evidence"]["files"]]
+                job["result"]["target_inquiry"] = public
+                save()
+        if "discovery_plan" not in checkpoints:
+            stage("discovery-decision", "Choosing useful operations or a direct solution before searching.")
+            checkpoints["discovery_plan"] = (self.provider.plan_discovery(request, issue["target_context"], budget, inquiry=inquiry)
+                if inquiry is not None else self.provider.plan_discovery(request, issue["target_context"], budget))
+            save()
+        plan = checkpoints["discovery_plan"]
+        job["result"]["discovery_decision"] = plan
+        if plan["decision"] != "search":
+            save()
+            return False
+        stage("source-search", "Searching for the operations selected from the demand.")
+        pools = checkpoints.setdefault("source_searches", {})
+        for operation in plan["operations"]:
+            if operation["id"] not in pools:
+                pools[operation["id"]] = source.search_repositories(operation["search_terms"])
+                save()
+        candidates, seen = [], {}
+        target, _ = parse_issue_url(issue["url"])
+        for operation in plan["operations"]:
+            for item in pools[operation["id"]]["items"]:
+                name = item["full_name"].casefold()
+                if name == target.casefold():
+                    continue
+                if name in seen:
+                    seen[name]["retrieved_for"].append(operation["id"])
+                    continue
+                candidate = dict(item, id=f"source{len(candidates)}", retrieved_for=[operation["id"]])
+                seen[name] = candidate
+                candidates.append(candidate)
+        job["result"]["search"] = {"automatic_source_search": True,
+            "queries": [pool["query"] for pool in pools.values()], "candidates_found": len(candidates),
+            "candidates": candidates, "complete": False, "source_inspection_cap": 1}
+        if "source_selection" not in checkpoints:
+            stage("source-selection", "Comparing candidate mechanisms against the direct alternative.")
+            checkpoints["source_selection"] = (self.provider.select_source(plan, candidates, budget) if candidates else
+                {"decision": "none", "reason": "No eligible repository in the bounded public sample.",
+                 "repository": None, "qualified": False, "status": "unverified_selection"})
+            save()
+        selected = checkpoints["source_selection"]
+        job["result"]["source_selection"] = selected
+        if selected["decision"] == "none":
+            save()
+            return False
+        if "repository" not in checkpoints:
+            stage("repository", "Reading the autonomously selected public implementation.")
+            repository = source.fetch_repository(selected["repository"])
+            repository["capabilities"] = extract_structure(repository)
+            repository["analysis_at"] = now()
+            checkpoints["repository"] = repository
+            save()
+        repository = checkpoints["repository"]
+        job["result"]["source_selection"] = dict(selected, acquired_source={
+            "id": repository["id"], "full_name": repository["full_name"], "revision": repository["revision"]})
+        checkpoints["candidates"] = [{"url": issue["url"]}]
+        save()
+        return True
+
     @staticmethod
     def queries(repository):
         return problem_queries(repository)
@@ -495,12 +650,16 @@ class Service:
             raise ValueError("Repository acquisition has not completed yet.")
         return job, repository
 
-    def behavioral_plan(self, job_id, candidate_index):
+    def behavioral_plan(self, job_id, candidate_index, *, reuse_repository=None, package_root=None):
         """Prepare the existing opt-in WASI prototype from a saved Discover proposal.
 
         No provider call, acquisition, execution or qualification occurs here.
+        An explicit package snapshot lets a saved demand search another source;
+        the stored job and its original source/proposal remain unchanged.
         """
         self._verify()
+        if (reuse_repository is None) != (package_root is None):
+            raise ValueError("Package reuse needs both an explicit snapshot and its package root.")
         from .behavioral import prepare_behavior_search
         from .behavior_contracts import VERSION
         job, repository = self.repository_for_job(job_id)
@@ -514,7 +673,8 @@ class Service:
         if not proposal["contracts"]:
             return {"status": "undetermined", "proposal": proposal, "plan": None}
         return {"status": "prepared", "proposal": proposal,
-                "plan": prepare_behavior_search(repository, proposal["contracts"])}
+                "plan": prepare_behavior_search(repository if reuse_repository is None else reuse_repository,
+                                                proposal["contracts"], package_root=package_root)}
 
     def context(self, job_id):
         self._verify()

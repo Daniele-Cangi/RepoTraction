@@ -1,0 +1,803 @@
+{
+  "reviewed_at": "2026-10-11T15:20:06.6152180Z",
+  "packet_sha256": "605d0ae0329980628cc2c32537ce5ab09e063910b9b2d4216f1d73dd8b802cad",
+  "review_type": "independent_source_blind_AI_review_not_human_oracle",
+  "freeze_statement": "Judgments and challenge expectations fixed before exposure to candidate implementations, identities, mappings or behavior results. Only the supplied blind-review-packet.json was consulted for this cohort. No external acquisition or AI calls.",
+  "current_need_definition": "true: retained text supports a still-pending need at the discussion snapshot; false: retained text presents completed work without a further request; null: a real or tentative request exists but its remaining status cannot be established. No value certifies live repository status. Missing linked material is uncertainty, not evidence of completion.",
+  "coverage_statement": "Reviewed all 15 retained issue bodies, all retained comments and timeline entries, and the interpretations and proposal decisions; examined both proposed contracts. Coverage is of this packet, not linked discussions, implementations, omitted acquisition content or subsequent events. Requirement-count caps are not treated as completeness failures.",
+  "cases": [
+    {
+      "case_id": "case-01",
+      "demand_status": "non_demand_resolved_incident",
+      "current_need": false,
+      "evidence": [
+        {
+          "section": "body",
+          "quote": "Verified fix with a headless smoke test",
+          "url": "https://github.com/Murdock135/dotfiles/issues/8",
+          "character_start": 1368,
+          "character_end_exclusive": 1407
+        }
+      ],
+      "requested_operation": "No remaining operation requested. Retrospective diagnosis and repair of parser/query version skew for Python highlighting.",
+      "temporal_assessment": "The same incident note contains diagnosis, reinstall fix and reported verification; no retained follow-up asks for additional work.",
+      "interpretation_assessment": "Correct not_a_request classification. Do not turn the takeaway about stale parsers into a new library or lifecycle-automation request.",
+      "proposal_assessment": "No contract is appropriate; absence is justified.",
+      "reuse_feasibility": "No current reuse demand established.",
+      "direct_baseline_strategy": "Reinstall the affected parser to match installed queries, then run the reported highlighting smoke test. Requires local parser/query versions and the editor runtime.",
+      "advantage_requirements": "A separate reusable component would need evidence of recurring unmet lifecycle needs and a concrete improvement over reinstalling; none is supplied.",
+      "limitations": [
+        "Reported fix and test were not independently executed."
+      ],
+      "contracts": [],
+      "reviewed_coverage": {
+        "body_characters": 1827,
+        "body_reviewed": "entire retained body",
+        "comments": [],
+        "timeline_entries_reviewed": 0,
+        "interpretation_requirements_reviewed": 0,
+        "packet_context_complete": true,
+        "packet_limitations": []
+      }
+    },
+    {
+      "case_id": "case-02",
+      "demand_status": "real_request_pending_review",
+      "current_need": true,
+      "evidence": [
+        {
+          "rid": "r0",
+          "quote": "Before invoking a package manager, detect that the recorded root-package requirement excludes the selected target.",
+          "url": "https://github.com/Q00/ouroboros/issues/2546",
+          "source_id": "q0"
+        },
+        {
+          "section": "comment:0",
+          "quote": "Review is in progress.",
+          "url": "https://github.com/Q00/ouroboros/issues/2546#issuecomment-6097508118",
+          "character_start": 88,
+          "character_end_exclusive": 110
+        }
+      ],
+      "requested_operation": "Before invoking an upgrade, detect when an active root-package PEP 440 constraint excludes the chosen version; preserve the constrained environment and give actionable recovery. Preserve receipt metadata and verify the installed version before reporting success; retain specified dry-run/check behavior.",
+      "temporal_assessment": "The 2026-10-10 bot comment reports an open PR under review. This supports pending work, not a completed fix; the PR contents and acceptance are unavailable.",
+      "interpretation_assessment": "The 15 requirements preserve the important pin, preflight, metadata and status constraints. Overall unclear is defensible because linked resolution is absent. The demand is much larger than membership testing.",
+      "proposal_assessment": "A valid active root constraint/version membership predicate is a defensible narrow suboperation. It does not prove correct receipt selection, marker evaluation, mutation ordering, recovery or installed-version verification.",
+      "reuse_feasibility": "Standard version-specifier functionality is explicitly requested; reuse is feasible in principle without establishing any candidate binding or advantage.",
+      "direct_baseline_strategy": "Use the requested packaging dependency for valid PEP 440 membership and put that check before the existing upgrade. Requires receipt extraction, root/transitive separation, marker evaluation, target selection and a nonmutating failure path.",
+      "advantage_requirements": "Demonstrate maintained PEP 440 semantics and lower integration or maintenance cost than using the already requested standard dependency directly. Passing a few membership examples does not establish updater correctness.",
+      "limitations": [
+        "Open PR reported by bot, not independently verified.",
+        "Linked PR contents absent.",
+        "Challenges deliberately avoid prerelease, local-version, invalid-input and inactive-marker policies."
+      ],
+      "contracts": [
+        {
+          "contract_id": "demand-5958e7a5e9f0a93f5b85",
+          "disposition": "defensible_narrow_suboperation",
+          "challenge_cases": [
+            {
+              "args": [
+                ">=2.0,!=2.4.1,<3.0",
+                "2.4.1"
+              ],
+              "expected": false
+            },
+            {
+              "args": [
+                ">=2.4,<2.5",
+                "2.5"
+              ],
+              "expected": false
+            },
+            {
+              "args": [
+                "==2.4.*",
+                "2.4.9"
+              ],
+              "expected": true
+            },
+            {
+              "args": [
+                "==2.4.1",
+                "2.4.1"
+              ],
+              "expected": true
+            }
+          ],
+          "challenge_rationale": "New valid final-release inputs, absent from original examples/checks. Conservative semantic inferences from the explicit requirement for PEP 440 operators: exclusion defeats an otherwise accepting compound range; exclusive upper bound rejects equality; wildcard patch matches; exact equality accepts. Assumes the root constraint is active and already selected, as in the proposed preconditions. These are independent AI expectations, not human-validated universal specifier conformance.",
+          "direct_baseline_strategy": "Direct standard packaging specifier membership for an active valid root constraint and valid final release; caller owns receipt and marker handling.",
+          "advantage_requirements": "Concrete integration or maintenance improvement over direct standard-library-package use, with broader semantics verified separately; no advantage inferred from these four answers."
+        }
+      ],
+      "reviewed_coverage": {
+        "body_characters": 6642,
+        "body_reviewed": "entire retained body",
+        "comments": [
+          {
+            "url": "https://github.com/Q00/ouroboros/issues/2546#issuecomment-6097508118",
+            "characters": 184,
+            "reviewed": "entire retained comment"
+          }
+        ],
+        "timeline_entries_reviewed": 2,
+        "interpretation_requirements_reviewed": 15,
+        "packet_context_complete": false,
+        "packet_limitations": [
+          "Cross-referenced discussions not fetched; resolution may need review."
+        ]
+      }
+    },
+    {
+      "case_id": "case-03",
+      "demand_status": "real_request_unresolved_in_packet",
+      "current_need": true,
+      "evidence": [
+        {
+          "rid": "r0",
+          "quote": "The delete-request-store client should inherit the same S3 TLS trust configuration as the main object-store client, or Loki should expose a clear, documented way to configure the CA bundle for that path as well.",
+          "url": "https://github.com/grafana/loki/issues/22376",
+          "source_id": "q0"
+        }
+      ],
+      "requested_operation": "Make the S3 Express delete-request-store client trust the same custom CA as the main object-store client, or expose a clear documented CA configuration for that client.",
+      "temporal_assessment": "The later comment asks about VPC/proxy/custom-endpoint topology and does not report a resolution.",
+      "interpretation_assessment": "The single requirement correctly preserves alternative acceptable remedies rather than selecting one without evidence.",
+      "proposal_assessment": "Abstention is legitimate: a concrete transport configuration, trust chain and executable result representation are absent.",
+      "reuse_feasibility": "Existing TLS-client configuration may be reusable locally; no external library need or candidate compatibility is established.",
+      "direct_baseline_strategy": "Trace delete-store client creation and share its CA/transport configuration with the working store, or expose the missing configuration. Requires endpoint topology, CA bundle, startup reproduction and actual client wiring.",
+      "advantage_requirements": "Fewer divergent TLS configuration paths and successful startup against the same trust chain, without disabling verification, compared with a small local configuration repair.",
+      "limitations": [
+        "Deployment topology remains an unanswered diagnostic question.",
+        "No executed TLS reproduction or target code was inspected."
+      ],
+      "contracts": [],
+      "reviewed_coverage": {
+        "body_characters": 2552,
+        "body_reviewed": "entire retained body",
+        "comments": [
+          {
+            "url": "https://github.com/grafana/loki/issues/22376#issuecomment-4730269611",
+            "characters": 275,
+            "reviewed": "entire retained comment"
+          }
+        ],
+        "timeline_entries_reviewed": 5,
+        "interpretation_requirements_reviewed": 1,
+        "packet_context_complete": true,
+        "packet_limitations": []
+      }
+    },
+    {
+      "case_id": "case-04",
+      "demand_status": "real_request_resolution_unknown",
+      "current_need": null,
+      "evidence": [
+        {
+          "rid": "r0",
+          "quote": "A read-only introspection tool must not expose full builtins to eval().",
+          "url": "https://github.com/dcc-mcp/dcc-mcp-substance3d-painter/issues/18",
+          "source_id": "q0"
+        },
+        {
+          "rid": "r1",
+          "quote": "inspect_project (and peers) carry metadata execution:sync, timeoutHintSecs:15, but a plain call returns {job_id, status:'pending'} with no result; the result only comes back via --wait (jobs_get_status).",
+          "url": "https://github.com/dcc-mcp/dcc-mcp-substance3d-painter/issues/18",
+          "source_id": "q0"
+        }
+      ],
+      "requested_operation": "Constrain the purportedly read-only evaluation tool so it cannot execute arbitrary mutating code; resolve the mismatch between inspect_project's sync metadata and its pending-job behavior.",
+      "temporal_assessment": "Automated issue report and missing cross-references establish no later accepted fix.",
+      "interpretation_assessment": "Two distinct issues are preserved. Correctly does not decide whether dispatch metadata or execution should change. Removing full builtins alone must not be mistaken for proven containment.",
+      "proposal_assessment": "Abstention is justified: intended safe evaluation surface, rejection output and dispatch contract remain unspecified.",
+      "reuse_feasibility": "Security and host-lifecycle integration dominate. A generic expression parser or keyword filter cannot be inferred as a sufficient solution.",
+      "direct_baseline_strategy": "Disable unrestricted evaluation or expose a deliberately restricted read-only operation surface; align dispatch metadata and actual job behavior after choosing intended mode. Requires host trust model, allowed introspection capabilities and job lifecycle.",
+      "advantage_requirements": "Evidence of containment for the intended capabilities and correct host job behavior with less complexity than a local restricted interface.",
+      "limitations": [
+        "Automated findings unverified against implementation.",
+        "Cross-referenced discussions were not fetched."
+      ],
+      "contracts": [],
+      "reviewed_coverage": {
+        "body_characters": 1984,
+        "body_reviewed": "entire retained body",
+        "comments": [],
+        "timeline_entries_reviewed": 4,
+        "interpretation_requirements_reviewed": 2,
+        "packet_context_complete": false,
+        "packet_limitations": [
+          "Cross-referenced discussions not fetched; resolution may need review."
+        ]
+      }
+    },
+    {
+      "case_id": "case-05",
+      "demand_status": "real_request_unresolved_in_packet",
+      "current_need": true,
+      "evidence": [
+        {
+          "rid": "r0",
+          "quote": "Extract a shared dispatch function called by both handlers, so new actions are handled identically.",
+          "url": "https://github.com/Growth-Circle/cadis/issues/4614",
+          "source_id": "q0"
+        },
+        {
+          "rid": "r1",
+          "quote": "Extract a shared dispatch function called by both handlers, so new actions are handled identically.",
+          "url": "https://github.com/Growth-Circle/cadis/issues/4614",
+          "source_id": "q0"
+        }
+      ],
+      "requested_operation": "Extract common DispatchAction handling used by synchronous and asynchronous handlers so new actions and shutdown behavior cannot drift.",
+      "temporal_assessment": "The retained issue requests a refactor and has no follow-up completion report.",
+      "interpretation_assessment": "Faithful structural refactor request; the three extracted requirements overlap somewhat but do not invent a general-purpose dispatcher need.",
+      "proposal_assessment": "Abstention from an input/output contract is legitimate because action semantics and representations are not supplied. This does not make the local refactor unactionable.",
+      "reuse_feasibility": "Internal shared-function reuse is explicit. External reusable-library demand is not established.",
+      "direct_baseline_strategy": "Extract shared dispatch policy, keeping sync/async IO boundaries around it. Requires the action enum, shutdown lifecycle and parity examples from the existing implementation.",
+      "advantage_requirements": "A candidate would need to cost less than this local extraction while preserving all action semantics; abstract dispatch functionality alone is no demonstrated gain.",
+      "limitations": [
+        "No action-specific outputs or target implementation available."
+      ],
+      "contracts": [],
+      "reviewed_coverage": {
+        "body_characters": 753,
+        "body_reviewed": "entire retained body",
+        "comments": [],
+        "timeline_entries_reviewed": 0,
+        "interpretation_requirements_reviewed": 3,
+        "packet_context_complete": true,
+        "packet_limitations": []
+      }
+    },
+    {
+      "case_id": "case-06",
+      "demand_status": "real_request_resolution_unknown",
+      "current_need": null,
+      "evidence": [
+        {
+          "rid": "r0",
+          "quote": "Expose typed application operations at custom HTTP routes, independently of JSON and independently of the portable UI IR.",
+          "url": "https://github.com/neohaskell/NeoHaskell/issues/884",
+          "source_id": "q0"
+        },
+        {
+          "rid": "r29",
+          "quote": "HTML helpers are #63; webhook specialization is #269.",
+          "url": "https://github.com/neohaskell/NeoHaskell/issues/884",
+          "source_id": "q0"
+        }
+      ],
+      "requested_operation": "Add typed custom HTTP application routes with decoding/encoding, negotiation, bounded multipart, raw bytes, explicit responses and streaming, while sharing existing routing, authentication and security middleware; expose OpenAPI metadata safely.",
+      "temporal_assessment": "Dependencies and cross-references are retained without their contents. No visible completion establishes whether this broad request remains wholly unmet.",
+      "interpretation_assessment": "The capped 30 requirements substantially preserve the broad request. r29's chosen quote covers HTML/webhooks but not the HTMX detail in its requirement; that detail is supported elsewhere in the body and acknowledged in inference, so the selected citation is partial rather than fabricated. This is not a complete executable specification.",
+      "proposal_assessment": "Legitimate abstention: no concrete route registration/response representation or finite codec behavior is fixed.",
+      "reuse_feasibility": "Shared existing router/middleware integration is required. A generic HTTP or codec component alone cannot satisfy the application framework request.",
+      "direct_baseline_strategy": "Add typed adapters and codecs around the existing route/middleware pipeline. Requires framework route/effect model, dependency status, schemas, negotiation rules, stream cancellation and error semantics.",
+      "advantage_requirements": "Fewer custom integration layers with demonstrated authentication, limits, cancellation and metadata consistency, compared with extending the existing framework directly.",
+      "limitations": [
+        "Requirement count reaches 30; no exhaustive-coverage claim.",
+        "Dependencies and linked implementation context unavailable."
+      ],
+      "contracts": [],
+      "reviewed_coverage": {
+        "body_characters": 3031,
+        "body_reviewed": "entire retained body",
+        "comments": [],
+        "timeline_entries_reviewed": 9,
+        "interpretation_requirements_reviewed": 30,
+        "packet_context_complete": false,
+        "packet_limitations": [
+          "Cross-referenced discussions not fetched; resolution may need review."
+        ]
+      }
+    },
+    {
+      "case_id": "case-07",
+      "demand_status": "real_request_alternative_unsettled",
+      "current_need": null,
+      "evidence": [
+        {
+          "rid": "r0",
+          "quote": "Scan code for ivar creation that's not in an initialize method, verify that somewhere in the code, that same named ivar is also set to nil in an initialize method.",
+          "url": "https://github.com/rubocop/rubocop-performance/issues/515",
+          "source_id": "q0"
+        },
+        {
+          "section": "comment:0",
+          "quote": "is a better solution",
+          "url": "https://github.com/rubocop/rubocop-performance/issues/515#issuecomment-3237407088",
+          "character_start": 2436,
+          "character_end_exclusive": 2456
+        },
+        {
+          "section": "comment:1",
+          "quote": "TIL",
+          "url": "https://github.com/rubocop/rubocop-performance/issues/515#issuecomment-3237483791",
+          "character_start": 32,
+          "character_end_exclusive": 35
+        }
+      ],
+      "requested_operation": "Consider linting Ruby instance-variable initialization patterns that create inefficient object shapes; tentative conservative and aggressive rules are suggested.",
+      "temporal_assessment": "A later reply challenges the static-check payoff with benchmarks and recommends built-in performance warnings; the requester acknowledges that alternative. There is no explicit withdrawal or agreed implementation.",
+      "interpretation_assessment": "The tentative rules are reasonably extracted, but unresolved must not be read as confirmed remaining demand for a new cop after this exchange.",
+      "proposal_assessment": "Abstention is sound given dynamic/cross-file limitations, unspecified AST scope and no exact warning contract.",
+      "reuse_feasibility": "An existing runtime warning may already meet the performance-discovery need. Static reuse benefit remains uncertain.",
+      "direct_baseline_strategy": "Enable the cited built-in performance warning under a representative workload. A static lint alternative would need a deliberately bounded AST rule and acceptable false-positive policy.",
+      "advantage_requirements": "Useful actionable detection before execution beyond the built-in warning, supported by measured performance relevance and acceptable false positives.",
+      "limitations": [
+        "Benchmarks and existing warning behavior were reported, not independently run.",
+        "Acknowledgment is not formal acceptance or closure."
+      ],
+      "contracts": [],
+      "reviewed_coverage": {
+        "body_characters": 1671,
+        "body_reviewed": "entire retained body",
+        "comments": [
+          {
+            "url": "https://github.com/rubocop/rubocop-performance/issues/515#issuecomment-3237407088",
+            "characters": 2605,
+            "reviewed": "entire retained comment"
+          },
+          {
+            "url": "https://github.com/rubocop/rubocop-performance/issues/515#issuecomment-3237483791",
+            "characters": 82,
+            "reviewed": "entire retained comment"
+          }
+        ],
+        "timeline_entries_reviewed": 2,
+        "interpretation_requirements_reviewed": 3,
+        "packet_context_complete": true,
+        "packet_limitations": []
+      }
+    },
+    {
+      "case_id": "case-08",
+      "demand_status": "real_request_resolution_unknown",
+      "current_need": null,
+      "evidence": [
+        {
+          "rid": "r0",
+          "quote": "Extract a focused editor installation/extension fragment with explicit version/artifact inputs and an optional additional-extension list.",
+          "url": "https://github.com/neurodesk/neurocontainers/issues/3399",
+          "source_id": "q0"
+        },
+        {
+          "rid": "r1",
+          "quote": "Extract a focused editor installation/extension fragment with explicit version/artifact inputs and an optional additional-extension list.",
+          "url": "https://github.com/neurodesk/neurocontainers/issues/3399",
+          "source_id": "q0"
+        }
+      ],
+      "requested_operation": "Share VS Code build setup across four named container recipes while preserving per-recipe versions, artifact provenance, architectures and launcher differences; specify wrapper argument/signal/environment behavior before sharing it and validate generated outputs.",
+      "temporal_assessment": "The body reports a baseline recipe audit, not a completed refactor or container-runtime validation. Dependencies and tracking cross-references are unavailable.",
+      "interpretation_assessment": "The capped 30 requirements retain preservation and validation constraints. Existing audit work must not be confused with completed implementation.",
+      "proposal_assessment": "Abstention from finite executable cases is justified. The reason's broad lack-of-runtime framing is too strong: container/editor/build context is present, although a callable contract and exact launcher outputs are not.",
+      "reuse_feasibility": "A repository-local shared build fragment is explicitly requested; external component fit is unestablished.",
+      "direct_baseline_strategy": "Extract a focused build fragment with declared version/artifact/extension inputs; preserve distinct launchers until their semantics match. Requires recipe sources, architecture inputs, wrapper decision, build checks and runtime validation.",
+      "advantage_requirements": "Reduced duplicate maintenance while preserving pins, fingerprints and launcher behavior, with less integration cost than a small shared fragment.",
+      "limitations": [
+        "Requirement count reaches 30; no exhaustive-coverage claim.",
+        "Missing dependencies and runtime validation."
+      ],
+      "contracts": [],
+      "reviewed_coverage": {
+        "body_characters": 3336,
+        "body_reviewed": "entire retained body",
+        "comments": [],
+        "timeline_entries_reviewed": 3,
+        "interpretation_requirements_reviewed": 30,
+        "packet_context_complete": false,
+        "packet_limitations": [
+          "Cross-referenced discussions not fetched; resolution may need review."
+        ]
+      }
+    },
+    {
+      "case_id": "case-09",
+      "demand_status": "real_request_resolution_unknown",
+      "current_need": null,
+      "evidence": [
+        {
+          "rid": "r0",
+          "quote": "Establish one canonical HTTP transport path for TKSBrokerAPI connectors.",
+          "url": "https://github.com/Fuzzy-Technologies/TKSBrokerAPI/issues/175",
+          "source_id": "q0"
+        },
+        {
+          "rid": "r1",
+          "quote": "- [ ] JSON requests use a canonical serializer rather than Python object string representations.",
+          "url": "https://github.com/Fuzzy-Technologies/TKSBrokerAPI/issues/175",
+          "source_id": "q0"
+        }
+      ],
+      "requested_operation": "Consolidate HTTP transport with proper JSON serialization, normalized/validated methods, session reuse, timeouts, TLS verification defaults, proxy/header configuration, consistent GET/POST bodies and injection for tests.",
+      "temporal_assessment": "No retained completion report; cross-reference #202 is unavailable.",
+      "interpretation_assessment": "The ten requirements follow the transport request. Canonical transport/JSON serialization does not imply cryptographic byte-canonical JSON.",
+      "proposal_assessment": "Abstention is legitimate because exact method/body/error/configuration policies are unspecified; ordinary JSON serialization alone would be an incomplete surrogate.",
+      "reuse_feasibility": "A shared injectable HTTP client is plausible, but no particular external binding is justified.",
+      "direct_baseline_strategy": "Wrap the existing session/client once with its standard JSON serializer, centralized policy and injected test double. Requires current call sites, body/method decisions and expected failure behavior.",
+      "advantage_requirements": "Less duplicated transport logic and better reproducible tests at lower cost than a thin internal client wrapper, with real TLS/session behavior demonstrated.",
+      "limitations": [
+        "Linked resolution unavailable.",
+        "Concrete transport outputs and errors are not specified."
+      ],
+      "contracts": [],
+      "reviewed_coverage": {
+        "body_characters": 821,
+        "body_reviewed": "entire retained body",
+        "comments": [],
+        "timeline_entries_reviewed": 6,
+        "interpretation_requirements_reviewed": 10,
+        "packet_context_complete": false,
+        "packet_limitations": [
+          "Cross-referenced discussions not fetched; resolution may need review."
+        ]
+      }
+    },
+    {
+      "case_id": "case-10",
+      "demand_status": "real_request_local_fix_awaiting_adoption",
+      "current_need": true,
+      "evidence": [
+        {
+          "rid": "r0",
+          "quote": "| `url` stored in the flow | `/check_uuid/https%253A%252F%252Fsync.example%252Fsetuid%253Fa%253D1` | `/check_uuid/https://sync.example/setuid%3Fa=1` |",
+          "url": "https://github.com/usk6666/yorishiro-proxy/issues/137",
+          "source_id": "q0"
+        },
+        {
+          "section": "body",
+          "quote": "With that change, all six cells of the table above are exact.",
+          "url": "https://github.com/usk6666/yorishiro-proxy/issues/137",
+          "character_start": 3192,
+          "character_end_exclusive": 3253
+        },
+        {
+          "section": "body",
+          "quote": "I can share the diff if it helps.",
+          "url": "https://github.com/usk6666/yorishiro-proxy/issues/137",
+          "character_start": 3617,
+          "character_end_exclusive": 3650
+        },
+        {
+          "section": "body",
+          "quote": "It therefore stays correct after a consumer rewrites `Path`, as the fuzzer does.",
+          "url": "https://github.com/usk6666/yorishiro-proxy/issues/137",
+          "character_start": 2694,
+          "character_end_exclusive": 2774
+        }
+      ],
+      "requested_operation": "Preserve raw percent-encoded request paths through recording and resend for both HTTP versions, retaining query text, with correct decoded/raw URL conversion and behavior after path rewrites across the named call sites.",
+      "temporal_assessment": "The author reports a successful local fix and tests, then offers the diff. This supports an upstream adoption/integration need, not a new invention of the same helper and not proof that the repository is already fixed.",
+      "interpretation_assessment": "Four requirements capture the main preservation behavior. Stale RawPath fallback after consumers rewrite Path is a relevant visible constraint missing from the bounded interpretation/contract. Local completed work must remain distinguished from upstream work.",
+      "proposal_assessment": "Preservation is defensible as a restricted suboperation. The reason/runtime=unknown overlooks explicit Go/net/url and go test evidence; Go project context is visible, though no candidate callable binding is established. The positional identity-shaped contract cannot establish actual flow recording/resend integration.",
+      "reuse_feasibility": "The discussion already describes a small local helper and integration points. Reuse advantage over this concrete direct fix is unproven.",
+      "direct_baseline_strategy": "Preserve wire path bytes, convert decoded Path and RawPath together at the described seam, retain raw query, and use the valid RawPath or escaped rewritten Path at call sites. Requires actual flow storage/parser/resend adapters and protocol tests. A literal return of the target passes the abstract contract but does not repair the application.",
+      "advantage_requirements": "Demonstrate the real protocol-to-storage-to-resend path and path-rewrite correctness with less engineering/maintenance cost than the already described local helper. Identity outputs alone provide no such evidence.",
+      "limitations": [
+        "Local test success is an author report.",
+        "No diff, implementation or runtime behavior was inspected.",
+        "Challenges cover unchanged valid ASCII origin-form targets only; not malformed input, authority forms, mutation, WebSocket or full lifecycle."
+      ],
+      "contracts": [
+        {
+          "contract_id": "demand-eb97596b6b64e856972c",
+          "disposition": "defensible_suboperation_with_weak_discrimination",
+          "challenge_cases": [
+            {
+              "args": [
+                "HTTP/1.1",
+                "/a%2Fb%3Fc?x=%2F&y=%3F"
+              ],
+              "expected": "/a%2Fb%3Fc?x=%2F&y=%3F"
+            },
+            {
+              "args": [
+                "HTTP/2",
+                "/a%2fb%3fc?x=%3a&x=%3A"
+              ],
+              "expected": "/a%2fb%3fc?x=%3a&x=%3A"
+            },
+            {
+              "args": [
+                "HTTP/1.1",
+                "/percent%252Fvalue?literal=%2525"
+              ],
+              "expected": "/percent%252Fvalue?literal=%2525"
+            },
+            {
+              "args": [
+                "HTTP/2",
+                "/plain/path?a=1&a=2&empty="
+              ],
+              "expected": "/plain/path?a=1&a=2&empty="
+            }
+          ],
+          "challenge_rationale": "All inputs differ from original examples/checks. Inferred conservatively from wire bytes unchanged, corrected cells exact, and query unaffected: encoded delimiters must remain encoded; escape letter case, an encoded percent sign, and duplicate/empty query values must remain unchanged. Assumes unchanged valid origin-form target. These expectations exercise only the existing preservation operation; no validation, mutation or extra operation is introduced. An identity implementation passes all four, so this is necessary preservation evidence only, not proof of reuse value or end-to-end behavior.",
+          "direct_baseline_strategy": "At the abstract argument boundary return the unchanged target; for a credible application fix use the issue's described local wire-path conversion helper across recording and resend. Requires actual storage/URL/protocol integration.",
+          "advantage_requirements": "Evidence that a reusable implementation performs the real conversions and lifecycle correctly, including rewritten paths, and reduces cost over the supplied local design. No candidate advantage follows from identity-shaped examples."
+        }
+      ],
+      "reviewed_coverage": {
+        "body_characters": 3660,
+        "body_reviewed": "entire retained body",
+        "comments": [],
+        "timeline_entries_reviewed": 0,
+        "interpretation_requirements_reviewed": 4,
+        "packet_context_complete": true,
+        "packet_limitations": []
+      }
+    },
+    {
+      "case_id": "case-11",
+      "demand_status": "real_request_duplicate_report_unverified",
+      "current_need": null,
+      "evidence": [
+        {
+          "rid": "r1",
+          "quote": "I have to remove the quotes it added on the next line.",
+          "url": "https://github.com/dnut/Rewrap/issues/22",
+          "source_id": "q0"
+        },
+        {
+          "section": "comment:0",
+          "quote": "Duplicate of Issue #10",
+          "url": "https://github.com/dnut/Rewrap/issues/22#issuecomment-5636316844",
+          "character_start": 0,
+          "character_end_exclusive": 22
+        }
+      ],
+      "requested_operation": "Reflow a selected line in an existing multiline Python docstring without inserting an erroneous triple-quote delimiter.",
+      "temporal_assessment": "A later short comment calls this a duplicate of #10; the linked issue and any fix are not present. Duplicate does not mean resolved.",
+      "interpretation_assessment": "Behavioral extraction is supported. Categorical duplicate status is stronger than the unverified commenter report, although its explanation preserves uncertainty. r0's action-only citation needs the surrounding symptom to establish desired behavior.",
+      "proposal_assessment": "Abstention is justified: width, selection semantics and exact reflowed output are not fixed. The negative invariant against extra quotes is real but no new contract is added.",
+      "reuse_feasibility": "Likely existing docstring detection/reflow repair; generic text wrapping alone is insufficient.",
+      "direct_baseline_strategy": "Correct the existing multiline-docstring boundary/selection handling. Requires parser behavior, wrapping width, selection fixtures and duplicate issue context.",
+      "advantage_requirements": "Correct reflow without delimiter regressions at lower integration cost than a local parser-boundary fix.",
+      "limitations": [
+        "The duplicate claim is not a verified maintainer disposition.",
+        "Packet context_complete does not supply linked #10 or exact expected wrapping."
+      ],
+      "contracts": [],
+      "reviewed_coverage": {
+        "body_characters": 1235,
+        "body_reviewed": "entire retained body",
+        "comments": [
+          {
+            "url": "https://github.com/dnut/Rewrap/issues/22#issuecomment-5636316844",
+            "characters": 23,
+            "reviewed": "entire retained comment"
+          }
+        ],
+        "timeline_entries_reviewed": 2,
+        "interpretation_requirements_reviewed": 2,
+        "packet_context_complete": true,
+        "packet_limitations": []
+      }
+    },
+    {
+      "case_id": "case-12",
+      "demand_status": "tentative_change_decision_unknown",
+      "current_need": null,
+      "evidence": [
+        {
+          "rid": "r0",
+          "quote": "Internally, we use `polib` for this, so to some extent this is caused by izimobil/polib#96 and this issue is just a pointer onwards, but given these divergences maybe we'd like to update the default value in https://github.com/mozilla/moz-l10n/blob/b8626e45519630b4a42a34daaf507f76c7e1e5c8/python/moz/l10n/formats/gettext/serialize.py#L26-L32 to something much larger to hit this issue less.",
+          "url": "https://github.com/mozilla/moz-l10n/issues/201",
+          "source_id": "q0"
+        }
+      ],
+      "requested_operation": "Consider a much larger default PO wrapping width in light of upstream formatting differences; this is partly a pointer to upstream behavior, not a demand for exact gettext compatibility.",
+      "temporal_assessment": "The body uses tentative language and linked discussions are unavailable; no accepted width or completion is visible.",
+      "interpretation_assessment": "Appropriately extracts consideration of a default change without making upstream formatting parity mandatory.",
+      "proposal_assessment": "Legitimate abstention: neither chosen width nor precise wrapping output is defined.",
+      "reuse_feasibility": "A configuration/default decision may suffice; no new wrapping-library need follows.",
+      "direct_baseline_strategy": "Choose the desired formatting/default policy, then change existing serializer configuration or pursue the upstream behavior. Requires compatibility fixtures and an agreed width.",
+      "advantage_requirements": "Demonstrable reduction in unwanted diffs or formatting burden beyond changing a single default, without introducing incompatible serialization.",
+      "limitations": [
+        "Tentative policy choice.",
+        "Upstream and cross-referenced pages unavailable."
+      ],
+      "contracts": [],
+      "reviewed_coverage": {
+        "body_characters": 843,
+        "body_reviewed": "entire retained body",
+        "comments": [],
+        "timeline_entries_reviewed": 3,
+        "interpretation_requirements_reviewed": 1,
+        "packet_context_complete": false,
+        "packet_limitations": [
+          "Cross-referenced discussions not fetched; resolution may need review."
+        ]
+      }
+    },
+    {
+      "case_id": "case-13",
+      "demand_status": "real_request_blocked_resolution_unknown",
+      "current_need": null,
+      "evidence": [
+        {
+          "rid": "r0",
+          "quote": "Create a maintainable Python project in which data access, feature engineering, clustering, evaluation, and reporting are reusable outside notebooks.",
+          "url": "https://github.com/cxu47/ML-big-five/issues/2",
+          "source_id": "q0"
+        },
+        {
+          "rid": "r5",
+          "quote": "Exact module boundaries may be adjusted during implementation, but notebooks must call package code rather than become the source of truth.",
+          "url": "https://github.com/cxu47/ML-big-five/issues/2",
+          "source_id": "q0"
+        },
+        {
+          "section": "body",
+          "quote": "Blocked by #1.",
+          "url": "https://github.com/cxu47/ML-big-five/issues/2",
+          "character_start": 1452,
+          "character_end_exclusive": 1466
+        }
+      ],
+      "requested_operation": "Create an importable reusable Python ML project scaffold outside notebooks, with configuration/CLI, reproducible dependencies, local and CI checks, tests, exclusions and setup documentation.",
+      "temporal_assessment": "The body declares a blocker and later timeline cross-references #3/#5 do not establish its resolution.",
+      "interpretation_assessment": "The 26 requirements are substantially faithful. r21 repeats the local-check criteria split across r12-r14; this inflates requirement count, not capability evidence. r25 is dependency status rather than executable behavior.",
+      "proposal_assessment": "Abstention is legitimate: a project scaffold with acceptance criteria does not define a finite ML computation or a reusable library contract.",
+      "reuse_feasibility": "Common project tooling/templates could help, but no candidate interface or specific ML operation is established.",
+      "direct_baseline_strategy": "Use a minimal src-layout project with one documented install path, small CLI, selected lock/check tools, CI and exclusions. Requires resolution of #1, tool/version choices and repository policy.",
+      "advantage_requirements": "Reduced setup and maintenance time against this minimal scaffold while meeting clean-install/import/CLI/CI criteria; broad ML vocabulary is not evidence of algorithm demand.",
+      "limitations": [
+        "Blocker #1 and linked discussions unavailable.",
+        "Acceptance criteria do not fix tool choices or ML inputs/outputs."
+      ],
+      "contracts": [],
+      "reviewed_coverage": {
+        "body_characters": 1466,
+        "body_reviewed": "entire retained body",
+        "comments": [],
+        "timeline_entries_reviewed": 3,
+        "interpretation_requirements_reviewed": 26,
+        "packet_context_complete": false,
+        "packet_limitations": [
+          "Cross-referenced discussions not fetched; resolution may need review."
+        ]
+      }
+    },
+    {
+      "case_id": "case-14",
+      "demand_status": "real_request_resolution_unknown",
+      "current_need": null,
+      "evidence": [
+        {
+          "rid": "r0",
+          "quote": "The student chat (`/api/chat/report`) is supposed to answer only about the student's lab.",
+          "url": "https://github.com/Aldrinerd/Netgrader/issues/19",
+          "source_id": "q0"
+        },
+        {
+          "rid": "r15",
+          "quote": "- [ ] Red-team test set in `tests/` (off-topic requests, injected report fields, forged assistant turns, \"write the whole config\"), and every case is refused or handled.",
+          "url": "https://github.com/Aldrinerd/Netgrader/issues/19",
+          "source_id": "q0"
+        },
+        {
+          "rid": "r17",
+          "quote": "- [ ] Refusals are deterministic (template text, `source: \"template\"`), not model-written.",
+          "url": "https://github.com/Aldrinerd/Netgrader/issues/19",
+          "source_id": "q0"
+        }
+      ],
+      "requested_operation": "Keep student chat within lab scope, resist report-field instructions and forged history, produce deterministic refusals, and preserve legitimate lab answers; proposed mechanisms include server grounding/history integrity, topic gates and output filtering.",
+      "temporal_assessment": "No retained completion report; submission-storage dependency and cross-reference #16 are unavailable.",
+      "interpretation_assessment": "The 20 requirements distinguish proposed mechanisms from mandatory acceptance criteria and retain alternative history mechanisms. Security goals are supported, but exact classifier decisions and handling outcomes cannot be inferred from labels alone.",
+      "proposal_assessment": "Abstention is legitimate because lab entities, topic policy, classifier examples, refusal template, N and sanitization semantics are not specified. Predictable metadata alone would not validate the security request.",
+      "reuse_feasibility": "Existing server-owned submissions/history and a measured policy layer may be reused. A generic prompt-injection detector cannot be assumed sufficient.",
+      "direct_baseline_strategy": "Use server-owned grounding and conversation state, explicit lab policy and deterministic refusal template with tests drawn from the actual lab. Requires submission storage/session ownership, topic examples, output policy and no-overblocking fixtures.",
+      "advantage_requirements": "Measured reduction in successful injection/off-topic/full-config responses without degrading legitimate lab answers, at acceptable latency and cost, beyond these basic trust-boundary repairs.",
+      "limitations": [
+        "No concrete policy corpus or exact classifier oracle.",
+        "Linked dependency status and existing tests unavailable.",
+        "Prompt delimiting or stripping text alone is not proof of security."
+      ],
+      "contracts": [],
+      "reviewed_coverage": {
+        "body_characters": 2831,
+        "body_reviewed": "entire retained body",
+        "comments": [],
+        "timeline_entries_reviewed": 5,
+        "interpretation_requirements_reviewed": 20,
+        "packet_context_complete": false,
+        "packet_limitations": [
+          "Cross-referenced discussions not fetched; resolution may need review."
+        ]
+      }
+    },
+    {
+      "case_id": "case-15",
+      "demand_status": "real_request_blocked_resolution_unknown",
+      "current_need": null,
+      "evidence": [
+        {
+          "rid": "r1",
+          "quote": "- Governance is optional through an explicit `disabled | shadow | enforce` mode.",
+          "url": "https://github.com/C360Studio/semstreams/issues/1140#issuecomment-5455581803",
+          "source_id": "q1"
+        },
+        {
+          "rid": "r9",
+          "quote": "- Immutable raw completed outcomes and trajectory evidence remain intact; governance alters only the bounded model-visible copy.",
+          "url": "https://github.com/C360Studio/semstreams/issues/1140#issuecomment-5455581803",
+          "source_id": "q1"
+        },
+        {
+          "rid": "r10",
+          "quote": "- Shadow mode records the same decision without changing the model-visible content.",
+          "url": "https://github.com/C360Studio/semstreams/issues/1140#issuecomment-5455581803",
+          "source_id": "q1"
+        },
+        {
+          "section": "comment:1",
+          "quote": "enforcement, approval-pause recovery, and any restart-safety claim are blocked on #1146.",
+          "url": "https://github.com/C360Studio/semstreams/issues/1140#issuecomment-5456074442",
+          "character_start": 875,
+          "character_end_exclusive": 963
+        }
+      ],
+      "requested_operation": "Govern nonterminal external-content tool results before model context using explicit disabled/shadow/enforce modes and named versioned profiles; preserve immutable raw evidence, modify only bounded model-visible copies, preserve provenance, and meet framework lifecycle constraints.",
+      "temporal_assessment": "2026-08-28 owner ruling settles mode/profile and carrier boundaries, superseding the body's needs-decision state. A later same-day owner update blocks enforcement/recovery/restart claims on #1146 while retaining independently valid classifier/profile/framing work. Later cross-references do not establish blocker resolution.",
+      "interpretation_assessment": "The 20 requirements correctly use the later owner ruling and retain the blocker in status/inference rather than leaving all policy semantics unknown. Deferred operator-authored policy/per-tool bypass scope is not fully represented in the extracted list; retain it from the ruling when evaluating reuse.",
+      "proposal_assessment": "Abstention is justified for content classification/disposition examples: mode and raw-copy boundaries are definite, but profiles, corpus, thresholds and concrete content decisions are absent. This is partial specification, not total absence of policy decisions.",
+      "reuse_feasibility": "Measured built-in classifiers and the existing truncation/framing seam may be reusable; enforcement cannot be qualified without the framework dependency. No generic policy DSL or private restart manager is authorized by the demand.",
+      "direct_baseline_strategy": "Insert a narrow pre-model result hook using the existing bounded-copy/truncation seam, explicit modes and measured built-in profiles; keep raw outcomes intact. Requires a policy corpus, profile definitions, correlation/lifecycle integration and #1146 resolution for enforcement/recovery.",
+      "advantage_requirements": "Measured classification utility, correct shadow/enforce separation and intact provenance with restart/duplicate-delivery safety, at lower integration cost than that local hook. A classifier alone cannot establish framework safety.",
+      "limitations": [
+        "Blocker and subsequent cross-references not fetched.",
+        "No concrete content-classification oracle.",
+        "Body status is superseded by comments; issue updated_at alone omits later cross-reference chronology."
+      ],
+      "contracts": [],
+      "reviewed_coverage": {
+        "body_characters": 3056,
+        "body_reviewed": "entire retained body",
+        "comments": [
+          {
+            "url": "https://github.com/C360Studio/semstreams/issues/1140#issuecomment-5455581803",
+            "characters": 1628,
+            "reviewed": "entire retained comment"
+          },
+          {
+            "url": "https://github.com/C360Studio/semstreams/issues/1140#issuecomment-5456074442",
+            "characters": 983,
+            "reviewed": "entire retained comment"
+          }
+        ],
+        "timeline_entries_reviewed": 19,
+        "interpretation_requirements_reviewed": 20,
+        "packet_context_complete": false,
+        "packet_limitations": [
+          "Cross-referenced discussions not fetched; resolution may need review."
+        ]
+      }
+    }
+  ],
+  "summary": {
+    "cases_reviewed": 15,
+    "current_need_true": 4,
+    "current_need_false": 1,
+    "current_need_unknown": 10,
+    "non_demand_completed_incident": 1,
+    "substantive_requests_including_status_uncertain": 13,
+    "tentative_policy_change": 1,
+    "proposed_contracts_reviewed": 2,
+    "defensible_narrow_suboperations": 2,
+    "contracts_with_major_discrimination_limitation": 1,
+    "new_independent_challenge_cases": 8,
+    "undetermined_proposals_with_legitimate_abstention": 12,
+    "candidate_reuse_advantages_established": 0,
+    "human_oracle_claim": false,
+    "main_findings": [
+      "Most abstentions are legitimate: broad integration or project work is not automatically a finite library operation.",
+      "Pending PR, reported duplicate, built-in alternative, local fix and later owner rulings materially change residual-demand interpretation.",
+      "PEP 440 membership is a narrow defensible predicate, far short of the full updater request.",
+      "Raw-target preservation is defensible but identity-shaped: passing examples cannot demonstrate recording/resend integration or reuse advantage.",
+      "Go runtime context is explicit in case-10 despite the proposal's runtime-unknown claim; no callable candidate binding follows from that fact."
+    ]
+  }
+}

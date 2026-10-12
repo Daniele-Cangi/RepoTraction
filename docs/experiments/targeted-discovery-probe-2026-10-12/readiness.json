@@ -1,0 +1,36 @@
+{
+  "commit": "eeb6028c6eb817dd3c41f8e9b34943a790300ecd",
+  "ci_passed": true,
+  "review_passed": true,
+  "checked_at": "2026-10-11 22:29:45 UTC",
+  "ci_run": 38179652056,
+  "jobs": [
+    {
+      "id": 114589312553,
+      "name": "tests (windows-latest, 3.13)",
+      "conclusion": "success"
+    },
+    {
+      "id": 114589312708,
+      "name": "tests (windows-latest, 3.10)",
+      "conclusion": "success"
+    },
+    {
+      "id": 114589312768,
+      "name": "tests (ubuntu-latest, 3.10)",
+      "conclusion": "success"
+    },
+    {
+      "id": 114589312773,
+      "name": "tests (ubuntu-latest, 3.13)",
+      "conclusion": "success"
+    }
+  ],
+  "review": {
+    "commit": "eeb6028c6eb817dd3c41f8e9b34943a790300ecd",
+    "completed_at": "2026-10-11T22:21:21.125292Z",
+    "summary_comment": 6114410332,
+    "unresolved_threads": 0,
+    "resolved_threads": 1
+  }
+}

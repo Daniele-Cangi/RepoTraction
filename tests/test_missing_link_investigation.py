@@ -41,6 +41,22 @@ class InvestigationTests(unittest.TestCase):
         self.assertEqual(len(posts), mutations)
         self.assertNotIn("private", "\n".join(self.messages))
 
+    def test_targeted_inquiry_flag_is_forwarded_and_cannot_change_on_resume(self):
+        self.args.repo, self.args.from_request, self.args.targeted_inquiry = "", True, True
+        self.args.issue = ["https://github.com/example/site/issues/7"]
+        self.job["status"] = "completed"
+        self.job["input"].update(repo="", action="discover_from_request", issue_url=self.args.issue[0])
+        result, _, request = self.execute([self.initial, {"job_id": self.job["id"]}, {"jobs": [self.job]}])
+        self.assertEqual(result, 0)
+        self.assertTrue(request.call_args_list[1].args[1]["targeted_inquiry"])
+        self.args.resume = self.job["id"]
+        self.args.report = self.path.with_name("resume-inquiry.json")
+        self.path = self.args.report
+        result, report, request = self.execute([dict(self.initial, jobs=[self.job])])
+        self.assertEqual(result, 1)
+        self.assertEqual(report["observation_failure"]["code"], "observer_resume_input_mismatch")
+        self.assertEqual(request.call_count, 1)
+
     def test_poll_timeout_keeps_known_id_last_state_and_does_not_cancel_or_retry(self):
         self.args.issue = ["https://github.com/example/target/issues/1", "https://github.com/example/target/issues/2"]
         result, report, request = self.execute([self.initial, {"job_id": self.job["id"]},
@@ -178,6 +194,41 @@ class InvestigationTests(unittest.TestCase):
         self.assertEqual(report["observation_failure"]["http_status"], 409)
         self.assertFalse(report["observation_failure"]["backend_may_be_running"])
         self.assert_no_replacement(request, mutations=0)
+
+    def test_request_led_action_is_sent_without_supplied_repository(self):
+        self.args.repo = ""
+        self.args.from_request = True
+        self.args.issue = ["https://github.com/example/target/issues/1"]
+        self.args.max_candidates = 1
+        finished = dict(self.job, status="completed", stage="completed")
+        result, report, request = self.execute([self.initial, {"job_id": self.job["id"]}, {"jobs": [finished]}])
+        self.assertEqual(result, 0)
+        body = request.call_args_list[1].args[1]
+        self.assertEqual(body["action"], "discover_from_request")
+        self.assertEqual(body["repo"], "")
+        self.assertEqual(body["max_candidates"], 1)
+
+    def test_resume_rejects_different_discovery_mode_before_post(self):
+        self.args.from_request = True
+        self.args.resume = self.job["id"]
+        result, report, request = self.execute([dict(self.initial, jobs=[self.job])])
+        self.assertEqual(result, 1)
+        self.assertEqual(report["observation_failure"]["code"], "observer_resume_input_mismatch")
+        self.assert_no_replacement(request, mutations=0)
+
+    def test_cli_request_mode_and_legacy_default(self):
+        from scripts import investigate_missing_link as cli
+        for argv, limit in ((["--from-request", "--issue", "https://github.com/example/target/issues/1", "--use-ai"], 1),
+                            (["--repo", "example/words"], 2)):
+            with mock.patch("sys.argv", ["investigate_missing_link.py"] + argv), \
+                    mock.patch.object(cli, "run_investigation", return_value=0) as run:
+                self.assertEqual(cli.main(), 0)
+            self.assertEqual(run.call_args.args[0].max_candidates, limit)
+        with mock.patch("sys.argv", ["investigate_missing_link.py", "--from-request", "--use-ai"]), \
+                mock.patch.object(cli, "run_investigation") as run, \
+                mock.patch("sys.stderr", new=io.StringIO()), self.assertRaises(SystemExit):
+            cli.main()
+        run.assert_not_called()
 
     def diagnostic_state(self, code="github_identity_cli_timeout"):
         return {"diagnostic_only": True, "identity_verified": False, "actions_available": False,

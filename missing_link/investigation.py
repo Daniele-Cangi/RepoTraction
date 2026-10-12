@@ -98,6 +98,7 @@ def run_investigation(args, request, *, emit=print, monotonic=time.monotonic, sl
     payload = {"context": "real_public_github_and_provider_api" if args.use_ai else "real_public_github_structural",
         "manual_analysis_imported": False, "repository": args.repo, "provider": None, "jobs": []}
     report = Report(args.report, payload)
+    action = "discover_from_request" if getattr(args, "from_request", False) else "discover"
     job_id, entry, phase, last_poll_terminal = None, None, "preflight", False
 
     def output(value):
@@ -120,8 +121,10 @@ def run_investigation(args, request, *, emit=print, monotonic=time.monotonic, sl
             report.save()
             if resume:
                 previous_job = next((item for item in state.get("jobs", []) if item.get("id") == resume), None)
-                if not previous_job or any(previous_job.get("input", {}).get(key) != value
-                        for key, value in {"repo": args.repo, "issue_url": issue_url, "use_ai": args.use_ai}.items()):
+                if (not previous_job or previous_job.get("input", {}).get("action", "discover") != action
+                        or previous_job.get("input", {}).get("targeted_inquiry", False) != getattr(args, "targeted_inquiry", False)
+                        or any(previous_job.get("input", {}).get(key) != value
+                        for key, value in {"repo": args.repo, "issue_url": issue_url, "use_ai": args.use_ai}.items())):
                     phase = "preflight"
                     raise ObservationError("observer_resume_input_mismatch")
                 job_id = resume
@@ -131,9 +134,12 @@ def run_investigation(args, request, *, emit=print, monotonic=time.monotonic, sl
                 started = _call(request, "/api/missing-link/resume", {"job_id": resume})
                 resume = None
             else:
-                started = _call(request, "/api/missing-link/jobs", {"repo": args.repo, "action": "discover",
+                job_input = {"repo": args.repo, "action": action,
                     "issue_url": issue_url, "query": args.query, "max_candidates": args.max_candidates,
-                    "max_requests": 80, "use_ai": args.use_ai})
+                    "max_requests": 80, "use_ai": args.use_ai}
+                if getattr(args, "targeted_inquiry", False):
+                    job_input["targeted_inquiry"] = True
+                started = _call(request, "/api/missing-link/jobs", job_input)
             acknowledged_id = started.get("job_id")
             if (not isinstance(acknowledged_id, str) or not re.fullmatch(r"[0-9a-f]{32}", acknowledged_id)
                     or (job_id is not None and acknowledged_id != job_id)):

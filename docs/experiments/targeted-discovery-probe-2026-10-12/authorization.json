@@ -1,0 +1,9 @@
+{
+  "cohort": "targeted-discovery-probe-2026-10-12-v1",
+  "user_statement": "ok procedi e se serve ti autorizzo giá da ora",
+  "ceiling_usd": 1.0,
+  "max_calls": 34,
+  "reservation_upper_bound_usd": 0.8229632,
+  "scope": "Two historical B controls and two fresh A/B pairs; no retries/resumes/replacements; unused allowance does not cover another experiment.",
+  "gate": "Reviewed code and complete Windows/Linux CI before paid dispatch."
+}

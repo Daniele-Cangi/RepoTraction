@@ -141,9 +141,9 @@ def _search(payload):
                 if (candidate["required_keywords"] or arity < candidate["required_args"]
                         or (arity > candidate["positional_args"] and not candidate["variadic"])):
                     continue
-                # Every contract/recipe starts like an exported fresh import.
-                # State may evolve across that binding's examples/checks, but
-                # another binding must not warm defaults, globals or decorators.
+                # Each extracted slice gets a fresh namespace. Normal package
+                # imports share sys.modules; package API observations explicitly
+                # require a fresh-sandbox export replay before relying on them.
                 try:
                     namespace = {"__name__": "behavior_slice", "__file__": candidate["file"]}
                     exec(compiled, namespace)

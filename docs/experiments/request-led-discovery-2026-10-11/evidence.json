@@ -1,0 +1,874 @@
+[
+  {
+    "job_id": "e6af6e8b85b44691bf4eb61d1fa36d80",
+    "input": {
+      "repo": "",
+      "action": "discover_from_request",
+      "issue_url": "https://github.com/pganssle/audio-feeder/issues/81",
+      "query": "",
+      "use_ai": true,
+      "max_requests": 120,
+      "max_candidates": 1
+    },
+    "status": "completed",
+    "seconds": 34.904,
+    "github_requests": 9,
+    "reserved_usd": 0.0153359,
+    "reported_usage": [
+      {
+        "input_tokens": 2436,
+        "output_tokens": 897,
+        "estimated_cost_usd_at_configured_prices": 0.0006921000000000001
+      },
+      {
+        "input_tokens": 4050,
+        "output_tokens": 810,
+        "estimated_cost_usd_at_configured_prices": 0.00081
+      }
+    ],
+    "ai_trace": [
+      {
+        "phase": "request",
+        "model": "gpt-6-luna",
+        "api_kind": "responses",
+        "response_id": "resp_0962304d12e6f8f5016acbfd90d29887d292d0f20823fee565",
+        "response_status": "completed",
+        "request_sha256": "a72e1d29f685ead2850a85d072f09638ccfd6d712dc1615594a47ca5c91b8edf",
+        "request_bytes": 11798,
+        "context_coverage": {
+          "phase": "request",
+          "source_ids": [
+            "q0",
+            "t0"
+          ],
+          "omitted_source_ids": [],
+          "source_id_limit": 400,
+          "source_id_limit_omissions": 0,
+          "shortened_discussion_ids": [],
+          "discussion_complete": true,
+          "note": "Selected evidence is not the whole repository. Missing context remains unknown; omitted discussion prevents a qualified positive.",
+          "optional_field_hint_scan_complete": true,
+          "target_reference_context": {
+            "revision": null,
+            "source_ids": [],
+            "omitted_source_ids": [],
+            "reference_only": true,
+            "absence_proves_novelty": false
+          },
+          "omitted_constraint_ids": [],
+          "constraint_hint_scan_complete": true,
+          "omitted_source_count": 0,
+          "payload_bytes": 2455,
+          "demand_span_coverage": {
+            "span_count": 3,
+            "omitted_visible_spans": 0,
+            "complete": true,
+            "sources_without_spans": [],
+            "source_count_without_spans": 0,
+            "method": "exact original spans; bounded root opening then round-robin discussion coverage, not semantic validation"
+          }
+        },
+        "call_number": 1,
+        "attempt_id": "e6af6e8b85b44691bf4eb61d1fa36d80:1"
+      },
+      {
+        "phase": "request",
+        "model": "gpt-6-luna",
+        "api_kind": "responses",
+        "response_id": "resp_0d5d324f194852f8016acbfda8008887d2b618a0df8f973abf",
+        "response_status": "completed",
+        "request_sha256": "7afc33013ecaa830620e57df8b64925263bfde060b11fcc5b9850f03572bc6b8",
+        "request_bytes": 17465,
+        "context_coverage": {
+          "decision_version": "request-led-discovery-v1",
+          "target_file_limit": 4,
+          "target_characters_per_file": 8000,
+          "target_files_omitted": 0,
+          "all_target_source_available": false
+        },
+        "call_number": 2,
+        "attempt_id": "e6af6e8b85b44691bf4eb61d1fa36d80:2"
+      }
+    ],
+    "native_outputs": [
+      {
+        "phase": "request",
+        "call_number": 1,
+        "attempt_id": "e6af6e8b85b44691bf4eb61d1fa36d80:1",
+        "output": {
+          "outcome": "Update author sorting to use natural sorting, ignoring diacritics and case for the primary sort, with the non-normalized form used as a tie-breaker.",
+          "status": "unresolved",
+          "status_source_ids": [
+            "q0"
+          ],
+          "status_reason": "The complete supplied discussion contains a direct request and no later comment indicating that it was satisfied, duplicated, changed, or automated.",
+          "requirements": [
+            {
+              "text": "Use natural sorting for authors.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "s0b5dc62dd81fe8e5",
+              "inference": "Interprets “natural sorts” as a requested sorting behavior; the precise natural-sort algorithm is not specified."
+            },
+            {
+              "text": "Strip diacritics for sorting purposes.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "s0b5dc62dd81fe8e5",
+              "inference": ""
+            },
+            {
+              "text": "Case-normalize for sorting purposes.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "s0b5dc62dd81fe8e5",
+              "inference": ""
+            },
+            {
+              "text": "Use the non-normalized version as a tie-breaker when normalized sort keys tie.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "s0b5dc62dd81fe8e5",
+              "inference": "The request specifies tie-breakers going to the non-normalized version, but does not detail the comparison procedure."
+            }
+          ],
+          "optional_field_dispositions": [],
+          "environment": [],
+          "prior_attempts": [],
+          "missing_information": [
+            "The exact natural-sort algorithm and the specific normalization and tie-breaking comparison procedures are not specified."
+          ]
+        }
+      },
+      {
+        "phase": "request",
+        "call_number": 2,
+        "attempt_id": "e6af6e8b85b44691bf4eb61d1fa36d80:2",
+        "output": {
+          "decision": "use_direct",
+          "reason": "The requested operation is to sort author names: use natural ordering on keys with diacritics removed and case normalized, then use the original form to break ties (q0; r0–r3). The unmet acceptance criteria are those four behaviors. The domain is author metadata, but no author-specific external capability is requested. A small local key/comparison correction using Python’s standard library is a plausible direct solution; the bounded target sample contains no implementation source, so existing behavior and direct-solution adequacy are not verified. The exact natural-sort and tie-breaking procedures remain unspecified, but that does not establish a concrete advantage for investigating a package.",
+          "direct_alternative": {
+            "description": "Inspect the existing author sort and, if needed, implement a local natural-sort key that case-normalizes and removes diacritics, with the original author form used as a secondary key. Python’s standard library can support normalization; natural ordering can be handled locally.",
+            "adequacy": "likely_sufficient",
+            "limitations": [
+              "The requested natural-sort algorithm and precise normalization and tie-breaking comparisons are unspecified (q0).",
+              "The bounded target sample contains no implementation source, so existing features and behavior are unknown.",
+              "Unicode edge cases and compatibility with any existing sort behavior would need to be defined and tested."
+            ]
+          },
+          "benefit_hypothesis": "No concrete incremental benefit from a candidate package is established over a small local correction and standard-library normalization.",
+          "benefit_test": "If package investigation is later reconsidered, compare a candidate against the local implementation on representative author names, including numeric substrings, case variants, diacritics, and normalized-key ties. Require identical satisfaction of r0–r3 plus a measurable advantage such as materially simpler correct integration or coverage of agreed Unicode cases that the local approach does not handle.",
+          "operations": [],
+          "unknowns": [
+            "Whether the target already has relevant sorting or normalization features.",
+            "The exact natural-sort algorithm and normalization and tie-breaking procedures intended.",
+            "Which Unicode cases and compatibility expectations are acceptance-critical."
+          ]
+        }
+      }
+    ],
+    "result": {
+      "match_ids": [],
+      "discovery_request": {
+        "id": 5793857160,
+        "title": "Author sort doesn't use any sort of normalization",
+        "url": "https://github.com/pganssle/audio-feeder/issues/81",
+        "outcome": "Update author sorting to use natural sorting, ignoring diacritics and case for the primary sort, with the non-normalized form used as a tie-breaker.",
+        "status": "unresolved",
+        "status_reason": "The complete supplied discussion contains a direct request and no later comment indicating that it was satisfied, duplicated, changed, or automated.",
+        "status_evidence": [
+          {
+            "url": "https://github.com/pganssle/audio-feeder/issues/81",
+            "source_id": "q0"
+          }
+        ],
+        "requirements": [
+          {
+            "id": "r0",
+            "text": "Use natural sorting for authors.",
+            "mandatory": true,
+            "explicit": true,
+            "source": {
+              "url": "https://github.com/pganssle/audio-feeder/issues/81",
+              "quote": "We should be using natural sorts for these things that strip out diacritics and case normalize for sorting purposes (with tie-breakers going to the non-normalized version)",
+              "source_id": "q0",
+              "quote_match": "exact",
+              "citation_id": "s0b5dc62dd81fe8e5"
+            },
+            "inference": "Interprets “natural sorts” as a requested sorting behavior; the precise natural-sort algorithm is not specified."
+          },
+          {
+            "id": "r1",
+            "text": "Strip diacritics for sorting purposes.",
+            "mandatory": true,
+            "explicit": true,
+            "source": {
+              "url": "https://github.com/pganssle/audio-feeder/issues/81",
+              "quote": "We should be using natural sorts for these things that strip out diacritics and case normalize for sorting purposes (with tie-breakers going to the non-normalized version)",
+              "source_id": "q0",
+              "quote_match": "exact",
+              "citation_id": "s0b5dc62dd81fe8e5"
+            },
+            "inference": ""
+          },
+          {
+            "id": "r2",
+            "text": "Case-normalize for sorting purposes.",
+            "mandatory": true,
+            "explicit": true,
+            "source": {
+              "url": "https://github.com/pganssle/audio-feeder/issues/81",
+              "quote": "We should be using natural sorts for these things that strip out diacritics and case normalize for sorting purposes (with tie-breakers going to the non-normalized version)",
+              "source_id": "q0",
+              "quote_match": "exact",
+              "citation_id": "s0b5dc62dd81fe8e5"
+            },
+            "inference": ""
+          },
+          {
+            "id": "r3",
+            "text": "Use the non-normalized version as a tie-breaker when normalized sort keys tie.",
+            "mandatory": true,
+            "explicit": true,
+            "source": {
+              "url": "https://github.com/pganssle/audio-feeder/issues/81",
+              "quote": "We should be using natural sorts for these things that strip out diacritics and case normalize for sorting purposes (with tie-breakers going to the non-normalized version)",
+              "source_id": "q0",
+              "quote_match": "exact",
+              "citation_id": "s0b5dc62dd81fe8e5"
+            },
+            "inference": "The request specifies tie-breakers going to the non-normalized version, but does not detail the comparison procedure."
+          }
+        ],
+        "environment": [],
+        "prior_attempts": [],
+        "missing_information": [
+          "The exact natural-sort algorithm and the specific normalization and tie-breaking comparison procedures are not specified."
+        ],
+        "optional_field_dispositions": [],
+        "constraint_review": {
+          "items": [],
+          "complete": true,
+          "markers_found": 0,
+          "constraint_markers_found": 0,
+          "gap_markers_found": 0,
+          "gap_hints_complete": true,
+          "note": "Non-exhaustive English constraint markers; no marker does not prove all requirements were extracted.",
+          "optional_field_review": {
+            "items": [],
+            "complete": true,
+            "omitted_fields": 0,
+            "dispositions": [],
+            "method": "optional-field syntax is an extraction hint, not proof of optional demand or compatibility"
+          },
+          "qualification_blockers": []
+        },
+        "context_complete": true,
+        "updated_at": "2026-10-10T17:58:37Z",
+        "fingerprint": "7240538c082a66cba3ec12e99a8ab701c9d8426aae2674948e876cf9e62f2acf",
+        "analysis_context": {
+          "phase": "request",
+          "source_ids": [
+            "q0",
+            "t0"
+          ],
+          "omitted_source_ids": [],
+          "source_id_limit": 400,
+          "source_id_limit_omissions": 0,
+          "shortened_discussion_ids": [],
+          "discussion_complete": true,
+          "note": "Selected evidence is not the whole repository. Missing context remains unknown; omitted discussion prevents a qualified positive.",
+          "optional_field_hint_scan_complete": true,
+          "target_reference_context": {
+            "revision": null,
+            "source_ids": [],
+            "omitted_source_ids": [],
+            "reference_only": true,
+            "absence_proves_novelty": false
+          },
+          "omitted_constraint_ids": [],
+          "constraint_hint_scan_complete": true,
+          "omitted_source_count": 0,
+          "payload_bytes": 2455,
+          "demand_span_coverage": {
+            "span_count": 3,
+            "omitted_visible_spans": 0,
+            "complete": true,
+            "sources_without_spans": [],
+            "source_count_without_spans": 0,
+            "method": "exact original spans; bounded root opening then round-robin discussion coverage, not semantic validation"
+          }
+        }
+      },
+      "discovery_decision": {
+        "decision": "use_direct",
+        "reason": "The requested operation is to sort author names: use natural ordering on keys with diacritics removed and case normalized, then use the original form to break ties (q0; r0–r3). The unmet acceptance criteria are those four behaviors. The domain is author metadata, but no author-specific external capability is requested. A small local key/comparison correction using Python’s standard library is a plausible direct solution; the bounded target sample contains no implementation source, so existing behavior and direct-solution adequacy are not verified. The exact natural-sort and tie-breaking procedures remain unspecified, but that does not establish a concrete advantage for investigating a package.",
+        "direct_alternative": {
+          "description": "Inspect the existing author sort and, if needed, implement a local natural-sort key that case-normalizes and removes diacritics, with the original author form used as a secondary key. Python’s standard library can support normalization; natural ordering can be handled locally.",
+          "adequacy": "likely_sufficient",
+          "limitations": [
+            "The requested natural-sort algorithm and precise normalization and tie-breaking comparisons are unspecified (q0).",
+            "The bounded target sample contains no implementation source, so existing features and behavior are unknown.",
+            "Unicode edge cases and compatibility with any existing sort behavior would need to be defined and tested."
+          ]
+        },
+        "benefit_hypothesis": "No concrete incremental benefit from a candidate package is established over a small local correction and standard-library normalization.",
+        "benefit_test": "If package investigation is later reconsidered, compare a candidate against the local implementation on representative author names, including numeric substrings, case variants, diacritics, and normalized-key ties. Require identical satisfaction of r0–r3 plus a measurable advantage such as materially simpler correct integration or coverage of agreed Unicode cases that the local approach does not handle.",
+        "operations": [],
+        "unknowns": [
+          "Whether the target already has relevant sorting or normalization features.",
+          "The exact natural-sort algorithm and normalization and tie-breaking procedures intended.",
+          "Which Unicode cases and compatibility expectations are acceptance-critical."
+        ],
+        "version": "request-led-discovery-v1",
+        "issue_fingerprint": "7240538c082a66cba3ec12e99a8ab701c9d8426aae2674948e876cf9e62f2acf",
+        "provider_identity": "cdcd5f4d30c98d6930cf75d7b2fc8c965d48b0d5a52560b0475019c45ad41426",
+        "status": "unverified_decision",
+        "qualified": false,
+        "direct_solution_verified": false,
+        "target_snapshot": {
+          "id": 77259094,
+          "full_name": "pganssle/audio-feeder",
+          "revision": "2a5b58dab43a5195ccc964916bbddaf7f8727c1d",
+          "coverage": {
+            "tree_truncated": false,
+            "tree_entries": 168,
+            "eligible_files": 67,
+            "files_scanned": 2,
+            "file_budget": 4,
+            "bytes_scanned": 5062,
+            "language_counts": {
+              "Documentation/manifest": 1,
+              "Python": 1
+            },
+            "tree_language_counts": {
+              "Other": 66,
+              "Python": 63
+            },
+            "excluded": {
+              "unsupported_file_type": 60,
+              "sensitive_or_generated_path": 2
+            },
+            "sampling_policy": "Root manifests and explicitly cited source paths only; bounded prior-reference sample, not target compatibility.",
+            "static_export_hints": [],
+            "export_hints_complete": true,
+            "omitted_export_paths": [],
+            "initializer_import_hints": [],
+            "initializer_import_hints_complete": true,
+            "initializer_hint_limit": 64,
+            "omitted_initializer_imports": [],
+            "eligible_source_roles": {
+              "infrastructure": 5,
+              "implementation": 39
+            },
+            "acquired_source_roles": {},
+            "runtime_bin_entrypoints": {},
+            "metadata_redacted": false,
+            "metadata_truncated": false,
+            "complete": false,
+            "eligible_sample_complete": false,
+            "limitations": [
+              "Bounded source sample; declarations and test references are not execution proof.",
+              "File budget sampled 4 of 67 eligible files.",
+              "Some files were excluded for safety, size, encoding or unsupported type.",
+              "No implementation source was acquired; this sample cannot represent product capabilities."
+            ]
+          },
+          "sample_only": true,
+          "files": [
+            {
+              "path": "pyproject.toml",
+              "sha": "603a69de2608ec3036a713f1e96758a7a8e28391",
+              "url": "https://github.com/pganssle/audio-feeder/blob/2a5b58dab43a5195ccc964916bbddaf7f8727c1d/pyproject.toml",
+              "redacted": false,
+              "truncated": false
+            },
+            {
+              "path": "setup.py",
+              "sha": "2e25e48cd8b88de1424ea90bc6282446a89bd61d",
+              "url": "https://github.com/pganssle/audio-feeder/blob/2a5b58dab43a5195ccc964916bbddaf7f8727c1d/setup.py",
+              "redacted": false,
+              "truncated": false
+            }
+          ]
+        },
+        "context_coverage": {
+          "decision_version": "request-led-discovery-v1",
+          "target_file_limit": 4,
+          "target_characters_per_file": 8000,
+          "target_files_omitted": 0,
+          "all_target_source_available": false
+        }
+      }
+    },
+    "retained_job_sha256": "fd9abb9ce66c93c82457e5f56c9bf38ffc1d116b11e0108ee313154ce6304a11",
+    "source_index": {
+      "discussion_fingerprint": "7240538c082a66cba3ec12e99a8ab701c9d8426aae2674948e876cf9e62f2acf",
+      "target_fingerprint": "26a8c30333d6abcf11155eaf482d0e5c382a0ed6de1f7a08bc182a5304d4093d",
+      "files": [
+        {
+          "path": "pyproject.toml",
+          "url": "https://github.com/pganssle/audio-feeder/blob/2a5b58dab43a5195ccc964916bbddaf7f8727c1d/pyproject.toml",
+          "git_blob_sha": "603a69de2608ec3036a713f1e96758a7a8e28391",
+          "retained_text_sha256": "cc89ca9cc26f2e22ab524472715b7124b70c14d2d7537e60e1a2dcb8b62f93ea"
+        },
+        {
+          "path": "setup.py",
+          "url": "https://github.com/pganssle/audio-feeder/blob/2a5b58dab43a5195ccc964916bbddaf7f8727c1d/setup.py",
+          "git_blob_sha": "2e25e48cd8b88de1424ea90bc6282446a89bd61d",
+          "retained_text_sha256": "0fe69634f7eac4dea99043313aeac1b7b35614de4c0679027791c9c772028529"
+        }
+      ]
+    }
+  },
+  {
+    "job_id": "50cdc79b35454ae98b285fbdfd79eeea",
+    "input": {
+      "repo": "",
+      "action": "discover_from_request",
+      "issue_url": "https://github.com/WilliamNT/tunesynctool/issues/21",
+      "query": "",
+      "use_ai": true,
+      "max_requests": 120,
+      "max_candidates": 1
+    },
+    "status": "completed",
+    "seconds": 32.539,
+    "github_requests": 9,
+    "reserved_usd": 0.016329299999999998,
+    "reported_usage": [
+      {
+        "input_tokens": 6345,
+        "output_tokens": 1735,
+        "estimated_cost_usd_at_configured_prices": 0.001502
+      },
+      {
+        "input_tokens": 3194,
+        "output_tokens": 1166,
+        "estimated_cost_usd_at_configured_prices": 0.0009024000000000001
+      }
+    ],
+    "ai_trace": [
+      {
+        "phase": "request",
+        "model": "gpt-6-luna",
+        "api_kind": "responses",
+        "response_id": "resp_02fd898c15f83e82016acbfdb2df1487d2a4a4122b273bc9f7",
+        "response_status": "completed",
+        "request_sha256": "0c7367ffc5115d1a2d63bc0a425424a8c547e88fd1b54766601c012f5749f700",
+        "request_bytes": 25191,
+        "context_coverage": {
+          "phase": "request",
+          "source_ids": [
+            "q0",
+            "t11",
+            "t10",
+            "t9",
+            "t8",
+            "t7",
+            "t6",
+            "t5",
+            "t4",
+            "t3",
+            "t2",
+            "t1",
+            "t0",
+            "q4",
+            "q3",
+            "q2",
+            "q1"
+          ],
+          "omitted_source_ids": [],
+          "source_id_limit": 400,
+          "source_id_limit_omissions": 0,
+          "shortened_discussion_ids": [],
+          "discussion_complete": true,
+          "note": "Selected evidence is not the whole repository. Missing context remains unknown; omitted discussion prevents a qualified positive.",
+          "optional_field_hint_scan_complete": true,
+          "target_reference_context": {
+            "revision": null,
+            "source_ids": [],
+            "omitted_source_ids": [],
+            "reference_only": true,
+            "absence_proves_novelty": false
+          },
+          "omitted_constraint_ids": [],
+          "constraint_hint_scan_complete": true,
+          "omitted_source_count": 0,
+          "payload_bytes": 9763,
+          "demand_span_coverage": {
+            "span_count": 27,
+            "omitted_visible_spans": 0,
+            "complete": true,
+            "sources_without_spans": [],
+            "source_count_without_spans": 0,
+            "method": "exact original spans; bounded root opening then round-robin discussion coverage, not semantic validation"
+          }
+        },
+        "call_number": 1,
+        "attempt_id": "50cdc79b35454ae98b285fbdfd79eeea:1"
+      },
+      {
+        "phase": "request",
+        "model": "gpt-6-luna",
+        "api_kind": "responses",
+        "response_id": "resp_09482f1cabdec2f8016acbfdc6020487d29b41b2e2bc3cf0d5",
+        "response_status": "completed",
+        "request_sha256": "234196da3ad3564f73427b293f0e82e8ae447144ab13faf090ed3104869b4c04",
+        "request_bytes": 14006,
+        "context_coverage": {
+          "decision_version": "request-led-discovery-v1",
+          "target_file_limit": 4,
+          "target_characters_per_file": 8000,
+          "target_files_omitted": 0,
+          "all_target_source_available": false
+        },
+        "call_number": 2,
+        "attempt_id": "50cdc79b35454ae98b285fbdfd79eeea:2"
+      }
+    ],
+    "native_outputs": [
+      {
+        "phase": "request",
+        "call_number": 1,
+        "attempt_id": "50cdc79b35454ae98b285fbdfd79eeea:1",
+        "output": {
+          "outcome": "Implement `get_track_by_isrc` in the Subsonic driver, while adhering to the (Open)Subsonic specification. The mapper’s handling of returned ISRC values has been updated, but the requested lookup remains unresolved.",
+          "status": "unresolved",
+          "status_source_ids": [
+            "q0",
+            "q2",
+            "q3",
+            "q4",
+            "t4",
+            "t7"
+          ],
+          "status_reason": "The owner reports updating the mapper to include an ISRC when the server returns one, but also says `get_track_by_isrc` was left unchanged because no direct endpoint was identified. The discussion considers searching with ISRC as a possible workaround or waiting for more specific API support; the owner says they will look into it. The issue was closed and subsequently reopened, so the discussion does not establish completion.",
+          "requirements": [
+            {
+              "text": "Implement `get_track_by_isrc` in the Subsonic driver so tracks can be retrieved by ISRC.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "scf1acf819fa561fa",
+              "inference": "The issue title directly requests this driver behavior; the stated exact-match use case provides context, not an additional constraint."
+            },
+            {
+              "text": "The implementation must conform to the (Open) Subsonic specification.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "se262fcde59155c39",
+              "inference": "The repository owner says the idea is acceptable if it conforms to the specification and states they have to stick to the specification. This is a constraint on the requested implementation."
+            }
+          ],
+          "optional_field_dispositions": [],
+          "environment": [
+            "Subsonic driver; the discussion refers to the OpenSubsonic specification.",
+            "The stated use case is matching Spotify tracks to Subsonic tracks using ISRCs, potentially avoiding MusicBrainz requests when Subsonic tracks are properly tagged."
+          ],
+          "prior_attempts": [
+            "The owner reports that the core-package Subsonic mapper was updated to include an ISRC when present in the server response; the owner says `get_track_by_isrc` was left unchanged because no direct ISRC endpoint was identified.",
+            "The request author suggested using `search3` with the ISRC as a query, possibly with a warning, but also considered waiting for more specific API support. The owner said they would look into it; the discussion does not establish that this workaround was adopted or implemented."
+          ],
+          "missing_information": [
+            "The discussion does not establish whether a specification-supported ISRC lookup API becomes available, whether the proposed `search3` workaround is accepted, or whether the requested lookup has since been implemented."
+          ]
+        }
+      },
+      {
+        "phase": "request",
+        "call_number": 2,
+        "attempt_id": "50cdc79b35454ae98b285fbdfd79eeea:2",
+        "output": {
+          "decision": "defer",
+          "reason": "The requested behavior is narrowly defined: accept an ISRC, retrieve the matching Subsonic track, and conform to the (Open)Subsonic specification (r0, r1). The discussion leaves the decisive implementation question unresolved: whether querying `search3` with an ISRC is an acceptable specification-conforming lookup or whether a more specific API is needed (q2, q3, q4). Without that, a reuse search has no established advantage over a small driver-level change.",
+          "direct_alternative": {
+            "description": "Use the existing Subsonic client to search for the ISRC, then return only a track whose mapped ISRC exactly matches; alternatively, use a specification-supported lookup if one exists.",
+            "adequacy": "unknown",
+            "limitations": [
+              "The supplied discussion does not establish that the search workaround is acceptable or specification-conforming (q2, q4).",
+              "The target sample contains no implementation source, so existing driver behavior and available client methods are unverified.",
+              "The discussion does not establish whether a more specific lookup API is available or whether the request has since been implemented (q4)."
+            ]
+          },
+          "benefit_hypothesis": "A reusable implementation could reduce bespoke Subsonic lookup logic, but no concrete incremental advantage over the direct driver-level approach is established until the supported lookup behavior is clarified.",
+          "benefit_test": "First establish the specification-conforming lookup behavior. Then compare any candidate implementation with the direct driver-level approach on exact ISRC matching, returned-track correctness, and conformance; investigate reuse only if it provides a measurable advantage without violating the specification.",
+          "operations": [],
+          "unknowns": [
+            "Whether `search3` with an ISRC is accepted and conforms to the specification.",
+            "Whether a specification-supported ISRC lookup API is available.",
+            "The target driver's current lookup implementation and the behavior of its current Subsonic client methods.",
+            "Whether the requested behavior has been implemented since the cited discussion."
+          ]
+        }
+      }
+    ],
+    "result": {
+      "match_ids": [],
+      "discovery_request": {
+        "id": 3773903220,
+        "title": "Implement subsonic driver get track by isrc",
+        "url": "https://github.com/WilliamNT/tunesynctool/issues/21",
+        "outcome": "Implement `get_track_by_isrc` in the Subsonic driver, while adhering to the (Open)Subsonic specification. The mapper’s handling of returned ISRC values has been updated, but the requested lookup remains unresolved.",
+        "status": "unresolved",
+        "status_reason": "The owner reports updating the mapper to include an ISRC when the server returns one, but also says `get_track_by_isrc` was left unchanged because no direct endpoint was identified. The discussion considers searching with ISRC as a possible workaround or waiting for more specific API support; the owner says they will look into it. The issue was closed and subsequently reopened, so the discussion does not establish completion.",
+        "status_evidence": [
+          {
+            "url": "https://github.com/WilliamNT/tunesynctool/issues/21",
+            "source_id": "q0"
+          },
+          {
+            "url": "https://github.com/WilliamNT/tunesynctool/issues/21#issuecomment-4638107577",
+            "source_id": "q2"
+          },
+          {
+            "url": "https://github.com/WilliamNT/tunesynctool/issues/21#issuecomment-4639076356",
+            "source_id": "q3"
+          },
+          {
+            "url": "https://github.com/WilliamNT/tunesynctool/issues/21#issuecomment-4643821289",
+            "source_id": "q4"
+          },
+          {
+            "url": "https://github.com/WilliamNT/tunesynctool/issues/21",
+            "source_id": "t4"
+          },
+          {
+            "url": "https://github.com/WilliamNT/tunesynctool/issues/21",
+            "source_id": "t7"
+          }
+        ],
+        "requirements": [
+          {
+            "id": "r0",
+            "text": "Implement `get_track_by_isrc` in the Subsonic driver so tracks can be retrieved by ISRC.",
+            "mandatory": true,
+            "explicit": true,
+            "source": {
+              "url": "https://github.com/WilliamNT/tunesynctool/issues/21",
+              "quote": "Implement subsonic driver get track by isrc",
+              "source_id": "q0",
+              "quote_match": "exact",
+              "citation_id": "scf1acf819fa561fa"
+            },
+            "inference": "The issue title directly requests this driver behavior; the stated exact-match use case provides context, not an additional constraint."
+          },
+          {
+            "id": "r1",
+            "text": "The implementation must conform to the (Open) Subsonic specification.",
+            "mandatory": true,
+            "explicit": true,
+            "source": {
+              "url": "https://github.com/WilliamNT/tunesynctool/issues/21#issuecomment-4643821289",
+              "quote": "I have to stick to the specification for maintainability and uniformity.",
+              "source_id": "q4",
+              "quote_match": "exact",
+              "citation_id": "se262fcde59155c39"
+            },
+            "inference": "The repository owner says the idea is acceptable if it conforms to the specification and states they have to stick to the specification. This is a constraint on the requested implementation."
+          }
+        ],
+        "environment": [
+          "Subsonic driver; the discussion refers to the OpenSubsonic specification.",
+          "The stated use case is matching Spotify tracks to Subsonic tracks using ISRCs, potentially avoiding MusicBrainz requests when Subsonic tracks are properly tagged."
+        ],
+        "prior_attempts": [
+          "The owner reports that the core-package Subsonic mapper was updated to include an ISRC when present in the server response; the owner says `get_track_by_isrc` was left unchanged because no direct ISRC endpoint was identified.",
+          "The request author suggested using `search3` with the ISRC as a query, possibly with a warning, but also considered waiting for more specific API support. The owner said they would look into it; the discussion does not establish that this workaround was adopted or implemented."
+        ],
+        "missing_information": [
+          "The discussion does not establish whether a specification-supported ISRC lookup API becomes available, whether the proposed `search3` workaround is accepted, or whether the requested lookup has since been implemented."
+        ],
+        "optional_field_dispositions": [],
+        "constraint_review": {
+          "items": [],
+          "complete": true,
+          "markers_found": 0,
+          "constraint_markers_found": 0,
+          "gap_markers_found": 0,
+          "gap_hints_complete": true,
+          "note": "Non-exhaustive English constraint markers; no marker does not prove all requirements were extracted.",
+          "optional_field_review": {
+            "items": [],
+            "complete": true,
+            "omitted_fields": 0,
+            "dispositions": [],
+            "method": "optional-field syntax is an extraction hint, not proof of optional demand or compatibility"
+          },
+          "qualification_blockers": []
+        },
+        "context_complete": true,
+        "updated_at": "2026-06-07T19:50:45Z",
+        "fingerprint": "8b4a6b753e6302af30703a47f066e8914234ec4478224eddecbf96143fb95d6d",
+        "analysis_context": {
+          "phase": "request",
+          "source_ids": [
+            "q0",
+            "t11",
+            "t10",
+            "t9",
+            "t8",
+            "t7",
+            "t6",
+            "t5",
+            "t4",
+            "t3",
+            "t2",
+            "t1",
+            "t0",
+            "q4",
+            "q3",
+            "q2",
+            "q1"
+          ],
+          "omitted_source_ids": [],
+          "source_id_limit": 400,
+          "source_id_limit_omissions": 0,
+          "shortened_discussion_ids": [],
+          "discussion_complete": true,
+          "note": "Selected evidence is not the whole repository. Missing context remains unknown; omitted discussion prevents a qualified positive.",
+          "optional_field_hint_scan_complete": true,
+          "target_reference_context": {
+            "revision": null,
+            "source_ids": [],
+            "omitted_source_ids": [],
+            "reference_only": true,
+            "absence_proves_novelty": false
+          },
+          "omitted_constraint_ids": [],
+          "constraint_hint_scan_complete": true,
+          "omitted_source_count": 0,
+          "payload_bytes": 9763,
+          "demand_span_coverage": {
+            "span_count": 27,
+            "omitted_visible_spans": 0,
+            "complete": true,
+            "sources_without_spans": [],
+            "source_count_without_spans": 0,
+            "method": "exact original spans; bounded root opening then round-robin discussion coverage, not semantic validation"
+          }
+        }
+      },
+      "discovery_decision": {
+        "decision": "defer",
+        "reason": "The requested behavior is narrowly defined: accept an ISRC, retrieve the matching Subsonic track, and conform to the (Open)Subsonic specification (r0, r1). The discussion leaves the decisive implementation question unresolved: whether querying `search3` with an ISRC is an acceptable specification-conforming lookup or whether a more specific API is needed (q2, q3, q4). Without that, a reuse search has no established advantage over a small driver-level change.",
+        "direct_alternative": {
+          "description": "Use the existing Subsonic client to search for the ISRC, then return only a track whose mapped ISRC exactly matches; alternatively, use a specification-supported lookup if one exists.",
+          "adequacy": "unknown",
+          "limitations": [
+            "The supplied discussion does not establish that the search workaround is acceptable or specification-conforming (q2, q4).",
+            "The target sample contains no implementation source, so existing driver behavior and available client methods are unverified.",
+            "The discussion does not establish whether a more specific lookup API is available or whether the request has since been implemented (q4)."
+          ]
+        },
+        "benefit_hypothesis": "A reusable implementation could reduce bespoke Subsonic lookup logic, but no concrete incremental advantage over the direct driver-level approach is established until the supported lookup behavior is clarified.",
+        "benefit_test": "First establish the specification-conforming lookup behavior. Then compare any candidate implementation with the direct driver-level approach on exact ISRC matching, returned-track correctness, and conformance; investigate reuse only if it provides a measurable advantage without violating the specification.",
+        "operations": [],
+        "unknowns": [
+          "Whether `search3` with an ISRC is accepted and conforms to the specification.",
+          "Whether a specification-supported ISRC lookup API is available.",
+          "The target driver's current lookup implementation and the behavior of its current Subsonic client methods.",
+          "Whether the requested behavior has been implemented since the cited discussion."
+        ],
+        "version": "request-led-discovery-v1",
+        "issue_fingerprint": "8b4a6b753e6302af30703a47f066e8914234ec4478224eddecbf96143fb95d6d",
+        "provider_identity": "cdcd5f4d30c98d6930cf75d7b2fc8c965d48b0d5a52560b0475019c45ad41426",
+        "status": "unverified_decision",
+        "qualified": false,
+        "direct_solution_verified": false,
+        "target_snapshot": {
+          "id": 903953295,
+          "full_name": "WilliamNT/tunesynctool",
+          "revision": "b705691ba7d02d34ff3b6423ca03fcfca1514994",
+          "coverage": {
+            "tree_truncated": false,
+            "tree_entries": 366,
+            "eligible_files": 208,
+            "files_scanned": 2,
+            "file_budget": 4,
+            "bytes_scanned": 1366,
+            "language_counts": {
+              "Documentation/manifest": 2
+            },
+            "tree_language_counts": {
+              "Other": 93,
+              "Python": 135,
+              "TypeScript": 66
+            },
+            "excluded": {
+              "unsupported_file_type": 83,
+              "sensitive_or_generated_path": 3
+            },
+            "sampling_policy": "Root manifests and explicitly cited source paths only; bounded prior-reference sample, not target compatibility.",
+            "static_export_hints": [],
+            "export_hints_complete": true,
+            "omitted_export_paths": [],
+            "initializer_import_hints": [],
+            "initializer_import_hints_complete": true,
+            "initializer_hint_limit": 64,
+            "omitted_initializer_imports": [],
+            "eligible_source_roles": {
+              "infrastructure": 2,
+              "implementation": 189,
+              "support": 2
+            },
+            "acquired_source_roles": {},
+            "runtime_bin_entrypoints": {},
+            "metadata_redacted": false,
+            "metadata_truncated": false,
+            "complete": false,
+            "eligible_sample_complete": false,
+            "limitations": [
+              "Bounded source sample; declarations and test references are not execution proof.",
+              "File budget sampled 4 of 208 eligible files.",
+              "Some files were excluded for safety, size, encoding or unsupported type.",
+              "No implementation source was acquired; this sample cannot represent product capabilities."
+            ]
+          },
+          "sample_only": true,
+          "files": [
+            {
+              "path": "pyproject.toml",
+              "sha": "970014ddcb72be824f6e1a8bafefec66b42891c7",
+              "url": "https://github.com/WilliamNT/tunesynctool/blob/b705691ba7d02d34ff3b6423ca03fcfca1514994/pyproject.toml",
+              "redacted": false,
+              "truncated": false
+            },
+            {
+              "path": "requirements.txt",
+              "sha": "b3b885c7921e1cb256a42dd77af91dd13e172bde",
+              "url": "https://github.com/WilliamNT/tunesynctool/blob/b705691ba7d02d34ff3b6423ca03fcfca1514994/requirements.txt",
+              "redacted": false,
+              "truncated": false
+            }
+          ]
+        },
+        "context_coverage": {
+          "decision_version": "request-led-discovery-v1",
+          "target_file_limit": 4,
+          "target_characters_per_file": 8000,
+          "target_files_omitted": 0,
+          "all_target_source_available": false
+        }
+      }
+    },
+    "retained_job_sha256": "c052a81e23df049e9ca64bb17b3241b975e231e66907f9c5b9173af93a695c16",
+    "source_index": {
+      "discussion_fingerprint": "8b4a6b753e6302af30703a47f066e8914234ec4478224eddecbf96143fb95d6d",
+      "target_fingerprint": "125f655cb52263e9e9260713674d5853180da4e6492773b25eddfc1fee63391e",
+      "files": [
+        {
+          "path": "pyproject.toml",
+          "url": "https://github.com/WilliamNT/tunesynctool/blob/b705691ba7d02d34ff3b6423ca03fcfca1514994/pyproject.toml",
+          "git_blob_sha": "970014ddcb72be824f6e1a8bafefec66b42891c7",
+          "retained_text_sha256": "68717a701b5f4292cf6f890a4019a7fc45cd249eeb896010eee8ac21e62e93bc"
+        },
+        {
+          "path": "requirements.txt",
+          "url": "https://github.com/WilliamNT/tunesynctool/blob/b705691ba7d02d34ff3b6423ca03fcfca1514994/requirements.txt",
+          "git_blob_sha": "b3b885c7921e1cb256a42dd77af91dd13e172bde",
+          "retained_text_sha256": "220b72a49cf4444d78a164358dde7097a14c16e6678a6fa8959ef3b9df2b6a7d"
+        }
+      ]
+    }
+  }
+]

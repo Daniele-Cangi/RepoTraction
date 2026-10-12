@@ -1,0 +1,319 @@
+{
+  "verified_at": "2026-10-11T15:13:32.504385+00:00",
+  "protocol_commit": "d30ac1edca7fb45b77de47c9df1fc7ff3166363a",
+  "ci_run": 38147608072,
+  "ci": "four jobs passed; Linux/Windows, Python 3.10/3.13",
+  "review": "Codex no major issues on d30ac1edca",
+  "sqlite_integrity": "ok",
+  "identity": "daniele-cangi",
+  "source_identities_match": true,
+  "job_count": 3,
+  "selected_candidates": 15,
+  "ai_attempts": 46,
+  "completed_response_count": 46,
+  "native_output_count": 46,
+  "usage_count": 46,
+  "usage_estimated_usd_at_configured_prices": 0.1365074,
+  "reserved_usd": 0.6203023,
+  "retries": 0,
+  "reservation_count": 46,
+  "reservations": [
+    {
+      "allowance_id": "end-to-end-discovery-2026-10-11",
+      "job_id": "097ffc27b5a945d5b124259c7c204d5f",
+      "cost": 0.0202065,
+      "created": 1791730036.217354
+    },
+    {
+      "allowance_id": "end-to-end-discovery-2026-10-11",
+      "job_id": "097ffc27b5a945d5b124259c7c204d5f",
+      "cost": 0.0076243000000000005,
+      "created": 1791730083.4736197
+    },
+    {
+      "allowance_id": "end-to-end-discovery-2026-10-11",
+      "job_id": "097ffc27b5a945d5b124259c7c204d5f",
+      "cost": 0.007479,
+      "created": 1791730095.6843224
+    },
+    {
+      "allowance_id": "end-to-end-discovery-2026-10-11",
+      "job_id": "097ffc27b5a945d5b124259c7c204d5f",
+      "cost": 0.0219275,
+      "created": 1791730101.8786268
+    },
+    {
+      "allowance_id": "end-to-end-discovery-2026-10-11",
+      "job_id": "097ffc27b5a945d5b124259c7c204d5f",
+      "cost": 0.0084523,
+      "created": 1791730128.182278
+    },
+    {
+      "allowance_id": "end-to-end-discovery-2026-10-11",
+      "job_id": "097ffc27b5a945d5b124259c7c204d5f",
+      "cost": 0.0082296,
+      "created": 1791730161.6257925
+    },
+    {
+      "allowance_id": "end-to-end-discovery-2026-10-11",
+      "job_id": "097ffc27b5a945d5b124259c7c204d5f",
+      "cost": 0.0229174,
+      "created": 1791730169.9076638
+    },
+    {
+      "allowance_id": "end-to-end-discovery-2026-10-11",
+      "job_id": "097ffc27b5a945d5b124259c7c204d5f",
+      "cost": 0.008551600000000001,
+      "created": 1791730209.3986275
+    },
+    {
+      "allowance_id": "end-to-end-discovery-2026-10-11",
+      "job_id": "097ffc27b5a945d5b124259c7c204d5f",
+      "cost": 0.008283299999999999,
+      "created": 1791730246.488972
+    },
+    {
+      "allowance_id": "end-to-end-discovery-2026-10-11",
+      "job_id": "097ffc27b5a945d5b124259c7c204d5f",
+      "cost": 0.023478,
+      "created": 1791730254.4455562
+    },
+    {
+      "allowance_id": "end-to-end-discovery-2026-10-11",
+      "job_id": "097ffc27b5a945d5b124259c7c204d5f",
+      "cost": 0.0081802,
+      "created": 1791730300.294522
+    },
+    {
+      "allowance_id": "end-to-end-discovery-2026-10-11",
+      "job_id": "097ffc27b5a945d5b124259c7c204d5f",
+      "cost": 0.007972100000000001,
+      "created": 1791730320.978378
+    },
+    {
+      "allowance_id": "end-to-end-discovery-2026-10-11",
+      "job_id": "097ffc27b5a945d5b124259c7c204d5f",
+      "cost": 0.0220161,
+      "created": 1791730330.2330966
+    },
+    {
+      "allowance_id": "end-to-end-discovery-2026-10-11",
+      "job_id": "097ffc27b5a945d5b124259c7c204d5f",
+      "cost": 0.0102471,
+      "created": 1791730358.2771213
+    },
+    {
+      "allowance_id": "end-to-end-discovery-2026-10-11",
+      "job_id": "097ffc27b5a945d5b124259c7c204d5f",
+      "cost": 0.009899,
+      "created": 1791730386.8920577
+    },
+    {
+      "allowance_id": "end-to-end-discovery-2026-10-11",
+      "job_id": "097ffc27b5a945d5b124259c7c204d5f",
+      "cost": 0.0235566,
+      "created": 1791730397.2527144
+    },
+    {
+      "allowance_id": "end-to-end-discovery-2026-10-11",
+      "job_id": "895201520d0d49da95347c5be34bd206",
+      "cost": 0.0199782,
+      "created": 1791730465.2291455
+    },
+    {
+      "allowance_id": "end-to-end-discovery-2026-10-11",
+      "job_id": "895201520d0d49da95347c5be34bd206",
+      "cost": 0.0078615,
+      "created": 1791730515.5402322
+    },
+    {
+      "allowance_id": "end-to-end-discovery-2026-10-11",
+      "job_id": "895201520d0d49da95347c5be34bd206",
+      "cost": 0.0076812,
+      "created": 1791730532.8352573
+    },
+    {
+      "allowance_id": "end-to-end-discovery-2026-10-11",
+      "job_id": "895201520d0d49da95347c5be34bd206",
+      "cost": 0.0216719,
+      "created": 1791730544.2980392
+    },
+    {
+      "allowance_id": "end-to-end-discovery-2026-10-11",
+      "job_id": "895201520d0d49da95347c5be34bd206",
+      "cost": 0.0079111,
+      "created": 1791730590.5726354
+    },
+    {
+      "allowance_id": "end-to-end-discovery-2026-10-11",
+      "job_id": "895201520d0d49da95347c5be34bd206",
+      "cost": 0.008097,
+      "created": 1791730612.1317182
+    },
+    {
+      "allowance_id": "end-to-end-discovery-2026-10-11",
+      "job_id": "895201520d0d49da95347c5be34bd206",
+      "cost": 0.0078551,
+      "created": 1791730642.6120555
+    },
+    {
+      "allowance_id": "end-to-end-discovery-2026-10-11",
+      "job_id": "895201520d0d49da95347c5be34bd206",
+      "cost": 0.0229121,
+      "created": 1791730650.8111472
+    },
+    {
+      "allowance_id": "end-to-end-discovery-2026-10-11",
+      "job_id": "895201520d0d49da95347c5be34bd206",
+      "cost": 0.0076546,
+      "created": 1791730714.6265943
+    },
+    {
+      "allowance_id": "end-to-end-discovery-2026-10-11",
+      "job_id": "895201520d0d49da95347c5be34bd206",
+      "cost": 0.0075403,
+      "created": 1791730739.6830199
+    },
+    {
+      "allowance_id": "end-to-end-discovery-2026-10-11",
+      "job_id": "895201520d0d49da95347c5be34bd206",
+      "cost": 0.0218115,
+      "created": 1791730749.3185697
+    },
+    {
+      "allowance_id": "end-to-end-discovery-2026-10-11",
+      "job_id": "895201520d0d49da95347c5be34bd206",
+      "cost": 0.0098579,
+      "created": 1791730777.4158597
+    },
+    {
+      "allowance_id": "end-to-end-discovery-2026-10-11",
+      "job_id": "895201520d0d49da95347c5be34bd206",
+      "cost": 0.009413600000000001,
+      "created": 1791730803.5154035
+    },
+    {
+      "allowance_id": "end-to-end-discovery-2026-10-11",
+      "job_id": "895201520d0d49da95347c5be34bd206",
+      "cost": 0.0228906,
+      "created": 1791730824.2535162
+    },
+    {
+      "allowance_id": "end-to-end-discovery-2026-10-11",
+      "job_id": "eef9a4f892bb4ea1bdf32690b086d144",
+      "cost": 0.020493400000000002,
+      "created": 1791730898.7070212
+    },
+    {
+      "allowance_id": "end-to-end-discovery-2026-10-11",
+      "job_id": "eef9a4f892bb4ea1bdf32690b086d144",
+      "cost": 0.0078274,
+      "created": 1791730949.5124795
+    },
+    {
+      "allowance_id": "end-to-end-discovery-2026-10-11",
+      "job_id": "eef9a4f892bb4ea1bdf32690b086d144",
+      "cost": 0.0076781,
+      "created": 1791730971.0798094
+    },
+    {
+      "allowance_id": "end-to-end-discovery-2026-10-11",
+      "job_id": "eef9a4f892bb4ea1bdf32690b086d144",
+      "cost": 0.022556100000000003,
+      "created": 1791730975.9817064
+    },
+    {
+      "allowance_id": "end-to-end-discovery-2026-10-11",
+      "job_id": "eef9a4f892bb4ea1bdf32690b086d144",
+      "cost": 0.008633,
+      "created": 1791731062.9373717
+    },
+    {
+      "allowance_id": "end-to-end-discovery-2026-10-11",
+      "job_id": "eef9a4f892bb4ea1bdf32690b086d144",
+      "cost": 0.008333700000000001,
+      "created": 1791731091.2197073
+    },
+    {
+      "allowance_id": "end-to-end-discovery-2026-10-11",
+      "job_id": "eef9a4f892bb4ea1bdf32690b086d144",
+      "cost": 0.0223845,
+      "created": 1791731115.7762945
+    },
+    {
+      "allowance_id": "end-to-end-discovery-2026-10-11",
+      "job_id": "eef9a4f892bb4ea1bdf32690b086d144",
+      "cost": 0.0083984,
+      "created": 1791731151.187237
+    },
+    {
+      "allowance_id": "end-to-end-discovery-2026-10-11",
+      "job_id": "eef9a4f892bb4ea1bdf32690b086d144",
+      "cost": 0.0081787,
+      "created": 1791731166.0644956
+    },
+    {
+      "allowance_id": "end-to-end-discovery-2026-10-11",
+      "job_id": "eef9a4f892bb4ea1bdf32690b086d144",
+      "cost": 0.0218166,
+      "created": 1791731177.6328175
+    },
+    {
+      "allowance_id": "end-to-end-discovery-2026-10-11",
+      "job_id": "eef9a4f892bb4ea1bdf32690b086d144",
+      "cost": 0.0087375,
+      "created": 1791731207.6177
+    },
+    {
+      "allowance_id": "end-to-end-discovery-2026-10-11",
+      "job_id": "eef9a4f892bb4ea1bdf32690b086d144",
+      "cost": 0.008474,
+      "created": 1791731240.2241774
+    },
+    {
+      "allowance_id": "end-to-end-discovery-2026-10-11",
+      "job_id": "eef9a4f892bb4ea1bdf32690b086d144",
+      "cost": 0.0238805,
+      "created": 1791731246.9837031
+    },
+    {
+      "allowance_id": "end-to-end-discovery-2026-10-11",
+      "job_id": "eef9a4f892bb4ea1bdf32690b086d144",
+      "cost": 0.0095041,
+      "created": 1791731328.9008842
+    },
+    {
+      "allowance_id": "end-to-end-discovery-2026-10-11",
+      "job_id": "eef9a4f892bb4ea1bdf32690b086d144",
+      "cost": 0.008922,
+      "created": 1791731346.2896638
+    },
+    {
+      "allowance_id": "end-to-end-discovery-2026-10-11",
+      "job_id": "eef9a4f892bb4ea1bdf32690b086d144",
+      "cost": 0.0223271,
+      "created": 1791731354.3463802
+    }
+  ],
+  "frozen_local_outputs": {
+    "at": "2026-10-11T15:11:01.545635+00:00",
+    "files": {
+      "097ffc27b5a945d5b124259c7c204d5f.json": "41a55c773915a8aa380b0a0241ac541c3a21f4f949275ecfe1de38eb3aca6791",
+      "895201520d0d49da95347c5be34bd206.json": "2efb033c1029fbf3ca620d6fad747ed82c509f625811d565ea1da1fa0e19f1f8",
+      "authorization.json": "58002522c864183e312bd2e3fe43a5b16aceeb8937d74fd20d5ca0c2e04c7f48",
+      "eef9a4f892bb4ea1bdf32690b086d144.json": "b3faf250302d6c44c63539372de4c7d8b3bafe3d22c9724e5d7a6c9b1cc879ac",
+      "execution-result.json": "67f3899f7dda4c2e1c52de10cb2bc4eb9ac9658a0dbfbd9eaea4b4f89d224e95",
+      "execution-start.json": "c10214c086d7d6bcb860107fa98324a059138137e65542760066a58cc2b7b6b4"
+    }
+  },
+  "authorization": {
+    "authorized_at_recorded_utc": "2026-10-11T14:34:27.662746+00:00",
+    "user_answer": "Autorizzo 1,20 USD per questa coorte",
+    "scope": "Three frozen Discover jobs; 15 candidate slots; at most 48 gpt-6-luna attempts; no retries, replacements or resumes. Execute after PR verification.",
+    "ceiling_usd": "1.20",
+    "allowance_id": "end-to-end-discovery-2026-10-11",
+    "protocol_commit": "d30ac1edca7fb45b77de47c9df1fc7ff3166363a",
+    "manifest_sha256": "5992a837446e497f951cb6d9b938a3a029fb94f5f70f66a783d0de948cf50daf",
+    "paid_execution_started": false
+  }
+}
