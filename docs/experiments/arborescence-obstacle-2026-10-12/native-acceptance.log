@@ -1,0 +1,12 @@
+test_custom_weight_and_missing_default (__main__.NativeArborescenceAcceptance.test_custom_weight_and_missing_default) ... ok
+test_nested_cycle_choices (__main__.NativeArborescenceAcceptance.test_nested_cycle_choices) ... ok
+test_no_spanning_solution (__main__.NativeArborescenceAcceptance.test_no_spanning_solution) ... ok
+test_parallel_edges_and_mixed_labels (__main__.NativeArborescenceAcceptance.test_parallel_edges_and_mixed_labels) ... ok
+test_partition_constraints (__main__.NativeArborescenceAcceptance.test_partition_constraints) ... ok
+test_seeded_small_graphs (__main__.NativeArborescenceAcceptance.test_seeded_small_graphs) ... ok
+test_tied_weights_and_singleton (__main__.NativeArborescenceAcceptance.test_tied_weights_and_singleton) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.057s
+
+OK
