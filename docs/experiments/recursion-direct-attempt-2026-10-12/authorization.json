@@ -1,0 +1,11 @@
+{
+  "authorization_source": "Current explicit human reply: Sì, autorizzo un subagente per 15 minuti",
+  "scope": "One new isolated ordinary direct attempt on pytest #8482; no continuation agents or paid API calls",
+  "preparation_commit": "0c77e74d7b6122a715c6910e8854fcc9ae20fa57",
+  "agent_task": "/root/recursion_direct_attempt",
+  "dispatch_reference_utc": "2026-10-12 11:30:50 UTC",
+  "deadline_utc": "2026-10-12 11:45:50 UTC",
+  "context": "No inherited chat; frozen instructions and specified public inputs/native checkout only",
+  "paid_api_calls_authorized": 0,
+  "cohort_125_reused": false
+}

@@ -1,0 +1,6 @@
+The recorded agent patch contains context and modifications of pytest source
+from pytest-dev/pytest revision aec0291ed14c724873bfcea99d5dfd739f75a68f.
+Original source: https://github.com/pytest-dev/pytest/tree/aec0291ed14c724873bfcea99d5dfd739f75a68f
+Copyright (c) 2004 Holger Krekel and others. Original MIT license is retained
+in LICENSE.pytest.txt. The candidate is an experimental ordinary correction,
+not an upstream accepted patch or a Missing Link assistance contribution.

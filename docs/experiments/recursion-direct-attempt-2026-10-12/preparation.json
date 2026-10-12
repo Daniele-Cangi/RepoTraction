@@ -1,0 +1,38 @@
+{
+  "stage": "Preparation only; no development agent dispatched",
+  "repotraction_base": "c4d19fbf82a40cf054dce20ab715d3c16b6baf65",
+  "target_revision": "aec0291ed14c724873bfcea99d5dfd739f75a68f",
+  "target_module_canonical_sha256": "b419b9a65116fd1166a945842bd32a12ad8a62d05ac6ad41b79ba6a112e84b14",
+  "inputs": {
+    "demand.json": {
+      "source": "../technical-obstacle-selection-2026-10-12/demand.json",
+      "canonical_sha256": "ed1f8948863620e340de6191046f8468b87f4b9ead6f89388824f07f37ed32d9"
+    },
+    "acceptance-before-source-search.md": {
+      "source": "../technical-obstacle-selection-2026-10-12/acceptance-before-source-search.md",
+      "canonical_sha256": "c2c7e6a8301b7235bb31b7dc1785aa76fa9e4df89722e1e5e46e03548edea9ed"
+    },
+    "reported_recursion.py": {
+      "source": "../technical-obstacle-selection-2026-10-12/reported_recursion.py",
+      "canonical_sha256": "5bc3d292daedbd4eb2d5e52c9ed17b582c2da36142ccc56be3bce6f8ac07ca6b"
+    }
+  },
+  "native_environment": {
+    "python": "3.13.5 (tags/v3.13.5:6cb20a2, Jun 11 2025, 16:15:46) [MSC v.1943 64 bit (AMD64)]",
+    "module": "C:\\Users\\dacan\\Documents\\Codex\\2026-08-17\\vo\\outputs\\github-pulse\\data\\recursion-direct-attempt-2026-10-12\\target\\src\\_pytest\\_code\\code.py"
+  },
+  "packaging_setup": "Same ignored generated version metadata copied from the retained native checkout; target implementation unchanged",
+  "bound": {
+    "isolated_agents": 1,
+    "wall_minutes_from_dispatch": 15,
+    "model": "Inherited settings, no overrides",
+    "paid_api_calls": 0,
+    "retries": 0,
+    "resumes": 0,
+    "automatic_merge": false
+  },
+  "agent_authorization": "Pending explicit authorization for this new single-agent attempt",
+  "native_tests_run_in_this_preparation": 0,
+  "external_source_searches": 0,
+  "historical_inputs_changed": false
+}

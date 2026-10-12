@@ -1,0 +1,2 @@
+agent.patch -text whitespace=-blank-at-eol
+agent-report.md -text
