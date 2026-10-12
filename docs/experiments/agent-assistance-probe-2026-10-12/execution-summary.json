@@ -1,0 +1,37 @@
+{
+  "outcome": "inconclusive_transport_stop_before_discovery",
+  "raw_result_sha256": "43358cd2edd9f760b0a4013248f127f37dc72a507f8602440590fe8f0b8986c5",
+  "common_attempt": "completed in authorized wall window; common-assessment.json",
+  "isolated_agents_used": 1,
+  "continuation_agents_dispatched": 0,
+  "paid_calls_reserved": 1,
+  "completed_response_receipts": 0,
+  "source_searches": 0,
+  "inspected_sources": 0,
+  "assistance_packets": 0,
+  "retries": 0,
+  "resumes": 0,
+  "case_or_source_replacements": 0,
+  "reserved_usd": 0.0089864,
+  "actual_billed_usd": null,
+  "input_tokens": null,
+  "output_tokens": null,
+  "allowance_rows": [
+    [
+      "agent-assistance-probe-2026-10-12-v1",
+      0.0089864
+    ]
+  ],
+  "reservation_rows": [
+    [
+      1,
+      "agent-assistance-probe-2026-10-12-v1",
+      "36a8fc28d28243c49293aa5f0f5843dd",
+      0.0089864,
+      1791767621.8881536
+    ]
+  ],
+  "wall_seconds": 246.22830909996992,
+  "timing_decomposition": "Not instrumented; no server-generation versus callback-cost attribution.",
+  "interpretation": "Assistance effectiveness and source-selection quality were not tested. No product change justified by this result."
+}
