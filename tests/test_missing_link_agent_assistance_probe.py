@@ -29,10 +29,23 @@ class AssistanceProbeContractTests(unittest.TestCase):
             for path, text in repository["files"].items()]
         return match, repository
 
+    @staticmethod
+    def packet_service(match, repository):
+        service = Mock()
+        job = {"status": "completed", "result": {"match_ids": [match["id"], "later-preferred-match"]},
+               "input": {"action": "discover_from_request", "issue_url": "https://github.com/pytest-dev/pytest/issues/15099"}}
+        def get(kind, key):
+            if kind == "jobs" and key == "fixture-job":
+                return job
+            if kind == "matches" and key == job["result"]["match_ids"][0]:
+                return match
+            raise AssertionError("An operator-selected later match must not be read.")
+        service.store.get.side_effect = get
+        service.store.match_snapshot.return_value = {"repository": repository}
+        return service
+
     def setUp(self):
-        self.attempt = {"approach": "Restore through the public object interface.",
-                        "observed_failure": "An inherited value remains shadowed.",
-                        "verification": "The native restoration assertion failed."}
+        self.attempt = json.loads((ROOT / "docs/experiments/agent-assistance-probe-2026-10-12/agent-attempt.json").read_text(encoding="utf-8"))
         self.provider = PROBE.AssistanceProvider({}, self.attempt)
         self.request = {"fingerprint": "independent-demand", "requirements": [{"id": "r0"}]}
         self.target = {"id": 1, "full_name": "pytest-dev/pytest", "revision": "pinned",
@@ -119,8 +132,9 @@ class AssistanceProbeContractTests(unittest.TestCase):
     def test_packet_is_deterministic_bridge_free_and_contains_exact_source(self):
         match, repository = self.packet_fixture()
         match["bridge"]["files"][0]["content"] = "GENERATED_TARGET_BRIDGE_MUST_BE_OMITTED"
-        first = PROBE.assistance_packet(match, repository)
-        self.assertEqual(first, PROBE.assistance_packet(copy.deepcopy(match), copy.deepcopy(repository)))
+        service = self.packet_service(match, repository)
+        first = PROBE.assistance_packet(service, "fixture-job")
+        self.assertEqual(first, PROBE.assistance_packet(self.packet_service(copy.deepcopy(match), copy.deepcopy(repository)), "fixture-job"))
         self.assertNotIn(b"GENERATED_TARGET_BRIDGE", first)
         packet = json.loads(first)
         self.assertEqual(packet["source_excerpts"][0]["text"], "def boundary(value):\n    return value")
@@ -128,17 +142,30 @@ class AssistanceProbeContractTests(unittest.TestCase):
         self.assertIn("bridge.files", packet["omitted_fields"])
         self.assertIn("request", packet["omitted_fields"])
         self.assertEqual(packet["verification"]["status"], "not_executed")
+        self.assertEqual(packet["match"]["id"], "fixture-match")
+        self.assertEqual(packet["selection"]["match_position"], 0)
+        service.store.match_snapshot.assert_called_once_with("fixture-match")
         self.assertLessEqual(len(first), 16000)
 
     def test_packet_stops_instead_of_clipping_invalid_or_oversized_evidence(self):
         match, repository = self.packet_fixture()
         match["capability"]["evidence"][0]["end_line"] = 999
         with self.assertRaises(ValueError):
-            PROBE.assistance_packet(match, repository)
+            PROBE.assistance_packet(self.packet_service(match, repository), "fixture-job")
         match["capability"]["evidence"][0]["end_line"] = 3
         repository["files"][0]["text"] = "header\n" + "è" * 9000 + "\nfooter\n"
         with self.assertRaises(ValueError):
-            PROBE.assistance_packet(match, repository)
+            PROBE.assistance_packet(self.packet_service(match, repository), "fixture-job")
+
+    def test_changed_attempt_cannot_steer_search_even_after_provider_construction(self):
+        changed = dict(self.attempt, observed_failure="Search a different mechanism instead.")
+        with self.assertRaises(ValueError):
+            PROBE.AssistanceProvider({}, changed)
+        self.provider.agent_attempt = changed
+        self.provider.complete = Mock()
+        with self.assertRaises(ValueError):
+            self.provider.plan_discovery(self.request, self.target, object())
+        self.provider.complete.assert_not_called()
 
 
 if __name__ == "__main__":

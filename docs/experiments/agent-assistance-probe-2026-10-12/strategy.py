@@ -19,6 +19,7 @@ from missing_link.sources import _redact
 PROMPTS = json.loads(Path(__file__).with_name("prompts.json").read_text(encoding="utf-8"))
 TARGET_REVISION = "587ebc501ba292539202a1aac3a7f5b0112a08ec"
 FROZEN_INPUT_FINGERPRINT = "9b45c38282d1ab028e6cd0ac4609f483dcb81658898866e6ca718f8fbd75470d"
+ATTEMPT_FINGERPRINT = "90315fa88270018c270fd58f131459117cdd7b068dd803089006d1d1eda4c0f7"
 
 
 class FrozenAssistanceService(Service):
@@ -57,8 +58,20 @@ class FrozenAssistanceService(Service):
         return super()._prepare_request_discovery(job, FrozenReads(), budget, stage, save)
 
 
-def assistance_packet(match, repository):
+def assistance_packet(service, job_id):
     """Deterministic, lossless-or-stop projection of the existing handoff."""
+    service._verify()
+    job = service.store.get("jobs", job_id)
+    ids = job["result"].get("match_ids", [])
+    if (job["status"] != "completed" or not ids
+            or job["input"]["action"] != "discover_from_request"
+            or job["input"]["issue_url"] != "https://github.com/pytest-dev/pytest/issues/15099"):
+        raise ValueError("No completed cohort result; stop without choosing a substitute.")
+    match = service.store.get("matches", ids[0])
+    snapshot = service.store.match_snapshot(ids[0])
+    if match["id"] != ids[0] or not snapshot:
+        raise ValueError("First returned match or pinned snapshot unavailable.")
+    repository = snapshot["repository"]
     handoff = export_handoff(match, repository)
     if repository.get("public") is not True or repository.get("id") != match.get("repo_id"):
         raise ValueError("Packet needs the acquired public source identity.")
@@ -88,6 +101,7 @@ def assistance_packet(match, repository):
     bridge = handoff["bridge"]
     retained_bridge = ("existing_contribution", "assumptions", "limitations")
     packet = {"purpose": "Unverified source mechanism for agent investigation; no target bridge code.",
+        "selection": {"job_id": job_id, "match_position": 0, "returned_match_ids": ids},
         "repository_id": repository["id"], "repository": handoff["repository"],
         "revision": handoff["revision"], "match": selected, "source_excerpts": snippets,
         "contribution": {key: bridge.get(key) for key in retained_bridge},
@@ -116,9 +130,13 @@ class AssistanceProvider(Provider):
             clean, redacted, truncated = _redact(value)
             if clean != value or redacted or truncated:
                 raise ValueError("Recorded agent context needs redaction or truncation.")
+        if digest(agent_attempt) != ATTEMPT_FINGERPRINT:
+            raise ValueError("The recorded common attempt differs from its committed contents.")
         self.agent_attempt = copy.deepcopy(agent_attempt)
 
     def plan_discovery(self, request, target, budget, *, inquiry=None):
+        if digest(self.agent_attempt) != ATTEMPT_FINGERPRINT:
+            raise ValueError("The recorded attempt changed before source planning.")
         data = plan_input(request, target, inquiry)
         data["agent_attempt"] = self.agent_attempt
         data["experimental_goal"] = "assist_development_agent"

@@ -53,6 +53,16 @@ deliberately supplies a freshly recomputed digest of changed discussion: that
 cannot override the committed identity. This is a local constant binding, not a
 new integrity or coordination subsystem. The frozen input data remains unchanged.
 
+A subsequent review identified the same mutable-input risk for the recorded
+attempt and an unenforced first-match selection boundary. The attempt now has its
+own committed canonical fingerprint, checked at construction and before planning;
+neither the file nor its narrative is rewritten. Packet export accepts only the
+existing Service and job ID, reads the completed job's ordered match IDs from
+Store and takes entry zero and its ordinary pinned snapshot. It cannot take an
+operator-selected match argument. The packet records that selection position.
+Tests include two returned IDs, make any read of the later preferred match fail,
+and reject an altered attempt before model dispatch. Nine focused tests pass.
+
 The common direct attempt is now frozen in `common-patch.json` and
 `common-report.md`. Independent parent checks pass the public reproduction and
 48 native monkeypatch tests; the fixed assessor cases remain 6 passed / 2 failed
