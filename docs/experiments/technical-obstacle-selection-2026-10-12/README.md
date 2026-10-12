@@ -94,3 +94,18 @@ agent cohort or paid calls, reuse #125's allowance, create a runner, or merge
 automatically. Any future modification needs relevant native regressions and
 complete Windows/Linux CI. Current native measurements are Windows-only; the
 RepoTraction CI is a separate product-regression check.
+
+## Portable verification correction
+
+Use [portable-fixture-manifest.json](portable-fixture-manifest.json) to verify the
+frozen fixtures on Windows or Linux. Read each fixture as bytes, replace CRLF
+byte pairs with LF, then compute SHA-256 and compare with that file's
+`canonical_sha256`. Do not trim whitespace or apply another transformation.
+In Python the operation is `hashlib.sha256(path.read_bytes().replace(b"\r\n", b"\n")).hexdigest()`.
+
+The original hashes in `baseline.json` describe the original Windows working-copy
+bytes; its two Python fixture hashes include CRLF line endings. Those observations,
+the fixture contents and the frozen acceptance criteria remain unchanged. The
+manifest retains the local byte hashes separately and supplies portable hashes
+matching the committed LF bytes. This correction changes verification only, not
+the experiment's results or criteria.

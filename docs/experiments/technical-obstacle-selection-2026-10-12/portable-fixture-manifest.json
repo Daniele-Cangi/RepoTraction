@@ -1,0 +1,27 @@
+{
+  "scope": "Portable fixture verification for the selected obstacle; historical baseline values are retained unchanged.",
+  "canonical_encoding": "UTF-8 bytes; replace each CRLF byte pair with LF before SHA-256; no other trimming or transformation.",
+  "fixture_hash_authority": "Use fixtures.<filename>.canonical_sha256 for future Windows/Linux verification. baseline.json frozen_fixture_sha256 records the original local working-copy bytes only.",
+  "fixtures": {
+    "reported_recursion.py": {
+      "canonical_sha256": "5bc3d292daedbd4eb2d5e52c9ed17b582c2da36142ccc56be3bce6f8ac07ca6b",
+      "historical_local_sha256": "5469bb8a87a8305d92e6a6fd382265d6ffa4e5cb47f3b8ec44babc00ead75d0c",
+      "committed_bytes": 258
+    },
+    "native_diagnostic_probe.py": {
+      "canonical_sha256": "1150b4b7a2d052fba875d2cd90b318eddc9dbda22d19aaa19e90ca3875a064f9",
+      "historical_local_sha256": "aa1925a710eb72f5784237fdf836200fc47bbf0087577d9a428715a06112ac68",
+      "committed_bytes": 2590
+    },
+    "acceptance-before-source-search.md": {
+      "canonical_sha256": "c2c7e6a8301b7235bb31b7dc1785aa76fa9e4df89722e1e5e46e03548edea9ed",
+      "historical_local_sha256": "c2c7e6a8301b7235bb31b7dc1785aa76fa9e4df89722e1e5e46e03548edea9ed",
+      "committed_bytes": 3252
+    }
+  },
+  "verified_forms": [
+    "git object LF",
+    "unchanged local checkout",
+    "CRLF checkout after the declared canonical transformation"
+  ]
+}
