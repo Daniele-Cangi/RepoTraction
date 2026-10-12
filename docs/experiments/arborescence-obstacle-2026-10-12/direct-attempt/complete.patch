@@ -1,0 +1,207 @@
+diff --git a/networkx/algorithms/tree/branchings.py b/networkx/algorithms/tree/branchings.py
+index 200bc6d..67b9e25 100644
+--- a/networkx/algorithms/tree/branchings.py
++++ b/networkx/algorithms/tree/branchings.py
+@@ -733,10 +733,115 @@ def maximum_spanning_arborescence(
+     return B
+ 
+ 
++def _minimum_spanning_arborescence_integer(G, attr, default, preserve_attrs):
++    """Batched Edmonds contraction for integer-weight directed graphs.
++
++    A synthetic root makes the root choice part of the optimization. Its
++    incoming-edge penalty exceeds the total possible original weight range,
++    so a feasible spanning arborescence uses exactly one synthetic edge.
++    Integer arithmetic keeps this reduction exact. Contraction scans edge
++    records and saves only chosen edges and vertex membership for expansion,
++    rather than copies of intermediate NetworkX graphs. The worst-case time
++    bound is O(n m), as for the classical Edmonds algorithm cited above.
++    """
++    labels = list(G)
++    n = len(labels)
++    node_index = {node: i for i, node in enumerate(labels)}
++    originals = list(G.edges(data=True))
++    weights = [data.get(attr, default) for _, _, data in originals]
++    # Restrict the fast path to exact integer arithmetic. Preserve the existing
++    # implementation for floats, custom numeric types, and empty graphs.
++    if n == 0 or any(type(weight) is not int for weight in weights):
++        return None
++    low = min(weights, default=0)
++    high = max(weights, default=0)
++    penalty = n * (high - low) + 1
++    targets = [node_index[v] for _, v, _ in originals] + list(range(n))
++    edges = [
++        (node_index[u], node_index[v], weight - low, i)
++        for i, ((u, v, _), weight) in enumerate(zip(originals, weights))
++        if u != v
++    ]
++    first_synthetic = len(originals)
++    root = n
++    edges.extend((root, v, penalty, first_synthetic + v) for v in range(n))
++    size = n + 1
++    membership = list(range(size))
++    history = []
++
++    while True:
++        incoming = [None] * size
++        costs = [None] * size
++        parents = [root] * size
++        for u, v, weight, edge_id in edges:
++            if costs[v] is None or weight < costs[v]:
++                incoming[v] = edge_id
++                costs[v] = weight
++                parents[v] = u
++
++        # The selected incoming edges form disjoint cycles with trees feeding
++        # into them. Contract all cycles in one pass.
++        component = [-1] * size
++        visited = [-1] * size
++        count = 0
++        for start in range(size):
++            v = start
++            while v != root and component[v] == -1 and visited[v] != start:
++                visited[v] = start
++                v = parents[v]
++            if v != root and component[v] == -1:
++                component[v] = count
++                u = parents[v]
++                while u != v:
++                    component[u] = count
++                    u = parents[u]
++                count += 1
++        if count == 0:
++            selected = [edge_id for edge_id in incoming if edge_id is not None]
++            break
++
++        history.append((incoming, membership))
++        for v in range(size):
++            if component[v] == -1:
++                component[v] = count
++                count += 1
++        edges = [
++            (component[u], component[v], weight - costs[v], edge_id)
++            for u, v, weight, edge_id in edges
++            if component[u] != component[v]
++        ]
++        membership = [component[v] for v in membership]
++        root = component[root]
++        size = count
++
++    # Each entering edge replaces the chosen edge at its original target.
++    # Membership records identify that target even through nested cycles.
++    for incoming, membership in reversed(history):
++        for edge_id in selected:
++            incoming[membership[targets[edge_id]]] = edge_id
++        selected = [edge_id for edge_id in incoming if edge_id is not None]
++
++    selected = [edge_id for edge_id in selected if edge_id < first_synthetic]
++    if len(selected) != n - 1:
++        raise nx.NetworkXException("No minimum spanning arborescence in G.")
++    B = G.__class__()
++    B.add_nodes_from(G)
++    for edge_id in selected:
++        u, v, data = originals[edge_id]
++        attrs = dict(data) if preserve_attrs else {}
++        attrs[attr] = data.get(attr, default)
++        B.add_edge(u, v, **attrs)
++    return B
++
++
+ @nx._dispatchable(preserve_edge_attrs=True, mutates_input=True, returns_graph=True)
+ def minimum_spanning_arborescence(
+     G, attr="weight", default=1, preserve_attrs=False, partition=None
+ ):
++    if G.is_directed() and partition is None:
++        B = _minimum_spanning_arborescence_integer(G, attr, default, preserve_attrs)
++        if B is not None:
++            return B
+     B = minimal_branching(
+         G,
+         attr=attr,
+diff --git a/networkx/algorithms/tree/tests/test_branchings_integer.py b/networkx/algorithms/tree/tests/test_branchings_integer.py
+new file mode 100644
+index 0000000..dacdc3a
+--- /dev/null
++++ b/networkx/algorithms/tree/tests/test_branchings_integer.py
+@@ -0,0 +1,81 @@
++"""Regressions for batched integer arborescence contraction."""
++
++import random
++from copy import deepcopy
++
++import pytest
++
++import networkx as nx
++
++
++@pytest.mark.parametrize("seed", range(40))
++@pytest.mark.parametrize("multigraph", [False, True])
++def test_integer_arborescence_matches_existing_solver(seed, multigraph):
++    rng = random.Random(seed)
++    n = 2 + seed % 7
++    G = nx.MultiDiGraph() if multigraph else nx.DiGraph()
++    # The directed ring guarantees a spanning solution without fixing its root.
++    G.add_weighted_edges_from(
++        (u, (u + 1) % n, rng.randrange(-20, 21)) for u in range(n)
++    )
++    for u in range(n):
++        for v in range(n):
++            if rng.random() < 0.5:
++                G.add_edge(u, v, weight=rng.randrange(-20, 21), label=(u, v))
++    before = deepcopy(G)
++    reference = nx.algorithms.tree.minimal_branching(G.copy())
++    answer = nx.minimum_spanning_arborescence(G, preserve_attrs=True)
++    assert nx.is_arborescence(answer)
++    assert set(answer) == set(G)
++    assert nx.tree.branching_weight(answer) == nx.tree.branching_weight(reference)
++    assert nx.utils.graphs_equal(G, before)
++    for u, v, data in answer.edges(data=True):
++        choices = G[u][v].values() if multigraph else [G[u][v]]
++        assert data in choices
++
++
++def test_integer_arborescence_large_exact_weights_and_root_choice():
++    huge = 10**120
++    G = nx.DiGraph()
++    G.add_weighted_edges_from(
++        [
++            ("a", "b", huge),
++            ("b", "a", -huge),
++            ("a", "c", -huge + 1),
++            ("b", "c", huge),
++            ("c", "a", -huge + 2),
++            ("c", "b", huge + 3),
++        ]
++    )
++    answer = nx.minimum_spanning_arborescence(G)
++    assert nx.is_arborescence(answer)
++    assert set(answer.edges) == {("b", "a"), ("a", "c")}
++    assert nx.tree.branching_weight(answer) == -2 * huge + 1
++
++
++def test_integer_arborescence_disjoint_cycles_then_nested_cycle():
++    G = nx.DiGraph()
++    G.add_weighted_edges_from(
++        [
++            ("r", 0, 20),
++            ("r", 2, 21),
++            (0, 1, 1),
++            (1, 0, 1),
++            (2, 3, 1),
++            (3, 2, 1),
++            (1, 2, 2),
++            (3, 0, 2),
++        ]
++    )
++    answer = nx.minimum_spanning_arborescence(G)
++    assert nx.is_arborescence(answer)
++    assert set(answer) == set(G)
++    assert nx.tree.branching_weight(answer) == 24
++
++
++def test_float_arborescence_uses_existing_behavior():
++    G = nx.DiGraph()
++    G.add_weighted_edges_from([(0, 1, 1.25), (1, 0, 2.5), (1, 2, -0.5)])
++    answer = nx.minimum_spanning_arborescence(G)
++    assert set(answer.edges) == {(0, 1), (1, 2)}
++    assert nx.tree.branching_weight(answer) == 0.75
