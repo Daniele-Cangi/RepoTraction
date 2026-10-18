@@ -1,0 +1,2 @@
+# Preserve raw receipt/log bytes and their SHA-256 on Windows and Linux.
+* -text
