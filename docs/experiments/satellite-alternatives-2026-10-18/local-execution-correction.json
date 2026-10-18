@@ -1,0 +1,9 @@
+{
+  "kind": "local probe invocation error; not a negative scientific outcome",
+  "error": "TypeError: predict() takes 3 positional arguments but 4 were given",
+  "stage": "after G13 fit, before RF predictions and before any scoring",
+  "correction": "Call the existing interval.predict(fit, arcs, weather), as the pinned native producer does. No model, rule, data or threshold changes.",
+  "retained_failed_probe_sha256": "b489801ed726f40a71cd315ddf152f45933deddb2718ad7a226ec964980e18f5",
+  "retained_failed_log_sha256": "6f76827688c04b532e45fc07efbe365fe855c38677a638807e2e92d5522cd847",
+  "paid_calls": 0
+}

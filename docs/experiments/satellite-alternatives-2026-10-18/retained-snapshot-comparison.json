@@ -1,0 +1,87 @@
+{
+  "scope": "Static admission comparison of retained v3 snapshots; no reference recalibration, new solve or trajectory refit.",
+  "threshold": 7.814727903251179,
+  "controls": {
+    "G05": {
+      "historical_window_status_counts": {
+        "PREPARED": 20
+      },
+      "already_prepared_snapshots_checked": 60,
+      "changed_prepared_snapshot_admissions": [],
+      "historically_multiple_exterior_snapshots": 0,
+      "exterior_cost_gap_min": null,
+      "exterior_cost_gap_max": null
+    },
+    "G11": {
+      "historical_window_status_counts": {
+        "INSUFFICIENT_RF_STATIONS": 2,
+        "RF_MASK_UNSUPPORTED": 9,
+        "PREPARED": 9
+      },
+      "already_prepared_snapshots_checked": 27,
+      "changed_prepared_snapshot_admissions": [],
+      "historically_multiple_exterior_snapshots": 0,
+      "exterior_cost_gap_min": null,
+      "exterior_cost_gap_max": null
+    },
+    "G19": {
+      "historical_window_status_counts": {
+        "PREPARED": 8,
+        "RF_MASK_UNSUPPORTED": 4,
+        "INSUFFICIENT_RF_STATIONS": 8
+      },
+      "already_prepared_snapshots_checked": 24,
+      "changed_prepared_snapshot_admissions": [],
+      "historically_multiple_exterior_snapshots": 0,
+      "exterior_cost_gap_min": null,
+      "exterior_cost_gap_max": null
+    },
+    "G20": {
+      "historical_window_status_counts": {
+        "INSUFFICIENT_RF_STATIONS": 10,
+        "PREPARED": 10
+      },
+      "already_prepared_snapshots_checked": 30,
+      "changed_prepared_snapshot_admissions": [],
+      "historically_multiple_exterior_snapshots": 0,
+      "exterior_cost_gap_min": null,
+      "exterior_cost_gap_max": null
+    },
+    "G21": {
+      "historical_window_status_counts": {
+        "PREPARED": 16,
+        "RF_MASK_UNSUPPORTED": 4
+      },
+      "already_prepared_snapshots_checked": 48,
+      "changed_prepared_snapshot_admissions": [],
+      "historically_multiple_exterior_snapshots": 0,
+      "exterior_cost_gap_min": null,
+      "exterior_cost_gap_max": null
+    }
+  },
+  "cases": {
+    "G06": {
+      "historical_window_status_counts": {
+        "RF_MASK_UNSUPPORTED": 1,
+        "INSUFFICIENT_RF_STATIONS": 11,
+        "RF_GEOMETRY_AMBIGUOUS": 8
+      },
+      "already_prepared_snapshots_checked": 0,
+      "changed_prepared_snapshot_admissions": [],
+      "historically_multiple_exterior_snapshots": 8,
+      "exterior_cost_gap_min": 9363478.472659098,
+      "exterior_cost_gap_max": 81652136.46285963
+    },
+    "G13": {
+      "historical_window_status_counts": {
+        "RF_GEOMETRY_AMBIGUOUS": 15,
+        "INSUFFICIENT_RF_STATIONS": 5
+      },
+      "already_prepared_snapshots_checked": 0,
+      "changed_prepared_snapshot_admissions": [],
+      "historically_multiple_exterior_snapshots": 15,
+      "exterior_cost_gap_min": 21456.728544474427,
+      "exterior_cost_gap_max": 24782975.22742162
+    }
+  }
+}

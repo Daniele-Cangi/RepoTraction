@@ -6,7 +6,7 @@
     "id": "satellite-g06-g13-2026-10-18",
     "repo": "Daniele-Cangi/Satellite-RF-Observatory",
     "repo_id": 1128978015,
-    "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-alternative-strategies/docs/experiments/satellite-alternatives-2026-10-18/request.json",
+    "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/1da6d9bbc8d7204ecedc6fbfe54177775a8db251/docs/experiments/satellite-alternatives-2026-10-18/request.json",
     "title": "Find a different, useful reconstruction approach for G06/G13",
     "body": "Investigate a different software-backed approach to reconstruct G06/G13 from the existing RF archive; a previously blocked agent is not required.\n\nUse all twenty original windows per case, retain missing and unsupported cases, and compare with unchanged v3 plus the fixed local likelihood comparator.\n\nExclude the candidate state/products from selection, calibration, initialization and fitting; no G12 state, target-orbit prior or historical fitted seed.\n\nPreserve minimum five admitted receivers, the 10-degree mask, original floors and covariance, free biases, central+J2 dynamics and p=.01 final residual criterion.\n\nFreeze fits and RF predictions before held-out RF and CODE scoring; retain ambiguity, failures and worsening results without post-score tuning.\n\nThe external contribution may be a transferable operation or partial technique, but it needs source-owned code evidence and native improvement to demonstrate value.",
     "comments": [],
@@ -16,7 +16,7 @@
     "origin": "operator-authored experiment input; NOT a fetched GitHub issue",
     "author": "experimenter",
     "author_type": "User",
-    "fingerprint": "34d425eb4ed76075d5b0fe05b1c81244142428b85b828c8fb87ed8eeb2ef99ec"
+    "fingerprint": "6458a3982a6ef2d2465ba1a886e1ce6d357866b60613d8274769056f79edbc2c"
   },
   "request_raw": {
     "outcome": "Investigate a different software-backed approach to reconstruct G06/G13 from the existing RF archive; a previously blocked agent is not required.",
@@ -80,7 +80,8 @@
     ],
     "prior_attempts": [
       "Pinned rf_geometry requires a unique exterior snapshot branch before applying its mask. G06 has 8 and G13 15 windows rejected at this step.",
-      "The already fixed direct comparator filters branches with the existing solver CHI95 relative to the global minimum returned cost; it may solve the cases and is not an external contribution."
+      "The already fixed direct comparator filters branches with the existing solver CHI95 relative to the global minimum returned cost; it may solve the cases and is not an external contribution.",
+      "Completed fixed direct comparator: G13 obtains six prepared arcs and one BRANCH_SEARCH_INCOMPLETE trajectory. G06 retains zero arcs: nine RF-covered windows have fewer than five receivers after the unchanged 10-degree mask. This is direct work, not an external contribution. No direct-comparator held-out or CODE errors are supplied to discovery."
     ],
     "missing_information": [
       "An alternative method and its practical advantage remain unknown.",
@@ -91,13 +92,13 @@
   "normalized_request": {
     "id": "satellite-g06-g13-2026-10-18",
     "title": "Find a different, useful reconstruction approach for G06/G13",
-    "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-alternative-strategies/docs/experiments/satellite-alternatives-2026-10-18/request.json",
+    "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/1da6d9bbc8d7204ecedc6fbfe54177775a8db251/docs/experiments/satellite-alternatives-2026-10-18/request.json",
     "outcome": "Investigate a different software-backed approach to reconstruct G06/G13 from the existing RF archive; a previously blocked agent is not required.",
     "status": "unresolved",
     "status_reason": "The pinned preparation produces zero arcs for both fixed candidates; this does not establish an agent block or physical impossibility.",
     "status_evidence": [
       {
-        "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-alternative-strategies/docs/experiments/satellite-alternatives-2026-10-18/request.json",
+        "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/1da6d9bbc8d7204ecedc6fbfe54177775a8db251/docs/experiments/satellite-alternatives-2026-10-18/request.json",
         "source_id": "q0"
       }
     ],
@@ -108,7 +109,7 @@
         "mandatory": true,
         "explicit": true,
         "source": {
-          "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-alternative-strategies/docs/experiments/satellite-alternatives-2026-10-18/request.json",
+          "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/1da6d9bbc8d7204ecedc6fbfe54177775a8db251/docs/experiments/satellite-alternatives-2026-10-18/request.json",
           "quote": "Investigate a different software-backed approach to reconstruct G06/G13 from the existing RF archive; a previously blocked agent is not required.",
           "source_id": "q0",
           "quote_match": "exact"
@@ -121,7 +122,7 @@
         "mandatory": true,
         "explicit": true,
         "source": {
-          "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-alternative-strategies/docs/experiments/satellite-alternatives-2026-10-18/request.json",
+          "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/1da6d9bbc8d7204ecedc6fbfe54177775a8db251/docs/experiments/satellite-alternatives-2026-10-18/request.json",
           "quote": "Use all twenty original windows per case, retain missing and unsupported cases, and compare with unchanged v3 plus the fixed local likelihood comparator.",
           "source_id": "q0",
           "quote_match": "exact"
@@ -134,7 +135,7 @@
         "mandatory": true,
         "explicit": true,
         "source": {
-          "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-alternative-strategies/docs/experiments/satellite-alternatives-2026-10-18/request.json",
+          "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/1da6d9bbc8d7204ecedc6fbfe54177775a8db251/docs/experiments/satellite-alternatives-2026-10-18/request.json",
           "quote": "Exclude the candidate state/products from selection, calibration, initialization and fitting; no G12 state, target-orbit prior or historical fitted seed.",
           "source_id": "q0",
           "quote_match": "exact"
@@ -147,7 +148,7 @@
         "mandatory": true,
         "explicit": true,
         "source": {
-          "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-alternative-strategies/docs/experiments/satellite-alternatives-2026-10-18/request.json",
+          "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/1da6d9bbc8d7204ecedc6fbfe54177775a8db251/docs/experiments/satellite-alternatives-2026-10-18/request.json",
           "quote": "Preserve minimum five admitted receivers, the 10-degree mask, original floors and covariance, free biases, central+J2 dynamics and p=.01 final residual criterion.",
           "source_id": "q0",
           "quote_match": "exact"
@@ -160,7 +161,7 @@
         "mandatory": true,
         "explicit": true,
         "source": {
-          "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-alternative-strategies/docs/experiments/satellite-alternatives-2026-10-18/request.json",
+          "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/1da6d9bbc8d7204ecedc6fbfe54177775a8db251/docs/experiments/satellite-alternatives-2026-10-18/request.json",
           "quote": "Freeze fits and RF predictions before held-out RF and CODE scoring; retain ambiguity, failures and worsening results without post-score tuning.",
           "source_id": "q0",
           "quote_match": "exact"
@@ -173,7 +174,7 @@
         "mandatory": true,
         "explicit": true,
         "source": {
-          "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-alternative-strategies/docs/experiments/satellite-alternatives-2026-10-18/request.json",
+          "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/1da6d9bbc8d7204ecedc6fbfe54177775a8db251/docs/experiments/satellite-alternatives-2026-10-18/request.json",
           "quote": "The external contribution may be a transferable operation or partial technique, but it needs source-owned code evidence and native improvement to demonstrate value.",
           "source_id": "q0",
           "quote_match": "exact"
@@ -186,7 +187,8 @@
     ],
     "prior_attempts": [
       "Pinned rf_geometry requires a unique exterior snapshot branch before applying its mask. G06 has 8 and G13 15 windows rejected at this step.",
-      "The already fixed direct comparator filters branches with the existing solver CHI95 relative to the global minimum returned cost; it may solve the cases and is not an external contribution."
+      "The already fixed direct comparator filters branches with the existing solver CHI95 relative to the global minimum returned cost; it may solve the cases and is not an external contribution.",
+      "Completed fixed direct comparator: G13 obtains six prepared arcs and one BRANCH_SEARCH_INCOMPLETE trajectory. G06 retains zero arcs: nine RF-covered windows have fewer than five receivers after the unchanged 10-degree mask. This is direct work, not an external contribution. No direct-comparator held-out or CODE errors are supplied to discovery."
     ],
     "missing_information": [
       "An alternative method and its practical advantage remain unknown.",
@@ -230,6 +232,6 @@
     },
     "context_complete": true,
     "updated_at": "2026-10-18",
-    "fingerprint": "34d425eb4ed76075d5b0fe05b1c81244142428b85b828c8fb87ed8eeb2ef99ec"
+    "fingerprint": "6458a3982a6ef2d2465ba1a886e1ce6d357866b60613d8274769056f79edbc2c"
   }
 }

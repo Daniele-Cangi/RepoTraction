@@ -1,0 +1,93 @@
+import hashlib
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+import time
+
+os.environ['OPENBLAS_NUM_THREADS'] = '1'
+os.environ['PYTHONDONTWRITEBYTECODE'] = '1'
+sys.dont_write_bytecode = True
+ROOT = Path('C:/Users/dacan/Documents/Codex/2026-08-15/github-cli-github-cli-gi-autenticata/Satellite-RF-Observatory')
+OUT = Path(__file__).resolve().parent
+PIN = 'ac902e5f8158981f938537e1fe47a1f561b5d06d'
+assert subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip() == PIN
+assert not subprocess.check_output(['git', 'diff', '--name-only', 'HEAD'], cwd=ROOT)
+sys.path.insert(0, str(ROOT))
+import numpy as np
+from positioning.solver import CHI95
+from research.exploratory import reference_state_validation as study
+
+def direct_geometry(codes, clocks, positions):
+    angles, records = [], []
+    for values, clock, xyz in zip(codes, clocks, positions, strict=True):
+        result = study.solve(values-clock, xyz, np.eye(len(xyz))*400., atmosphere=False)
+        best = min(b['cost'] for b in result['branches'])
+        branches = [{**b, 'exterior': np.linalg.norm(b['q'][:3]) > study.dynamics.R_EARTH}
+                    for b in result['branches']]
+        retained = [b for b in branches if b['exterior'] and b['cost']-best <= CHI95]
+        records.append({'branches': branches, 'eligible_branch_count': len(retained),
+                        'cost_gap_threshold': CHI95})
+        if len(retained) != 1:
+            return {'status': 'RF_GEOMETRY_AMBIGUOUS', 'snapshots': records}, []
+        angles.append([study.troposphere(s, np.asarray(retained[0]['q'][:3]))[1] for s in xyz])
+    elevations = np.asarray(angles)
+    selected = np.flatnonzero(np.min(elevations, axis=0) >= 10.)
+    return {'status': 'RF_MASK_EVALUATED', 'snapshots': records, 'elevation_deg': elevations}, selected
+
+def emit(path, value):
+    path.write_text(json.dumps(study.native(value), indent=2, allow_nan=False)+'\n', encoding='utf-8')
+
+start = time.perf_counter()
+historical_path = study.BASE/'results/reference_state_validation_v3.json'
+historical_raw = historical_path.read_bytes()
+old = json.loads(historical_raw)
+raw, data = study.read_inputs()
+assert {k: hashlib.sha256(v).hexdigest() for k, v in raw.items()} == old['input_sha256']
+weather = study.interval.shared.meteo.WeatherGrid(study.interval.shared.meteo.read_inputs()[0])
+out = {'scope': 'Fixed exposed-data offline comparator, not Missing Link output or physical qualification.',
+       'target_revision': PIN, 'preparation_commit': '1da6d9b',
+       'probe_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+       'probe_source': Path(__file__).read_text(encoding='utf-8'),
+       'input_sha256': old['input_sha256'], 'cases': {}}
+original = study.rf_geometry
+prepared = {}
+for q in ['G06', 'G13']:
+    t = time.perf_counter()
+    arcs, windows = study.build_arcs(data, q, weather)
+    assert not arcs
+    assert study.native(windows) == old['candidates'][q]['windows']
+    out['cases'][q] = {'baseline': {'arc_count': 0, 'windows': windows,
+                                   'elapsed_s': time.perf_counter()-t}}
+    print(q, 'baseline reproduced', flush=True)
+study.rf_geometry = direct_geometry
+try:
+    for q in ['G06', 'G13']:
+        t = time.perf_counter()
+        arcs, windows = study.build_arcs(data, q, weather)
+        prepared[q] = arcs
+        fit = {'status': 'INSUFFICIENT_PREPARED_ARCS', 'arc_count': len(arcs)}
+        if len(arcs) >= 2:
+            fit = study.dynamic_fit.fit(arcs, include_phase=True, j2=study.dynamics.J2,
+                progress=lambda p: print(q, 'fit', p, flush=True))
+        predictions = study.interval.predict(fit, arcs, weather, study.dynamics.J2) if 'state_ecef_m_m_s' in fit else []
+        out['cases'][q]['direct'] = {'arc_count': len(arcs), 'windows': windows, 'fit': fit,
+                                    'rf_predictions': predictions, 'elapsed_s': time.perf_counter()-t}
+        print(q, 'direct terminal', len(arcs), fit['status'], flush=True)
+finally:
+    study.rf_geometry = original
+out['all_fits_and_predictions_complete_before_scoring'] = True
+emit(OUT/'direct-before-scoring.json', out)
+for q in ['G06', 'G13']:
+    candidate = out['cases'][q]['direct']
+    if 'state_ecef_m_m_s' in candidate['fit']:
+        candidate['rf_evaluation'] = study.score_rf(data, q, candidate['rf_predictions'])
+        candidate['state_evaluation'] = study.state_errors(candidate['fit'], prepared[q], study.oracle(data, q))
+out['elapsed_s'] = time.perf_counter()-start
+assert historical_path.read_bytes() == historical_raw
+assert not subprocess.check_output(['git', 'diff', '--name-only', 'HEAD'], cwd=ROOT)
+out['historical_result_unchanged'] = True
+out['target_tracked_worktree_unchanged'] = True
+emit(OUT/'direct-result.json', out)
+print('complete', out['elapsed_s'], flush=True)
