@@ -1,0 +1,9 @@
+{
+  "previous_attempt": "native_comparison.py / native-comparison-log.txt, exit 1",
+  "observed": "G13 direct control reproduced; G06 four-receiver preparation produced nine arcs; dynamic fitting never started because positioning.solver.algebraic_seeds rejects the three-row difference matrix for four receivers before its existing four-receiver null-space/quadratic branch code can run.",
+  "classification": "Native initializer support limit, not nonlinear rank failure, failed physical model, or negative finding on the temporal hypothesis. Original attempt is retained unchanged.",
+  "exposure": "No new target-orbit oracle or held-out scoring was opened before this correction.",
+  "correction": "Transiently allow difference-matrix rank three only for exactly four measurements; omit the unavailable full-rank least-squares seed in that case, and run the unchanged existing four-point quadratic branch loop. For five or more observations the original behavior is unchanged. Keep subsequent nonlinear Jacobian and joint rank tests.",
+  "limit": "One corrected native run on the same G06/G13 windows; no weight search, physical threshold changes or further recovery after model/rank failure.",
+  "provenance": "Parent-authored adaptation. No external solver code copied and no autonomous Missing Link gain claimed."
+}

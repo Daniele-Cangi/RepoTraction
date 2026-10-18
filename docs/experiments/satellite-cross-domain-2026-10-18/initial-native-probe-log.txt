@@ -1,0 +1,18 @@
+G13 control {'branch': 0, 'iteration': 0, 'cost': 1374950.914113567, 'step_sigma': 1172.5821356607678}
+G13 control {'branch': 0, 'iteration': 1, 'cost': 2.6437277606634995, 'step_sigma': 0.7710909681526706}
+G13 control {'branch': 0, 'iteration': 2, 'cost': 2.049146514265886, 'step_sigma': 2.36839249572384e-06}
+G06 four-receiver arcs 9
+Traceback (most recent call last):
+  File "C:\Users\dacan\Documents\Codex\2026-08-17\vo\outputs\github-pulse\data\satellite-cross-domain-2026-10-18\native_comparison.py", line 90, in <module>
+    fit = fit_module.fit(arcs,include_phase=True,j2=study.dynamics.J2,
+        progress=lambda p,q=candidate:print(q,'four-receiver fit',p,flush=True))
+  File "C:\Users\dacan\Documents\Codex\2026-08-15\github-cli-github-cli-gi-autenticata\Satellite-RF-Observatory\research\kinematic\dynamic_fit.py", line 208, in fit
+    snapshot = solve(first['codes'][-1]-first['clocks'][:,0],first['xyz'],
+                     np.asarray(first['covariance'])[first['codes'].size-n:first['codes'].size,
+                                                    first['codes'].size-n:first['codes'].size],atmosphere=False)
+  File "C:\Users\dacan\Documents\Codex\2026-08-15\github-cli-github-cli-gi-autenticata\Satellite-RF-Observatory\positioning\solver.py", line 114, in solve
+    for seed in algebraic_seeds(z, stations):
+                ~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\dacan\Documents\Codex\2026-08-15\github-cli-github-cli-gi-autenticata\Satellite-RF-Observatory\positioning\solver.py", line 82, in algebraic_seeds
+    raise ScientificRejection("multi-root algebraic matrix is rank deficient")
+positioning.errors.ScientificRejection: multi-root algebraic matrix is rank deficient

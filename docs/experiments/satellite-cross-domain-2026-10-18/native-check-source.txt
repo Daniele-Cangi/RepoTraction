@@ -1,0 +1,45 @@
+"""Focused native numerical checks for the transient adaptation only."""
+import os,sys,json
+from pathlib import Path
+os.environ['OPENBLAS_NUM_THREADS']='1'
+sys.dont_write_bytecode=True
+ROOT=Path('C:/Users/dacan/Documents/Codex/2026-08-15/github-cli-github-cli-gi-autenticata/Satellite-RF-Observatory')
+sys.path.insert(0,str(ROOT))
+import numpy as np
+from positioning import solver
+from research.kinematic.synthetic import receiver_positions
+HERE=Path(__file__).resolve().parent
+evidence=json.loads((HERE/'native-before-scoring.json').read_bytes())
+namespace={}
+exec(compile(evidence['transient_changes']['algebraic_seeds'],'<retained native adaptation>','exec'),solver.algebraic_seeds.__globals__,namespace)
+adapted=namespace['algebraic_seeds']
+xyz=receiver_positions()
+q=np.array([26e6,2e6,4e6,75000.])
+z=solver.measurement_model(q,xyz,atmosphere=False)
+results={}
+for n in [5,6,8]:
+    original,experimental=solver.algebraic_seeds(z[:n],xyz[:n]),adapted(z[:n],xyz[:n])
+    assert len(original)==len(experimental)
+    assert all(np.array_equal(a,b) for a,b in zip(original,experimental,strict=True))
+    results[f'unchanged_{n}_station_seed_sequence']=len(original)
+original=solver.algebraic_seeds
+solver.algebraic_seeds=adapted
+try:
+    fit=solver.solve(z[:4],xyz[:4],np.eye(4)*400.,atmosphere=False)
+    error=min(float(np.linalg.norm(np.array(b['q'])-q)) for b in fit['branches'])
+    assert error<1e-3
+    results['four_station_synthetic_branch_contains_known_state_error_m']=error
+    results['four_station_returned_branches']=len(fit['branches'])
+    for label,zz,xx in [('three_stations',z[:3],xyz[:3]),('coincident_stations',np.repeat(z[0],4),np.repeat(xyz[:1],4,axis=0))]:
+        try:adapted(zz,xx)
+        except ValueError as exc:results[label+'_rejected']=str(exc)
+        else:raise AssertionError(label)
+finally:solver.algebraic_seeds=original
+results['existing_native_regression_suites']=[
+ {'path':'research/exploratory/tests/test_reference_state_validation.py','passed':11,'elapsed_s':9.76},
+ {'path':'positioning/tests/test_support_and_snapshots.py + positioning/tests/test_inverse.py','passed':16,'elapsed_s':2.00}]
+results['scope']='Synthetic adaptation checks and existing native regressions, not real-data accuracy or Windows/Linux replication.'
+out=HERE.parents[1]/'docs/experiments/satellite-cross-domain-2026-10-18/native-checks.json'
+with out.open('x',encoding='utf-8') as stream:stream.write(json.dumps(results,indent=2)+'\n')
+print(json.dumps(results,indent=2))
+

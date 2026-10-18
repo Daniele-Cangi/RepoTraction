@@ -1,0 +1,15 @@
+G13 control {'branch': 0, 'iteration': 0, 'cost': 1374950.914113567, 'step_sigma': 1172.5821356607678}
+G13 control {'branch': 0, 'iteration': 1, 'cost': 2.6437277606634995, 'step_sigma': 0.7710909681526706}
+G13 control {'branch': 0, 'iteration': 2, 'cost': 2.049146514265886, 'step_sigma': 2.36839249572384e-06}
+G06 four-receiver arcs 9
+G06 four-receiver fit {'branch': 0, 'iteration': 0, 'cost': 18848991.561577365, 'step_sigma': 4341.542504720134}
+G06 four-receiver fit {'branch': 0, 'iteration': 1, 'cost': 63.84463330010777, 'step_sigma': 7.975168743921864}
+G06 four-receiver fit {'branch': 0, 'iteration': 2, 'cost': 0.24131681204274713, 'step_sigma': 2.6084112423396137e-05}
+G06 terminal BRANCH_SEARCH_INCOMPLETE
+G13 four-receiver arcs 15
+G13 four-receiver fit {'branch': 1, 'iteration': 0, 'cost': 216064556.66119727, 'step_sigma': 14699.134472538275}
+G13 four-receiver fit {'branch': 1, 'iteration': 1, 'cost': 1386.752235854885, 'step_sigma': 37.207137415816725}
+G13 four-receiver fit {'branch': 1, 'iteration': 2, 'cost': 2.3811610940999004, 'step_sigma': 0.0003218794924766543}
+G13 four-receiver fit {'branch': 1, 'iteration': 3, 'cost': 2.3811609749035627, 'step_sigma': 2.2439760997091617e-06}
+G13 terminal BRANCH_SEARCH_INCOMPLETE
+complete 88.27971199999956

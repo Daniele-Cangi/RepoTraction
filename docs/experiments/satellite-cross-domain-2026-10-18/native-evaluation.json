@@ -1,0 +1,2078 @@
+{
+  "before_scoring_sha256": "343305f1be1bb0e5284e8d815094a0744b6b1f795a8cbf91e75a9dc35be2efc5",
+  "cases": {
+    "G06": {
+      "state_evaluation": {
+        "status": "EVALUATED",
+        "rows": [
+          {
+            "gpst_s": 36060.0,
+            "kind": "IN_TRAINING_SPAN",
+            "status": "EVALUATED",
+            "position_error_m": 272.8390027331818,
+            "velocity_error_m_s": 0.019106482359172883,
+            "error_ecef_m_m_s": [
+              110.66105134412646,
+              228.80825669690967,
+              99.20702996850014,
+              0.003994856044982953,
+              0.010835648641432272,
+              -0.015221284828839998
+            ],
+            "com_position_error_m": 272.6980776806439,
+            "conditional_position_mahalanobis_squared": 0.016552704057028054,
+            "conditional_state_mahalanobis_squared": 0.0542802455498941,
+            "position_inside_formal_95": true,
+            "state_inside_formal_95": true,
+            "formal_position_95_largest_axis_m": 6753.61930428918
+          },
+          {
+            "gpst_s": 36090.0,
+            "kind": "IN_TRAINING_SPAN",
+            "status": "EVALUATED",
+            "position_error_m": 272.99432807996914,
+            "velocity_error_m_s": 0.019053079526123638,
+            "error_ecef_m_m_s": [
+              110.78154449909925,
+              229.13232207950205,
+              98.75085589848459,
+              0.0040380883526722755,
+              0.010768718509666542,
+              -0.01519040432458496
+            ],
+            "com_position_error_m": 272.85432449101575,
+            "conditional_position_mahalanobis_squared": 0.016549973318828504,
+            "conditional_state_mahalanobis_squared": 0.05291271393504909,
+            "position_inside_formal_95": true,
+            "state_inside_formal_95": true,
+            "formal_position_95_largest_axis_m": 6763.1760394219355
+          },
+          {
+            "gpst_s": 38220.0,
+            "kind": "IN_TRAINING_SPAN",
+            "status": "EVALUATED",
+            "position_error_m": 284.23283851488895,
+            "velocity_error_m_s": 0.017453565240101658,
+            "error_ecef_m_m_s": [
+              123.49488836154342,
+              246.85690660588443,
+              67.81582927145064,
+              0.008302315736273158,
+              0.005695219515928329,
+              -0.014257032218210952
+            ],
+            "com_position_error_m": 284.1415613470238,
+            "conditional_position_mahalanobis_squared": 0.016373874707047015,
+            "conditional_state_mahalanobis_squared": 0.025015965094811684,
+            "position_inside_formal_95": true,
+            "state_inside_formal_95": true,
+            "formal_position_95_largest_axis_m": 7184.262433494198
+          },
+          {
+            "gpst_s": 38250.0,
+            "kind": "IN_TRAINING_SPAN",
+            "status": "EVALUATED",
+            "position_error_m": 284.38722616927384,
+            "velocity_error_m_s": 0.01746611810891562,
+            "error_ecef_m_m_s": [
+              123.74500535055995,
+              247.02654620353132,
+              67.3880815114826,
+              0.008379155143984462,
+              0.005613001335063927,
+              -0.01426005809526032
+            ],
+            "com_position_error_m": 284.29633463538596,
+            "conditional_position_mahalanobis_squared": 0.016370559583411916,
+            "conditional_state_mahalanobis_squared": 0.025471597443602372,
+            "position_inside_formal_95": true,
+            "state_inside_formal_95": true,
+            "formal_position_95_largest_axis_m": 7186.429190271658
+          },
+          {
+            "gpst_s": 38400.0,
+            "kind": "IN_TRAINING_SPAN",
+            "status": "EVALUATED",
+            "position_error_m": 285.15497599811664,
+            "velocity_error_m_s": 0.017548131702449878,
+            "error_ecef_m_m_s": [
+              125.03130372613668,
+              247.83722244668752,
+              65.24756390042603,
+              0.008773977032433322,
+              0.005193788159999713,
+              -0.014282115313562826
+            ],
+            "com_position_error_m": 285.06584037255266,
+            "conditional_position_mahalanobis_squared": 0.016354595422753953,
+            "conditional_state_mahalanobis_squared": 0.028022637130356205,
+            "position_inside_formal_95": true,
+            "state_inside_formal_95": true,
+            "formal_position_95_largest_axis_m": 7195.672858539508
+          },
+          {
+            "gpst_s": 38430.0,
+            "kind": "IN_TRAINING_SPAN",
+            "status": "EVALUATED",
+            "position_error_m": 285.30761649425705,
+            "velocity_error_m_s": 0.017568327158929926,
+            "error_ecef_m_m_s": [
+              125.29573246836662,
+              247.9917556103319,
+              64.81901421770453,
+              0.008854698688992357,
+              0.005108327678158275,
+              -0.01428794662024302
+            ],
+            "com_position_error_m": 285.2187967413971,
+            "conditional_position_mahalanobis_squared": 0.016351557596266685,
+            "conditional_state_mahalanobis_squared": 0.028588522473593357,
+            "position_inside_formal_95": true,
+            "state_inside_formal_95": true,
+            "formal_position_95_largest_axis_m": 7197.203760769766
+          },
+          {
+            "gpst_s": 38580.0,
+            "kind": "IN_TRAINING_SPAN",
+            "status": "EVALUATED",
+            "position_error_m": 286.0659442612958,
+            "velocity_error_m_s": 0.017688701164838307,
+            "error_ecef_m_m_s": [
+              126.65465814992785,
+              248.72551372274756,
+              62.6732866410166,
+              0.009266198694831473,
+              0.00467275797552702,
+              -0.014324560850127455
+            ],
+            "com_position_error_m": 285.9785172044454,
+            "conditional_position_mahalanobis_squared": 0.01633748629882083,
+            "conditional_state_mahalanobis_squared": 0.03169356194923505,
+            "position_inside_formal_95": true,
+            "state_inside_formal_95": true,
+            "formal_position_95_largest_axis_m": 7203.2713170150855
+          },
+          {
+            "gpst_s": 38610.0,
+            "kind": "IN_TRAINING_SPAN",
+            "status": "EVALUATED",
+            "position_error_m": 286.21657965402295,
+            "velocity_error_m_s": 0.0177166944713656,
+            "error_ecef_m_m_s": [
+              126.93389872834086,
+              248.86436619982123,
+              62.24341779202223,
+              0.009349913831783851,
+              0.004583977271778394,
+              -0.01433344085353383
+            ],
+            "com_position_error_m": 286.1293925928562,
+            "conditional_position_mahalanobis_squared": 0.01633493705535225,
+            "conditional_state_mahalanobis_squared": 0.03236972410341601,
+            "position_inside_formal_95": true,
+            "state_inside_formal_95": true,
+            "formal_position_95_largest_axis_m": 7204.1678079058765
+          },
+          {
+            "gpst_s": 38760.0,
+            "kind": "IN_TRAINING_SPAN",
+            "status": "EVALUATED",
+            "position_error_m": 286.9642727038566,
+            "velocity_error_m_s": 0.017875170210413144,
+            "error_ecef_m_m_s": [
+              128.3681269697845,
+              249.51822140533477,
+              60.089724358171225,
+              0.009774822610324918,
+              0.004131785778326957,
+              -0.014384119690475927
+            ],
+            "com_position_error_m": 286.8780822708874,
+            "conditional_position_mahalanobis_squared": 0.016323878445312946,
+            "conditional_state_mahalanobis_squared": 0.036048336358246905,
+            "position_inside_formal_95": true,
+            "state_inside_formal_95": true,
+            "formal_position_95_largest_axis_m": 7207.068805402945
+          },
+          {
+            "gpst_s": 38790.0,
+            "kind": "IN_TRAINING_SPAN",
+            "status": "EVALUATED",
+            "position_error_m": 287.112675274441,
+            "velocity_error_m_s": 0.017910469365142786,
+            "error_ecef_m_m_s": [
+              128.6626632027328,
+              249.64079497288913,
+              59.65803287178278,
+              0.009860988766149603,
+              0.0040396880796720325,
+              -0.014395371952559799
+            ],
+            "com_position_error_m": 287.02664208053017,
+            "conditional_position_mahalanobis_squared": 0.016322052019758667,
+            "conditional_state_mahalanobis_squared": 0.03684583529146602,
+            "position_inside_formal_95": true,
+            "state_inside_formal_95": true,
+            "formal_position_95_largest_axis_m": 7207.333273417598
+          },
+          {
+            "gpst_s": 38940.0,
+            "kind": "IN_TRAINING_SPAN",
+            "status": "EVALUATED",
+            "position_error_m": 287.84873515494246,
+            "velocity_error_m_s": 0.018103777444652816,
+            "error_ecef_m_m_s": [
+              130.17447133734822,
+              250.2117470242083,
+              57.494199650362134,
+              0.01029696193882046,
+              0.003570920312341741,
+              -0.014455720691785245
+            ],
+            "com_position_error_m": 287.76326573183167,
+            "conditional_position_mahalanobis_squared": 0.016315234658133698,
+            "conditional_state_mahalanobis_squared": 0.041165470560383194,
+            "position_inside_formal_95": true,
+            "state_inside_formal_95": true,
+            "formal_position_95_largest_axis_m": 7207.082144059628
+          },
+          {
+            "gpst_s": 38970.0,
+            "kind": "IN_TRAINING_SPAN",
+            "status": "EVALUATED",
+            "position_error_m": 287.99472687903057,
+            "velocity_error_m_s": 0.01814598106667456,
+            "error_ecef_m_m_s": [
+              130.4847045056522,
+              250.31744411960244,
+              57.06033446826041,
+              0.010385324232856874,
+              0.0034754476255045574,
+              -0.014468688028046017
+            ],
+            "com_position_error_m": 287.9093241598103,
+            "conditional_position_mahalanobis_squared": 0.016314384780567806,
+            "conditional_state_mahalanobis_squared": 0.042093680361858316,
+            "position_inside_formal_95": true,
+            "state_inside_formal_95": true,
+            "formal_position_95_largest_axis_m": 7206.717988965824
+          },
+          {
+            "gpst_s": 39120.0,
+            "kind": "IN_TRAINING_SPAN",
+            "status": "EVALUATED",
+            "position_error_m": 288.71837664695175,
+            "velocity_error_m_s": 0.018377149083798023,
+            "error_ecef_m_m_s": [
+              132.07604004442692,
+              250.80245901085436,
+              54.88485413976014,
+              0.01083470050843971,
+              0.002988762081713503,
+              -0.014539469541887229
+            ],
+            "com_position_error_m": 288.6330630265586,
+            "conditional_position_mahalanobis_squared": 0.016313108664310183,
+            "conditional_state_mahalanobis_squared": 0.04702347703574566,
+            "position_inside_formal_95": true,
+            "state_inside_formal_95": true,
+            "formal_position_95_largest_axis_m": 7203.334444317105
+          },
+          {
+            "gpst_s": 39150.0,
+            "kind": "IN_TRAINING_SPAN",
+            "status": "EVALUATED",
+            "position_error_m": 288.86180300485665,
+            "velocity_error_m_s": 0.01842765876176596,
+            "error_ecef_m_m_s": [
+              132.40235347300768,
+              250.8906503263861,
+              54.448504192754626,
+              0.010926247480028906,
+              0.0028894728255295377,
+              -0.014554953460446995
+            ],
+            "com_position_error_m": 288.77645664543763,
+            "conditional_position_mahalanobis_squared": 0.016313495266475887,
+            "conditional_state_mahalanobis_squared": 0.048064088775876555,
+            "position_inside_formal_95": true,
+            "state_inside_formal_95": true,
+            "formal_position_95_largest_axis_m": 7202.346172987624
+          },
+          {
+            "gpst_s": 39300.0,
+            "kind": "IN_TRAINING_SPAN",
+            "status": "EVALUATED",
+            "position_error_m": 289.57247413594075,
+            "velocity_error_m_s": 0.018704255500341806,
+            "error_ecef_m_m_s": [
+              134.07621137052774,
+              251.28626180719584,
+              52.25898916646838,
+              0.011394182873345926,
+              0.002382429234899064,
+              -0.014640553316439764
+            ],
+            "com_position_error_m": 289.4866910321033,
+            "conditional_position_mahalanobis_squared": 0.01631910186560996,
+            "conditional_state_mahalanobis_squared": 0.05350644652586802,
+            "position_inside_formal_95": true,
+            "state_inside_formal_95": true,
+            "formal_position_95_largest_axis_m": 7195.855775216622
+          },
+          {
+            "gpst_s": 39330.0,
+            "kind": "IN_TRAINING_SPAN",
+            "status": "EVALUATED",
+            "position_error_m": 289.7132779013034,
+            "velocity_error_m_s": 0.018763985499077068,
+            "error_ecef_m_m_s": [
+              134.41946348547935,
+              251.35618363507092,
+              51.81949610915035,
+              0.01148937195966937,
+              0.002278899822982794,
+              -0.014659062022474245
+            ],
+            "com_position_error_m": 289.62735079802354,
+            "conditional_position_mahalanobis_squared": 0.016321004197812412,
+            "conditional_state_mahalanobis_squared": 0.05464890684558644,
+            "position_inside_formal_95": true,
+            "state_inside_formal_95": true,
+            "formal_position_95_largest_axis_m": 7194.249136393745
+          },
+          {
+            "gpst_s": 39480.0,
+            "kind": "IN_TRAINING_SPAN",
+            "status": "EVALUATED",
+            "position_error_m": 290.410489138171,
+            "velocity_error_m_s": 0.019083559219288667,
+            "error_ecef_m_m_s": [
+              136.17901906743646,
+              251.65858809370548,
+              49.61332488339394,
+              0.011971822962436818,
+              0.0017503507976073251,
+              -0.014757843999632314
+            ],
+            "com_position_error_m": 290.32353901276736,
+            "conditional_position_mahalanobis_squared": 0.016334812472832527,
+            "conditional_state_mahalanobis_squared": 0.06064888262410988,
+            "position_inside_formal_95": true,
+            "state_inside_formal_95": true,
+            "formal_position_95_largest_axis_m": 7184.6840962795095
+          },
+          {
+            "gpst_s": 39510.0,
+            "kind": "BEYOND_ALL_TRAINING",
+            "status": "EVALUATED",
+            "position_error_m": 290.5485357194703,
+            "velocity_error_m_s": 0.01915142058884139,
+            "error_ecef_m_m_s": [
+              136.5396354906261,
+              251.70948205702007,
+              49.17027752008289,
+              0.012069336973468126,
+              0.0016424463159978586,
+              -0.01477871393899477
+            ],
+            "com_position_error_m": 290.4613179000209,
+            "conditional_position_mahalanobis_squared": 0.016338477347140057,
+            "conditional_state_mahalanobis_squared": 0.06190973203302673,
+            "position_inside_formal_95": true,
+            "state_inside_formal_95": true,
+            "formal_position_95_largest_axis_m": 7182.466268345325
+          }
+        ],
+        "summary": {
+          "ALL": {
+            "count": 18,
+            "position_error_m": {
+              "count": 18,
+              "mean": 285.8302154702206,
+              "rms": 285.8730354503312,
+              "max_abs": 290.5485357194703
+            },
+            "velocity_error_m_s": {
+              "count": 18,
+              "mean": 0.018230251470660763,
+              "rms": 0.018240138706208255,
+              "max_abs": 0.01915142058884139
+            },
+            "position_inside_formal_95_count": 18,
+            "state_inside_formal_95_count": 18
+          },
+          "IN_TRAINING_SPAN": {
+            "count": 17,
+            "position_error_m": {
+              "count": 17,
+              "mean": 285.5526672202647,
+              "rms": 285.5956223453246,
+              "max_abs": 290.410489138171
+            },
+            "velocity_error_m_s": {
+              "count": 17,
+              "mean": 0.018176065051944256,
+              "rms": 0.018185111832000504,
+              "max_abs": 0.019106482359172883
+            },
+            "position_inside_formal_95_count": 17,
+            "state_inside_formal_95_count": 17
+          },
+          "BEYOND_ALL_TRAINING": {
+            "count": 1,
+            "position_error_m": {
+              "count": 1,
+              "mean": 290.5485357194703,
+              "rms": 290.5485357194703,
+              "max_abs": 290.5485357194703
+            },
+            "velocity_error_m_s": {
+              "count": 1,
+              "mean": 0.01915142058884139,
+              "rms": 0.01915142058884139,
+              "max_abs": 0.01915142058884139
+            },
+            "position_inside_formal_95_count": 1,
+            "state_inside_formal_95_count": 1
+          }
+        }
+      },
+      "rf_evaluation": {
+        "windows": [
+          {
+            "endpoint_gpst_s": 36060,
+            "prediction_status": "PREDICTED",
+            "pairs": [
+              {
+                "station": "ALGO00CAN",
+                "status": "EVALUATED",
+                "code_residual_m": 0.2291165478527546,
+                "phase_rate_residual_m_s": 0.0017317959417937345
+              },
+              {
+                "station": "STJO00CAN",
+                "status": "EVALUATED",
+                "code_residual_m": 0.09786785766482353,
+                "phase_rate_residual_m_s": 0.00016429200769607633
+              },
+              {
+                "station": "BOGT00COL",
+                "status": "EVALUATED",
+                "code_residual_m": 1.1179180666804314,
+                "phase_rate_residual_m_s": -0.00729208601018172
+              },
+              {
+                "station": "BRAZ00BRA",
+                "status": "EVALUATED",
+                "code_residual_m": 0.13866015151143074,
+                "phase_rate_residual_m_s": 0.002004583055736475
+              }
+            ],
+            "status": "SCORED",
+            "kind": "TEMPORAL_HOLDOUT",
+            "fit_status": "BRANCH_SEARCH_INCOMPLETE"
+          },
+          {
+            "endpoint_gpst_s": 38220,
+            "prediction_status": "PREDICTED",
+            "pairs": [
+              {
+                "station": "ALGO00CAN",
+                "status": "EVALUATED",
+                "code_residual_m": 0.4796649143099785,
+                "phase_rate_residual_m_s": -0.009843928366876753
+              },
+              {
+                "station": "STJO00CAN",
+                "status": "EVALUATED",
+                "code_residual_m": 0.6429423652589321,
+                "phase_rate_residual_m_s": -0.00039698878924809833
+              },
+              {
+                "station": "BOGT00COL",
+                "status": "EVALUATED",
+                "code_residual_m": -1.335721891373396,
+                "phase_rate_residual_m_s": 0.0009442658474050347
+              },
+              {
+                "station": "BRAZ00BRA",
+                "status": "EVALUATED",
+                "code_residual_m": -0.7692509405314922,
+                "phase_rate_residual_m_s": -0.01100692066057718
+              }
+            ],
+            "status": "SCORED",
+            "kind": "TEMPORAL_HOLDOUT",
+            "fit_status": "BRANCH_SEARCH_INCOMPLETE"
+          },
+          {
+            "endpoint_gpst_s": 38400,
+            "prediction_status": "PREDICTED",
+            "pairs": [
+              {
+                "station": "ALGO00CAN",
+                "status": "EVALUATED",
+                "code_residual_m": -0.7359064742922783,
+                "phase_rate_residual_m_s": -0.005942318712641281
+              },
+              {
+                "station": "STJO00CAN",
+                "status": "EVALUATED",
+                "code_residual_m": -1.1146930269896984,
+                "phase_rate_residual_m_s": -0.00017082132399082184
+              },
+              {
+                "station": "BOGT00COL",
+                "status": "EVALUATED",
+                "code_residual_m": -0.9853550679981709,
+                "phase_rate_residual_m_s": 0.0038704793900272705
+              },
+              {
+                "station": "BRAZ00BRA",
+                "status": "EVALUATED",
+                "code_residual_m": -0.15320152416825294,
+                "phase_rate_residual_m_s": 0.0004904535909417973
+              }
+            ],
+            "status": "SCORED",
+            "kind": "TEMPORAL_HOLDOUT",
+            "fit_status": "BRANCH_SEARCH_INCOMPLETE"
+          },
+          {
+            "endpoint_gpst_s": 38580,
+            "prediction_status": "PREDICTED",
+            "pairs": [
+              {
+                "station": "ALGO00CAN",
+                "status": "EVALUATED",
+                "code_residual_m": -0.8109752051532269,
+                "phase_rate_residual_m_s": 0.005596858511353275
+              },
+              {
+                "station": "STJO00CAN",
+                "status": "EVALUATED",
+                "code_residual_m": -0.3146989792585373,
+                "phase_rate_residual_m_s": 0.0006559544553397245
+              },
+              {
+                "station": "BOGT00COL",
+                "status": "EVALUATED",
+                "code_residual_m": 1.834328681230545,
+                "phase_rate_residual_m_s": 0.007148765027523041
+              },
+              {
+                "station": "BRAZ00BRA",
+                "status": "EVALUATED",
+                "code_residual_m": -0.39762143418192863,
+                "phase_rate_residual_m_s": -0.003071604544913953
+              }
+            ],
+            "status": "SCORED",
+            "kind": "TEMPORAL_HOLDOUT",
+            "fit_status": "BRANCH_SEARCH_INCOMPLETE"
+          },
+          {
+            "endpoint_gpst_s": 38760,
+            "prediction_status": "PREDICTED",
+            "pairs": [
+              {
+                "station": "ALGO00CAN",
+                "status": "EVALUATED",
+                "code_residual_m": -0.5757265612483025,
+                "phase_rate_residual_m_s": -0.017530122523567115
+              },
+              {
+                "station": "STJO00CAN",
+                "status": "EVALUATED",
+                "code_residual_m": -0.5557316727936268,
+                "phase_rate_residual_m_s": 0.00011109262703712375
+              },
+              {
+                "station": "BOGT00COL",
+                "status": "EVALUATED",
+                "code_residual_m": -1.1800748705863953,
+                "phase_rate_residual_m_s": -0.004088342686493718
+              },
+              {
+                "station": "BRAZ00BRA",
+                "status": "EVALUATED",
+                "code_residual_m": 0.31683800369501114,
+                "phase_rate_residual_m_s": -0.007118367527937153
+              }
+            ],
+            "status": "SCORED",
+            "kind": "TEMPORAL_HOLDOUT",
+            "fit_status": "BRANCH_SEARCH_INCOMPLETE"
+          },
+          {
+            "endpoint_gpst_s": 38940,
+            "prediction_status": "PREDICTED",
+            "pairs": [
+              {
+                "station": "ALGO00CAN",
+                "status": "EVALUATED",
+                "code_residual_m": -2.3529165759682655,
+                "phase_rate_residual_m_s": 0.0025827139616012573
+              },
+              {
+                "station": "STJO00CAN",
+                "status": "EVALUATED",
+                "code_residual_m": 0.9232962056994438,
+                "phase_rate_residual_m_s": 0.0004161017636761244
+              },
+              {
+                "station": "BOGT00COL",
+                "status": "EVALUATED",
+                "code_residual_m": -2.2512486577033997,
+                "phase_rate_residual_m_s": 0.006197624032697746
+              },
+              {
+                "station": "BRAZ00BRA",
+                "status": "EVALUATED",
+                "code_residual_m": 0.6696464717388153,
+                "phase_rate_residual_m_s": 0.024111909916030072
+              }
+            ],
+            "status": "SCORED",
+            "kind": "TEMPORAL_HOLDOUT",
+            "fit_status": "BRANCH_SEARCH_INCOMPLETE"
+          },
+          {
+            "endpoint_gpst_s": 39120,
+            "prediction_status": "PREDICTED",
+            "pairs": [
+              {
+                "station": "ALGO00CAN",
+                "status": "EVALUATED",
+                "code_residual_m": -1.0882004983723164,
+                "phase_rate_residual_m_s": -0.003099302326631914
+              },
+              {
+                "station": "STJO00CAN",
+                "status": "EVALUATED",
+                "code_residual_m": -0.2884473539888859,
+                "phase_rate_residual_m_s": -0.0002225401500481894
+              },
+              {
+                "station": "BOGT00COL",
+                "status": "EVALUATED",
+                "code_residual_m": -2.5575198493897915,
+                "phase_rate_residual_m_s": -0.005917421480017282
+              },
+              {
+                "station": "BRAZ00BRA",
+                "status": "EVALUATED",
+                "code_residual_m": -0.2790733836591244,
+                "phase_rate_residual_m_s": -0.008902931834313677
+              }
+            ],
+            "status": "SCORED",
+            "kind": "TEMPORAL_HOLDOUT",
+            "fit_status": "BRANCH_SEARCH_INCOMPLETE"
+          },
+          {
+            "endpoint_gpst_s": 39300,
+            "prediction_status": "PREDICTED",
+            "pairs": [
+              {
+                "station": "ALGO00CAN",
+                "status": "EVALUATED",
+                "code_residual_m": 1.9900142438709736,
+                "phase_rate_residual_m_s": 0.01769496897850331
+              },
+              {
+                "station": "STJO00CAN",
+                "status": "EVALUATED",
+                "code_residual_m": 0.1880928799510002,
+                "phase_rate_residual_m_s": 0.0005894076080039667
+              },
+              {
+                "station": "BOGT00COL",
+                "status": "EVALUATED",
+                "code_residual_m": -1.2423065528273582,
+                "phase_rate_residual_m_s": 0.005305115754403289
+              },
+              {
+                "station": "BRAZ00BRA",
+                "status": "EVALUATED",
+                "code_residual_m": 0.03529278561472893,
+                "phase_rate_residual_m_s": 0.0002771192540649281
+              }
+            ],
+            "status": "SCORED",
+            "kind": "TEMPORAL_HOLDOUT",
+            "fit_status": "BRANCH_SEARCH_INCOMPLETE"
+          },
+          {
+            "endpoint_gpst_s": 39480,
+            "prediction_status": "PREDICTED",
+            "pairs": [
+              {
+                "station": "ALGO00CAN",
+                "status": "EVALUATED",
+                "code_residual_m": 1.1016462855041027,
+                "phase_rate_residual_m_s": 0.007125580683350563
+              },
+              {
+                "station": "STJO00CAN",
+                "status": "EVALUATED",
+                "code_residual_m": 0.764702808111906,
+                "phase_rate_residual_m_s": -5.5817266684243805e-06
+              },
+              {
+                "station": "BOGT00COL",
+                "status": "EVALUATED",
+                "code_residual_m": -1.442984625697136,
+                "phase_rate_residual_m_s": -0.00017174507180683918
+              },
+              {
+                "station": "BRAZ00BRA",
+                "status": "EVALUATED",
+                "code_residual_m": 0.8046444579958916,
+                "phase_rate_residual_m_s": 0.011047054827201919
+              }
+            ],
+            "status": "SCORED",
+            "kind": "BEYOND_ALL_TRAINING",
+            "fit_status": "BRANCH_SEARCH_INCOMPLETE"
+          }
+        ],
+        "summary": {
+          "ALL": {
+            "pair_status_counts": {
+              "EVALUATED": 36
+            },
+            "code_residual_m": {
+              "count": 36,
+              "mean": -0.25269395609696704,
+              "rms": 1.0979943857186285,
+              "max_abs": 2.5575198493897915
+            },
+            "phase_rate_residual_m_s": {
+              "count": 36,
+              "mean": 0.0003690309305131281,
+              "rms": 0.0075681636958205775,
+              "max_abs": 0.024111909916030072
+            }
+          },
+          "TEMPORAL_HOLDOUT": {
+            "pair_status_counts": {
+              "EVALUATED": 32
+            },
+            "code_residual_m": {
+              "count": 32,
+              "mean": -0.32265597954392433,
+              "rms": 1.1021746671584316,
+              "max_abs": 2.5575198493897915
+            },
+            "phase_rate_residual_m_s": {
+              "count": 32,
+              "mean": -0.00014719360042514396,
+              "rms": 0.0076834538421187305,
+              "max_abs": 0.024111909916030072
+            }
+          },
+          "BEYOND_ALL_TRAINING": {
+            "pair_status_counts": {
+              "EVALUATED": 4
+            },
+            "code_residual_m": {
+              "count": 4,
+              "mean": 0.3070022314786911,
+              "rms": 1.06396102570548,
+              "max_abs": 1.442984625697136
+            },
+            "phase_rate_residual_m_s": {
+              "count": 4,
+              "mean": 0.0044988271780193045,
+              "rms": 0.006573447496472198,
+              "max_abs": 0.011047054827201919
+            }
+          }
+        }
+      }
+    },
+    "G13": {
+      "state_evaluation": {
+        "status": "EVALUATED",
+        "rows": [
+          {
+            "gpst_s": 36060.0,
+            "kind": "IN_TRAINING_SPAN",
+            "status": "EVALUATED",
+            "position_error_m": 179.58816055189692,
+            "velocity_error_m_s": 0.029896629183374136,
+            "error_ecef_m_m_s": [
+              -43.38103444688022,
+              172.6376947797835,
+              23.795369336381555,
+              -0.015696981667176146,
+              -0.019172021792542182,
+              0.016728621684251266
+            ],
+            "com_position_error_m": 181.03609730282784,
+            "conditional_position_mahalanobis_squared": 0.1232964430635761,
+            "conditional_state_mahalanobis_squared": 0.2840891477963615,
+            "position_inside_formal_95": true,
+            "state_inside_formal_95": true,
+            "formal_position_95_largest_axis_m": 4328.248004723898
+          },
+          {
+            "gpst_s": 36090.0,
+            "kind": "IN_TRAINING_SPAN",
+            "status": "EVALUATED",
+            "position_error_m": 179.22052274266494,
+            "velocity_error_m_s": 0.02968651630361869,
+            "error_ecef_m_m_s": [
+              -43.85131030343473,
+              172.06611749902368,
+              24.296287075150758,
+              -0.015654598274466025,
+              -0.018933256485524907,
+              0.016665971377733513
+            ],
+            "com_position_error_m": 180.66553704004357,
+            "conditional_position_mahalanobis_squared": 0.12336985591112735,
+            "conditional_state_mahalanobis_squared": 0.28228454136608677,
+            "position_inside_formal_95": true,
+            "state_inside_formal_95": true,
+            "formal_position_95_largest_axis_m": 4334.876086016487
+          },
+          {
+            "gpst_s": 36240.0,
+            "kind": "IN_TRAINING_SPAN",
+            "status": "EVALUATED",
+            "position_error_m": 177.53092475662254,
+            "velocity_error_m_s": 0.028647852710348892,
+            "error_ecef_m_m_s": [
+              -46.18293275497854,
+              169.31500405445695,
+              26.773034365382046,
+              -0.015427856864107525,
+              -0.017749967097131503,
+              0.01635907593799857
+            ],
+            "com_position_error_m": 178.96126254906488,
+            "conditional_position_mahalanobis_squared": 0.12373416957750163,
+            "conditional_state_mahalanobis_squared": 0.27299822735500645,
+            "position_inside_formal_95": true,
+            "state_inside_formal_95": true,
+            "formal_position_95_largest_axis_m": 4367.370356421479
+          },
+          {
+            "gpst_s": 36270.0,
+            "kind": "IN_TRAINING_SPAN",
+            "status": "EVALUATED",
+            "position_error_m": 177.2223123142408,
+            "velocity_error_m_s": 0.028442515221351144,
+            "error_ecef_m_m_s": [
+              -46.64504645578563,
+              168.78602369129658,
+              27.262902076356113,
+              -0.015379572829516519,
+              -0.01751552371968046,
+              0.016298829421884875
+            ],
+            "com_position_error_m": 178.64971014853919,
+            "conditional_position_mahalanobis_squared": 0.1238065310244921,
+            "conditional_state_mahalanobis_squared": 0.2710909791611375,
+            "position_inside_formal_95": true,
+            "state_inside_formal_95": true,
+            "formal_position_95_largest_axis_m": 4373.738792179733
+          },
+          {
+            "gpst_s": 36420.0,
+            "kind": "IN_TRAINING_SPAN",
+            "status": "EVALUATED",
+            "position_error_m": 175.82203123871486,
+            "velocity_error_m_s": 0.027429018621231628,
+            "error_ecef_m_m_s": [
+              -48.93315011449158,
+              166.24593505263329,
+              29.685393163235858,
+              -0.015124874840353186,
+              -0.016355914230359758,
+              0.016002290250980877
+            ],
+            "com_position_error_m": 177.23476692323305,
+            "conditional_position_mahalanobis_squared": 0.12416529748948002,
+            "conditional_state_mahalanobis_squared": 0.26143219027522535,
+            "position_inside_formal_95": true,
+            "state_inside_formal_95": true,
+            "formal_position_95_largest_axis_m": 4404.920126757643
+          },
+          {
+            "gpst_s": 36450.0,
+            "kind": "IN_TRAINING_SPAN",
+            "status": "EVALUATED",
+            "position_error_m": 175.57013039003832,
+            "velocity_error_m_s": 0.027229053428225344,
+            "error_ecef_m_m_s": [
+              -49.38602900132537,
+              165.7588155604899,
+              30.16464633704163,
+              -0.015071404100211794,
+              -0.016126629479686017,
+              0.015943837388476823
+            ],
+            "com_position_error_m": 176.97994960421536,
+            "conditional_position_mahalanobis_squared": 0.12423663200584814,
+            "conditional_state_mahalanobis_squared": 0.2594849074429963,
+            "position_inside_formal_95": true,
+            "state_inside_formal_95": true,
+            "formal_position_95_largest_axis_m": 4411.023188744413
+          },
+          {
+            "gpst_s": 36600.0,
+            "kind": "IN_TRAINING_SPAN",
+            "status": "EVALUATED",
+            "position_error_m": 174.44615502437878,
+            "velocity_error_m_s": 0.026244239304376176,
+            "error_ecef_m_m_s": [
+              -51.626111483201385,
+              163.42495126277208,
+              32.53445743629709,
+              -0.014792987341081698,
+              -0.014995052168046641,
+              0.01565490442862938
+            ],
+            "com_position_error_m": 175.8415271246131,
+            "conditional_position_mahalanobis_squared": 0.12458708690196542,
+            "conditional_state_mahalanobis_squared": 0.24979954975251667,
+            "position_inside_formal_95": true,
+            "state_inside_formal_95": true,
+            "formal_position_95_largest_axis_m": 4440.864954567033
+          },
+          {
+            "gpst_s": 36630.0,
+            "kind": "IN_TRAINING_SPAN",
+            "status": "EVALUATED",
+            "position_error_m": 174.24803321673346,
+            "velocity_error_m_s": 0.026050002324944352,
+            "error_ecef_m_m_s": [
+              -52.06903111562133,
+              162.9784601777792,
+              33.00325130438432,
+              -0.014734852351551808,
+              -0.014771143000871234,
+              0.015598079425217293
+            ],
+            "com_position_error_m": 175.64055127738462,
+            "conditional_position_mahalanobis_squared": 0.12465611551634381,
+            "conditional_state_mahalanobis_squared": 0.24787109838885105,
+            "position_inside_formal_95": true,
+            "state_inside_formal_95": true,
+            "formal_position_95_largest_axis_m": 4446.6977220213885
+          },
+          {
+            "gpst_s": 36780.0,
+            "kind": "IN_TRAINING_SPAN",
+            "status": "EVALUATED",
+            "position_error_m": 173.38653528836028,
+            "velocity_error_m_s": 0.02509184515113425,
+            "error_ecef_m_m_s": [
+              -54.256806779652834,
+              160.84606317058206,
+              35.32185583887622,
+              -0.014431384315116702,
+              -0.013661547736461443,
+              0.015319854871449934
+            ],
+            "com_position_error_m": 174.76502104752643,
+            "conditional_position_mahalanobis_squared": 0.12499513028371953,
+            "conditional_state_mahalanobis_squared": 0.23833378285631607,
+            "position_inside_formal_95": true,
+            "state_inside_formal_95": true,
+            "formal_position_95_largest_axis_m": 4475.177383323611
+          },
+          {
+            "gpst_s": 36810.0,
+            "kind": "IN_TRAINING_SPAN",
+            "status": "EVALUATED",
+            "position_error_m": 173.23960093379745,
+            "velocity_error_m_s": 0.024902724284624363,
+            "error_ecef_m_m_s": [
+              -54.68879990465939,
+              160.4395229332149,
+              35.78063690953422,
+              -0.014368014729285505,
+              -0.013441240565242651,
+              0.015265611078575603
+            ],
+            "com_position_error_m": 174.61533575980621,
+            "conditional_position_mahalanobis_squared": 0.1250618907715767,
+            "conditional_state_mahalanobis_squared": 0.23645645788968706,
+            "position_inside_formal_95": true,
+            "state_inside_formal_95": true,
+            "formal_position_95_largest_axis_m": 4480.735768446138
+          },
+          {
+            "gpst_s": 37860.0,
+            "kind": "IN_TRAINING_SPAN",
+            "status": "EVALUATED",
+            "position_error_m": 172.71532224160518,
+            "velocity_error_m_s": 0.01885150983530699,
+            "error_ecef_m_m_s": [
+              -68.41410368867218,
+              150.20967672392726,
+              50.863994848914444,
+              -0.011595416518559887,
+              -0.006188212560630291,
+              0.013514132015643554
+            ],
+            "com_position_error_m": 174.0150762822726,
+            "conditional_position_mahalanobis_squared": 0.12696497309279092,
+            "conditional_state_mahalanobis_squared": 0.17543520082855957,
+            "position_inside_formal_95": true,
+            "state_inside_formal_95": true,
+            "formal_position_95_largest_axis_m": 4645.907036233697
+          },
+          {
+            "gpst_s": 37890.0,
+            "kind": "IN_TRAINING_SPAN",
+            "status": "EVALUATED",
+            "position_error_m": 172.8137232434052,
+            "velocity_error_m_s": 0.018696932799562468,
+            "error_ecef_m_m_s": [
+              -68.76054356619716,
+              150.02695660293102,
+              51.26873201271519,
+              -0.011500411671818256,
+              -0.005993221672696336,
+              0.013468374863805366
+            ],
+            "com_position_error_m": 174.11207321868218,
+            "conditional_position_mahalanobis_squared": 0.12699970511129513,
+            "conditional_state_mahalanobis_squared": 0.17397871172124751,
+            "position_inside_formal_95": true,
+            "state_inside_formal_95": true,
+            "formal_position_95_largest_axis_m": 4649.785393358879
+          },
+          {
+            "gpst_s": 38040.0,
+            "kind": "IN_TRAINING_SPAN",
+            "status": "EVALUATED",
+            "position_error_m": 173.38345860050973,
+            "velocity_error_m_s": 0.017938940255901398,
+            "error_ecef_m_m_s": [
+              -70.44920196384192,
+              149.20063452795148,
+              53.271984338760376,
+              -0.011009070795068965,
+              -0.005025810489541982,
+              0.013241871720310883
+            ],
+            "com_position_error_m": 174.67555987991244,
+            "conditional_position_mahalanobis_squared": 0.12714852469198107,
+            "conditional_state_mahalanobis_squared": 0.1669108517071996,
+            "position_inside_formal_95": true,
+            "state_inside_formal_95": true,
+            "formal_position_95_largest_axis_m": 4668.486320518614
+          },
+          {
+            "gpst_s": 38070.0,
+            "kind": "IN_TRAINING_SPAN",
+            "status": "EVALUATED",
+            "position_error_m": 173.51240266853264,
+            "velocity_error_m_s": 0.0177905687336726,
+            "error_ecef_m_m_s": [
+              -70.7779544647783,
+              149.05274176597595,
+              53.66856820927933,
+              -0.010907598000528651,
+              -0.004833788866562827,
+              0.013197087819662556
+            ],
+            "com_position_error_m": 174.80341236584422,
+            "conditional_position_mahalanobis_squared": 0.12717287623894005,
+            "conditional_state_mahalanobis_squared": 0.1655538265270593,
+            "position_inside_formal_95": true,
+            "state_inside_formal_95": true,
+            "formal_position_95_largest_axis_m": 4672.089103880369
+          },
+          {
+            "gpst_s": 38220.0,
+            "kind": "IN_TRAINING_SPAN",
+            "status": "EVALUATED",
+            "position_error_m": 174.22797590433743,
+            "velocity_error_m_s": 0.017068128386575215,
+            "error_ecef_m_m_s": [
+              -72.37524970434606,
+              148.399274982512,
+              55.63151986617595,
+              -0.010385764756335902,
+              -0.003881212136718659,
+              0.012976636289749877
+            ],
+            "com_position_error_m": 175.51434017124518,
+            "conditional_position_mahalanobis_squared": 0.1272646799477478,
+            "conditional_state_mahalanobis_squared": 0.15919560817051248,
+            "position_inside_formal_95": true,
+            "state_inside_formal_95": true,
+            "formal_position_95_largest_axis_m": 4689.423178251408
+          },
+          {
+            "gpst_s": 38250.0,
+            "kind": "IN_TRAINING_SPAN",
+            "status": "EVALUATED",
+            "position_error_m": 174.38470722989177,
+            "velocity_error_m_s": 0.01692793368380933,
+            "error_ecef_m_m_s": [
+              -72.68517555855215,
+              148.28565314412117,
+              56.02014317456633,
+              -0.010278664928989656,
+              -0.0036922400271350853,
+              0.012933342555697891
+            ],
+            "com_position_error_m": 175.67030746157815,
+            "conditional_position_mahalanobis_squared": 0.12727658144503323,
+            "conditional_state_mahalanobis_squared": 0.1580232119449086,
+            "position_inside_formal_95": true,
+            "state_inside_formal_95": true,
+            "formal_position_95_largest_axis_m": 4692.755085996858
+          },
+          {
+            "gpst_s": 38400.0,
+            "kind": "IN_TRAINING_SPAN",
+            "status": "EVALUATED",
+            "position_error_m": 175.233060302896,
+            "velocity_error_m_s": 0.016252155939428258,
+            "error_ecef_m_m_s": [
+              -74.18617144227028,
+              147.80226216837764,
+              57.9441859703511,
+              -0.009731125076882563,
+              -0.002755350094162168,
+              0.01272186398591657
+            ],
+            "com_position_error_m": 176.51567679810822,
+            "conditional_position_mahalanobis_squared": 0.12730222255301693,
+            "conditional_state_mahalanobis_squared": 0.15276221622562722,
+            "position_inside_formal_95": true,
+            "state_inside_formal_95": true,
+            "formal_position_95_largest_axis_m": 4708.749671720187
+          },
+          {
+            "gpst_s": 38430.0,
+            "kind": "IN_TRAINING_SPAN",
+            "status": "EVALUATED",
+            "position_error_m": 175.41514569154324,
+            "velocity_error_m_s": 0.016122236294332373,
+            "error_ecef_m_m_s": [
+              -74.47642712108791,
+              147.72238743305206,
+              58.32522089406848,
+              -0.009619117694342094,
+              -0.00256973316982112,
+              0.012680518496836157
+            ],
+            "com_position_error_m": 176.69733422567214,
+            "conditional_position_mahalanobis_squared": 0.1273001369558675,
+            "conditional_state_mahalanobis_squared": 0.1518277215824278,
+            "position_inside_formal_95": true,
+            "state_inside_formal_95": true,
+            "formal_position_95_largest_axis_m": 4711.816983778476
+          },
+          {
+            "gpst_s": 38580.0,
+            "kind": "IN_TRAINING_SPAN",
+            "status": "EVALUATED",
+            "position_error_m": 176.38397113733757,
+            "velocity_error_m_s": 0.015501116260557439,
+            "error_ecef_m_m_s": [
+              -75.87658331915736,
+              147.40609889104962,
+              60.212053508497775,
+              -0.009046622568234852,
+              -0.001651232026802063,
+              0.01247864809283783
+            ],
+            "com_position_error_m": 177.66487081534805,
+            "conditional_position_mahalanobis_squared": 0.12725093413351043,
+            "conditional_state_mahalanobis_squared": 0.14776934342685608,
+            "position_inside_formal_95": true,
+            "state_inside_formal_95": true,
+            "formal_position_95_largest_axis_m": 4726.507794342599
+          },
+          {
+            "gpst_s": 38610.0,
+            "kind": "IN_TRAINING_SPAN",
+            "status": "EVALUATED",
+            "position_error_m": 176.58892878554389,
+            "velocity_error_m_s": 0.015382876434219686,
+            "error_ecef_m_m_s": [
+              -76.14622928760946,
+              147.35928816720843,
+              60.585821161046624,
+              -0.008929630003990496,
+              -0.0014695814724063894,
+              0.012439249401722918
+            ],
+            "com_position_error_m": 177.8697410647528,
+            "conditional_position_mahalanobis_squared": 0.12723299531209814,
+            "conditional_state_mahalanobis_squared": 0.14708403666531145,
+            "position_inside_formal_95": true,
+            "state_inside_formal_95": true,
+            "formal_position_95_largest_axis_m": 4729.318554863052
+          },
+          {
+            "gpst_s": 38760.0,
+            "kind": "IN_TRAINING_SPAN",
+            "status": "EVALUATED",
+            "position_error_m": 177.66620156711537,
+            "velocity_error_m_s": 0.014822834188418219,
+            "error_ecef_m_m_s": [
+              -77.44105842709541,
+              147.20651688799262,
+              62.43719271942973,
+              -0.008330813609404686,
+              -0.0005694921794088259,
+              0.012247025624219532
+            ],
+            "com_position_error_m": 178.94743022245086,
+            "conditional_position_mahalanobis_squared": 0.12710004525768945,
+            "conditional_state_mahalanobis_squared": 0.14431244314923783,
+            "position_inside_formal_95": true,
+            "state_inside_formal_95": true,
+            "formal_position_95_largest_axis_m": 4742.750650689223
+          },
+          {
+            "gpst_s": 38790.0,
+            "kind": "IN_TRAINING_SPAN",
+            "status": "EVALUATED",
+            "position_error_m": 177.89173286316262,
+            "velocity_error_m_s": 0.014717304657759875,
+            "error_ecef_m_m_s": [
+              -77.68914522789419,
+              147.19211208447814,
+              62.804040275514126,
+              -0.008208141822706239,
+              -0.00039089693672167414,
+              0.012209531677854102
+            ],
+            "com_position_error_m": 179.17321543033782,
+            "conditional_position_mahalanobis_squared": 0.1270644453551002,
+            "conditional_state_mahalanobis_squared": 0.1438944020487703,
+            "position_inside_formal_95": true,
+            "state_inside_formal_95": true,
+            "formal_position_95_largest_axis_m": 4745.314885932108
+          },
+          {
+            "gpst_s": 38940.0,
+            "kind": "IN_TRAINING_SPAN",
+            "status": "EVALUATED",
+            "position_error_m": 179.06667769866084,
+            "velocity_error_m_s": 0.014224156079865852,
+            "error_ecef_m_m_s": [
+              -78.87358246184886,
+              147.20010210946202,
+              64.62169133219868,
+              -0.007578840718451829,
+              0.0004970237019961132,
+              0.012026668573980714
+            ],
+            "com_position_error_m": 180.35028076470144,
+            "conditional_position_mahalanobis_squared": 0.12683862766440343,
+            "conditional_state_mahalanobis_squared": 0.14253299919466786,
+            "position_inside_formal_95": true,
+            "state_inside_formal_95": true,
+            "formal_position_95_largest_axis_m": 4757.543866932344
+          },
+          {
+            "gpst_s": 38970.0,
+            "kind": "IN_TRAINING_SPAN",
+            "status": "EVALUATED",
+            "position_error_m": 179.31076173901843,
+            "velocity_error_m_s": 0.01413298016809387,
+            "error_ecef_m_m_s": [
+              -79.09901562705636,
+              147.21766287460923,
+              64.98195703420788,
+              -0.007449876971577396,
+              0.0006736368612791921,
+              0.011991108160600561
+            ],
+            "com_position_error_m": 180.59495902933284,
+            "conditional_position_mahalanobis_squared": 0.1267834718756011,
+            "conditional_state_mahalanobis_squared": 0.1424170841251119,
+            "position_inside_formal_95": true,
+            "state_inside_formal_95": true,
+            "formal_position_95_largest_axis_m": 4759.873845976462
+          },
+          {
+            "gpst_s": 39120.0,
+            "kind": "IN_TRAINING_SPAN",
+            "status": "EVALUATED",
+            "position_error_m": 180.57396080062878,
+            "velocity_error_m_s": 0.013719406409162353,
+            "error_ecef_m_m_s": [
+              -80.16736808419228,
+              147.38464819267392,
+              66.76761109102517,
+              -0.006791034991692868,
+              0.0015512838256199757,
+              0.011819368614851555
+            ],
+            "com_position_error_m": 181.86197246210017,
+            "conditional_position_mahalanobis_squared": 0.12645525858338127,
+            "conditional_state_mahalanobis_squared": 0.14269818500366835,
+            "position_inside_formal_95": true,
+            "state_inside_formal_95": true,
+            "formal_position_95_largest_axis_m": 4770.967279693066
+          },
+          {
+            "gpst_s": 39150.0,
+            "kind": "IN_TRAINING_SPAN",
+            "status": "EVALUATED",
+            "position_error_m": 180.83477892397408,
+            "velocity_error_m_s": 0.013645731270824834,
+            "error_ecef_m_m_s": [
+              -80.36901971884072,
+              147.43379471823573,
+              67.12163669709116,
+              -0.006656611967059689,
+              0.0017256529458791192,
+              0.011786331954681373
+            ],
+            "com_position_error_m": 182.12372126619564,
+            "conditional_position_mahalanobis_squared": 0.1263786253077201,
+            "conditional_state_mahalanobis_squared": 0.14293394146264565,
+            "position_inside_formal_95": true,
+            "state_inside_formal_95": true,
+            "formal_position_95_largest_axis_m": 4773.077826886356
+          },
+          {
+            "gpst_s": 39300.0,
+            "kind": "IN_TRAINING_SPAN",
+            "status": "EVALUATED",
+            "position_error_m": 182.1780336107546,
+            "velocity_error_m_s": 0.013327438128786999,
+            "error_ecef_m_m_s": [
+              -81.31649553775787,
+              147.7576873600483,
+              68.877640129067,
+              -0.005972885289565966,
+              0.0025909869547149356,
+              0.011628930948063498
+            ],
+            "com_position_error_m": 183.4724508561521,
+            "conditional_position_mahalanobis_squared": 0.12594079859616153,
+            "conditional_state_mahalanobis_squared": 0.14505804816075757,
+            "position_inside_formal_95": true,
+            "state_inside_formal_95": true,
+            "formal_position_95_largest_axis_m": 4783.116961233358
+          },
+          {
+            "gpst_s": 39330.0,
+            "kind": "IN_TRAINING_SPAN",
+            "status": "EVALUATED",
+            "position_error_m": 182.45417149235263,
+            "velocity_error_m_s": 0.013273831401022293,
+            "error_ecef_m_m_s": [
+              -81.49359478615224,
+              147.83799255639315,
+              69.22605478204787,
+              -0.005833589650023896,
+              0.0027626090479770937,
+              0.011598785415117163
+            ],
+            "com_position_error_m": 183.74984646849396,
+            "conditional_position_mahalanobis_squared": 0.1258418448762623,
+            "conditional_state_mahalanobis_squared": 0.14567901050128929,
+            "position_inside_formal_95": true,
+            "state_inside_formal_95": true,
+            "formal_position_95_largest_axis_m": 4785.0258311137095
+          },
+          {
+            "gpst_s": 39480.0,
+            "kind": "IN_TRAINING_SPAN",
+            "status": "EVALUATED",
+            "position_error_m": 183.87017116052618,
+            "velocity_error_m_s": 0.013057734714322202,
+            "error_ecef_m_m_s": [
+              -82.31570546329021,
+              148.3163932338357,
+              70.95499964617193,
+              -0.005123857607031823,
+              0.0036126276680761293,
+              0.011454232424057409
+            ],
+            "com_position_error_m": 185.1729314084913,
+            "conditional_position_mahalanobis_squared": 0.12528834947016262,
+            "conditional_state_mahalanobis_squared": 0.14985763143307,
+            "position_inside_formal_95": true,
+            "state_inside_formal_95": true,
+            "formal_position_95_largest_axis_m": 4794.107650293365
+          },
+          {
+            "gpst_s": 39510.0,
+            "kind": "BEYOND_ALL_TRAINING",
+            "status": "EVALUATED",
+            "position_error_m": 184.1601064148503,
+            "velocity_error_m_s": 0.013024985290893576,
+            "error_ecef_m_m_s": [
+              -82.4672530144453,
+              148.4272968918085,
+              71.29820833913982,
+              -0.004979163148277621,
+              0.0037808668578236393,
+              0.01142642647437242
+            ],
+            "com_position_error_m": 185.46444055394596,
+            "conditional_position_mahalanobis_squared": 0.12516551934344428,
+            "conditional_state_mahalanobis_squared": 0.15092585950660162,
+            "position_inside_formal_95": true,
+            "state_inside_formal_95": true,
+            "formal_position_95_largest_axis_m": 4795.8359777157
+          }
+        ],
+        "summary": {
+          "ALL": {
+            "count": 30,
+            "position_error_m": {
+              "count": 30,
+              "mean": 177.0979899511365,
+              "rms": 177.12919262203482,
+              "max_abs": 184.1601064148503
+            },
+            "velocity_error_m_s": {
+              "count": 30,
+              "mean": 0.019403306582191495,
+              "rms": 0.02028509605963737,
+              "max_abs": 0.029896629183374136
+            },
+            "position_inside_formal_95_count": 30,
+            "state_inside_formal_95_count": 30
+          },
+          "IN_TRAINING_SPAN": {
+            "count": 29,
+            "position_error_m": {
+              "count": 29,
+              "mean": 176.85446869376705,
+              "rms": 176.8817627266469,
+              "max_abs": 183.87017116052618
+            },
+            "velocity_error_m_s": {
+              "count": 29,
+              "mean": 0.019623248695684527,
+              "rms": 0.020489613367579155,
+              "max_abs": 0.029896629183374136
+            },
+            "position_inside_formal_95_count": 29,
+            "state_inside_formal_95_count": 29
+          },
+          "BEYOND_ALL_TRAINING": {
+            "count": 1,
+            "position_error_m": {
+              "count": 1,
+              "mean": 184.1601064148503,
+              "rms": 184.1601064148503,
+              "max_abs": 184.1601064148503
+            },
+            "velocity_error_m_s": {
+              "count": 1,
+              "mean": 0.013024985290893576,
+              "rms": 0.013024985290893576,
+              "max_abs": 0.013024985290893576
+            },
+            "position_inside_formal_95_count": 1,
+            "state_inside_formal_95_count": 1
+          }
+        }
+      },
+      "rf_evaluation": {
+        "windows": [
+          {
+            "endpoint_gpst_s": 36060,
+            "prediction_status": "PREDICTED",
+            "pairs": [
+              {
+                "station": "ALGO00CAN",
+                "status": "EVALUATED",
+                "code_residual_m": 0.15043428912758827,
+                "phase_rate_residual_m_s": 0.0016971042999784913
+              },
+              {
+                "station": "DRAO00CAN",
+                "status": "EVALUATED",
+                "code_residual_m": 0.5057439059019089,
+                "phase_rate_residual_m_s": 0.00020005380110887927
+              },
+              {
+                "station": "BOGT00COL",
+                "status": "EVALUATED",
+                "code_residual_m": 0.7933387346565723,
+                "phase_rate_residual_m_s": -0.0072999255110772765
+              },
+              {
+                "station": "AREQ00PER",
+                "status": "EVALUATED",
+                "code_residual_m": 0.045598968863487244,
+                "phase_rate_residual_m_s": -0.0006853216638091908
+              }
+            ],
+            "status": "SCORED",
+            "kind": "TEMPORAL_HOLDOUT",
+            "fit_status": "BRANCH_SEARCH_INCOMPLETE"
+          },
+          {
+            "endpoint_gpst_s": 36240,
+            "prediction_status": "PREDICTED",
+            "pairs": [
+              {
+                "station": "ALGO00CAN",
+                "status": "EVALUATED",
+                "code_residual_m": -0.16820237413048744,
+                "phase_rate_residual_m_s": -0.024296516552567482
+              },
+              {
+                "station": "DRAO00CAN",
+                "status": "EVALUATED",
+                "code_residual_m": -0.05582082271575928,
+                "phase_rate_residual_m_s": 0.0004454286148529718
+              },
+              {
+                "station": "BOGT00COL",
+                "status": "EVALUATED",
+                "code_residual_m": 2.155393484979868,
+                "phase_rate_residual_m_s": 0.0010464994857670717
+              },
+              {
+                "station": "AREQ00PER",
+                "status": "EVALUATED",
+                "code_residual_m": 0.39966581389307976,
+                "phase_rate_residual_m_s": -7.129274308681488e-05
+              }
+            ],
+            "status": "SCORED",
+            "kind": "TEMPORAL_HOLDOUT",
+            "fit_status": "BRANCH_SEARCH_INCOMPLETE"
+          },
+          {
+            "endpoint_gpst_s": 36420,
+            "prediction_status": "PREDICTED",
+            "pairs": [
+              {
+                "station": "ALGO00CAN",
+                "status": "EVALUATED",
+                "code_residual_m": -0.3246661014854908,
+                "phase_rate_residual_m_s": -0.012010010580183916
+              },
+              {
+                "station": "DRAO00CAN",
+                "status": "EVALUATED",
+                "code_residual_m": -0.5397256687283516,
+                "phase_rate_residual_m_s": -0.00010138166442175134
+              },
+              {
+                "station": "BOGT00COL",
+                "status": "EVALUATED",
+                "code_residual_m": 0.2966509833931923,
+                "phase_rate_residual_m_s": 0.0009247296800189986
+              },
+              {
+                "station": "AREQ00PER",
+                "status": "EVALUATED",
+                "code_residual_m": 0.7673084326088428,
+                "phase_rate_residual_m_s": -0.00045538942021039475
+              }
+            ],
+            "status": "SCORED",
+            "kind": "TEMPORAL_HOLDOUT",
+            "fit_status": "BRANCH_SEARCH_INCOMPLETE"
+          },
+          {
+            "endpoint_gpst_s": 36600,
+            "prediction_status": "PREDICTED",
+            "pairs": [
+              {
+                "station": "ALGO00CAN",
+                "status": "EVALUATED",
+                "code_residual_m": 0.8517300523817539,
+                "phase_rate_residual_m_s": -0.010335555796814333
+              },
+              {
+                "station": "DRAO00CAN",
+                "status": "EVALUATED",
+                "code_residual_m": 0.15689198672771454,
+                "phase_rate_residual_m_s": 0.0003987096249602473
+              },
+              {
+                "station": "BOGT00COL",
+                "status": "EVALUATED",
+                "code_residual_m": -1.4958707131445408,
+                "phase_rate_residual_m_s": 0.008965516214569647
+              },
+              {
+                "station": "AREQ00PER",
+                "status": "EVALUATED",
+                "code_residual_m": 0.3838859908282757,
+                "phase_rate_residual_m_s": 0.001243003209424387
+              }
+            ],
+            "status": "SCORED",
+            "kind": "TEMPORAL_HOLDOUT",
+            "fit_status": "BRANCH_SEARCH_INCOMPLETE"
+          },
+          {
+            "endpoint_gpst_s": 36780,
+            "prediction_status": "PREDICTED",
+            "pairs": [
+              {
+                "station": "ALGO00CAN",
+                "status": "EVALUATED",
+                "code_residual_m": 0.2342064082622528,
+                "phase_rate_residual_m_s": 9.272620104638918e-06
+              },
+              {
+                "station": "DRAO00CAN",
+                "status": "EVALUATED",
+                "code_residual_m": 1.9075131975114346,
+                "phase_rate_residual_m_s": 0.0002512716998808173
+              },
+              {
+                "station": "BOGT00COL",
+                "status": "EVALUATED",
+                "code_residual_m": -1.138388466089964,
+                "phase_rate_residual_m_s": -0.006626354530453682
+              },
+              {
+                "station": "AREQ00PER",
+                "status": "EVALUATED",
+                "code_residual_m": 1.0702749118208885,
+                "phase_rate_residual_m_s": 0.00035835467281231104
+              }
+            ],
+            "status": "SCORED",
+            "kind": "TEMPORAL_HOLDOUT",
+            "fit_status": "BRANCH_SEARCH_INCOMPLETE"
+          },
+          {
+            "endpoint_gpst_s": 37860,
+            "prediction_status": "PREDICTED",
+            "pairs": [
+              {
+                "station": "ALGO00CAN",
+                "status": "EVALUATED",
+                "code_residual_m": -0.5053613856434822,
+                "phase_rate_residual_m_s": -0.00210567427177466
+              },
+              {
+                "station": "DRAO00CAN",
+                "status": "EVALUATED",
+                "code_residual_m": -0.45535336807370186,
+                "phase_rate_residual_m_s": 9.664086007887818e-05
+              },
+              {
+                "station": "BOGT00COL",
+                "status": "EVALUATED",
+                "code_residual_m": -1.0384658351540565,
+                "phase_rate_residual_m_s": -0.0006246183067588618
+              },
+              {
+                "station": "BRAZ00BRA",
+                "status": "EVALUATED",
+                "code_residual_m": 0.5159649215638638,
+                "phase_rate_residual_m_s": -0.019571896642446518
+              },
+              {
+                "station": "AREQ00PER",
+                "status": "EVALUATED",
+                "code_residual_m": -1.4332409277558327,
+                "phase_rate_residual_m_s": 2.557598054409027e-05
+              }
+            ],
+            "status": "SCORED",
+            "kind": "TEMPORAL_HOLDOUT",
+            "fit_status": "BRANCH_SEARCH_INCOMPLETE"
+          },
+          {
+            "endpoint_gpst_s": 38040,
+            "prediction_status": "PREDICTED",
+            "pairs": [
+              {
+                "station": "ALGO00CAN",
+                "status": "EVALUATED",
+                "code_residual_m": -0.8977613896131516,
+                "phase_rate_residual_m_s": -0.022201280544095425
+              },
+              {
+                "station": "DRAO00CAN",
+                "status": "EVALUATED",
+                "code_residual_m": -0.7825690321624279,
+                "phase_rate_residual_m_s": -0.0048405669629119075
+              },
+              {
+                "station": "BOGT00COL",
+                "status": "EVALUATED",
+                "code_residual_m": 0.929728128015995,
+                "phase_rate_residual_m_s": 0.006505126381910031
+              },
+              {
+                "station": "BRAZ00BRA",
+                "status": "EVALUATED",
+                "code_residual_m": -1.5247663334012032,
+                "phase_rate_residual_m_s": -0.05318716689944836
+              },
+              {
+                "station": "AREQ00PER",
+                "status": "EVALUATED",
+                "code_residual_m": -0.4682706706225872,
+                "phase_rate_residual_m_s": -0.005651138474547679
+              }
+            ],
+            "status": "SCORED",
+            "kind": "TEMPORAL_HOLDOUT",
+            "fit_status": "BRANCH_SEARCH_INCOMPLETE"
+          },
+          {
+            "endpoint_gpst_s": 38220,
+            "prediction_status": "PREDICTED",
+            "pairs": [
+              {
+                "station": "ALGO00CAN",
+                "status": "EVALUATED",
+                "code_residual_m": -2.5672309026122093,
+                "phase_rate_residual_m_s": -0.008876825248194109
+              },
+              {
+                "station": "DRAO00CAN",
+                "status": "EVALUATED",
+                "code_residual_m": 1.4344124905765057,
+                "phase_rate_residual_m_s": 0.0004283611972368817
+              },
+              {
+                "station": "BOGT00COL",
+                "status": "EVALUATED",
+                "code_residual_m": 0.4130731150507927,
+                "phase_rate_residual_m_s": 0.0006438170870097792
+              },
+              {
+                "station": "BRAZ00BRA",
+                "status": "EVALUATED",
+                "code_residual_m": -0.652382779866457,
+                "phase_rate_residual_m_s": -0.012866739680362116
+              },
+              {
+                "station": "AREQ00PER",
+                "status": "EVALUATED",
+                "code_residual_m": -0.6108091995120049,
+                "phase_rate_residual_m_s": 0.00023318069676747655
+              }
+            ],
+            "status": "SCORED",
+            "kind": "TEMPORAL_HOLDOUT",
+            "fit_status": "BRANCH_SEARCH_INCOMPLETE"
+          },
+          {
+            "endpoint_gpst_s": 38400,
+            "prediction_status": "PREDICTED",
+            "pairs": [
+              {
+                "station": "ALGO00CAN",
+                "status": "EVALUATED",
+                "code_residual_m": -0.9422225765883923,
+                "phase_rate_residual_m_s": -0.006084648271325932
+              },
+              {
+                "station": "DRAO00CAN",
+                "status": "EVALUATED",
+                "code_residual_m": -1.1365269608795643,
+                "phase_rate_residual_m_s": -0.00020335217323008692
+              },
+              {
+                "station": "BOGT00COL",
+                "status": "EVALUATED",
+                "code_residual_m": 0.18038040399551392,
+                "phase_rate_residual_m_s": 0.0026106393585507703
+              },
+              {
+                "station": "BRAZ00BRA",
+                "status": "EVALUATED",
+                "code_residual_m": -0.26075882092118263,
+                "phase_rate_residual_m_s": 8.160484335917317e-05
+              },
+              {
+                "station": "AREQ00PER",
+                "status": "EVALUATED",
+                "code_residual_m": -0.6791866086423397,
+                "phase_rate_residual_m_s": -0.0011692556242053342
+              }
+            ],
+            "status": "SCORED",
+            "kind": "TEMPORAL_HOLDOUT",
+            "fit_status": "BRANCH_SEARCH_INCOMPLETE"
+          },
+          {
+            "endpoint_gpst_s": 38580,
+            "prediction_status": "PREDICTED",
+            "pairs": [
+              {
+                "station": "ALGO00CAN",
+                "status": "EVALUATED",
+                "code_residual_m": -1.148556426167488,
+                "phase_rate_residual_m_s": 0.005277227113651861
+              },
+              {
+                "station": "DRAO00CAN",
+                "status": "EVALUATED",
+                "code_residual_m": 2.260023646056652,
+                "phase_rate_residual_m_s": 0.0003874577581655103
+              },
+              {
+                "station": "BOGT00COL",
+                "status": "EVALUATED",
+                "code_residual_m": 1.436898112297058,
+                "phase_rate_residual_m_s": 0.005775063981616313
+              },
+              {
+                "station": "BRAZ00BRA",
+                "status": "EVALUATED",
+                "code_residual_m": 0.2683321200311184,
+                "phase_rate_residual_m_s": -0.0030744509150792965
+              },
+              {
+                "station": "AREQ00PER",
+                "status": "EVALUATED",
+                "code_residual_m": 0.5966411307454109,
+                "phase_rate_residual_m_s": -0.0002822710821988039
+              }
+            ],
+            "status": "SCORED",
+            "kind": "TEMPORAL_HOLDOUT",
+            "fit_status": "BRANCH_SEARCH_INCOMPLETE"
+          },
+          {
+            "endpoint_gpst_s": 38760,
+            "prediction_status": "PREDICTED",
+            "pairs": [
+              {
+                "station": "ALGO00CAN",
+                "status": "EVALUATED",
+                "code_residual_m": -0.07748140022158623,
+                "phase_rate_residual_m_s": -0.01797497272491455
+              },
+              {
+                "station": "DRAO00CAN",
+                "status": "EVALUATED",
+                "code_residual_m": -0.2525356411933899,
+                "phase_rate_residual_m_s": 0.0001365783313076463
+              },
+              {
+                "station": "BOGT00COL",
+                "status": "EVALUATED",
+                "code_residual_m": -1.70097641274333,
+                "phase_rate_residual_m_s": -0.0033910717815217595
+              },
+              {
+                "station": "BRAZ00BRA",
+                "status": "EVALUATED",
+                "code_residual_m": -0.6902307830750942,
+                "phase_rate_residual_m_s": -0.007077632347744611
+              },
+              {
+                "station": "AREQ00PER",
+                "status": "EVALUATED",
+                "code_residual_m": -0.08930682763457298,
+                "phase_rate_residual_m_s": 0.0002395434925972495
+              }
+            ],
+            "status": "SCORED",
+            "kind": "TEMPORAL_HOLDOUT",
+            "fit_status": "BRANCH_SEARCH_INCOMPLETE"
+          },
+          {
+            "endpoint_gpst_s": 38940,
+            "prediction_status": "PREDICTED",
+            "pairs": [
+              {
+                "station": "DRAO00CAN",
+                "status": "EVALUATED",
+                "code_residual_m": 0.33095748350024223,
+                "phase_rate_residual_m_s": 7.606334986576258e-05
+              },
+              {
+                "station": "BOGT00COL",
+                "status": "EVALUATED",
+                "code_residual_m": 0.9417674914002419,
+                "phase_rate_residual_m_s": 0.004849789788352155
+              },
+              {
+                "station": "BRAZ00BRA",
+                "status": "EVALUATED",
+                "code_residual_m": 0.09469602629542351,
+                "phase_rate_residual_m_s": 0.02396543311576238
+              },
+              {
+                "station": "AREQ00PER",
+                "status": "EVALUATED",
+                "code_residual_m": -0.6460468918085098,
+                "phase_rate_residual_m_s": 6.276567776808406e-05
+              }
+            ],
+            "status": "SCORED",
+            "kind": "TEMPORAL_HOLDOUT",
+            "fit_status": "BRANCH_SEARCH_INCOMPLETE"
+          },
+          {
+            "endpoint_gpst_s": 39120,
+            "prediction_status": "PREDICTED",
+            "pairs": [
+              {
+                "station": "DRAO00CAN",
+                "status": "EVALUATED",
+                "code_residual_m": 3.0410316549241543,
+                "phase_rate_residual_m_s": -0.0006540180494312153
+              },
+              {
+                "station": "BOGT00COL",
+                "status": "EVALUATED",
+                "code_residual_m": -0.8311929330229759,
+                "phase_rate_residual_m_s": -0.004548605407279638
+              },
+              {
+                "station": "BRAZ00BRA",
+                "status": "EVALUATED",
+                "code_residual_m": -0.41655268147587776,
+                "phase_rate_residual_m_s": -0.00897784481443864
+              },
+              {
+                "station": "AREQ00PER",
+                "status": "EVALUATED",
+                "code_residual_m": 0.656872596591711,
+                "phase_rate_residual_m_s": 0.0007281571626833738
+              }
+            ],
+            "status": "SCORED",
+            "kind": "TEMPORAL_HOLDOUT",
+            "fit_status": "BRANCH_SEARCH_INCOMPLETE"
+          },
+          {
+            "endpoint_gpst_s": 39300,
+            "prediction_status": "PREDICTED",
+            "pairs": [
+              {
+                "station": "DRAO00CAN",
+                "status": "EVALUATED",
+                "code_residual_m": 1.1283590458333492,
+                "phase_rate_residual_m_s": 0.0003508802502665276
+              },
+              {
+                "station": "BOGT00COL",
+                "status": "EVALUATED",
+                "code_residual_m": 2.2243671007454395,
+                "phase_rate_residual_m_s": 0.005517215654265328
+              },
+              {
+                "station": "BRAZ00BRA",
+                "status": "EVALUATED",
+                "code_residual_m": -0.09167876839637756,
+                "phase_rate_residual_m_s": -0.00014627364774355556
+              },
+              {
+                "station": "AREQ00PER",
+                "status": "EVALUATED",
+                "code_residual_m": 0.07226300239562988,
+                "phase_rate_residual_m_s": -1.5237803268064454e-05
+              }
+            ],
+            "status": "SCORED",
+            "kind": "TEMPORAL_HOLDOUT",
+            "fit_status": "BRANCH_SEARCH_INCOMPLETE"
+          },
+          {
+            "endpoint_gpst_s": 39480,
+            "prediction_status": "PREDICTED",
+            "pairs": [
+              {
+                "station": "DRAO00CAN",
+                "status": "EVALUATED",
+                "code_residual_m": 0.2563180699944496,
+                "phase_rate_residual_m_s": -0.0005687472721547238
+              },
+              {
+                "station": "BOGT00COL",
+                "status": "EVALUATED",
+                "code_residual_m": 0.14644574746489525,
+                "phase_rate_residual_m_s": 0.0002536959946155548
+              },
+              {
+                "station": "BRAZ00BRA",
+                "status": "EVALUATED",
+                "code_residual_m": -0.5438842810690403,
+                "phase_rate_residual_m_s": 0.01021755474309316
+              },
+              {
+                "station": "AREQ00PER",
+                "status": "EVALUATED",
+                "code_residual_m": -0.011915810406208038,
+                "phase_rate_residual_m_s": 8.618272840976715e-05
+              }
+            ],
+            "status": "SCORED",
+            "kind": "BEYOND_ALL_TRAINING",
+            "fit_status": "BRANCH_SEARCH_INCOMPLETE"
+          }
+        ],
+        "summary": {
+          "ALL": {
+            "pair_status_counts": {
+              "EVALUATED": 66
+            },
+            "code_residual_m": {
+              "count": 66,
+              "mean": 0.037412570507237404,
+              "rms": 1.0157011787343666,
+              "max_abs": 3.0410316549241543
+            },
+            "phase_rate_residual_m_s": {
+              "count": 66,
+              "mean": -0.002452841483884007,
+              "rms": 0.009859140265022211,
+              "max_abs": 0.05318716689944836
+            }
+          },
+          "TEMPORAL_HOLDOUT": {
+            "pair_status_counts": {
+              "EVALUATED": 62
+            },
+            "code_residual_m": {
+              "count": 62,
+              "mean": 0.04229461173376729,
+              "rms": 1.0450013811393044,
+              "max_abs": 3.0410316549241543
+            },
+            "phase_rate_residual_m_s": {
+              "count": 62,
+              "mean": -0.0027721971633920682,
+              "rms": 0.010088784094236322,
+              "max_abs": 0.05318716689944836
+            }
+          },
+          "BEYOND_ALL_TRAINING": {
+            "pair_status_counts": {
+              "EVALUATED": 4
+            },
+            "code_residual_m": {
+              "count": 4,
+              "mean": -0.03825906850397587,
+              "rms": 0.30947431544792814,
+              "max_abs": 0.5438842810690403
+            },
+            "phase_rate_residual_m_s": {
+              "count": 4,
+              "mean": 0.0024971715484909396,
+              "rms": 0.005118439398587452,
+              "max_abs": 0.01021755474309316
+            }
+          }
+        }
+      }
+    }
+  },
+  "elapsed_s": 88.27971199999956,
+  "historical_result_unchanged": true,
+  "target_tracked_worktree_unchanged": true
+}

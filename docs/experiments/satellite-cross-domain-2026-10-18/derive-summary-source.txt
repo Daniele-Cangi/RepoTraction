@@ -1,0 +1,77 @@
+"""Compact derived report; no refitting, queries or source changes."""
+import hashlib, json, math, shutil
+from collections import Counter
+from pathlib import Path
+ROOT = Path(__file__).resolve().parents[2]
+PRIVATE = Path(__file__).resolve().parent
+OUT = ROOT/'docs/experiments/satellite-cross-domain-2026-10-18'
+new = json.loads((PRIVATE/'native-result.json').read_bytes())
+old = json.loads((ROOT/'docs/experiments/satellite-alternatives-2026-10-18/direct-result.json').read_bytes())
+before = PRIVATE/'native-before-scoring.json'
+def rms(values): return math.sqrt(sum(x*x for x in values)/len(values)) if values else None
+def rf_pairs(case):
+    return {(r['endpoint_gpst_s'],p['station']):p for r in case['rf_evaluation']['windows'] for p in r.get('pairs',[]) if p['status']=='EVALUATED'}
+summary = {'scope':new['scope'],'target_revision':new['target_revision'],
+           'elapsed_s':new['elapsed_s'],'cases':{},'checks':new['checks'],
+           'historical_result_unchanged':new['historical_result_unchanged'],
+           'target_tracked_worktree_unchanged':new['target_tracked_worktree_unchanged'],
+           'paid_api_calls_in_this_extension':0,'autonomous_unchanged_product_discovery':False,
+           'frozen_before_scoring_sha256':hashlib.sha256(before.read_bytes()).hexdigest(),
+           'limits':['Two exposed candidate trajectories, not prospective confirmation.',
+                     'Full joint local numerical rank is not global observability or unique branches.',
+                     'One failed interior-Earth seed per trajectory: BRANCH_SEARCH_INCOMPLETE.',
+                     'Conditional covariance remains physically unqualified.',
+                     'Extra arcs change training coverage; unmatched aggregate RMS and last forecasts are not matched accuracy comparisons.',
+                     'External sources suggested a useful question; native code already contained the joint solver and four-point quadratic branches. Necessity of external advice is not demonstrated.']}
+for q,case in new['cases'].items():
+    fit = case['fit']
+    report = {'historical_arc_count':0,'strong_direct_arc_count':old['cases'][q]['direct']['arc_count'],
+              'experimental_arc_count':case['arc_count'],'experimental_window_statuses':dict(Counter(w['status'] for w in case['windows'])),
+              'fit_status':fit['status'],'candidate_count':fit.get('candidate_count'),'scaled_condition':fit.get('scaled_condition'),
+              'weighted_cost':fit.get('weighted_residual_cost'),'residual_dof':fit.get('residual_dof'),
+              'p_conditional':fit.get('conditional_residual_p'),'branch_failures':fit.get('branch_failures'),
+              'receiver_counts':dict(Counter(len(w['stations']) for w in case['windows'] if w['status']=='PREPARED')),
+              'state':case.get('state_evaluation',{}).get('summary'),
+              'rf':case.get('rf_evaluation',{}).get('summary'),
+              'elapsed_s':case['elapsed_s']}
+    if q=='G13':
+        previous = old['cases'][q]['direct']
+        nr = {r['gpst_s']:r for r in case['state_evaluation']['rows'] if r['status']=='EVALUATED'}
+        both = [(r,nr[r['gpst_s']]) for r in previous['state_evaluation']['rows'] if r['status']=='EVALUATED' and r['gpst_s'] in nr]
+        report['matched_state_epochs'] = {
+            'count':len(both),
+            'direct_position_rms_m':rms([a['position_error_m'] for a,b in both]),
+            'experimental_position_rms_m':rms([b['position_error_m'] for a,b in both]),
+            'direct_velocity_rms_m_s':rms([a['velocity_error_m_s'] for a,b in both]),
+            'experimental_velocity_rms_m_s':rms([b['velocity_error_m_s'] for a,b in both]),
+            'position_error_worsened_count':sum(b['position_error_m']>a['position_error_m'] for a,b in both),
+            'velocity_error_worsened_count':sum(b['velocity_error_m_s']>a['velocity_error_m_s'] for a,b in both)}
+        npairs,opairs = rf_pairs(case),rf_pairs(previous)
+        keys = sorted(npairs.keys() & opairs.keys())
+        report['matched_withheld_rf_pairs'] = {
+            'count':len(keys),
+            'direct_code_rms_m':rms([opairs[k]['code_residual_m'] for k in keys]),
+            'experimental_code_rms_m':rms([npairs[k]['code_residual_m'] for k in keys]),
+            'direct_phase_rms_m_s':rms([opairs[k]['phase_rate_residual_m_s'] for k in keys]),
+            'experimental_phase_rms_m_s':rms([npairs[k]['phase_rate_residual_m_s'] for k in keys]),
+            'absolute_code_residual_worsened_count':sum(abs(npairs[k]['code_residual_m'])>abs(opairs[k]['code_residual_m']) for k in keys),
+            'absolute_phase_residual_worsened_count':sum(abs(npairs[k]['phase_rate_residual_m_s'])>abs(opairs[k]['phase_rate_residual_m_s']) for k in keys),
+            'note':'Matching endpoint/station observations; still temporal holdouts, not a common beyond-all-training forecast.'}
+    summary['cases'][q] = report
+evaluation = {'before_scoring_sha256':summary['frozen_before_scoring_sha256'],
+              'cases':{q:{k:c[k] for k in ['state_evaluation','rf_evaluation'] if k in c} for q,c in new['cases'].items()},
+              'elapsed_s':new['elapsed_s'],
+              'historical_result_unchanged':new['historical_result_unchanged'],
+              'target_tracked_worktree_unchanged':new['target_tracked_worktree_unchanged']}
+for name,value in [('summary.json',summary),('native-evaluation.json',evaluation)]:
+    with (OUT/name).open('x',encoding='utf-8') as stream:
+        stream.write(json.dumps(value,indent=2,allow_nan=False)+'\n')
+for src,dest in [('native-before-scoring.json','native-before-scoring.json'),
+                 ('native_comparison.py','initial-native-probe-source.txt'),
+                 ('native-comparison-log.txt','initial-native-probe-log.txt'),
+                 ('native_comparison_corrected.py','corrected-native-probe-source.txt'),
+                 ('native-comparison-corrected-log.txt','corrected-native-probe-log.txt')]:
+    assert not (OUT/dest).exists()
+    shutil.copyfile(PRIVATE/src,OUT/dest)
+print(json.dumps({q:{k:v for k,v in c.items() if k not in ['state','rf']} for q,c in summary['cases'].items()},indent=2))
+

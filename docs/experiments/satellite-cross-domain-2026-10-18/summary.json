@@ -1,0 +1,315 @@
+{
+  "scope": "Exploratory chat-assisted transfer of joint-observability question; no autonomous product or physical qualification claim.",
+  "target_revision": "ac902e5f8158981f938537e1fe47a1f561b5d06d",
+  "elapsed_s": 88.27971199999956,
+  "cases": {
+    "G06": {
+      "historical_arc_count": 0,
+      "strong_direct_arc_count": 0,
+      "experimental_arc_count": 9,
+      "experimental_window_statuses": {
+        "PREPARED": 9,
+        "INSUFFICIENT_RF_STATIONS": 11
+      },
+      "fit_status": "BRANCH_SEARCH_INCOMPLETE",
+      "candidate_count": 1,
+      "scaled_condition": 1607861.1734754366,
+      "weighted_cost": 0.24131681204274713,
+      "residual_dof": 144,
+      "p_conditional": 1.0,
+      "branch_failures": [
+        {
+          "branch": 1,
+          "reason": "finite exterior-Earth state and gravity coefficient required",
+          "history": []
+        }
+      ],
+      "receiver_counts": {
+        "4": 9
+      },
+      "state": {
+        "ALL": {
+          "count": 18,
+          "position_error_m": {
+            "count": 18,
+            "mean": 285.8302154702206,
+            "rms": 285.8730354503312,
+            "max_abs": 290.5485357194703
+          },
+          "velocity_error_m_s": {
+            "count": 18,
+            "mean": 0.018230251470660763,
+            "rms": 0.018240138706208255,
+            "max_abs": 0.01915142058884139
+          },
+          "position_inside_formal_95_count": 18,
+          "state_inside_formal_95_count": 18
+        },
+        "IN_TRAINING_SPAN": {
+          "count": 17,
+          "position_error_m": {
+            "count": 17,
+            "mean": 285.5526672202647,
+            "rms": 285.5956223453246,
+            "max_abs": 290.410489138171
+          },
+          "velocity_error_m_s": {
+            "count": 17,
+            "mean": 0.018176065051944256,
+            "rms": 0.018185111832000504,
+            "max_abs": 0.019106482359172883
+          },
+          "position_inside_formal_95_count": 17,
+          "state_inside_formal_95_count": 17
+        },
+        "BEYOND_ALL_TRAINING": {
+          "count": 1,
+          "position_error_m": {
+            "count": 1,
+            "mean": 290.5485357194703,
+            "rms": 290.5485357194703,
+            "max_abs": 290.5485357194703
+          },
+          "velocity_error_m_s": {
+            "count": 1,
+            "mean": 0.01915142058884139,
+            "rms": 0.01915142058884139,
+            "max_abs": 0.01915142058884139
+          },
+          "position_inside_formal_95_count": 1,
+          "state_inside_formal_95_count": 1
+        }
+      },
+      "rf": {
+        "ALL": {
+          "pair_status_counts": {
+            "EVALUATED": 36
+          },
+          "code_residual_m": {
+            "count": 36,
+            "mean": -0.25269395609696704,
+            "rms": 1.0979943857186285,
+            "max_abs": 2.5575198493897915
+          },
+          "phase_rate_residual_m_s": {
+            "count": 36,
+            "mean": 0.0003690309305131281,
+            "rms": 0.0075681636958205775,
+            "max_abs": 0.024111909916030072
+          }
+        },
+        "TEMPORAL_HOLDOUT": {
+          "pair_status_counts": {
+            "EVALUATED": 32
+          },
+          "code_residual_m": {
+            "count": 32,
+            "mean": -0.32265597954392433,
+            "rms": 1.1021746671584316,
+            "max_abs": 2.5575198493897915
+          },
+          "phase_rate_residual_m_s": {
+            "count": 32,
+            "mean": -0.00014719360042514396,
+            "rms": 0.0076834538421187305,
+            "max_abs": 0.024111909916030072
+          }
+        },
+        "BEYOND_ALL_TRAINING": {
+          "pair_status_counts": {
+            "EVALUATED": 4
+          },
+          "code_residual_m": {
+            "count": 4,
+            "mean": 0.3070022314786911,
+            "rms": 1.06396102570548,
+            "max_abs": 1.442984625697136
+          },
+          "phase_rate_residual_m_s": {
+            "count": 4,
+            "mean": 0.0044988271780193045,
+            "rms": 0.006573447496472198,
+            "max_abs": 0.011047054827201919
+          }
+        }
+      },
+      "elapsed_s": 21.471255500000552
+    },
+    "G13": {
+      "historical_arc_count": 0,
+      "strong_direct_arc_count": 6,
+      "experimental_arc_count": 15,
+      "experimental_window_statuses": {
+        "PREPARED": 15,
+        "INSUFFICIENT_RF_STATIONS": 5
+      },
+      "fit_status": "BRANCH_SEARCH_INCOMPLETE",
+      "candidate_count": 1,
+      "scaled_condition": 2586769.9037157143,
+      "weighted_cost": 2.3811609749035627,
+      "residual_dof": 275,
+      "p_conditional": 1.0,
+      "branch_failures": [
+        {
+          "branch": 0,
+          "reason": "finite exterior-Earth state and gravity coefficient required",
+          "history": []
+        }
+      ],
+      "receiver_counts": {
+        "4": 9,
+        "5": 6
+      },
+      "state": {
+        "ALL": {
+          "count": 30,
+          "position_error_m": {
+            "count": 30,
+            "mean": 177.0979899511365,
+            "rms": 177.12919262203482,
+            "max_abs": 184.1601064148503
+          },
+          "velocity_error_m_s": {
+            "count": 30,
+            "mean": 0.019403306582191495,
+            "rms": 0.02028509605963737,
+            "max_abs": 0.029896629183374136
+          },
+          "position_inside_formal_95_count": 30,
+          "state_inside_formal_95_count": 30
+        },
+        "IN_TRAINING_SPAN": {
+          "count": 29,
+          "position_error_m": {
+            "count": 29,
+            "mean": 176.85446869376705,
+            "rms": 176.8817627266469,
+            "max_abs": 183.87017116052618
+          },
+          "velocity_error_m_s": {
+            "count": 29,
+            "mean": 0.019623248695684527,
+            "rms": 0.020489613367579155,
+            "max_abs": 0.029896629183374136
+          },
+          "position_inside_formal_95_count": 29,
+          "state_inside_formal_95_count": 29
+        },
+        "BEYOND_ALL_TRAINING": {
+          "count": 1,
+          "position_error_m": {
+            "count": 1,
+            "mean": 184.1601064148503,
+            "rms": 184.1601064148503,
+            "max_abs": 184.1601064148503
+          },
+          "velocity_error_m_s": {
+            "count": 1,
+            "mean": 0.013024985290893576,
+            "rms": 0.013024985290893576,
+            "max_abs": 0.013024985290893576
+          },
+          "position_inside_formal_95_count": 1,
+          "state_inside_formal_95_count": 1
+        }
+      },
+      "rf": {
+        "ALL": {
+          "pair_status_counts": {
+            "EVALUATED": 66
+          },
+          "code_residual_m": {
+            "count": 66,
+            "mean": 0.037412570507237404,
+            "rms": 1.0157011787343666,
+            "max_abs": 3.0410316549241543
+          },
+          "phase_rate_residual_m_s": {
+            "count": 66,
+            "mean": -0.002452841483884007,
+            "rms": 0.009859140265022211,
+            "max_abs": 0.05318716689944836
+          }
+        },
+        "TEMPORAL_HOLDOUT": {
+          "pair_status_counts": {
+            "EVALUATED": 62
+          },
+          "code_residual_m": {
+            "count": 62,
+            "mean": 0.04229461173376729,
+            "rms": 1.0450013811393044,
+            "max_abs": 3.0410316549241543
+          },
+          "phase_rate_residual_m_s": {
+            "count": 62,
+            "mean": -0.0027721971633920682,
+            "rms": 0.010088784094236322,
+            "max_abs": 0.05318716689944836
+          }
+        },
+        "BEYOND_ALL_TRAINING": {
+          "pair_status_counts": {
+            "EVALUATED": 4
+          },
+          "code_residual_m": {
+            "count": 4,
+            "mean": -0.03825906850397587,
+            "rms": 0.30947431544792814,
+            "max_abs": 0.5438842810690403
+          },
+          "phase_rate_residual_m_s": {
+            "count": 4,
+            "mean": 0.0024971715484909396,
+            "rms": 0.005118439398587452,
+            "max_abs": 0.01021755474309316
+          }
+        }
+      },
+      "elapsed_s": 33.58898380000028,
+      "matched_state_epochs": {
+        "count": 12,
+        "direct_position_rms_m": 660.0017005165263,
+        "experimental_position_rms_m": 175.02660711612327,
+        "direct_velocity_rms_m_s": 0.022911662264254267,
+        "experimental_velocity_rms_m_s": 0.016729297196506922,
+        "position_error_worsened_count": 0,
+        "velocity_error_worsened_count": 0
+      },
+      "matched_withheld_rf_pairs": {
+        "count": 30,
+        "direct_code_rms_m": 1.1238109245109347,
+        "experimental_code_rms_m": 1.0553735461211236,
+        "direct_phase_rms_m_s": 0.01229434617592297,
+        "experimental_phase_rms_m_s": 0.012319706774139837,
+        "absolute_code_residual_worsened_count": 9,
+        "absolute_phase_residual_worsened_count": 19,
+        "note": "Matching endpoint/station observations; still temporal holdouts, not a common beyond-all-training forecast."
+      }
+    }
+  },
+  "checks": {
+    "frozen_direct_G13_reproduced": {
+      "arc_count": 6,
+      "status": "BRANCH_SEARCH_INCOMPLETE",
+      "maximum_state_coordinate_difference": 0.0,
+      "cost_difference": 0.0
+    },
+    "unqualified_calibration_rejected": "qualified reference calibrations required before target decoding",
+    "duplicate_endpoints_rejected": "training arcs reuse target endpoint observations",
+    "degenerate_joint_design_rejected": "rank-deficient shared dynamic state/bias design"
+  },
+  "historical_result_unchanged": true,
+  "target_tracked_worktree_unchanged": true,
+  "paid_api_calls_in_this_extension": 0,
+  "autonomous_unchanged_product_discovery": false,
+  "frozen_before_scoring_sha256": "343305f1be1bb0e5284e8d815094a0744b6b1f795a8cbf91e75a9dc35be2efc5",
+  "limits": [
+    "Two exposed candidate trajectories, not prospective confirmation.",
+    "Full joint local numerical rank is not global observability or unique branches.",
+    "One failed interior-Earth seed per trajectory: BRANCH_SEARCH_INCOMPLETE.",
+    "Conditional covariance remains physically unqualified.",
+    "Extra arcs change training coverage; unmatched aggregate RMS and last forecasts are not matched accuracy comparisons.",
+    "External sources suggested a useful question; native code already contained the joint solver and four-point quadratic branches. Necessity of external advice is not demonstrated."
+  ]
+}
