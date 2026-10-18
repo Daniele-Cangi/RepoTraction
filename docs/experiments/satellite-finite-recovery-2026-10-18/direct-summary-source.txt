@@ -1,0 +1,30 @@
+"""Derived direct-comparison summary, with no refitting or source search."""
+import hashlib,json
+from pathlib import Path
+HERE=Path(__file__).resolve().parent
+r=json.loads((HERE/'direct-chord-result.json').read_bytes())
+probes=[p for c in r['cases'].values() for p in c['probes']]
+assert r['all_estimates_fixed_before_scoring'] and len(probes)==30
+successful=sum(p.get('score',{}).get('converged_projection_passed',False) for p in probes)
+lost=sum(p.get('score',{}).get('baseline_relative_error',float('inf'))<=1e-3 and not p.get('score',{}).get('converged_projection_passed',False) for p in probes)
+gained=sum(p.get('score',{}).get('baseline_relative_error',0)>1e-3 and p.get('score',{}).get('converged_projection_passed',False) for p in probes)
+unresolved=sum(p.get('score',{}).get('full_functional_unresolved',False) for p in probes)
+sufficient=successful==30 and lost==0 and unresolved==20
+assert sufficient
+out={'direct_comparison_fixed_before_external_inspection':True,'external_repositories_searched':0,'external_source_implementations_inspected':0,
+     'native_method':'Existing frozen pseudoinverse applied iteratively to the actual finite physical forward residual; no source-truth input to estimation.',
+     'model_visible_summary':{
+       'origin':'Measured experimenter/direct native solution, not a Missing Link contribution or an external source.',
+       'target_revision':r['target_revision'],'controls_executed':len(probes),'converged_projection_criterion_passes':successful,
+       'original_linear_projection_passes':26,'previously_passing_controls_lost':lost,'formerly_failing_controls_added':gained,
+       'unknown_null_functionals_retained_as_unknown':unresolved,'elapsed_seconds':r['elapsed_s'],
+       'maximum_relative_identified_projection_error':max(p['score']['relative_identified_source_error'] for p in probes),
+       'criterion_relative_error':1e-3,'direct_native_solution_meets_this_controlled_task':sufficient,
+       'limits':'Controlled finite injections through an admitted-data physical operator, Windows local execution, no production integration or native Linux claim; no complete weak-source recovery or physical uncertainty qualification.',
+       'decision_question':'Given this working direct local alternative, is an external investigation justified for the independently fixed request? Do not manufacture a gap or search merely to produce a donor.'},
+     'unexecuted_comparator':{'name':'SciPy nonlinear least squares','reason':'Not executed: the cheaper direct correction already meets all 30 control criteria. The prepared stop rule permits direct sufficiency; no stronger-baseline failure is claimed.'},
+     'artifacts':{name:hashlib.sha256((HERE/name).read_bytes()).hexdigest() for name in ['direct_native.py','direct-chord-before-scoring.json','direct-chord-result.json','direct-chord-log.txt']},
+     'direct_success_is_not_missing_link_success':True}
+with (HERE/'direct-comparison-summary.json').open('x',encoding='utf-8') as f:json.dump(out,f,indent=2,allow_nan=False);f.write('\n')
+print(json.dumps(out['model_visible_summary'],indent=2))
+

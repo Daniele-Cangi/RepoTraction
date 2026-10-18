@@ -1,0 +1,153 @@
+"""One-off direct comparison, using Satellite's admitted finite physical operator."""
+import os,sys,time,json,gzip,hashlib,subprocess
+from pathlib import Path
+os.environ['OPENBLAS_NUM_THREADS']='1'
+os.environ['OMP_NUM_THREADS']='1'
+os.environ['PYTHONDONTWRITEBYTECODE']='1'
+sys.dont_write_bytecode=True
+TARGET=Path('C:/Users/dacan/Documents/Codex/2026-10-18/satellite-native-discovery')
+OUT=Path(__file__).resolve().parent
+PIN='248b54208b94f1e53f5af7bdb39d89860b05fca4'
+METHOD=sys.argv[1]
+assert METHOD in ('chord','scipy')
+assert not (OUT/f'direct-{METHOD}-before-scoring.json').exists()
+assert subprocess.check_output(['git','rev-parse','HEAD'],cwd=TARGET,text=True).strip()==PIN
+assert not subprocess.check_output(['git','diff','--name-only','HEAD'],cwd=TARGET)
+sys.path.insert(0,str(TARGET))
+import numpy as np
+from scipy.optimize import least_squares
+from research.exploratory import reference_network_clocks as study
+started=time.perf_counter();deadline=started+1800
+class TimeLimit(Exception):pass
+def check_time():
+    if time.perf_counter()>deadline:raise TimeLimit('declared overall 30-minute native method budget')
+def emit(name,value):
+    with (OUT/name).open('x',encoding='utf-8') as f:json.dump(study.native(value),f,indent=2,allow_nan=False);f.write('\n')
+
+def make_problem(q,case,raw_covariance,data,weather):
+    check_time()
+    net=study.network_clocks.fit(case['reference_rows'],raw_covariance=raw_covariance)
+    profile,w=study.source_geometry.profile_sources(net,q,study.source_geometry.FAMILIES)
+    assert profile['resolved_rank']==case['source_profile']['resolved_rank']
+    u,s,v=np.linalg.svd(w['design'],full_matrices=False)
+    rank=profile['resolved_rank']
+    provider,corrections=study.baseline.subset_products(data,[r for r in data['plan']['references'] if r!=q],q)
+    codes={(station,e['time_s'],ref):value for station,epochs in data['observations'].items() for e in epochs
+           for ref,value in e['if_code_m'].items() if ref!=q and ref in data['plan']['references']}
+    mjd=(study.datetime.fromisoformat(data['plan']['date_gpst'])-study.datetime(1858,11,17)).days
+    contexts={}
+    for b in net['blocks']:
+        for i,r in enumerate(b['rows']):
+            if i%64==0:check_time()
+            station,ref,t=r['station'],r['reference'],r['time_s']
+            assert ref!=q
+            xyz=np.asarray(data['positions'][station][int((t-36000)/30)],float)
+            context=study.reference_geometry.StableSourceRay(provider,weather,mjd,ref,
+                float(codes[station,t,ref])+corrections[t,ref]['if_code_change_m'],t,xyz,r['reference_clock_centre_m'])
+            contexts[station,ref,t]=context
+    # The estimator gets only allowed geometry, operators and observations.
+    # Neither case/physical_probes nor any source truth is captured by forward.
+    basis=v[:rank].T.copy();ur=u[:,:rank].copy();sr=s[:rank].copy();columns=w['columns']
+    calls=[0]
+    def forward(alpha):
+        check_time();calls[0]+=1
+        split=study.source_geometry.split_probe(columns,basis@alpha,q)
+        blocks=[]
+        for b in net['blocks']:
+            values=[]
+            for i,r in enumerate(b['rows']):
+                if i%64==0:check_time()
+                station,ref,t=r['station'],r['reference'],r['time_s']
+                local=[split['wet'].get(station,0.),*split['orbit'].get(ref,[0.,0.,0.]),
+                       *split['antenna'].get(ref,[0.,0.,0.]),split['bias'].get(station+'/'+ref,0.)]
+                values.append(contexts[station,ref,t].increment(local))
+            blocks.append(np.asarray(values).T.ravel())
+        return study.source_geometry.profiled_increment(net,blocks)
+    return {'basis':basis,'u':ur,'s':sr,'forward':forward,'calls':calls,
+            'profile_observation':lambda blocks:study.source_geometry.profiled_increment(net,blocks)}
+
+def estimate(problem,observed):
+    alpha=problem['u'].T@observed/problem['s']
+    first_calls=problem['calls'][0];history=[]
+    if METHOD=='chord':
+        for iteration in range(8):
+            predicted=problem['forward'](alpha)
+            residual=observed-predicted
+            step=(problem['u'].T@residual)/problem['s']
+            history.append({'iteration':iteration,'weighted_residual_norm':float(np.linalg.norm(residual)),
+                            'step_l2_m':float(np.linalg.norm(step))})
+            alpha=alpha+step
+            if np.linalg.norm(step)<=1e-8*max(1.,np.linalg.norm(alpha)):
+                return {'status':'CONVERGED','estimate':problem['basis']@alpha,'history':history,
+                        'forward_calls':problem['calls'][0]-first_calls}
+        return {'status':'ITERATION_LIMIT','estimate':problem['basis']@alpha,'history':history,
+                'forward_calls':problem['calls'][0]-first_calls}
+    result=least_squares(lambda z:problem['forward'](z)-observed,alpha,jac='3-point',
+                         max_nfev=20,ftol=1e-10,xtol=1e-10,gtol=1e-12)
+    return {'status':'CONVERGED' if result.success else 'ITERATION_LIMIT',
+            'estimate':problem['basis']@result.x,'forward_calls':problem['calls'][0]-first_calls,
+            'scipy_status':int(result.status),'scipy_nfev':int(result.nfev),'cost':float(result.cost)}
+
+payload=(study.baseline.BASE/'results/stable_source_differential_v1.json.gz').read_bytes()
+assert hashlib.sha256(payload).hexdigest()=='56b325ab32a679d89223b89bbe88633cd3850bdcf0cd605c18bea1bf62900020'
+saved=json.loads(gzip.decompress(payload));raw,data=study.baseline.read_inputs()
+assert saved['input_sha256']=={k:hashlib.sha256(v).hexdigest() for k,v in raw.items()}
+weather=study.baseline.interval.shared.meteo.WeatherGrid(study.baseline.interval.shared.meteo.read_inputs()[0])
+out={'method':METHOD,'target_revision':PIN,'source_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+     'candidate_order':[q for q,c in saved['candidates'].items() if 'source_profile' in c],
+     'scope':'Direct operator/local alternative, not Missing Link contribution. Estimators receive no source vector or injection labels.',
+     'criteria':'Original relative identified-projection error <=1e-3, original frozen basis/rank and unknown null amplitudes.',
+     'cases':{},'overall_time_budget_s':1800}
+timed_out=False;basis_by_case={}
+for q,c in saved['candidates'].items():
+    if 'source_profile' not in c:continue
+    records=[];out['cases'][q]={'probes':records}
+    try:
+        if timed_out:raise TimeLimit('method budget previously exhausted')
+        t=time.perf_counter()
+        print(q,'prepare physical callback',flush=True)
+        problem=make_problem(q,c,saved['raw_endpoint_weight_covariance_m2'],data,weather)
+        basis_by_case[q]=problem['basis']
+        out['cases'][q]['preparation_s']=time.perf_counter()-t
+        print(q,'callback ready',out['cases'][q]['preparation_s'],flush=True)
+        for index,p in enumerate(c['physical_probes']):
+            record={'index':index};records.append(record);t=time.perf_counter()
+            try:
+                observed=problem['profile_observation'](p['physical_increment_blocks'])
+                record.update(estimate(problem,observed))
+            except TimeLimit as error:
+                record.update(status='TIME_BUDGET_EXHAUSTED',reason=str(error));timed_out=True
+            except (ValueError,np.linalg.LinAlgError) as error:
+                record.update(status='NATIVE_DOMAIN_OR_NUMERICAL_FAILURE',reason=str(error))
+            record['elapsed_s']=time.perf_counter()-t
+            print(q,'probe',index,record['status'],record['elapsed_s'],flush=True)
+            if timed_out:
+                records.extend({'index':i,'status':'NOT_EXECUTED_TIME_BUDGET'} for i in range(index+1,len(c['physical_probes'])))
+                break
+    except TimeLimit as error:
+        timed_out=True
+        records.extend({'index':i,'status':'NOT_EXECUTED_TIME_BUDGET'} for i in range(len(c['physical_probes'])))
+    except (ValueError,np.linalg.LinAlgError) as error:
+        records.extend({'index':i,'status':'PREPARATION_FAILURE','reason':str(error)} for i in range(len(c['physical_probes'])))
+out['all_estimates_fixed_before_scoring']=True
+out['elapsed_before_scoring_s']=time.perf_counter()-started
+emit(f'direct-{METHOD}-before-scoring.json',out)
+for q,c in out['cases'].items():
+    for r in c['probes']:
+        p=saved['candidates'][q]['physical_probes'][r['index']]
+        r['evaluation_only_probe']={k:p[k] for k in ('mode','source_l2_m','sign')}
+        if 'estimate' not in r:continue
+        truth=np.asarray(p['source_vector_m'])
+        basis=basis_by_case[q];expected=basis@(basis.T@truth);error=np.asarray(r['estimate'])-expected
+        relative=float(np.linalg.norm(error)/max(np.linalg.norm(expected),1e-30))
+        null=float(np.linalg.norm(truth-expected)/max(np.linalg.norm(truth),1e-30))
+        r['score']={'relative_identified_source_error':relative,
+                    'projection_criterion_passed':relative<=1e-3,'converged_projection_passed':r['status']=='CONVERGED' and relative<=1e-3,
+                    'full_functional_unresolved':null>1e-8,'null_response_fraction':null,
+                    'baseline_relative_error':p['recovery']['physical_increment']['relative_identified_source_error']}
+out['elapsed_s']=time.perf_counter()-started
+assert not subprocess.check_output(['git','diff','--name-only','HEAD'],cwd=TARGET)
+out['target_worktree_unchanged']=True
+emit(f'direct-{METHOD}-result.json',out)
+print('complete',METHOD,out['elapsed_s'],flush=True)
+

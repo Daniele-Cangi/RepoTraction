@@ -1,0 +1,587 @@
+{
+  "experiment": "satellite-finite-recovery-2026-10-18",
+  "status": "completed; direct sufficiency, no external transfer attempted",
+  "prepared_head": "67d73e0969cad69c310b663b52b42b5d275743d7",
+  "target_revision": "248b54208b94f1e53f5af7bdb39d89860b05fca4",
+  "native_direct": {
+    "controls": 30,
+    "original_passes": 26,
+    "passes": 30,
+    "useful_additions": 4,
+    "previous_passes_lost": 0,
+    "full_unknowns_retained": 20,
+    "elapsed_s": 570.2040548000004,
+    "max_relative_error": 5.754681177571416e-08,
+    "absolute_relative_error_worsenings": 9,
+    "worsening_definition": "Strict increase of relative identified-projection error, including sub-criterion numerical differences.",
+    "estimator_source": "direct-native-source.txt",
+    "source_origin": "Experimenter direct local correction, not Missing Link or a donor.",
+    "full_probe_scores": [
+      {
+        "candidate": "G05",
+        "index": 0,
+        "evaluation_only_probe": {
+          "mode": "strong",
+          "source_l2_m": 0.01,
+          "sign": 1.0
+        },
+        "status": "CONVERGED",
+        "elapsed_s": 29.27476999999635,
+        "forward_calls": 2,
+        "relative_identified_source_error": 3.014511995423576e-08,
+        "projection_criterion_passed": true,
+        "converged_projection_passed": true,
+        "full_functional_unresolved": false,
+        "null_response_fraction": 6.680816159489779e-12,
+        "baseline_relative_error": 0.0005736887568877517
+      },
+      {
+        "candidate": "G05",
+        "index": 1,
+        "evaluation_only_probe": {
+          "mode": "strong",
+          "source_l2_m": 0.1,
+          "sign": 1.0
+        },
+        "status": "CONVERGED",
+        "elapsed_s": 28.306873599998653,
+        "forward_calls": 2,
+        "relative_identified_source_error": 1.9800861084674034e-08,
+        "projection_criterion_passed": true,
+        "converged_projection_passed": true,
+        "full_functional_unresolved": false,
+        "null_response_fraction": 6.680816118599925e-12,
+        "baseline_relative_error": 0.00573677595258942
+      },
+      {
+        "candidate": "G05",
+        "index": 2,
+        "evaluation_only_probe": {
+          "mode": "weak",
+          "source_l2_m": 0.01,
+          "sign": 1.0
+        },
+        "status": "CONVERGED",
+        "elapsed_s": 14.505681000002369,
+        "forward_calls": 1,
+        "relative_identified_source_error": 5.06329916706854e-10,
+        "projection_criterion_passed": true,
+        "converged_projection_passed": true,
+        "full_functional_unresolved": true,
+        "null_response_fraction": 0.22311354866966868,
+        "baseline_relative_error": 1.0422672993796705e-09
+      },
+      {
+        "candidate": "G05",
+        "index": 3,
+        "evaluation_only_probe": {
+          "mode": "weak",
+          "source_l2_m": 0.01,
+          "sign": -1.0
+        },
+        "status": "CONVERGED",
+        "elapsed_s": 14.701574099999561,
+        "forward_calls": 1,
+        "relative_identified_source_error": 8.787321340603065e-10,
+        "projection_criterion_passed": true,
+        "converged_projection_passed": true,
+        "full_functional_unresolved": true,
+        "null_response_fraction": 0.22311354866966868,
+        "baseline_relative_error": 9.84663339307438e-10
+      },
+      {
+        "candidate": "G05",
+        "index": 4,
+        "evaluation_only_probe": {
+          "mode": "weak",
+          "source_l2_m": 0.1,
+          "sign": 1.0
+        },
+        "status": "CONVERGED",
+        "elapsed_s": 14.46282799999608,
+        "forward_calls": 1,
+        "relative_identified_source_error": 4.729929649821335e-10,
+        "projection_criterion_passed": true,
+        "converged_projection_passed": true,
+        "full_functional_unresolved": true,
+        "null_response_fraction": 0.22311354866966865,
+        "baseline_relative_error": 1.3316953715348557e-09
+      },
+      {
+        "candidate": "G05",
+        "index": 5,
+        "evaluation_only_probe": {
+          "mode": "weak",
+          "source_l2_m": 0.1,
+          "sign": -1.0
+        },
+        "status": "CONVERGED",
+        "elapsed_s": 14.550712900003418,
+        "forward_calls": 1,
+        "relative_identified_source_error": 9.087655916333658e-10,
+        "projection_criterion_passed": true,
+        "converged_projection_passed": true,
+        "full_functional_unresolved": true,
+        "null_response_fraction": 0.22311354866966865,
+        "baseline_relative_error": 1.688867367465471e-09
+      },
+      {
+        "candidate": "G11",
+        "index": 0,
+        "evaluation_only_probe": {
+          "mode": "strong",
+          "source_l2_m": 0.01,
+          "sign": 1.0
+        },
+        "status": "CONVERGED",
+        "elapsed_s": 29.365594899994903,
+        "forward_calls": 2,
+        "relative_identified_source_error": 1.4633367750576183e-08,
+        "projection_criterion_passed": true,
+        "converged_projection_passed": true,
+        "full_functional_unresolved": false,
+        "null_response_fraction": 1.5287422669165668e-11,
+        "baseline_relative_error": 0.0006461949780805224
+      },
+      {
+        "candidate": "G11",
+        "index": 1,
+        "evaluation_only_probe": {
+          "mode": "strong",
+          "source_l2_m": 0.1,
+          "sign": 1.0
+        },
+        "status": "CONVERGED",
+        "elapsed_s": 28.694405900001584,
+        "forward_calls": 2,
+        "relative_identified_source_error": 5.754681177571416e-08,
+        "projection_criterion_passed": true,
+        "converged_projection_passed": true,
+        "full_functional_unresolved": false,
+        "null_response_fraction": 1.5287422660981078e-11,
+        "baseline_relative_error": 0.006461311777054811
+      },
+      {
+        "candidate": "G11",
+        "index": 2,
+        "evaluation_only_probe": {
+          "mode": "weak",
+          "source_l2_m": 0.01,
+          "sign": 1.0
+        },
+        "status": "CONVERGED",
+        "elapsed_s": 14.340763400003198,
+        "forward_calls": 1,
+        "relative_identified_source_error": 6.77908995805255e-10,
+        "projection_criterion_passed": true,
+        "converged_projection_passed": true,
+        "full_functional_unresolved": true,
+        "null_response_fraction": 0.7157938235695969,
+        "baseline_relative_error": 9.456126727017277e-10
+      },
+      {
+        "candidate": "G11",
+        "index": 3,
+        "evaluation_only_probe": {
+          "mode": "weak",
+          "source_l2_m": 0.01,
+          "sign": -1.0
+        },
+        "status": "CONVERGED",
+        "elapsed_s": 14.14612340000167,
+        "forward_calls": 1,
+        "relative_identified_source_error": 5.021210547805301e-10,
+        "projection_criterion_passed": true,
+        "converged_projection_passed": true,
+        "full_functional_unresolved": true,
+        "null_response_fraction": 0.7157938235695969,
+        "baseline_relative_error": 1.2637020087871668e-09
+      },
+      {
+        "candidate": "G11",
+        "index": 4,
+        "evaluation_only_probe": {
+          "mode": "weak",
+          "source_l2_m": 0.1,
+          "sign": 1.0
+        },
+        "status": "CONVERGED",
+        "elapsed_s": 14.376251400004548,
+        "forward_calls": 1,
+        "relative_identified_source_error": 9.123145365678744e-10,
+        "projection_criterion_passed": true,
+        "converged_projection_passed": true,
+        "full_functional_unresolved": true,
+        "null_response_fraction": 0.7157938235695969,
+        "baseline_relative_error": 1.7669060742389662e-09
+      },
+      {
+        "candidate": "G11",
+        "index": 5,
+        "evaluation_only_probe": {
+          "mode": "weak",
+          "source_l2_m": 0.1,
+          "sign": -1.0
+        },
+        "status": "CONVERGED",
+        "elapsed_s": 14.098802800006524,
+        "forward_calls": 1,
+        "relative_identified_source_error": 1.2169403396345981e-09,
+        "projection_criterion_passed": true,
+        "converged_projection_passed": true,
+        "full_functional_unresolved": true,
+        "null_response_fraction": 0.7157938235695969,
+        "baseline_relative_error": 3.714865782235489e-10
+      },
+      {
+        "candidate": "G19",
+        "index": 0,
+        "evaluation_only_probe": {
+          "mode": "strong",
+          "source_l2_m": 0.01,
+          "sign": 1.0
+        },
+        "status": "CONVERGED",
+        "elapsed_s": 11.067970500000229,
+        "forward_calls": 2,
+        "relative_identified_source_error": 8.274745277177593e-09,
+        "projection_criterion_passed": true,
+        "converged_projection_passed": true,
+        "full_functional_unresolved": false,
+        "null_response_fraction": 5.8079888145356806e-11,
+        "baseline_relative_error": 1.1519114201441545e-06
+      },
+      {
+        "candidate": "G19",
+        "index": 1,
+        "evaluation_only_probe": {
+          "mode": "strong",
+          "source_l2_m": 0.1,
+          "sign": 1.0
+        },
+        "status": "CONVERGED",
+        "elapsed_s": 11.066262400003325,
+        "forward_calls": 2,
+        "relative_identified_source_error": 1.551924571772624e-08,
+        "projection_criterion_passed": true,
+        "converged_projection_passed": true,
+        "full_functional_unresolved": false,
+        "null_response_fraction": 5.8079888145299866e-11,
+        "baseline_relative_error": 1.1523476260736982e-05
+      },
+      {
+        "candidate": "G19",
+        "index": 2,
+        "evaluation_only_probe": {
+          "mode": "weak",
+          "source_l2_m": 0.01,
+          "sign": 1.0
+        },
+        "status": "CONVERGED",
+        "elapsed_s": 5.807137499999953,
+        "forward_calls": 1,
+        "relative_identified_source_error": 3.0028634789835624e-09,
+        "projection_criterion_passed": true,
+        "converged_projection_passed": true,
+        "full_functional_unresolved": true,
+        "null_response_fraction": 0.9379715539471877,
+        "baseline_relative_error": 1.9912410338521777e-09
+      },
+      {
+        "candidate": "G19",
+        "index": 3,
+        "evaluation_only_probe": {
+          "mode": "weak",
+          "source_l2_m": 0.01,
+          "sign": -1.0
+        },
+        "status": "CONVERGED",
+        "elapsed_s": 5.512734099997033,
+        "forward_calls": 1,
+        "relative_identified_source_error": 2.1190460858567683e-09,
+        "projection_criterion_passed": true,
+        "converged_projection_passed": true,
+        "full_functional_unresolved": true,
+        "null_response_fraction": 0.9379715539471877,
+        "baseline_relative_error": 4.694829256904133e-09
+      },
+      {
+        "candidate": "G19",
+        "index": 4,
+        "evaluation_only_probe": {
+          "mode": "weak",
+          "source_l2_m": 0.1,
+          "sign": 1.0
+        },
+        "status": "CONVERGED",
+        "elapsed_s": 6.710945400001947,
+        "forward_calls": 1,
+        "relative_identified_source_error": 1.575824550414805e-09,
+        "projection_criterion_passed": true,
+        "converged_projection_passed": true,
+        "full_functional_unresolved": true,
+        "null_response_fraction": 0.9379715539471879,
+        "baseline_relative_error": 1.3194172157893862e-09
+      },
+      {
+        "candidate": "G19",
+        "index": 5,
+        "evaluation_only_probe": {
+          "mode": "weak",
+          "source_l2_m": 0.1,
+          "sign": -1.0
+        },
+        "status": "CONVERGED",
+        "elapsed_s": 5.755738899999415,
+        "forward_calls": 1,
+        "relative_identified_source_error": 1.1378625360821572e-09,
+        "projection_criterion_passed": true,
+        "converged_projection_passed": true,
+        "full_functional_unresolved": true,
+        "null_response_fraction": 0.9379715539471879,
+        "baseline_relative_error": 8.409217826340295e-09
+      },
+      {
+        "candidate": "G20",
+        "index": 0,
+        "evaluation_only_probe": {
+          "mode": "strong",
+          "source_l2_m": 0.01,
+          "sign": 1.0
+        },
+        "status": "CONVERGED",
+        "elapsed_s": 29.068950399996538,
+        "forward_calls": 2,
+        "relative_identified_source_error": 1.944489071740886e-08,
+        "projection_criterion_passed": true,
+        "converged_projection_passed": true,
+        "full_functional_unresolved": false,
+        "null_response_fraction": 2.935867672499788e-12,
+        "baseline_relative_error": 0.0005136370555837317
+      },
+      {
+        "candidate": "G20",
+        "index": 1,
+        "evaluation_only_probe": {
+          "mode": "strong",
+          "source_l2_m": 0.1,
+          "sign": 1.0
+        },
+        "status": "CONVERGED",
+        "elapsed_s": 31.828870500001358,
+        "forward_calls": 2,
+        "relative_identified_source_error": 1.2749669696665126e-08,
+        "projection_criterion_passed": true,
+        "converged_projection_passed": true,
+        "full_functional_unresolved": false,
+        "null_response_fraction": 2.935867734815421e-12,
+        "baseline_relative_error": 0.0051380958072192165
+      },
+      {
+        "candidate": "G20",
+        "index": 2,
+        "evaluation_only_probe": {
+          "mode": "weak",
+          "source_l2_m": 0.01,
+          "sign": 1.0
+        },
+        "status": "CONVERGED",
+        "elapsed_s": 16.109545699997398,
+        "forward_calls": 1,
+        "relative_identified_source_error": 3.7565952098835216e-10,
+        "projection_criterion_passed": true,
+        "converged_projection_passed": true,
+        "full_functional_unresolved": true,
+        "null_response_fraction": 0.06875189521755826,
+        "baseline_relative_error": 7.201020865337419e-10
+      },
+      {
+        "candidate": "G20",
+        "index": 3,
+        "evaluation_only_probe": {
+          "mode": "weak",
+          "source_l2_m": 0.01,
+          "sign": -1.0
+        },
+        "status": "CONVERGED",
+        "elapsed_s": 14.634488999996393,
+        "forward_calls": 1,
+        "relative_identified_source_error": 3.730407949128122e-10,
+        "projection_criterion_passed": true,
+        "converged_projection_passed": true,
+        "full_functional_unresolved": true,
+        "null_response_fraction": 0.06875189521755826,
+        "baseline_relative_error": 3.087988502913317e-10
+      },
+      {
+        "candidate": "G20",
+        "index": 4,
+        "evaluation_only_probe": {
+          "mode": "weak",
+          "source_l2_m": 0.1,
+          "sign": 1.0
+        },
+        "status": "CONVERGED",
+        "elapsed_s": 14.591416800001753,
+        "forward_calls": 1,
+        "relative_identified_source_error": 2.380430788448703e-10,
+        "projection_criterion_passed": true,
+        "converged_projection_passed": true,
+        "full_functional_unresolved": true,
+        "null_response_fraction": 0.06875189521755824,
+        "baseline_relative_error": 7.934197445644265e-10
+      },
+      {
+        "candidate": "G20",
+        "index": 5,
+        "evaluation_only_probe": {
+          "mode": "weak",
+          "source_l2_m": 0.1,
+          "sign": -1.0
+        },
+        "status": "CONVERGED",
+        "elapsed_s": 15.080511200001638,
+        "forward_calls": 1,
+        "relative_identified_source_error": 4.160352963461786e-10,
+        "projection_criterion_passed": true,
+        "converged_projection_passed": true,
+        "full_functional_unresolved": true,
+        "null_response_fraction": 0.06875189521755824,
+        "baseline_relative_error": 2.76353640351007e-10
+      },
+      {
+        "candidate": "G21",
+        "index": 0,
+        "evaluation_only_probe": {
+          "mode": "strong",
+          "source_l2_m": 0.01,
+          "sign": 1.0
+        },
+        "status": "CONVERGED",
+        "elapsed_s": 22.632025899998553,
+        "forward_calls": 2,
+        "relative_identified_source_error": 1.9929513197355842e-08,
+        "projection_criterion_passed": true,
+        "converged_projection_passed": true,
+        "full_functional_unresolved": false,
+        "null_response_fraction": 1.2585259025355206e-11,
+        "baseline_relative_error": 0.0008622524395218582
+      },
+      {
+        "candidate": "G21",
+        "index": 1,
+        "evaluation_only_probe": {
+          "mode": "strong",
+          "source_l2_m": 0.1,
+          "sign": 1.0
+        },
+        "status": "CONVERGED",
+        "elapsed_s": 23.34527149999485,
+        "forward_calls": 2,
+        "relative_identified_source_error": 1.2478591571161866e-08,
+        "projection_criterion_passed": true,
+        "converged_projection_passed": true,
+        "full_functional_unresolved": false,
+        "null_response_fraction": 1.2585259039936198e-11,
+        "baseline_relative_error": 0.008622012269274289
+      },
+      {
+        "candidate": "G21",
+        "index": 2,
+        "evaluation_only_probe": {
+          "mode": "weak",
+          "source_l2_m": 0.01,
+          "sign": 1.0
+        },
+        "status": "CONVERGED",
+        "elapsed_s": 11.568528900003002,
+        "forward_calls": 1,
+        "relative_identified_source_error": 1.248553882051447e-09,
+        "projection_criterion_passed": true,
+        "converged_projection_passed": true,
+        "full_functional_unresolved": true,
+        "null_response_fraction": 0.24649993401901368,
+        "baseline_relative_error": 4.087445609484041e-10
+      },
+      {
+        "candidate": "G21",
+        "index": 3,
+        "evaluation_only_probe": {
+          "mode": "weak",
+          "source_l2_m": 0.01,
+          "sign": -1.0
+        },
+        "status": "CONVERGED",
+        "elapsed_s": 11.410045000004175,
+        "forward_calls": 1,
+        "relative_identified_source_error": 7.629641881495309e-10,
+        "projection_criterion_passed": true,
+        "converged_projection_passed": true,
+        "full_functional_unresolved": true,
+        "null_response_fraction": 0.24649993401901368,
+        "baseline_relative_error": 4.836868755221794e-10
+      },
+      {
+        "candidate": "G21",
+        "index": 4,
+        "evaluation_only_probe": {
+          "mode": "weak",
+          "source_l2_m": 0.1,
+          "sign": 1.0
+        },
+        "status": "CONVERGED",
+        "elapsed_s": 11.337230699995416,
+        "forward_calls": 1,
+        "relative_identified_source_error": 1.2200071029570902e-09,
+        "projection_criterion_passed": true,
+        "converged_projection_passed": true,
+        "full_functional_unresolved": true,
+        "null_response_fraction": 0.24649993401901363,
+        "baseline_relative_error": 6.361651164062217e-10
+      },
+      {
+        "candidate": "G21",
+        "index": 5,
+        "evaluation_only_probe": {
+          "mode": "weak",
+          "source_l2_m": 0.1,
+          "sign": -1.0
+        },
+        "status": "CONVERGED",
+        "elapsed_s": 11.256549900004757,
+        "forward_calls": 1,
+        "relative_identified_source_error": 7.154591651477641e-10,
+        "projection_criterion_passed": true,
+        "converged_projection_passed": true,
+        "full_functional_unresolved": true,
+        "null_response_fraction": 0.24649993401901363,
+        "baseline_relative_error": 5.521028160478277e-10
+      }
+    ]
+  },
+  "missing_link": {
+    "decision": "use_direct",
+    "decision_qualified": false,
+    "interpretation": "Model accepted operator-supplied direct evidence; it did not discover or implement the direct algorithm, inspect a donor, or independently execute its verification.",
+    "calls": 2,
+    "elapsed_s": 225.88098880000325,
+    "repository_searches": 0,
+    "sources_selected": 0,
+    "native_source_adaptations": 0,
+    "qualified_links": 0,
+    "autonomous_mechanism_transfer_demonstrated": false
+  },
+  "unchanged": {
+    "historical_preparation": true,
+    "product_code": true,
+    "target_worktree": true
+  },
+  "limitations": [
+    "Controlled finite injections through the actual admitted-data physical operator, not recovery of real unknown source errors.",
+    "Native Windows local numerical prototype, not a production patch or a native Linux execution claim.",
+    "The twenty complete weak functionals remain unknown; projection success does not remove null modes, qualify uncertainty or close S2.",
+    "Operator-authored demand and operator-selected target excerpts, not a real blocked-agent checkpoint or autonomous target selection.",
+    "The direct solution was supplied to the planner; this is not evidence of independent problem solving by Missing Link.",
+    "SciPy alternative unexecuted because the first direct method covered the full fixed need; no superiority over all direct solvers claimed."
+  ]
+}

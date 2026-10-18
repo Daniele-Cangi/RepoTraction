@@ -1,0 +1,3 @@
+{"stage": "interpret_request", "calls": 0, "reserved_usd": 0.0}
+{"stage": "plan_discovery", "calls": 1, "reserved_usd": 0.0079921}
+{"status": "completed", "terminal": "planner_use_direct", "calls": 2, "reserved_usd": 0.0174082, "elapsed_s": 225.88098880000325}
