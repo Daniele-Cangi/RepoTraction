@@ -1,0 +1,11 @@
+{
+  "target_revision": "660cc7696f4b6730c8689a2c06fdf497625422ae",
+  "tests": 15,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "elapsed_s": 74.05,
+  "source_scope": "Existing native geometry/null/holdout/receipt regressions; not a new predictive mechanism or native integration claim.",
+  "junit_sha256": "5ed5062c5bce43396d2122b0f70a2c215ba0626639605e4fc062c4db2e249f97",
+  "log_sha256": "53cfe3493598cc8bb96c0641086e84f3b8b23b80ccefd1bd65174c4a65a039db"
+}

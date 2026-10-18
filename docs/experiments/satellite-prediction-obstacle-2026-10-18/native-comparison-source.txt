@@ -1,0 +1,46 @@
+"""Read-only native prediction comparison; no trajectory fit or API dispatch."""
+import os,sys,json,gzip,hashlib,time,subprocess,copy
+from pathlib import Path
+os.environ['OPENBLAS_NUM_THREADS']='1'
+os.environ['OMP_NUM_THREADS']='1'
+sys.dont_write_bytecode=True
+TARGET=Path('C:/Users/dacan/Documents/Codex/2026-10-18/satellite-native-discovery')
+OUT=Path(__file__).resolve().parent
+PIN='660cc7696f4b6730c8689a2c06fdf497625422ae'
+assert subprocess.check_output(['git','rev-parse','HEAD'],cwd=TARGET,text=True).strip()==PIN
+assert not subprocess.check_output(['git','diff','--name-only','HEAD'],cwd=TARGET)
+sys.path.insert(0,str(TARGET))
+from research.exploratory import reference_network_clocks as study
+def emit(name,value):
+    with (OUT/name).open('x',encoding='utf-8') as f:json.dump(study.native(value),f,indent=2,allow_nan=False);f.write('\n')
+started=time.perf_counter()
+name='stable_source_differential_v1.json.gz'
+payload=(study.baseline.BASE/'results'/name).read_bytes()
+assert hashlib.sha256(payload).hexdigest()=='56b325ab32a679d89223b89bbe88633cd3850bdcf0cd605c18bea1bf62900020'
+saved=json.loads(gzip.decompress(payload))
+cov=study.gnss_combinations.assumed_endpoint_covariance()
+models={'clock_only':None,'wet':('wet',),'full':study.source_geometry.FAMILIES}
+out={'target_revision':PIN,'input_artifact':name,'input_sha256':hashlib.sha256(payload).hexdigest(),
+     'source_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+     'scope':'Current stable differential rows, conditional excluded-link transfer; no new RF-state fit, CODE scoring or target state access.',
+     'models':models,'folds':{},'all_predictions_fixed_before_scoring':False}
+rows_by_fold={}
+for candidate,c in saved['candidates'].items():
+    if 'source_profile' not in c:continue
+    rows=c['reference_rows'];rows_by_fold[candidate]=rows
+    out['folds'][candidate]={}
+    for label,families in models.items():
+        t=time.perf_counter();print(candidate,label,'start',flush=True)
+        result=study.network_closures.prepare_future_links(rows,candidate,cov,source_families=families)
+        out['folds'][candidate][label]={'predictions':result,'elapsed_s':time.perf_counter()-t}
+        print(candidate,label,result['status'],result.get('prediction_status_counts'),flush=True)
+out['all_predictions_fixed_before_scoring']=True
+out['elapsed_before_scoring_s']=time.perf_counter()-started
+emit('current-native-before-scoring.json',out)
+for candidate,fold in out['folds'].items():
+    for label,record in fold.items():
+        record['scored']=study.network_closures.score_future_links(record['predictions'],rows_by_fold[candidate])
+out['elapsed_s']=time.perf_counter()-started
+assert not subprocess.check_output(['git','diff','--name-only','HEAD'],cwd=TARGET)
+emit('current-native-result.json',out)
+print('complete',out['elapsed_s'],flush=True)

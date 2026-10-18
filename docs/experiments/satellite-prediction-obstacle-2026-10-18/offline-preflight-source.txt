@@ -1,0 +1,56 @@
+"""Offline preparation of the existing Provider boundary; remote complete disabled."""
+import hashlib,json,subprocess,sys
+from pathlib import Path
+ROOT=Path(__file__).resolve().parents[2]
+sys.path.insert(0,str(ROOT))
+from missing_link.config import provider_environment
+from missing_link.provider import Provider
+from missing_link.analysis import digest
+HERE=Path(__file__).resolve().parent
+PREP=ROOT/'docs/experiments/satellite-prediction-obstacle-2026-10-18'
+spec=json.loads((PREP/'experiment.json').read_bytes())
+task=json.loads((PREP/'request.json').read_bytes())
+context=json.loads((PREP/'target-context.json').read_bytes())
+env=provider_environment()
+for key,expected in [('REPOTRACTION_AI_MODEL','gpt-6-luna'),('REPOTRACTION_AI_INPUT_USD_PER_MILLION','0.1'),('REPOTRACTION_AI_OUTPUT_USD_PER_MILLION','0.5')]:
+    if 'PER_MILLION' in key:assert float(env[key])==float(expected)
+    else:assert env[key]==expected
+env.update({'REPOTRACTION_AI_MAX_CALLS':'5','REPOTRACTION_AI_MAX_COST_USD':'.15',
+ 'REPOTRACTION_AI_TOTAL_BUDGET_USD':'.15','REPOTRACTION_AI_BUDGET_ID':'satellite-prediction-obstacle-2026-10-18-v1',
+ 'REPOTRACTION_AI_MAX_PROMPT_BYTES':'180000','REPOTRACTION_AI_MAX_OUTPUT_TOKENS':'12000',
+ 'REPOTRACTION_AI_API_KIND':'responses','REPOTRACTION_AI_RESPONSE_FORMAT':'json_schema',
+ 'REPOTRACTION_AI_REASONING_EFFORT':'medium','REPOTRACTION_AI_STREAMING':'1'})
+provider=Provider(env)
+assert provider.describe()['configured'] and provider.remote
+issue=task['issue_container'];issue['fingerprint']=digest(issue)
+captured={}
+class OfflineStop(Exception):pass
+def no_remote(instruction,data,budget,schema=None,phase='analysis'):
+    captured.update(phase=phase,prompt_bytes=len(provider._encode_prompt(instruction,data,schema,phase)[2]),
+                    discussion_complete=data.get('context_coverage',{}).get('discussion_complete'),
+                    supplied_citation_spans=len(data.get('demand_spans',{})))
+    raise OfflineStop()
+provider.complete=no_remote
+try:provider.interpret_request(issue,None)
+except OfflineStop:pass
+else:raise AssertionError('offline dispatch stop was not reached')
+assert captured['phase']=='request' and 0<captured['prompt_bytes']<=180000 and captured['supplied_citation_spans']>0
+target=Path('C:/Users/dacan/Documents/Codex/2026-10-18/satellite-native-discovery')
+for file in context['target']['files']:
+    blob=subprocess.check_output(['git','rev-parse',context['target']['revision']+':'+file['path']],cwd=target,text=True).strip()
+    assert blob==file['sha']
+    text=(target/file['path']).read_text(encoding='utf-8')
+    wanted='\n'.join(text.splitlines()[file['original_start_line']-1:file['original_end_line']])
+    assert file['text'].partition('\n')[2]==wanted
+reserved=((provider.max_bytes+2048)*provider.input_price+provider.max_tokens*provider.output_price)/1e6*provider.max_calls
+assert abs(reserved-spec['budget']['maximum_reservation_usd'])<1e-12 and reserved<=spec['budget']['proposed_ceiling_usd']
+out={'scope':'Offline source/pricing/context preparation only. Provider.complete is replaced by an unconditional stop before transport.',
+     'api_calls':0,'provider_configured':True,'model':provider.model,'first_request_context':captured,
+     'maximum_reserved_usd':reserved,'proposed_ceiling_usd':spec['budget']['proposed_ceiling_usd'],
+     'local_demand_fingerprint':issue['fingerprint'],'request_normalization_by_ai':'not yet executed',
+     'target_excerpts_match_pinned_git_blobs':True,
+     'source_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+     'prepared_files_sha256':{name:hashlib.sha256((PREP/name).read_bytes()).hexdigest() for name in ['experiment.json','request.json','target-context.json']}}
+with (PREP/'offline-preflight.json').open('x',encoding='utf-8') as f:json.dump(out,f,indent=2,allow_nan=False);f.write('\n')
+print(json.dumps(out,indent=2))
+

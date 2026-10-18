@@ -1,0 +1,23 @@
+{
+  "scope": "Offline source/pricing/context preparation only. Provider.complete is replaced by an unconditional stop before transport.",
+  "api_calls": 0,
+  "provider_configured": true,
+  "model": "gpt-6-luna",
+  "first_request_context": {
+    "phase": "request",
+    "prompt_bytes": 23507,
+    "discussion_complete": true,
+    "supplied_citation_spans": 32
+  },
+  "maximum_reserved_usd": 0.12102399999999999,
+  "proposed_ceiling_usd": 0.15,
+  "local_demand_fingerprint": "b09369b58b0aee1ac87141f0b4233aafa6a898c804ab0ce45a5289aa4b9f0a25",
+  "request_normalization_by_ai": "not yet executed",
+  "target_excerpts_match_pinned_git_blobs": true,
+  "source_sha256": "c26e95ae78304f747137d3e40dfca7a1a0b1a3c33d2effc819ce503a57f7c3e1",
+  "prepared_files_sha256": {
+    "experiment.json": "97af924b32a5c9e6b16ea7afd305dea05f78fe7a528e1dcf42a5f6641e022cf4",
+    "request.json": "3ac20f8213a03ca65355fd759be1057654673fbd80a4f6a3518c4457cc1eb086",
+    "target-context.json": "ff3c40d28b35740b56ba0f5dcbfa96ac7868172723070b0ab1f0c711cfa5e1ac"
+  }
+}

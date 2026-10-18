@@ -1,0 +1,23 @@
+{
+  "artifacts": {
+    ".gitattributes": "705fd4d6451a31d36b3df7de96f83f30ac976c9b4a6d1e51671d8e2f33e2d0da",
+    "direct-comparators-source.txt": "1e24b9b4eaff2cd2a27e1d6968e2d353178f7e49b38ed495fe08d2c3ec476373",
+    "direct-comparison.json": "752d7be7a714d4524e9f9ce2c64b34793ca9f497ea91f8f70b65b6436e847527",
+    "direct-log.txt": "d3427e48845b73e2360bd3811aaf4c66f65460092e59e6ddc388db81289760a3",
+    "experiment.json": "97af924b32a5c9e6b16ea7afd305dea05f78fe7a528e1dcf42a5f6641e022cf4",
+    "native-comparison-source.txt": "c3cd6ac3f717e32c5de2d66df73d853d8606414c5e20a6896a0d7d74cacf8dcb",
+    "native-log.txt": "8360e63855576a4f82d2973fa16a1b2e270d5bbbde5162ede3ffdca76fe16dad",
+    "native-test-receipt.json": "cdcf5c9b351faeed078fca4c0d3f6c0b5f3f3f68e0df980ea474d3ed77fe9e42",
+    "native-tests-log.txt": "53cfe3493598cc8bb96c0641086e84f3b8b23b80ccefd1bd65174c4a65a039db",
+    "native-tests.xml": "5ed5062c5bce43396d2122b0f70a2c215ba0626639605e4fc062c4db2e249f97",
+    "offline-preflight-source.txt": "c26e95ae78304f747137d3e40dfca7a1a0b1a3c33d2effc819ce503a57f7c3e1",
+    "offline-preflight.json": "e4c8a9af1377ac4bf7a8585d922b56ff0a596e3b152f9a8537be04a95a7ae965",
+    "packet-preparation-source.txt": "3555a4c010552b04eee7d0b5b94c07338042c895182ea5e2ec3b2c000f6f9eb1",
+    "predictions-before-scoring.json.gz": "a765721f6135dc109e16b348ac1a1afcd868f48c91a7d4bb55819cdf120a4001",
+    "README.md": "b0edd9b8804ea946757d7687ca615cce75df6a3d78daec599e0fbae5245f783a",
+    "request.json": "3ac20f8213a03ca65355fd759be1057654673fbd80a4f6a3518c4457cc1eb086",
+    "scores.json.gz": "0198bed644195f96605e18ec47bfc97a8ad6fdfc45bc949fd509b2d80aae9c3f",
+    "target-context.json": "ff3c40d28b35740b56ba0f5dcbfa96ac7868172723070b0ab1f0c711cfa5e1ac"
+  },
+  "status": "Preparation, no paid dispatch or donor search. Compact derived prediction/score exports; historical source evidence is untouched."
+}

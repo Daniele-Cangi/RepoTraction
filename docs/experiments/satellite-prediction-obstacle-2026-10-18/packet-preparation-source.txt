@@ -1,0 +1,125 @@
+"""Package one fixed native task and already executed direct comparisons."""
+import json,gzip,hashlib,math,subprocess,sys,xml.etree.ElementTree as ET
+from pathlib import Path
+HERE=Path(__file__).resolve().parent;ROOT=HERE.parents[1]
+DEST=ROOT/'docs/experiments/satellite-prediction-obstacle-2026-10-18'
+TARGET=Path('C:/Users/dacan/Documents/Codex/2026-10-18/satellite-native-discovery')
+PIN='660cc7696f4b6730c8689a2c06fdf497625422ae'
+def sha(data):return hashlib.sha256(data).hexdigest()
+def read(name):return json.loads((HERE/name).read_bytes())
+def write(name,value):
+    raw=(json.dumps(value,ensure_ascii=False,indent=2,allow_nan=False)+'\n').encode()
+    if name.endswith('.gz'):raw=gzip.compress(raw,mtime=0)
+    with (DEST/name).open('xb') as f:f.write(raw)
+DEST.mkdir(exist_ok=False)
+(DEST/'.gitattributes').write_bytes(b'* -text\n')
+a=read('current-native-result.json');b=read('direct-result.json')
+before_a=read('current-native-before-scoring.json');before_b=read('direct-before-scoring.json')
+assert a['target_revision']==b['target_revision']==PIN
+assert a['all_predictions_fixed_before_scoring'] and b['all_predictions_fixed_before_scoring']
+methods={q:{**{k:v['scored'] for k,v in fold.items()},**b['folds'][q]} for q,fold in a['folds'].items()}
+summary={'target_revision':PIN,'native_elapsed_s':a['elapsed_s'],'additional_direct_elapsed_s':b['elapsed_s'],
+  'source_input_sha256':a['input_sha256'],'shared_data_and_folds_not_independent_replications':True,
+  'comparison_uses_identical_rows':True,'common_support':{},'models':{},'by_fold':{},
+  'all_original_prediction_terminals_retained':True,
+  'scope':'Conditional missing-link RF transfer using contemporaneous other-link RF, not a whole-network future forecast, source attribution, orbital accuracy or physical uncertainty qualification.'}
+for lag in (30.,300.):
+    maps={q:{k:{(x['station'],x['reference'],x['time_s']):x['z'] for inc in v['increment_errors'] if inc['lag_s']==lag for x in inc['rows']}
+             for k,v in fold.items()} for q,fold in methods.items()}
+    common={q:set.intersection(*(set(m) for m in fold.values())) for q,fold in maps.items()}
+    count=sum(map(len,common.values()));summary['common_support'][str(int(lag))]=count
+    for method in next(iter(methods.values())):
+        z=[v for q,fold in maps.items() for key,v in fold[method].items() if key in common[q]]
+        rms=[math.sqrt(sum(v[i]**2 for v in z)/count) for i in (0,1)]
+        summary['models'].setdefault(method,{})[str(int(lag))]={'count':count,'code_rms_m':rms[0],'phase_rms_m':rms[1]}
+        for q,fold in maps.items():
+            own=[v for key,v in fold[method].items() if key in common[q]]
+            summary['by_fold'].setdefault(q,{}).setdefault(method,{})[str(int(lag))]={
+                'count':len(own),'code_rms_m':math.sqrt(sum(v[0]**2 for v in own)/len(own)),
+                'phase_rms_m':math.sqrt(sum(v[1]**2 for v in own)/len(own))}
+assert summary['common_support']=={'30':1248,'300':874}
+primary=min(summary['models'],key=lambda k:summary['models'][k]['300']['phase_rms_m'])
+summary['strongest_primary_direct_method']=primary
+summary['best_direct_by_metric']={lag:{metric:min(v[lag][metric] for v in summary['models'].values())
+    for metric in ('code_rms_m','phase_rms_m')} for lag in ('30','300')}
+summary['gcv_limit']='Single bounded training-only numerical minimization with the native residual degrees of freedom and original identified source subspace. No claim of a global GCV optimum, independent-noise validity, physical prior or exhaustion of all direct algorithms.'
+write('direct-comparison.json',summary)
+# Keep every forecast and score, but avoid duplicating large fitted source/null matrices.
+forecasts={};scores={}
+for q,fold in methods.items():
+    forecasts[q]={};scores[q]={}
+    for method,record in fold.items():
+        prior=before_a['folds'][q][method]['predictions'] if method in before_a['folds'][q] else before_b['folds'][q][method]
+        assert prior['predictions']==record['predictions']
+        forecasts[q][method]={k:v for k,v in prior.items() if k!='source_model'}
+        if 'source_model' in prior:
+            model=prior['source_model'];forecasts[q][method]['source_model_summary']={k:model[k] for k in ('families','source_count','resolved_rank','null_count','rank_rtol')}
+        scores[q][method]={k:record[k] for k in ('status','level_errors','increment_errors','whole_network_future_prediction','physical_covariance_qualified')}
+write('predictions-before-scoring.json.gz',{'origin':'Exact forecast records extracted from the two separately retained pre-scoring files; fitted source/null matrices omitted, predictions unchanged.',
+      'raw_before_sha256':{name:sha((HERE/name).read_bytes()) for name in ('current-native-before-scoring.json','direct-before-scoring.json')},'folds':forecasts})
+write('scores.json.gz',{'origin':'Native score_future_links outputs, no rescaling or discarded terminal. Forecasts stored separately to avoid duplication.',
+      'raw_result_sha256':{name:sha((HERE/name).read_bytes()) for name in ('current-native-result.json','direct-result.json')},'folds':scores})
+
+body="""Improve prediction of excluded reference-link RF increments in Satellite's native calibration code. On the current stable differential inputs, the clock-only, wet-only and complete source models have been replayed on the same fixed last-third link holdouts. Adding freely fitted source shapes severely worsens phase prediction. Existing free-drift and a bounded training-GCV predictive shrinkage comparison have also been executed; neither beats the strongest simple primary baseline. The request is to improve predictive transfer beyond that strongest direct comparison, not merely rescue the worst full model.
+
+Use only admitted non-candidate reference data. The fixed held link/epoch measurements, including their GF/MW/phase/code values and continuity witnesses, must be removed before fitting, choosing parameters or selecting boundaries. Other reference links at the excluded epochs remain available. Geometry and masks are conditional on the existing nominal preparation. This is conditional missing-link prediction, not RF-free forecasting of the entire clock network.
+
+A useful contribution can be a transferable mechanism from another domain, not necessarily an installable library. Decide whether external code is worth investigating, choose the operations, search phrases and one source yourself. Do not choose from donor names supplied by an operator; none is supplied. A defensible use_direct, defer or no-source decision is valid. You may adapt a predictive strategy, but do not assert its empirical assumptions are a qualified physical source prior or covariance.
+
+Success is at least 10% lower pooled 300-second phase RMS than the strongest direct primary baseline, on the original common 874 increment pairs; retain all 1248 common 30-second pairs. On each lag, pooled code RMS and 30-second phase RMS may be at most 2% above the best direct value for that metric. At least four of the five folds must improve 300-second phase RMS versus the same globally chosen primary baseline; no fold may worsen it by over 10%. Preserve and report all missing/unknown predictions and every worsening. These are operator-set practical pilot criteria fixed before donor search, not physical qualification thresholds or statistical significance.
+
+Fit or choose all parameters from training only. Keep historical inputs, masks, raw marginal weights, rank/identifiability definitions and results unchanged. Never complete an unidentifiable physical source or raw common clock with an arbitrary zero. Source amplitudes, physical covariance, G12 state and candidate CODE orbit must not be used as labels, priors, tuning targets or acceptance truth. No orbital-state refit is part of this trial. A native predictive improvement is the sole potential gain; physical source attribution and S2 remain unproven. A donor-only sandbox example is insufficient.
+
+Allow one bounded adaptation of the selected external mechanism and one parameter-selection rule decided without held scores, with no donor replacement, rescue queries, paid retries, or holdout-driven tuning. Compare every result on the unchanged support and all five folds. Source inspection does not establish benefit; only native execution can do that. If a modification is justified, it requires native regressions and Windows/Linux CI before integration."""
+title='Improve conditional RF link prediction beyond the strongest direct calibration baseline'
+issue={'id':'satellite-prediction-obstacle-2026-10-18','repo':'Daniele-Cangi/Satellite-RF-Observatory','repo_id':1128978015,
+       'url':'https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-unresolved-obstacle/docs/experiments/satellite-prediction-obstacle-2026-10-18/request.json',
+       'title':title,'body':body,'comments':[],'timeline':[],'state':'open','context_complete':True,'public':True,
+       'updated_at':'2026-10-18','author':'experimenter','author_type':'User',
+       'origin':'Operator-authored native predictive task, not a public issue or blocked-agent message.'}
+write('request.json',{'origin':issue['origin'],'issue_container':issue,
+      'evidence_basis':'Current native replay plus two direct comparisons, with methods chosen before source search. Previously exposed archive; no blind or causal-agent-rescue claim.'})
+files=[]
+for path,first,last in [('research/kinematic/network_closures.py',58,159),('research/kinematic/source_geometry.py',176,265)]:
+    text='\n'.join((TARGET/path).read_text(encoding='utf-8').splitlines()[first-1:last])
+    blob=subprocess.check_output(['git','rev-parse',PIN+':'+path],cwd=TARGET,text=True).strip()
+    files.append({'path':path,'sha':blob,'url':f'https://github.com/Daniele-Cangi/Satellite-RF-Observatory/blob/{PIN}/{path}#L{first}',
+      'text':f'OPERATOR-SELECTED EXCERPT; ORIGINAL FILE LINES {first}-{last}, NOT THE COMPLETE FILE.\n'+text,
+      'original_start_line':first,'original_end_line':last,'truncated':True,'redacted':False,'text_is_original_file_prefix':False})
+write('target-context.json',{'origin':'Explicit operator-selected implementation excerpts, not autonomous file selection or normal complete-file citations.',
+      'target':{'id':1128978015,'full_name':issue['repo'],'revision':PIN,'public':True,'files':files,
+          'coverage':{'sample_only':True,'all_target_source_available':False,'operator_selected_excerpts':True}},
+      'evaluation_rule':'Do not feed excerpt-relative line IDs as ordinary complete-file evidence to Provider.evaluate; donor files retain their own real evidence and local adoption needs native assessment.'})
+write('experiment.json',{'experiment':'satellite-prediction-obstacle-2026-10-18','status':'preparation; no paid execution authorized',
+      'product_revision':'ce770fe911641dbfdcd4dcfa3baff357d9d31a23','target_revision':PIN,
+      'obstacle':'Generalization of conditional real RF link predictions remains poor after rich source fitting, free drift and bounded training-only GCV; strongest simple baseline must be beaten.',
+      'acceptance':{'primary':'300-second pooled phase RMS <= .9 times the strongest direct primary value on 874 fixed pairs',
+          'preserve_common_30s_pairs':1248,'secondary':'Both code RMS values and 30-second phase RMS <=1.02 times their metric-wise best direct values.',
+          'fold_rule':'At least four of five improve primary phase RMS versus the single globally chosen best-primary direct method; no fold >10% worse.',
+          'counts_and_unknowns':'Retain every original terminal, all unavailable and worsening cases; no support cherry-picking.',
+          'scope':'Practical exploratory predictive criteria, not physical accuracy, source identifiability, population significance or blind confirmation.'},
+      'discovery':{'max_calls':5,'max_queries':3,'results_per_query':20,'max_selected_sources':1,'retries':0,
+          'phases':['interpret_request','plan_discovery','select_source','interpret_capabilities','evaluate'],
+          'path':'Reuse existing Provider, PublicGitHub and Service/Budget/Store primitives and the already used experiment-local invocation; no new runner or intake feature.',
+          'allow_stop':True,'initial_target_files':'Operator-selected, explicitly truncated excerpts; no autonomous target-file selection claim.'},
+      'native_adaptation':{'max_selected_mechanisms':1,'max_configurations':1,'training_only_rule':True,'max_elapsed_s':1800,
+          'scope':'Existing native reference prediction path only, no new RF orbit fit, new source-truth injection, acquisition, target state or new generalized validation infrastructure.'},
+      'budget':{'model':'gpt-6-luna','max_prompt_bytes':180000,'max_output_tokens':12000,'max_calls':5,
+          'configured_input_usd_per_million':.1,'configured_output_usd_per_million':.5,
+          'maximum_reservation_usd':.121024,'proposed_ceiling_usd':.15,'authorization':'not granted; #130 allowance is closed and cannot be reused'},
+      'execution_gate':'Distinct user cap approval plus preparation review and Windows/Linux CI green. No further direct comparator tuning or donor search before that decision.',
+      'limitations':['Previously exposed archive, including the operator already observing baseline held scores.',
+          'Shared folds and data, not five independent replications.','Local demand and operator excerpts, not a blocked-agent checkpoint.',
+          'Numerical GCV is one direct predictive comparison with declared assumptions, not exhaustion of direct solvers.']})
+for source,target in [('check_obstacle.py','native-comparison-source.txt'),('direct_comparators.py','direct-comparators-source.txt'),
+                      ('native-log.txt','native-log.txt'),('direct-log.txt','direct-log.txt'),
+                      ('native-tests-log.txt','native-tests-log.txt'),('native-tests.xml','native-tests.xml')]:
+    (DEST/target).write_bytes((HERE/source).read_bytes())
+tests=ET.fromstring((DEST/'native-tests.xml').read_bytes())
+suite=list(tests)[0];assert int(suite.attrib['failures'])==int(suite.attrib['errors'])==0
+write('native-test-receipt.json',{'target_revision':PIN,'tests':int(suite.attrib['tests']),
+      'failures':0,'errors':0,'skipped':int(suite.attrib['skipped']),'elapsed_s':float(suite.attrib['time']),
+      'source_scope':'Existing native geometry/null/holdout/receipt regressions; not a new predictive mechanism or native integration claim.',
+      'junit_sha256':sha((DEST/'native-tests.xml').read_bytes()),'log_sha256':sha((DEST/'native-tests-log.txt').read_bytes())})
+print(json.dumps({'common_support':summary['common_support'],'strongest_primary':primary,
+      'primary_phase_rms_m':summary['models'][primary]['300']['phase_rms_m'],'files':len(list(DEST.iterdir()))},indent=2))

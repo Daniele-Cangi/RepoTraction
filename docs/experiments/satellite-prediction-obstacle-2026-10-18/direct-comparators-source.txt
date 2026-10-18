@@ -1,0 +1,91 @@
+"""Two fixed direct predictive comparators; no held-score parameter selection."""
+import os,sys,json,gzip,hashlib,time,subprocess
+from pathlib import Path
+os.environ['OPENBLAS_NUM_THREADS']='1';os.environ['OMP_NUM_THREADS']='1';sys.dont_write_bytecode=True
+TARGET=Path('C:/Users/dacan/Documents/Codex/2026-10-18/satellite-native-discovery')
+OUT=Path(__file__).resolve().parent;PIN='660cc7696f4b6730c8689a2c06fdf497625422ae'
+assert subprocess.check_output(['git','rev-parse','HEAD'],cwd=TARGET,text=True).strip()==PIN
+assert not subprocess.check_output(['git','diff','--name-only','HEAD'],cwd=TARGET)
+sys.path.insert(0,str(TARGET))
+import numpy as np
+from scipy.linalg import solve_triangular
+from scipy.optimize import minimize_scalar
+from research.exploratory import reference_network_clocks as study
+
+def emit(name,value):
+    with (OUT/name).open('x',encoding='utf-8') as f:json.dump(study.native(value),f,indent=2,allow_nan=False);f.write('\n')
+
+def prepare(rows,candidate,raw_covariance,method):
+    cut=min(r['time_s'] for r in rows)+2*(max(r['time_s'] for r in rows)-min(r['time_s'] for r in rows))/3
+    selected=[k for k in sorted({(r['station'],r['reference']) for r in rows})
+              if int.from_bytes(hashlib.sha256(('/'.join(k)).encode('ascii')).digest()[:8],'big')%7==0]
+    isheld=lambda r:(r['station'],r['reference']) in selected and r['time_s']>cut
+    train=study.phase_continuity.segment([r for r in rows if not isheld(r)])
+    # Held observations are removed, not merely ignored by a convention.
+    held=[{k:v for k,v in r.items() if k not in ('code_m','phase_m','mw_m','gf_m')} for r in rows if isheld(r)]
+    net=study.network_clocks.fit(train,phase_drift=method=='native_free_drift',raw_covariance=raw_covariance)
+    prefix={}
+    for r in train:
+        if r['time_s']<=cut:prefix[r['station'],r['reference'],r.get('base_segment',r['segment'])]=r
+    out={'training_stop_s':cut,'training_row_count':len(train),'withheld_row_count':len(held),
+         'held_links':selected,'predictions':[],'method':method,'held_measurements_removed_from_estimator':True}
+    if method=='full_gcv':
+        profile,w=study.source_geometry.profile_sources(net,candidate,study.source_geometry.FAMILIES)
+        j=w['design'];residual=[]
+        for b in net['blocks']:
+            z=b['y']-b['a']@b['parameters']-b['b']@net['ambiguities_m']
+            residual.append(solve_triangular(b['chol'],z,lower=True))
+        y=np.concatenate(residual);u,s,v=np.linalg.svd(j,full_matrices=False)
+        rank=profile['resolved_rank'];u,s,v=u[:,:rank],s[:rank],v[:rank]
+        z=u.T@y;orth=max(0.,float(y@y-z@z));dof=net['residual_dof']
+        def objective(lam):
+            f=s*s/(s*s+lam)
+            return float((orth+np.sum(((1-f)*z)**2))/(dof-np.sum(f))**2)
+        optimum=minimize_scalar(lambda log:objective(np.exp(log)),bounds=(np.log(s[-1]**2)-5,np.log(s[0]**2)+5),method='bounded')
+        candidates=[0.,float(np.exp(optimum.x)),float('inf')]
+        lam=min(candidates,key=objective)
+        filt=s*s/(s*s+lam);w['theta']=v.T@(filt*z/s)
+        out['training_gcv']={'lambda':None if np.isinf(lam) else lam,'all_sources_zero':bool(np.isinf(lam)),
+            'effective_predictive_df':float(np.sum(filt)),'original_identified_rank':rank,'training_residual_dof':dof,
+            'objective':objective(lam),'optimizer_success':bool(optimum.success),
+            'interpretation':'Predictive Euclidean shrinkage, not a qualified physical source prior or uncertainty; original source null test retained.'}
+    blocks={b['time_s']:b for b in net['blocks']}
+    for r in held:
+        item={k:r[k] for k in ('station','reference','time_s')};base=r.get('base_segment',r['segment']);item['base_segment']=base
+        last=prefix.get((r['station'],r['reference'],base))
+        if method=='full_gcv':
+            item.update(study.source_geometry.source_link_prediction(net,w,r,None if last is None else last['segment']))
+        else:
+            try:
+                b=blocks[r['time_s']];i=b['stations'].index(r['station']);q=b['references'].index(r['reference'])
+                clock=float(r.get('clock_derivative',1.)*b['parameters'][i]-b['reference_basis'][q]@b['parameters'][len(b['stations']):])
+            except (KeyError,ValueError):item['status']='UNOBSERVED_NETWORK_CLOCK'
+            else:
+                item.update(status='PREDICTED',clock_prediction_m=clock,phase_prediction_m=None)
+                if last is None:item['status']='UNOBSERVED_PREFIX_PHASE'
+                elif last['segment'] not in net['drift_index']:item['status']='UNIDENTIFIABLE_PHASE_DRIFT'
+                else:
+                    seg=last['segment'];level=net['ambiguities_m'][net['segments'].index(seg)]
+                    level+=net['ambiguities_m'][net['drift_index'][seg]]*(r['time_s']-net['segment_start_s'][seg])/3600.
+                    item.update(phase_prediction_m=float(clock+level),phase_path_prediction_m=float(clock+level))
+        out['predictions'].append(item)
+    out['status']='FUTURE_LINK_PREDICTIONS_FROZEN';return out
+
+if __name__=='__main__':
+    started=time.perf_counter();payload=(study.baseline.BASE/'results/stable_source_differential_v1.json.gz').read_bytes()
+    assert hashlib.sha256(payload).hexdigest()=='56b325ab32a679d89223b89bbe88633cd3850bdcf0cd605c18bea1bf62900020'
+    saved=json.loads(gzip.decompress(payload));cov=study.gnss_combinations.assumed_endpoint_covariance()
+    out={'target_revision':PIN,'input_sha256':hashlib.sha256(payload).hexdigest(),
+         'source_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),'folds':{}}
+    for q,c in saved['candidates'].items():
+        if 'source_profile' not in c:continue
+        out['folds'][q]={}
+        for method in ('native_free_drift','full_gcv'):
+            print(q,method,flush=True);out['folds'][q][method]=prepare(c['reference_rows'],q,cov,method)
+    out['all_predictions_fixed_before_scoring']=True
+    emit('direct-before-scoring.json',out)
+    for q,fold in out['folds'].items():
+        for method,pred in list(fold.items()):fold[method]=study.network_closures.score_future_links(pred,saved['candidates'][q]['reference_rows'])
+    out['elapsed_s']=time.perf_counter()-started
+    assert not subprocess.check_output(['git','diff','--name-only','HEAD'],cwd=TARGET)
+    emit('direct-result.json',out);print('complete',out['elapsed_s'],flush=True)

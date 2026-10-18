@@ -1,0 +1,57 @@
+{
+  "experiment": "satellite-prediction-obstacle-2026-10-18",
+  "status": "preparation; no paid execution authorized",
+  "product_revision": "ce770fe911641dbfdcd4dcfa3baff357d9d31a23",
+  "target_revision": "660cc7696f4b6730c8689a2c06fdf497625422ae",
+  "obstacle": "Generalization of conditional real RF link predictions remains poor after rich source fitting, free drift and bounded training-only GCV; strongest simple baseline must be beaten.",
+  "acceptance": {
+    "primary": "300-second pooled phase RMS <= .9 times the strongest direct primary value on 874 fixed pairs",
+    "preserve_common_30s_pairs": 1248,
+    "secondary": "Both code RMS values and 30-second phase RMS <=1.02 times their metric-wise best direct values.",
+    "fold_rule": "At least four of five improve primary phase RMS versus the single globally chosen best-primary direct method; no fold >10% worse.",
+    "counts_and_unknowns": "Retain every original terminal, all unavailable and worsening cases; no support cherry-picking.",
+    "scope": "Practical exploratory predictive criteria, not physical accuracy, source identifiability, population significance or blind confirmation."
+  },
+  "discovery": {
+    "max_calls": 5,
+    "max_queries": 3,
+    "results_per_query": 20,
+    "max_selected_sources": 1,
+    "retries": 0,
+    "phases": [
+      "interpret_request",
+      "plan_discovery",
+      "select_source",
+      "interpret_capabilities",
+      "evaluate"
+    ],
+    "path": "Reuse existing Provider, PublicGitHub and Service/Budget/Store primitives and the already used experiment-local invocation; no new runner or intake feature.",
+    "allow_stop": true,
+    "initial_target_files": "Operator-selected, explicitly truncated excerpts; no autonomous target-file selection claim."
+  },
+  "native_adaptation": {
+    "max_selected_mechanisms": 1,
+    "max_configurations": 1,
+    "training_only_rule": true,
+    "max_elapsed_s": 1800,
+    "scope": "Existing native reference prediction path only, no new RF orbit fit, new source-truth injection, acquisition, target state or new generalized validation infrastructure."
+  },
+  "budget": {
+    "model": "gpt-6-luna",
+    "max_prompt_bytes": 180000,
+    "max_output_tokens": 12000,
+    "max_calls": 5,
+    "configured_input_usd_per_million": 0.1,
+    "configured_output_usd_per_million": 0.5,
+    "maximum_reservation_usd": 0.121024,
+    "proposed_ceiling_usd": 0.15,
+    "authorization": "not granted; #130 allowance is closed and cannot be reused"
+  },
+  "execution_gate": "Distinct user cap approval plus preparation review and Windows/Linux CI green. No further direct comparator tuning or donor search before that decision.",
+  "limitations": [
+    "Previously exposed archive, including the operator already observing baseline held scores.",
+    "Shared folds and data, not five independent replications.",
+    "Local demand and operator excerpts, not a blocked-agent checkpoint.",
+    "Numerical GCV is one direct predictive comparison with declared assumptions, not exhaustion of direct solvers."
+  ]
+}
