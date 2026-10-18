@@ -1,0 +1,11 @@
+G06 baseline reproduced
+G13 baseline reproduced
+G06 direct terminal 0 INSUFFICIENT_PREPARED_ARCS
+G13 fit {'branch': 0, 'iteration': 0, 'cost': 1374950.914113567, 'step_sigma': 1172.5821356607678}
+G13 fit {'branch': 0, 'iteration': 1, 'cost': 2.6437277606634995, 'step_sigma': 0.7710909681526706}
+G13 fit {'branch': 0, 'iteration': 2, 'cost': 2.049146514265886, 'step_sigma': 2.36839249572384e-06}
+Traceback (most recent call last):
+  File "C:\Users\dacan\Documents\Codex\2026-08-17\vo\outputs\github-pulse\data\satellite-alternatives-2026-10-18\direct_probe.py", line 74, in <module>
+    predictions = study.interval.predict(fit, arcs, weather, study.dynamics.J2) if 'state_ecef_m_m_s' in fit else []
+                  ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: predict() takes 3 positional arguments but 4 were given

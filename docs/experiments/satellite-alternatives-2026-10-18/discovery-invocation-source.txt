@@ -1,0 +1,176 @@
+"""One-off invocation of existing Missing Link primitives for the approved cohort."""
+import copy
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+import sys
+import time
+import uuid
+
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT))
+import app
+from missing_link.analysis import digest
+from missing_link.config import provider_environment
+from missing_link.discovery_decisions import PLAN_INSTRUCTION, plan_input, plan_schema, resolve_plan
+from missing_link.job_errors import job_failure
+from missing_link.proofs import export_handoff
+from missing_link.provider import Provider
+from missing_link.service import Service, Budget, now
+from missing_link.sources import PublicGitHub, extract_structure
+from missing_link.store import redact_payload
+
+PIN = 'de332ea70f8963fd58d8e452a09ce40bc7909b41'
+ACCOUNT = 'Daniele-Cangi'
+RUN = 39121419196
+PREP = ROOT/'docs/experiments/satellite-alternatives-2026-10-18'
+OUT = Path(__file__).resolve().parent
+
+def retain(name, value):
+    with (OUT/name).open('x', encoding='utf-8', newline='\n') as handle:
+        json.dump(redact_payload(value), handle, ensure_ascii=False, indent=2, allow_nan=False)
+        handle.write('\n')
+
+def main():
+    assert subprocess.check_output(['git','rev-parse','HEAD'], cwd=ROOT, text=True).strip() == PIN
+    assert not subprocess.check_output(['git','diff','--name-only','HEAD'], cwd=ROOT)
+    app.ACCOUNT_LOGIN = ACCOUNT
+    app.verify_active_account(force=True)
+    workflow = app.run_gh_json(f'repos/{ACCOUNT}/RepoTraction/actions/runs/{RUN}')
+    jobs = app.run_gh_json(f'repos/{ACCOUNT}/RepoTraction/actions/runs/{RUN}/jobs')
+    assert workflow['head_sha'] == PIN and workflow['status'] == 'completed' and workflow['conclusion'] == 'success'
+    assert len(jobs['jobs']) == 4 and all(j['conclusion'] == 'success' for j in jobs['jobs'])
+    comments = app.run_gh_json(f'repos/{ACCOUNT}/RepoTraction/issues/129/comments', params={'per_page':100})
+    summaries = [c for c in comments if 'codex-pull-request-review-summary' in c['body']]
+    assert summaries and f'"commit_sha":"{PIN}"' in summaries[-1]['body']
+    assert '"has_any_findings":false' in summaries[-1]['body'] and '"status":"completed"' in summaries[-1]['body']
+    threads = app.run_gh_json(f'repos/{ACCOUNT}/RepoTraction/pulls/129/comments', params={'per_page':100})
+    assert not threads  # The approved preparation has no inline findings.
+    files = ['experiment.json','request.json','target-context.json','baseline-record.json','offline-preflight.json']
+    for name in files:
+        assert (PREP/name).read_bytes() == subprocess.check_output(['git','show',PIN+':'+(PREP/name).relative_to(ROOT).as_posix()],cwd=ROOT)
+    spec = json.loads((PREP/'experiment.json').read_text(encoding='utf-8'))
+    request_record = json.loads((PREP/'request.json').read_text(encoding='utf-8'))
+    context = json.loads((PREP/'target-context.json').read_text(encoding='utf-8'))
+    env = provider_environment()
+    assert env.get('REPOTRACTION_AI_MODEL') == 'gpt-6-luna'
+    assert float(env['REPOTRACTION_AI_INPUT_USD_PER_MILLION']) == .1
+    assert float(env['REPOTRACTION_AI_OUTPUT_USD_PER_MILLION']) == .5
+    env.update({'REPOTRACTION_AI_MAX_CALLS':'4','REPOTRACTION_AI_MAX_COST_USD':'.10',
+        'REPOTRACTION_AI_TOTAL_BUDGET_USD':'.10','REPOTRACTION_AI_BUDGET_ID':'satellite-alternatives-2026-10-18-v1',
+        'REPOTRACTION_AI_MAX_PROMPT_BYTES':'180000','REPOTRACTION_AI_MAX_OUTPUT_TOKENS':'12000',
+        'REPOTRACTION_AI_API_KIND':'responses','REPOTRACTION_AI_RESPONSE_FORMAT':'json_schema',
+        'REPOTRACTION_AI_REASONING_EFFORT':'medium','REPOTRACTION_AI_STREAMING':'1'})
+    provider = Provider(env)
+    assert provider.describe()['configured'] and provider.remote
+    database = OUT/'discovery.sqlite3'
+    with database.open('xb'):
+        pass
+    retain('authorization.json', {'user_reply':'Autorizzo 0,10 USD per questa prova',
+        'ceiling_usd':.10,'max_calls':4,'scope':spec['experiment'],'authorized_at_client_date':'2026-10-18',
+        'allowance_id':provider.budget_id,'prepared_head':PIN,'ci_run':RUN,
+        'clean_review_url':'https://github.com/Daniele-Cangi/RepoTraction/pull/129#issuecomment-6249060896',
+        'gate_checked_at':now(),'workflow_conclusion':workflow['conclusion'],
+        'jobs':[{'name':j['name'],'conclusion':j['conclusion']} for j in jobs['jobs']],
+        'invocation_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest()})
+    service = Service(database, ACCOUNT, app.run_gh_json, app.verify_active_account, provider)
+    assert service.lease.acquire() and not service.store.list('jobs')
+    started = time.perf_counter()
+    job = {'id':uuid.uuid4().hex,'account':ACCOUNT,'status':'running','stage':'preflight',
+        'input':{'action':'experiment-local alternative discovery','use_ai':True,'max_requests':120},
+        'created_at':now(),'updated_at':now(),'requests_used':0,'ai_calls_used':0,
+        'cost_reserved_usd':0.,'checkpoint':{},'result':{},'provider_identity':provider.identity()}
+    def save():
+        job['updated_at'] = now()
+        service.store.put('jobs', job['id'], job)
+    budget = Budget(job,save,lambda:service.store.is_cancelled(job['id']),service._verify,
+        reserve_total=lambda amount:service.store.reserve_ai_allowance(provider.budget_id,job['id'],amount,.10))
+    def stage(name):
+        budget.checkpoint()
+        job['stage'] = name
+        save()
+        print(json.dumps({'stage':name,'calls':job['ai_calls_used'],'reserved_usd':job['cost_reserved_usd']}), flush=True)
+    def read(endpoint, *, params=None):
+        budget.github()
+        result = app.run_gh_json(endpoint,params=params)
+        budget.checkpoint()
+        return result
+    source = PublicGitHub(read, checkpoint=budget.checkpoint)
+    def investigate():
+        request = request_record['normalized_request']
+        stage('plan_discovery')
+        data = plan_input(request,context['target'],context['operator_target_evidence'])
+        instruction = PLAN_INSTRUCTION+'\n\n'+spec['discovery']['planner_instruction_appendix']
+        plan = resolve_plan(provider.complete(instruction,data,budget,plan_schema(request),'request'),request,provider.identity())
+        job['result']['plan'] = plan
+        save()
+        if plan['decision'] != 'search':
+            return 'planner_'+plan['decision']
+        stage('source_search')
+        pools, candidates, seen = [], [], {}
+        for operation in plan['operations']:
+            pool = source.search_repositories(operation['search_terms'])
+            pools.append(pool)
+            for item in pool['items']:
+                name = item['full_name'].casefold()
+                if name == context['target']['full_name'].casefold():
+                    continue
+                if name in seen:
+                    seen[name]['retrieved_for'].append(operation['id'])
+                    continue
+                candidate = dict(item,id=f'source{len(candidates)}',retrieved_for=[operation['id']])
+                candidates.append(candidate)
+                seen[name] = candidate
+        job['result'].update(search_pools=pools,candidates=candidates)
+        save()
+        if not candidates:
+            return 'empty_metadata_pool'
+        stage('select_source')
+        selection = provider.select_source(plan,candidates,budget)
+        job['result']['source_selection'] = selection
+        save()
+        if selection['decision'] == 'none':
+            return 'no_source_selected'
+        stage('source_inspection')
+        repository = source.fetch_repository(selection['repository'])
+        repository['capabilities'] = extract_structure(repository)
+        job['checkpoint']['repository'] = repository
+        service.store.put('repositories',repository['id'],repository)
+        save()
+        if not repository['capabilities']:
+            return 'no_structural_capability_in_acquired_sample'
+        stage('interpret_capabilities')
+        repository['capabilities'] = provider.interpret_capabilities(repository,budget)
+        job['checkpoint']['repository'] = repository
+        service.store.put('repositories',repository['id'],repository)
+        stage('evaluate')
+        issue = dict(request_record['issue_container'],target_context=copy.deepcopy(context['target']))
+        matches = provider.evaluate(repository,issue,request,budget)
+        service.store.save_matches(matches,repository)
+        job['result']['matches'] = matches
+        save()
+        if not matches:
+            return 'no_grounded_assessment'
+        handoff = export_handoff(matches[0],repository)
+        retain('source-inspection-handoff.json',handoff)
+        return 'unexecuted_first_assessment_handoff'
+    try:
+        save()
+        job['result']['terminal'] = investigate()
+        budget.checkpoint()
+        job['status'] = 'completed'
+    except Exception as exc:
+        job.update(job_failure(exc,job=job))
+        job['result']['terminal'] = 'stopped_without_retry'
+    finally:
+        job['elapsed_s'] = time.perf_counter()-started
+        save()
+        retain('discovery-result.json',job)
+        service.lease.release()
+    print(json.dumps({'status':job['status'],'terminal':job['result']['terminal'],
+        'calls':job['ai_calls_used'],'reserved_usd':job['cost_reserved_usd'],'elapsed_s':job['elapsed_s']}),flush=True)
+    return 0 if job['status']=='completed' else 1
+
+if __name__ == '__main__' and '--execute' in sys.argv:
+    raise SystemExit(main())

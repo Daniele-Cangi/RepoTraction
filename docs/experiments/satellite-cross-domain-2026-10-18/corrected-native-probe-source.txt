@@ -1,0 +1,168 @@
+"""One-off exposed-data comparison. Not shipped product code or a reusable runner."""
+import os
+os.environ['OPENBLAS_NUM_THREADS'] = '1'
+os.environ['PYTHONDONTWRITEBYTECODE'] = '1'
+import copy, hashlib, inspect, json, subprocess, sys, time
+from pathlib import Path
+sys.dont_write_bytecode = True
+ROOT = Path('C:/Users/dacan/Documents/Codex/2026-08-15/github-cli-github-cli-gi-autenticata/Satellite-RF-Observatory')
+REPO = Path('C:/Users/dacan/Documents/Codex/2026-08-17/vo/outputs/github-pulse')
+OUT = Path(__file__).resolve().parent
+PIN = 'ac902e5f8158981f938537e1fe47a1f561b5d06d'
+assert subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip() == PIN
+assert not subprocess.check_output(['git','diff','--name-only','HEAD'],cwd=ROOT)
+assert not (OUT/'native-before-scoring.json').exists()
+sys.path.insert(0,str(ROOT))
+import numpy as np
+from positioning.solver import CHI95
+from positioning import solver as snapshot_solver
+from research.exploratory import reference_state_validation as study
+fit_module = study.dynamic_fit
+
+def emit(name,value):
+    with (OUT/name).open('x',encoding='utf-8') as stream:
+        stream.write(json.dumps(study.native(value),indent=2,allow_nan=False)+'\n')
+
+def direct_geometry(codes,clocks,positions):
+    angles,records = [],[]
+    for values,clock,xyz in zip(codes,clocks,positions,strict=True):
+        result = study.solve(values-clock,xyz,np.eye(len(xyz))*400.,atmosphere=False)
+        best = min(b['cost'] for b in result['branches'])
+        branches = [{**b,'exterior':np.linalg.norm(b['q'][:3])>study.dynamics.R_EARTH} for b in result['branches']]
+        retained = [b for b in branches if b['exterior'] and b['cost']-best<=CHI95]
+        records.append({'branches':branches,'eligible_branch_count':len(retained),'cost_gap_threshold':CHI95})
+        if len(retained)!=1:
+            return {'status':'RF_GEOMETRY_AMBIGUOUS','snapshots':records},[]
+        angles.append([study.troposphere(s,np.asarray(retained[0]['q'][:3]))[1] for s in xyz])
+    elevations = np.asarray(angles)
+    selected = np.flatnonzero(np.min(elevations,axis=0)>=10.)
+    return {'status':'RF_MASK_EVALUATED','snapshots':records,'elevation_deg':elevations},selected
+
+original_build,original_prepare,original_geometry = study.build_arcs,fit_module.prepare,study.rf_geometry
+original_seeds = snapshot_solver.algebraic_seeds
+build_source = inspect.getsource(original_build)
+prepare_source = inspect.getsource(original_prepare)
+assert build_source.count('if len(ix) < 5:') == 1
+assert prepare_source.count('if len(names)<5:') == 1
+assert prepare_source.count('or n<5 or') == 1
+build_variant = build_source.replace('if len(ix) < 5:','if len(ix) < 4:')
+prepare_variant = prepare_source.replace('if len(names)<5:','if len(names)<4:').replace(
+    'at least five distinct stations required','at least four distinct stations required').replace('or n<5 or','or n<4 or')
+build_ns,prepare_ns = {},{}
+exec(compile(build_variant,'<one-off four-receiver build_arcs>','exec'),original_build.__globals__,build_ns)
+exec(compile(prepare_variant,'<one-off four-receiver prepare>','exec'),original_prepare.__globals__,prepare_ns)
+seeds_source = inspect.getsource(original_seeds)
+assert seeds_source.count('if np.linalg.matrix_rank(a) != 4:') == 1
+assert seeds_source.count('seeds = [np.linalg.lstsq(a, rhs, rcond=None)[0] * scale]') == 1
+seeds_variant = seeds_source.replace('if np.linalg.matrix_rank(a) != 4:',
+    'if len(y)<4 or np.linalg.matrix_rank(a) != (3 if len(y)==4 else 4):').replace(
+    'seeds = [np.linalg.lstsq(a, rhs, rcond=None)[0] * scale]',
+    'seeds = [] if len(y)==4 else [np.linalg.lstsq(a, rhs, rcond=None)[0] * scale]')
+seeds_ns = {}
+exec(compile(seeds_variant,'<one-off existing four-point quadratic seeds>','exec'),original_seeds.__globals__,seeds_ns)
+
+start = time.perf_counter()
+historical_path = study.BASE/'results/reference_state_validation_v3.json'
+historical_raw = historical_path.read_bytes()
+historical = json.loads(historical_raw)
+prior = json.loads((REPO/'docs/experiments/satellite-alternatives-2026-10-18/direct-result.json').read_bytes())
+raw,data = study.read_inputs()
+assert {k:hashlib.sha256(v).hexdigest() for k,v in raw.items()} == historical['input_sha256']
+weather = study.interval.shared.meteo.WeatherGrid(study.interval.shared.meteo.read_inputs()[0])
+out = {'scope':'Exploratory chat-assisted transfer of joint-observability question; no autonomous product or physical qualification claim.',
+       'target_revision':PIN,'input_sha256':historical['input_sha256'],
+       'source_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+       'transient_changes':{'build_arcs':build_variant,'prepare':prepare_variant,'algebraic_seeds':seeds_variant},
+       'unchanged_global_rank_rtol':fit_module.RTOL,'cases':{},'checks':{}}
+arcs_by_case = {}
+study.rf_geometry = direct_geometry
+try:
+    # Direct control is recomputed before any new oracle scoring.
+    arcs,windows = original_build(data,'G13',weather)
+    control = fit_module.fit(arcs,include_phase=True,j2=study.dynamics.J2,
+        progress=lambda p:print('G13 control',p,flush=True))
+    frozen = prior['cases']['G13']['direct']['fit']
+    assert len(arcs)==6 and control['status']==frozen['status']
+    assert np.allclose(control['state_ecef_m_m_s'],frozen['state_ecef_m_m_s'],rtol=0.,atol=1e-5)
+    assert abs(control['weighted_residual_cost']-frozen['weighted_residual_cost'])<1e-6
+    out['checks']['frozen_direct_G13_reproduced'] = {
+        'arc_count':len(arcs),'status':control['status'],
+        'maximum_state_coordinate_difference':float(np.max(np.abs(np.array(control['state_ecef_m_m_s'])-frozen['state_ecef_m_m_s']))),
+        'cost_difference':control['weighted_residual_cost']-frozen['weighted_residual_cost']}
+    study.build_arcs = build_ns['build_arcs']
+    fit_module.prepare = prepare_ns['prepare']
+    snapshot_solver.algebraic_seeds = seeds_ns['algebraic_seeds']
+    for candidate in ['G06','G13']:
+        t = time.perf_counter()
+        arcs,windows = study.build_arcs(data,candidate,weather)
+        arcs_by_case[candidate] = arcs
+        print(candidate,'four-receiver arcs',len(arcs),flush=True)
+        fit = {'status':'INSUFFICIENT_PREPARED_ARCS','arc_count':len(arcs)}
+        if len(arcs)>=2:
+            try:
+                fit = fit_module.fit(arcs,include_phase=True,j2=study.dynamics.J2,
+                    progress=lambda p,q=candidate:print(q,'four-receiver fit',p,flush=True))
+            except (ValueError,np.linalg.LinAlgError) as error:
+                fit = {'status':'NATIVE_SUPPORT_OR_NUMERICAL_FAILURE','reason':str(error)}
+        predictions = study.interval.predict(fit,arcs,weather) if 'state_ecef_m_m_s' in fit else []
+        out['cases'][candidate] = {'arc_count':len(arcs),'windows':windows,'fit':fit,
+                                  'rf_predictions':predictions,'elapsed_s':time.perf_counter()-t}
+        print(candidate,'terminal',fit['status'],flush=True)
+
+    # Keep calibration and endpoint-corruption protection in the modified prepare.
+    for key,mutator,expected in [
+        ('unqualified_calibration_rejected',lambda a:a[0]['calibration_statuses'].__setitem__(0,'UNQUALIFIED'),'qualified reference'),
+        ('duplicate_endpoints_rejected',lambda a:a.append(copy.deepcopy(a[0])),'reuse target endpoint')]:
+        probe = copy.deepcopy(arcs_by_case['G13'])
+        mutator(probe)
+        try: fit_module.prepare(probe,True)
+        except ValueError as error:
+            assert expected in str(error),str(error)
+            out['checks'][key] = str(error)
+        else: raise AssertionError(key)
+
+    # A joint degenerate design must still fail: repeat one actual station's
+    # geometry/data under all station IDs without changing priors/floors.
+    probe = copy.deepcopy(arcs_by_case['G13'])
+    for arc in probe:
+        arc['stations_m'][:] = arc['stations_m'][0]
+        arc['codes_m'][:] = arc['codes_m'][:,:1]
+        arc['rates_m_s'][:] = arc['rates_m_s'][:,:1]
+        arc['clock_mean'][:] = arc['clock_mean'][:1]
+        # Original site-specific propagation would break the intended duplicate
+        # geometry; replace only in this invalid negative control.
+        arc.pop('propagation',None)
+    p,names,_ = fit_module.prepare(probe,True)
+    epoch = p[0]['endpoint_gpst_s']
+    bounds = (min(a['endpoint_gpst_s']-epoch+a['tags'][0] for a in p)-2.,
+              max(a['endpoint_gpst_s']-epoch+30 for a in p)+2.)
+    scale = np.r_[fit_module.STATE_SCALE,np.full(len(names)-1,100.)]
+    # Use the independently recomputed direct-control state solely for this negative numerical check,
+    # not as an initializer for either scientific candidate.
+    point = np.r_[control['state_ecef_m_m_s'],np.zeros(len(names)-1)]/scale
+    locals_point = [np.r_[np.zeros(a['ns']),a['clocks'].ravel(),np.zeros(3*a['n'])]/a['local_scale'] for a in p]
+    try: fit_module.linearize(point,locals_point,p,scale,epoch,bounds,study.dynamics.J2)
+    except ValueError as error:
+        assert 'rank-deficient' in str(error),str(error)
+        out['checks']['degenerate_joint_design_rejected'] = str(error)
+    else: raise AssertionError('degenerate joint design was accepted')
+finally:
+    study.build_arcs,fit_module.prepare,study.rf_geometry = original_build,original_prepare,original_geometry
+    snapshot_solver.algebraic_seeds = original_seeds
+
+out['all_fits_and_predictions_complete_before_scoring'] = True
+out['elapsed_before_scoring_s'] = time.perf_counter()-start
+emit('native-before-scoring.json',out)
+for candidate in ['G06','G13']:
+    case = out['cases'][candidate]
+    if 'state_ecef_m_m_s' in case['fit']:
+        case['rf_evaluation'] = study.score_rf(data,candidate,case['rf_predictions'])
+        case['state_evaluation'] = study.state_errors(case['fit'],arcs_by_case[candidate],study.oracle(data,candidate))
+out['elapsed_s'] = time.perf_counter()-start
+assert historical_path.read_bytes() == historical_raw
+assert not subprocess.check_output(['git','diff','--name-only','HEAD'],cwd=ROOT)
+out['historical_result_unchanged'] = True
+out['target_tracked_worktree_unchanged'] = True
+emit('native-result.json',out)
+print('complete',out['elapsed_s'],flush=True)
+

@@ -1,0 +1,3 @@
+{"stage": "plan_discovery", "calls": 0, "reserved_usd": 0.0}
+{"stage": "source_search", "calls": 1, "reserved_usd": 0.0158927}
+{"status": "completed", "terminal": "empty_metadata_pool", "calls": 1, "reserved_usd": 0.0158927, "elapsed_s": 33.71245799999997}

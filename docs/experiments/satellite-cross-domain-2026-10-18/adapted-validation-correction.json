@@ -1,0 +1,23 @@
+{
+  "review": "https://github.com/Daniele-Cangi/RepoTraction/pull/129#discussion_r4307435872",
+  "finding": "Valid: v2's fresh subprocess established only unchanged-checkout regression status. Its transient initializer patch was restored before pytest; build_arcs and prepare variants were not installed in that subprocess.",
+  "preserved_baseline_evidence": [
+    "native-check-source-v2.txt",
+    "native-checks-v2.json",
+    "native-regressions-v2-log.txt",
+    "native-regressions-v2.xml",
+    "validation-correction.json"
+  ],
+  "adapted_validation": {
+    "source": "native-check-source-v3.txt",
+    "result": "native-checks-v3.json",
+    "stdout_stderr": "native-regressions-v3-log.txt",
+    "junit": "native-regressions-v3.xml",
+    "method": "Compile the exact three transient function bodies from native-before-scoring.json in their original module globals, install all three in memory, and invoke pytest.main in that SAME interpreter. Assert all three function identities before collection and after the suites; restore originals in finally. Record variant source hashes, process test status, JUnit counts and source/log/report hashes.",
+    "suites": "The three baseline suites plus research/kinematic/tests/test_dynamic_fit.py.",
+    "measured_result": "36 passed; zero failures/errors/skips; pytest exit 0; all three adaptations active before collection and after the suites.",
+    "exact_scope": "This tests the three four-receiver adaptations relative to the original native rf_geometry policy. It does not reinstall the separately frozen cost-separated direct-geometry comparator, whose real-data results remain recorded in native-before-scoring.json. No full combined-pipeline regression or Linux-native execution is claimed."
+  },
+  "interpretation": "Read v2's 27 passes as baseline-only evidence. Use v3's 36 passes for the transient four-receiver adaptation regressions. Neither test count is a physical qualification or evidence of autonomous Missing Link discovery.",
+  "unchanged": "No target source edit, discovery call, paid API, RF trajectory refit, oracle reevaluation, threshold adjustment or historical evidence rewrite."
+}

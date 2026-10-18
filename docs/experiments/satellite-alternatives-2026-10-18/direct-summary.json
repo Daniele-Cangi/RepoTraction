@@ -1,0 +1,146 @@
+{
+  "scope": "Fixed exposed-data offline comparator, not Missing Link output or physical qualification.",
+  "paid_calls": 0,
+  "elapsed_s": 136.57486719999997,
+  "historical_result_unchanged": true,
+  "target_tracked_worktree_unchanged": true,
+  "cases": {
+    "G06": {
+      "baseline_arc_count": 0,
+      "baseline_elapsed_s": 23.92012610000006,
+      "direct_arc_count": 0,
+      "direct_elapsed_s": 26.045437799999945,
+      "direct_status": "INSUFFICIENT_PREPARED_ARCS",
+      "window_status_counts": {
+        "RF_MASK_UNSUPPORTED": 9,
+        "INSUFFICIENT_RF_STATIONS": 11
+      }
+    },
+    "G13": {
+      "baseline_arc_count": 0,
+      "baseline_elapsed_s": 39.443437299999914,
+      "direct_arc_count": 6,
+      "direct_elapsed_s": 45.74409689999993,
+      "direct_status": "BRANCH_SEARCH_INCOMPLETE",
+      "window_status_counts": {
+        "RF_MASK_UNSUPPORTED": 9,
+        "INSUFFICIENT_RF_STATIONS": 5,
+        "PREPARED": 6
+      },
+      "state_summary": {
+        "ALL": {
+          "count": 12,
+          "position_error_m": {
+            "count": 12,
+            "mean": 659.9664840748721,
+            "rms": 660.0017005165263,
+            "max_abs": 669.7164337790864
+          },
+          "velocity_error_m_s": {
+            "count": 12,
+            "mean": 0.022801412425367984,
+            "rms": 0.022911662264254267,
+            "max_abs": 0.026498388829004835
+          },
+          "position_inside_formal_95_count": 12,
+          "state_inside_formal_95_count": 12
+        },
+        "IN_TRAINING_SPAN": {
+          "count": 11,
+          "position_error_m": {
+            "count": 11,
+            "mean": 659.0801250108526,
+            "rms": 659.1114428147462,
+            "max_abs": 669.1743950345358
+          },
+          "velocity_error_m_s": {
+            "count": 11,
+            "mean": 0.02307357058675522,
+            "rms": 0.023173235574141412,
+            "max_abs": 0.026498388829004835
+          },
+          "position_inside_formal_95_count": 11,
+          "state_inside_formal_95_count": 11
+        },
+        "BEYOND_ALL_TRAINING": {
+          "count": 1,
+          "position_error_m": {
+            "count": 1,
+            "mean": 669.7164337790864,
+            "rms": 669.7164337790864,
+            "max_abs": 669.7164337790864
+          },
+          "velocity_error_m_s": {
+            "count": 1,
+            "mean": 0.019807672650108393,
+            "rms": 0.019807672650108393,
+            "max_abs": 0.019807672650108393
+          },
+          "position_inside_formal_95_count": 1,
+          "state_inside_formal_95_count": 1
+        }
+      },
+      "rf_evaluation_summary": {
+        "summary": {
+          "ALL": {
+            "pair_status_counts": {
+              "EVALUATED": 30
+            },
+            "code_residual_m": {
+              "count": 30,
+              "mean": -0.32801469340920447,
+              "rms": 1.1238109245109345,
+              "max_abs": 2.736634485423565
+            },
+            "phase_rate_residual_m_s": {
+              "count": 30,
+              "mean": -0.004849008570109466,
+              "rms": 0.01229434617592297,
+              "max_abs": 0.05309489605326689
+            }
+          },
+          "TEMPORAL_HOLDOUT": {
+            "pair_status_counts": {
+              "EVALUATED": 25
+            },
+            "code_residual_m": {
+              "count": 25,
+              "mean": -0.2814381729066372,
+              "rms": 1.17331705324757,
+              "max_abs": 2.736634485423565
+            },
+            "phase_rate_residual_m_s": {
+              "count": 25,
+              "mean": -0.0047041842589715084,
+              "rms": 0.012887265439318516,
+              "max_abs": 0.05309489605326689
+            }
+          },
+          "BEYOND_ALL_TRAINING": {
+            "pair_status_counts": {
+              "EVALUATED": 5
+            },
+            "code_residual_m": {
+              "count": 5,
+              "mean": -0.560897295922041,
+              "rms": 0.8332715206299354,
+              "max_abs": 1.379872914403677
+            },
+            "phase_rate_residual_m_s": {
+              "count": 5,
+              "mean": -0.005573130125799253,
+              "rms": 0.008746292634214978,
+              "max_abs": 0.017959690839006726
+            }
+          }
+        }
+      },
+      "conditional_residual_cost": 2.049146514265886,
+      "residual_dof": 122,
+      "conditional_residual_p": 1.0,
+      "retained_branch_failures": 1
+    }
+  },
+  "result_sha256": "abfea9d8ea6fb647303585b60ca57599c4346d3c3263582493959be3508e4770",
+  "before_scoring_sha256": "8acba4b0c5b6f37e65a3ea01e6cdf13ffa90c1d18f5694fcdafef245ab23dbc3"
+}

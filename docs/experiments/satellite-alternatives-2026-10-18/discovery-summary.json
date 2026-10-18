@@ -1,0 +1,69 @@
+{
+  "outcome": "No source-backed alternative or Missing Link native improvement demonstrated.",
+  "terminal": "empty_metadata_pool",
+  "planner": "Proposed joint multi-epoch trajectory-level estimation instead of requiring unique independent snapshot branches during preparation. This is an unverified model hypothesis, already related to possibilities discussed by the experimenter; novelty to that experimenter is not established.",
+  "search_queries": [
+    "multi epoch RF pseudorange carrier phase joint satellite trajectory estimation branch ambiguity Python SciPy is:public archived:false fork:false in:name,description,readme"
+  ],
+  "retrieved_candidates": 0,
+  "inspected_sources": 0,
+  "source_owned_mechanisms_verified": 0,
+  "alternative_native_implementations": 0,
+  "alternative_native_improvement": "not tested because no source was selected or inspected",
+  "direct_result": "The fixed direct comparator retains its separate result: G13 six arcs/one conditional trajectory; G06 zero arcs. It is not Missing Link output.",
+  "api_calls": 1,
+  "github_search_requests": 1,
+  "retries": 0,
+  "source_replacements": 0,
+  "authorized_ceiling_usd": 0.1,
+  "reserved_usd": 0.0158927,
+  "reported_usage": [
+    {
+      "input_tokens": 25664,
+      "output_tokens": 3330,
+      "estimated_cost_usd_at_configured_prices": 0.0042314
+    }
+  ],
+  "estimated_usage_usd_at_configured_prices": 0.0042314,
+  "cost_scope": "Reservation and configured-price estimate, not a provider invoice. Unused scope is not permission for another cohort or rescue query.",
+  "elapsed_s": 33.71245799999997,
+  "limitations": [
+    "One model-selected metadata query is not evidence that suitable implementations do not exist.",
+    "The query combines mathematical operations with RF/pseudorange/carrier-phase/satellite/runtime vocabulary; whether a shorter or cross-domain query would succeed is untested.",
+    "No external source code was acquired, so transfer usefulness and native benefit remain unknown.",
+    "This is experiment-local alternative planning with existing Missing Link primitives, not unchanged full Service/IDE intake or causal assistance of a blocked agent.",
+    "Five-receiver, mask, physical-model and covariance constraints bound this case; no universal conclusion follows."
+  ],
+  "next_observed_obstacle": "The transition from an operation hypothesis to a usable implementation source, before any transfer/native validation. No query optimization, new architecture, source substitution or additional experiment was run.",
+  "verification": {
+    "database_job_matches_export": true,
+    "atomic_reservation_count": 1,
+    "atomic_reservation_matches_job": true,
+    "stored_matches": 0,
+    "stored_external_repositories": 0,
+    "no_handoff": true
+  },
+  "validation": {
+    "preparation_head": "de332ea70f8963fd58d8e452a09ce40bc7909b41",
+    "review_url": "https://github.com/Daniele-Cangi/RepoTraction/pull/129#issuecomment-6249060896",
+    "complete_product_ci": "https://github.com/Daniele-Cangi/RepoTraction/actions/runs/39121419196",
+    "ci_matrix": "Windows/Linux x Python 3.10/3.13, all green before paid dispatch",
+    "local_product_tests": {
+      "run": 1962,
+      "skipped": 1,
+      "failures": 0,
+      "elapsed_s": 919.007
+    },
+    "native_reference_replay": {
+      "passed": 11,
+      "elapsed_s": 14.05
+    },
+    "supported_control_snapshot_comparison": 189
+  },
+  "artifact_sha256": {
+    "authorization.json": "b3f5ebe2e2bb613b69b8e80783e38f64144a031dc725b67c19e835610552f7e6",
+    "discovery-result.json": "a31269a27e0602c1c8af126138aaebddd7b3f5cf66e9242705349b3f9b27e487",
+    "discovery-execution-log.txt": "f161fbab74edb3614200036431018a6ce5359171ba45183a3397ad4a6545662a",
+    "discovery-invocation-source.txt": "5a99602698614912a10a17358d26f51806bce915fa07fd84e293106821fde6e7"
+  }
+}

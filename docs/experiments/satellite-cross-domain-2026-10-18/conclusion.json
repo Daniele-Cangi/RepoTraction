@@ -1,0 +1,20 @@
+{
+  "decision": "Keep the historical negative one-query cohort unchanged. Broader operation-based search is worth pursuing, but this result supports a native functional change rather than a new discovery infrastructure.",
+  "observed": [
+    "Four broad repository queries returned 34 metadata entries; twelve metadata candidates were considered and three pinned implementation repositories were inspected.",
+    "The native joint dynamic solver supports a full-rank trajectory from nine four-receiver G06 arcs and fifteen mixed four/five-receiver G13 arcs after a transient admission/initializer adaptation.",
+    "G13 matched-twelve-epoch CODE position RMS decreased from 660.0017 m to 175.0266 m; all twelve position/velocity norms improved.",
+    "On thirty identical withheld RF pairs, G13 code RMS decreased from 1.12381 to 1.05537 m, but phase RMS increased from 0.01229435 to 0.01231971 m/s; nineteen individual absolute phase residuals worsened."
+  ],
+  "mechanism": "Replace per-snapshot redundancy as a universal admission criterion with actual joint numerical observability over time. Keep multiple existing native four-point initializer branches and preserve all downstream failures.",
+  "attribution": "No source-specific causal trial was conducted. The historical planner had already suggested joint inference; the native repository already had QR/SVD elimination and quadratic four-point roots. External source inspection informed the question but does not establish that Missing Link discovered a necessary technique or that the agent would otherwise remain blocked.",
+  "safety_difference": "Four receivers remove the historical per-arc redundancy guarantee. Full local joint rank, unchanged mask/covariance/physics and held-out diagnostics do not establish global uniqueness or physical uncertainty. Both fits remain BRANCH_SEARCH_INCOMPLETE.",
+  "proposed_next_action": "Review the small functional admission/initializer changes as a possible Satellite development change, with native Linux/Windows regressions before any integration. For Missing Link, use operation-based query diversity in the existing planning/search functions only after a separately scoped functional change; do not build a new search runner or graph system.",
+  "not_implemented": [
+    "No product code in RepoTraction or Satellite changed.",
+    "No automatic multiple-query retrieval feature, MHT framework, factor graph framework or functional observer was added.",
+    "No paid API, new observations, additional cohort, subagent or automatic merge."
+  ],
+  "validation": "27 existing native tests passed plus focused synthetic initializer compatibility checks and real-data calibration/duplicate/rank negative controls. RepoTraction PR CI will cover the new evidence commit; it does not replay the native real-data fit on Linux.",
+  "reproduction": "Native before-scoring record is retained once. native-evaluation.json references its SHA256 and retains only post-freeze evaluations. Both initial initializer-support failure and corrected source/log are preserved."
+}

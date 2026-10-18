@@ -1,0 +1,102 @@
+{
+  "experiment": "satellite-alternatives-2026-10-18",
+  "status": "preparation; paid execution not authorized",
+  "question": "Can Missing Link select an external software mechanism that enables a different, useful approach to the fixed G06/G13 reconstruction problem? A previously blocked agent is not required.",
+  "target": {
+    "repository": "Daniele-Cangi/Satellite-RF-Observatory",
+    "revision": "ac902e5f8158981f938537e1fe47a1f561b5d06d",
+    "historical_result": "research/exploratory/results/reference_state_validation_v3.json",
+    "cases": [
+      "G06",
+      "G13"
+    ],
+    "selection": "Explicit user choice before external mechanism search; all 20 existing chronological windows for each case, including missing/unsupported windows.",
+    "baseline": "The unchanged v3 preparation and shared dynamic estimator; both selected cases have zero prepared arcs.",
+    "controls": [
+      "G05",
+      "G11",
+      "G19",
+      "G20",
+      "G21"
+    ],
+    "complete_denominator": "Retain all 22 original candidates and 440 windows in final reporting; the focused experiment does not claim a new execution of unexecuted cases."
+  },
+  "prior_exposure": [
+    "The experimenter has read v3 summaries, G06/G13 retained branches and the G11 direct repair.",
+    "Saved exterior-branch cost gaps greatly exceed the existing snapshot solver's CHI95. This observation fixes a strong direct comparator before any external search.",
+    "This is exposed-data exploratory development, not blind or prospective confirmation and not an estimate of discovery success rate.",
+    "Before external search, the experimenter has seen the direct comparator outcome and its after-fit error summaries. Those oracle errors are excluded from model planning/source context. This comparison is exposed-data development; neither implementation independence from all prior results nor prospective confirmation is claimed."
+  ],
+  "direct_comparator": {
+    "policy": "Retain an exterior snapshot branch only if its cost is within positioning.solver.CHI95 of the best cost over all returned branches. Require exactly one retained exterior branch at every training snapshot, then apply the unchanged 10-degree mask and minimum five receivers.",
+    "threshold": "Reuse CHI95 = 7.814727903251179 from the pinned solver; do not tune it on G06/G13.",
+    "limits": "A local conditional likelihood rule, not a physical bound or proof of globally exhaustive roots. Keep every returned branch and rejection reason.",
+    "execution": "One fixed offline comparison; preserve raw failures, elapsed time and admission counts. The direct comparator is not Missing Link's contribution and its success does not stop the alternative-strategy experiment.",
+    "completed_outcome": "G06: zero arcs after the unchanged mask/minimum receiver rule. G13: six arcs and one conditional BRANCH_SEARCH_INCOMPLETE trajectory; see direct-summary.json and retained raw result. This direct success does not veto an alternative investigation."
+  },
+  "discovery": {
+    "path": "Use existing plan_input/plan_schema/resolve_plan with Provider.complete for the experimental planning instruction below, then PublicGitHub.search_repositories, Provider.select_source, PublicGitHub.fetch_repository, extract_structure, Provider.interpret_capabilities, Provider.evaluate and export_handoff. Existing Budget, Store, account verification and WorkerLease protect dispatch and persistence.",
+    "intake_deviation": "The demand is an explicitly authored experiment request, not an acquired GitHub issue. Call the existing discovery primitives with this pinned context; do not invent an issue URL, claim an IDE intake feature or add a new Service runner/transport.",
+    "target_context": "Three fixed public source files and explicitly labelled operator-supplied target evidence; no autonomous donor or mechanism is supplied by the operator.",
+    "max_model_calls": 4,
+    "phases": [
+      "plan_discovery",
+      "select_source",
+      "interpret_capabilities",
+      "evaluate"
+    ],
+    "max_queries": 3,
+    "results_per_query": 20,
+    "max_inspected_external_sources": 1,
+    "source_policy": "Use only model-proposed operations and model-selected repository from the retained pool. No manual donor, replacement, extra query or retry. Record use_direct/defer/none as valid outcomes; no rescue prompt.",
+    "packet": "First returned assessment with source-owned evidence, in model order. Retain ordinary unexecuted handoff, citations, pinned revision, truncation and redaction; do not claim generated target code has run.",
+    "planner_instruction_appendix": "Experimental task: explore a different software-backed approach to this fixed target problem, rather than requiring a previously blocked agent or an inadequate direct solution. A sufficient direct correction remains the strong comparator, not an automatic veto on one bounded alternative investigation. Search only when you can state a genuinely different operation or representation, a plausible concrete gain and a test against that comparator; do not manufacture a failure or claim superiority. An external mechanism or partial technique can be valuable even when its code is not directly integrable. Select the operations and search phrases yourself; no donor or alternative algorithm is prescribed. use_direct/defer remain valid if no defensible investigation can be formulated. All other source, identity, citation, schema and safety constraints remain unchanged.",
+    "scope": "This is an experiment-local planning goal change over existing Missing Link primitives, not execution of the unchanged Service end to end and not a new IDE input feature.",
+    "inspection_limit": "Existing structural capability extraction supports Python/JavaScript/TypeScript. No language filter is added to retrieval; an unsupported selected implementation is an inspection limitation, not evidence that the technique is absent. Do not replace the source to rescue the outcome."
+  },
+  "native_assessment": {
+    "implementation": "After a packet exists, reconstruct at most one proposed mechanism in an isolated target checkout. No new generalized framework, runner or transport. Record all local development attempts and costs.",
+    "fixed_invariants": [
+      "Use the original observation archive, candidate identities and chronological windows; no candidate replacement or post-score threshold adjustment.",
+      "Exclude each candidate's orbit/clock/bias/antenna/attitude products before numeric parsing in its own calibration and fit. No G12 state, historical fitted seed, orbit-radius prior or target-product correction.",
+      "Maintain at least five admitted receivers, the 10-degree mask, existing floors, joint clock covariance, free biases, central+J2 dynamics and p=.01 final residual criterion.",
+      "Changing how alternative RF hypotheses are represented or tested is allowed and must be explicit. Record unresolved hypotheses; a single successful local solution is not global uniqueness.",
+      "Freeze every candidate fit and RF prediction before state or held-out RF scoring. Oracle errors cannot guide branch choice, fitting, covariance or model selection.",
+      "Retain failed, ambiguous, unsupported and worsening cases. Never overwrite v1/v2/v3 or existing source-bound evidence."
+    ],
+    "outcomes": [
+      "Strategy: identify a source-owned operation absent from the pinned target; a renamed direct correction or lexical match is insufficient.",
+      "Native gain: newly usable G06/G13 arcs/trajectories or a supported reduction of ambiguous hypotheses, with unchanged final criteria and native regressions.",
+      "Incremental value: compare with both unchanged v3 and the fixed direct comparator. Equal success is an alternative strategy demonstration, not demonstrated benefit over direct work.",
+      "Evaluate all available held-out RF predictions and after-fit CODE discrepancies, plus computation time, code/dependency changes and regressions on the five existing supported controls. Residual RMS is not physical accuracy or calibrated uncertainty."
+    ],
+    "claim_limit": "A successful case demonstrates a bounded alternative strategy or native improvement, not causal assistance of a blocked agent, a closed S2, universal problem solving or population performance.",
+    "source_independent_regressions": [
+      "Preserve RF hypothesis results under branch enumeration order changes; genuinely compatible distinct hypotheses must not be silently merged or called unique.",
+      "Replay the existing candidate-product exclusion and withheld-RF poisoning controls; source packet or generated bridge claims are not execution evidence.",
+      "Retain the original five supported controls and report any changed admissions, forecast worsening or runtime cost. Historical source-bound replays use their original Git producer; no expected hash is changed to hide a modified artifact."
+    ]
+  },
+  "paid_execution": {
+    "authorization": "pending; no previous cohort allowance is reused",
+    "proposed_ceiling_usd": 0.1,
+    "model": "gpt-6-luna",
+    "api_kind": "responses",
+    "format": "json_schema",
+    "reasoning_effort": "medium",
+    "streaming": true,
+    "max_prompt_bytes": 180000,
+    "max_output_tokens": 12000,
+    "max_calls": 4,
+    "configured_input_usd_per_million_tokens": 0.1,
+    "configured_output_usd_per_million_tokens": 0.5,
+    "conservative_reservation_upper_bound_usd": 0.0968192,
+    "price_scope": "Observed local configuration, not a verified current tariff or provider invoice. Recheck suitability before paid dispatch; never silently raise authorization.",
+    "allowance_id": "satellite-alternatives-2026-10-18-v1",
+    "github_request_cap": 120,
+    "retries": 0,
+    "resumes": 0,
+    "subagents": 0,
+    "gate": "Explicit new-cohort spending authorization, substantive PR review and complete Windows/Linux CI before paid calls. No automatic merge."
+  }
+}

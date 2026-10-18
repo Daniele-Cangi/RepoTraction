@@ -1,0 +1,95 @@
+{
+  "target_revision": "ac902e5f8158981f938537e1fe47a1f561b5d06d",
+  "historical_result_sha256_git_content": "f8852121d4aaeeef58393e77f30f49e58ad8d41157b7d4c22f71e79722bb1e46",
+  "source_sha256_as_recorded": {
+    "research/exploratory/g12_interval_clocks.py": "f0cf1a1ed8313853ee4ad0cf4dd61f32076faa46484218a400807373a5c0a0ef",
+    "research/exploratory/g12_dynamic_fit.py": "efb87e2688c97df9a455d8deaf317f869459e4c21429695515be2de39238f9e2",
+    "research/kinematic/dynamic_fit.py": "75f6dddec571b4cea0324923a5e2eeb111430abe1cd9eccf37d94a05d0c7fab1",
+    "research/kinematic/orbital_dynamics.py": "0fd9bb6031222d14a9ef0c2be611754a91b48be4404dae23c175cf768db52217",
+    "research/kinematic/clock_observations.py": "9ad9723e510c32b23caf1e19ebc8435324535d0b5967c94d87a0d1be3ef163ba",
+    "research/exploratory/precise_reference_model.py": "1313034b39e17658cc60b98ef039fa0663b066faeb66331eb97f0f481afbba37",
+    "research/exploratory/reference_attitude_model.py": "3ae4ad0f1a7b0343f71002b3a59a5d6966f5b789c852670f9f0ca6b4050da0f1",
+    "research/exploratory/reference_code_bias.py": "81b2240f519a9c78328728dd1fd723349a1c02ca76a1ffbab2dafaa082918f94",
+    "research/exploratory/reference_conventions.py": "37e748ee2fd73912ea1b15fc0217a5fd90a9a12c5aa565d314eee3eee9c2b924",
+    "research/exploratory/reference_product_discrepancy.py": "d66693c813938bde4630ca1f4cf85424ca3b60a04f7045ca1fca357c319976c4",
+    "research/exploratory/day_reference.py": "bc96b7ab08ee058ee47ce4f134e09074b9064b6d6a4287648cc4315c8fa99dea",
+    "research/exploratory/vmf3_reference_study.py": "ebdc3757fecbc3619b3bf93191e0e6f1919f9815bfda0dceb8f0aad6f8aa2fed",
+    "research/exploratory/vmf3_grid_model.py": "41849e1f3b0d3d233321c28e35b684267b17a4976dbdf055d0c9194fbc3039ae",
+    "research/exploratory/reference_phase_clock.py": "bb726542d4dfea2e79799270e68b1412681586ec00612c2f7b5f3e8df8b322d4",
+    "research/exploratory/reference_time_alignment.py": "33817ce8a85c7257efb70f5208f5ddcb0e1c4d6b81aa3bbb1ff8e83148347750",
+    "positioning/solver.py": "87f6a564e4a42c7e21cdb33d0dfa0f9f46d97b4e03debfab8eb0e3957c0b9318",
+    "positioning/calibration.py": "112e62f69df1baf597caa3772bc78a92ab085d6471ef13357e6ec1275cc91491",
+    "research/exploratory/reference_state_validation.py": "a34d0e03285c4785ae80fbfaf1f9107c8c074924d44212cc4dab05471c38f1cb"
+  },
+  "input_sha256_as_recorded": {
+    "day_receipt": "42b8c63c6799fe24428a0a0dfd492ac9d30a3a562e80fb35b8eada62819eaaf5",
+    "plan": "4fdcd32196b126d9d3bcaf05201c2d817dcea3ae3c434a3ed9130f80859cd4ac",
+    "observations": "edcb344d4e2dbe7baad5b1f3b5659e9322f71f730d3bc0fe644ff1665c8154ce",
+    "positions": "0361930f1c46486b075df1fda511213761b64ce32305ad1e0c94d503aac5864e",
+    "pseudo_plan": "f50e887a78e9ad1f897ea00141e784761d3cdb60d2c4245c8df2a2746cdb8cd8",
+    "baseline": "ff4caa87d4963524252437184ab67128b9a75beaf704b664dff1951350b33600",
+    "reference_clock": "026d0a33820b914d611143fba6eab26f4f029f058e42604a0b4f832bf109fce1",
+    "phase": "26152824138bb58c7af7f1db69019704e341eb87a7334a93fb33f9d345d44f92",
+    "timed_receipt": "e27966db2c776fb814910072af8cefbaa34f0e1762982a0f37070b9ec9242d71",
+    "orbit_extract": "09595690ca693bdf7d57c1954cba68fa1aaea7cdd928307de289399be63fbbae",
+    "clock_extract": "27a8dfe956f5c1dbca24fc238f1585718cd2d33220855a43bd4c457deed7bf7b",
+    "bias_receipt": "1f3319e8f72308341e063d667189106fde15618780776417c47c6fbdf39ffaa5",
+    "bias_extract": "ee84285f406e14a8e2069a28278fe38963f0185a9265d3fdefe9de143ddb9a64",
+    "antenna_receipt": "2c95245159baa22899c8861e1fb8e067935c99140cdb7aa2f21d0981e1e10eb8",
+    "antenna_extract": "25f7d2cd63ce8cb320efc0995d52859c742a2a23fd754819373092ab84954c88",
+    "attitude_receipt": "c9ea5d87a061567462e1ceff150bb7181f4c87d3985a559874f2354337b02955",
+    "attitude_extract": "84654c618c1abb1be5e794af3988adf09f1aee5763d27b16f8adb9620d03056c"
+  },
+  "fit_status_counts": {
+    "INSUFFICIENT_PREPARED_ARCS": 17,
+    "BRANCH_SEARCH_INCOMPLETE": 5
+  },
+  "cases": {
+    "G06": {
+      "window_status_counts": {
+        "RF_MASK_UNSUPPORTED": 1,
+        "INSUFFICIENT_RF_STATIONS": 11,
+        "RF_GEOMETRY_AMBIGUOUS": 8
+      },
+      "fit": {
+        "status": "INSUFFICIENT_PREPARED_ARCS",
+        "arc_count": 0
+      }
+    },
+    "G13": {
+      "window_status_counts": {
+        "RF_GEOMETRY_AMBIGUOUS": 15,
+        "INSUFFICIENT_RF_STATIONS": 5
+      },
+      "fit": {
+        "status": "INSUFFICIENT_PREPARED_ARCS",
+        "arc_count": 0
+      }
+    }
+  },
+  "all_candidate_statuses": {
+    "G04": "INSUFFICIENT_PREPARED_ARCS",
+    "G05": "BRANCH_SEARCH_INCOMPLETE",
+    "G06": "INSUFFICIENT_PREPARED_ARCS",
+    "G07": "INSUFFICIENT_PREPARED_ARCS",
+    "G09": "INSUFFICIENT_PREPARED_ARCS",
+    "G11": "BRANCH_SEARCH_INCOMPLETE",
+    "G13": "INSUFFICIENT_PREPARED_ARCS",
+    "G14": "INSUFFICIENT_PREPARED_ARCS",
+    "G15": "INSUFFICIENT_PREPARED_ARCS",
+    "G17": "INSUFFICIENT_PREPARED_ARCS",
+    "G18": "INSUFFICIENT_PREPARED_ARCS",
+    "G19": "BRANCH_SEARCH_INCOMPLETE",
+    "G20": "BRANCH_SEARCH_INCOMPLETE",
+    "G21": "BRANCH_SEARCH_INCOMPLETE",
+    "G22": "INSUFFICIENT_PREPARED_ARCS",
+    "G24": "INSUFFICIENT_PREPARED_ARCS",
+    "G25": "INSUFFICIENT_PREPARED_ARCS",
+    "G26": "INSUFFICIENT_PREPARED_ARCS",
+    "G28": "INSUFFICIENT_PREPARED_ARCS",
+    "G29": "INSUFFICIENT_PREPARED_ARCS",
+    "G30": "INSUFFICIENT_PREPARED_ARCS",
+    "G31": "INSUFFICIENT_PREPARED_ARCS"
+  },
+  "note": "Metadata of preserved v3, not a fresh baseline execution. No state-oracle values are copied into discovery context."
+}

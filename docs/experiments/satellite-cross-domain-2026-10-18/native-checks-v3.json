@@ -1,0 +1,55 @@
+{
+  "unchanged_5_station_seed_sequence": 11,
+  "unchanged_6_station_seed_sequence": 31,
+  "unchanged_8_station_seed_sequence": 140,
+  "four_station_synthetic_branch_contains_known_state_error_m": 9.812202683986923e-07,
+  "four_station_returned_branches": 2,
+  "three_stations_rejected": "multi-root algebraic matrix is rank deficient",
+  "coincident_stations_rejected": "multi-root algebraic matrix is rank deficient",
+  "variants_active_before_collection": {
+    "algebraic_seeds": true,
+    "prepare": true,
+    "build_arcs": true
+  },
+  "variants_active_after_tests": {
+    "algebraic_seeds": true,
+    "prepare": true,
+    "build_arcs": true
+  },
+  "adapted_native_regression_suites": {
+    "invocation": "pytest.main in the same interpreter",
+    "arguments": [
+      "research/exploratory/tests/test_reference_state_validation.py",
+      "positioning/tests/test_support_and_snapshots.py",
+      "positioning/tests/test_inverse.py",
+      "research/kinematic/tests/test_dynamic_fit.py",
+      "-q",
+      "-p",
+      "no:cacheprovider",
+      "--junitxml=C:\\Users\\dacan\\Documents\\Codex\\2026-08-17\\vo\\outputs\\github-pulse\\docs\\experiments\\satellite-cross-domain-2026-10-18\\native-regressions-v3.xml"
+    ],
+    "cwd": "C:\\Users\\dacan\\Documents\\Codex\\2026-08-15\\github-cli-github-cli-gi-autenticata\\Satellite-RF-Observatory",
+    "target_revision": "ac902e5f8158981f938537e1fe47a1f561b5d06d",
+    "exit_code": 0,
+    "transient_source_sha256": {
+      "algebraic_seeds": "25444b86b45e9b7046fd406cc63ee60b475173201f9af306d4612543a4431579",
+      "prepare": "ecb05628dc84ecfeef72512268a926433ce11ecab3fc7986e8c04d3549433dac",
+      "build_arcs": "80e628bb1928daed21fbebd1b51f4137fb30b2ebbc0f93b1a90ad8e94c2eba6e"
+    },
+    "counts": {
+      "tests": 36,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "passed": 36,
+    "elapsed_s": 19.88108370000009,
+    "log_file": "native-regressions-v3-log.txt",
+    "log_sha256": "51b7f8b85b743d9fc2f5bb8fcf80e47f5ed4bf89372851b57e9377055020dc8c",
+    "junit_file": "native-regressions-v3.xml",
+    "junit_sha256": "ed64c567586933f7229fe0b5009a555b85088ec298623eeda2b6758904de39b3",
+    "source_sha256": "533af68203ec4f3686c9fa572d70f6d3e58d2bbd4fca9fc678a1986a55127235"
+  },
+  "regressions_passed": true,
+  "scope": "Same-interpreter regressions with the three transient four-receiver adaptations active, plus focused synthetic initializer checks. The original rf_geometry policy is retained for these existing regressions. This does not rerun or qualify the real-data fit, and is not Linux replication."
+}

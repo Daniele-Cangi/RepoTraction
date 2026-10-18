@@ -1,0 +1,23 @@
+{
+  "preparation_commit": "1da6d9bbc8d7204ecedc6fbfe54177775a8db251",
+  "plan_wire_bytes": 96879,
+  "plan_wire_limit_bytes": 180000,
+  "phases": [
+    "plan_discovery",
+    "select_source",
+    "interpret_capabilities",
+    "evaluate"
+  ],
+  "normalized_requirement_count": 6,
+  "target_file_count": 3,
+  "original_target_text_hashes_valid": true,
+  "req_quote_validation": "existing validate_request passed",
+  "operator_context_origin_explicit": true,
+  "model_calls_executed": 0,
+  "external_source_searches_executed": 0,
+  "allowance_authorized": false,
+  "max_conservative_reservation_at_configured_prices_usd": 0.0968192,
+  "planner_instruction": "Default PLAN_INSTRUCTION plus the recorded experiment-local appendix; interpretation of this goal differs from the default direct-solution preference.",
+  "actual_direct_result_in_planning_context": true,
+  "direct_comparator_oracle_errors_in_planning_context": false
+}

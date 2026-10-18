@@ -1,0 +1,22 @@
+{
+  "unchanged_5_station_seed_sequence": 11,
+  "unchanged_6_station_seed_sequence": 31,
+  "unchanged_8_station_seed_sequence": 140,
+  "four_station_synthetic_branch_contains_known_state_error_m": 9.812202683986923e-07,
+  "four_station_returned_branches": 2,
+  "three_stations_rejected": "multi-root algebraic matrix is rank deficient",
+  "coincident_stations_rejected": "multi-root algebraic matrix is rank deficient",
+  "existing_native_regression_suites": [
+    {
+      "path": "research/exploratory/tests/test_reference_state_validation.py",
+      "passed": 11,
+      "elapsed_s": 9.76
+    },
+    {
+      "path": "positioning/tests/test_support_and_snapshots.py + positioning/tests/test_inverse.py",
+      "passed": 16,
+      "elapsed_s": 2.0
+    }
+  ],
+  "scope": "Synthetic adaptation checks and existing native regressions, not real-data accuracy or Windows/Linux replication."
+}

@@ -1,0 +1,63 @@
+{
+  "scope": "Exposed-data, chat-assisted cross-domain exploration. Not a replay or continuation of the frozen paid cohort and not autonomous unchanged-product output.",
+  "source_inspections": [
+    {
+      "repo": "jonperdomo/openmht",
+      "pin": "abe73ff5ae9b96ec8091edaab65e053cc99221ec",
+      "source": "openmht/mht.py",
+      "lines": [
+        118,
+        172
+      ],
+      "mechanism": "Retain and score track hypotheses before N-scan commitment.",
+      "assessment": "Concrete operation from computer vision; no supplied satellite observation model, nuisance clock handling or global-uniqueness guarantee. Full MHT implementation is unnecessary for the currently cost-separated snapshots."
+    },
+    {
+      "repo": "mcosovic/FactorGraph.jl",
+      "pin": "8a1375351849acb4e5787c8c67ab4a1956a6f465",
+      "source": "src/utility/wls.jl",
+      "lines": [
+        139,
+        165
+      ],
+      "mechanism": "Assemble information from joint factors and reject an unobservable global system.",
+      "assessment": "Linear Gaussian and separate discrete APIs, not a demonstrated mixed nonlinear solver. Existing Satellite QR/SVD already provides the relevant joint computation. Do not import a graph framework."
+    },
+    {
+      "repo": "montanariarthur/FunctionalObservability",
+      "pin": "485f9f01d7e8e16c75286b43a8c304bc5e14434e",
+      "source": "example_dynamicalnetwork/main_functionalobsv.m",
+      "mechanism": "Test observability of a requested function against the joint observation space rather than demanding all snapshot states be independently recoverable.",
+      "assessment": "Linear structural rank / observer construction is not a guarantee for the nonlinear RF problem. Transfer only the question of joint numerical observability; use the native dynamic fitter's nuisance-eliminated SVD, not structural rank."
+    }
+  ],
+  "hypothesis": "The historical five-receiver-per-arc support rule may discard four-receiver arcs whose shared dynamic state and station biases are jointly identifiable over multiple epochs. A native experiment can replace this count restriction with the existing full-rank requirement while preserving physical mask, clocks, noise floors and held-out evaluation.",
+  "origin": "Parent assistant synthesis after source inspection, using existing paid planner suggestion and native code. No attribution of autonomous discovery or imported solver.",
+  "variant": {
+    "input_candidates": [
+      "G06",
+      "G13"
+    ],
+    "windows": "Original twenty chronological windows per candidate, same raw coverage minimum five; no new windows or observations.",
+    "admission": "Same fixed cost-separated exterior snapshot rule from the already frozen direct comparator; same 10 degree mask at all three training tags. Permit four rather than five surviving receivers, retaining all qualifying windows.",
+    "fitter": "Native dynamic_fit with only the two explicit prepare minimum-five guards replaced by minimum-four in a transient in-memory copy; union minimum four. Preserve full local nuisance and joint state/bias rank checks at RTOL=1e-10, unchanged physics and solver budgets.",
+    "changes_guarantees": "Removes per-arc snapshot redundancy and historical count-based support guarantee. Relies on model-conditional joint numerical rank instead; does not establish global observability, unique branches or calibrated physical uncertainty.",
+    "unchanged": [
+      "target product exclusion before numeric parsing",
+      "qualified non-target calibration",
+      "10 degree mask",
+      "central plus J2",
+      "free constant station-code contrasts",
+      "all covariance and floors",
+      "no target radius/state/clock seed or prior",
+      "p=.01",
+      "25 iterations and 12 line-search halvings",
+      "all terminals and failures",
+      "freeze all fits and RF predictions before target oracle scoring"
+    ],
+    "controls": "Rebuild five-receiver G13 direct comparator and verify numerical agreement with its frozen fit. Native prepare must still reject unqualified calibrations and reused endpoints; native linearize must still reject a degenerate joint design. No fresh refit claim for historical five controls.",
+    "success": "At least one newly supported native trajectory or held-out prediction, with full joint numerical rank and visible branch status, compared with original unsupported baseline and frozen direct comparator. Report held-out RF residuals and CODE state discrepancies separately, including worsening. No model/weight/threshold search if unsuccessful.",
+    "stop": "Exactly one four-receiver variant for each G06/G13. No retry after scientific failure or post-oracle adjustment."
+  },
+  "forbidden": "No paid API, subagents, new data, product code changes, historical evidence modifications, automatic merge or physical-qualification claim."
+}

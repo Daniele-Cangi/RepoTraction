@@ -1,0 +1,69 @@
+"""Focused native numerical checks for the transient adaptation only."""
+import os,sys,json,hashlib,subprocess,time
+from xml.etree import ElementTree
+from pathlib import Path
+os.environ['OPENBLAS_NUM_THREADS']='1'
+os.environ['PYTHONDONTWRITEBYTECODE']='1'
+sys.dont_write_bytecode=True
+ROOT=Path('C:/Users/dacan/Documents/Codex/2026-08-15/github-cli-github-cli-gi-autenticata/Satellite-RF-Observatory')
+PIN='ac902e5f8158981f938537e1fe47a1f561b5d06d'
+assert subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()==PIN
+assert not subprocess.check_output(['git','diff','--name-only','HEAD'],cwd=ROOT)
+sys.path.insert(0,str(ROOT))
+import numpy as np
+from positioning import solver
+from research.kinematic.synthetic import receiver_positions
+HERE=Path(__file__).resolve().parent
+evidence=json.loads((HERE/'native-before-scoring.json').read_bytes())
+namespace={}
+exec(compile(evidence['transient_changes']['algebraic_seeds'],'<retained native adaptation>','exec'),solver.algebraic_seeds.__globals__,namespace)
+adapted=namespace['algebraic_seeds']
+xyz=receiver_positions()
+q=np.array([26e6,2e6,4e6,75000.])
+z=solver.measurement_model(q,xyz,atmosphere=False)
+results={}
+for n in [5,6,8]:
+    original,experimental=solver.algebraic_seeds(z[:n],xyz[:n]),adapted(z[:n],xyz[:n])
+    assert len(original)==len(experimental)
+    assert all(np.array_equal(a,b) for a,b in zip(original,experimental,strict=True))
+    results[f'unchanged_{n}_station_seed_sequence']=len(original)
+original=solver.algebraic_seeds
+solver.algebraic_seeds=adapted
+try:
+    fit=solver.solve(z[:4],xyz[:4],np.eye(4)*400.,atmosphere=False)
+    error=min(float(np.linalg.norm(np.array(b['q'])-q)) for b in fit['branches'])
+    assert error<1e-3
+    results['four_station_synthetic_branch_contains_known_state_error_m']=error
+    results['four_station_returned_branches']=len(fit['branches'])
+    for label,zz,xx in [('three_stations',z[:3],xyz[:3]),('coincident_stations',np.repeat(z[0],4),np.repeat(xyz[:1],4,axis=0))]:
+        try:adapted(zz,xx)
+        except ValueError as exc:results[label+'_rejected']=str(exc)
+        else:raise AssertionError(label)
+finally:solver.algebraic_seeds=original
+output_dir=HERE.parents[1]/'docs/experiments/satellite-cross-domain-2026-10-18'
+log_path=output_dir/'native-regressions-v2-log.txt'
+xml_path=output_dir/'native-regressions-v2.xml'
+assert not xml_path.exists()
+paths=['research/exploratory/tests/test_reference_state_validation.py',
+       'positioning/tests/test_support_and_snapshots.py','positioning/tests/test_inverse.py']
+command=[sys.executable,'-m','pytest',*paths,'-q','-p','no:cacheprovider','--junitxml='+str(xml_path)]
+started=time.perf_counter()
+with log_path.open('xb') as log:
+    completed=subprocess.run(command,cwd=ROOT,stdout=log,stderr=subprocess.STDOUT,check=False)
+elapsed=time.perf_counter()-started
+suites=ElementTree.parse(xml_path).getroot().findall('testsuite') if xml_path.exists() else []
+counts={name:sum(int(s.attrib.get(name,0)) for s in suites) for name in ['tests','failures','errors','skipped']}
+results['existing_native_regression_suites']={
+ 'command':command,'cwd':str(ROOT),'target_revision':PIN,'exit_code':completed.returncode,
+ 'counts':counts,'passed':counts['tests']-counts['failures']-counts['errors']-counts['skipped'],
+ 'elapsed_s':elapsed,'log_file':log_path.name,'log_sha256':hashlib.sha256(log_path.read_bytes()).hexdigest(),
+ 'junit_file':xml_path.name,'junit_sha256':hashlib.sha256(xml_path.read_bytes()).hexdigest() if xml_path.exists() else None,
+ 'source_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest()}
+results['regressions_passed']=bool(suites) and counts['tests']>0 and completed.returncode==0 and counts['failures']==counts['errors']==0
+results['scope']='Synthetic adaptation checks and existing native regressions, not real-data accuracy or Windows/Linux replication.'
+out=output_dir/'native-checks-v2.json'
+with out.open('x',encoding='utf-8') as stream:stream.write(json.dumps(results,indent=2)+'\n')
+print(json.dumps(results,indent=2))
+assert not subprocess.check_output(['git','diff','--name-only','HEAD'],cwd=ROOT)
+if not results['regressions_passed']:sys.exit(completed.returncode or 1)
+
