@@ -1,0 +1,151 @@
+{
+  "id": "c2ae49a8143f4d429fb71913179e9455",
+  "account": "Daniele-Cangi",
+  "status": "completed",
+  "stage": "source_search",
+  "input": {
+    "action": "experiment-local alternative discovery",
+    "use_ai": true,
+    "max_requests": 120
+  },
+  "created_at": "2026-10-18T11:16:12+00:00",
+  "updated_at": "2026-10-18T11:16:46+00:00",
+  "requests_used": 1,
+  "ai_calls_used": 1,
+  "cost_reserved_usd": 0.0158927,
+  "checkpoint": {
+    "ai_outputs": [
+      {
+        "phase": "request",
+        "call_number": 1,
+        "attempt_id": "c2ae49a8143f4d429fb71913179e9455:1",
+        "output": {
+          "decision": "search",
+          "reason": "Investigate one bounded alternative representation: jointly estimate a trajectory from the eligible multi-epoch RF observations, rather than making each observation window depend on a unique exterior branch from independent snapshots. Temporal consistency could resolve some snapshot branch ambiguity, but cannot relax the five-receiver or 10-degree requirements. This is a testable possibility, not evidence that it will recover G06 or outperform the direct comparator.",
+          "direct_alternative": {
+            "description": "Use the target’s existing SciPy snapshot solver and fixed branch-cost comparator, then the existing dynamic fitter. The supplied prior-attempt summary reports six prepared G13 arcs and a BRANCH_SEARCH_INCOMPLETE trajectory; G06 has zero arcs, including nine RF-covered windows with fewer than five receivers after the unchanged mask.",
+            "adequacy": "unknown",
+            "limitations": [
+              "The supplied context does not include held-out RF or CODE errors for the direct comparator.",
+              "The alternative may not help G06 where the five-receiver masked-data requirement is unmet.",
+              "Whether joint estimation adds qualified results beyond the direct comparator is unknown."
+            ]
+          },
+          "benefit_hypothesis": "A joint trajectory-level representation may use dynamical consistency across eligible observations to disambiguate solutions that independent RF snapshots cannot uniquely select, potentially yielding additional qualified windows or a more complete supported trajectory, especially for G13. It must leave windows unsupported when the unchanged receiver and elevation requirements are not met.",
+          "benefit_test": "Against unchanged v3 and the fixed local likelihood comparator, use all twenty original windows for each case and preserve missing, unsupported, ambiguous, and failed outcomes. Require source-owned code evidence for the alternative. Compare qualified-window coverage and trajectory/branch status under the original five-receiver minimum, 10-degree mask, floors, covariance, free biases, central+J2 dynamics, and final p=.01 criterion. Freeze fits and RF predictions before held-out RF and CODE scoring; report score changes and any worsening without tuning. The hypothesis is falsified if the alternative yields no additional qualified coverage or supported trajectory result under these constraints, or does not improve the predeclared comparison against the direct baseline.",
+          "operations": [
+            {
+              "operation": "Joint multi-epoch RF trajectory estimation with temporal/dynamical consistency, replacing independent snapshot branch selection as the decisive geometry-selection representation.",
+              "input": "The existing RF archive for all twenty original windows per G06 and G13, with the permitted calibrated code/phase observations and receiver positions.",
+              "output": "Per-window supported, unsupported, ambiguous, or failed statuses; any qualified trajectory fit and frozen RF predictions for held-out evaluation.",
+              "requirement_ids": [
+                "r0",
+                "r1",
+                "r2",
+                "r3",
+                "r4",
+                "r5"
+              ],
+              "rationale": "This is a different representation from the snapshot branch selection in the supplied `research/exploratory/reference_state_validation.py` and `positioning/solver.py`; temporal consistency offers a concrete, falsifiable way to test whether ambiguous snapshot geometry can be resolved. The existing `research/kinematic/dynamic_fit.py` and fixed comparator are the strong direct baseline, so investigate only if donor code supplies a distinct transferable technique and its native result improves the constrained comparison. Do not use candidate state/products, relax the receiver or elevation constraints, or tune after scoring.",
+              "search_terms": "multi epoch RF pseudorange carrier phase joint satellite trajectory estimation branch ambiguity Python SciPy"
+            }
+          ],
+          "unknowns": [
+            "No candidate source package or source-owned implementation is supplied.",
+            "It is unknown whether a joint method can yield additional qualified observations while meeting the unchanged minimum receiver and elevation criteria.",
+            "Held-out RF and CODE comparator errors are not supplied, so scoring improvement is undetermined.",
+            "The interpretation of the minimum five admitted receivers across a joint multi-epoch fit, rather than per window, is not established; the investigation must not assume a weaker requirement."
+          ]
+        }
+      }
+    ]
+  },
+  "result": {
+    "plan": {
+      "decision": "search",
+      "reason": "Investigate one bounded alternative representation: jointly estimate a trajectory from the eligible multi-epoch RF observations, rather than making each observation window depend on a unique exterior branch from independent snapshots. Temporal consistency could resolve some snapshot branch ambiguity, but cannot relax the five-receiver or 10-degree requirements. This is a testable possibility, not evidence that it will recover G06 or outperform the direct comparator.",
+      "direct_alternative": {
+        "description": "Use the target’s existing SciPy snapshot solver and fixed branch-cost comparator, then the existing dynamic fitter. The supplied prior-attempt summary reports six prepared G13 arcs and a BRANCH_SEARCH_INCOMPLETE trajectory; G06 has zero arcs, including nine RF-covered windows with fewer than five receivers after the unchanged mask.",
+        "adequacy": "unknown",
+        "limitations": [
+          "The supplied context does not include held-out RF or CODE errors for the direct comparator.",
+          "The alternative may not help G06 where the five-receiver masked-data requirement is unmet.",
+          "Whether joint estimation adds qualified results beyond the direct comparator is unknown."
+        ]
+      },
+      "benefit_hypothesis": "A joint trajectory-level representation may use dynamical consistency across eligible observations to disambiguate solutions that independent RF snapshots cannot uniquely select, potentially yielding additional qualified windows or a more complete supported trajectory, especially for G13. It must leave windows unsupported when the unchanged receiver and elevation requirements are not met.",
+      "benefit_test": "Against unchanged v3 and the fixed local likelihood comparator, use all twenty original windows for each case and preserve missing, unsupported, ambiguous, and failed outcomes. Require source-owned code evidence for the alternative. Compare qualified-window coverage and trajectory/branch status under the original five-receiver minimum, 10-degree mask, floors, covariance, free biases, central+J2 dynamics, and final p=.01 criterion. Freeze fits and RF predictions before held-out RF and CODE scoring; report score changes and any worsening without tuning. The hypothesis is falsified if the alternative yields no additional qualified coverage or supported trajectory result under these constraints, or does not improve the predeclared comparison against the direct baseline.",
+      "operations": [
+        {
+          "operation": "Joint multi-epoch RF trajectory estimation with temporal/dynamical consistency, replacing independent snapshot branch selection as the decisive geometry-selection representation.",
+          "input": "The existing RF archive for all twenty original windows per G06 and G13, with the permitted calibrated code/phase observations and receiver positions.",
+          "output": "Per-window supported, unsupported, ambiguous, or failed statuses; any qualified trajectory fit and frozen RF predictions for held-out evaluation.",
+          "requirement_ids": [
+            "r0",
+            "r1",
+            "r2",
+            "r3",
+            "r4",
+            "r5"
+          ],
+          "rationale": "This is a different representation from the snapshot branch selection in the supplied `research/exploratory/reference_state_validation.py` and `positioning/solver.py`; temporal consistency offers a concrete, falsifiable way to test whether ambiguous snapshot geometry can be resolved. The existing `research/kinematic/dynamic_fit.py` and fixed comparator are the strong direct baseline, so investigate only if donor code supplies a distinct transferable technique and its native result improves the constrained comparison. Do not use candidate state/products, relax the receiver or elevation constraints, or tune after scoring.",
+          "search_terms": "multi epoch RF pseudorange carrier phase joint satellite trajectory estimation branch ambiguity Python SciPy",
+          "id": "op0"
+        }
+      ],
+      "unknowns": [
+        "No candidate source package or source-owned implementation is supplied.",
+        "It is unknown whether a joint method can yield additional qualified observations while meeting the unchanged minimum receiver and elevation criteria.",
+        "Held-out RF and CODE comparator errors are not supplied, so scoring improvement is undetermined.",
+        "The interpretation of the minimum five admitted receivers across a joint multi-epoch fit, rather than per window, is not established; the investigation must not assume a weaker requirement."
+      ],
+      "version": "request-led-discovery-v1",
+      "issue_fingerprint": "6458a3982a6ef2d2465ba1a886e1ce6d357866b60613d8274769056f79edbc2c",
+      "provider_identity": "cdcd5f4d30c98d6930cf75d7b2fc8c965d48b0d5a52560b0475019c45ad41426",
+      "status": "unverified_decision",
+      "qualified": false,
+      "direct_solution_verified": false
+    },
+    "search_pools": [
+      {
+        "query": "multi epoch RF pseudorange carrier phase joint satellite trajectory estimation branch ambiguity Python SciPy is:public archived:false fork:false in:name,description,readme",
+        "items": [],
+        "complete": false,
+        "incomplete_results": false,
+        "pages_read": 1,
+        "note": "One bounded metadata sample; empty results do not prove absence of implementations."
+      }
+    ],
+    "candidates": [],
+    "terminal": "empty_metadata_pool"
+  },
+  "provider_identity": "cdcd5f4d30c98d6930cf75d7b2fc8c965d48b0d5a52560b0475019c45ad41426",
+  "reported_usage": [
+    {
+      "input_tokens": 25664,
+      "output_tokens": 3330,
+      "estimated_cost_usd_at_configured_prices": 0.0042314
+    }
+  ],
+  "ai_trace": [
+    {
+      "phase": "request",
+      "model": "gpt-6-luna",
+      "api_kind": "responses",
+      "response_id": "resp_0730251b91e0e104016ad4aa7e257487d2bbb5c25690f01fb3",
+      "response_status": "completed",
+      "request_sha256": "d9422dc7c1a600c16bf393c161e73bcc8f41c58969ff60bdc6133ca3fce4f9ab",
+      "request_bytes": 96879,
+      "context_coverage": {
+        "decision_version": "request-led-discovery-v1",
+        "target_file_limit": 4,
+        "target_characters_per_file": 8000,
+        "target_files_omitted": 0,
+        "all_target_source_available": false
+      },
+      "call_number": 1,
+      "attempt_id": "c2ae49a8143f4d429fb71913179e9455:1"
+    }
+  ],
+  "elapsed_s": 33.71245799999997
+}

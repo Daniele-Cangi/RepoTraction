@@ -1,0 +1,32 @@
+{
+  "user_reply": "Autorizzo 0,10 USD per questa prova",
+  "ceiling_usd": 0.1,
+  "max_calls": 4,
+  "scope": "satellite-alternatives-2026-10-18",
+  "authorized_at_client_date": "2026-10-18",
+  "allowance_id": "satellite-alternatives-2026-10-18-v1",
+  "prepared_head": "de332ea70f8963fd58d8e452a09ce40bc7909b41",
+  "ci_run": 39121419196,
+  "clean_review_url": "https://github.com/Daniele-Cangi/RepoTraction/pull/129#issuecomment-6249060896",
+  "gate_checked_at": "2026-10-18T11:16:12+00:00",
+  "workflow_conclusion": "success",
+  "jobs": [
+    {
+      "name": "tests (windows-latest, 3.10)",
+      "conclusion": "success"
+    },
+    {
+      "name": "tests (ubuntu-latest, 3.13)",
+      "conclusion": "success"
+    },
+    {
+      "name": "tests (ubuntu-latest, 3.10)",
+      "conclusion": "success"
+    },
+    {
+      "name": "tests (windows-latest, 3.13)",
+      "conclusion": "success"
+    }
+  ],
+  "invocation_sha256": "5a99602698614912a10a17358d26f51806bce915fa07fd84e293106821fde6e7"
+}
