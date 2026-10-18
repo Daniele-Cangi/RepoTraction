@@ -1,0 +1,359 @@
+{
+  "target_revision": "248b54208b94f1e53f5af7bdb39d89860b05fca4",
+  "retained_result_sha256": "56b325ab32a679d89223b89bbe88633cd3850bdcf0cd605c18bea1bf62900020",
+  "source_sha256": "0110afb513eb245c30f2dce4e685b15a82e6e3dd52873c0f8d60b30fe5ffb367",
+  "scope": "Fresh unchanged native inverse replay against retained finite physical increments; no RF trajectory refit or new oracle score.",
+  "input_sha256": {
+    "day_receipt": "42b8c63c6799fe24428a0a0dfd492ac9d30a3a562e80fb35b8eada62819eaaf5",
+    "plan": "4fdcd32196b126d9d3bcaf05201c2d817dcea3ae3c434a3ed9130f80859cd4ac",
+    "observations": "edcb344d4e2dbe7baad5b1f3b5659e9322f71f730d3bc0fe644ff1665c8154ce",
+    "positions": "0361930f1c46486b075df1fda511213761b64ce32305ad1e0c94d503aac5864e",
+    "pseudo_plan": "f50e887a78e9ad1f897ea00141e784761d3cdb60d2c4245c8df2a2746cdb8cd8",
+    "baseline": "ff4caa87d4963524252437184ab67128b9a75beaf704b664dff1951350b33600",
+    "reference_clock": "026d0a33820b914d611143fba6eab26f4f029f058e42604a0b4f832bf109fce1",
+    "phase": "26152824138bb58c7af7f1db69019704e341eb87a7334a93fb33f9d345d44f92",
+    "timed_receipt": "e27966db2c776fb814910072af8cefbaa34f0e1762982a0f37070b9ec9242d71",
+    "orbit_extract": "09595690ca693bdf7d57c1954cba68fa1aaea7cdd928307de289399be63fbbae",
+    "clock_extract": "27a8dfe956f5c1dbca24fc238f1585718cd2d33220855a43bd4c457deed7bf7b",
+    "bias_receipt": "1f3319e8f72308341e063d667189106fde15618780776417c47c6fbdf39ffaa5",
+    "bias_extract": "ee84285f406e14a8e2069a28278fe38963f0185a9265d3fdefe9de143ddb9a64",
+    "antenna_receipt": "2c95245159baa22899c8861e1fb8e067935c99140cdb7aa2f21d0981e1e10eb8",
+    "antenna_extract": "25f7d2cd63ce8cb320efc0995d52859c742a2a23fd754819373092ab84954c88",
+    "attitude_receipt": "c9ea5d87a061567462e1ceff150bb7181f4c87d3985a559874f2354337b02955",
+    "attitude_extract": "84654c618c1abb1be5e794af3988adf09f1aee5763d27b16f8adb9620d03056c"
+  },
+  "candidates": {
+    "G05": {
+      "rank": 128,
+      "source_count": 197,
+      "probes": [
+        {
+          "mode": "strong",
+          "source_l2_m": 0.01,
+          "sign": 1.0,
+          "status": "IDENTIFIED_PROJECTION_RECOVERED",
+          "functional_status": "RECOVERED",
+          "relative_identified_source_error": 0.0005736656206959317,
+          "stored_relative_error": 0.0005736887568877517
+        },
+        {
+          "mode": "strong",
+          "source_l2_m": 0.1,
+          "sign": 1.0,
+          "status": "IDENTIFIED_PROJECTION_RECOVERY_FAILED",
+          "functional_status": "RECOVERED",
+          "relative_identified_source_error": 0.005736758200383683,
+          "stored_relative_error": 0.00573677595258942
+        },
+        {
+          "mode": "weak",
+          "source_l2_m": 0.01,
+          "sign": 1.0,
+          "status": "IDENTIFIED_PROJECTION_RECOVERED",
+          "functional_status": "UNIDENTIFIABLE_INJECTED_FUNCTIONAL",
+          "relative_identified_source_error": 8.507707515157805e-10,
+          "stored_relative_error": 1.0422672993796705e-09
+        },
+        {
+          "mode": "weak",
+          "source_l2_m": 0.01,
+          "sign": -1.0,
+          "status": "IDENTIFIED_PROJECTION_RECOVERED",
+          "functional_status": "UNIDENTIFIABLE_INJECTED_FUNCTIONAL",
+          "relative_identified_source_error": 1.0771440856973382e-09,
+          "stored_relative_error": 9.84663339307438e-10
+        },
+        {
+          "mode": "weak",
+          "source_l2_m": 0.1,
+          "sign": 1.0,
+          "status": "IDENTIFIED_PROJECTION_RECOVERED",
+          "functional_status": "UNIDENTIFIABLE_INJECTED_FUNCTIONAL",
+          "relative_identified_source_error": 1.1718667792115785e-09,
+          "stored_relative_error": 1.3316953715348557e-09
+        },
+        {
+          "mode": "weak",
+          "source_l2_m": 0.1,
+          "sign": -1.0,
+          "status": "IDENTIFIED_PROJECTION_RECOVERED",
+          "functional_status": "UNIDENTIFIABLE_INJECTED_FUNCTIONAL",
+          "relative_identified_source_error": 9.919246687547703e-10,
+          "stored_relative_error": 1.688867367465471e-09
+        }
+      ],
+      "elapsed_s": 4.508669499999087
+    },
+    "G11": {
+      "rank": 128,
+      "source_count": 197,
+      "probes": [
+        {
+          "mode": "strong",
+          "source_l2_m": 0.01,
+          "sign": 1.0,
+          "status": "IDENTIFIED_PROJECTION_RECOVERED",
+          "functional_status": "RECOVERED",
+          "relative_identified_source_error": 0.0006460844264557877,
+          "stored_relative_error": 0.0006461949780805224
+        },
+        {
+          "mode": "strong",
+          "source_l2_m": 0.1,
+          "sign": 1.0,
+          "status": "IDENTIFIED_PROJECTION_RECOVERY_FAILED",
+          "functional_status": "RECOVERED",
+          "relative_identified_source_error": 0.006460762377906219,
+          "stored_relative_error": 0.006461311777054811
+        },
+        {
+          "mode": "weak",
+          "source_l2_m": 0.01,
+          "sign": 1.0,
+          "status": "IDENTIFIED_PROJECTION_RECOVERED",
+          "functional_status": "UNIDENTIFIABLE_INJECTED_FUNCTIONAL",
+          "relative_identified_source_error": 7.251057324776591e-10,
+          "stored_relative_error": 9.456126727017277e-10
+        },
+        {
+          "mode": "weak",
+          "source_l2_m": 0.01,
+          "sign": -1.0,
+          "status": "IDENTIFIED_PROJECTION_RECOVERED",
+          "functional_status": "UNIDENTIFIABLE_INJECTED_FUNCTIONAL",
+          "relative_identified_source_error": 5.410633818193812e-10,
+          "stored_relative_error": 1.2637020087871668e-09
+        },
+        {
+          "mode": "weak",
+          "source_l2_m": 0.1,
+          "sign": 1.0,
+          "status": "IDENTIFIED_PROJECTION_RECOVERED",
+          "functional_status": "UNIDENTIFIABLE_INJECTED_FUNCTIONAL",
+          "relative_identified_source_error": 9.004303099026784e-10,
+          "stored_relative_error": 1.7669060742389662e-09
+        },
+        {
+          "mode": "weak",
+          "source_l2_m": 0.1,
+          "sign": -1.0,
+          "status": "IDENTIFIED_PROJECTION_RECOVERED",
+          "functional_status": "UNIDENTIFIABLE_INJECTED_FUNCTIONAL",
+          "relative_identified_source_error": 1.2454702592842972e-09,
+          "stored_relative_error": 3.714865782235489e-10
+        }
+      ],
+      "elapsed_s": 4.635852600004
+    },
+    "G19": {
+      "rank": 106,
+      "source_count": 182,
+      "probes": [
+        {
+          "mode": "strong",
+          "source_l2_m": 0.01,
+          "sign": 1.0,
+          "status": "IDENTIFIED_PROJECTION_RECOVERED",
+          "functional_status": "RECOVERED",
+          "relative_identified_source_error": 1.1437098330610983e-06,
+          "stored_relative_error": 1.1519114201441545e-06
+        },
+        {
+          "mode": "strong",
+          "source_l2_m": 0.1,
+          "sign": 1.0,
+          "status": "IDENTIFIED_PROJECTION_RECOVERED",
+          "functional_status": "RECOVERED",
+          "relative_identified_source_error": 1.1510523565301456e-05,
+          "stored_relative_error": 1.1523476260736982e-05
+        },
+        {
+          "mode": "weak",
+          "source_l2_m": 0.01,
+          "sign": 1.0,
+          "status": "IDENTIFIED_PROJECTION_RECOVERED",
+          "functional_status": "UNIDENTIFIABLE_INJECTED_FUNCTIONAL",
+          "relative_identified_source_error": 1.3510210578131842e-09,
+          "stored_relative_error": 1.9912410338521777e-09
+        },
+        {
+          "mode": "weak",
+          "source_l2_m": 0.01,
+          "sign": -1.0,
+          "status": "IDENTIFIED_PROJECTION_RECOVERED",
+          "functional_status": "UNIDENTIFIABLE_INJECTED_FUNCTIONAL",
+          "relative_identified_source_error": 4.715120417432355e-10,
+          "stored_relative_error": 4.694829256904133e-09
+        },
+        {
+          "mode": "weak",
+          "source_l2_m": 0.1,
+          "sign": 1.0,
+          "status": "IDENTIFIED_PROJECTION_RECOVERED",
+          "functional_status": "UNIDENTIFIABLE_INJECTED_FUNCTIONAL",
+          "relative_identified_source_error": 3.0734656760044864e-09,
+          "stored_relative_error": 1.3194172157893862e-09
+        },
+        {
+          "mode": "weak",
+          "source_l2_m": 0.1,
+          "sign": -1.0,
+          "status": "IDENTIFIED_PROJECTION_RECOVERED",
+          "functional_status": "UNIDENTIFIABLE_INJECTED_FUNCTIONAL",
+          "relative_identified_source_error": 3.345571236824644e-09,
+          "stored_relative_error": 8.409217826340295e-09
+        }
+      ],
+      "elapsed_s": 1.4979338000048301
+    },
+    "G20": {
+      "rank": 129,
+      "source_count": 198,
+      "probes": [
+        {
+          "mode": "strong",
+          "source_l2_m": 0.01,
+          "sign": 1.0,
+          "status": "IDENTIFIED_PROJECTION_RECOVERED",
+          "functional_status": "RECOVERED",
+          "relative_identified_source_error": 0.0005142080862909149,
+          "stored_relative_error": 0.0005136370555837317
+        },
+        {
+          "mode": "strong",
+          "source_l2_m": 0.1,
+          "sign": 1.0,
+          "status": "IDENTIFIED_PROJECTION_RECOVERY_FAILED",
+          "functional_status": "RECOVERED",
+          "relative_identified_source_error": 0.005137654205637586,
+          "stored_relative_error": 0.0051380958072192165
+        },
+        {
+          "mode": "weak",
+          "source_l2_m": 0.01,
+          "sign": 1.0,
+          "status": "IDENTIFIED_PROJECTION_RECOVERED",
+          "functional_status": "UNIDENTIFIABLE_INJECTED_FUNCTIONAL",
+          "relative_identified_source_error": 2.176533736488669e-10,
+          "stored_relative_error": 7.201020865337419e-10
+        },
+        {
+          "mode": "weak",
+          "source_l2_m": 0.01,
+          "sign": -1.0,
+          "status": "IDENTIFIED_PROJECTION_RECOVERED",
+          "functional_status": "UNIDENTIFIABLE_INJECTED_FUNCTIONAL",
+          "relative_identified_source_error": 2.6208378295931797e-10,
+          "stored_relative_error": 3.087988502913317e-10
+        },
+        {
+          "mode": "weak",
+          "source_l2_m": 0.1,
+          "sign": 1.0,
+          "status": "IDENTIFIED_PROJECTION_RECOVERED",
+          "functional_status": "UNIDENTIFIABLE_INJECTED_FUNCTIONAL",
+          "relative_identified_source_error": 7.220031218045528e-10,
+          "stored_relative_error": 7.934197445644265e-10
+        },
+        {
+          "mode": "weak",
+          "source_l2_m": 0.1,
+          "sign": -1.0,
+          "status": "IDENTIFIED_PROJECTION_RECOVERED",
+          "functional_status": "UNIDENTIFIABLE_INJECTED_FUNCTIONAL",
+          "relative_identified_source_error": 3.8077595183670027e-10,
+          "stored_relative_error": 2.76353640351007e-10
+        }
+      ],
+      "elapsed_s": 4.658599700000195
+    },
+    "G21": {
+      "rank": 122,
+      "source_count": 193,
+      "probes": [
+        {
+          "mode": "strong",
+          "source_l2_m": 0.01,
+          "sign": 1.0,
+          "status": "IDENTIFIED_PROJECTION_RECOVERED",
+          "functional_status": "RECOVERED",
+          "relative_identified_source_error": 0.0008621827160828325,
+          "stored_relative_error": 0.0008622524395218582
+        },
+        {
+          "mode": "strong",
+          "source_l2_m": 0.1,
+          "sign": 1.0,
+          "status": "IDENTIFIED_PROJECTION_RECOVERY_FAILED",
+          "functional_status": "RECOVERED",
+          "relative_identified_source_error": 0.008622027777658322,
+          "stored_relative_error": 0.008622012269274289
+        },
+        {
+          "mode": "weak",
+          "source_l2_m": 0.01,
+          "sign": 1.0,
+          "status": "IDENTIFIED_PROJECTION_RECOVERED",
+          "functional_status": "UNIDENTIFIABLE_INJECTED_FUNCTIONAL",
+          "relative_identified_source_error": 1.7178246743098071e-09,
+          "stored_relative_error": 4.087445609484041e-10
+        },
+        {
+          "mode": "weak",
+          "source_l2_m": 0.01,
+          "sign": -1.0,
+          "status": "IDENTIFIED_PROJECTION_RECOVERED",
+          "functional_status": "UNIDENTIFIABLE_INJECTED_FUNCTIONAL",
+          "relative_identified_source_error": 1.1139465482812686e-09,
+          "stored_relative_error": 4.836868755221794e-10
+        },
+        {
+          "mode": "weak",
+          "source_l2_m": 0.1,
+          "sign": 1.0,
+          "status": "IDENTIFIED_PROJECTION_RECOVERED",
+          "functional_status": "UNIDENTIFIABLE_INJECTED_FUNCTIONAL",
+          "relative_identified_source_error": 1.1060420793228871e-09,
+          "stored_relative_error": 6.361651164062217e-10
+        },
+        {
+          "mode": "weak",
+          "source_l2_m": 0.1,
+          "sign": -1.0,
+          "status": "IDENTIFIED_PROJECTION_RECOVERED",
+          "functional_status": "UNIDENTIFIABLE_INJECTED_FUNCTIONAL",
+          "relative_identified_source_error": 9.358515328366333e-10,
+          "stored_relative_error": 5.521028160478277e-10
+        }
+      ],
+      "elapsed_s": 3.3915778000009595
+    }
+  },
+  "api_calls": 0,
+  "baseline_replay_elapsed_s": 18.69918090000283,
+  "native_tests": {
+    "command": [
+      "C:\\temp\\satellite-rf-nts-2026-10-09\\venv\\Scripts\\python.exe",
+      "-m",
+      "pytest",
+      "research/exploratory/tests/test_stable_source_physics.py",
+      "research/exploratory/tests/test_stable_source_receipt.py",
+      "research/kinematic/tests/test_weak_sources.py",
+      "-q",
+      "-p",
+      "no:cacheprovider",
+      "--junitxml=C:\\Users\\dacan\\Documents\\Codex\\2026-08-17\\vo\\outputs\\github-pulse\\data\\satellite-finite-recovery-2026-10-18\\native-preflight-tests.xml"
+    ],
+    "exit_code": 0,
+    "counts": {
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "log_sha256": "681be6ea6133eb26ac5866fdbe32c36991300d49d189310489d375d7f348109f",
+    "junit_sha256": "7b9e3b46a0851ae9aee7b8bcba95d6ab24f589fb417bfbcaa64501a85c41594a"
+  },
+  "elapsed_s": 50.85261929999979,
+  "target_worktree_unchanged": true
+}

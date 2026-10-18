@@ -1,0 +1,36 @@
+{
+  "origin": "Operator-authored native software task, grounded in the pinned Satellite report; not a fetched GitHub issue.",
+  "user_instruction": "ok controlla la CI, se è tutta verde mergia la #129 e procediamo con il test reale su Satellite",
+  "title": "Improve finite source-projection recovery without inventing information in unresolved modes",
+  "body": "Satellite's native finite source-recovery routine currently recovers an identifiable source projection from a profiled physical observation increment using a local design. Stable forward arithmetic has been checked, yet some finite controls miss the existing projection-recovery criterion. Improve that numerical recovery operation in the native project, if a defensible software mechanism can help.\n\nThe method may consume the physical observation increments, admitted source forward operator, original design/projector and declared weights. It must not consume the injected source vector, the expected projection, injection mode/sign/amplitude labels, candidate products, CODE state or G12 state. Evaluation-only truth must remain separate from estimation.\n\nPreserve the original source coordinate order, numerical rank definition, <=1e-3 relative projection-recovery criterion, physical masks, weights and unsupported domains. Source null amplitudes remain unassigned; a minimum-norm representative must not be promoted to a complete physical source estimate. Keep all historical outcomes and report failed, unknown and worsening cases.\n\nCompare any proposed contribution against the existing local inverse and the strongest plausible direct SciPy/local correction using the same permitted inputs. A small native improvement to a failing invariant is valuable; a runnable donor example alone is insufficient. A source may contribute a transferable operation without being directly integrable or written in the target's language. The eventual change must run in Satellite's supported Python environment and preserve its regressions.\n\nChoose whether and where to investigate external code yourself. No donor, algorithm, source repository or search phrase is prescribed. A justified direct solution, abstention or negative result is valid.",
+  "criteria_source": "This operator task plus the independently retained native criterion in experiment.json; the source repository has not been searched or selected.",
+  "model_context_exclusions": [
+    "injected source vectors",
+    "expected recovered projections",
+    "probe mode/sign/amplitude labels",
+    "new or prior CODE/G12 state values",
+    "donor names from previous cohorts"
+  ],
+  "target_repository": "Daniele-Cangi/Satellite-RF-Observatory",
+  "target_revision": "248b54208b94f1e53f5af7bdb39d89860b05fca4",
+  "issue_container": {
+    "id": "satellite-finite-recovery-2026-10-18",
+    "repo": "Daniele-Cangi/Satellite-RF-Observatory",
+    "repo_id": 1128978015,
+    "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-native-discovery/docs/experiments/satellite-finite-recovery-2026-10-18/request.json",
+    "title": "Improve finite source-projection recovery without inventing information in unresolved modes",
+    "body": "Satellite's native finite source-recovery routine currently recovers an identifiable source projection from a profiled physical observation increment using a local design. Stable forward arithmetic has been checked, yet some finite controls miss the existing projection-recovery criterion. Improve that numerical recovery operation in the native project, if a defensible software mechanism can help.\n\nThe method may consume the physical observation increments, admitted source forward operator, original design/projector and declared weights. It must not consume the injected source vector, the expected projection, injection mode/sign/amplitude labels, candidate products, CODE state or G12 state. Evaluation-only truth must remain separate from estimation.\n\nPreserve the original source coordinate order, numerical rank definition, <=1e-3 relative projection-recovery criterion, physical masks, weights and unsupported domains. Source null amplitudes remain unassigned; a minimum-norm representative must not be promoted to a complete physical source estimate. Keep all historical outcomes and report failed, unknown and worsening cases.\n\nCompare any proposed contribution against the existing local inverse and the strongest plausible direct SciPy/local correction using the same permitted inputs. A small native improvement to a failing invariant is valuable; a runnable donor example alone is insufficient. A source may contribute a transferable operation without being directly integrable or written in the target's language. The eventual change must run in Satellite's supported Python environment and preserve its regressions.\n\nChoose whether and where to investigate external code yourself. No donor, algorithm, source repository or search phrase is prescribed. A justified direct solution, abstention or negative result is valid.",
+    "comments": [],
+    "timeline": [],
+    "state": "open",
+    "context_complete": true,
+    "public": true,
+    "updated_at": "2026-10-18",
+    "origin": "Operator-authored experiment demand, not a GitHub issue.",
+    "author": "experimenter",
+    "author_type": "User",
+    "limitations": [
+      "Local experiment input; no public issue author or blocked-agent checkpoint is claimed."
+    ]
+  }
+}

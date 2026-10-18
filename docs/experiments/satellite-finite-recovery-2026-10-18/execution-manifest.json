@@ -1,0 +1,49 @@
+{
+  "artifacts": {
+    ".gitattributes": "705fd4d6451a31d36b3df7de96f83f30ac976c9b4a6d1e51671d8e2f33e2d0da",
+    "authorization.json": "1dabb703768e547283f917de10fbc0ab1fc186878d984bceba5882ca41a2aff0",
+    "budget-receipt.json": "b8d5d7a675384304e3cf3ec7babad039d38905e7f96c15c9f64c8773e6709912",
+    "direct-chord-before-scoring.json.gz": "6fa9a4854755ff11e0a7e10aa0923693a1dae8ed88d9d526cc594b588e1934e3",
+    "direct-chord-log.txt": "84eda069fcc0477f9605fe0be9c0107e59d621e4c6334646bb071191c8c5c095",
+    "direct-chord-result.json.gz": "08747a7df432fe41044246c3f62e6e5e339347e2bb4bcb91069e6b0ba5e900fb",
+    "direct-comparison-plan.json": "9a0bcfe7a6eef5c14c018d133a48ea1d8ea777f7e85a65eb61928cfae5e97e9f",
+    "direct-comparison-summary.json": "4305a2fd8d5cfefb8813e02165c6ec43bba232a5940106b7359e56ef26685ca5",
+    "direct-native-source.txt": "f2b917c138afd075428ec93fae3a4b666bdf43188305cf3dc0bc2f8b278ba783",
+    "direct-summary-source.txt": "ebc565954787cac6b12bf18e0f20d19b4030ce2eedd6628821f78314138d8ab5",
+    "discovery-execution-log.txt": "e91f4cb834bf29e2795dcc42d58f7a2d12581704f36081d88fd8350656c97451",
+    "discovery-invocation-source.txt": "505123a4ca95aefde45b501de8eb09a3f6b596808e8e9e5c02e29479388070c3",
+    "discovery-result.json": "f918b075e7ea73380e2042e92f3dadd2101a0c2a9d54d2ffe12de1e1b139b4a1",
+    "experiment.json": "d8d430314377b12d50fa53156269f1e8f707b1c08ee7b2085c93959c7fc9797b",
+    "native-preflight-log.txt": "1019ca3a893442daac6d7b98e29c62f81bf276385beb9cbd3bb9776d01627fa7",
+    "native-preflight-source.txt": "0110afb513eb245c30f2dce4e685b15a82e6e3dd52873c0f8d60b30fe5ffb367",
+    "native-preflight-tests-log.txt": "681be6ea6133eb26ac5866fdbe32c36991300d49d189310489d375d7f348109f",
+    "native-preflight-tests.xml": "7b9e3b46a0851ae9aee7b8bcba95d6ab24f589fb417bfbcaa64501a85c41594a",
+    "native-preflight.json": "0012932673480e4ed9c5f4a14744e7db807116a21e79eb43c7aa3acfc20d4e05",
+    "offline-preflight-source.txt": "10cc65fa600641a01044d5ca8d555c7db501fc742da14e82150da6d5bddb9751",
+    "offline-preflight.json": "aee26a3940351416dc95d608493f61f49e33d7dea20562885038fd4b2cbf1aff",
+    "outcome.json": "beb29a48ac3707deb2f75a4845cacc391f5584a7f1d8d61e70827caa8599e992",
+    "request.json": "aacaedb9c6414c7af9f19a79c293536e49017b9658d83082875166f08b021506",
+    "RESULTS.md": "b83937ff81bff5e087910e2dec4e7fbe9156d42a23df46fd6481c4a48f459fa5",
+    "target-context.json": "475d69efd82e2c44b6176481c3af22386ba875a216a1df11c739a2ba1d388046"
+  },
+  "source_name_mapping": {
+    "discovery_invocation.py": "discovery-invocation-source.txt",
+    "direct_native.py": "direct-native-source.txt",
+    "summarize_direct.py": "direct-summary-source.txt",
+    "direct-chord-before-scoring.json": "direct-chord-before-scoring.json.gz",
+    "direct-chord-result.json": "direct-chord-result.json.gz"
+  },
+  "note": "Raw source and dispatch receipts copied byte-for-byte; two large direct JSON receipts losslessly gzip-compressed. Hashes refer to stored bytes; lossless_compression binds the original bytes. Preparation is unchanged at prepared_head. Retained .txt source is one-off evidence, not product modules. No SQLite database or credentials published.",
+  "lossless_compression": {
+    "direct-chord-before-scoring.json.gz": {
+      "encoding": "gzip",
+      "original_name": "direct-chord-before-scoring.json",
+      "original_sha256": "2cc67082d11fc15e555c70a18a0104146e303fb340bd5907e1e7f37ce24d6db5"
+    },
+    "direct-chord-result.json.gz": {
+      "encoding": "gzip",
+      "original_name": "direct-chord-result.json",
+      "original_sha256": "8c0f7c603a5b3db15e6263cf45494f31f0dee055af10834c1b6a6e14bb726ad0"
+    }
+  }
+}

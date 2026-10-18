@@ -1,0 +1,73 @@
+"""One-off native baseline preparation, using existing Satellite functions."""
+import os,sys,hashlib,json,gzip,subprocess,time
+from pathlib import Path
+from xml.etree import ElementTree
+os.environ['OPENBLAS_NUM_THREADS']='1'
+os.environ['OMP_NUM_THREADS']='1'
+os.environ['PYTHONDONTWRITEBYTECODE']='1'
+sys.dont_write_bytecode=True
+TARGET=Path('C:/Users/dacan/Documents/Codex/2026-10-18/satellite-native-discovery')
+HERE=Path(__file__).resolve().parent
+PIN='248b54208b94f1e53f5af7bdb39d89860b05fca4'
+assert subprocess.check_output(['git','rev-parse','HEAD'],cwd=TARGET,text=True).strip()==PIN
+assert not subprocess.check_output(['git','diff','--name-only','HEAD'],cwd=TARGET)
+sys.path.insert(0,str(TARGET))
+import numpy as np
+from research.exploratory import reference_network_clocks as study
+payload=(study.baseline.BASE/'results/stable_source_differential_v1.json.gz').read_bytes()
+assert hashlib.sha256(payload).hexdigest()=='56b325ab32a679d89223b89bbe88633cd3850bdcf0cd605c18bea1bf62900020'
+saved=json.loads(gzip.decompress(payload))
+raw,_=study.baseline.read_inputs()
+assert saved['input_sha256']=={k:hashlib.sha256(v).hexdigest() for k,v in raw.items()}
+started=time.perf_counter()
+out={'target_revision':PIN,'retained_result_sha256':hashlib.sha256(payload).hexdigest(),
+     'source_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+     'scope':'Fresh unchanged native inverse replay against retained finite physical increments; no RF trajectory refit or new oracle score.',
+     'input_sha256':saved['input_sha256'],'candidates':{},'api_calls':0}
+for q,c in saved['candidates'].items():
+    if 'source_profile' not in c:continue
+    t=time.perf_counter()
+    net=study.network_clocks.fit(c['reference_rows'],raw_covariance=saved['raw_endpoint_weight_covariance_m2'])
+    profile,w=study.source_geometry.profile_sources(net,q,study.source_geometry.FAMILIES)
+    assert profile['resolved_rank']==c['source_profile']['resolved_rank']
+    assert study.native(w['columns'])==c['source_profile']['columns']
+    u,s,v=np.linalg.svd(w['design'],full_matrices=False)
+    spectrum={'u':u,'s':s,'v':v,'rank':profile['resolved_rank']}
+    records=[]
+    for p in c['physical_probes']:
+        projected=study.source_geometry.profiled_increment(net,p['physical_increment_blocks'])
+        # Truth enters the EXISTING scorer only after its estimate is computed;
+        # the future discovery estimator must receive no probe vector/labels.
+        r=study.source_geometry.recover_profiled_increment(projected,w['design'],spectrum,np.asarray(p['source_vector_m']),c['coupled_model_state_map'])
+        old=p['recovery']['physical_increment']
+        assert r['status']==old['status'] and r['injected_functional_status']==old['injected_functional_status']
+        records.append({'mode':p['mode'],'source_l2_m':p['source_l2_m'],'sign':p['sign'],
+          'status':r['status'],'functional_status':r['injected_functional_status'],
+          'relative_identified_source_error':r['relative_identified_source_error'],
+          'stored_relative_error':old['relative_identified_source_error']})
+    out['candidates'][q]={'rank':profile['resolved_rank'],'source_count':len(w['columns']),
+                         'probes':records,'elapsed_s':time.perf_counter()-t}
+    print(q,'native replay complete',len(records),flush=True)
+out['baseline_replay_elapsed_s']=time.perf_counter()-started
+all_probes=[(q,p) for q,c in out['candidates'].items() for p in c['probes']]
+assert len(all_probes)==30
+failed=[q for q,p in all_probes if p['mode']=='strong' and p['status']=='IDENTIFIED_PROJECTION_RECOVERY_FAILED']
+assert failed==['G05','G11','G20','G21'],failed
+assert sum(p['mode']=='weak' and p['functional_status']=='UNIDENTIFIABLE_INJECTED_FUNCTIONAL' for q,p in all_probes)==20
+paths=['research/exploratory/tests/test_stable_source_physics.py','research/exploratory/tests/test_stable_source_receipt.py','research/kinematic/tests/test_weak_sources.py']
+xml=HERE/'native-preflight-tests.xml'
+assert not xml.exists()
+command=[sys.executable,'-m','pytest',*paths,'-q','-p','no:cacheprovider','--junitxml='+str(xml)]
+log=HERE/'native-preflight-tests-log.txt'
+with log.open('xb') as stream:result=subprocess.run(command,cwd=TARGET,stdout=stream,stderr=subprocess.STDOUT,check=False)
+suites=ElementTree.parse(xml).getroot().findall('testsuite') if xml.exists() else []
+counts={k:sum(int(s.attrib.get(k,0)) for s in suites) for k in ['tests','failures','errors','skipped']}
+out['native_tests']={'command':command,'exit_code':result.returncode,'counts':counts,'log_sha256':hashlib.sha256(log.read_bytes()).hexdigest(),
+ 'junit_sha256':hashlib.sha256(xml.read_bytes()).hexdigest() if xml.exists() else None}
+out['elapsed_s']=time.perf_counter()-started
+assert not subprocess.check_output(['git','diff','--name-only','HEAD'],cwd=TARGET)
+out['target_worktree_unchanged']=True
+with (HERE/'native-preflight.json').open('x',encoding='utf-8') as f:json.dump(out,f,indent=2,allow_nan=False);f.write('\n')
+print(json.dumps({'replayed_probes':len(all_probes),'failed_strong_cases':failed,'tests':out['native_tests'],'elapsed_s':out['elapsed_s']}),flush=True)
+if result.returncode or not suites or counts['failures'] or counts['errors']:sys.exit(result.returncode or 1)
+

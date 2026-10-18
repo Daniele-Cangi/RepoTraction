@@ -1,0 +1,33 @@
+{
+  "direct_comparison_fixed_before_external_inspection": true,
+  "external_repositories_searched": 0,
+  "external_source_implementations_inspected": 0,
+  "native_method": "Existing frozen pseudoinverse applied iteratively to the actual finite physical forward residual; no source-truth input to estimation.",
+  "model_visible_summary": {
+    "origin": "Measured experimenter/direct native solution, not a Missing Link contribution or an external source.",
+    "target_revision": "248b54208b94f1e53f5af7bdb39d89860b05fca4",
+    "controls_executed": 30,
+    "converged_projection_criterion_passes": 30,
+    "original_linear_projection_passes": 26,
+    "previously_passing_controls_lost": 0,
+    "formerly_failing_controls_added": 4,
+    "unknown_null_functionals_retained_as_unknown": 20,
+    "elapsed_seconds": 570.2040548000004,
+    "maximum_relative_identified_projection_error": 5.754681177571416e-08,
+    "criterion_relative_error": 0.001,
+    "direct_native_solution_meets_this_controlled_task": true,
+    "limits": "Controlled finite injections through an admitted-data physical operator, Windows local execution, no production integration or native Linux claim; no complete weak-source recovery or physical uncertainty qualification.",
+    "decision_question": "Given this working direct local alternative, is an external investigation justified for the independently fixed request? Do not manufacture a gap or search merely to produce a donor."
+  },
+  "unexecuted_comparator": {
+    "name": "SciPy nonlinear least squares",
+    "reason": "Not executed: the cheaper direct correction already meets all 30 control criteria. The prepared stop rule permits direct sufficiency; no stronger-baseline failure is claimed."
+  },
+  "artifacts": {
+    "direct_native.py": "f2b917c138afd075428ec93fae3a4b666bdf43188305cf3dc0bc2f8b278ba783",
+    "direct-chord-before-scoring.json": "2cc67082d11fc15e555c70a18a0104146e303fb340bd5907e1e7f37ce24d6db5",
+    "direct-chord-result.json": "8c0f7c603a5b3db15e6263cf45494f31f0dee055af10834c1b6a6e14bb726ad0",
+    "direct-chord-log.txt": "84eda069fcc0477f9605fe0be9c0107e59d621e4c6334646bb071191c8c5c095"
+  },
+  "direct_success_is_not_missing_link_success": true
+}

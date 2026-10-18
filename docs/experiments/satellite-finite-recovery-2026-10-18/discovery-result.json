@@ -1,0 +1,886 @@
+{
+  "id": "c0a5fac01e8f40e791b0964c2d9491ad",
+  "account": "Daniele-Cangi",
+  "status": "completed",
+  "stage": "plan_discovery",
+  "input": {
+    "action": "experiment-local finite-recovery discovery",
+    "use_ai": true,
+    "max_requests": 120
+  },
+  "created_at": "2026-10-18T21:05:51+00:00",
+  "updated_at": "2026-10-18T21:09:37+00:00",
+  "requests_used": 0,
+  "ai_calls_used": 2,
+  "cost_reserved_usd": 0.0174082,
+  "checkpoint": {
+    "ai_outputs": [
+      {
+        "phase": "request",
+        "call_number": 1,
+        "attempt_id": "c0a5fac01e8f40e791b0964c2d9491ad:1",
+        "output": {
+          "outcome": "The request seeks defensible improvement or evaluation of Satellite’s finite source-projection recovery while preserving the stated estimation boundaries and regressions. No resolution is present in the supplied discussion.",
+          "status": "unresolved",
+          "status_source_ids": [
+            "q0"
+          ],
+          "status_reason": "The supplied discussion contains an open request and no later comments reporting satisfaction, duplication, changed requirements, or automation. The author permits a justified direct solution, abstention, or negative result, but none is reported here.",
+          "requirements": [
+            {
+              "text": "Improve finite source-projection recovery in Satellite’s native project if a defensible software mechanism can help; a justified abstention or negative result is also valid.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "s1528090dcdbbc2f3",
+              "inference": "This expresses the requested goal without making successful improvement an unconditional acceptance criterion."
+            },
+            {
+              "text": "Use only permitted estimation inputs: physical observation increments, the admitted source forward operator, the original design/projector, and declared weights.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "s428e26fd816c031e",
+              "inference": "The sentence says these inputs may be consumed; read with the following prohibition, it defines the permitted estimation inputs rather than requiring use of every listed input."
+            },
+            {
+              "text": "Do not consume the injected source vector, expected projection, injection mode/sign/amplitude labels, candidate products, CODE state, or G12 state.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "sad9ddbac3609c7c2",
+              "inference": ""
+            },
+            {
+              "text": "Keep evaluation-only truth separate from estimation.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "saa29f22d0ab8449d",
+              "inference": ""
+            },
+            {
+              "text": "Preserve the original source coordinate order.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "s283f12a17e44e12c",
+              "inference": ""
+            },
+            {
+              "text": "Preserve the numerical rank definition.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "s283f12a17e44e12c",
+              "inference": ""
+            },
+            {
+              "text": "Preserve the <=1e-3 relative projection-recovery criterion.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "s283f12a17e44e12c",
+              "inference": ""
+            },
+            {
+              "text": "Preserve physical masks.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "s283f12a17e44e12c",
+              "inference": ""
+            },
+            {
+              "text": "Preserve weights.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "s283f12a17e44e12c",
+              "inference": ""
+            },
+            {
+              "text": "Preserve unsupported domains.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "s283f12a17e44e12c",
+              "inference": ""
+            },
+            {
+              "text": "Leave source null amplitudes unassigned.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "s1c69ac2aaa34180d",
+              "inference": ""
+            },
+            {
+              "text": "Do not promote a minimum-norm representative to a complete physical source estimate.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "s1c69ac2aaa34180d",
+              "inference": ""
+            },
+            {
+              "text": "Keep all historical outcomes.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "s80758c55e14ff597",
+              "inference": ""
+            },
+            {
+              "text": "Report failed cases.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "s80758c55e14ff597",
+              "inference": ""
+            },
+            {
+              "text": "Report unknown cases.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "s80758c55e14ff597",
+              "inference": ""
+            },
+            {
+              "text": "Report worsening cases.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "s80758c55e14ff597",
+              "inference": ""
+            },
+            {
+              "text": "Compare any proposed contribution against the existing local inverse.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "sb07057444c45efa1",
+              "inference": "Applies if a contribution is proposed; the request also allows abstention or a negative result."
+            },
+            {
+              "text": "Compare any proposed contribution against the strongest plausible direct SciPy/local correction.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "sb07057444c45efa1",
+              "inference": "Applies if a contribution is proposed; the request also allows abstention or a negative result."
+            },
+            {
+              "text": "Make those comparisons using the same permitted inputs.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "sb07057444c45efa1",
+              "inference": ""
+            },
+            {
+              "text": "A runnable donor example alone is insufficient; a small native improvement to a failing invariant is valuable.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "s245d5d02dca6ba60",
+              "inference": "This distinguishes a useful native contribution from a donor-only example; it does not require a successful improvement when a justified abstention or negative result is given."
+            },
+            {
+              "text": "If there is an eventual change, it must run in Satellite’s supported Python environment.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "s1b7918e0af3b98a8",
+              "inference": "Conditional on an eventual change; the specific supported environment is not identified in the supplied discussion."
+            },
+            {
+              "text": "If there is an eventual change, it must preserve Satellite’s regressions.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "s1b7918e0af3b98a8",
+              "inference": "Conditional on an eventual change."
+            },
+            {
+              "text": "Choose independently whether and where to investigate external code; no donor, algorithm, source repository, or search phrase is prescribed.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "s963c9ac131d4a553",
+              "inference": "This leaves external-code investigation and its target to the investigator rather than requiring use of a donor."
+            }
+          ],
+          "optional_field_dispositions": [],
+          "environment": [
+            "The eventual change must run in Satellite’s supported Python environment; specific version and runtime details are not supplied."
+          ],
+          "prior_attempts": [
+            "The request states that stable forward arithmetic has been checked and that some finite controls miss the existing projection-recovery criterion.",
+            "It describes an existing native recovery routine using a local design; it does not report prior attempts to satisfy this request."
+          ],
+          "missing_information": [
+            "No implementation, experiment results, or resolution are supplied.",
+            "The exact supported Python environment and regression suite are unspecified.",
+            "The request permits abstention or a negative result, so whether a change will be made is not predetermined."
+          ]
+        }
+      },
+      {
+        "phase": "request",
+        "call_number": 2,
+        "attempt_id": "c0a5fac01e8f40e791b0964c2d9491ad:2",
+        "output": {
+          "decision": "use_direct",
+          "reason": "The requested operation is finite source-projection recovery: use permitted physical increments, the admitted forward operator, original design/projector, and declared weights to recover the identifiable projection, while keeping evaluation truth separate and leaving null amplitudes unassigned. Preserve the stated coordinate order, rank definition, recovery threshold, masks, weights, unsupported domains, and regression outcomes (r1-r15). The supplied target inquiry reports that a direct native local alternative passed the projection criterion on all 30 controlled finite-injection controls, versus 26 for the original linear projection; it added four formerly failing controls, lost none that previously passed, and retained 20 unknown null functionals. That is concrete evidence the direct alternative plausibly meets the controlled task, so no incremental external-code advantage is established (r16-r19).",
+          "direct_alternative": {
+            "description": "Use the measured direct native local correction, compared with the existing local inverse, on the same permitted inputs; estimate only the identifiable projection and report unresolved null functionals as unknown.",
+            "adequacy": "likely_sufficient",
+            "limitations": [
+              "The reported controls were finite injections through an admitted-data physical operator, not complete weak-source recovery or physical uncertainty qualification.",
+              "The evidence reports Windows local execution and does not establish production integration or native Linux compatibility.",
+              "The supported Python environment and full regression suite are unspecified."
+            ]
+          },
+          "benefit_hypothesis": "No concrete incremental benefit from searching for external software is supported by the supplied evidence; a donor would need to outperform the measured direct correction without violating the estimation boundaries.",
+          "benefit_test": "Reconsider searching only if a reproducible unmet case is identified. Compare any candidate-derived contribution with the existing inverse and strongest direct local/SciPy correction using the same permitted inputs; require improvement on the <=1e-3 projection-recovery criterion without losing historical passes, changing masks or weights, or assigning null amplitudes. Verify supported-runtime compatibility separately.",
+          "operations": [],
+          "unknowns": [
+            "Whether the direct correction integrates into Satellite's production path or passes its full regression suite.",
+            "Whether it runs in Satellite's supported Python environment beyond the reported Windows local execution.",
+            "Whether cases outside the controlled finite-injection set show a remaining recoverable gap."
+          ]
+        }
+      }
+    ],
+    "request": {
+      "id": "satellite-finite-recovery-2026-10-18",
+      "title": "Improve finite source-projection recovery without inventing information in unresolved modes",
+      "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-native-discovery/docs/experiments/satellite-finite-recovery-2026-10-18/request.json",
+      "outcome": "The request seeks defensible improvement or evaluation of Satellite’s finite source-projection recovery while preserving the stated estimation boundaries and regressions. No resolution is present in the supplied discussion.",
+      "status": "unresolved",
+      "status_reason": "The supplied discussion contains an open request and no later comments reporting satisfaction, duplication, changed requirements, or automation. The author permits a justified direct solution, abstention, or negative result, but none is reported here.",
+      "status_evidence": [
+        {
+          "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-native-discovery/docs/experiments/satellite-finite-recovery-2026-10-18/request.json",
+          "source_id": "q0"
+        }
+      ],
+      "requirements": [
+        {
+          "id": "r0",
+          "text": "Improve finite source-projection recovery in Satellite’s native project if a defensible software mechanism can help; a justified abstention or negative result is also valid.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-native-discovery/docs/experiments/satellite-finite-recovery-2026-10-18/request.json",
+            "quote": "Improve that numerical recovery operation in the native project, if a defensible software mechanism can help.",
+            "source_id": "q0",
+            "quote_match": "exact",
+            "citation_id": "s1528090dcdbbc2f3"
+          },
+          "inference": "This expresses the requested goal without making successful improvement an unconditional acceptance criterion."
+        },
+        {
+          "id": "r1",
+          "text": "Use only permitted estimation inputs: physical observation increments, the admitted source forward operator, the original design/projector, and declared weights.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-native-discovery/docs/experiments/satellite-finite-recovery-2026-10-18/request.json",
+            "quote": "The method may consume the physical observation increments, admitted source forward operator, original design/projector and declared weights.",
+            "source_id": "q0",
+            "quote_match": "exact",
+            "citation_id": "s428e26fd816c031e"
+          },
+          "inference": "The sentence says these inputs may be consumed; read with the following prohibition, it defines the permitted estimation inputs rather than requiring use of every listed input."
+        },
+        {
+          "id": "r2",
+          "text": "Do not consume the injected source vector, expected projection, injection mode/sign/amplitude labels, candidate products, CODE state, or G12 state.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-native-discovery/docs/experiments/satellite-finite-recovery-2026-10-18/request.json",
+            "quote": "It must not consume the injected source vector, the expected projection, injection mode/sign/amplitude labels, candidate products, CODE state or G12 state.",
+            "source_id": "q0",
+            "quote_match": "exact",
+            "citation_id": "sad9ddbac3609c7c2"
+          },
+          "inference": ""
+        },
+        {
+          "id": "r3",
+          "text": "Keep evaluation-only truth separate from estimation.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-native-discovery/docs/experiments/satellite-finite-recovery-2026-10-18/request.json",
+            "quote": "Evaluation-only truth must remain separate from estimation.",
+            "source_id": "q0",
+            "quote_match": "exact",
+            "citation_id": "saa29f22d0ab8449d"
+          },
+          "inference": ""
+        },
+        {
+          "id": "r4",
+          "text": "Preserve the original source coordinate order.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-native-discovery/docs/experiments/satellite-finite-recovery-2026-10-18/request.json",
+            "quote": "Preserve the original source coordinate order, numerical rank definition, <=1e-3 relative projection-recovery criterion, physical masks, weights and unsupported domains.",
+            "source_id": "q0",
+            "quote_match": "exact",
+            "citation_id": "s283f12a17e44e12c"
+          },
+          "inference": ""
+        },
+        {
+          "id": "r5",
+          "text": "Preserve the numerical rank definition.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-native-discovery/docs/experiments/satellite-finite-recovery-2026-10-18/request.json",
+            "quote": "Preserve the original source coordinate order, numerical rank definition, <=1e-3 relative projection-recovery criterion, physical masks, weights and unsupported domains.",
+            "source_id": "q0",
+            "quote_match": "exact",
+            "citation_id": "s283f12a17e44e12c"
+          },
+          "inference": ""
+        },
+        {
+          "id": "r6",
+          "text": "Preserve the <=1e-3 relative projection-recovery criterion.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-native-discovery/docs/experiments/satellite-finite-recovery-2026-10-18/request.json",
+            "quote": "Preserve the original source coordinate order, numerical rank definition, <=1e-3 relative projection-recovery criterion, physical masks, weights and unsupported domains.",
+            "source_id": "q0",
+            "quote_match": "exact",
+            "citation_id": "s283f12a17e44e12c"
+          },
+          "inference": ""
+        },
+        {
+          "id": "r7",
+          "text": "Preserve physical masks.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-native-discovery/docs/experiments/satellite-finite-recovery-2026-10-18/request.json",
+            "quote": "Preserve the original source coordinate order, numerical rank definition, <=1e-3 relative projection-recovery criterion, physical masks, weights and unsupported domains.",
+            "source_id": "q0",
+            "quote_match": "exact",
+            "citation_id": "s283f12a17e44e12c"
+          },
+          "inference": ""
+        },
+        {
+          "id": "r8",
+          "text": "Preserve weights.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-native-discovery/docs/experiments/satellite-finite-recovery-2026-10-18/request.json",
+            "quote": "Preserve the original source coordinate order, numerical rank definition, <=1e-3 relative projection-recovery criterion, physical masks, weights and unsupported domains.",
+            "source_id": "q0",
+            "quote_match": "exact",
+            "citation_id": "s283f12a17e44e12c"
+          },
+          "inference": ""
+        },
+        {
+          "id": "r9",
+          "text": "Preserve unsupported domains.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-native-discovery/docs/experiments/satellite-finite-recovery-2026-10-18/request.json",
+            "quote": "Preserve the original source coordinate order, numerical rank definition, <=1e-3 relative projection-recovery criterion, physical masks, weights and unsupported domains.",
+            "source_id": "q0",
+            "quote_match": "exact",
+            "citation_id": "s283f12a17e44e12c"
+          },
+          "inference": ""
+        },
+        {
+          "id": "r10",
+          "text": "Leave source null amplitudes unassigned.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-native-discovery/docs/experiments/satellite-finite-recovery-2026-10-18/request.json",
+            "quote": "Source null amplitudes remain unassigned; a minimum-norm representative must not be promoted to a complete physical source estimate.",
+            "source_id": "q0",
+            "quote_match": "exact",
+            "citation_id": "s1c69ac2aaa34180d"
+          },
+          "inference": ""
+        },
+        {
+          "id": "r11",
+          "text": "Do not promote a minimum-norm representative to a complete physical source estimate.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-native-discovery/docs/experiments/satellite-finite-recovery-2026-10-18/request.json",
+            "quote": "Source null amplitudes remain unassigned; a minimum-norm representative must not be promoted to a complete physical source estimate.",
+            "source_id": "q0",
+            "quote_match": "exact",
+            "citation_id": "s1c69ac2aaa34180d"
+          },
+          "inference": ""
+        },
+        {
+          "id": "r12",
+          "text": "Keep all historical outcomes.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-native-discovery/docs/experiments/satellite-finite-recovery-2026-10-18/request.json",
+            "quote": "Keep all historical outcomes and report failed, unknown and worsening cases.",
+            "source_id": "q0",
+            "quote_match": "exact",
+            "citation_id": "s80758c55e14ff597"
+          },
+          "inference": ""
+        },
+        {
+          "id": "r13",
+          "text": "Report failed cases.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-native-discovery/docs/experiments/satellite-finite-recovery-2026-10-18/request.json",
+            "quote": "Keep all historical outcomes and report failed, unknown and worsening cases.",
+            "source_id": "q0",
+            "quote_match": "exact",
+            "citation_id": "s80758c55e14ff597"
+          },
+          "inference": ""
+        },
+        {
+          "id": "r14",
+          "text": "Report unknown cases.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-native-discovery/docs/experiments/satellite-finite-recovery-2026-10-18/request.json",
+            "quote": "Keep all historical outcomes and report failed, unknown and worsening cases.",
+            "source_id": "q0",
+            "quote_match": "exact",
+            "citation_id": "s80758c55e14ff597"
+          },
+          "inference": ""
+        },
+        {
+          "id": "r15",
+          "text": "Report worsening cases.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-native-discovery/docs/experiments/satellite-finite-recovery-2026-10-18/request.json",
+            "quote": "Keep all historical outcomes and report failed, unknown and worsening cases.",
+            "source_id": "q0",
+            "quote_match": "exact",
+            "citation_id": "s80758c55e14ff597"
+          },
+          "inference": ""
+        },
+        {
+          "id": "r16",
+          "text": "Compare any proposed contribution against the existing local inverse.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-native-discovery/docs/experiments/satellite-finite-recovery-2026-10-18/request.json",
+            "quote": "Compare any proposed contribution against the existing local inverse and the strongest plausible direct SciPy/local correction using the same permitted inputs.",
+            "source_id": "q0",
+            "quote_match": "exact",
+            "citation_id": "sb07057444c45efa1"
+          },
+          "inference": "Applies if a contribution is proposed; the request also allows abstention or a negative result."
+        },
+        {
+          "id": "r17",
+          "text": "Compare any proposed contribution against the strongest plausible direct SciPy/local correction.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-native-discovery/docs/experiments/satellite-finite-recovery-2026-10-18/request.json",
+            "quote": "Compare any proposed contribution against the existing local inverse and the strongest plausible direct SciPy/local correction using the same permitted inputs.",
+            "source_id": "q0",
+            "quote_match": "exact",
+            "citation_id": "sb07057444c45efa1"
+          },
+          "inference": "Applies if a contribution is proposed; the request also allows abstention or a negative result."
+        },
+        {
+          "id": "r18",
+          "text": "Make those comparisons using the same permitted inputs.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-native-discovery/docs/experiments/satellite-finite-recovery-2026-10-18/request.json",
+            "quote": "Compare any proposed contribution against the existing local inverse and the strongest plausible direct SciPy/local correction using the same permitted inputs.",
+            "source_id": "q0",
+            "quote_match": "exact",
+            "citation_id": "sb07057444c45efa1"
+          },
+          "inference": ""
+        },
+        {
+          "id": "r19",
+          "text": "A runnable donor example alone is insufficient; a small native improvement to a failing invariant is valuable.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-native-discovery/docs/experiments/satellite-finite-recovery-2026-10-18/request.json",
+            "quote": "A small native improvement to a failing invariant is valuable; a runnable donor example alone is insufficient.",
+            "source_id": "q0",
+            "quote_match": "exact",
+            "citation_id": "s245d5d02dca6ba60"
+          },
+          "inference": "This distinguishes a useful native contribution from a donor-only example; it does not require a successful improvement when a justified abstention or negative result is given."
+        },
+        {
+          "id": "r20",
+          "text": "If there is an eventual change, it must run in Satellite’s supported Python environment.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-native-discovery/docs/experiments/satellite-finite-recovery-2026-10-18/request.json",
+            "quote": "The eventual change must run in Satellite's supported Python environment and preserve its regressions.",
+            "source_id": "q0",
+            "quote_match": "exact",
+            "citation_id": "s1b7918e0af3b98a8"
+          },
+          "inference": "Conditional on an eventual change; the specific supported environment is not identified in the supplied discussion."
+        },
+        {
+          "id": "r21",
+          "text": "If there is an eventual change, it must preserve Satellite’s regressions.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-native-discovery/docs/experiments/satellite-finite-recovery-2026-10-18/request.json",
+            "quote": "The eventual change must run in Satellite's supported Python environment and preserve its regressions.",
+            "source_id": "q0",
+            "quote_match": "exact",
+            "citation_id": "s1b7918e0af3b98a8"
+          },
+          "inference": "Conditional on an eventual change."
+        },
+        {
+          "id": "r22",
+          "text": "Choose independently whether and where to investigate external code; no donor, algorithm, source repository, or search phrase is prescribed.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-native-discovery/docs/experiments/satellite-finite-recovery-2026-10-18/request.json",
+            "quote": "Choose whether and where to investigate external code yourself.",
+            "source_id": "q0",
+            "quote_match": "exact",
+            "citation_id": "s963c9ac131d4a553"
+          },
+          "inference": "This leaves external-code investigation and its target to the investigator rather than requiring use of a donor."
+        }
+      ],
+      "environment": [
+        "The eventual change must run in Satellite’s supported Python environment; specific version and runtime details are not supplied."
+      ],
+      "prior_attempts": [
+        "The request states that stable forward arithmetic has been checked and that some finite controls miss the existing projection-recovery criterion.",
+        "It describes an existing native recovery routine using a local design; it does not report prior attempts to satisfy this request."
+      ],
+      "missing_information": [
+        "No implementation, experiment results, or resolution are supplied.",
+        "The exact supported Python environment and regression suite are unspecified.",
+        "The request permits abstention or a negative result, so whether a change will be made is not predetermined."
+      ],
+      "optional_field_dispositions": [],
+      "constraint_review": {
+        "items": [
+          {
+            "id": "constraint:q0:4",
+            "source_id": "q0",
+            "quote": "must not consume the injected source vector, the expected projection, injection mode/sign/amplitude labels, candidate products, CODE state or G12 state.",
+            "quote_truncated": false,
+            "kind": "potential_constraint",
+            "author": "experimenter",
+            "author_type": "User",
+            "author_association": null,
+            "bot_author_hint": false,
+            "generated_hint": false,
+            "authority": "request_author",
+            "represented_by": [
+              "r2"
+            ],
+            "needs_review": false
+          },
+          {
+            "id": "constraint:q0:4:2",
+            "source_id": "q0",
+            "quote": "must remain separate from estimation.",
+            "quote_truncated": false,
+            "kind": "potential_constraint",
+            "author": "experimenter",
+            "author_type": "User",
+            "author_association": null,
+            "bot_author_hint": false,
+            "generated_hint": false,
+            "authority": "request_author",
+            "represented_by": [
+              "r3"
+            ],
+            "needs_review": false
+          },
+          {
+            "id": "constraint:q0:6",
+            "source_id": "q0",
+            "quote": "must not be promoted to a complete physical source estimate.",
+            "quote_truncated": false,
+            "kind": "potential_constraint",
+            "author": "experimenter",
+            "author_type": "User",
+            "author_association": null,
+            "bot_author_hint": false,
+            "generated_hint": false,
+            "authority": "request_author",
+            "represented_by": [
+              "r10",
+              "r11"
+            ],
+            "needs_review": false
+          },
+          {
+            "id": "constraint:q0:8",
+            "source_id": "q0",
+            "quote": "must run in Satellite's supported Python environment and preserve its regressions.",
+            "quote_truncated": false,
+            "kind": "potential_constraint",
+            "author": "experimenter",
+            "author_type": "User",
+            "author_association": null,
+            "bot_author_hint": false,
+            "generated_hint": false,
+            "authority": "request_author",
+            "represented_by": [
+              "r20",
+              "r21"
+            ],
+            "needs_review": false
+          }
+        ],
+        "complete": true,
+        "markers_found": 4,
+        "constraint_markers_found": 4,
+        "gap_markers_found": 0,
+        "gap_hints_complete": true,
+        "note": "Non-exhaustive English constraint markers; no marker does not prove all requirements were extracted.",
+        "optional_field_review": {
+          "items": [],
+          "complete": true,
+          "omitted_fields": 0,
+          "dispositions": [],
+          "method": "optional-field syntax is an extraction hint, not proof of optional demand or compatibility"
+        },
+        "qualification_blockers": []
+      },
+      "context_complete": true,
+      "updated_at": "2026-10-18",
+      "fingerprint": "bfb0a64bc77a535323782a5973e84a537f8c811ff1a8a5c093f3dea9291b31b1",
+      "analysis_context": {
+        "phase": "request",
+        "source_ids": [
+          "q0"
+        ],
+        "omitted_source_ids": [],
+        "source_id_limit": 400,
+        "source_id_limit_omissions": 0,
+        "shortened_discussion_ids": [],
+        "discussion_complete": true,
+        "note": "Selected evidence is not the whole repository. Missing context remains unknown; omitted discussion prevents a qualified positive.",
+        "optional_field_hint_scan_complete": true,
+        "target_reference_context": {
+          "revision": null,
+          "source_ids": [],
+          "omitted_source_ids": [],
+          "reference_only": true,
+          "absence_proves_novelty": false
+        },
+        "omitted_constraint_ids": [],
+        "constraint_hint_scan_complete": true,
+        "omitted_source_count": 0,
+        "payload_bytes": 5446,
+        "demand_span_coverage": {
+          "span_count": 17,
+          "omitted_visible_spans": 0,
+          "complete": true,
+          "sources_without_spans": [],
+          "source_count_without_spans": 0,
+          "method": "exact original spans; bounded root opening then round-robin discussion coverage, not semantic validation"
+        }
+      }
+    }
+  },
+  "result": {
+    "direct_baseline": {
+      "direct_comparison_fixed_before_external_inspection": true,
+      "external_repositories_searched": 0,
+      "external_source_implementations_inspected": 0,
+      "native_method": "Existing frozen pseudoinverse applied iteratively to the actual finite physical forward residual; no source-truth input to estimation.",
+      "model_visible_summary": {
+        "origin": "Measured experimenter/direct native solution, not a Missing Link contribution or an external source.",
+        "target_revision": "248b54208b94f1e53f5af7bdb39d89860b05fca4",
+        "controls_executed": 30,
+        "converged_projection_criterion_passes": 30,
+        "original_linear_projection_passes": 26,
+        "previously_passing_controls_lost": 0,
+        "formerly_failing_controls_added": 4,
+        "unknown_null_functionals_retained_as_unknown": 20,
+        "elapsed_seconds": 570.2040548000004,
+        "maximum_relative_identified_projection_error": 5.754681177571416e-08,
+        "criterion_relative_error": 0.001,
+        "direct_native_solution_meets_this_controlled_task": true,
+        "limits": "Controlled finite injections through an admitted-data physical operator, Windows local execution, no production integration or native Linux claim; no complete weak-source recovery or physical uncertainty qualification.",
+        "decision_question": "Given this working direct local alternative, is an external investigation justified for the independently fixed request? Do not manufacture a gap or search merely to produce a donor."
+      },
+      "unexecuted_comparator": {
+        "name": "SciPy nonlinear least squares",
+        "reason": "Not executed: the cheaper direct correction already meets all 30 control criteria. The prepared stop rule permits direct sufficiency; no stronger-baseline failure is claimed."
+      },
+      "artifacts": {
+        "direct_native.py": "f2b917c138afd075428ec93fae3a4b666bdf43188305cf3dc0bc2f8b278ba783",
+        "direct-chord-before-scoring.json": "2cc67082d11fc15e555c70a18a0104146e303fb340bd5907e1e7f37ce24d6db5",
+        "direct-chord-result.json": "8c0f7c603a5b3db15e6263cf45494f31f0dee055af10834c1b6a6e14bb726ad0",
+        "direct-chord-log.txt": "84eda069fcc0477f9605fe0be9c0107e59d621e4c6334646bb071191c8c5c095"
+      },
+      "direct_success_is_not_missing_link_success": true
+    },
+    "plan": {
+      "decision": "use_direct",
+      "reason": "The requested operation is finite source-projection recovery: use permitted physical increments, the admitted forward operator, original design/projector, and declared weights to recover the identifiable projection, while keeping evaluation truth separate and leaving null amplitudes unassigned. Preserve the stated coordinate order, rank definition, recovery threshold, masks, weights, unsupported domains, and regression outcomes (r1-r15). The supplied target inquiry reports that a direct native local alternative passed the projection criterion on all 30 controlled finite-injection controls, versus 26 for the original linear projection; it added four formerly failing controls, lost none that previously passed, and retained 20 unknown null functionals. That is concrete evidence the direct alternative plausibly meets the controlled task, so no incremental external-code advantage is established (r16-r19).",
+      "direct_alternative": {
+        "description": "Use the measured direct native local correction, compared with the existing local inverse, on the same permitted inputs; estimate only the identifiable projection and report unresolved null functionals as unknown.",
+        "adequacy": "likely_sufficient",
+        "limitations": [
+          "The reported controls were finite injections through an admitted-data physical operator, not complete weak-source recovery or physical uncertainty qualification.",
+          "The evidence reports Windows local execution and does not establish production integration or native Linux compatibility.",
+          "The supported Python environment and full regression suite are unspecified."
+        ]
+      },
+      "benefit_hypothesis": "No concrete incremental benefit from searching for external software is supported by the supplied evidence; a donor would need to outperform the measured direct correction without violating the estimation boundaries.",
+      "benefit_test": "Reconsider searching only if a reproducible unmet case is identified. Compare any candidate-derived contribution with the existing inverse and strongest direct local/SciPy correction using the same permitted inputs; require improvement on the <=1e-3 projection-recovery criterion without losing historical passes, changing masks or weights, or assigning null amplitudes. Verify supported-runtime compatibility separately.",
+      "operations": [],
+      "unknowns": [
+        "Whether the direct correction integrates into Satellite's production path or passes its full regression suite.",
+        "Whether it runs in Satellite's supported Python environment beyond the reported Windows local execution.",
+        "Whether cases outside the controlled finite-injection set show a remaining recoverable gap."
+      ],
+      "version": "request-led-discovery-v1",
+      "issue_fingerprint": "bfb0a64bc77a535323782a5973e84a537f8c811ff1a8a5c093f3dea9291b31b1",
+      "provider_identity": "cdcd5f4d30c98d6930cf75d7b2fc8c965d48b0d5a52560b0475019c45ad41426",
+      "status": "unverified_decision",
+      "qualified": false,
+      "direct_solution_verified": false,
+      "target_snapshot": {
+        "id": 1128978015,
+        "full_name": "Daniele-Cangi/Satellite-RF-Observatory",
+        "revision": "248b54208b94f1e53f5af7bdb39d89860b05fca4",
+        "coverage": {
+          "sample_only": true,
+          "all_target_source_available": false,
+          "operator_selected_excerpts": true,
+          "target_snippets_only": true,
+          "no_injection_labels_or_truth": true,
+          "additional_context_not_inspected_autonomously": true
+        },
+        "sample_only": true,
+        "files": [
+          {
+            "path": "research/kinematic/source_geometry.py",
+            "sha": "f21a56f5228e06189929ea0f51babc21973d79fe",
+            "url": "https://github.com/Daniele-Cangi/Satellite-RF-Observatory/blob/248b54208b94f1e53f5af7bdb39d89860b05fca4/research/kinematic/source_geometry.py#L394",
+            "redacted": false,
+            "truncated": true
+          },
+          {
+            "path": "research/exploratory/reference_geometry.py",
+            "sha": "ddaf60ef2dd28b059e2ecab22c0efebab5e9c56a",
+            "url": "https://github.com/Daniele-Cangi/Satellite-RF-Observatory/blob/248b54208b94f1e53f5af7bdb39d89860b05fca4/research/exploratory/reference_geometry.py#L270",
+            "redacted": false,
+            "truncated": true
+          }
+        ]
+      },
+      "context_coverage": {
+        "decision_version": "request-led-discovery-v1",
+        "target_file_limit": 4,
+        "target_characters_per_file": 8000,
+        "target_files_omitted": 0,
+        "all_target_source_available": false
+      }
+    },
+    "terminal": "planner_use_direct"
+  },
+  "provider_identity": "cdcd5f4d30c98d6930cf75d7b2fc8c965d48b0d5a52560b0475019c45ad41426",
+  "reported_usage": [
+    {
+      "input_tokens": 3921,
+      "output_tokens": 2415,
+      "estimated_cost_usd_at_configured_prices": 0.0015995999999999999
+    },
+    {
+      "input_tokens": 7648,
+      "output_tokens": 913,
+      "estimated_cost_usd_at_configured_prices": 0.0012213000000000002
+    }
+  ],
+  "ai_trace": [
+    {
+      "phase": "request",
+      "model": "gpt-6-luna",
+      "api_kind": "responses",
+      "response_id": "resp_0a0e828de1c49c48016ad534b1fd3087d2a6d66063a91ece70",
+      "response_status": "completed",
+      "request_sha256": "fd02b67fa7abe2c34f8121be1417175dc0f28d6a7cffa624f894a784e68f0323",
+      "request_bytes": 17873,
+      "context_coverage": {
+        "phase": "request",
+        "source_ids": [
+          "q0"
+        ],
+        "omitted_source_ids": [],
+        "source_id_limit": 400,
+        "source_id_limit_omissions": 0,
+        "shortened_discussion_ids": [],
+        "discussion_complete": true,
+        "note": "Selected evidence is not the whole repository. Missing context remains unknown; omitted discussion prevents a qualified positive.",
+        "optional_field_hint_scan_complete": true,
+        "target_reference_context": {
+          "revision": null,
+          "source_ids": [],
+          "omitted_source_ids": [],
+          "reference_only": true,
+          "absence_proves_novelty": false
+        },
+        "omitted_constraint_ids": [],
+        "constraint_hint_scan_complete": true,
+        "omitted_source_count": 0,
+        "payload_bytes": 5446,
+        "demand_span_coverage": {
+          "span_count": 17,
+          "omitted_visible_spans": 0,
+          "complete": true,
+          "sources_without_spans": [],
+          "source_count_without_spans": 0,
+          "method": "exact original spans; bounded root opening then round-robin discussion coverage, not semantic validation"
+        }
+      },
+      "call_number": 1,
+      "attempt_id": "c0a5fac01e8f40e791b0964c2d9491ad:1"
+    },
+    {
+      "phase": "request",
+      "model": "gpt-6-luna",
+      "api_kind": "responses",
+      "response_id": "resp_018ec235296a055e016ad5358371b887d2b21d6ba421ae1e2f",
+      "response_status": "completed",
+      "request_sha256": "0413c9712e4700c21ff8e0a8479634c6d8181a9b588f6fb2fa3d90c000f41f4d",
+      "request_bytes": 32113,
+      "context_coverage": {
+        "decision_version": "request-led-discovery-v1",
+        "target_file_limit": 4,
+        "target_characters_per_file": 8000,
+        "target_files_omitted": 0,
+        "all_target_source_available": false
+      },
+      "call_number": 2,
+      "attempt_id": "c0a5fac01e8f40e791b0964c2d9491ad:2"
+    }
+  ],
+  "elapsed_s": 225.88098880000325
+}

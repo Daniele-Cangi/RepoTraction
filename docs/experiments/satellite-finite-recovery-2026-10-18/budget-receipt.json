@@ -1,0 +1,38 @@
+{
+  "job_id": "c0a5fac01e8f40e791b0964c2d9491ad",
+  "allowance_id": "satellite-finite-recovery-2026-10-18-v1",
+  "authorized_cap_usd": 0.15,
+  "reserved_usd": 0.0174082,
+  "actual_reported_usage": [
+    {
+      "input_tokens": 3921,
+      "output_tokens": 2415,
+      "estimated_cost_usd_at_configured_prices": 0.0015995999999999999
+    },
+    {
+      "input_tokens": 7648,
+      "output_tokens": 913,
+      "estimated_cost_usd_at_configured_prices": 0.0012213000000000002
+    }
+  ],
+  "estimated_cost_usd_at_configured_prices": 0.0028209000000000003,
+  "billing_limit": "Provider-reported tokens at configured prices, not an invoice or final billing verification.",
+  "reservations": [
+    {
+      "allowance_id": "satellite-finite-recovery-2026-10-18-v1",
+      "job_id": "c0a5fac01e8f40e791b0964c2d9491ad",
+      "cost": 0.0079921,
+      "created": 1792357551.8381088
+    },
+    {
+      "allowance_id": "satellite-finite-recovery-2026-10-18-v1",
+      "job_id": "c0a5fac01e8f40e791b0964c2d9491ad",
+      "cost": 0.0094161,
+      "created": 1792357762.51282
+    }
+  ],
+  "job_matches_persisted_store": true,
+  "repositories_saved": 0,
+  "matches_saved": 0,
+  "retries": 0
+}

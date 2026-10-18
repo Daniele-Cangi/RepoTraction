@@ -1,0 +1,6 @@
+G05 native replay complete 6
+G11 native replay complete 6
+G19 native replay complete 6
+G20 native replay complete 6
+G21 native replay complete 6
+{"replayed_probes": 30, "failed_strong_cases": ["G05", "G11", "G20", "G21"], "tests": {"command": ["C:\\temp\\satellite-rf-nts-2026-10-09\\venv\\Scripts\\python.exe", "-m", "pytest", "research/exploratory/tests/test_stable_source_physics.py", "research/exploratory/tests/test_stable_source_receipt.py", "research/kinematic/tests/test_weak_sources.py", "-q", "-p", "no:cacheprovider", "--junitxml=C:\\Users\\dacan\\Documents\\Codex\\2026-08-17\\vo\\outputs\\github-pulse\\data\\satellite-finite-recovery-2026-10-18\\native-preflight-tests.xml"], "exit_code": 0, "counts": {"tests": 8, "failures": 0, "errors": 0, "skipped": 0}, "log_sha256": "681be6ea6133eb26ac5866fdbe32c36991300d49d189310489d375d7f348109f", "junit_sha256": "7b9e3b46a0851ae9aee7b8bcba95d6ab24f589fb417bfbcaa64501a85c41594a"}, "elapsed_s": 50.85261929999979}
