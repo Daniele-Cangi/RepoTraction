@@ -1,0 +1,5 @@
+{"stage": "interpret_request", "calls": 0, "reserved_usd": 0.0}
+{"stage": "plan_discovery", "calls": 1, "reserved_usd": 0.0085555}
+{"stage": "source_search", "calls": 2, "reserved_usd": 0.0193556}
+{"stage": "select_source", "calls": 2, "reserved_usd": 0.0193556}
+{"status": "failed", "terminal": "stopped_without_retry", "calls": 3, "reserved_usd": 0.0273599, "elapsed_s": 46.58910790000664}

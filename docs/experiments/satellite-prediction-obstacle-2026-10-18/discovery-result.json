@@ -1,0 +1,1725 @@
+{
+  "id": "42dde5c206ce4477b966dcd7d4174f7e",
+  "account": "Daniele-Cangi",
+  "status": "failed",
+  "stage": "select_source",
+  "input": {
+    "action": "experiment-local conditional RF prediction discovery",
+    "use_ai": true,
+    "max_requests": 120
+  },
+  "created_at": "2026-10-18T22:19:56+00:00",
+  "updated_at": "2026-10-18T22:20:42+00:00",
+  "requests_used": 1,
+  "ai_calls_used": 3,
+  "cost_reserved_usd": 0.0273599,
+  "checkpoint": {
+    "ai_outputs": [
+      {
+        "phase": "request",
+        "call_number": 1,
+        "attempt_id": "42dde5c206ce4477b966dcd7d4174f7e:1",
+        "output": {
+          "outcome": "The request seeks improved conditional missing-link RF prediction in Satellite’s native calibration code, with strict held-out-data, evaluation, and trial-scope constraints. No later discussion reports a solution or changes the requirements.",
+          "status": "unresolved",
+          "status_source_ids": [
+            "q0"
+          ],
+          "status_reason": "The complete supplied discussion contains an explicit request and no subsequent comments establishing satisfaction, duplication, or automation. The issue is open; the supplied material does not show the requested improvement being achieved.",
+          "requirements": [
+            {
+              "text": "Improve prediction of excluded reference-link RF increments in Satellite’s native calibration code beyond the strongest direct primary comparison; the goal is predictive transfer, not merely rescuing the worst full model.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "s384041449896f4a7",
+              "inference": "Combines the stated target and comparison baseline as one overall deliverable."
+            },
+            {
+              "text": "Use only admitted non-candidate reference data for the prediction.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "sab9b986d35577a5e",
+              "inference": "Direct data-admissibility constraint."
+            },
+            {
+              "text": "Remove fixed held link/epoch measurements—including GF/MW/phase/code values and continuity witnesses—before fitting, choosing parameters, or selecting boundaries.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "sef600763e77ed49f",
+              "inference": "Direct holdout-leakage prohibition."
+            },
+            {
+              "text": "Keep other reference links at excluded epochs available for use.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "sbe6c70e9a6ae3286",
+              "inference": "Directly stated data-availability constraint."
+            },
+            {
+              "text": "Condition geometry and masks on the existing nominal preparation; treat the task as conditional missing-link prediction, not RF-free forecasting of the entire clock network.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "s74f59181f28be6bc",
+              "inference": "Combines the specified preparation context and explicit task-scope distinction."
+            },
+            {
+              "text": "Decide whether external code is worth investigating; if investigating, independently choose the operations, search phrases, and one source rather than choosing from operator-supplied donor names. A defensible use_direct, defer, or no-source decision is valid.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "s523de8d969b6109c",
+              "inference": "The decision is requested; investigating or selecting a donor is not required when a valid defer, use_direct, or no-source decision is made."
+            },
+            {
+              "text": "Any adapted predictive strategy must not be presented as a qualified physical source prior or covariance based on its empirical assumptions.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "s7d3f4af4c2fc0691",
+              "inference": "Direct limitation on claims about an adapted strategy."
+            },
+            {
+              "text": "Achieve at least 10% lower pooled 300-second phase RMS than the strongest direct primary baseline on the original common 874 increment pairs, while retaining all 1248 common 30-second pairs.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "s4983fd982e080357",
+              "inference": "Direct pilot success criterion; retains the stated evaluation support."
+            },
+            {
+              "text": "For each lag, pooled code RMS must be no more than 2% above the best direct value for that metric.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "sf519be0493fcd474",
+              "inference": "Extracts the code-RMS part of the paired metric criterion."
+            },
+            {
+              "text": "For each lag, 30-second phase RMS must be no more than 2% above the best direct value for that metric.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "sf519be0493fcd474",
+              "inference": "Extracts the 30-second phase-RMS part of the paired metric criterion."
+            },
+            {
+              "text": "At least four of the five folds must improve 300-second phase RMS against the same globally chosen primary baseline.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "sefaa2030f7d29578",
+              "inference": "Separates the minimum number of improving folds from the per-fold harm limit."
+            },
+            {
+              "text": "No fold may worsen 300-second phase RMS by more than 10% against that same baseline.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "sefaa2030f7d29578",
+              "inference": "Direct per-fold harm limit."
+            },
+            {
+              "text": "Preserve and report all missing or unknown predictions and every worsening.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "sba48912fcc8c3a02",
+              "inference": "Direct reporting and preservation requirement."
+            },
+            {
+              "text": "Treat the stated practical pilot criteria as fixed before donor search; they are not physical qualification thresholds or claims of statistical significance.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "s9f597069adf59acf",
+              "inference": "Direct interpretation and timing constraint on evaluation criteria."
+            },
+            {
+              "text": "Fit or choose all parameters using training data only.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "s8eb89d9663c4d47e",
+              "inference": "Direct training-only constraint."
+            },
+            {
+              "text": "Keep historical inputs, masks, raw marginal weights, rank/identifiability definitions, and results unchanged.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "se6df69ad81b6a40b",
+              "inference": "Direct preservation constraint."
+            },
+            {
+              "text": "Never complete an unidentifiable physical source or raw common clock with an arbitrary zero.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "s355bd0967e36ef65",
+              "inference": "Direct prohibition."
+            },
+            {
+              "text": "Do not use source amplitudes, physical covariance, G12 state, or candidate CODE orbit as labels, priors, tuning targets, or acceptance truth.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "se846bd0f5f266cd4",
+              "inference": "Direct prohibition on these quantities in model development and evaluation."
+            },
+            {
+              "text": "Do not refit the orbital state as part of this trial.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "s9147fdff7806b7b2",
+              "inference": "Direct scope exclusion."
+            },
+            {
+              "text": "Treat native predictive improvement as the sole potential gain; physical source attribution and S2 remain unproven.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "s10c593c5da740e94",
+              "inference": "Direct restriction on claimed outcomes."
+            },
+            {
+              "text": "A donor-only sandbox example does not satisfy the request.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "sb50332b55ea97d2d",
+              "inference": "The contribution must go beyond a sandbox-only example; the request's target is native prediction."
+            },
+            {
+              "text": "Allow at most one bounded adaptation of a selected external mechanism and one parameter-selection rule decided without held scores; do not use donor replacement, rescue queries, paid retries, or holdout-driven tuning.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "s4eb8520894a231c5",
+              "inference": "Direct trial limits; the adaptation allowance applies if an external mechanism is selected."
+            },
+            {
+              "text": "Compare every result on unchanged support and across all five folds.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "s7a36fd73bd88ef0e",
+              "inference": "Direct comparison requirement."
+            },
+            {
+              "text": "Do not treat source inspection alone as evidence of benefit; establishing benefit requires native execution.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "sc10f3a52724c464b",
+              "inference": "Distinguishes inspection from execution and the evidence each can establish."
+            },
+            {
+              "text": "If a modification is justified, require native regressions and Windows/Linux CI before integration.",
+              "mandatory": true,
+              "explicit": true,
+              "citation_id": "s48b048dd66606ac8",
+              "inference": "Explicitly conditional integration gate."
+            }
+          ],
+          "optional_field_dispositions": [],
+          "environment": [
+            "Satellite native calibration code",
+            "Current stable differential inputs",
+            "Fixed last-third link holdouts",
+            "Existing nominal preparation for geometry and masks",
+            "Conditional missing-link prediction using admitted non-candidate reference data"
+          ],
+          "prior_attempts": [
+            "Clock-only, wet-only, and complete source models were replayed on the same fixed last-third link holdouts; freely fitted source shapes severely worsened phase prediction.",
+            "Free-drift and bounded training-GCV predictive shrinkage comparisons were executed; neither beat the strongest simple primary baseline."
+          ],
+          "missing_information": []
+        }
+      },
+      {
+        "phase": "request",
+        "call_number": 2,
+        "attempt_id": "42dde5c206ce4477b966dcd7d4174f7e:2",
+        "output": {
+          "decision": "search",
+          "reason": "The native wet model is the strongest measured direct baseline, and the supplied native comparisons show that clock-only, wet-only, free-drift, and bounded training-GCV alternatives have not met the requested 300-second improvement. That leaves a concrete, narrow question for bounded investigation: whether a structured cross-link predictor can transfer information from admitted contemporaneous links better than the direct baseline. The target excerpts already show native holdout preparation and evaluation, so a donor-only example would not suffice; any candidate must be adapted and tested in the native path.",
+          "direct_alternative": {
+            "description": "Keep the native calibration and evaluation path, using the wet primary model as baseline and allowing a small local correction or another training-only native predictor. Compare on the fixed support and folds.",
+            "adequacy": "insufficient",
+            "limitations": [
+              "The best supplied direct primary result is 300-second phase RMS 0.01456730555580603 m; the requested pooled threshold is 10% lower.",
+              "The tested direct alternatives did not beat that primary baseline, though the supplied context says direct unsolvability is not proven.",
+              "The target sample is partial and does not establish what other native features or dependencies are available."
+            ]
+          },
+          "benefit_hypothesis": "A reusable masked multivariate time-series or low-rank regression mechanism might exploit shared temporal structure across admitted reference links to predict the held link’s increments, beyond the tested scalar wet and drift strategies. This is a predictive-method hypothesis only, not a claim of physical source attribution or a qualified covariance.",
+          "benefit_test": "After at most one bounded adaptation, run the method in Satellite’s native evaluation using the fixed link/epoch holdouts, excluding all held measurements and continuity witnesses before fitting or selecting parameters. Compare against the same globally chosen wet primary baseline on unchanged support and all five folds. Falsify the benefit if it fails any stated pilot criterion: at least 10% lower pooled 300-second phase RMS on the original 874 pairs; retain all 1248 common 30-second pairs; each lag’s code RMS and 30-second phase RMS no more than 2% above the best direct value; at least four of five folds improve 300-second phase RMS, with none over 10% worse. Preserve and report unknown predictions and all worsenings. Native execution, not source inspection, establishes benefit.",
+          "operations": [
+            {
+              "operation": "Conditional missing-link RF increment prediction",
+              "input": "Admitted non-candidate reference-link RF data, with other links at excluded epochs available; nominal geometry and masks remain fixed. Remove all fixed held link/epoch measurements and continuity witnesses before fitting, parameter selection, or boundary selection.",
+              "output": "Native predictions for the excluded link’s RF increments, retaining unavailable or unidentifiable cases as unknown rather than filling them with arbitrary zeros.",
+              "requirement_ids": [
+                "r0",
+                "r1",
+                "r2",
+                "r3",
+                "r4",
+                "r6",
+                "r7",
+                "r8",
+                "r9",
+                "r10",
+                "r11",
+                "r12",
+                "r14",
+                "r15",
+                "r16",
+                "r17",
+                "r18",
+                "r19",
+                "r20",
+                "r21",
+                "r22",
+                "r23",
+                "r24"
+              ],
+              "rationale": "This is the requested predictive operation; satellite terminology is context, not a requirement to reuse satellite-specific software. The plausible cross-domain mechanism is masked multivariate time-series prediction or low-rank regression across links, which may capture shared temporal structure not represented by the tested wet or drift predictors. Investigate only if a candidate’s behavior and representations can support the strict holdout protocol and native integration; a donor-only sandbox cannot meet the request.",
+              "search_terms": "Python masked multivariate time series low rank regression cross sensor missing link prediction"
+            }
+          ],
+          "unknowns": [
+            "No candidate source package is supplied; availability, implementation details, runtime behavior, licensing, and integration cost are unverified.",
+            "The full target source and dependencies are not supplied, so availability of additional native features and the precise integration point remain unknown.",
+            "The supplied comparisons do not establish that direct methods are exhausted or that any external method will improve prediction.",
+            "Whether the data support useful shared cross-link temporal structure without violating the holdout and training-only constraints is unknown."
+          ]
+        }
+      },
+      {
+        "phase": "request",
+        "call_number": 3,
+        "attempt_id": "42dde5c206ce4477b966dcd7d4174f7e:3",
+        "output": {
+          "decision": "none",
+          "candidate_id": "",
+          "operation_ids": [
+            "op0"
+          ],
+          "reason": "The fixed operation is conditional prediction of held-link RF increments from admitted contemporaneous links, under strict exclusion of held measurements and continuity witnesses. The direct alternative is the native calibration/evaluation path with the wet primary model and local native predictors (op0). The candidate metadata does not establish a repository implementing a masked multivariate or low-rank predictor suitable for this operation. The clearly described entries are paper lists, crawlers, or resource collections; the remaining sparse or empty descriptions cannot discriminate a relevant implementation from an unrelated repository (source0–source19). No candidate offers a defensible metadata-supported benefit over the direct alternative.",
+          "source_check": "No candidate source code is supplied. Inspection would need to establish the actual prediction mechanism, how it represents missing links and RF increments, whether it can exclude held measurements and continuity witnesses during fitting and selection, and whether it can integrate into Satellite’s native evaluation path. The supplied metadata cannot establish any of these points (op0; source0–source19).",
+          "risks": [
+            "The pool may omit a relevant implementation, but no extra search or manual substitute is available.",
+            "The target source is partial, and native integration points and dependencies are unknown (op0).",
+            "Even a suitable mechanism would require bounded adaptation and native holdout evaluation; metadata cannot establish predictive benefit or compatibility (op0)."
+          ]
+        }
+      }
+    ],
+    "request": {
+      "id": "satellite-prediction-obstacle-2026-10-18",
+      "title": "Improve conditional RF link prediction beyond the strongest direct calibration baseline",
+      "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-unresolved-obstacle/docs/experiments/satellite-prediction-obstacle-2026-10-18/request.json",
+      "outcome": "The request seeks improved conditional missing-link RF prediction in Satellite’s native calibration code, with strict held-out-data, evaluation, and trial-scope constraints. No later discussion reports a solution or changes the requirements.",
+      "status": "unresolved",
+      "status_reason": "The complete supplied discussion contains an explicit request and no subsequent comments establishing satisfaction, duplication, or automation. The issue is open; the supplied material does not show the requested improvement being achieved.",
+      "status_evidence": [
+        {
+          "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-unresolved-obstacle/docs/experiments/satellite-prediction-obstacle-2026-10-18/request.json",
+          "source_id": "q0"
+        }
+      ],
+      "requirements": [
+        {
+          "id": "r0",
+          "text": "Improve prediction of excluded reference-link RF increments in Satellite’s native calibration code beyond the strongest direct primary comparison; the goal is predictive transfer, not merely rescuing the worst full model.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-unresolved-obstacle/docs/experiments/satellite-prediction-obstacle-2026-10-18/request.json",
+            "quote": "The request is to improve predictive transfer beyond that strongest direct comparison, not merely rescue the worst full model.",
+            "source_id": "q0",
+            "quote_match": "exact",
+            "citation_id": "s384041449896f4a7"
+          },
+          "inference": "Combines the stated target and comparison baseline as one overall deliverable."
+        },
+        {
+          "id": "r1",
+          "text": "Use only admitted non-candidate reference data for the prediction.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-unresolved-obstacle/docs/experiments/satellite-prediction-obstacle-2026-10-18/request.json",
+            "quote": "Use only admitted non-candidate reference data.",
+            "source_id": "q0",
+            "quote_match": "exact",
+            "citation_id": "sab9b986d35577a5e"
+          },
+          "inference": "Direct data-admissibility constraint."
+        },
+        {
+          "id": "r2",
+          "text": "Remove fixed held link/epoch measurements—including GF/MW/phase/code values and continuity witnesses—before fitting, choosing parameters, or selecting boundaries.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-unresolved-obstacle/docs/experiments/satellite-prediction-obstacle-2026-10-18/request.json",
+            "quote": "The fixed held link/epoch measurements, including their GF/MW/phase/code values and continuity witnesses, must be removed before fitting, choosing parameters or selecting boundaries.",
+            "source_id": "q0",
+            "quote_match": "exact",
+            "citation_id": "sef600763e77ed49f"
+          },
+          "inference": "Direct holdout-leakage prohibition."
+        },
+        {
+          "id": "r3",
+          "text": "Keep other reference links at excluded epochs available for use.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-unresolved-obstacle/docs/experiments/satellite-prediction-obstacle-2026-10-18/request.json",
+            "quote": "Other reference links at the excluded epochs remain available.",
+            "source_id": "q0",
+            "quote_match": "exact",
+            "citation_id": "sbe6c70e9a6ae3286"
+          },
+          "inference": "Directly stated data-availability constraint."
+        },
+        {
+          "id": "r4",
+          "text": "Condition geometry and masks on the existing nominal preparation; treat the task as conditional missing-link prediction, not RF-free forecasting of the entire clock network.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-unresolved-obstacle/docs/experiments/satellite-prediction-obstacle-2026-10-18/request.json",
+            "quote": "This is conditional missing-link prediction, not RF-free forecasting of the entire clock network.",
+            "source_id": "q0",
+            "quote_match": "exact",
+            "citation_id": "s74f59181f28be6bc"
+          },
+          "inference": "Combines the specified preparation context and explicit task-scope distinction."
+        },
+        {
+          "id": "r5",
+          "text": "Decide whether external code is worth investigating; if investigating, independently choose the operations, search phrases, and one source rather than choosing from operator-supplied donor names. A defensible use_direct, defer, or no-source decision is valid.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-unresolved-obstacle/docs/experiments/satellite-prediction-obstacle-2026-10-18/request.json",
+            "quote": "Decide whether external code is worth investigating, choose the operations, search phrases and one source yourself.",
+            "source_id": "q0",
+            "quote_match": "exact",
+            "citation_id": "s523de8d969b6109c"
+          },
+          "inference": "The decision is requested; investigating or selecting a donor is not required when a valid defer, use_direct, or no-source decision is made."
+        },
+        {
+          "id": "r6",
+          "text": "Any adapted predictive strategy must not be presented as a qualified physical source prior or covariance based on its empirical assumptions.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-unresolved-obstacle/docs/experiments/satellite-prediction-obstacle-2026-10-18/request.json",
+            "quote": "You may adapt a predictive strategy, but do not assert its empirical assumptions are a qualified physical source prior or covariance.",
+            "source_id": "q0",
+            "quote_match": "exact",
+            "citation_id": "s7d3f4af4c2fc0691"
+          },
+          "inference": "Direct limitation on claims about an adapted strategy."
+        },
+        {
+          "id": "r7",
+          "text": "Achieve at least 10% lower pooled 300-second phase RMS than the strongest direct primary baseline on the original common 874 increment pairs, while retaining all 1248 common 30-second pairs.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-unresolved-obstacle/docs/experiments/satellite-prediction-obstacle-2026-10-18/request.json",
+            "quote": "Success is at least 10% lower pooled 300-second phase RMS than the strongest direct primary baseline, on the original common 874 increment pairs; retain all 1248 common 30-second pairs.",
+            "source_id": "q0",
+            "quote_match": "exact",
+            "citation_id": "s4983fd982e080357"
+          },
+          "inference": "Direct pilot success criterion; retains the stated evaluation support."
+        },
+        {
+          "id": "r8",
+          "text": "For each lag, pooled code RMS must be no more than 2% above the best direct value for that metric.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-unresolved-obstacle/docs/experiments/satellite-prediction-obstacle-2026-10-18/request.json",
+            "quote": "On each lag, pooled code RMS and 30-second phase RMS may be at most 2% above the best direct value for that metric.",
+            "source_id": "q0",
+            "quote_match": "exact",
+            "citation_id": "sf519be0493fcd474"
+          },
+          "inference": "Extracts the code-RMS part of the paired metric criterion."
+        },
+        {
+          "id": "r9",
+          "text": "For each lag, 30-second phase RMS must be no more than 2% above the best direct value for that metric.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-unresolved-obstacle/docs/experiments/satellite-prediction-obstacle-2026-10-18/request.json",
+            "quote": "On each lag, pooled code RMS and 30-second phase RMS may be at most 2% above the best direct value for that metric.",
+            "source_id": "q0",
+            "quote_match": "exact",
+            "citation_id": "sf519be0493fcd474"
+          },
+          "inference": "Extracts the 30-second phase-RMS part of the paired metric criterion."
+        },
+        {
+          "id": "r10",
+          "text": "At least four of the five folds must improve 300-second phase RMS against the same globally chosen primary baseline.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-unresolved-obstacle/docs/experiments/satellite-prediction-obstacle-2026-10-18/request.json",
+            "quote": "At least four of the five folds must improve 300-second phase RMS versus the same globally chosen primary baseline; no fold may worsen it by over 10%.",
+            "source_id": "q0",
+            "quote_match": "exact",
+            "citation_id": "sefaa2030f7d29578"
+          },
+          "inference": "Separates the minimum number of improving folds from the per-fold harm limit."
+        },
+        {
+          "id": "r11",
+          "text": "No fold may worsen 300-second phase RMS by more than 10% against that same baseline.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-unresolved-obstacle/docs/experiments/satellite-prediction-obstacle-2026-10-18/request.json",
+            "quote": "At least four of the five folds must improve 300-second phase RMS versus the same globally chosen primary baseline; no fold may worsen it by over 10%.",
+            "source_id": "q0",
+            "quote_match": "exact",
+            "citation_id": "sefaa2030f7d29578"
+          },
+          "inference": "Direct per-fold harm limit."
+        },
+        {
+          "id": "r12",
+          "text": "Preserve and report all missing or unknown predictions and every worsening.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-unresolved-obstacle/docs/experiments/satellite-prediction-obstacle-2026-10-18/request.json",
+            "quote": "Preserve and report all missing/unknown predictions and every worsening.",
+            "source_id": "q0",
+            "quote_match": "exact",
+            "citation_id": "sba48912fcc8c3a02"
+          },
+          "inference": "Direct reporting and preservation requirement."
+        },
+        {
+          "id": "r13",
+          "text": "Treat the stated practical pilot criteria as fixed before donor search; they are not physical qualification thresholds or claims of statistical significance.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-unresolved-obstacle/docs/experiments/satellite-prediction-obstacle-2026-10-18/request.json",
+            "quote": "These are operator-set practical pilot criteria fixed before donor search, not physical qualification thresholds or statistical significance.",
+            "source_id": "q0",
+            "quote_match": "exact",
+            "citation_id": "s9f597069adf59acf"
+          },
+          "inference": "Direct interpretation and timing constraint on evaluation criteria."
+        },
+        {
+          "id": "r14",
+          "text": "Fit or choose all parameters using training data only.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-unresolved-obstacle/docs/experiments/satellite-prediction-obstacle-2026-10-18/request.json",
+            "quote": "Fit or choose all parameters from training only.",
+            "source_id": "q0",
+            "quote_match": "exact",
+            "citation_id": "s8eb89d9663c4d47e"
+          },
+          "inference": "Direct training-only constraint."
+        },
+        {
+          "id": "r15",
+          "text": "Keep historical inputs, masks, raw marginal weights, rank/identifiability definitions, and results unchanged.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-unresolved-obstacle/docs/experiments/satellite-prediction-obstacle-2026-10-18/request.json",
+            "quote": "Keep historical inputs, masks, raw marginal weights, rank/identifiability definitions and results unchanged.",
+            "source_id": "q0",
+            "quote_match": "exact",
+            "citation_id": "se6df69ad81b6a40b"
+          },
+          "inference": "Direct preservation constraint."
+        },
+        {
+          "id": "r16",
+          "text": "Never complete an unidentifiable physical source or raw common clock with an arbitrary zero.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-unresolved-obstacle/docs/experiments/satellite-prediction-obstacle-2026-10-18/request.json",
+            "quote": "Never complete an unidentifiable physical source or raw common clock with an arbitrary zero.",
+            "source_id": "q0",
+            "quote_match": "exact",
+            "citation_id": "s355bd0967e36ef65"
+          },
+          "inference": "Direct prohibition."
+        },
+        {
+          "id": "r17",
+          "text": "Do not use source amplitudes, physical covariance, G12 state, or candidate CODE orbit as labels, priors, tuning targets, or acceptance truth.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-unresolved-obstacle/docs/experiments/satellite-prediction-obstacle-2026-10-18/request.json",
+            "quote": "Source amplitudes, physical covariance, G12 state and candidate CODE orbit must not be used as labels, priors, tuning targets or acceptance truth.",
+            "source_id": "q0",
+            "quote_match": "exact",
+            "citation_id": "se846bd0f5f266cd4"
+          },
+          "inference": "Direct prohibition on these quantities in model development and evaluation."
+        },
+        {
+          "id": "r18",
+          "text": "Do not refit the orbital state as part of this trial.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-unresolved-obstacle/docs/experiments/satellite-prediction-obstacle-2026-10-18/request.json",
+            "quote": "No orbital-state refit is part of this trial.",
+            "source_id": "q0",
+            "quote_match": "exact",
+            "citation_id": "s9147fdff7806b7b2"
+          },
+          "inference": "Direct scope exclusion."
+        },
+        {
+          "id": "r19",
+          "text": "Treat native predictive improvement as the sole potential gain; physical source attribution and S2 remain unproven.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-unresolved-obstacle/docs/experiments/satellite-prediction-obstacle-2026-10-18/request.json",
+            "quote": "A native predictive improvement is the sole potential gain; physical source attribution and S2 remain unproven.",
+            "source_id": "q0",
+            "quote_match": "exact",
+            "citation_id": "s10c593c5da740e94"
+          },
+          "inference": "Direct restriction on claimed outcomes."
+        },
+        {
+          "id": "r20",
+          "text": "A donor-only sandbox example does not satisfy the request.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-unresolved-obstacle/docs/experiments/satellite-prediction-obstacle-2026-10-18/request.json",
+            "quote": "A donor-only sandbox example is insufficient.",
+            "source_id": "q0",
+            "quote_match": "exact",
+            "citation_id": "sb50332b55ea97d2d"
+          },
+          "inference": "The contribution must go beyond a sandbox-only example; the request's target is native prediction."
+        },
+        {
+          "id": "r21",
+          "text": "Allow at most one bounded adaptation of a selected external mechanism and one parameter-selection rule decided without held scores; do not use donor replacement, rescue queries, paid retries, or holdout-driven tuning.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-unresolved-obstacle/docs/experiments/satellite-prediction-obstacle-2026-10-18/request.json",
+            "quote": "Allow one bounded adaptation of the selected external mechanism and one parameter-selection rule decided without held scores, with no donor replacement, rescue queries, paid retries, or holdout-driven tuning.",
+            "source_id": "q0",
+            "quote_match": "exact",
+            "citation_id": "s4eb8520894a231c5"
+          },
+          "inference": "Direct trial limits; the adaptation allowance applies if an external mechanism is selected."
+        },
+        {
+          "id": "r22",
+          "text": "Compare every result on unchanged support and across all five folds.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-unresolved-obstacle/docs/experiments/satellite-prediction-obstacle-2026-10-18/request.json",
+            "quote": "Compare every result on the unchanged support and all five folds.",
+            "source_id": "q0",
+            "quote_match": "exact",
+            "citation_id": "s7a36fd73bd88ef0e"
+          },
+          "inference": "Direct comparison requirement."
+        },
+        {
+          "id": "r23",
+          "text": "Do not treat source inspection alone as evidence of benefit; establishing benefit requires native execution.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-unresolved-obstacle/docs/experiments/satellite-prediction-obstacle-2026-10-18/request.json",
+            "quote": "Source inspection does not establish benefit; only native execution can do that.",
+            "source_id": "q0",
+            "quote_match": "exact",
+            "citation_id": "sc10f3a52724c464b"
+          },
+          "inference": "Distinguishes inspection from execution and the evidence each can establish."
+        },
+        {
+          "id": "r24",
+          "text": "If a modification is justified, require native regressions and Windows/Linux CI before integration.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-unresolved-obstacle/docs/experiments/satellite-prediction-obstacle-2026-10-18/request.json",
+            "quote": "If a modification is justified, it requires native regressions and Windows/Linux CI before integration.",
+            "source_id": "q0",
+            "quote_match": "exact",
+            "citation_id": "s48b048dd66606ac8"
+          },
+          "inference": "Explicitly conditional integration gate."
+        }
+      ],
+      "environment": [
+        "Satellite native calibration code",
+        "Current stable differential inputs",
+        "Fixed last-third link holdouts",
+        "Existing nominal preparation for geometry and masks",
+        "Conditional missing-link prediction using admitted non-candidate reference data"
+      ],
+      "prior_attempts": [
+        "Clock-only, wet-only, and complete source models were replayed on the same fixed last-third link holdouts; freely fitted source shapes severely worsened phase prediction.",
+        "Free-drift and bounded training-GCV predictive shrinkage comparisons were executed; neither beat the strongest simple primary baseline."
+      ],
+      "missing_information": [],
+      "optional_field_dispositions": [],
+      "constraint_review": {
+        "items": [
+          {
+            "id": "constraint:q0:4",
+            "source_id": "q0",
+            "quote": "must be removed before fitting, choosing parameters or selecting boundaries.",
+            "quote_truncated": false,
+            "kind": "potential_constraint",
+            "author": "experimenter",
+            "author_type": "User",
+            "author_association": null,
+            "bot_author_hint": false,
+            "generated_hint": false,
+            "authority": "request_author",
+            "represented_by": [
+              "r2"
+            ],
+            "needs_review": false
+          },
+          {
+            "id": "constraint:q0:6",
+            "source_id": "q0",
+            "quote": "Do not choose from donor names supplied by an operator; none is supplied.",
+            "quote_truncated": false,
+            "kind": "potential_constraint",
+            "author": "experimenter",
+            "author_type": "User",
+            "author_association": null,
+            "bot_author_hint": false,
+            "generated_hint": false,
+            "authority": "request_author",
+            "represented_by": [],
+            "needs_review": true
+          },
+          {
+            "id": "constraint:q0:6:2",
+            "source_id": "q0",
+            "quote": "do not assert its empirical assumptions are a qualified physical source prior or covariance.",
+            "quote_truncated": false,
+            "kind": "potential_constraint",
+            "author": "experimenter",
+            "author_type": "User",
+            "author_association": null,
+            "bot_author_hint": false,
+            "generated_hint": false,
+            "authority": "request_author",
+            "represented_by": [
+              "r6"
+            ],
+            "needs_review": false
+          },
+          {
+            "id": "constraint:q0:8",
+            "source_id": "q0",
+            "quote": "must improve 300-second phase RMS versus the same globally chosen primary baseline; no fold may worsen it by over 10%.",
+            "quote_truncated": false,
+            "kind": "potential_constraint",
+            "author": "experimenter",
+            "author_type": "User",
+            "author_association": null,
+            "bot_author_hint": false,
+            "generated_hint": false,
+            "authority": "request_author",
+            "represented_by": [
+              "r10",
+              "r11"
+            ],
+            "needs_review": false
+          },
+          {
+            "id": "constraint:q0:10",
+            "source_id": "q0",
+            "quote": "must not be used as labels, priors, tuning targets or acceptance truth.",
+            "quote_truncated": false,
+            "kind": "potential_constraint",
+            "author": "experimenter",
+            "author_type": "User",
+            "author_association": null,
+            "bot_author_hint": false,
+            "generated_hint": false,
+            "authority": "request_author",
+            "represented_by": [
+              "r17"
+            ],
+            "needs_review": false
+          },
+          {
+            "id": "constraint:q0:10:2",
+            "source_id": "q0",
+            "quote": "No orbital-state refit is part of this trial.",
+            "quote_truncated": false,
+            "kind": "potential_constraint",
+            "author": "experimenter",
+            "author_type": "User",
+            "author_association": null,
+            "bot_author_hint": false,
+            "generated_hint": false,
+            "authority": "request_author",
+            "represented_by": [
+              "r18"
+            ],
+            "needs_review": false
+          },
+          {
+            "id": "constraint:q0:12",
+            "source_id": "q0",
+            "quote": "does not establish benefit; only native execution can do that.",
+            "quote_truncated": false,
+            "kind": "potential_constraint",
+            "author": "experimenter",
+            "author_type": "User",
+            "author_association": null,
+            "bot_author_hint": false,
+            "generated_hint": false,
+            "authority": "request_author",
+            "represented_by": [
+              "r23"
+            ],
+            "needs_review": false
+          }
+        ],
+        "complete": true,
+        "markers_found": 7,
+        "constraint_markers_found": 7,
+        "gap_markers_found": 0,
+        "gap_hints_complete": true,
+        "note": "Non-exhaustive English constraint markers; no marker does not prove all requirements were extracted.",
+        "optional_field_review": {
+          "items": [],
+          "complete": true,
+          "omitted_fields": 0,
+          "dispositions": [],
+          "method": "optional-field syntax is an extraction hint, not proof of optional demand or compatibility"
+        },
+        "qualification_blockers": [
+          "Potential constraint needs extraction/authority review: constraint:q0:6"
+        ]
+      },
+      "context_complete": true,
+      "updated_at": "2026-10-18",
+      "fingerprint": "b09369b58b0aee1ac87141f0b4233aafa6a898c804ab0ce45a5289aa4b9f0a25",
+      "analysis_context": {
+        "phase": "request",
+        "source_ids": [
+          "q0"
+        ],
+        "omitted_source_ids": [],
+        "source_id_limit": 400,
+        "source_id_limit_omissions": 0,
+        "shortened_discussion_ids": [],
+        "discussion_complete": true,
+        "note": "Selected evidence is not the whole repository. Missing context remains unknown; omitted discussion prevents a qualified positive.",
+        "optional_field_hint_scan_complete": true,
+        "target_reference_context": {
+          "revision": null,
+          "source_ids": [],
+          "omitted_source_ids": [],
+          "reference_only": true,
+          "absence_proves_novelty": false
+        },
+        "omitted_constraint_ids": [],
+        "constraint_hint_scan_complete": true,
+        "omitted_source_count": 0,
+        "payload_bytes": 7884,
+        "demand_span_coverage": {
+          "span_count": 32,
+          "omitted_visible_spans": 0,
+          "complete": true,
+          "sources_without_spans": [],
+          "source_count_without_spans": 0,
+          "method": "exact original spans; bounded root opening then round-robin discussion coverage, not semantic validation"
+        }
+      }
+    }
+  },
+  "result": {
+    "direct_baseline": {
+      "direct_comparison_fixed_before_external_inspection": true,
+      "direct_comparison_sha256": "752d7be7a714d4524e9f9ce2c64b34793ca9f497ea91f8f70b65b6436e847527",
+      "model_visible_summary": {
+        "origin": "Operator native comparisons, not a Missing Link contribution or external source.",
+        "target_revision": "660cc7696f4b6730c8689a2c06fdf497625422ae",
+        "scope": "Conditional missing-link RF transfer using contemporaneous other-link RF, not a whole-network future forecast, source attribution, orbital accuracy or physical uncertainty qualification.",
+        "models": {
+          "clock_only": {
+            "30": {
+              "count": 1248,
+              "code_rms_m": 1.2838991336093062,
+              "phase_rms_m": 0.009285035926808198
+            },
+            "300": {
+              "count": 874,
+              "code_rms_m": 1.3334591202804853,
+              "phase_rms_m": 0.015105360642329443
+            }
+          },
+          "wet": {
+            "30": {
+              "count": 1248,
+              "code_rms_m": 1.2839330354545142,
+              "phase_rms_m": 0.009310371840935238
+            },
+            "300": {
+              "count": 874,
+              "code_rms_m": 1.3334361699408928,
+              "phase_rms_m": 0.01456730555580603
+            }
+          },
+          "full": {
+            "30": {
+              "count": 1248,
+              "code_rms_m": 1.2840532920310406,
+              "phase_rms_m": 0.015974972593988696
+            },
+            "300": {
+              "count": 874,
+              "code_rms_m": 1.3468845419176854,
+              "phase_rms_m": 0.11189827830039942
+            }
+          },
+          "native_free_drift": {
+            "30": {
+              "count": 1248,
+              "code_rms_m": 1.2839157960303873,
+              "phase_rms_m": 0.00925056113207994
+            },
+            "300": {
+              "count": 874,
+              "code_rms_m": 1.3331916554685999,
+              "phase_rms_m": 0.014766814272214369
+            }
+          },
+          "full_gcv": {
+            "30": {
+              "count": 1248,
+              "code_rms_m": 1.2840468128668638,
+              "phase_rms_m": 0.01571740406659746
+            },
+            "300": {
+              "count": 874,
+              "code_rms_m": 1.3464637414762934,
+              "phase_rms_m": 0.1097871346188405
+            }
+          }
+        },
+        "common_support": {
+          "30": 1248,
+          "300": 874
+        },
+        "strongest_primary_direct_method": "wet",
+        "best_direct_by_metric": {
+          "30": {
+            "code_rms_m": 1.2838991336093062,
+            "phase_rms_m": 0.00925056113207994
+          },
+          "300": {
+            "code_rms_m": 1.3331916554685999,
+            "phase_rms_m": 0.01456730555580603
+          }
+        },
+        "pilot_acceptance": {
+          "primary": "300-second pooled phase RMS <= .9 times the strongest direct primary value on 874 fixed pairs",
+          "preserve_common_30s_pairs": 1248,
+          "secondary": "Both code RMS values and 30-second phase RMS <=1.02 times their metric-wise best direct values.",
+          "fold_rule": "At least four of five improve primary phase RMS versus the single globally chosen best-primary direct method; no fold >10% worse.",
+          "counts_and_unknowns": "Retain every original terminal, all unavailable and worsening cases; no support cherry-picking.",
+          "scope": "Practical exploratory predictive criteria, not physical accuracy, source identifiability, population significance or blind confirmation."
+        },
+        "additional_direct_methods": "Native free segment drift and full-source predictive Euclidean shrinkage with bounded training-only GCV. Neither beats the best wet primary comparison.",
+        "gcv_limit": "Single bounded training-only numerical minimization with the native residual degrees of freedom and original identified source subspace. No claim of a global GCV optimum, independent-noise validity, physical prior or exhaustion of all direct algorithms.",
+        "direct_unsolvability_proven": false,
+        "limits": "Already exposed real RF conditional-link holdouts with other-link RF at those epochs, not whole-network future prediction, a blocked-agent checkpoint, physical source attribution or uncertainty qualification.",
+        "decision_question": "Does an external code mechanism offer a concrete falsifiable benefit over the strongest measured direct baseline on the fixed task? Do not search solely to produce a donor."
+      }
+    },
+    "plan": {
+      "decision": "search",
+      "reason": "The native wet model is the strongest measured direct baseline, and the supplied native comparisons show that clock-only, wet-only, free-drift, and bounded training-GCV alternatives have not met the requested 300-second improvement. That leaves a concrete, narrow question for bounded investigation: whether a structured cross-link predictor can transfer information from admitted contemporaneous links better than the direct baseline. The target excerpts already show native holdout preparation and evaluation, so a donor-only example would not suffice; any candidate must be adapted and tested in the native path.",
+      "direct_alternative": {
+        "description": "Keep the native calibration and evaluation path, using the wet primary model as baseline and allowing a small local correction or another training-only native predictor. Compare on the fixed support and folds.",
+        "adequacy": "insufficient",
+        "limitations": [
+          "The best supplied direct primary result is 300-second phase RMS 0.01456730555580603 m; the requested pooled threshold is 10% lower.",
+          "The tested direct alternatives did not beat that primary baseline, though the supplied context says direct unsolvability is not proven.",
+          "The target sample is partial and does not establish what other native features or dependencies are available."
+        ]
+      },
+      "benefit_hypothesis": "A reusable masked multivariate time-series or low-rank regression mechanism might exploit shared temporal structure across admitted reference links to predict the held link’s increments, beyond the tested scalar wet and drift strategies. This is a predictive-method hypothesis only, not a claim of physical source attribution or a qualified covariance.",
+      "benefit_test": "After at most one bounded adaptation, run the method in Satellite’s native evaluation using the fixed link/epoch holdouts, excluding all held measurements and continuity witnesses before fitting or selecting parameters. Compare against the same globally chosen wet primary baseline on unchanged support and all five folds. Falsify the benefit if it fails any stated pilot criterion: at least 10% lower pooled 300-second phase RMS on the original 874 pairs; retain all 1248 common 30-second pairs; each lag’s code RMS and 30-second phase RMS no more than 2% above the best direct value; at least four of five folds improve 300-second phase RMS, with none over 10% worse. Preserve and report unknown predictions and all worsenings. Native execution, not source inspection, establishes benefit.",
+      "operations": [
+        {
+          "operation": "Conditional missing-link RF increment prediction",
+          "input": "Admitted non-candidate reference-link RF data, with other links at excluded epochs available; nominal geometry and masks remain fixed. Remove all fixed held link/epoch measurements and continuity witnesses before fitting, parameter selection, or boundary selection.",
+          "output": "Native predictions for the excluded link’s RF increments, retaining unavailable or unidentifiable cases as unknown rather than filling them with arbitrary zeros.",
+          "requirement_ids": [
+            "r0",
+            "r1",
+            "r2",
+            "r3",
+            "r4",
+            "r6",
+            "r7",
+            "r8",
+            "r9",
+            "r10",
+            "r11",
+            "r12",
+            "r14",
+            "r15",
+            "r16",
+            "r17",
+            "r18",
+            "r19",
+            "r20",
+            "r21",
+            "r22",
+            "r23",
+            "r24"
+          ],
+          "rationale": "This is the requested predictive operation; satellite terminology is context, not a requirement to reuse satellite-specific software. The plausible cross-domain mechanism is masked multivariate time-series prediction or low-rank regression across links, which may capture shared temporal structure not represented by the tested wet or drift predictors. Investigate only if a candidate’s behavior and representations can support the strict holdout protocol and native integration; a donor-only sandbox cannot meet the request.",
+          "search_terms": "Python masked multivariate time series low rank regression cross sensor missing link prediction",
+          "id": "op0"
+        }
+      ],
+      "unknowns": [
+        "No candidate source package is supplied; availability, implementation details, runtime behavior, licensing, and integration cost are unverified.",
+        "The full target source and dependencies are not supplied, so availability of additional native features and the precise integration point remain unknown.",
+        "The supplied comparisons do not establish that direct methods are exhausted or that any external method will improve prediction.",
+        "Whether the data support useful shared cross-link temporal structure without violating the holdout and training-only constraints is unknown."
+      ],
+      "version": "request-led-discovery-v1",
+      "issue_fingerprint": "b09369b58b0aee1ac87141f0b4233aafa6a898c804ab0ce45a5289aa4b9f0a25",
+      "provider_identity": "cdcd5f4d30c98d6930cf75d7b2fc8c965d48b0d5a52560b0475019c45ad41426",
+      "status": "unverified_decision",
+      "qualified": false,
+      "direct_solution_verified": false,
+      "target_snapshot": {
+        "id": 1128978015,
+        "full_name": "Daniele-Cangi/Satellite-RF-Observatory",
+        "revision": "660cc7696f4b6730c8689a2c06fdf497625422ae",
+        "coverage": {
+          "sample_only": true,
+          "all_target_source_available": false,
+          "operator_selected_excerpts": true
+        },
+        "sample_only": true,
+        "files": [
+          {
+            "path": "research/kinematic/network_closures.py",
+            "sha": "613216319f42715ade7aaa567eb1893aca86df03",
+            "url": "https://github.com/Daniele-Cangi/Satellite-RF-Observatory/blob/660cc7696f4b6730c8689a2c06fdf497625422ae/research/kinematic/network_closures.py#L58",
+            "redacted": false,
+            "truncated": true
+          },
+          {
+            "path": "research/kinematic/source_geometry.py",
+            "sha": "f21a56f5228e06189929ea0f51babc21973d79fe",
+            "url": "https://github.com/Daniele-Cangi/Satellite-RF-Observatory/blob/660cc7696f4b6730c8689a2c06fdf497625422ae/research/kinematic/source_geometry.py#L176",
+            "redacted": false,
+            "truncated": true
+          }
+        ]
+      },
+      "context_coverage": {
+        "decision_version": "request-led-discovery-v1",
+        "target_file_limit": 4,
+        "target_characters_per_file": 8000,
+        "target_files_omitted": 0,
+        "all_target_source_available": false
+      }
+    },
+    "search_pools": [
+      {
+        "query": "Python masked multivariate time series low rank regression cross sensor missing link prediction is:public archived:false fork:false in:name,description,readme",
+        "items": [
+          {
+            "full_name": "lixus7/Time-Series-Works-Conferences",
+            "url": "https://github.com/lixus7/Time-Series-Works-Conferences",
+            "description": "Time-Series Work Summary in CS Top Conferences (NIPS, ICML, ICLR, KDD, AAAI, WWW, IJCAI, CIKM, ICDM, ICDE, etc.)",
+            "description_redacted": false,
+            "description_truncated": false,
+            "language": "",
+            "language_redacted": false,
+            "language_truncated": false,
+            "upstream_rank": 1,
+            "metadata_only": true
+          },
+          {
+            "full_name": "wpf535236337/LLMs4TS",
+            "url": "https://github.com/wpf535236337/LLMs4TS",
+            "description": "",
+            "description_redacted": false,
+            "description_truncated": false,
+            "language": "",
+            "language_redacted": false,
+            "language_truncated": false,
+            "upstream_rank": 2,
+            "metadata_only": true
+          },
+          {
+            "full_name": "hyperai/awesome-ai4s",
+            "url": "https://github.com/hyperai/awesome-ai4s",
+            "description": "AI for Science 论文解读合集（持续更新ing），论文/数据集/教程下载：hyper.ai",
+            "description_redacted": false,
+            "description_truncated": false,
+            "language": "",
+            "language_redacted": false,
+            "language_truncated": false,
+            "upstream_rank": 3,
+            "metadata_only": true
+          },
+          {
+            "full_name": "zezhishao/DailyArXiv",
+            "url": "https://github.com/zezhishao/DailyArXiv",
+            "description": "Daily ArXiv Papers.",
+            "description_redacted": false,
+            "description_truncated": false,
+            "language": "Python",
+            "language_redacted": false,
+            "language_truncated": false,
+            "upstream_rank": 4,
+            "metadata_only": true
+          },
+          {
+            "full_name": "logangraham/arXausality",
+            "url": "https://github.com/logangraham/arXausality",
+            "description": "A every-so-often-updated collection of every causality + machine learning paper submitted to arXiv in the recent past.",
+            "description_redacted": false,
+            "description_truncated": false,
+            "language": "Python",
+            "language_redacted": false,
+            "language_truncated": false,
+            "upstream_rank": 5,
+            "metadata_only": true
+          },
+          {
+            "full_name": "opengeos/geolibre-rust",
+            "url": "https://github.com/opengeos/geolibre-rust",
+            "description": "whitebox_next_gen geospatial tools (plus new GeoLibre tools) compiled to WebAssembly (WASI) for in-browser use in GeoLibre",
+            "description_redacted": false,
+            "description_truncated": false,
+            "language": "Rust",
+            "language_redacted": false,
+            "language_truncated": false,
+            "upstream_rank": 6,
+            "metadata_only": true
+          },
+          {
+            "full_name": "Imbernoulli/MLS-Bench",
+            "url": "https://github.com/Imbernoulli/MLS-Bench",
+            "description": "",
+            "description_redacted": false,
+            "description_truncated": false,
+            "language": "Python",
+            "language_redacted": false,
+            "language_truncated": false,
+            "upstream_rank": 7,
+            "metadata_only": true
+          },
+          {
+            "full_name": "evanzd/ICLR2021-OpenReviewData",
+            "url": "https://github.com/evanzd/ICLR2021-OpenReviewData",
+            "description": "Crawl & visualize ICLR papers and reviews.",
+            "description_redacted": false,
+            "description_truncated": false,
+            "language": "Jupyter Notebook",
+            "language_redacted": false,
+            "language_truncated": false,
+            "upstream_rank": 8,
+            "metadata_only": true
+          },
+          {
+            "full_name": "tangwen-qian/DailyArXiv",
+            "url": "https://github.com/tangwen-qian/DailyArXiv",
+            "description": "",
+            "description_redacted": false,
+            "description_truncated": false,
+            "language": "Python",
+            "language_redacted": false,
+            "language_truncated": false,
+            "upstream_rank": 9,
+            "metadata_only": true
+          },
+          {
+            "full_name": "DWCTOD/cv-arxiv-daily",
+            "url": "https://github.com/DWCTOD/cv-arxiv-daily",
+            "description": "",
+            "description_redacted": false,
+            "description_truncated": false,
+            "language": "Python",
+            "language_redacted": false,
+            "language_truncated": false,
+            "upstream_rank": 10,
+            "metadata_only": true
+          },
+          {
+            "full_name": "shaohua0116/ICLR2020-OpenReviewData",
+            "url": "https://github.com/shaohua0116/ICLR2020-OpenReviewData",
+            "description": "Script that crawls meta data from ICLR OpenReview webpage. Tutorials on installing and using Selenium and ChromeDriver on Ubuntu.",
+            "description_redacted": false,
+            "description_truncated": false,
+            "language": "Jupyter Notebook",
+            "language_redacted": false,
+            "language_truncated": false,
+            "upstream_rank": 11,
+            "metadata_only": true
+          },
+          {
+            "full_name": "fedebotu/ICLR2022-OpenReviewData",
+            "url": "https://github.com/fedebotu/ICLR2022-OpenReviewData",
+            "description": "Crawl & visualize ICLR papers and reviews",
+            "description_redacted": false,
+            "description_truncated": false,
+            "language": "Jupyter Notebook",
+            "language_redacted": false,
+            "language_truncated": false,
+            "upstream_rank": 12,
+            "metadata_only": true
+          },
+          {
+            "full_name": "emphasis10/AI-paper-digest",
+            "url": "https://github.com/emphasis10/AI-paper-digest",
+            "description": "",
+            "description_redacted": false,
+            "description_truncated": false,
+            "language": "Python",
+            "language_redacted": false,
+            "language_truncated": false,
+            "upstream_rank": 13,
+            "metadata_only": true
+          },
+          {
+            "full_name": "JeremyChou28/Daily-Arxiv-Tools",
+            "url": "https://github.com/JeremyChou28/Daily-Arxiv-Tools",
+            "description": "This repository implements an automated crawling tool for topics about \"data mining\" papers from the arXiv preprint website.",
+            "description_redacted": false,
+            "description_truncated": false,
+            "language": "Python",
+            "language_redacted": false,
+            "language_truncated": false,
+            "upstream_rank": 14,
+            "metadata_only": true
+          },
+          {
+            "full_name": "JackHCC/Arxiv-NLP-Reporter",
+            "url": "https://github.com/JackHCC/Arxiv-NLP-Reporter",
+            "description": "每日自动获取Arxiv上NLP相关最新论文【Arxiv Natural Language Processing Paper Automatic Crawl Daily】",
+            "description_redacted": false,
+            "description_truncated": false,
+            "language": "Python",
+            "language_redacted": false,
+            "language_truncated": false,
+            "upstream_rank": 15,
+            "metadata_only": true
+          },
+          {
+            "full_name": "XikunHuang/daily_paper",
+            "url": "https://github.com/XikunHuang/daily_paper",
+            "description": "Automatically Update Papers Daily using Github Actions",
+            "description_redacted": false,
+            "description_truncated": false,
+            "language": "Python",
+            "language_redacted": false,
+            "language_truncated": false,
+            "upstream_rank": 16,
+            "metadata_only": true
+          },
+          {
+            "full_name": "Blake-Jiang/ad-arxiv-daily",
+            "url": "https://github.com/Blake-Jiang/ad-arxiv-daily",
+            "description": "Daily tracking and organizing the latest arXiv papers in the field of autonomous driving (AD)",
+            "description_redacted": false,
+            "description_truncated": false,
+            "language": "Python",
+            "language_redacted": false,
+            "language_truncated": false,
+            "upstream_rank": 17,
+            "metadata_only": true
+          },
+          {
+            "full_name": "iszhanjiawei/flow_matching_arxiv_daily",
+            "url": "https://github.com/iszhanjiawei/flow_matching_arxiv_daily",
+            "description": "",
+            "description_redacted": false,
+            "description_truncated": false,
+            "language": "Python",
+            "language_redacted": false,
+            "language_truncated": false,
+            "upstream_rank": 18,
+            "metadata_only": true
+          },
+          {
+            "full_name": "Test-Time-Learning/adaptation",
+            "url": "https://github.com/Test-Time-Learning/adaptation",
+            "description": "Awesome Test-Time Adaptation Resources",
+            "description_redacted": false,
+            "description_truncated": false,
+            "language": "Python",
+            "language_redacted": false,
+            "language_truncated": false,
+            "upstream_rank": 19,
+            "metadata_only": true
+          },
+          {
+            "full_name": "zeleny-ondrej/STNN-Weekly-Arxiv",
+            "url": "https://github.com/zeleny-ondrej/STNN-Weekly-Arxiv",
+            "description": "Scraping repository of the most relevant topics with regards to Spatio-Temporal Neural Networks available in the arXiv archive. The repository and workflow is based on https://github.com/SpikingChen/SNN-Daily-Arxiv.",
+            "description_redacted": false,
+            "description_truncated": false,
+            "language": "Python",
+            "language_redacted": false,
+            "language_truncated": false,
+            "upstream_rank": 20,
+            "metadata_only": true
+          }
+        ],
+        "complete": false,
+        "incomplete_results": false,
+        "pages_read": 1,
+        "note": "One bounded metadata sample; empty results do not prove absence of implementations."
+      }
+    ],
+    "candidates": [
+      {
+        "full_name": "lixus7/Time-Series-Works-Conferences",
+        "url": "https://github.com/lixus7/Time-Series-Works-Conferences",
+        "description": "Time-Series Work Summary in CS Top Conferences (NIPS, ICML, ICLR, KDD, AAAI, WWW, IJCAI, CIKM, ICDM, ICDE, etc.)",
+        "description_redacted": false,
+        "description_truncated": false,
+        "language": "",
+        "language_redacted": false,
+        "language_truncated": false,
+        "upstream_rank": 1,
+        "metadata_only": true,
+        "id": "source0",
+        "retrieved_for": [
+          "op0"
+        ]
+      },
+      {
+        "full_name": "wpf535236337/LLMs4TS",
+        "url": "https://github.com/wpf535236337/LLMs4TS",
+        "description": "",
+        "description_redacted": false,
+        "description_truncated": false,
+        "language": "",
+        "language_redacted": false,
+        "language_truncated": false,
+        "upstream_rank": 2,
+        "metadata_only": true,
+        "id": "source1",
+        "retrieved_for": [
+          "op0"
+        ]
+      },
+      {
+        "full_name": "hyperai/awesome-ai4s",
+        "url": "https://github.com/hyperai/awesome-ai4s",
+        "description": "AI for Science 论文解读合集（持续更新ing），论文/数据集/教程下载：hyper.ai",
+        "description_redacted": false,
+        "description_truncated": false,
+        "language": "",
+        "language_redacted": false,
+        "language_truncated": false,
+        "upstream_rank": 3,
+        "metadata_only": true,
+        "id": "source2",
+        "retrieved_for": [
+          "op0"
+        ]
+      },
+      {
+        "full_name": "zezhishao/DailyArXiv",
+        "url": "https://github.com/zezhishao/DailyArXiv",
+        "description": "Daily ArXiv Papers.",
+        "description_redacted": false,
+        "description_truncated": false,
+        "language": "Python",
+        "language_redacted": false,
+        "language_truncated": false,
+        "upstream_rank": 4,
+        "metadata_only": true,
+        "id": "source3",
+        "retrieved_for": [
+          "op0"
+        ]
+      },
+      {
+        "full_name": "logangraham/arXausality",
+        "url": "https://github.com/logangraham/arXausality",
+        "description": "A every-so-often-updated collection of every causality + machine learning paper submitted to arXiv in the recent past.",
+        "description_redacted": false,
+        "description_truncated": false,
+        "language": "Python",
+        "language_redacted": false,
+        "language_truncated": false,
+        "upstream_rank": 5,
+        "metadata_only": true,
+        "id": "source4",
+        "retrieved_for": [
+          "op0"
+        ]
+      },
+      {
+        "full_name": "opengeos/geolibre-rust",
+        "url": "https://github.com/opengeos/geolibre-rust",
+        "description": "whitebox_next_gen geospatial tools (plus new GeoLibre tools) compiled to WebAssembly (WASI) for in-browser use in GeoLibre",
+        "description_redacted": false,
+        "description_truncated": false,
+        "language": "Rust",
+        "language_redacted": false,
+        "language_truncated": false,
+        "upstream_rank": 6,
+        "metadata_only": true,
+        "id": "source5",
+        "retrieved_for": [
+          "op0"
+        ]
+      },
+      {
+        "full_name": "Imbernoulli/MLS-Bench",
+        "url": "https://github.com/Imbernoulli/MLS-Bench",
+        "description": "",
+        "description_redacted": false,
+        "description_truncated": false,
+        "language": "Python",
+        "language_redacted": false,
+        "language_truncated": false,
+        "upstream_rank": 7,
+        "metadata_only": true,
+        "id": "source6",
+        "retrieved_for": [
+          "op0"
+        ]
+      },
+      {
+        "full_name": "evanzd/ICLR2021-OpenReviewData",
+        "url": "https://github.com/evanzd/ICLR2021-OpenReviewData",
+        "description": "Crawl & visualize ICLR papers and reviews.",
+        "description_redacted": false,
+        "description_truncated": false,
+        "language": "Jupyter Notebook",
+        "language_redacted": false,
+        "language_truncated": false,
+        "upstream_rank": 8,
+        "metadata_only": true,
+        "id": "source7",
+        "retrieved_for": [
+          "op0"
+        ]
+      },
+      {
+        "full_name": "tangwen-qian/DailyArXiv",
+        "url": "https://github.com/tangwen-qian/DailyArXiv",
+        "description": "",
+        "description_redacted": false,
+        "description_truncated": false,
+        "language": "Python",
+        "language_redacted": false,
+        "language_truncated": false,
+        "upstream_rank": 9,
+        "metadata_only": true,
+        "id": "source8",
+        "retrieved_for": [
+          "op0"
+        ]
+      },
+      {
+        "full_name": "DWCTOD/cv-arxiv-daily",
+        "url": "https://github.com/DWCTOD/cv-arxiv-daily",
+        "description": "",
+        "description_redacted": false,
+        "description_truncated": false,
+        "language": "Python",
+        "language_redacted": false,
+        "language_truncated": false,
+        "upstream_rank": 10,
+        "metadata_only": true,
+        "id": "source9",
+        "retrieved_for": [
+          "op0"
+        ]
+      },
+      {
+        "full_name": "shaohua0116/ICLR2020-OpenReviewData",
+        "url": "https://github.com/shaohua0116/ICLR2020-OpenReviewData",
+        "description": "Script that crawls meta data from ICLR OpenReview webpage. Tutorials on installing and using Selenium and ChromeDriver on Ubuntu.",
+        "description_redacted": false,
+        "description_truncated": false,
+        "language": "Jupyter Notebook",
+        "language_redacted": false,
+        "language_truncated": false,
+        "upstream_rank": 11,
+        "metadata_only": true,
+        "id": "source10",
+        "retrieved_for": [
+          "op0"
+        ]
+      },
+      {
+        "full_name": "fedebotu/ICLR2022-OpenReviewData",
+        "url": "https://github.com/fedebotu/ICLR2022-OpenReviewData",
+        "description": "Crawl & visualize ICLR papers and reviews",
+        "description_redacted": false,
+        "description_truncated": false,
+        "language": "Jupyter Notebook",
+        "language_redacted": false,
+        "language_truncated": false,
+        "upstream_rank": 12,
+        "metadata_only": true,
+        "id": "source11",
+        "retrieved_for": [
+          "op0"
+        ]
+      },
+      {
+        "full_name": "emphasis10/AI-paper-digest",
+        "url": "https://github.com/emphasis10/AI-paper-digest",
+        "description": "",
+        "description_redacted": false,
+        "description_truncated": false,
+        "language": "Python",
+        "language_redacted": false,
+        "language_truncated": false,
+        "upstream_rank": 13,
+        "metadata_only": true,
+        "id": "source12",
+        "retrieved_for": [
+          "op0"
+        ]
+      },
+      {
+        "full_name": "JeremyChou28/Daily-Arxiv-Tools",
+        "url": "https://github.com/JeremyChou28/Daily-Arxiv-Tools",
+        "description": "This repository implements an automated crawling tool for topics about \"data mining\" papers from the arXiv preprint website.",
+        "description_redacted": false,
+        "description_truncated": false,
+        "language": "Python",
+        "language_redacted": false,
+        "language_truncated": false,
+        "upstream_rank": 14,
+        "metadata_only": true,
+        "id": "source13",
+        "retrieved_for": [
+          "op0"
+        ]
+      },
+      {
+        "full_name": "JackHCC/Arxiv-NLP-Reporter",
+        "url": "https://github.com/JackHCC/Arxiv-NLP-Reporter",
+        "description": "每日自动获取Arxiv上NLP相关最新论文【Arxiv Natural Language Processing Paper Automatic Crawl Daily】",
+        "description_redacted": false,
+        "description_truncated": false,
+        "language": "Python",
+        "language_redacted": false,
+        "language_truncated": false,
+        "upstream_rank": 15,
+        "metadata_only": true,
+        "id": "source14",
+        "retrieved_for": [
+          "op0"
+        ]
+      },
+      {
+        "full_name": "XikunHuang/daily_paper",
+        "url": "https://github.com/XikunHuang/daily_paper",
+        "description": "Automatically Update Papers Daily using Github Actions",
+        "description_redacted": false,
+        "description_truncated": false,
+        "language": "Python",
+        "language_redacted": false,
+        "language_truncated": false,
+        "upstream_rank": 16,
+        "metadata_only": true,
+        "id": "source15",
+        "retrieved_for": [
+          "op0"
+        ]
+      },
+      {
+        "full_name": "Blake-Jiang/ad-arxiv-daily",
+        "url": "https://github.com/Blake-Jiang/ad-arxiv-daily",
+        "description": "Daily tracking and organizing the latest arXiv papers in the field of autonomous driving (AD)",
+        "description_redacted": false,
+        "description_truncated": false,
+        "language": "Python",
+        "language_redacted": false,
+        "language_truncated": false,
+        "upstream_rank": 17,
+        "metadata_only": true,
+        "id": "source16",
+        "retrieved_for": [
+          "op0"
+        ]
+      },
+      {
+        "full_name": "iszhanjiawei/flow_matching_arxiv_daily",
+        "url": "https://github.com/iszhanjiawei/flow_matching_arxiv_daily",
+        "description": "",
+        "description_redacted": false,
+        "description_truncated": false,
+        "language": "Python",
+        "language_redacted": false,
+        "language_truncated": false,
+        "upstream_rank": 18,
+        "metadata_only": true,
+        "id": "source17",
+        "retrieved_for": [
+          "op0"
+        ]
+      },
+      {
+        "full_name": "Test-Time-Learning/adaptation",
+        "url": "https://github.com/Test-Time-Learning/adaptation",
+        "description": "Awesome Test-Time Adaptation Resources",
+        "description_redacted": false,
+        "description_truncated": false,
+        "language": "Python",
+        "language_redacted": false,
+        "language_truncated": false,
+        "upstream_rank": 19,
+        "metadata_only": true,
+        "id": "source18",
+        "retrieved_for": [
+          "op0"
+        ]
+      },
+      {
+        "full_name": "zeleny-ondrej/STNN-Weekly-Arxiv",
+        "url": "https://github.com/zeleny-ondrej/STNN-Weekly-Arxiv",
+        "description": "Scraping repository of the most relevant topics with regards to Spatio-Temporal Neural Networks available in the arXiv archive. The repository and workflow is based on https://github.com/SpikingChen/SNN-Daily-Arxiv.",
+        "description_redacted": false,
+        "description_truncated": false,
+        "language": "Python",
+        "language_redacted": false,
+        "language_truncated": false,
+        "upstream_rank": 20,
+        "metadata_only": true,
+        "id": "source19",
+        "retrieved_for": [
+          "op0"
+        ]
+      }
+    ],
+    "terminal": "stopped_without_retry"
+  },
+  "provider_identity": "cdcd5f4d30c98d6930cf75d7b2fc8c965d48b0d5a52560b0475019c45ad41426",
+  "reported_usage": [
+    {
+      "input_tokens": 5472,
+      "output_tokens": 2565,
+      "estimated_cost_usd_at_configured_prices": 0.0018297
+    },
+    {
+      "input_tokens": 11312,
+      "output_tokens": 1884,
+      "estimated_cost_usd_at_configured_prices": 0.0020732
+    },
+    {
+      "input_tokens": 4248,
+      "output_tokens": 495,
+      "estimated_cost_usd_at_configured_prices": 0.0006722999999999999
+    }
+  ],
+  "ai_trace": [
+    {
+      "phase": "request",
+      "model": "gpt-6-luna",
+      "api_kind": "responses",
+      "response_id": "resp_0c1661bc348769f3016ad5460da3b887d29b29b99f4ffcb826",
+      "response_status": "completed",
+      "request_sha256": "537cb3886dea7bfddf5e7755c4451a34743ff85dc308cb1bf55c46ff66ad6969",
+      "request_bytes": 23507,
+      "context_coverage": {
+        "phase": "request",
+        "source_ids": [
+          "q0"
+        ],
+        "omitted_source_ids": [],
+        "source_id_limit": 400,
+        "source_id_limit_omissions": 0,
+        "shortened_discussion_ids": [],
+        "discussion_complete": true,
+        "note": "Selected evidence is not the whole repository. Missing context remains unknown; omitted discussion prevents a qualified positive.",
+        "optional_field_hint_scan_complete": true,
+        "target_reference_context": {
+          "revision": null,
+          "source_ids": [],
+          "omitted_source_ids": [],
+          "reference_only": true,
+          "absence_proves_novelty": false
+        },
+        "omitted_constraint_ids": [],
+        "constraint_hint_scan_complete": true,
+        "omitted_source_count": 0,
+        "payload_bytes": 7884,
+        "demand_span_coverage": {
+          "span_count": 32,
+          "omitted_visible_spans": 0,
+          "complete": true,
+          "sources_without_spans": [],
+          "source_count_without_spans": 0,
+          "method": "exact original spans; bounded root opening then round-robin discussion coverage, not semantic validation"
+        }
+      },
+      "call_number": 1,
+      "attempt_id": "42dde5c206ce4477b966dcd7d4174f7e:1"
+    },
+    {
+      "phase": "request",
+      "model": "gpt-6-luna",
+      "api_kind": "responses",
+      "response_id": "resp_05e4b6e2d37778b7016ad546219adc87d2921abd3cfbb2b973",
+      "response_status": "completed",
+      "request_sha256": "1ab1e0d901459fe843c2036acc7bdf85cc76d7319ac298e6645dd165ec645ed7",
+      "request_bytes": 45953,
+      "context_coverage": {
+        "decision_version": "request-led-discovery-v1",
+        "target_file_limit": 4,
+        "target_characters_per_file": 8000,
+        "target_files_omitted": 0,
+        "all_target_source_available": false
+      },
+      "call_number": 2,
+      "attempt_id": "42dde5c206ce4477b966dcd7d4174f7e:2"
+    },
+    {
+      "phase": "request",
+      "model": "gpt-6-luna",
+      "api_kind": "responses",
+      "response_id": "resp_0751c8a720f70efb016ad54634b22c87d2a4a711a061144525",
+      "response_status": "completed",
+      "request_sha256": "4f24de9c9a2e94a2d73412759aa939414a92d6434ff60ebd44fce997219b55b6",
+      "request_bytes": 17995,
+      "context_coverage": {
+        "decision_version": "request-led-discovery-v1",
+        "repository_metadata_only": true,
+        "source_code_available": false
+      },
+      "call_number": 3,
+      "attempt_id": "42dde5c206ce4477b966dcd7d4174f7e:3"
+    }
+  ],
+  "error": "Invalid source selection; no automatic retry.",
+  "error_diagnostic": null,
+  "elapsed_s": 46.58910790000664
+}

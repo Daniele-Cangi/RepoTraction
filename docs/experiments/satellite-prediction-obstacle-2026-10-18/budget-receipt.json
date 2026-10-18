@@ -1,0 +1,49 @@
+{
+  "job_id": "42dde5c206ce4477b966dcd7d4174f7e",
+  "authorized_cap_usd": 0.15,
+  "allowance_id": "satellite-prediction-obstacle-2026-10-18-v1",
+  "reserved_usd": 0.0273599,
+  "provider_reported_usage": [
+    {
+      "input_tokens": 5472,
+      "output_tokens": 2565,
+      "estimated_cost_usd_at_configured_prices": 0.0018297
+    },
+    {
+      "input_tokens": 11312,
+      "output_tokens": 1884,
+      "estimated_cost_usd_at_configured_prices": 0.0020732
+    },
+    {
+      "input_tokens": 4248,
+      "output_tokens": 495,
+      "estimated_cost_usd_at_configured_prices": 0.0006722999999999999
+    }
+  ],
+  "estimated_cost_usd_at_configured_prices": 0.0045752,
+  "billing_limit": "Configured-price token estimate, not an invoice. Conservative reservations are retained; no unused allowance is reused.",
+  "reservations": [
+    {
+      "allowance_id": "satellite-prediction-obstacle-2026-10-18-v1",
+      "job_id": "42dde5c206ce4477b966dcd7d4174f7e",
+      "cost": 0.0085555,
+      "created": 1792361996.235165
+    },
+    {
+      "allowance_id": "satellite-prediction-obstacle-2026-10-18-v1",
+      "job_id": "42dde5c206ce4477b966dcd7d4174f7e",
+      "cost": 0.0108001,
+      "created": 1792362016.6619291
+    },
+    {
+      "allowance_id": "satellite-prediction-obstacle-2026-10-18-v1",
+      "job_id": "42dde5c206ce4477b966dcd7d4174f7e",
+      "cost": 0.0080043,
+      "created": 1792362035.8218737
+    }
+  ],
+  "job_matches_persisted_store": true,
+  "repositories_saved": 0,
+  "matches_saved": 0,
+  "retries": 0
+}

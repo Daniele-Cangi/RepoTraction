@@ -1,0 +1,33 @@
+{
+  "prepared_head": "df5369cc6f5d29274d6fc0543143a6208ded241d",
+  "artifacts": {
+    ".gitattributes": "705fd4d6451a31d36b3df7de96f83f30ac976c9b4a6d1e51671d8e2f33e2d0da",
+    "authorization.json": "29b310b5480b167ab3e31170493c7fef476c3a34e50998af65b219a76d7c5f1c",
+    "budget-receipt.json": "58c724325780a62a12f2525a40c7ca9479dae676c55d2735feb57454c178d1dd",
+    "direct-comparators-source.txt": "1e24b9b4eaff2cd2a27e1d6968e2d353178f7e49b38ed495fe08d2c3ec476373",
+    "direct-comparison.json": "752d7be7a714d4524e9f9ce2c64b34793ca9f497ea91f8f70b65b6436e847527",
+    "direct-log.txt": "d3427e48845b73e2360bd3811aaf4c66f65460092e59e6ddc388db81289760a3",
+    "discovery-execution-log.txt": "704fa3ff762d63af25c261df8d0ed77f0debd32b6203072f759071092e06a9bd",
+    "discovery-invocation-source.txt": "c0d62f3d188d52f6cf9b2318989449de34d2e6233dd8beae5035598a62fc16e4",
+    "discovery-result.json": "f8865eb643ff00fa855db3e14297e1f4b39978f97da9f3b63370615e714f5b5c",
+    "experiment.json": "97af924b32a5c9e6b16ea7afd305dea05f78fe7a528e1dcf42a5f6641e022cf4",
+    "manifest.json": "0ab4c79ea76d431f86eda8050bad4a9d0804fd7eefb7007efaa01ee0f961a618",
+    "native-comparison-source.txt": "c3cd6ac3f717e32c5de2d66df73d853d8606414c5e20a6896a0d7d74cacf8dcb",
+    "native-log.txt": "8360e63855576a4f82d2973fa16a1b2e270d5bbbde5162ede3ffdca76fe16dad",
+    "native-test-receipt.json": "cdcf5c9b351faeed078fca4c0d3f6c0b5f3f3f68e0df980ea474d3ed77fe9e42",
+    "native-tests-log.txt": "53cfe3493598cc8bb96c0641086e84f3b8b23b80ccefd1bd65174c4a65a039db",
+    "native-tests.xml": "5ed5062c5bce43396d2122b0f70a2c215ba0626639605e4fc062c4db2e249f97",
+    "offline-preflight-source.txt": "c26e95ae78304f747137d3e40dfca7a1a0b1a3c33d2effc819ce503a57f7c3e1",
+    "offline-preflight.json": "e4c8a9af1377ac4bf7a8585d922b56ff0a596e3b152f9a8537be04a95a7ae965",
+    "outcome.json": "dc98306b7e4a3010b8ee13d68b8c61e894fc89ea58fbd7ed6881e7ffe756ecd0",
+    "packet-preparation-source.txt": "a2b1367c531cea9333c32e522ff01c5c4374162527fc5774ede75c8aa305feb7",
+    "predictions-before-scoring.json.gz": "a420be89a3b108418af58b05190fbcada3fa7778285ec6db9a2e009f07375480",
+    "provenance-correction.json": "bbf017edde0ce004904f4af6bf23cc157bef218422617c0f8edf517c0fed5ecf",
+    "README.md": "cce47649462d2f18c841b31781b80f3bb490ec5cc94d300e611ec6fdb3686f9c",
+    "request.json": "3ac20f8213a03ca65355fd759be1057654673fbd80a4f6a3518c4457cc1eb086",
+    "RESULTS.md": "49452d1652c21adbbd7eecfb587d25c955716206e4f1ff6c95e4faa6632559b0",
+    "scores.json.gz": "4a2a8f4d04afd7b51f5a56ef13da8ea7fcc9b957cd8107e889b28f59a993f9fd",
+    "target-context.json": "ff3c40d28b35740b56ba0f5dcbfa96ac7868172723070b0ab1f0c711cfa5e1ac"
+  },
+  "note": "Preparation bytes unchanged; execution append-only. Actual API dispatch source matches authorization receipt. Native external benefit untested."
+}

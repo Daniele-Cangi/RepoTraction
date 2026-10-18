@@ -1,0 +1,52 @@
+{
+  "experiment": "satellite-prediction-obstacle-2026-10-18",
+  "prepared_head": "df5369cc6f5d29274d6fc0543143a6208ded241d",
+  "status": "Closed without retry; source-selection output rejected before inspection or native adaptation.",
+  "job_status": "failed",
+  "job_stage": "select_source",
+  "terminal": "stopped_without_retry",
+  "job_error": "Invalid source selection; no automatic retry.",
+  "request_interpretation_status": "unresolved",
+  "discovery_plan_decision": "search",
+  "mechanism_hypothesis": "Masked multivariate time-series prediction or low-rank regression across links; a model-proposed hypothesis, not a discovered implementation or verified gain.",
+  "queries_allowed": 3,
+  "queries_used": 1,
+  "query_records": [
+    {
+      "query": "Python masked multivariate time series low rank regression cross sensor missing link prediction is:public archived:false fork:false in:name,description,readme",
+      "returned_items": 20
+    }
+  ],
+  "metadata_candidates": 20,
+  "selection": {
+    "raw_intent": "none",
+    "accepted": false,
+    "candidate_id": "",
+    "operation_ids": [
+      "op0"
+    ],
+    "semantic_validation_reason": "Abstention must not select a candidate or operation.",
+    "interpretation": "The model declined to select a source from metadata. The otherwise abstaining output incorrectly retained an operation ID, so it was not accepted as a valid selection."
+  },
+  "api_calls": 3,
+  "github_job_requests": 1,
+  "elapsed_s": 46.58910790000664,
+  "source_implementations_inspected": 0,
+  "native_adaptations": 0,
+  "native_comparison_result": null,
+  "external_gain": {
+    "status": "UNTESTED",
+    "measured_improvement": null,
+    "native_acceptance_evaluated": false,
+    "qualified_links": 0
+  },
+  "limitations": [
+    "No selected source or code inspection: this does not establish that useful external implementations do not exist.",
+    "No native trial was reached: neither benefit nor failure of the proposed predictive mechanism was measured.",
+    "The planner used one of up to three allowed queries. No rescue search, manual donor or paid retry was performed.",
+    "The invalid abstention field is distinct from the substantive metadata refusal; accepting an abstention would still not supply a donor.",
+    "Existing native baselines, practical criteria, scientific unknowns and historical results remain unchanged."
+  ],
+  "cohort_closed": true,
+  "further_paid_calls_authorized_in_this_cohort": false
+}
