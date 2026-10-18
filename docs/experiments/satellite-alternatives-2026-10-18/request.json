@@ -1,0 +1,235 @@
+{
+  "origin": "operator-authored experiment input; NOT a fetched GitHub issue",
+  "user_instruction": "ok procedi con la prova su G06/G13, vediamo se Missing Link trova un approccio diverso e se porta un miglioramento concreto",
+  "requirements_authority": "Experimenter formulation from the user task and pinned scientific boundaries, not verbatim public issue requirements.",
+  "issue_container": {
+    "id": "satellite-g06-g13-2026-10-18",
+    "repo": "Daniele-Cangi/Satellite-RF-Observatory",
+    "repo_id": 1128978015,
+    "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-alternative-strategies/docs/experiments/satellite-alternatives-2026-10-18/request.json",
+    "title": "Find a different, useful reconstruction approach for G06/G13",
+    "body": "Investigate a different software-backed approach to reconstruct G06/G13 from the existing RF archive; a previously blocked agent is not required.\n\nUse all twenty original windows per case, retain missing and unsupported cases, and compare with unchanged v3 plus the fixed local likelihood comparator.\n\nExclude the candidate state/products from selection, calibration, initialization and fitting; no G12 state, target-orbit prior or historical fitted seed.\n\nPreserve minimum five admitted receivers, the 10-degree mask, original floors and covariance, free biases, central+J2 dynamics and p=.01 final residual criterion.\n\nFreeze fits and RF predictions before held-out RF and CODE scoring; retain ambiguity, failures and worsening results without post-score tuning.\n\nThe external contribution may be a transferable operation or partial technique, but it needs source-owned code evidence and native improvement to demonstrate value.",
+    "comments": [],
+    "context_complete": true,
+    "public": true,
+    "updated_at": "2026-10-18",
+    "origin": "operator-authored experiment input; NOT a fetched GitHub issue",
+    "author": "experimenter",
+    "author_type": "User",
+    "fingerprint": "34d425eb4ed76075d5b0fe05b1c81244142428b85b828c8fb87ed8eeb2ef99ec"
+  },
+  "request_raw": {
+    "outcome": "Investigate a different software-backed approach to reconstruct G06/G13 from the existing RF archive; a previously blocked agent is not required.",
+    "status": "unresolved",
+    "status_reason": "The pinned preparation produces zero arcs for both fixed candidates; this does not establish an agent block or physical impossibility.",
+    "status_source_ids": [
+      "q0"
+    ],
+    "requirements": [
+      {
+        "text": "Investigate a different software-backed approach to reconstruct G06/G13 from the existing RF archive; a previously blocked agent is not required.",
+        "mandatory": true,
+        "explicit": true,
+        "source_id": "q0",
+        "quote": "Investigate a different software-backed approach to reconstruct G06/G13 from the existing RF archive; a previously blocked agent is not required.",
+        "inference": ""
+      },
+      {
+        "text": "Use all twenty original windows per case, retain missing and unsupported cases, and compare with unchanged v3 plus the fixed local likelihood comparator.",
+        "mandatory": true,
+        "explicit": true,
+        "source_id": "q0",
+        "quote": "Use all twenty original windows per case, retain missing and unsupported cases, and compare with unchanged v3 plus the fixed local likelihood comparator.",
+        "inference": ""
+      },
+      {
+        "text": "Exclude the candidate state/products from selection, calibration, initialization and fitting; no G12 state, target-orbit prior or historical fitted seed.",
+        "mandatory": true,
+        "explicit": true,
+        "source_id": "q0",
+        "quote": "Exclude the candidate state/products from selection, calibration, initialization and fitting; no G12 state, target-orbit prior or historical fitted seed.",
+        "inference": ""
+      },
+      {
+        "text": "Preserve minimum five admitted receivers, the 10-degree mask, original floors and covariance, free biases, central+J2 dynamics and p=.01 final residual criterion.",
+        "mandatory": true,
+        "explicit": true,
+        "source_id": "q0",
+        "quote": "Preserve minimum five admitted receivers, the 10-degree mask, original floors and covariance, free biases, central+J2 dynamics and p=.01 final residual criterion.",
+        "inference": ""
+      },
+      {
+        "text": "Freeze fits and RF predictions before held-out RF and CODE scoring; retain ambiguity, failures and worsening results without post-score tuning.",
+        "mandatory": true,
+        "explicit": true,
+        "source_id": "q0",
+        "quote": "Freeze fits and RF predictions before held-out RF and CODE scoring; retain ambiguity, failures and worsening results without post-score tuning.",
+        "inference": ""
+      },
+      {
+        "text": "The external contribution may be a transferable operation or partial technique, but it needs source-owned code evidence and native improvement to demonstrate value.",
+        "mandatory": true,
+        "explicit": true,
+        "source_id": "q0",
+        "quote": "The external contribution may be a transferable operation or partial technique, but it needs source-owned code evidence and native improvement to demonstrate value.",
+        "inference": ""
+      }
+    ],
+    "environment": [
+      "Pinned Python/SciPy target; public existing exposed RF archive."
+    ],
+    "prior_attempts": [
+      "Pinned rf_geometry requires a unique exterior snapshot branch before applying its mask. G06 has 8 and G13 15 windows rejected at this step.",
+      "The already fixed direct comparator filters branches with the existing solver CHI95 relative to the global minimum returned cost; it may solve the cases and is not an external contribution."
+    ],
+    "missing_information": [
+      "An alternative method and its practical advantage remain unknown.",
+      "No claim of a blocked agent, physically qualified covariance or global uniqueness is established."
+    ],
+    "optional_field_dispositions": []
+  },
+  "normalized_request": {
+    "id": "satellite-g06-g13-2026-10-18",
+    "title": "Find a different, useful reconstruction approach for G06/G13",
+    "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-alternative-strategies/docs/experiments/satellite-alternatives-2026-10-18/request.json",
+    "outcome": "Investigate a different software-backed approach to reconstruct G06/G13 from the existing RF archive; a previously blocked agent is not required.",
+    "status": "unresolved",
+    "status_reason": "The pinned preparation produces zero arcs for both fixed candidates; this does not establish an agent block or physical impossibility.",
+    "status_evidence": [
+      {
+        "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-alternative-strategies/docs/experiments/satellite-alternatives-2026-10-18/request.json",
+        "source_id": "q0"
+      }
+    ],
+    "requirements": [
+      {
+        "id": "r0",
+        "text": "Investigate a different software-backed approach to reconstruct G06/G13 from the existing RF archive; a previously blocked agent is not required.",
+        "mandatory": true,
+        "explicit": true,
+        "source": {
+          "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-alternative-strategies/docs/experiments/satellite-alternatives-2026-10-18/request.json",
+          "quote": "Investigate a different software-backed approach to reconstruct G06/G13 from the existing RF archive; a previously blocked agent is not required.",
+          "source_id": "q0",
+          "quote_match": "exact"
+        },
+        "inference": ""
+      },
+      {
+        "id": "r1",
+        "text": "Use all twenty original windows per case, retain missing and unsupported cases, and compare with unchanged v3 plus the fixed local likelihood comparator.",
+        "mandatory": true,
+        "explicit": true,
+        "source": {
+          "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-alternative-strategies/docs/experiments/satellite-alternatives-2026-10-18/request.json",
+          "quote": "Use all twenty original windows per case, retain missing and unsupported cases, and compare with unchanged v3 plus the fixed local likelihood comparator.",
+          "source_id": "q0",
+          "quote_match": "exact"
+        },
+        "inference": ""
+      },
+      {
+        "id": "r2",
+        "text": "Exclude the candidate state/products from selection, calibration, initialization and fitting; no G12 state, target-orbit prior or historical fitted seed.",
+        "mandatory": true,
+        "explicit": true,
+        "source": {
+          "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-alternative-strategies/docs/experiments/satellite-alternatives-2026-10-18/request.json",
+          "quote": "Exclude the candidate state/products from selection, calibration, initialization and fitting; no G12 state, target-orbit prior or historical fitted seed.",
+          "source_id": "q0",
+          "quote_match": "exact"
+        },
+        "inference": ""
+      },
+      {
+        "id": "r3",
+        "text": "Preserve minimum five admitted receivers, the 10-degree mask, original floors and covariance, free biases, central+J2 dynamics and p=.01 final residual criterion.",
+        "mandatory": true,
+        "explicit": true,
+        "source": {
+          "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-alternative-strategies/docs/experiments/satellite-alternatives-2026-10-18/request.json",
+          "quote": "Preserve minimum five admitted receivers, the 10-degree mask, original floors and covariance, free biases, central+J2 dynamics and p=.01 final residual criterion.",
+          "source_id": "q0",
+          "quote_match": "exact"
+        },
+        "inference": ""
+      },
+      {
+        "id": "r4",
+        "text": "Freeze fits and RF predictions before held-out RF and CODE scoring; retain ambiguity, failures and worsening results without post-score tuning.",
+        "mandatory": true,
+        "explicit": true,
+        "source": {
+          "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-alternative-strategies/docs/experiments/satellite-alternatives-2026-10-18/request.json",
+          "quote": "Freeze fits and RF predictions before held-out RF and CODE scoring; retain ambiguity, failures and worsening results without post-score tuning.",
+          "source_id": "q0",
+          "quote_match": "exact"
+        },
+        "inference": ""
+      },
+      {
+        "id": "r5",
+        "text": "The external contribution may be a transferable operation or partial technique, but it needs source-owned code evidence and native improvement to demonstrate value.",
+        "mandatory": true,
+        "explicit": true,
+        "source": {
+          "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/satellite-alternative-strategies/docs/experiments/satellite-alternatives-2026-10-18/request.json",
+          "quote": "The external contribution may be a transferable operation or partial technique, but it needs source-owned code evidence and native improvement to demonstrate value.",
+          "source_id": "q0",
+          "quote_match": "exact"
+        },
+        "inference": ""
+      }
+    ],
+    "environment": [
+      "Pinned Python/SciPy target; public existing exposed RF archive."
+    ],
+    "prior_attempts": [
+      "Pinned rf_geometry requires a unique exterior snapshot branch before applying its mask. G06 has 8 and G13 15 windows rejected at this step.",
+      "The already fixed direct comparator filters branches with the existing solver CHI95 relative to the global minimum returned cost; it may solve the cases and is not an external contribution."
+    ],
+    "missing_information": [
+      "An alternative method and its practical advantage remain unknown.",
+      "No claim of a blocked agent, physically qualified covariance or global uniqueness is established."
+    ],
+    "optional_field_dispositions": [],
+    "constraint_review": {
+      "items": [
+        {
+          "id": "constraint:q0:10",
+          "source_id": "q0",
+          "quote": "without post-score tuning.",
+          "quote_truncated": false,
+          "kind": "potential_constraint",
+          "author": "experimenter",
+          "author_type": "User",
+          "author_association": null,
+          "bot_author_hint": false,
+          "generated_hint": false,
+          "authority": "request_author",
+          "represented_by": [
+            "r4"
+          ],
+          "needs_review": false
+        }
+      ],
+      "complete": true,
+      "markers_found": 1,
+      "constraint_markers_found": 1,
+      "gap_markers_found": 0,
+      "gap_hints_complete": true,
+      "note": "Non-exhaustive English constraint markers; no marker does not prove all requirements were extracted.",
+      "optional_field_review": {
+        "items": [],
+        "complete": true,
+        "omitted_fields": 0,
+        "dispositions": [],
+        "method": "optional-field syntax is an extraction hint, not proof of optional demand or compatibility"
+      },
+      "qualification_blockers": []
+    },
+    "context_complete": true,
+    "updated_at": "2026-10-18",
+    "fingerprint": "34d425eb4ed76075d5b0fe05b1c81244142428b85b828c8fb87ed8eeb2ef99ec"
+  }
+}
