@@ -1,0 +1,5 @@
+Invoking pytest.main in this interpreter with all three transient adaptations active.
+{"algebraic_seeds": true, "build_arcs": true, "prepare": true}
+....................................                                     [100%]
+- generated xml file: C:\Users\dacan\Documents\Codex\2026-08-17\vo\outputs\github-pulse\docs\experiments\satellite-cross-domain-2026-10-18\native-regressions-v3.xml -
+36 passed in 12.97s
