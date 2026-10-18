@@ -17,6 +17,15 @@ a=read('current-native-result.json');b=read('direct-result.json')
 before_a=read('current-native-before-scoring.json');before_b=read('direct-before-scoring.json')
 assert a['target_revision']==b['target_revision']==PIN
 assert a['all_predictions_fixed_before_scoring'] and b['all_predictions_fixed_before_scoring']
+executed_sources={}
+for result,prior,local,public in (
+    (a,before_a,'check_obstacle.py','native-comparison-source.txt'),
+    (b,before_b,'direct_comparators.py','direct-comparators-source.txt')):
+    assert result['target_revision']==prior['target_revision']==PIN
+    assert result['input_sha256']==prior['input_sha256']==a['input_sha256']
+    expected=result['source_sha256']
+    assert expected==prior['source_sha256']==sha((HERE/local).read_bytes())
+    executed_sources[public]=expected
 methods={q:{**{k:v['scored'] for k,v in fold.items()},**b['folds'][q]} for q,fold in a['folds'].items()}
 summary={'target_revision':PIN,'native_elapsed_s':a['elapsed_s'],'additional_direct_elapsed_s':b['elapsed_s'],
   'source_input_sha256':a['input_sha256'],'shared_data_and_folds_not_independent_replications':True,
@@ -56,8 +65,10 @@ for q,fold in methods.items():
             model=prior['source_model'];forecasts[q][method]['source_model_summary']={k:model[k] for k in ('families','source_count','resolved_rank','null_count','rank_rtol')}
         scores[q][method]={k:record[k] for k in ('status','level_errors','increment_errors','whole_network_future_prediction','physical_covariance_qualified')}
 write('predictions-before-scoring.json.gz',{'origin':'Exact forecast records extracted from the two separately retained pre-scoring files; fitted source/null matrices omitted, predictions unchanged.',
+      'executed_source_sha256':executed_sources,
       'raw_before_sha256':{name:sha((HERE/name).read_bytes()) for name in ('current-native-before-scoring.json','direct-before-scoring.json')},'folds':forecasts})
 write('scores.json.gz',{'origin':'Native score_future_links outputs, no rescaling or discarded terminal. Forecasts stored separately to avoid duplication.',
+      'executed_source_sha256':executed_sources,
       'raw_result_sha256':{name:sha((HERE/name).read_bytes()) for name in ('current-native-result.json','direct-result.json')},'folds':scores})
 
 body="""Improve prediction of excluded reference-link RF increments in Satellite's native calibration code. On the current stable differential inputs, the clock-only, wet-only and complete source models have been replayed on the same fixed last-third link holdouts. Adding freely fitted source shapes severely worsens phase prediction. Existing free-drift and a bounded training-GCV predictive shrinkage comparison have also been executed; neither beats the strongest simple primary baseline. The request is to improve predictive transfer beyond that strongest direct comparison, not merely rescue the worst full model.
@@ -115,6 +126,8 @@ for source,target in [('check_obstacle.py','native-comparison-source.txt'),('dir
                       ('native-log.txt','native-log.txt'),('direct-log.txt','direct-log.txt'),
                       ('native-tests-log.txt','native-tests-log.txt'),('native-tests.xml','native-tests.xml')]:
     (DEST/target).write_bytes((HERE/source).read_bytes())
+    if target in executed_sources:
+        assert sha((DEST/target).read_bytes())==executed_sources[target]
 tests=ET.fromstring((DEST/'native-tests.xml').read_bytes())
 suite=list(tests)[0];assert int(suite.attrib['failures'])==int(suite.attrib['errors'])==0
 write('native-test-receipt.json',{'target_revision':PIN,'tests':int(suite.attrib['tests']),

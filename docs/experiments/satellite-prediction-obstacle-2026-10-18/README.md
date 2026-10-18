@@ -89,5 +89,11 @@ geometry, null, holdout and historical-receipt tests passed; raw log/JUnit and
 source/input hashes are retained. The offline Provider preflight replaces remote
 completion with an unconditional stop, so its API-call count is zero.
 
+Preparation correction after review: both compact exports now retain the executed
+source hashes from the original pre-scoring and scored receipts. Packaging checks
+those hashes against the copied source bytes and checks the shared target/input
+identity. `provenance-correction.json` records this metadata correction against
+`4f7e4b2`; all forecasts, scores, comparisons and numerical source bytes are unchanged.
+
 If no native gain emerges, keep the outcome and stop this cohort. Do not change
 the comparison, add donors or reclassify predictive scores as physical evidence.

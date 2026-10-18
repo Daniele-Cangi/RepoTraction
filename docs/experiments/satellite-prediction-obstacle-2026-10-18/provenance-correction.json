@@ -1,0 +1,23 @@
+{
+  "basis_commit": "4f7e4b2f43fe99ace21d90170198256ca1a35d53",
+  "reason": "P2: compact exports omitted executed-source hashes and packaging did not compare receipt hashes with copied sources.",
+  "executed_source_sha256": {
+    "native-comparison-source.txt": "c3cd6ac3f717e32c5de2d66df73d853d8606414c5e20a6896a0d7d74cacf8dcb",
+    "direct-comparators-source.txt": "1e24b9b4eaff2cd2a27e1d6968e2d353178f7e49b38ed495fe08d2c3ec476373"
+  },
+  "numerical_reruns": 0,
+  "new_api_calls": 0,
+  "changes": {
+    "predictions-before-scoring.json.gz": {
+      "prior_sha256": "a765721f6135dc109e16b348ac1a1afcd868f48c91a7d4bb55819cdf120a4001",
+      "corrected_sha256": "a420be89a3b108418af58b05190fbcada3fa7778285ec6db9a2e009f07375480",
+      "all_preexisting_fields_unchanged": true
+    },
+    "scores.json.gz": {
+      "prior_sha256": "0198bed644195f96605e18ec47bfc97a8ad6fdfc45bc949fd509b2d80aae9c3f",
+      "corrected_sha256": "4a2a8f4d04afd7b51f5a56ef13da8ea7fcc9b957cd8107e889b28f59a993f9fd",
+      "all_preexisting_fields_unchanged": true
+    }
+  },
+  "scope": "Metadata correction in review, not a change to baseline forecasts, scores, criteria, historical experiments or numerical source bytes."
+}

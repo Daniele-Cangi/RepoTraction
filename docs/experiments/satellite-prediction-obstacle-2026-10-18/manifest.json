@@ -12,11 +12,12 @@
     "native-tests.xml": "5ed5062c5bce43396d2122b0f70a2c215ba0626639605e4fc062c4db2e249f97",
     "offline-preflight-source.txt": "c26e95ae78304f747137d3e40dfca7a1a0b1a3c33d2effc819ce503a57f7c3e1",
     "offline-preflight.json": "e4c8a9af1377ac4bf7a8585d922b56ff0a596e3b152f9a8537be04a95a7ae965",
-    "packet-preparation-source.txt": "3555a4c010552b04eee7d0b5b94c07338042c895182ea5e2ec3b2c000f6f9eb1",
-    "predictions-before-scoring.json.gz": "a765721f6135dc109e16b348ac1a1afcd868f48c91a7d4bb55819cdf120a4001",
-    "README.md": "b0edd9b8804ea946757d7687ca615cce75df6a3d78daec599e0fbae5245f783a",
+    "packet-preparation-source.txt": "a2b1367c531cea9333c32e522ff01c5c4374162527fc5774ede75c8aa305feb7",
+    "predictions-before-scoring.json.gz": "a420be89a3b108418af58b05190fbcada3fa7778285ec6db9a2e009f07375480",
+    "provenance-correction.json": "bbf017edde0ce004904f4af6bf23cc157bef218422617c0f8edf517c0fed5ecf",
+    "README.md": "cce47649462d2f18c841b31781b80f3bb490ec5cc94d300e611ec6fdb3686f9c",
     "request.json": "3ac20f8213a03ca65355fd759be1057654673fbd80a4f6a3518c4457cc1eb086",
-    "scores.json.gz": "0198bed644195f96605e18ec47bfc97a8ad6fdfc45bc949fd509b2d80aae9c3f",
+    "scores.json.gz": "4a2a8f4d04afd7b51f5a56ef13da8ea7fcc9b957cd8107e889b28f59a993f9fd",
     "target-context.json": "ff3c40d28b35740b56ba0f5dcbfa96ac7868172723070b0ab1f0c711cfa5e1ac"
   },
   "status": "Preparation, no paid dispatch or donor search. Compact derived prediction/score exports; historical source evidence is untouched."
