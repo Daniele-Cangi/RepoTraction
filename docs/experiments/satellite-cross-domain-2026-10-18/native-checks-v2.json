@@ -1,0 +1,41 @@
+{
+  "unchanged_5_station_seed_sequence": 11,
+  "unchanged_6_station_seed_sequence": 31,
+  "unchanged_8_station_seed_sequence": 140,
+  "four_station_synthetic_branch_contains_known_state_error_m": 9.812202683986923e-07,
+  "four_station_returned_branches": 2,
+  "three_stations_rejected": "multi-root algebraic matrix is rank deficient",
+  "coincident_stations_rejected": "multi-root algebraic matrix is rank deficient",
+  "existing_native_regression_suites": {
+    "command": [
+      "C:\\temp\\satellite-rf-nts-2026-10-09\\venv\\Scripts\\python.exe",
+      "-m",
+      "pytest",
+      "research/exploratory/tests/test_reference_state_validation.py",
+      "positioning/tests/test_support_and_snapshots.py",
+      "positioning/tests/test_inverse.py",
+      "-q",
+      "-p",
+      "no:cacheprovider",
+      "--junitxml=C:\\Users\\dacan\\Documents\\Codex\\2026-08-17\\vo\\outputs\\github-pulse\\docs\\experiments\\satellite-cross-domain-2026-10-18\\native-regressions-v2.xml"
+    ],
+    "cwd": "C:\\Users\\dacan\\Documents\\Codex\\2026-08-15\\github-cli-github-cli-gi-autenticata\\Satellite-RF-Observatory",
+    "target_revision": "ac902e5f8158981f938537e1fe47a1f561b5d06d",
+    "exit_code": 0,
+    "counts": {
+      "tests": 27,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "passed": 27,
+    "elapsed_s": 21.820630399999573,
+    "log_file": "native-regressions-v2-log.txt",
+    "log_sha256": "135b3d1cb57ee1979d1d45fb4c6adc2664bbdd085b82a1ea76727d603980ad2c",
+    "junit_file": "native-regressions-v2.xml",
+    "junit_sha256": "731601c22ba8c0e2c7a98d890e1772f9bc0cdd9f6f5732d40f79c9bd999ec629",
+    "source_sha256": "04e8ab979bd1f845d8cf6aa9cdb03ecab129eef1c2606827631289f55f65d26c"
+  },
+  "regressions_passed": true,
+  "scope": "Synthetic adaptation checks and existing native regressions, not real-data accuracy or Windows/Linux replication."
+}

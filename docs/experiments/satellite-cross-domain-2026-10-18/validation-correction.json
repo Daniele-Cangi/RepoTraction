@@ -1,0 +1,23 @@
+{
+  "review": "https://github.com/Daniele-Cangi/RepoTraction/pull/129#discussion_r4307407351",
+  "finding": "Valid: the archived first numerical checker inserted regression counts and timings as unconditional historical notes. It did not execute those regression suites and is not evidence of a fresh regression run.",
+  "preserved": [
+    "native-check-source.txt",
+    "native-checks.json",
+    "conclusion.json",
+    "summary.json",
+    "native-before-scoring.json",
+    "native-evaluation.json"
+  ],
+  "authoritative_validation_for_this_followup": {
+    "source": "native-check-source-v2.txt",
+    "result": "native-checks-v2.json",
+    "stdout_stderr": "native-regressions-v2-log.txt",
+    "junit": "native-regressions-v2.xml",
+    "target_revision": "ac902e5f8158981f938537e1fe47a1f561b5d06d",
+    "method": "The v2 checker verifies the pinned clean target checkout, performs the original focused numerical checks, invokes the three real pytest suites in a subprocess, derives counts from the JUnit report, and requires both exit status zero and a nonempty report without failures/errors. Log, JUnit and executing-source hashes are recorded in its result.",
+    "result_summary": "27 passed, zero failures/errors/skips, process exit 0. Timings are measured for this new execution, not copied from the earlier notes."
+  },
+  "interpretation": "Use the v2 record and separate raw logs for the regression validation claim. The first archived checker is retained as a historical source receipt, not a supported live regression checker; its literal regression section must not be interpreted as current test results.",
+  "unchanged": "No paid API, discovery request, RF trajectory fit, oracle evaluation, historical correction, target/product source edit or scientific threshold change was performed."
+}
