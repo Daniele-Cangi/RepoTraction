@@ -1,0 +1,44 @@
+{
+  "origin": "Operator-selected exact target excerpts; no autonomous target-file selection or full-file coverage claim.",
+  "target": {
+    "id": 1128978015,
+    "full_name": "Daniele-Cangi/Satellite-RF-Observatory",
+    "revision": "248b54208b94f1e53f5af7bdb39d89860b05fca4",
+    "public": true,
+    "files": [
+      {
+        "path": "research/kinematic/source_geometry.py",
+        "sha": "f21a56f5228e06189929ea0f51babc21973d79fe",
+        "url": "https://github.com/Daniele-Cangi/Satellite-RF-Observatory/blob/248b54208b94f1e53f5af7bdb39d89860b05fca4/research/kinematic/source_geometry.py#L394",
+        "text": "OPERATOR-SELECTED EXCERPT; ORIGINAL FILE LINES 394-422, NOT THE COMPLETE FILE.\ndef profiled_increment(network, blocks):\n    \"\"\"Apply the existing clock/float residual projector to an increment.\"\"\"\n    if len(blocks)!=len(network['blocks']):raise ValueError('one increment per admitted epoch required')\n    parts=[]\n    for b,y in zip(network['blocks'],blocks,strict=True):\n        y=np.asarray(y,float)\n        if y.shape!=b['y'].shape or not np.isfinite(y).all():raise ValueError('finite admitted increment shape required')\n        z=y-b['a']@(b['gain']@y)\n        parts.append(solve_triangular(b['chol'],z,lower=True) if b['chol'] is not None else z/b['sigma'])\n    y=np.concatenate(parts);u=network['profiled_ambiguity_left']\n    return y-u@(u.T@y)\n\n\ndef recover_profiled_increment(projected, design, spectrum, truth, state_map):\n    \"\"\"Recover an identifiable projection without refitting unchanged nuisances.\"\"\"\n    u,s,v,rank=(spectrum[k] for k in ('u','s','v','rank'))\n    estimate=v[:rank].T@((u[:,:rank].T@projected)/s[:rank]);truth=np.asarray(truth)\n    expected=v[:rank].T@(v[:rank]@truth);error=estimate-expected\n    relative=float(np.linalg.norm(error)/max(np.linalg.norm(expected),1e-30))\n    scalar=float((truth/np.linalg.norm(truth))@error);functional_relative=abs(scalar)/np.linalg.norm(truth)\n    null_response=float(np.linalg.norm(v[rank:]@truth)/np.linalg.norm(truth))\n    remaining=projected-design@estimate\n    return {'status':'IDENTIFIED_PROJECTION_RECOVERED' if relative<=1e-3 else 'IDENTIFIED_PROJECTION_RECOVERY_FAILED',\n        'injected_functional_status':('UNIDENTIFIABLE_INJECTED_FUNCTIONAL' if null_response>1e-8 else ('RECOVERED' if functional_relative<=1e-3 else 'RECOVERY_FAILED')),\n        'injected_functional_null_response':null_response,\n        'identified_truth_projection_l2_m':float(np.linalg.norm(expected)),'injected_source_l2_m':float(np.linalg.norm(truth)),\n        'relative_identified_source_error':relative,'injected_functional_relative_error':functional_relative,\n        'injected_functional_error_m':scalar,'fitted_source_projection_m':estimate,\n        'local_state_functional_error_m_m_s':np.asarray(state_map)@error,'weighted_cost_after':float(remaining@remaining)}",
+        "original_start_line": 394,
+        "original_end_line": 422,
+        "truncated": true,
+        "redacted": false,
+        "kind": "source",
+        "text_is_original_file_prefix": false
+      },
+      {
+        "path": "research/exploratory/reference_geometry.py",
+        "sha": "ddaf60ef2dd28b059e2ecab22c0efebab5e9c56a",
+        "url": "https://github.com/Daniele-Cangi/Satellite-RF-Observatory/blob/248b54208b94f1e53f5af7bdb39d89860b05fca4/research/exploratory/reference_geometry.py#L270",
+        "text": "OPERATOR-SELECTED EXCERPT; ORIGINAL FILE LINES 270-308, NOT THE COMPLETE FILE.\n    def _path(self,source):\n        D=self.D;wet=source[0];orb=source[1:4];ant=source[4:7];bias=source[7]\n        offset=-(self.code-bias)/self.c\n        tolerance=D(10)**(-(self.digits-8))\n        for _ in range(16):\n            tx=self.tag+offset;r,v,clock=self._state(tx,orb);updated=-(self.code-bias)/self.c-clock\n            if abs(updated-offset)<tolerance:offset=updated;break\n            offset=updated\n        else:raise ValueError('stable emission did not converge')\n        return self._at_time(self.tag+offset,source)\n    def _at_time(self,tx,source):\n        D=self.D;wet=source[0];orb=source[1:4];ant=source[4:7];offset=tx-self.tag\n        if not self.interval[0]<tx<self.interval[1]:raise ValueError('stable source crossed interpolation interval')\n        r,v,clock=self._state(tx,orb)\n        pco=[self.pco[j]+ant[j] for j in range(3)];body=[self._dot(row,pco) for row in self.attitude]\n        body=self._small_rotation(body,[-z*(tx-self.attitude_anchor) for z in self.angular])\n        apc=[r[j]+body[j] for j in range(3)];tau=-self.clock/self.c-offset\n        if not 0<tau<1:raise ValueError('stable light time outside domain')\n        mask_point=self._small_rotation(apc,[D(0),D(0),self.omega*offset])\n        mask_ray=[mask_point[j]-self.station[j] for j in range(3)]\n        if self._dot(mask_ray,self.up)/self._norm(mask_ray)<D(float(np.sin(np.radians(10.)))):\n            raise ValueError('stable physical reference below original ten-degree mask')\n        rotated=self._small_rotation(apc,[D(0),D(0),-self.omega*tau])\n        ray=[rotated[j]-self.station[j] for j in range(3)];rho=self._norm(ray)\n        atmosphere=self._atmosphere(self._dot(ray,self.up)/rho,wet)\n        return ray,rho,clock,atmosphere,tx\n    def increment(self,source,*,as_decimal=False):\n        from ..kinematic import gnss_combinations\n        with self.localcontext() as ctx:\n            ctx.prec=self.digits\n            s=[self.D(float(v)) if not isinstance(v,self.D) else v for v in source]\n            if len(s)!=8 or not all(v.is_finite() for v in s):raise ValueError('finite eight-coordinate local source required')\n            ray,rho,clock,atmosphere,_=self._path(s);a,r0,c0,t0,_=self.base\n            dr=[ray[j]-a[j] for j in range(3)]\n            distance=(2*self._dot(a,dr)+self._dot(dr,dr))/(rho+r0)\n            phase=distance-self.c*(clock-c0)+atmosphere-t0\n            mw=self.D(float(gnss_combinations.transform()[3,0]/gnss_combinations.ALPHA))*s[7]\n            values=[phase+s[7],phase,mw]\n            return values if as_decimal else np.array([float(v) for v in values])",
+        "original_start_line": 270,
+        "original_end_line": 308,
+        "truncated": true,
+        "redacted": false,
+        "kind": "source",
+        "text_is_original_file_prefix": false
+      }
+    ],
+    "coverage": {
+      "sample_only": true,
+      "all_target_source_available": false,
+      "operator_selected_excerpts": true,
+      "target_snippets_only": true,
+      "no_injection_labels_or_truth": true,
+      "additional_context_not_inspected_autonomously": true
+    }
+  },
+  "context_limit": "The ordinary request-led Service intake requires a real public issue. This explicit local task uses the same Provider/Service primitives as #129; it does not establish a new local intake feature. Excerpt provenance is explicit and must not be used as complete-file implementation evidence for a donor capability."
+}

@@ -1,0 +1,74 @@
+{
+  "experiment": "satellite-finite-recovery-2026-10-18",
+  "status": "preparation; no paid execution authorized",
+  "product_revision": "afdc5122734a7597200536317e1c4e6ee6e4f215",
+  "target": {
+    "repository": "Daniele-Cangi/Satellite-RF-Observatory",
+    "revision": "248b54208b94f1e53f5af7bdb39d89860b05fca4",
+    "basis": "Current PR #236 head, used read-only as the strongest available native baseline; it is not merged by this experiment.",
+    "report": "research/exploratory/STABLE_SOURCE_DIFFERENTIAL.md",
+    "report_blob_sha": "dae97d9a442abedbfb9c47bcc8671f7c7297c1f7",
+    "retained_result": "research/exploratory/results/stable_source_differential_v1.json.gz",
+    "retained_result_sha256": "56b325ab32a679d89223b89bbe88633cd3850bdcf0cd605c18bea1bf62900020",
+    "observed_gap": "Four of ten strong finite physical probes fail the existing identified-source-projection criterion after stable arithmetic. G05/G11/G20/G21 at positive 0.1 m have relative errors .00574/.00646/.00514/.00862, against the existing <=1e-3 criterion. The complete strong scalar itself is already recovered; that is not the gap."
+  },
+  "question": "Can an autonomously selected external code mechanism improve an existing finite-inverse numerical invariant in Satellite's actual code, beyond the strongest reasonable direct local correction?",
+  "demand_origin": "Experimenter formulation of the user's Missing Link test request, grounded in a documented current native failure. It is not a public GitHub issue or a statement from a blocked development agent.",
+  "fixed_acceptance": {
+    "primary_cases": [
+      "G05 strong +0.1 m",
+      "G11 strong +0.1 m",
+      "G20 strong +0.1 m",
+      "G21 strong +0.1 m"
+    ],
+    "full_controls": "All original 30 probes: ten strong finite cases and twenty weak +/- probes, preserving all unresolved full functionals and positive/negative outcomes. Retain unchanged 22-candidate/440-window/63-arc provenance denominators; do not claim new execution of all original RF folds.",
+    "target_metric": "Identified source projection, defined by the original stable-clock design, source-coordinate order and fixed 1e-10 relative spectral cut. Use the original <=1e-3 relative recovery criterion. Full strong scalar success is already baseline behavior.",
+    "independence": "The estimator must not receive the injected source vector, mode/sign/amplitude labels, expected projection, CODE state, target products or G12 state. These are evaluation only. No fitting restricted to the known injected direction.",
+    "preserve": [
+      "source null-space unknowns remain unknown",
+      "same input products, weights, projector, coordinate units and physical forward model",
+      "10 degree mask and original physical-domain failures",
+      "all unsupported and worsening cases",
+      "all original historical artifacts and source bytes"
+    ],
+    "comparator": "Unchanged stable-clock linear inverse, plus the strongest direct SciPy/local alternative implementable on the same allowed inputs. Its design and results must be recorded before inspecting any selected external implementation; a source packet alone is not gain.",
+    "gain": "At least one formerly failing native projection meets the original criterion with no formerly passing strong case lost and no full weak/null functional relabelled as recovered. Also report errors and runtime on every control, new dependencies/code size, all failed attempts and absolute error changes.",
+    "stop": "One model-selected source; no manual donor substitution, rescue query, retry, threshold or weight search. If the direct correction already meets the entire need, report direct sufficiency and do not manufacture a reason for source assistance."
+  },
+  "discovery": {
+    "path": "Existing Provider.interpret_request -> plan_discovery -> PublicGitHub.search_repositories -> select_source -> fetch_repository/extract_structure -> interpret_capabilities -> evaluate -> export_handoff, using the existing Service/Budget/Store/account lease primitives.",
+    "intake_limit": "The ordinary discover_from_request entry point currently accepts public GitHub issues only; the only current open Satellite issue is an infrastructure/parser extraction. Do not fabricate an issue, relabel PR #236 as an issue, post a request without authorization, or build a new intake/runner. Reuse the existing experiment-local invocation for the explicitly labelled local demand. This tests discovery and native transfer, not unchanged IDE/Service intake end to end.",
+    "max_calls": 5,
+    "max_queries": 3,
+    "results_per_query": 20,
+    "max_selected_sources": 1,
+    "model_choices": "The model chooses operations, search phrases and the source, and may use_direct/defer/none. No donor, algorithm or alternative implementation is supplied by the experimenter. Cross-domain and cross-language mechanisms are admissible; eventual native execution must meet Satellite's supported environment.",
+    "target_context": "Operator-selected, pinned excerpts around the failing recovery function, its projector and its physical forward operator, with explicit original line ranges, truncation and coverage limits. This is not autonomous target-file selection.",
+    "no_paid_dispatch_until": "Distinct user budget approval and preparation review/CI green.",
+    "phases": [
+      "interpret_request",
+      "plan_discovery",
+      "select_source",
+      "interpret_capabilities",
+      "evaluate"
+    ]
+  },
+  "native_execution": {
+    "path": "After a defensible source-code packet, one bounded adaptation in an isolated target checkout, tested in Satellite's native modules/tests against the direct comparator. No new framework, transport, solver runner or generalized infrastructure.",
+    "limit": "Exposed-data development, not new measurement acquisition or prospective physical confirmation. Finite injected controls use the actual admitted-data physical operator but remain controlled injections, not proof of recovering real unknown source errors.",
+    "code_policy": "Any actual code changes require native Windows/Linux CI and regressions before integration. No historic refits or byte rewrites."
+  },
+  "budget": {
+    "configured_model": "gpt-6-luna",
+    "max_prompt_bytes": 180000,
+    "max_output_tokens": 12000,
+    "configured_input_usd_per_million": 0.1,
+    "configured_output_usd_per_million": 0.5,
+    "max_calls": 5,
+    "maximum_reservation_usd": 0.121024,
+    "proposed_ceiling_usd": 0.15,
+    "authorization": "not granted; prior 0.10 USD applied only to the finished #129 cohort",
+    "no_retries": true
+  },
+  "caveat": "The producer's controls and this observer are already exposed. A successful result would demonstrate a bounded technical mechanism transfer chosen by the model; it would not establish universal discovery, physical source identifiability, causal rescue of a blind agent or S2 closure."
+}

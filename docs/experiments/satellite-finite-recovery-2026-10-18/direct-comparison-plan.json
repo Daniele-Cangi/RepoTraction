@@ -1,0 +1,21 @@
+{
+  "scope": "Direct native comparator, fixed before any external implementation is inspected. This is an execution plan, not a measured result or a new solver framework.",
+  "estimator_inputs": "Profiled finite observation increment, the admitted finite forward callback, native source design/projector and frozen identified basis. Injection vectors/labels and expected outputs are evaluation-only.",
+  "baseline": "Existing recover_profiled_increment calculation, with its truth-dependent fields treated strictly as scoring. The estimate is computed solely from the profiled observation and SVD.",
+  "direct_attempts": [
+    {
+      "name": "local defect correction",
+      "method": "Iterate the existing native pseudoinverse on the measured residual minus the actual finite forward response. Preserve the frozen identifiable source basis and leave null amplitudes unassigned.",
+      "limit": "At most eight iterations; no fitted weights, source prior or injected-vector initialization."
+    },
+    {
+      "name": "SciPy nonlinear least squares",
+      "method": "Use scipy.optimize.least_squares with the actual finite physical residual in the same frozen identifiable basis and the library's three-point finite-difference Jacobian. Start from the existing linear estimate. Preserve physical-domain failures and original weights.",
+      "limit": "At most 20 residual iterations; no parameter bound or regularizer inferred from the injected amplitude."
+    }
+  ],
+  "interpretation": "Both are direct local alternatives, not Missing Link contributions. Benchmark the best valid result and report runtime and failed/unexecuted cases. If they satisfy the entire need, keep that result and do not force an external contribution.",
+  "stop": "A practical overall 30-minute native execution limit per method, single numerical thread, with timeouts and unexecuted controls retained explicitly. This is a bounded comparison, not proof that all stronger direct algorithms fail. Partial control completion cannot certify the full acceptance condition.",
+  "timing": "Complete direct comparison before inspecting selected external source code. No selected-donor implementation, handoff or generated patch may influence its design. Metadata planning/selection alone does not establish source-code value.",
+  "execution_status": "Not yet executed; the original 30-control linear replay is separately measured in native-preflight.json."
+}
