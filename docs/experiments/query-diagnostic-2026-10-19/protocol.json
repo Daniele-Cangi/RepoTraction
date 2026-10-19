@@ -1,0 +1,28 @@
+{
+  "kind": "operator-query diagnostic, not continuation or rescue of cohort #131",
+  "frozen_at": "2026-10-19T21:30:42.054424+00:00",
+  "code_revision": "ae0c0afd8d8765bbb94c173ff90d23ed79a526f5",
+  "historical_result_sha256": "f8865eb643ff00fa855db3e14297e1f4b39978f97da9f3b63370615e714f5b5c",
+  "original_terms": "Python masked multivariate time series low rank regression cross sensor missing link prediction",
+  "alternative_terms": [
+    "time series matrix completion",
+    "reduced rank regression",
+    "Kalman missing data"
+  ],
+  "query_policy": "existing PublicGitHub.search_repositories, page 1, per_page 20, default upstream order, mandatory public/nonarchived/nonfork scope; no reformulation or extra searches",
+  "comparison": "historical conserved pool and fresh original-query control versus three simple operator-written mechanism queries; fresh search is read-only network, analysis offline",
+  "inspection_policy": "For each fresh pool, inspect at most first two distinct repositories in upstream order whose supplied metadata specifically describes an executable implementation of matrix/time-series completion, reduced/low-rank regression, or state-space/Kalman filtering with missing observations. Do not accept paper lists or crawlers by lexical overlap. Ambiguous metadata remains unknown. Deduplicate across queries; do not backfill duplicate slots. Use unchanged PublicGitHub.fetch_repository default 24-file bound. Separate relevant code reached by automatic file sample from extra manually targeted code reads; at most three targeted files per inspected repository, only from same pinned eligible catalogue, if needed. No external code execution or native fitting.",
+  "relevance_axes": [
+    "executable mechanism actually found",
+    "learn only from admitted masked observations or exposed explicitly to missing values",
+    "predict missing target values using contemporaneous other-series observations or train-only cross-output mapping",
+    "compatible dimensions/numerical constraints/adaptation risks"
+  ],
+  "limits": [
+    "No paid API calls or Provider instantiation",
+    "No source manual substitutions beyond fixed pools",
+    "No native effect claimed or measured",
+    "No product changes, historical artifact edits, or broader search",
+    "Operator adjudication, not independent blind labels; no inference of autonomous selector behavior"
+  ]
+}

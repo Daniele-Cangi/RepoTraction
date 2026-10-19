@@ -1,0 +1,754 @@
+{
+  "selection": {
+    "selection_mode": "operator metadata adjudication with fixed upstream order; not autonomous selector",
+    "repositories": [
+      {
+        "query": 1,
+        "rank": 1,
+        "name": "xinychen/transdim",
+        "reason": "Description explicitly identifies transportation imputation and prediction implementation."
+      },
+      {
+        "query": 1,
+        "rank": 12,
+        "name": "eXascaleInfolab/ImputeGAP",
+        "reason": "Explicit library implementing missing-value time-series imputation."
+      },
+      {
+        "query": 2,
+        "rank": 13,
+        "name": "berenslab/patch-seq-rrr",
+        "reason": "Explicit sparse reduced-rank regression implementation."
+      },
+      {
+        "query": 3,
+        "rank": 1,
+        "name": "pykalman/pykalman",
+        "reason": "Explicit filter/smoother/EM implementation; missing-coordinate behavior remains to inspect."
+      },
+      {
+        "query": 3,
+        "rank": 4,
+        "name": "SteffenMoritz/imputeTS",
+        "reason": "Explicit time-series missing-value imputation implementation; tutorial at rank 3 excluded."
+      }
+    ],
+    "original_query": "No supplied name/description specifically identifies an implementation of the fixed mechanism. Empty descriptions remain unknown, not proven irrelevant.",
+    "reduced_rank_query": "Only one candidate has specific implementation metadata under this policy; cca_zoo describes canonical correlation, not a reduced-rank prediction implementation. No second slot forced.",
+    "inspection_frozen_before_code_reads": true
+  },
+  "inspections": [
+    {
+      "selection": {
+        "query": 1,
+        "rank": 1,
+        "name": "xinychen/transdim",
+        "reason": "Description explicitly identifies transportation imputation and prediction implementation."
+      },
+      "revision": "eed7007ff49f83b12280844b209323e7383cc471",
+      "elapsed_seconds": 8.396484500000952,
+      "github_reads": 10,
+      "files_scanned": 7,
+      "bytes_scanned": 67397,
+      "verdict": "implementation_not_acquired",
+      "reason": "The eligible sample contains documentation only. The pinned tree contains 65 .ipynb files outside current supported types; their implementation behavior was not inspected. No rescue download.",
+      "satellite_fit": "unknown",
+      "references": [],
+      "relevant_implementation_in_default_sample": false,
+      "additional_targeted_reads": 0,
+      "tree_extension_counts": {
+        "": 1,
+        ".md": 6,
+        ".mat": 4,
+        ".ipynb": 65,
+        ".csv": 3,
+        ".npz": 11,
+        ".npy": 11,
+        ".tsv": 1,
+        ".pdf": 57,
+        ".png": 14
+      },
+      "file_index": [
+        {
+          "path": "LICENSE",
+          "sha": "be51b4bb5f8c131638d82ab949f0f04af2fcce7f",
+          "kind": "documentation",
+          "bytes": 1067
+        },
+        {
+          "path": "README.md",
+          "sha": "08050a2f6cf9e7258d528560dce81b1c253be163",
+          "kind": "documentation",
+          "bytes": 26440
+        },
+        {
+          "path": "datasets/README.md",
+          "sha": "a619f76920e2b5f8d0faf30a55f7f33dae848c7d",
+          "kind": "documentation",
+          "bytes": 6077
+        },
+        {
+          "path": "large-imputer/README.md",
+          "sha": "9f4a1a33278f1bbcd3491c8d1ee23083c6e9d962",
+          "kind": "documentation",
+          "bytes": 3690
+        },
+        {
+          "path": "datasets/Portland-data-set/README.md",
+          "sha": "4fa28de2fbca04d93cfad8559decf29c9fdede4a",
+          "kind": "documentation",
+          "bytes": 1743
+        },
+        {
+          "path": "bib.md",
+          "sha": "89764eb04fa30acb3505c54714a32a25aac9dfb2",
+          "kind": "documentation",
+          "bytes": 27395
+        },
+        {
+          "path": "feedback.md",
+          "sha": "08c2825538bde215b76291c4d5e5f7a28b30eb1d",
+          "kind": "documentation",
+          "bytes": 985
+        }
+      ]
+    },
+    {
+      "selection": {
+        "query": 1,
+        "rank": 12,
+        "name": "eXascaleInfolab/ImputeGAP",
+        "reason": "Explicit library implementing missing-value time-series imputation."
+      },
+      "revision": "a18d5c5f619d05dced8348619150b4a06e138f8d",
+      "elapsed_seconds": 25.751619200003915,
+      "github_reads": 27,
+      "files_scanned": 24,
+      "bytes_scanned": 176119,
+      "verdict": "relevant_partial_observation_mechanism",
+      "reason": "MissNet derives W from NaNs, selects X[t, ot] and U[ot,:] in filtering, then reconstructs missing coordinates through a shared latent state. This code supports the proposed conditional-observation mechanism, not a measured native advantage.",
+      "satellite_fit": "unproven native adaptation",
+      "references": [
+        {
+          "path": "imputegap/wrapper/AlgoPython/MissNet/main.py",
+          "blob_sha": "ae8b783017dab391005e3e0659920ec5323c96cd",
+          "url": "https://github.com/eXascaleInfolab/ImputeGAP/blob/a18d5c5f619d05dced8348619150b4a06e138f8d/imputegap/wrapper/AlgoPython/MissNet/main.py#L121-L149",
+          "start_line": 121,
+          "end_line": 149,
+          "decoded_text_sha256": "23077535924458a6a6320f7878eba3d5b4242dd43fc087163cc81c33a37d8946"
+        },
+        {
+          "path": "imputegap/wrapper/AlgoPython/MissNet/main.py",
+          "blob_sha": "ae8b783017dab391005e3e0659920ec5323c96cd",
+          "url": "https://github.com/eXascaleInfolab/ImputeGAP/blob/a18d5c5f619d05dced8348619150b4a06e138f8d/imputegap/wrapper/AlgoPython/MissNet/main.py#L195-L217",
+          "start_line": 195,
+          "end_line": 217,
+          "decoded_text_sha256": "23077535924458a6a6320f7878eba3d5b4242dd43fc087163cc81c33a37d8946"
+        },
+        {
+          "path": "imputegap/wrapper/AlgoPython/MissNet/main.py",
+          "blob_sha": "ae8b783017dab391005e3e0659920ec5323c96cd",
+          "url": "https://github.com/eXascaleInfolab/ImputeGAP/blob/a18d5c5f619d05dced8348619150b4a06e138f8d/imputegap/wrapper/AlgoPython/MissNet/main.py#L362-L407",
+          "start_line": 362,
+          "end_line": 407,
+          "decoded_text_sha256": "23077535924458a6a6320f7878eba3d5b4242dd43fc087163cc81c33a37d8946"
+        },
+        {
+          "path": "imputegap/wrapper/AlgoPython/MissNet/main.py",
+          "blob_sha": "ae8b783017dab391005e3e0659920ec5323c96cd",
+          "url": "https://github.com/eXascaleInfolab/ImputeGAP/blob/a18d5c5f619d05dced8348619150b4a06e138f8d/imputegap/wrapper/AlgoPython/MissNet/main.py#L409-L442",
+          "start_line": 409,
+          "end_line": 442,
+          "decoded_text_sha256": "23077535924458a6a6320f7878eba3d5b4242dd43fc087163cc81c33a37d8946"
+        }
+      ],
+      "relevant_implementation_in_default_sample": true,
+      "additional_targeted_reads": 0,
+      "tree_extension_counts": {
+        "": 23,
+        ".yml": 24,
+        ".xml": 11,
+        ".iml": 2,
+        ".yaml": 9,
+        ".txt": 83,
+        ".in": 1,
+        ".md": 7,
+        ".png": 47,
+        ".jpg": 55,
+        ".rst": 58,
+        ".doctree": 43,
+        ".pickle": 1,
+        ".html": 60,
+        ".inv": 1,
+        ".js": 12,
+        ".css": 11,
+        ".svg": 2,
+        ".map": 3,
+        ".bat": 1,
+        ".py": 332,
+        ".pyc": 404,
+        ".dll": 2,
+        ".so": 24,
+        ".dylib": 20,
+        ".toml": 47,
+        ".ipynb": 8,
+        ".pdf": 1,
+        ".cpp": 31,
+        ".h": 30,
+        ".hpp": 2,
+        ".ini": 3
+      },
+      "file_index": [
+        {
+          "path": "LICENSE.txt",
+          "sha": "ffe1dca83142022c27b2af6dc43eefda44639133",
+          "kind": "documentation",
+          "bytes": 1074
+        },
+        {
+          "path": "pyproject.toml",
+          "sha": "4fd60a6cfea2a6160e772c0134cecd2051b0f5d7",
+          "kind": "manifest",
+          "bytes": 93
+        },
+        {
+          "path": "imputegap/wrapper/AlgoPython/MissNet/main.py",
+          "sha": "ae8b783017dab391005e3e0659920ec5323c96cd",
+          "kind": "source",
+          "bytes": 20534
+        },
+        {
+          "path": "imputegap/runner_contamination.py",
+          "sha": "8beea71ca20bbbe6dea7263e05de95d6a35e83c9",
+          "kind": "source",
+          "bytes": 616
+        },
+        {
+          "path": "tests/test_benchmarking.py",
+          "sha": "cc3143fd2b639c29a5cd34b8c5632d5e5f965d9f",
+          "kind": "test",
+          "bytes": 44373
+        },
+        {
+          "path": "imputegap/runner_display.py",
+          "sha": "495cc5e6f52ff44293d453acc6eba291e00902f4",
+          "kind": "source",
+          "bytes": 150
+        },
+        {
+          "path": "README.md",
+          "sha": "4c354d738bad77933e336c3bc26b96466d2de5ed",
+          "kind": "documentation",
+          "bytes": 31841
+        },
+        {
+          "path": "requirements.txt",
+          "sha": "9675a4311203b3050fedb7e41e76d00d12622ceb",
+          "kind": "manifest",
+          "bytes": 1268
+        },
+        {
+          "path": "imputegap/runner_downstream.py",
+          "sha": "bc165b1dc82806feb8c586051f80b4f31f5b91f1",
+          "kind": "source",
+          "bytes": 915
+        },
+        {
+          "path": "imputegap/runner_explainer.py",
+          "sha": "3c01126b8b6bc7d4c0f85b8ddacd27e21d3d391e",
+          "kind": "source",
+          "bytes": 658
+        },
+        {
+          "path": "tests/test_contamination_blackout.py",
+          "sha": "dbd32edf7bcf6f1dd50f715af496581e39291b8d",
+          "kind": "test",
+          "bytes": 2063
+        },
+        {
+          "path": "imputegap/runner_imputation.py",
+          "sha": "cb05e0c12474cce5232ad55b94dc4cc7839dc82b",
+          "kind": "source",
+          "bytes": 892
+        },
+        {
+          "path": "imputegap/datasets/README.md",
+          "sha": "574c8cd3dd8c73337ca622efde6d05f9b7a0081a",
+          "kind": "documentation",
+          "bytes": 38481
+        },
+        {
+          "path": "setup.py",
+          "sha": "6cebf19996ad168ca47cbd0a290a385b96eba702",
+          "kind": "manifest",
+          "bytes": 1741
+        },
+        {
+          "path": "imputegap/runner_loading.py",
+          "sha": "6790c24bbb88bc745f755dd90afae6be31348239",
+          "kind": "source",
+          "bytes": 475
+        },
+        {
+          "path": "imputegap/runner_optimization.py",
+          "sha": "cb18427cdf55c7ba7794f9a9946d6f18472920c0",
+          "kind": "source",
+          "bytes": 1499
+        },
+        {
+          "path": "tests/test_contamination_disjoint.py",
+          "sha": "0a5bd5dfedefecfc46b0d93811e6c1ca2776d090",
+          "kind": "test",
+          "bytes": 5517
+        },
+        {
+          "path": "imputegap/algorithms/bayotide.py",
+          "sha": "6a66430924ee466c381388f727f39fba539df952",
+          "kind": "source",
+          "bytes": 3303
+        },
+        {
+          "path": "imputegap/slides/README.md",
+          "sha": "c10e76490f2305663def4c2982064463e669d379",
+          "kind": "documentation",
+          "bytes": 47
+        },
+        {
+          "path": "docs/generation/Makefile",
+          "sha": "d0c3cbf1020d5c292abdedf27627c6abe25e2293",
+          "kind": "manifest",
+          "bytes": 638
+        },
+        {
+          "path": "imputegap/algorithms/bit_graph.py",
+          "sha": "8b1cc83134ef64abfbee801492827d69129d0ad4",
+          "kind": "source",
+          "bytes": 3341
+        },
+        {
+          "path": "imputegap/algorithms/brits.py",
+          "sha": "690487523244f1bc15a2cd6154de61adeffbaa9c",
+          "kind": "source",
+          "bytes": 3598
+        },
+        {
+          "path": "tests/test_contamination_distribution.py",
+          "sha": "557934f0f1e4a82f2d7f5f7659f9584d5b34e332",
+          "kind": "test",
+          "bytes": 8732
+        },
+        {
+          "path": "imputegap/algorithms/cdrec.py",
+          "sha": "ceef1acb96ed9982805f133e88dacb48bb19b19b",
+          "kind": "source",
+          "bytes": 4270
+        }
+      ]
+    },
+    {
+      "selection": {
+        "query": 2,
+        "rank": 13,
+        "name": "berenslab/patch-seq-rrr",
+        "reason": "Explicit sparse reduced-rank regression implementation."
+      },
+      "revision": "402fe62aae4540fb61a8faf82e70ec50078fc1d6",
+      "elapsed_seconds": 6.6839998999930685,
+      "github_reads": 8,
+      "files_scanned": 5,
+      "bytes_scanned": 51829,
+      "verdict": "relevant_regression_code_needs_adaptation",
+      "reason": "The current sklearn version learns a low-rank mapping from X to Y. Dense matrix products do not implement masked entries. Its randomized CV must not replace Satellite train-only temporal evaluation. Complete training/prediction features and unchanged evaluation support are unresolved.",
+      "satellite_fit": "unproven native adaptation",
+      "references": [
+        {
+          "path": "sparseRRR_scikit.py",
+          "blob_sha": "334ade747455b830ea9bcd54612a8d96ee1fea87",
+          "url": "https://github.com/berenslab/patch-seq-rrr/blob/402fe62aae4540fb61a8faf82e70ec50078fc1d6/sparseRRR_scikit.py#L11-L70",
+          "start_line": 11,
+          "end_line": 70,
+          "decoded_text_sha256": "8e1c49dfeec8a1a8bd351900a00f746d7d4230caea2852ddddaf2faa7cf355a5"
+        },
+        {
+          "path": "sparseRRR_scikit.py",
+          "blob_sha": "334ade747455b830ea9bcd54612a8d96ee1fea87",
+          "url": "https://github.com/berenslab/patch-seq-rrr/blob/402fe62aae4540fb61a8faf82e70ec50078fc1d6/sparseRRR_scikit.py#L271-L305",
+          "start_line": 271,
+          "end_line": 305,
+          "decoded_text_sha256": "8e1c49dfeec8a1a8bd351900a00f746d7d4230caea2852ddddaf2faa7cf355a5"
+        }
+      ],
+      "relevant_implementation_in_default_sample": true,
+      "additional_targeted_reads": 0,
+      "tree_extension_counts": {
+        "": 1,
+        ".md": 1,
+        ".ipynb": 8,
+        ".pickle": 17,
+        ".xlsx": 4,
+        ".mat": 2,
+        ".gz": 1,
+        ".csv": 5,
+        ".json": 1,
+        ".py": 4,
+        ".zip": 1,
+        ".pdf": 8,
+        ".png": 8,
+        ".svg": 1
+      },
+      "file_index": [
+        {
+          "path": "README.md",
+          "sha": "d0efd95d204edd68d8ff3cfb7a1af1c45565902b",
+          "kind": "documentation",
+          "bytes": 1570
+        },
+        {
+          "path": "rnaseqTools.py",
+          "sha": "d7026177dea086e7f9e2e5a51ad129035ca069b9",
+          "kind": "source",
+          "bytes": 10912
+        },
+        {
+          "path": "sparseRRR.py",
+          "sha": "81eeada6a43a7d9703589e2e346724538e59a3fc",
+          "kind": "source",
+          "bytes": 18231
+        },
+        {
+          "path": "sparseRRR_scikit.py",
+          "sha": "334ade747455b830ea9bcd54612a8d96ee1fea87",
+          "kind": "source",
+          "bytes": 18241
+        },
+        {
+          "path": "data/gouwens2020/dataset.py",
+          "sha": "4d870a41756698946b7c6730cd96ade421f2189e",
+          "kind": "source",
+          "bytes": 2875
+        }
+      ]
+    },
+    {
+      "selection": {
+        "query": 3,
+        "rank": 1,
+        "name": "pykalman/pykalman",
+        "reason": "Explicit filter/smoother/EM implementation; missing-coordinate behavior remains to inspect."
+      },
+      "revision": "d62e60be00bd028ecc7eea6a8bea02f583910428",
+      "elapsed_seconds": 26.076035200007027,
+      "github_reads": 27,
+      "files_scanned": 24,
+      "bytes_scanned": 268720,
+      "verdict": "relevant_filter_with_partial_mask_mismatch",
+      "reason": "The standard correction skips all dimensions if any observation component is masked. Its standard observation-EM updates also use complete rows. This defeats direct use of the remaining contemporaneous channels in the natural vector representation. A different observation layout or modified update would require a separate test.",
+      "satellite_fit": "not drop-in for partial-coordinate update",
+      "references": [
+        {
+          "path": "pykalman/standard.py",
+          "blob_sha": "2f183f0b4ceac8355b88e87629349bfe44283811",
+          "url": "https://github.com/pykalman/pykalman/blob/d62e60be00bd028ecc7eea6a8bea02f583910428/pykalman/standard.py#L233-L306",
+          "start_line": 233,
+          "end_line": 306,
+          "decoded_text_sha256": "601578c33fd3286bef9d582efae0da75f0fe0825bb6417215de44c2881a8f84b"
+        },
+        {
+          "path": "pykalman/standard.py",
+          "blob_sha": "2f183f0b4ceac8355b88e87629349bfe44283811",
+          "url": "https://github.com/pykalman/pykalman/blob/d62e60be00bd028ecc7eea6a8bea02f583910428/pykalman/standard.py#L725-L795",
+          "start_line": 725,
+          "end_line": 795,
+          "decoded_text_sha256": "601578c33fd3286bef9d582efae0da75f0fe0825bb6417215de44c2881a8f84b"
+        }
+      ],
+      "relevant_implementation_in_default_sample": true,
+      "additional_targeted_reads": 0,
+      "tree_extension_counts": {
+        "": 6,
+        ".yml": 4,
+        ".yaml": 1,
+        ".md": 2,
+        ".in": 1,
+        ".py": 30,
+        ".sh": 1,
+        ".rst": 6,
+        ".png": 2,
+        ".ipynb": 7,
+        ".mat": 1,
+        ".m": 1,
+        ".toml": 1,
+        ".cfg": 1
+      },
+      "file_index": [
+        {
+          "path": "LICENSE",
+          "sha": "c012e542e60b342874c99020d2fc9dd610731c3a",
+          "kind": "documentation",
+          "bytes": 5227
+        },
+        {
+          "path": "Makefile",
+          "sha": "97bb61875eda73f058398c220f1f4f004ed0589b",
+          "kind": "manifest",
+          "bytes": 231
+        },
+        {
+          "path": "build_tools/changelog.py",
+          "sha": "6d5488d9e6dd7623337688130b749fd6d088ce10",
+          "kind": "source",
+          "bytes": 6080
+        },
+        {
+          "path": "pykalman/__init__.py",
+          "sha": "48751b102a99214add9ba5a4e0892047e42df942",
+          "kind": "source",
+          "bytes": 403
+        },
+        {
+          "path": "pykalman/standard.py",
+          "sha": "2f183f0b4ceac8355b88e87629349bfe44283811",
+          "kind": "source",
+          "bytes": 60993
+        },
+        {
+          "path": "pykalman/unscented.py",
+          "sha": "e4027a4a8219bd8c1f4dc44887a5ea7e53b86937",
+          "kind": "source",
+          "bytes": 51153
+        },
+        {
+          "path": "pykalman/tests/test_loglikelihood.py",
+          "sha": "133e7b9a64cdb2494dffa52ba0083076654736d9",
+          "kind": "test",
+          "bytes": 1118
+        },
+        {
+          "path": "pykalman/_nopytest_tests.py",
+          "sha": "cab8cc018819b561790cb0386567b17a46768a19",
+          "kind": "source",
+          "bytes": 278
+        },
+        {
+          "path": "README.md",
+          "sha": "048a74833f8aff238b4662060b4cc121f85fdecb",
+          "kind": "documentation",
+          "bytes": 5506
+        },
+        {
+          "path": "pyproject.toml",
+          "sha": "37b9eec140fbf37af95f05b67ac6d26b2e18fe82",
+          "kind": "manifest",
+          "bytes": 2198
+        },
+        {
+          "path": "pykalman/tests/test_standard.py",
+          "sha": "fce441969a6bc183b6fa84f3987562efdb77313a",
+          "kind": "test",
+          "bytes": 7972
+        },
+        {
+          "path": "pykalman/utils_numpy.py",
+          "sha": "870039799f74fb66d1266a9a64bdceb426a0d5a2",
+          "kind": "source",
+          "bytes": 119
+        },
+        {
+          "path": "CHANGELOG.md",
+          "sha": "7c7f8b59111ed368551cadffe790e793e33ffdef",
+          "kind": "documentation",
+          "bytes": 8966
+        },
+        {
+          "path": "setup.cfg",
+          "sha": "1fa9e9c19fdca1a5114611d42310bf4b4d43baca",
+          "kind": "manifest",
+          "bytes": 118
+        },
+        {
+          "path": "pykalman/datasets/base.py",
+          "sha": "4db0b934b0e0e4ab912cd3b909af9199d5c4f194",
+          "kind": "source",
+          "bytes": 2585
+        },
+        {
+          "path": "pykalman/sqrt/__init__.py",
+          "sha": "a439bab3cb05dc36824c1412eef5862c23953188",
+          "kind": "source",
+          "bytes": 447
+        },
+        {
+          "path": "pykalman/sqrt/bierman.py",
+          "sha": "efc77ad31d483937a1bb937b886f7dd7f171a3dc",
+          "kind": "source",
+          "bytes": 35472
+        },
+        {
+          "path": "pykalman/sqrt/cholesky.py",
+          "sha": "71f8cc1e45f213fc5a8138777701815fe1918c8c",
+          "kind": "source",
+          "bytes": 30166
+        },
+        {
+          "path": "pykalman/sqrt/unscented.py",
+          "sha": "320634b48a86a828bf612c6bb1fe0dc5e1f7dfc1",
+          "kind": "source",
+          "bytes": 29744
+        },
+        {
+          "path": "pykalman/tests/test_unscented.py",
+          "sha": "94180b7a3db20a62a8f0b6fda1f3f42df29ca7dc",
+          "kind": "test",
+          "bytes": 8973
+        },
+        {
+          "path": "doc/source/class_docs.rst",
+          "sha": "b9ce5a1e9e1ad92d8acaebf15944569433ac8e21",
+          "kind": "documentation",
+          "bytes": 559
+        },
+        {
+          "path": "doc/Makefile",
+          "sha": "cb5523aa80b204daed569b1a75f13e7bf83ff732",
+          "kind": "manifest",
+          "bytes": 5581
+        },
+        {
+          "path": "pykalman/sqrt/tests/test_unscented.py",
+          "sha": "41ddf66a7bffe8113b272bcb839e7d9cb7cdd69a",
+          "kind": "test",
+          "bytes": 4448
+        },
+        {
+          "path": "pykalman/utils/__init__.py",
+          "sha": "2c442c103a621e825ebea3168c8577974e4f3fdd",
+          "kind": "source",
+          "bytes": 383
+        }
+      ]
+    },
+    {
+      "selection": {
+        "query": 3,
+        "rank": 4,
+        "name": "SteffenMoritz/imputeTS",
+        "reason": "Explicit time-series missing-value imputation implementation; tutorial at rank 3 excluded."
+      },
+      "revision": "bca3fcd312d531a0b78c671ad0147ae086a35d0a",
+      "elapsed_seconds": 13.48597680000239,
+      "github_reads": 13,
+      "files_scanned": 10,
+      "bytes_scanned": 71605,
+      "verdict": "implementation_not_acquired",
+      "reason": "The reader excluded all 48 .R paths; retained source-kind files are documentation JavaScript classified as infrastructure. The R imputation mechanism remains uninspected.",
+      "satellite_fit": "unknown",
+      "references": [],
+      "relevant_implementation_in_default_sample": false,
+      "additional_targeted_reads": 0,
+      "tree_extension_counts": {
+        "": 13,
+        ".yaml": 5,
+        ".txt": 1,
+        ".md": 2,
+        ".history": 1,
+        ".R": 48,
+        ".yml": 2,
+        ".rda": 6,
+        ".html": 50,
+        ".png": 160,
+        ".js": 7,
+        ".css": 3,
+        ".ico": 2,
+        ".svg": 1,
+        ".pptx": 2,
+        ".jpg": 5,
+        ".xml": 1,
+        ".Rproj": 1,
+        ".Rd": 39,
+        ".cpp": 3,
+        ".pdf": 6,
+        ".asis": 1,
+        ".sty": 1,
+        ".Rmd": 1,
+        ".ltx": 1
+      },
+      "file_index": [
+        {
+          "path": "LICENSE.txt",
+          "sha": "9cecc1d4669ee8af2ca727a5d8cde10cd8b2d7cc",
+          "kind": "documentation",
+          "bytes": 35141
+        },
+        {
+          "path": "docs/bootstrap-toc.js",
+          "sha": "1cdd573b20f53b3ebe31c021e154c4338ca456af",
+          "kind": "source",
+          "bytes": 4764
+        },
+        {
+          "path": "docs/docsearch.js",
+          "sha": "b35504cd3a282816130a16881f3ebeead9c1bcb4",
+          "kind": "source",
+          "bytes": 2018
+        },
+        {
+          "path": "docs/jquery.sticky-kit.min.js",
+          "sha": "1c162717db92312f8882d2d215a22b236a0bad07",
+          "kind": "source",
+          "bytes": 2848
+        },
+        {
+          "path": "README.md",
+          "sha": "d36f525d58abe945fd5b657c5b0de86fa51bc564",
+          "kind": "documentation",
+          "bytes": 8354
+        },
+        {
+          "path": "docs/pkgdown.js",
+          "sha": "6f0eee40bc3c69061d33fbed1bc9644f47c0eb8a",
+          "kind": "source",
+          "bytes": 3248
+        },
+        {
+          "path": "docs/articles/gallery_visualizations_files/accessible-code-block-0.0.1/empty-anchor.js",
+          "sha": "ca349fd6a570108bde9d7daace534cd651c5f042",
+          "kind": "source",
+          "bytes": 653
+        },
+        {
+          "path": "docs/articles/gallery_visualizations_files/header-attrs-2.16/header-attrs.js",
+          "sha": "dd57d92e02028785163a821c31bca8743a8ab59a",
+          "kind": "source",
+          "bytes": 507
+        },
+        {
+          "path": "NEWS.md",
+          "sha": "d67c41a4bb4426a5f5f4ab44712958a37a15b82d",
+          "kind": "documentation",
+          "bytes": 13565
+        },
+        {
+          "path": "docs/articles/gallery_visualizations_files/header-attrs-2.7/header-attrs.js",
+          "sha": "dd57d92e02028785163a821c31bca8743a8ab59a",
+          "kind": "source",
+          "bytes": 507
+        }
+      ]
+    }
+  ],
+  "totals": {
+    "search_requests": 4,
+    "source_requests": 85,
+    "source_files": 70,
+    "source_bytes": 635670,
+    "search_request_seconds_sum": 10.982824899983825,
+    "source_request_seconds_sum": 80.39411560000735,
+    "timing_caveat": "Independent requests/repositories were run concurrently. Sums are per-operation elapsed times, not end-to-end wall time; human inspection excluded. This is not a latency comparison against the paid historical job.",
+    "paid_calls": 0,
+    "targeted_extra_reads": 0,
+    "native_runs": 0
+  },
+  "autonomous_discovery_demonstrated": false,
+  "native_benefit": "UNTESTED",
+  "claim": "Operator-written simpler queries allow the unchanged reader to acquire relevant cross-domain source code. No inference of successful autonomous planning, metadata selection or native benefit."
+}
