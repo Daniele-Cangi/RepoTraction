@@ -1,0 +1,38 @@
+{
+  "original_commit": "d2fecc2faae2d9b4ed211a198c8911d01e9b7d89",
+  "review_comment": "https://github.com/Daniele-Cangi/RepoTraction/pull/132#discussion_r4319163357",
+  "finding_accepted": true,
+  "reason": "The fixed metadata rule requires an explicit missing-observation Kalman implementation hypothesis. PyKalman metadata did not supply missing-observation behavior. Query words are not candidate metadata evidence.",
+  "deviation": {
+    "repository": "pykalman/pykalman",
+    "query_index": 3,
+    "rank": 1,
+    "eligible_under_frozen_rule": false,
+    "actual_inspection_preserved": true,
+    "excluded_from_compliant_results": true,
+    "extra_source_reads": 27,
+    "extra_files": 24,
+    "extra_bytes": 268720
+  },
+  "corrected_compliant_inspections": [
+    "xinychen/transdim",
+    "eXascaleInfolab/ImputeGAP",
+    "berenslab/patch-seq-rrr",
+    "SteffenMoritz/imputeTS"
+  ],
+  "corrected_compliant_relevant_code": [
+    "eXascaleInfolab/ImputeGAP",
+    "berenslab/patch-seq-rrr"
+  ],
+  "compliant_source_reads": 58,
+  "compliant_files": 46,
+  "compliant_bytes": 366950,
+  "no_new_search_or_source_inspection": true,
+  "preserved_artifacts_sha256": {
+    "protocol.json": "e518690c4e42f8684749a7b0824463e5878661285384abc5a780878e31fbca98",
+    "inspection.json": "e55a3091afc4d87ba33ce4fbe494641b2c27d4e130e350c41e3136f0ab7b1aa6",
+    "pools.json": "3102d41791bb669d783dcaf95bf3af38f5f8e0b660c1bc81eff1b2aad3d5a86b",
+    "source-samples.json.gz": "f1276a91a2a6a8edb4b496fc36d0d9081957e059bf06038ae020b778020da914",
+    "offline-replay.json": "3b9a668d5b6327ce53c6367a670235557aa199009943729c8887af5606580463"
+  }
+}

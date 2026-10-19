@@ -1,6 +1,7 @@
 # Query diagnostic: relevant code is reachable across domains
 
-The unchanged Discover GitHub reader reaches concrete implementations when given
+After excluding one documented metadata-selection deviation, the unchanged
+Discover GitHub reader reaches concrete implementations when given
 shorter, operator-written mechanism queries. This diagnostic does **not** demonstrate
 autonomous query generation, automatic source selection, semantic qualification,
 or an improvement on Satellite. No paid AI calls or native experiments were made.
@@ -29,7 +30,7 @@ redaction. No filters, rankings, weights or search reformulations were added.
 | Original: Python masked multivariate time series low rank regression cross sensor missing link prediction | 20 | None under the fixed metadata rule | Not inspected; no suitable implementation hypothesis established |
 | time series matrix completion | 20 | 1, 12 | MissNet in ImputeGAP at 12; rank 1 transdim supplies only supported documentation |
 | reduced rank regression | 20 | 13 | Dense reduced-rank regression in patch-seq-rrr |
-| Kalman missing data | 20 | 1, 4 | PyKalman at 1, with a partial-mask mismatch; rank 4 imputeTS lacks acquired R implementation |
+| Kalman missing data | 20 | 4 | imputeTS lacks acquired R implementation; PyKalman at rank 1 was an ineligible extra inspection |
 
 The fresh original pool shares 19/20 repository identities with the conserved #131
 pool. `tangwen-qian/DailyArXiv` was replaced by `Tavish9/awesome-daily-AI-arxiv`.
@@ -37,6 +38,16 @@ This small pool drift does not establish identical historical ranking conditions
 The original still offers mostly paper collections/crawlers and sparse metadata.
 Neither the old nor fresh metadata analysis proves those repositories contain no
 useful source. Unknown descriptions remain unknown.
+
+**Protocol deviation found in review:** PyKalman's supplied description states
+only Kalman filter/smoother/EM, not filtering with missing observations. It was
+therefore ineligible under the frozen metadata rule. Its 27 reads/24 files remain
+preserved but are excluded from compliant inspection counts and mechanism yield.
+`protocol-deviation.json` records the correction against the original commit.
+The original protocol, selection record in `inspection.json`, source samples and
+replay receipt are retained unchanged as the history of what actually happened.
+They are not retroactively evidence of a compliant PyKalman selection. No query
+was retried, missing metadata invented or replacement source inspected.
 
 The inspection rule was at most the first two specific implementation hypotheses
 per query, judged from metadata in upstream order, with cross-query deduplication.
@@ -47,10 +58,12 @@ measured search precision. All 80 fresh metadata entries are preserved in `pools
 
 This is a reachability diagnosis, not an equal-total-budget end-to-end contest.
 The original trial chose one of up to three queries and could inspect one source.
-Here the operator inspected five sources across three alternatives. MissNet at
+Here the operator inspected four eligible sources across three alternatives,
+plus one ineligible PyKalman source outside the rule. MissNet at
 rank 12 and regression at rank 13 are outside the first three results. In the first
 three, the shortened queries offer transdim (unreadable notebook implementations
-under the current reader) and PyKalman (a mismatch for direct partial-vector use).
+under the current reader) and PyKalman (ineligible metadata; its later code mismatch is only an extra
+exploratory observation).
 The current one-source selector is **not shown** to choose MissNet over transdim.
 Pooling these investigations must not be reported as autonomous discovery success.
 
@@ -83,7 +96,7 @@ blob identities, measured read costs and line references are in `inspection.json
   vectors, preserving native pair support, scaling and temporal train-only model
   selection remain work. Its shuffled cross-validation must not be copied as a
   substitute for Satellite's fixed holdouts.
-- **PyKalman**, revision `d62e60be00bd028ecc7eea6a8bea02f583910428`:
+- **PyKalman, out-of-protocol extra inspection**, revision `d62e60be00bd028ecc7eea6a8bea02f583910428`:
   the standard correction ignores the entire observation vector when **any**
   component is masked; observation-matrix/covariance EM similarly uses complete
   rows. In the natural vector-per-epoch representation this drops the other links
@@ -133,6 +146,9 @@ Four search reads plus 85 source metadata/tree/blob reads acquired 70 files,
 10.983 s and five source-acquisition durations to 80.394 s. Operations ran
 concurrently; these sums are not end-to-end wall time and exclude human inspection.
 They are not comparable to the historical paid job's total latency.
+These actual costs include the ineligible PyKalman inspection: 27 source reads,
+24 files, 268,720 bytes. The compliant subset has 58 source reads, 46 files and
+366,950 bytes; both subsets are reported, with no work hidden from accounting.
 
 All four search pools and five source samples were replayed offline through the
 unchanged reader. Outputs were identical, except the source acquisition timestamp;
@@ -150,6 +166,9 @@ pertinent code with the existing reader. Satellite-specific repository scarcity
 does not prevent that. The experiment does not establish a general query policy or
 justify a new search framework, automatic query retries, notebook/R support, more
 candidates, or a larger source-inspection budget.
+
+The two compliant source samples with relevant mechanism code are MissNet and
+patch-seq-rrr. PyKalman must not be counted as a third compliant result.
 
 For a subsequent native transfer trial, the one specific mechanism I would carry
 forward is **updating shared predictive state from observed coordinates only**,
