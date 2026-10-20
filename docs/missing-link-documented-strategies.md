@@ -63,6 +63,13 @@ irrelevant analogy can be rejected. Unknown applicability and an empty result
 are valid. A pertinent hypothesis needs adaptation, a direct comparison and a
 probe; these requirements do not make that probe executed or sufficient.
 
+A small local prose guard also rejects explicit completion/verification or
+production-qualification claims instead of publishing them beside contradictory
+status flags. Negated and prospective clauses remain allowed. This conservative
+language check is not a semantic verifier of arbitrary paraphrases or languages;
+all remaining prose is still an unverified model assessment. Rejected attempts
+remain retained, charged conservatively and are not retried automatically.
+
 Strategies are stored with the job, **not** in the qualified-reuse match table.
 They do not create runnable bridge files or enter code-proof execution/export.
 The ordinary code path still requires implementation context and its existing

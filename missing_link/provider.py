@@ -218,7 +218,7 @@ class Provider:
                 raise ResponseError("ai_transport_invalid_response", phase=phase)
         except ResponseError as exc:
             # Redirect policy is raised before it knows the interpretation phase.
-            exc.phase = phase if phase in {"analysis", "capabilities", "request", "matches"} else "analysis"
+            exc.phase = phase if phase in {"analysis", "capabilities", "request", "matches", "strategies"} else "analysis"
             raise
         except urllib.error.HTTPError as exc:
             raise ResponseError("ai_transport_http_error", phase=phase, http_status=exc.code) from None

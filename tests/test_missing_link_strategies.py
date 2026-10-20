@@ -11,6 +11,7 @@ from unittest import mock
 from github_cli import ActiveAccountChangedError
 from missing_link.analysis import validate_request
 from missing_link.provider import Provider, CandidateValidationError
+from missing_link.provider_errors import ProviderTransportError
 from missing_link.service import Budget, Cancelled, Paused, Service
 from missing_link.sources import extract_structure
 from missing_link.strategies import VERSION, INSTRUCTION
@@ -148,6 +149,40 @@ class StrategyProviderTests(unittest.TestCase):
                 return raw
             with self.subTest(field=field), self.assertRaises(CandidateValidationError):
                 self.run_response(change)
+
+    def test_verified_result_claims_in_prose_are_rejected_and_attempts_remain_auditable(self):
+        for field, value in (('reason', 'Benchmarks verify a 2x improvement and this is production-qualified.'),
+                             ('mechanism', 'This is a verified implementation ready for use.'),
+                             ('expected_advantage', 'A demonstrated benefit with a proven 2x speedup.'),
+                             ('limitations', ['No caveats: this is production-ready.']),
+                             ('reason', 'No benefit is verified, but benchmarks verify a 2x improvement.')):
+            def change(raw):
+                raw['strategies'][0][field] = value
+                return raw
+            with self.subTest(field=field, value=value), self.assertRaises(CandidateValidationError):
+                self.run_response(change)
+        self.assertEqual(self.job['ai_calls_used'], 5)
+        self.assertEqual(len(self.job['checkpoint']['ai_outputs']), 5)
+
+    def test_negated_and_prospective_result_language_does_not_become_verified_benefit(self):
+        def change(raw):
+            raw['strategies'][0]['expected_advantage'] = 'Benefit is not yet verified. It remains to be tested.'
+            raw['strategies'][0]['probe']['success_criterion'] = 'Test whether benchmarks verify an improvement.'
+            return raw
+        item = self.run_response(change)[0]
+        self.assertEqual(item['benefit_status'], 'not_tested')
+        self.assertFalse(item['qualified'])
+
+    def test_transport_failures_keep_strategy_phase_and_reservation_without_retry(self):
+        for error in (TimeoutError(), ProviderTransportError('ai_transport_redirect')):
+            with mock.patch('urllib.request.build_opener') as opener:
+                opener.return_value.open.side_effect = error
+                with self.assertRaises(ProviderTransportError) as caught:
+                    self.provider.suggest_strategies(self.repo, self.issue, self.request, self.budget)
+                self.assertEqual(caught.exception.diagnostic()['phase'], 'strategies')
+                self.assertTrue(caught.exception.diagnostic()['reservation_retained'])
+                opener.return_value.open.assert_called_once()
+        self.assertEqual(self.job['ai_calls_used'], 2)
 
     def test_discussion_target_or_omitted_lines_cannot_substitute_for_documentation(self):
         for ref in ('q0', 'target:README.md#L1-L60', 'file:README.md#L900-L901', 'file:absent.py#L1-L2'):
