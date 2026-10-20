@@ -194,6 +194,18 @@ class StrategyProviderTests(unittest.TestCase):
             with self.subTest(phrase=phrase), self.assertRaises(CandidateValidationError):
                 self.run_response(change)
 
+    def test_negative_benchmark_study_and_test_subjects_remain_unverified(self):
+        for phrase in ('No benchmark has verified an improvement.',
+                       'No independent study has demonstrated a benefit.',
+                       'No test has confirmed an improvement.', 'No benchmark is independently verified.'):
+            def change(raw):
+                raw['strategies'][0]['expected_advantage'] = phrase
+                return raw
+            with self.subTest(phrase=phrase):
+                item = self.run_response(change)[0]
+                self.assertEqual(item['benefit_status'], 'not_tested')
+                self.assertFalse(item['qualified'])
+
     def test_transport_failures_keep_strategy_phase_and_reservation_without_retry(self):
         for error in (TimeoutError(), ProviderTransportError('ai_transport_redirect')):
             with mock.patch('urllib.request.build_opener') as opener:

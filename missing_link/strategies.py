@@ -24,6 +24,8 @@ _UNVERIFIED_SCOPE = re.compile(
     r"\bno(?:\s+(?:new|native|target|RF|actual|observed|such))*\s+"
     r"(?:benefits?|implementation|execution|gains?|advantages?|results?|improvements?|evidence)"
     r"(?:\s+(?:is|was|has|have|been|yet|independently)){0,4}\s*$|"
+    r"\bno(?:\s+(?!(?:that|which|who|while|but|and|this|it|there|has|have|had|is|are|was|were)\b)[\w-]+){1,6}"
+    r"\s+(?:has|have|had|is|are|was|were)(?:\s+(?:been|yet|ever|independently|empirically|formally)){0,3}\s*$|"
     r"\b(?:if|whether|se)\s*$|"
     r"\b(?:to be|da)\s*$", re.I)
 
