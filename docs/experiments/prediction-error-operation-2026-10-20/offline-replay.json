@@ -1,0 +1,36 @@
+{
+  "query_replays": [
+    {
+      "query_index": 0,
+      "identical": true,
+      "seconds": 0.0005951999919489026,
+      "network_requests": 0
+    },
+    {
+      "query_index": 1,
+      "identical": true,
+      "seconds": 0.00042119997669942677,
+      "network_requests": 0
+    },
+    {
+      "query_index": 2,
+      "identical": true,
+      "seconds": 0.00037719999090768397,
+      "network_requests": 0
+    }
+  ],
+  "source_replay": {
+    "identical_except_fetch_time": true,
+    "seconds": 0.03776770000695251,
+    "network_requests": 0,
+    "git_blob_identities_verified": [
+      "175443ce8855883fcbf0122a6bfba12ac4cfb49d",
+      "0d72d4ca070d3afbdddfb86d02454aa33f90df48",
+      "fedaabbc23c800bfa27f1e27343eef1229f57055"
+    ]
+  },
+  "public_github_data_reads": 9,
+  "paid_calls": 0,
+  "target_writes": 0,
+  "local_execution_note": "Initial Windows console encoding failure after query 1 had been saved. Queries 0/1 were not repeated; the one previously unexecuted fixed query 2 was acquired separately."
+}

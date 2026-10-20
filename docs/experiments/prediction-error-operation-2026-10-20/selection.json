@@ -1,0 +1,10 @@
+{
+  "selected_before_source_read": [
+    "rvalavi/blockCV"
+  ],
+  "reason": "Query 1 rank 9 explicitly describes spatial/environmental train/test folds; this is a grouped split implementation hypothesis, not proof of excluded prediction errors.",
+  "other_queries": "No supplied name/description specifically meets the fixed rule. In particular RLScore has empty description, pyChemometrics only broad analysis metadata, and cross-fitting results lack explicit cross-fitted residual construction. Unknown code remains unknown.",
+  "remaining_source_slots": 1,
+  "replacement_allowed": false,
+  "initial_console_failure": "After successfully saving query-1, the initial Python cp1252 console could not encode an emoji in its metadata. Queries 0 and 1 were not repeated. Only the previously unexecuted fixed query 2 was then acquired with ASCII-safe console output."
+}
