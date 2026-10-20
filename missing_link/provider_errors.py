@@ -23,7 +23,7 @@ class ProviderTransportError(RuntimeError):
 
     def __init__(self, code, *, phase="analysis", http_status=None):
         self.code = code if code in MESSAGES else "ai_transport_protocol_error"
-        self.phase = phase if phase in {"analysis", "capabilities", "request", "matches"} else "analysis"
+        self.phase = phase if phase in {"analysis", "capabilities", "request", "matches", "strategies"} else "analysis"
         self.http_status = http_status if type(http_status) is int and 100 <= http_status <= 599 else None
         message = MESSAGES[self.code]
         if self.http_status is not None and self.code == "ai_transport_http_error":

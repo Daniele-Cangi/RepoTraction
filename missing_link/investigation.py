@@ -123,6 +123,7 @@ def run_investigation(args, request, *, emit=print, monotonic=time.monotonic, sl
                 previous_job = next((item for item in state.get("jobs", []) if item.get("id") == resume), None)
                 if (not previous_job or previous_job.get("input", {}).get("action", "discover") != action
                         or previous_job.get("input", {}).get("targeted_inquiry", False) != getattr(args, "targeted_inquiry", False)
+                        or previous_job.get("input", {}).get("strategies", False) != getattr(args, "strategies", False)
                         or any(previous_job.get("input", {}).get(key) != value
                         for key, value in {"repo": args.repo, "issue_url": issue_url, "use_ai": args.use_ai}.items())):
                     phase = "preflight"
@@ -139,6 +140,8 @@ def run_investigation(args, request, *, emit=print, monotonic=time.monotonic, sl
                     "max_requests": 80, "use_ai": args.use_ai}
                 if getattr(args, "targeted_inquiry", False):
                     job_input["targeted_inquiry"] = True
+                if getattr(args, "strategies", False):
+                    job_input["strategies"] = True
                 started = _call(request, "/api/missing-link/jobs", job_input)
             acknowledged_id = started.get("job_id")
             if (not isinstance(acknowledged_id, str) or not re.fullmatch(r"[0-9a-f]{32}", acknowledged_id)
@@ -186,6 +189,10 @@ def run_investigation(args, request, *, emit=print, monotonic=time.monotonic, sl
                 payload["cancellation"] = cancellation
                 raise ObservationError("observer_deadline_exceeded")
             phase = "export"
+            for group in job.get("result", {}).get("strategies", {}).values():
+                for strategy in group["items"]:
+                    output({"strategy_id": strategy["id"], "title": strategy["title"],
+                        "relevance": strategy["relevance"], "benefit_status": strategy["benefit_status"]})
             for match_id in job.get("result", {}).get("match_ids", []):
                 exported = _call(request, "/api/missing-link/export?" + urlencode({"match_id": match_id}))
                 entry["matches"].append(exported)

@@ -218,7 +218,7 @@ class Provider:
                 raise ResponseError("ai_transport_invalid_response", phase=phase)
         except ResponseError as exc:
             # Redirect policy is raised before it knows the interpretation phase.
-            exc.phase = phase if phase in {"analysis", "capabilities", "request", "matches"} else "analysis"
+            exc.phase = phase if phase in {"analysis", "capabilities", "request", "matches", "strategies"} else "analysis"
             raise
         except urllib.error.HTTPError as exc:
             raise ResponseError("ai_transport_http_error", phase=phase, http_status=exc.code) from None
@@ -298,6 +298,11 @@ class Provider:
                     optional_field_ids=[item["id"] for item in data["potential_subrequirements"]["items"]])
             elif phase == "capabilities":
                 data["schema"] = schema_for(phase, source_ids=data["sources"], capability_ids=report["capability_ids"])
+            elif phase == "strategies":
+                from .strategies import VERSION, proposal_schema
+                data["strategy_version"] = VERSION
+                data["request"] = request
+                data["schema"] = proposal_schema(data["sources"], request)
             else:
                 # The interpreted request remains intact, even when large. It
                 # and the schema/framing are measured before choosing source bytes.
@@ -346,10 +351,17 @@ class Provider:
         result["context_coverage"] = data["context_coverage"]
         return result
 
-    def plan_discovery(self, request: dict, target: dict, budget, *, inquiry=None) -> dict:
+    def plan_discovery(self, request: dict, target: dict, budget, *, inquiry=None, strategies=False) -> dict:
         from .discovery_decisions import PLAN_INSTRUCTION, plan_input, plan_schema, resolve_plan
         data, schema = plan_input(request, target, inquiry), plan_schema(request)
-        raw = self.complete(PLAN_INSTRUCTION, data, budget, schema, "request")
+        instruction = PLAN_INSTRUCTION
+        if strategies:
+            data["discovery_goal"] = "documented_strategy"
+            instruction = ("This investigation seeks a documented technical strategy, not necessarily reusable code. "
+                "In the following plan, reuse includes transferring an idea. Documentation, tutorials and cross-domain "
+                "methods may be useful sources if they explain a concrete mechanism; do not require an importable "
+                "implementation. Still compare against the direct alternative and require a falsifiable benefit hypothesis.\n" + instruction)
+        raw = self.complete(instruction, data, budget, schema, "request")
         try:
             result = resolve_plan(raw, request, self.identity())
         except (ValueError, TypeError, KeyError):
@@ -358,6 +370,8 @@ class Provider:
         result["target_snapshot"]["files"] = [{key: value for key, value in file.items() if key != "text"}
                                               for file in data["target"]["files"]]
         result["context_coverage"] = data["context_coverage"]
+        if strategies:
+            result["discovery_goal"] = "documented_strategy"
         return result
 
     def select_source(self, plan: dict, candidates: list, budget) -> dict:
@@ -365,7 +379,13 @@ class Provider:
         data = {"plan": plan, "candidates": candidates,
                 "context_coverage": {"decision_version": plan["version"],
                                      "repository_metadata_only": True, "source_code_available": False}}
-        raw = self.complete(SELECT_INSTRUCTION, data, budget, selection_schema(plan, candidates), "request")
+        instruction = SELECT_INSTRUCTION
+        if plan.get("discovery_goal") == "documented_strategy":
+            instruction = ("Select a source of a documented technical strategy. For this goal the following "
+                "implementation-only restrictions do not apply: a README, tutorial or method explanation may "
+                "supply the mechanism without supported code. State what documentation must be checked, and "
+                "do not treat metadata as proof of pertinence or benefit.\n" + instruction)
+        raw = self.complete(instruction, data, budget, selection_schema(plan, candidates), "request")
         try:
             return resolve_selection(raw, plan, candidates)
         except (ValueError, TypeError, KeyError):
@@ -488,6 +508,21 @@ class Provider:
         # Preserve structural mechanisms omitted by the model, not silently erase analysis coverage.
         changed = {item["id"] for item in enriched}
         return enriched + [item for key, item in candidates.items() if key not in changed]
+
+    def suggest_strategies(self, repository: dict, issue: dict, request: dict, budget) -> list[dict]:
+        """Opt-in documentation hypotheses through the same transport and allowance."""
+        from .strategies import INSTRUCTION, documentation_repository, resolve_proposals
+        if is_non_demand(request) or request.get("status") == "resolved":
+            return []
+        docs = documentation_repository(repository)
+        if not docs["files"]:
+            return []
+        data, report = self._bounded_context(docs, issue, "strategies", INSTRUCTION, request)
+        raw = self.complete(INSTRUCTION, data, budget, data["schema"], "strategies")
+        try:
+            return resolve_proposals(raw, repository, issue, request, data, report, self.identity())
+        except (ValueError, KeyError, TypeError):
+            raise CandidateValidationError("Invalid documented strategy; no automatic retry.") from None
 
     def evaluate(self, repository: dict, issue: dict, request: dict, budget) -> list[dict]:
         if is_non_demand(request):

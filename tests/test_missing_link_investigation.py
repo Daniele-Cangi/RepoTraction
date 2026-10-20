@@ -216,6 +216,40 @@ class InvestigationTests(unittest.TestCase):
         self.assertEqual(report["observation_failure"]["code"], "observer_resume_input_mismatch")
         self.assert_no_replacement(request, mutations=0)
 
+    def test_documented_strategies_are_observed_without_exporting_reuse_proofs(self):
+        self.args.strategies = True
+        self.args.issue = ['https://github.com/example/target/issues/1']
+        strategy = dict(id='s1', title='Separate dependent groups', relevance='pertinent', benefit_status='not_tested')
+        finished = dict(self.job, status='completed', result=dict(match_ids=[], strategies={'0': {'items': [strategy]}}))
+        result, report, request = self.execute([self.initial, {'job_id': self.job['id']}, {'jobs': [finished]}])
+        self.assertEqual(result, 0)
+        self.assertTrue(request.call_args_list[1].args[1]['strategies'])
+        self.assertEqual(report['jobs'][0]['job']['result']['strategies']['0']['items'], [strategy])
+        self.assertEqual(report['jobs'][0]['matches'], [])
+        self.assertEqual(request.call_count, 3)
+        self.assertIn('not_tested', '\n'.join(self.messages))
+
+    def test_resume_cannot_switch_a_reuse_job_into_documented_strategies(self):
+        self.args.strategies = True
+        self.args.resume = self.job['id']
+        result, report, request = self.execute([dict(self.initial, jobs=[self.job])])
+        self.assertEqual(result, 1)
+        self.assertEqual(report['observation_failure']['code'], 'observer_resume_input_mismatch')
+        self.assert_no_replacement(request, mutations=0)
+
+    def test_cli_exposes_strategies_only_with_ai_and_a_single_demand(self):
+        from scripts import investigate_missing_link as cli
+        args = ['--repo', 'rvalavi/blockCV', '--strategies', '--use-ai', '--issue', 'https://github.com/example/target/issues/1']
+        with mock.patch('sys.argv', ['investigate_missing_link.py'] + args), \
+                mock.patch.object(cli, 'run_investigation', return_value=0) as run:
+            self.assertEqual(cli.main(), 0)
+        self.assertTrue(run.call_args.args[0].strategies)
+        for args in (['--repo', 'rvalavi/blockCV', '--strategies'],
+                     ['--repo', 'rvalavi/blockCV', '--strategies', '--use-ai']):
+            with mock.patch('sys.argv', ['investigate_missing_link.py'] + args), \
+                    mock.patch('sys.stderr', new=io.StringIO()), self.assertRaises(SystemExit):
+                cli.main()
+
     def test_cli_request_mode_and_legacy_default(self):
         from scripts import investigate_missing_link as cli
         for argv, limit in ((["--from-request", "--issue", "https://github.com/example/target/issues/1", "--use-ai"], 1),
