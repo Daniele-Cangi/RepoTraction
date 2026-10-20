@@ -188,6 +188,12 @@ class Service:
             "max_candidates": self._bounded_integer(data.get("max_candidates"), 1 if from_request else 5, 1, 10)}
         if behavioral_examples:
             normalized["behavioral_examples"] = True
+        strategies = data.get("strategies", False)
+        if (not isinstance(strategies, bool) or
+                (strategies and (not use_ai or action == "analyze" or behavioral_examples or not issue))):
+            raise ValueError("strategies requires AI-enabled discovery with one issue and no behavioral execution.")
+        if strategies:
+            normalized["strategies"] = True
         if targeted_inquiry:
             normalized["targeted_inquiry"] = True
         with self.lock:
@@ -307,6 +313,12 @@ class Service:
         source = PublicGitHub(read, checkpoint=budget.checkpoint)
         checkpoints = job["checkpoint"]
         try:
+            strategies = job["input"].get("strategies", False)
+            if strategies:
+                from .strategies import VERSION
+                if checkpoints.get("strategy_version", VERSION) != VERSION:
+                    raise Paused("Strategy contract changed; start a new investigation.")
+                checkpoints["strategy_version"] = VERSION
             if job["input"]["use_ai"] and isinstance(self.provider, Provider):
                 identity = self.provider.identity()
                 if job.get("provider_identity", identity) != identity:
@@ -329,7 +341,7 @@ class Service:
                 save()
             repository = checkpoints["repository"]
             budget.checkpoint()
-            if job["input"]["use_ai"] and not checkpoints.get("capabilities_interpreted"):
+            if job["input"]["use_ai"] and not strategies and not checkpoints.get("capabilities_interpreted"):
                 stage("capabilities", "Interpreting source-backed product, subsystem and mechanism capabilities.")
                 repository["capabilities"] = self.provider.interpret_capabilities(repository, budget)
                 checkpoints["capabilities_interpreted"] = True
@@ -453,8 +465,17 @@ class Service:
                             "issue_url": issue["url"], "semantic_status": proposal["semantic_status"],
                             "execution_status": "not_requested", "qualified": False}
                         save()
-                    stage("compatibility", "Checking hard constraints and preparing the smallest technical bridge.")
-                    matches = self.provider.evaluate(repository, issue, request, budget) if job["input"]["use_ai"] else conservative_matches(repository, issue, request)
+                    if strategies:
+                        stage("strategies", "Assessing documented mechanisms; benefit remains untested.")
+                        proposals = self.provider.suggest_strategies(repository, issue, request, budget)
+                        budget.checkpoint()
+                        job["result"].setdefault("strategies", {})[key] = {
+                            "issue_url": issue["url"], "items": proposals, "benefit_status": "not_tested",
+                            "documentation_acquired": any(f.get("kind") == "documentation" for f in repository.get("files", []))}
+                        matches = []
+                    else:
+                        stage("compatibility", "Checking hard constraints and preparing the smallest technical bridge.")
+                        matches = self.provider.evaluate(repository, issue, request, budget) if job["input"]["use_ai"] else conservative_matches(repository, issue, request)
                     for match in matches:
                         budget.checkpoint()
                         # Reject unsafe proposals before any match for this candidate is saved.
@@ -584,8 +605,10 @@ class Service:
                 save()
         if "discovery_plan" not in checkpoints:
             stage("discovery-decision", "Choosing useful operations or a direct solution before searching.")
-            checkpoints["discovery_plan"] = (self.provider.plan_discovery(request, issue["target_context"], budget, inquiry=inquiry)
-                if inquiry is not None else self.provider.plan_discovery(request, issue["target_context"], budget))
+            plan_options = {"inquiry": inquiry} if inquiry is not None else {}
+            if job["input"].get("strategies"):
+                plan_options["strategies"] = True
+            checkpoints["discovery_plan"] = self.provider.plan_discovery(request, issue["target_context"], budget, **plan_options)
             save()
         plan = checkpoints["discovery_plan"]
         job["result"]["discovery_decision"] = plan

@@ -24,9 +24,13 @@ def main():
     parser.add_argument("--query", default="")
     parser.add_argument("--max-candidates", type=int)
     parser.add_argument("--use-ai", action="store_true")
+    parser.add_argument("--strategies", action="store_true",
+                        help="Seek documented technical ideas instead of implemented reuse; benefit remains untested.")
     parser.add_argument("--report", type=Path, help="New report path; existing reports are never replaced.")
     parser.add_argument("--resume", help="Explicitly resume a failed/paused job as the first selected issue.")
     args = parser.parse_args()
+    if args.strategies and (not args.use_ai or len(args.issue) != 1):
+        parser.error("--strategies requires --use-ai and one --issue.")
     if args.targeted_inquiry and not args.from_request:
         parser.error("--targeted-inquiry requires --from-request.")
     if args.from_request:
