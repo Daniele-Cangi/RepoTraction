@@ -207,7 +207,7 @@ class StrategyProviderTests(unittest.TestCase):
                 self.assertFalse(item['qualified'])
 
     def test_a_negated_main_clause_does_not_negate_an_affirmative_subordinate_result(self):
-        for link in ('although', 'because', 'whereas'):
+        for link in ('although', 'because', 'whereas', 'as', 'even as', 'so'):
             def change(raw):
                 raw['strategies'][0]['reason'] = f'No adapter exists {link} the benchmark has verified a 2x improvement.'
                 return raw

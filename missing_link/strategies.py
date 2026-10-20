@@ -17,7 +17,7 @@ _RESULT_CLAIM = re.compile(
     r"\b(?:benchmarks?|tests?|experiments?|measurements?|studies)\s+(?:verify|show|prove|confirm|demonstrate)\b", re.I)
 _CLAUSE_BREAK = re.compile(
     r"[.;,:!?\n]|\b(?:but|however|and|although|because|whereas|while|since|though|unless|until|"
-    r"before|after|when|where|once|despite|except|therefore|ma|però)\b", re.I)
+    r"before|after|when|where|once|despite|except|therefore|as|so|ma|però)\b", re.I)
 _UNVERIFIED_SCOPE = re.compile(
     # A modal/negation must govern this result verb, not an earlier operation.
     r"\b(?:not(?!\s+(?:only|just)\b)|no|never|without|unknown|unverified|untested|"
@@ -27,7 +27,8 @@ _UNVERIFIED_SCOPE = re.compile(
     r"\bno(?:\s+(?:new|native|target|RF|actual|observed|such))*\s+"
     r"(?:benefits?|implementation|execution|gains?|advantages?|results?|improvements?|evidence)"
     r"(?:\s+(?:is|was|has|have|been|yet|independently)){0,4}\s*$|"
-    r"\bno(?:\s+(?!(?:that|which|who|while|but|and|this|it|there|has|have|had|is|are|was|were)\b)[\w-]+){1,6}"
+    # A short ordinary subject, not arbitrary words spanning another predicate.
+    r"\bno(?:\s+(?!(?:that|which|who|while|but|and|this|it|there|has|have|had|is|are|was|were)\b)[\w-]+){1,2}"
     r"\s+(?:has|have|had|is|are|was|were)(?:\s+(?:been|yet|ever|independently|empirically|formally)){0,3}\s*$|"
     r"\b(?:if|whether|se)\s*$|"
     r"\b(?:to be|da)\s*$", re.I)
