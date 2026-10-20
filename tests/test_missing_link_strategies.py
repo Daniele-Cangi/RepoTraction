@@ -9,7 +9,7 @@ import unittest
 from unittest import mock
 
 from github_cli import ActiveAccountChangedError
-from missing_link.analysis import validate_request
+from missing_link.analysis import capability_fingerprint, validate_request
 from missing_link.provider import Provider, CandidateValidationError
 from missing_link.provider_errors import ProviderTransportError
 from missing_link.service import Budget, Cancelled, Paused, Service
@@ -173,6 +173,17 @@ class StrategyProviderTests(unittest.TestCase):
         self.assertEqual(item['benefit_status'], 'not_tested')
         self.assertFalse(item['qualified'])
 
+    def test_contracted_negation_and_future_tests_are_not_completed_results(self):
+        for phrase in ("The strategy hasn't been tested.", 'The strategy hasn’t been tested.',
+                       'The strategy will be tested.', "Its benefit isn't verified."):
+            def change(raw):
+                raw['strategies'][0]['expected_advantage'] = phrase
+                return raw
+            with self.subTest(phrase=phrase):
+                item = self.run_response(change)[0]
+                self.assertEqual(item['benefit_status'], 'not_tested')
+                self.assertFalse(item['qualified'])
+
     def test_transport_failures_keep_strategy_phase_and_reservation_without_retry(self):
         for error in (TimeoutError(), ProviderTransportError('ai_transport_redirect')):
             with mock.patch('urllib.request.build_opener') as opener:
@@ -314,6 +325,24 @@ class StrategyServiceTests(unittest.TestCase):
         self.assertEqual(job['result']['strategies']['0']['items'][0]['benefit_status'], 'not_tested')
         self.source.fetch_repository.assert_called_once_with('rvalavi/blockCV')
         self.source.search_repositories.assert_called_once_with('grouped validation prediction errors')
+
+    def test_strategy_job_preserves_the_enriched_snapshot_used_by_prior_reuse(self):
+        current = copy.deepcopy(self.source.fetch_repository.return_value)
+        current['capabilities'][0]['summary'] = 'Existing enriched interpretation bound to prior reuse.'
+        capability = current['capabilities'][0]
+        prior_match = dict(capability_id=capability['id'], capability_fingerprint=capability_fingerprint(capability))
+        self.service.store.put('repositories', current['id'], current)
+        with mock.patch('missing_link.service.PublicGitHub', return_value=self.source), \
+                mock.patch('urllib.request.build_opener') as opener:
+            opener.return_value.open.side_effect = self.send
+            started = self.service.start(dict(repo='rvalavi/blockCV', strategies=True,
+                issue_url=self.issue['url'], use_ai=True), background=False)
+        job = self.service.store.get('jobs', started['job_id'])
+        self.assertEqual(job['status'], 'completed', job.get('error'))
+        stored = self.service.store.get('repositories', current['id'])
+        self.assertEqual(stored, current)
+        self.assertTrue(self.service._capability_current(prior_match, stored))
+        self.assertEqual(job['checkpoint']['repository']['revision'], current['revision'])
 
     def test_invalid_benefit_claim_is_retained_as_a_failed_attempt_without_retry_or_strategy(self):
         self.invalid = True

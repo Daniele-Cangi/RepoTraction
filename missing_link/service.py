@@ -357,7 +357,11 @@ class Service:
                         else:
                             capability["limitations"].append("Prior maintainer correction needs review at this new revision.")
             budget.checkpoint()
-            self.store.put("repositories", repository["id"], repository)
+            # A document-only investigation must not replace the enriched
+            # capability snapshot that existing reuse matches are bound to.
+            # Its acquired source remains retained in this job's checkpoint.
+            if not strategies:
+                self.store.put("repositories", repository["id"], repository)
             if job["input"]["action"] == "analyze":
                 with self.lock:
                     budget.checkpoint()

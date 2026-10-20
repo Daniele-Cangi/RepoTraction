@@ -17,7 +17,8 @@ _RESULT_CLAIM = re.compile(
     r"\bbenchmarks?\s+(?:verify|show|prove|confirm|demonstrate)\b", re.I)
 _UNVERIFIED_SCOPE = re.compile(
     r"\b(?:not(?!\s+(?:only|just)\b)|no|never|without|unknown|unverified|untested|"
-    r"if|whether|may|might|could|would|should|non|nessun[oa]?|senza|mai|se|potrebbe|sarebbe)\b|"
+    r"if|whether|may|might|could|would|should|will|shall|cannot|non|nessun[oa]?|senza|mai|se|potrebbe|sarebbe)\b|"
+    r"\b(?:hasn|haven|hadn|isn|aren|wasn|weren|doesn|didn|won|wouldn|couldn|shouldn|can)['’]t\b|"
     r"\b(?:to be|da)\s*$", re.I)
 
 
