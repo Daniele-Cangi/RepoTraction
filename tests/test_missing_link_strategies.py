@@ -175,7 +175,8 @@ class StrategyProviderTests(unittest.TestCase):
 
     def test_contracted_negation_and_future_tests_are_not_completed_results(self):
         for phrase in ("The strategy hasn't been tested.", 'The strategy hasn’t been tested.',
-                       'The strategy will be tested.', "Its benefit isn't verified."):
+                       'The strategy will be tested.', "Its benefit isn't verified.",
+                       'The adaptation can be tested.', 'The benefit must be verified.'):
             def change(raw):
                 raw['strategies'][0]['expected_advantage'] = phrase
                 return raw
