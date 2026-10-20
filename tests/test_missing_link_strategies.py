@@ -185,6 +185,15 @@ class StrategyProviderTests(unittest.TestCase):
                 self.assertEqual(item['benefit_status'], 'not_tested')
                 self.assertFalse(item['qualified'])
 
+    def test_a_modal_for_another_operation_does_not_excuse_a_verified_result_claim(self):
+        for phrase in ('The adapter can preserve ordering while benchmarks verify a 2x improvement.',
+                       'The adaptation must preserve groups while benchmarks verify a 2x improvement.'):
+            def change(raw):
+                raw['strategies'][0]['expected_advantage'] = phrase
+                return raw
+            with self.subTest(phrase=phrase), self.assertRaises(CandidateValidationError):
+                self.run_response(change)
+
     def test_transport_failures_keep_strategy_phase_and_reservation_without_retry(self):
         for error in (TimeoutError(), ProviderTransportError('ai_transport_redirect')):
             with mock.patch('urllib.request.build_opener') as opener:

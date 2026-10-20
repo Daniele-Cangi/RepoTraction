@@ -16,9 +16,15 @@ _RESULT_CLAIM = re.compile(
     r"dimostrat[oaie]|verificat[oaie]|validat[oaie]|qualificat[oaie]|eseguit[oaie]|implementat[oaie])\b|"
     r"\bbenchmarks?\s+(?:verify|show|prove|confirm|demonstrate)\b", re.I)
 _UNVERIFIED_SCOPE = re.compile(
+    # A modal/negation must govern this result verb, not an earlier operation.
     r"\b(?:not(?!\s+(?:only|just)\b)|no|never|without|unknown|unverified|untested|"
-    r"if|whether|may|might|can|could|would|should|must|will|shall|cannot|non|nessun[oa]?|senza|mai|se|potrebbe|sarebbe)\b|"
-    r"\b(?:hasn|haven|hadn|isn|aren|wasn|weren|doesn|didn|won|wouldn|couldn|shouldn|can)['’]t\b|"
+    r"may|might|can|could|would|should|must|will|shall|cannot|non|senza|mai|potrebbe|sarebbe|"
+    r"(?:hasn|haven|hadn|isn|aren|wasn|weren|doesn|didn|won|wouldn|couldn|shouldn|can)['’]t)"
+    r"(?:\s+(?:be|been|being|have|yet|still|ever|also|already|fully|successfully|independently|empirically|formally|possibly|potentially)){0,5}\s*$|"
+    r"\bno(?:\s+(?:new|native|target|RF|actual|observed|such))*\s+"
+    r"(?:benefits?|implementation|execution|gains?|advantages?|results?|improvements?|evidence)"
+    r"(?:\s+(?:is|was|has|have|been|yet|independently)){0,4}\s*$|"
+    r"\b(?:if|whether|se)\s*$|"
     r"\b(?:to be|da)\s*$", re.I)
 
 
