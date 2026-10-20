@@ -1,0 +1,48 @@
+{
+  "kind": "diagnosis-led assisted retrieval, not an autonomous Discover cohort",
+  "product_revision": "c11732df6ed12bd299352ec5fb80c418a563f9e6",
+  "diagnosis": {
+    "repository": "Daniele-Cangi/Satellite-RF-Observatory",
+    "revision": "b546e271e05fa0a885bb4091a01286ce8096baa3",
+    "path": "research/exploratory/g20-diagnosis-2026-10-20/README.md",
+    "scope": "Already exposed conditional G20 failure; not an independently blocked-agent checkpoint or prospective RF validation.",
+    "facts": [
+      "The correction worsened 261 original increments: baseline RMS 14.692259 mm, corrected RMS 15.406601 mm.",
+      "Training post-fit residuals are not generally errors of predictions made with those observations excluded.",
+      "A separate prefix mask erases all G31 observations at two epochs: its unrestricted epoch clock is unobserved.",
+      "The diagnosis identifies a candidate learning-target mismatch, not a proven cause of all future error or a demonstrated improvement."
+    ]
+  },
+  "operation": {
+    "input": "Weighted inverse calibration, admitted observations, prospective removal groups, prediction functionals and continuity constraints.",
+    "output": "Observation-minus-prediction errors where every response in each removal group was excluded from fitting the corresponding prediction; explicit unavailable results if the remaining data cannot estimate that functional.",
+    "direct_alternative": "Reuse the existing fit, withheld-segment and source-link-prediction primitives to refit after each removal group. No new target implementation is needed to define this alternative.",
+    "external_benefit_hypothesis": "A concrete external mechanism could produce the same excluded-prediction errors with less repeated fitting, or expose a leakage/identifiability condition that the current latent correction omitted. A generic missing-data filter or random train/test splitter is insufficient.",
+    "mandatory_constraints": [
+      "An excluded response must not influence its prediction through calibration or learned preprocessing.",
+      "Remove jointly all rows assigned to a comparison group; singleton deletion is only partial relevance.",
+      "Respect temporal/continuity boundaries and state all fixed-model, weighting and covariance assumptions.",
+      "Do not invent an unrestricted unobserved clock or substitute a finite number for an unsupported prediction.",
+      "Compare any shortcut against explicit refitting on identical admitted data; no RF performance claim without a separate authorized native experiment."
+    ]
+  },
+  "queries_fixed_before_search": [
+    "leave one out least squares",
+    "block cross validation",
+    "cross fitting residuals"
+  ],
+  "acquisition": {
+    "reader": "Unchanged PublicGitHub.search_repositories: one page of 20 per query, default upstream order, mandatory public/unarchived/nonfork scope.",
+    "selection_rule": "Visit queries in the declared order and metadata in upstream order. Inspect at most two distinct repositories in total whose supplied name or description explicitly identifies executable leave-one-out regression, grouped/blocked cross-validation, or cross-fitted residual construction. Broad statistics packages without a specific metadata link, paper lists, unrelated CV and ambiguous descriptions remain unselected. Record each decision before reading source; no replacement for empty or unsuitable code samples.",
+    "source_reader": "Unchanged fetch_repository default 24-file sample with eligible catalogue. If the automatic sample does not expose the claimed operation, allow at most three additional exact paths per selected repository from that same pinned eligible catalogue, chosen by the operation-related filename. Record targeted reads separately from automatic discovery. No notebook extraction, installation or execution of donor code.",
+    "stop": "No additional query, pagination, replacement repository, paid API call or target experiment. Report absence or partial relevance honestly."
+  },
+  "assessment": [
+    "Executable excluded-prediction mechanism reached, with pinned file/line evidence.",
+    "Mask/group semantics, weighting, continuity and estimability assumptions.",
+    "Specific advantage or limitation relative to existing explicit refits.",
+    "Separate operator choices, automatic reader behavior, numerical demonstration and untested native benefit."
+  ],
+  "historical_comparison": "Use the conserved query-diagnostic-2026-10-19 as historical context only; different operation, queries and source-read budgets prevent a controlled ranking or yield improvement claim.",
+  "boundaries": "Only RepoTraction may be changed. No Satellite writes, PR updates, merges, numerical RF runs or chat messages. No Provider instantiation or paid AI call; no unused historical allowance reused. Preserve all historical evidence."
+}
