@@ -206,6 +206,22 @@ class StrategyProviderTests(unittest.TestCase):
                 self.assertEqual(item['benefit_status'], 'not_tested')
                 self.assertFalse(item['qualified'])
 
+    def test_a_negated_main_clause_does_not_negate_an_affirmative_subordinate_result(self):
+        for link in ('although', 'because', 'whereas'):
+            def change(raw):
+                raw['strategies'][0]['reason'] = f'No adapter exists {link} the benchmark has verified a 2x improvement.'
+                return raw
+            with self.subTest(link=link), self.assertRaises(CandidateValidationError):
+                self.run_response(change)
+
+    def test_imperative_probe_steps_are_not_mistaken_for_observed_results(self):
+        def change(raw):
+            raw['strategies'][0]['adaptation'] = ['Verify continuity before proposing a group design.']
+            raw['strategies'][0]['probe']['change'] = 'Verify whether the alternative preserves all original criteria.'
+            return raw
+        item = self.run_response(change)[0]
+        self.assertEqual(item['benefit_status'], 'not_tested')
+
     def test_transport_failures_keep_strategy_phase_and_reservation_without_retry(self):
         for error in (TimeoutError(), ProviderTransportError('ai_transport_redirect')):
             with mock.patch('urllib.request.build_opener') as opener:

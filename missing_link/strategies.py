@@ -11,10 +11,13 @@ from .sources import _redact, validate_repository
 
 VERSION = "documented-strategies-v1"
 _RESULT_CLAIM = re.compile(
-    r"\b(?:verif(?:y|ies|ied)|validat(?:ed|es)|prov(?:en|es)|demonstrat(?:ed|es)|confirm(?:ed|s)|"
+    r"\b(?:verif(?:ies|ied)|validat(?:ed|es)|prov(?:en|es)|demonstrat(?:ed|es)|confirm(?:ed|s)|"
     r"benchmarked|tested|executed|implemented|qualified|production[ -]+ready|"
     r"dimostrat[oaie]|verificat[oaie]|validat[oaie]|qualificat[oaie]|eseguit[oaie]|implementat[oaie])\b|"
-    r"\bbenchmarks?\s+(?:verify|show|prove|confirm|demonstrate)\b", re.I)
+    r"\b(?:benchmarks?|tests?|experiments?|measurements?|studies)\s+(?:verify|show|prove|confirm|demonstrate)\b", re.I)
+_CLAUSE_BREAK = re.compile(
+    r"[.;,:!?\n]|\b(?:but|however|and|although|because|whereas|while|since|though|unless|until|"
+    r"before|after|when|where|once|despite|except|therefore|ma|però)\b", re.I)
 _UNVERIFIED_SCOPE = re.compile(
     # A modal/negation must govern this result verb, not an earlier operation.
     r"\b(?:not(?!\s+(?:only|just)\b)|no|never|without|unknown|unverified|untested|"
@@ -45,7 +48,7 @@ def _reject_result_claims(value):
         for child in value:
             _reject_result_claims(child)
     elif isinstance(value, str):
-        for clause in re.split(r"[.;,:!?\n]|\b(?:but|however|and|ma|però)\b", value, flags=re.I):
+        for clause in _CLAUSE_BREAK.split(value):
             for claim in _RESULT_CLAIM.finditer(clause):
                 if not _UNVERIFIED_SCOPE.search(clause[:claim.start()]):
                     raise ValueError("Strategy prose claims an unobserved result.")
