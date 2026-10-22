@@ -1,16 +1,19 @@
-# Live blockCV assessment: two completed responses, no strategy proposed
+# Live blockCV assessment: no strategy proposed, second call out of protocol
 
-The fixed two-call cohort completed on RepoTraction revision
+Two provider calls completed on RepoTraction revision
 `813bdfc1f42888b01d4c69559a3d1afa0aa99ce7`, after PR #135 was merged with
 all four Windows/Linux CI jobs green and its two preparation review findings
 resolved. The reviewed preparation is `d64525cb687e1f6b56897566ad3d3416b1f99a2a`.
 The existing `Provider.suggest_strategies` returned `{"strategies": []}` for
 **both** supplied cases. There was no retry, prompt repair or replacement.
+However, the second call violated the frozen advancement condition. This is
+**not a fully protocol-compliant cohort**; only the first response is an
+in-protocol result. The second is retained as supplemental, out-of-protocol data.
 
 | Case | Native completed JSON | Local outcome | Provider-call wall time |
 | --- | --- | --- | ---: |
 | `excluded-errors` | `{"strategies": []}` | Valid empty result; no added strategy | 31.234 s |
-| `unobserved-clock` | `{"strategies": []}` | Valid empty result; no recovery claim emitted | 30.195 s |
+| `unobserved-clock` | `{"strategies": []}` | Valid JSON, but out-of-protocol supplemental result | 30.195 s |
 
 These are original parseable model outputs, retained before local strategy
 resolution. The empty lists were not produced by filtering or rejecting proposed
@@ -20,6 +23,29 @@ operator-authored discussion were in each packed request. The wider repository
 sample still excludes implementation files and does not represent all blockCV
 documentation or the complete target software.
 
+## Protocol deviation: second call should not have run
+
+The frozen [README](README.md) says that "only a candidate-local rejection"
+permits advancing to the second case. The [machine-readable protocol](experiment.json)
+also says to proceed to the fixed next case "only for candidate-local rejection".
+Call 1 was a valid empty response, not a candidate-local rejection. Under that
+written rule, execution should have stopped after call 1. The invocation instead
+continued unconditionally after a valid empty result and performed call 2.
+
+The preparation also describes two ordered cases, but that does not override its
+explicit advancement restriction. We do not reinterpret the restriction after
+seeing the results or change the frozen preparation to make this run compliant.
+The two-call ceiling, cost ceiling and no-retry limits were respected; that does
+not cure the stop-rule violation. The extra conservative reservation attributable
+to call 2 is 0.0153834 USD, with reported usage estimated at 0.0022378 USD at the
+configured prices.
+
+The native [receipt](live-results.json) remains unchanged. Its job status
+`completed` describes technical execution, not protocol compliance. The first
+empty result remains an observation from the prepared primary assessment. The
+second response must not count as a compliant negative control or contribute to
+a compliant two-case success/failure rate. No compensating rerun is performed.
+
 ## What this establishes and what remains unknown
 
 The new documentation path was exercised with a real model and accepted valid
@@ -28,11 +54,11 @@ produce a technical strategy beyond the existing grouped masked-refit baseline.
 There is no new useful transfer, implementation, receiving-agent advancement or
 RF improvement demonstrated by this cohort.
 
-On the G31 control, the system emitted no claim to reconstruct an unrestricted
-clock without observations. That is consistent with the control's limit, but an
-unexplained empty list does **not** show that the model understood observability
-or reasoned correctly about the physical information. Indiscriminate abstention
-would produce the same pair of outputs.
+The supplemental G31 response emitted no claim to reconstruct an unrestricted
+clock without observations. It is excluded from the protocol-compliant control
+assessment. Independently of that exclusion, an unexplained empty list does
+**not** show that the model understood observability or reasoned correctly about
+the physical information. Indiscriminate abstention could produce empty lists too.
 
 No rationale accompanies either empty list in the existing response contract.
 We therefore cannot determine whether the primary abstention reflects appropriate
@@ -77,7 +103,8 @@ preparation files remain unchanged by this results commit.
 
 ## Decision
 
-Close this fixed cohort with its negative functional outcome. Do not spend the
+Close this cohort with its empty primary outcome and recorded protocol deviation.
+Do not present it as a compliant two-case comparison. Do not spend the
 remaining ceiling on retries, revised prompts or additional blockCV cases, and
 do not change the response contract or infrastructure just to recover a positive.
 More budget was not needed to complete this test.
