@@ -14,8 +14,8 @@
   "current_request_reservations": [
     {
       "case": "excluded-errors",
-      "request_bytes": 90847,
-      "conservative_reservation_usd": 0.0152895,
+      "request_bytes": 91422,
+      "conservative_reservation_usd": 0.015347,
       "documentation_source_ids": [
         "file:README.md#L1-L60",
         "file:LICENSE.md#L1-L60",
@@ -40,8 +40,8 @@
     },
     {
       "case": "unobserved-clock",
-      "request_bytes": 91344,
-      "conservative_reservation_usd": 0.0153392,
+      "request_bytes": 91786,
+      "conservative_reservation_usd": 0.0153834,
       "documentation_source_ids": [
         "file:README.md#L1-L60",
         "file:LICENSE.md#L1-L60",
@@ -65,7 +65,7 @@
       "discussion_complete": true
     }
   ],
-  "current_total_conservative_reservation_usd": 0.030628700000000002,
+  "current_total_conservative_reservation_usd": 0.030730399999999998,
   "max_total_conservative_reservation_usd": 0.0484096,
   "allowance_id": "blockcv-documented-strategies-2026-10-20-v1",
   "paid_calls": 0,

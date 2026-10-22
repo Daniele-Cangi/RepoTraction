@@ -53,7 +53,7 @@ cancellation failures stop globally.
 
 `offline-preflight.json` records real prompt packing, **not model execution**.
 At the configured prices (0.10 USD / million input tokens and 0.50 USD / million
-output tokens), the two current conservative reservations total **0.0306287 USD**.
+output tokens), the two current conservative reservations total **0.0307304 USD**.
 The maximum at 180,000 prompt bytes and 12,000 output tokens per call is
 **0.0484096 USD**. These are reservations at configured prices, not billed usage
 or a claim about current official pricing.
@@ -91,6 +91,7 @@ preparation or any historical experiment. No additional infrastructure is needed
 
 Preparation review correction (before any paid execution): `excluded-errors` now
 extracts the conditional-scope restriction as mandatory `r6`. Its operator-input
-fingerprint binds both the issue facts and the interpreted requirements. Packing
+fingerprint binds both the issue facts and the interpreted requirements. The
+negative control also makes its no-new-observation restriction explicit as `r6`. Packing
 figures were regenerated. The retention policy above follows existing Provider
 behavior; it does not add raw-body capture.

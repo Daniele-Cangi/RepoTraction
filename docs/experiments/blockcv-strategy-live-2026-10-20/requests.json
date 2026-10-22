@@ -225,7 +225,7 @@
       "limitations": [
         "Exposed diagnosis, explicit operator-selected source, no native target execution."
       ],
-      "fingerprint": "6b1bba54691ebe23d584f8a6dc64640bad5e1e81d62b677ebaf8d870932ecaa4"
+      "fingerprint": "e2abe4f70183bd491bf087521a1bdea98316a95d7ba36d596aa7811e48c77151"
     },
     "request": {
       "id": "blockcv-strategy-unobserved-clock",
@@ -318,6 +318,19 @@
             "quote_match": "exact"
           },
           "inference": ""
+        },
+        {
+          "id": "r6",
+          "text": "Do not count a grouping or validation design as supplying a new observation.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/blockcv-strategy-live-2026-10-20/docs/experiments/blockcv-strategy-live-2026-10-20/requests.json",
+            "quote": "A grouping or validation design alone does not supply an observation.",
+            "source_id": "q0",
+            "quote_match": "exact"
+          },
+          "inference": ""
         }
       ],
       "environment": [
@@ -342,8 +355,10 @@
             "bot_author_hint": false,
             "generated_hint": false,
             "authority": "request_author",
-            "represented_by": [],
-            "needs_review": true
+            "represented_by": [
+              "r6"
+            ],
+            "needs_review": false
           },
           {
             "id": "constraint:q0:6",
@@ -410,13 +425,11 @@
           "dispositions": [],
           "method": "optional-field syntax is an extraction hint, not proof of optional demand or compatibility"
         },
-        "qualification_blockers": [
-          "Potential constraint needs extraction/authority review: constraint:q0:2"
-        ]
+        "qualification_blockers": []
       },
       "context_complete": true,
       "updated_at": "2026-10-20",
-      "fingerprint": "6b1bba54691ebe23d584f8a6dc64640bad5e1e81d62b677ebaf8d870932ecaa4"
+      "fingerprint": "e2abe4f70183bd491bf087521a1bdea98316a95d7ba36d596aa7811e48c77151"
     }
   }
 ]
