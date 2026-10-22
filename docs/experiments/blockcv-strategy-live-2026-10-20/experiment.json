@@ -1,0 +1,69 @@
+{
+  "experiment": "blockcv-strategy-live-2026-10-20",
+  "status": "preparation only; cohort budget authorized in chat, no paid execution performed",
+  "question": "Can the real Provider produce a document-grounded, target-specific strategy hypothesis without code and avoid pretending that grouping can recover an unobserved unrestricted clock?",
+  "scope": "Explicit operator-selected blockCV, already exposed operator-authored diagnostic tasks and conserved source. Not autonomous source discovery, independent demand discovery, blind review, a receiving-agent intervention or measured native benefit.",
+  "product": {
+    "repository": "Daniele-Cangi/RepoTraction",
+    "revision": "fee6581df6d06dcbe4aa39077678e7223257d29d",
+    "merged_pr": 134,
+    "reviewed_head": "2e1671d3088803b76ffc9000c5ee5c975e45208f",
+    "green_ci": "https://github.com/Daniele-Cangi/RepoTraction/actions/runs/39504102849",
+    "execution_revision_policy": "Record the exact reviewed preparation and executing revisions before any paid call."
+  },
+  "source": {
+    "repository": "rvalavi/blockCV",
+    "revision": "51e6903fe652411248aa20937c80b122e5e12e09",
+    "conserved_sample": "docs/experiments/prediction-error-operation-2026-10-20/source-sample.json.gz",
+    "readme_blob": "0d72d4ca070d3afbdddfb86d02454aa33f90df48",
+    "policy": "Use the existing snapshot and its already acquired documentation only; do not fetch a newer version or additional R/code files. No search, source replacement, donor execution, package installation or target read."
+  },
+  "cases": [
+    {
+      "id": "excluded-errors",
+      "role": "plausibly pertinent, exposed primary diagnosis",
+      "known_direct_alternative": "Explicit grouped masked refits with continuity and estimability checks. Training post-fit residuals are not assumed to be excluded-prediction errors.",
+      "assessment": "Separate a source-grounded, target-specific methodological suggestion from a generic repetition of grouped withholding already known to the baseline. Cite visible mechanism text, identify exact relevant original requirement IDs, explain what changes and what does not, adaptation assumptions, remaining work and an independently testable comparison. There is no requirement to produce a positive proposal."
+    },
+    {
+      "id": "unobserved-clock",
+      "role": "negative information control, also exposed",
+      "known_direct_alternative": "UNOBSERVED_NETWORK_CLOCK under the unchanged unrestricted free-epoch clock model.",
+      "assessment": "An empty result, rejection or explicit uncertainty is legitimate. Any claim that grouping/validation reconstructs the unrestricted clock without observations or a changed model fails this control. A future measurement or prior is not recovery under the fixed request."
+    }
+  ],
+  "model_input": "requests.json supplies explicitly operator-authored requirements validated locally with the existing validate_request. The model interprets the documentation, not the demand in a separate paid phase. Supplied facts are diagnosis/report context, not complete target implementation. Do not relabel them as target-code evidence or a fetched GitHub issue.",
+  "execution": {
+    "path": "Existing Provider.suggest_strategies with existing Budget, Service/Store account verification, lease, atomic allowance and completed-output retention; direct experiment-local invocation, no new product intake or runner.",
+    "intake_limit": "The Service/CLI currently takes GitHub issue URLs. These local diagnostic cases are passed explicitly to the Provider method, not posted as new issues or represented as ordinary issue acquisition. This is a real-model documentation assessment, not unchanged Service/IDE intake end to end.",
+    "order": [
+      "excluded-errors",
+      "unobserved-clock"
+    ],
+    "max_calls": 2,
+    "max_proposals_per_case": 3,
+    "max_prompt_bytes": 180000,
+    "max_output_tokens": 12000,
+    "model": "gpt-6-luna",
+    "api_kind": "responses",
+    "response_format": "json_schema",
+    "reasoning_effort": "medium",
+    "streaming": true,
+    "new_allowance_id": "blockcv-documented-strategies-2026-10-20-v1",
+    "maximum_conservative_reservation_usd_at_configured_prices": 0.0484096,
+    "input_price_usd_per_million_configured": 0.1,
+    "output_price_usd_per_million_configured": 0.5,
+    "authorization": "After the two-call / 0.05 USD proposal, the user replied: se necessario alza il budget. This cohort retains the already sufficient 0.05 USD ceiling; no increase, additional call or retry is needed. Prior cohort allowances remain closed.",
+    "gate": "Run only after reviewed preparation and all required CI green. Check current provider/model/prices/limits and input versions before execution; a mismatch stops without calling the model or increasing the ceiling.",
+    "stop": "No retry, output repair, rescoring with new prompts, query, substitute source or extra case. Retain completed parseable JSON through existing redaction, including later schema/semantic rejection; refused/incomplete/malformed responses and transport bodies are not retained. Record safe failure categories and any actually available reservation/call/usage metadata; proceed to the fixed next case only for candidate-local rejection. Transport, identity, cancellation and allowance failures stop the cohort globally.",
+    "authorized_ceiling_usd": 0.05
+  },
+  "report": [
+    "All proposed, unknown, rejected, empty and invalid outcomes, with completed parseable JSON retained through existing redaction; no refused/incomplete/malformed/transport bodies. Report actual reservations, call metadata, usage and timing only where available, including missing receipts explicitly.",
+    "For each proposed mechanism: exact documentation basis, target relevance, whether it merely repeats the known direct alternative, applicability assumptions and a genuinely discriminating proposed test.",
+    "Assess both controls without trusting the model relevance label as a score. This is an operator review of exposed cases, not an independent or held-out estimate.",
+    "Benefit remains not_tested, execution not_executed and qualification false. Passing the semantic checks is not useful software transfer, causal evidence of the source's contribution or an RF improvement.",
+    "Keep all old experiments and outcomes unchanged. Append the live receipt/results; do not rewrite preparation as if it had been a live success."
+  ],
+  "boundaries": "Only RepoTraction may be changed. No Satellite files, experiments, commands, chat messages, issues, PR updates or merges. No RF recalibration, receiver-agent claim, source tuning or additional infrastructure. This preparation executes no paid call."
+}

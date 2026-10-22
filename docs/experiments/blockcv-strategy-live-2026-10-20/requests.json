@@ -1,0 +1,435 @@
+[
+  {
+    "id": "excluded-errors",
+    "issue": {
+      "id": "blockcv-strategy-excluded-errors",
+      "repo": "Daniele-Cangi/Satellite-RF-Observatory",
+      "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/blockcv-strategy-live-2026-10-20/docs/experiments/blockcv-strategy-live-2026-10-20/requests.json",
+      "title": "Construct training errors for genuinely excluded predictions",
+      "body": "An already exposed conditional G20 correction increased RMS from 14.692259 to 15.406601 mm on the same 261 increments. A bounded diagnostic found that post-fit training residuals are not generally errors of predictions obtained when those responses are excluded from calibration. Existing explicit refits, continuity selection and prediction primitives already construct such errors. This is a candidate learning-target mismatch, not a proven cause of all future error. Other admitted links at later epochs are allowed in this conditional task: do not silently change it into whole-network causal forecasting.\n\nRequirements:\n- Construct observation-minus-prediction errors with every response in each removal group excluded from fitting and learned preprocessing.\n- Identify whether the supplied documentation adds a concrete strategy beyond the already known direct grouped refits; a generic instruction to withhold data repeats the baseline.\n- Explain assumptions, target-specific adaptation and a falsifiable comparison on identical supported outputs.\n- Use only admitted observations and preserve the original continuity and estimability checks.\n- Compare with the existing direct alternative and do not weaken acceptance criteria or invent an observed benefit.\n- Do not modify or execute the target project; provide only a proposed adaptation and discriminating test.",
+      "comments": [],
+      "timeline": [],
+      "context_complete": true,
+      "public": true,
+      "state": "open",
+      "updated_at": "2026-10-20",
+      "origin": "Operator-authored diagnostic request, not a fetched issue or independent blocked-agent checkpoint.",
+      "limitations": [
+        "Exposed diagnosis, explicit operator-selected source, no native target execution."
+      ],
+      "fingerprint": "a4c26172d13ed8b4b950ca9d836a97edc8f3cd68b592c89aa583fb40297ea73c"
+    },
+    "request": {
+      "id": "blockcv-strategy-excluded-errors",
+      "title": "Construct training errors for genuinely excluded predictions",
+      "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/blockcv-strategy-live-2026-10-20/docs/experiments/blockcv-strategy-live-2026-10-20/requests.json",
+      "outcome": "Construct training errors for genuinely excluded predictions",
+      "status": "unresolved",
+      "status_reason": "Operator-defined diagnostic task.",
+      "status_evidence": [
+        {
+          "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/blockcv-strategy-live-2026-10-20/docs/experiments/blockcv-strategy-live-2026-10-20/requests.json",
+          "source_id": "q0"
+        }
+      ],
+      "requirements": [
+        {
+          "id": "r0",
+          "text": "Construct observation-minus-prediction errors with every response in each removal group excluded from fitting and learned preprocessing.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/blockcv-strategy-live-2026-10-20/docs/experiments/blockcv-strategy-live-2026-10-20/requests.json",
+            "quote": "Construct observation-minus-prediction errors with every response in each removal group excluded from fitting and learned preprocessing.",
+            "source_id": "q0",
+            "quote_match": "exact"
+          },
+          "inference": ""
+        },
+        {
+          "id": "r1",
+          "text": "Identify whether the supplied documentation adds a concrete strategy beyond the already known direct grouped refits; a generic instruction to withhold data repeats the baseline.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/blockcv-strategy-live-2026-10-20/docs/experiments/blockcv-strategy-live-2026-10-20/requests.json",
+            "quote": "Identify whether the supplied documentation adds a concrete strategy beyond the already known direct grouped refits; a generic instruction to withhold data repeats the baseline.",
+            "source_id": "q0",
+            "quote_match": "exact"
+          },
+          "inference": ""
+        },
+        {
+          "id": "r2",
+          "text": "Explain assumptions, target-specific adaptation and a falsifiable comparison on identical supported outputs.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/blockcv-strategy-live-2026-10-20/docs/experiments/blockcv-strategy-live-2026-10-20/requests.json",
+            "quote": "Explain assumptions, target-specific adaptation and a falsifiable comparison on identical supported outputs.",
+            "source_id": "q0",
+            "quote_match": "exact"
+          },
+          "inference": ""
+        },
+        {
+          "id": "r3",
+          "text": "Use only admitted observations and preserve the original continuity and estimability checks.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/blockcv-strategy-live-2026-10-20/docs/experiments/blockcv-strategy-live-2026-10-20/requests.json",
+            "quote": "Use only admitted observations and preserve the original continuity and estimability checks.",
+            "source_id": "q0",
+            "quote_match": "exact"
+          },
+          "inference": ""
+        },
+        {
+          "id": "r4",
+          "text": "Compare with the existing direct alternative and do not weaken acceptance criteria or invent an observed benefit.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/blockcv-strategy-live-2026-10-20/docs/experiments/blockcv-strategy-live-2026-10-20/requests.json",
+            "quote": "Compare with the existing direct alternative and do not weaken acceptance criteria or invent an observed benefit.",
+            "source_id": "q0",
+            "quote_match": "exact"
+          },
+          "inference": ""
+        },
+        {
+          "id": "r5",
+          "text": "Do not modify or execute the target project; provide only a proposed adaptation and discriminating test.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/blockcv-strategy-live-2026-10-20/docs/experiments/blockcv-strategy-live-2026-10-20/requests.json",
+            "quote": "Do not modify or execute the target project; provide only a proposed adaptation and discriminating test.",
+            "source_id": "q0",
+            "quote_match": "exact"
+          },
+          "inference": ""
+        },
+        {
+          "id": "r6",
+          "text": "Other admitted links at later epochs are allowed in this conditional task: do not silently change it into whole-network causal forecasting.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/blockcv-strategy-live-2026-10-20/docs/experiments/blockcv-strategy-live-2026-10-20/requests.json",
+            "quote": "Other admitted links at later epochs are allowed in this conditional task: do not silently change it into whole-network causal forecasting.",
+            "source_id": "q0",
+            "quote_match": "exact"
+          },
+          "inference": ""
+        }
+      ],
+      "environment": [
+        "Conditional weighted inverse calibration."
+      ],
+      "prior_attempts": [
+        "Existing direct alternative described in request."
+      ],
+      "missing_information": [],
+      "optional_field_dispositions": [],
+      "constraint_review": {
+        "items": [
+          {
+            "id": "constraint:q0:2",
+            "source_id": "q0",
+            "quote": "do not silently change it into whole-network causal forecasting.",
+            "quote_truncated": false,
+            "kind": "potential_constraint",
+            "author": null,
+            "author_type": null,
+            "author_association": null,
+            "bot_author_hint": false,
+            "generated_hint": false,
+            "authority": "request_author",
+            "represented_by": [
+              "r6"
+            ],
+            "needs_review": false
+          },
+          {
+            "id": "constraint:q0:9",
+            "source_id": "q0",
+            "quote": "do not weaken acceptance criteria or invent an observed benefit.",
+            "quote_truncated": false,
+            "kind": "potential_constraint",
+            "author": null,
+            "author_type": null,
+            "author_association": null,
+            "bot_author_hint": false,
+            "generated_hint": false,
+            "authority": "request_author",
+            "represented_by": [
+              "r4"
+            ],
+            "needs_review": false
+          },
+          {
+            "id": "constraint:q0:10",
+            "source_id": "q0",
+            "quote": "Do not modify or execute the target project; provide only a proposed adaptation and discriminating test.",
+            "quote_truncated": false,
+            "kind": "potential_constraint",
+            "author": null,
+            "author_type": null,
+            "author_association": null,
+            "bot_author_hint": false,
+            "generated_hint": false,
+            "authority": "request_author",
+            "represented_by": [
+              "r5"
+            ],
+            "needs_review": false
+          }
+        ],
+        "complete": true,
+        "markers_found": 3,
+        "constraint_markers_found": 3,
+        "gap_markers_found": 0,
+        "gap_hints_complete": true,
+        "note": "Non-exhaustive English constraint markers; no marker does not prove all requirements were extracted.",
+        "optional_field_review": {
+          "items": [],
+          "complete": true,
+          "omitted_fields": 0,
+          "dispositions": [],
+          "method": "optional-field syntax is an extraction hint, not proof of optional demand or compatibility"
+        },
+        "qualification_blockers": []
+      },
+      "context_complete": true,
+      "updated_at": "2026-10-20",
+      "fingerprint": "a4c26172d13ed8b4b950ca9d836a97edc8f3cd68b592c89aa583fb40297ea73c"
+    }
+  },
+  {
+    "id": "unobserved-clock",
+    "issue": {
+      "id": "blockcv-strategy-unobserved-clock",
+      "repo": "Daniele-Cangi/Satellite-RF-Observatory",
+      "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/blockcv-strategy-live-2026-10-20/docs/experiments/blockcv-strategy-live-2026-10-20/requests.json",
+      "title": "Respect a clock that becomes unobservable after masking",
+      "body": "In the retained G31 prefix example, the station remains observed but no admitted observation involves G31 at either selected epoch. The current model assigns a free G31 clock at each epoch. This control asks for that unrestricted clock under the same model, with no new observations, clock prior, temporal law or pseudo-observation. The existing direct behavior correctly reports UNOBSERVED_NETWORK_CLOCK. A grouping or validation design alone does not supply an observation.\n\nRequirements:\n- Assess whether a documented strategy can recover the unrestricted G31 epoch clock under exactly these information constraints.\n- Do not add a clock prior, temporal model, new measurement, pseudo-observation or invented finite clock value.\n- Keep UNOBSERVED_NETWORK_CLOCK when the requested quantity is not estimable; a future data-collection suggestion is not present recovery.\n- Use only admitted observations and preserve the original continuity and estimability checks.\n- Compare with the existing direct alternative and do not weaken acceptance criteria or invent an observed benefit.\n- Do not modify or execute the target project; provide only a proposed adaptation and discriminating test.",
+      "comments": [],
+      "timeline": [],
+      "context_complete": true,
+      "public": true,
+      "state": "open",
+      "updated_at": "2026-10-20",
+      "origin": "Operator-authored diagnostic request, not a fetched issue or independent blocked-agent checkpoint.",
+      "limitations": [
+        "Exposed diagnosis, explicit operator-selected source, no native target execution."
+      ],
+      "fingerprint": "e2abe4f70183bd491bf087521a1bdea98316a95d7ba36d596aa7811e48c77151"
+    },
+    "request": {
+      "id": "blockcv-strategy-unobserved-clock",
+      "title": "Respect a clock that becomes unobservable after masking",
+      "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/blockcv-strategy-live-2026-10-20/docs/experiments/blockcv-strategy-live-2026-10-20/requests.json",
+      "outcome": "Respect a clock that becomes unobservable after masking",
+      "status": "unresolved",
+      "status_reason": "Operator-defined diagnostic task.",
+      "status_evidence": [
+        {
+          "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/blockcv-strategy-live-2026-10-20/docs/experiments/blockcv-strategy-live-2026-10-20/requests.json",
+          "source_id": "q0"
+        }
+      ],
+      "requirements": [
+        {
+          "id": "r0",
+          "text": "Assess whether a documented strategy can recover the unrestricted G31 epoch clock under exactly these information constraints.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/blockcv-strategy-live-2026-10-20/docs/experiments/blockcv-strategy-live-2026-10-20/requests.json",
+            "quote": "Assess whether a documented strategy can recover the unrestricted G31 epoch clock under exactly these information constraints.",
+            "source_id": "q0",
+            "quote_match": "exact"
+          },
+          "inference": ""
+        },
+        {
+          "id": "r1",
+          "text": "Do not add a clock prior, temporal model, new measurement, pseudo-observation or invented finite clock value.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/blockcv-strategy-live-2026-10-20/docs/experiments/blockcv-strategy-live-2026-10-20/requests.json",
+            "quote": "Do not add a clock prior, temporal model, new measurement, pseudo-observation or invented finite clock value.",
+            "source_id": "q0",
+            "quote_match": "exact"
+          },
+          "inference": ""
+        },
+        {
+          "id": "r2",
+          "text": "Keep UNOBSERVED_NETWORK_CLOCK when the requested quantity is not estimable; a future data-collection suggestion is not present recovery.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/blockcv-strategy-live-2026-10-20/docs/experiments/blockcv-strategy-live-2026-10-20/requests.json",
+            "quote": "Keep UNOBSERVED_NETWORK_CLOCK when the requested quantity is not estimable; a future data-collection suggestion is not present recovery.",
+            "source_id": "q0",
+            "quote_match": "exact"
+          },
+          "inference": ""
+        },
+        {
+          "id": "r3",
+          "text": "Use only admitted observations and preserve the original continuity and estimability checks.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/blockcv-strategy-live-2026-10-20/docs/experiments/blockcv-strategy-live-2026-10-20/requests.json",
+            "quote": "Use only admitted observations and preserve the original continuity and estimability checks.",
+            "source_id": "q0",
+            "quote_match": "exact"
+          },
+          "inference": ""
+        },
+        {
+          "id": "r4",
+          "text": "Compare with the existing direct alternative and do not weaken acceptance criteria or invent an observed benefit.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/blockcv-strategy-live-2026-10-20/docs/experiments/blockcv-strategy-live-2026-10-20/requests.json",
+            "quote": "Compare with the existing direct alternative and do not weaken acceptance criteria or invent an observed benefit.",
+            "source_id": "q0",
+            "quote_match": "exact"
+          },
+          "inference": ""
+        },
+        {
+          "id": "r5",
+          "text": "Do not modify or execute the target project; provide only a proposed adaptation and discriminating test.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/blockcv-strategy-live-2026-10-20/docs/experiments/blockcv-strategy-live-2026-10-20/requests.json",
+            "quote": "Do not modify or execute the target project; provide only a proposed adaptation and discriminating test.",
+            "source_id": "q0",
+            "quote_match": "exact"
+          },
+          "inference": ""
+        },
+        {
+          "id": "r6",
+          "text": "Do not count a grouping or validation design as supplying a new observation.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/blockcv-strategy-live-2026-10-20/docs/experiments/blockcv-strategy-live-2026-10-20/requests.json",
+            "quote": "A grouping or validation design alone does not supply an observation.",
+            "source_id": "q0",
+            "quote_match": "exact"
+          },
+          "inference": ""
+        }
+      ],
+      "environment": [
+        "Conditional weighted inverse calibration."
+      ],
+      "prior_attempts": [
+        "Existing direct alternative described in request."
+      ],
+      "missing_information": [],
+      "optional_field_dispositions": [],
+      "constraint_review": {
+        "items": [
+          {
+            "id": "constraint:q0:2",
+            "source_id": "q0",
+            "quote": "does not supply an observation.",
+            "quote_truncated": false,
+            "kind": "potential_constraint",
+            "author": null,
+            "author_type": null,
+            "author_association": null,
+            "bot_author_hint": false,
+            "generated_hint": false,
+            "authority": "request_author",
+            "represented_by": [
+              "r6"
+            ],
+            "needs_review": false
+          },
+          {
+            "id": "constraint:q0:6",
+            "source_id": "q0",
+            "quote": "Do not add a clock prior, temporal model, new measurement, pseudo-observation or invented finite clock value.",
+            "quote_truncated": false,
+            "kind": "potential_constraint",
+            "author": null,
+            "author_type": null,
+            "author_association": null,
+            "bot_author_hint": false,
+            "generated_hint": false,
+            "authority": "request_author",
+            "represented_by": [
+              "r1"
+            ],
+            "needs_review": false
+          },
+          {
+            "id": "constraint:q0:9",
+            "source_id": "q0",
+            "quote": "do not weaken acceptance criteria or invent an observed benefit.",
+            "quote_truncated": false,
+            "kind": "potential_constraint",
+            "author": null,
+            "author_type": null,
+            "author_association": null,
+            "bot_author_hint": false,
+            "generated_hint": false,
+            "authority": "request_author",
+            "represented_by": [
+              "r4"
+            ],
+            "needs_review": false
+          },
+          {
+            "id": "constraint:q0:10",
+            "source_id": "q0",
+            "quote": "Do not modify or execute the target project; provide only a proposed adaptation and discriminating test.",
+            "quote_truncated": false,
+            "kind": "potential_constraint",
+            "author": null,
+            "author_type": null,
+            "author_association": null,
+            "bot_author_hint": false,
+            "generated_hint": false,
+            "authority": "request_author",
+            "represented_by": [
+              "r5"
+            ],
+            "needs_review": false
+          }
+        ],
+        "complete": true,
+        "markers_found": 4,
+        "constraint_markers_found": 4,
+        "gap_markers_found": 0,
+        "gap_hints_complete": true,
+        "note": "Non-exhaustive English constraint markers; no marker does not prove all requirements were extracted.",
+        "optional_field_review": {
+          "items": [],
+          "complete": true,
+          "omitted_fields": 0,
+          "dispositions": [],
+          "method": "optional-field syntax is an extraction hint, not proof of optional demand or compatibility"
+        },
+        "qualification_blockers": []
+      },
+      "context_complete": true,
+      "updated_at": "2026-10-20",
+      "fingerprint": "e2abe4f70183bd491bf087521a1bdea98316a95d7ba36d596aa7811e48c77151"
+    }
+  }
+]
