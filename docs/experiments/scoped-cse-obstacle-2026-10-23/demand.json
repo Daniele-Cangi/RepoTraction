@@ -1,0 +1,58 @@
+{
+  "issue": {
+    "url": "https://github.com/sympy/sympy/issues/27971",
+    "title": "Lambdify a sum with CSE extracts terms it shouldn't",
+    "issue_number": 27971,
+    "body": "In trying to model a spherical harmonic gravity model, I found odd behavior that I asked about on stack overflow, and was immediately told it was a bug.  When I try to lambdify a Sum with cse set to True, it produces a badly formed callback by extracting elements that depend on the sum's index variables.\n\nHere is an example showing the problem:\n```python\n#%%\nimport sympy as sy\nfrom IPython.display import display\n\n# normal symbols\nx = sy.Symbol('x', real=True)\ne = sy.Symbol('e', real=True, positive=True)\n\n# indexed symbols\ni = sy.Symbol('i', integer=True)\niMax = sy.Symbol(\"i_m\", integer=True, positive=True)\nxOfI = sy.Indexed('x',i)\n\n# the expression\ns = sy.Sum((xOfI+e*sy.sin(xOfI)+(e*sy.sin(xOfI))**2),(i,1,iMax))\ndisplay(s)\n\n# lambdify normally, it works\ncallback = sy.lambdify([x, e, iMax], s)\nanswer = callback([5, 6, 7, 8, 9], 0.01, 4)\nprint(answer)\n\n# lambdify with cse=True, and it fails\ncallbackWithCse = sy.lambdify([x, e, iMax], s, cse=True)\nanswer2 = callbackWithCse([5, 6, 7, 8, 9], 0.01, 4)\nprint(answer2)\n```\nThe code starts by defining a simple summation (this is just one I made up, it mathematically means nothing) where sin(xOfI) is a repeated term. I then lambidfy it with default options (cse is False), and it evaluates as I expect it.\n\nBut when I run it or this with cse=True I get the same problem (here's the relevant portion of my output when I run the script):\n\n```\nSum(e**2*sin(x[i])**2 - e*sin(x[i]) + x[i], (i, 1, i_m)) # first display\n29.98237535925591  # first summation with cse=False\nTraceback (most recent call last):\n...\n    answer2 = callbackWithCse([5, 6, 7, 8, 9], 0.01, 4)\n  File \"<lambdifygenerated-2>\", line 2, in _lambdifygenerated\n    x0 = sin(x[i])\nTypeError: list indices must be integers or slices, not Symbol\n```\n\nWe get a better hint of whats wrong by looking at the error in a Jupyter notebook:\n\n```\n      1 def _lambdifygenerated(x, e, i_m):\n----> 2     x0 = sin(x[i])\n      3     return (builtins.sum(e**2*x0**2 + e*x0 + x[i] for i in range(1, i_m+1)))\n```\nWith cse=True, it extracted the indexed variables (or terms with indexed variables) out of the summation where the i, the loop variable, is undefined.",
+    "state": "open",
+    "user": {
+      "login": "samthegliderpilot",
+      "name": "samthegliderpilot",
+      "email": null,
+      "avatar_url": "https://avatars.githubusercontent.com/u/61376498?v=4",
+      "id": 61376498
+    },
+    "assignees": null,
+    "labels": [
+      {
+        "name": "utilities.lambdify",
+        "color": "0000FF",
+        "description": null
+      }
+    ],
+    "milestone": null,
+    "state_reason": null,
+    "comments": 1,
+    "created_at": "2025-04-19T22:30:15Z",
+    "updated_at": "2025-04-20T19:44:06Z",
+    "closed_at": null,
+    "display_url": "https://github.com/sympy/sympy/issues/27971",
+    "display_title": "Lambdify a sum with CSE extracts terms it shouldn't"
+  },
+  "comments": [
+    {
+      "url": "https://github.com/sympy/sympy/issues/27971#issuecomment-2817311710",
+      "body": "Probably `lambdify` needs special handling for anything with bound symbols. Summations in particular need special handling for other reasons e.g. https://github.com/sympy/sympy/issues/27932",
+      "user": {
+        "login": "oscarbenjamin",
+        "name": "oscarbenjamin",
+        "email": null,
+        "avatar_url": "https://avatars.githubusercontent.com/u/1159732?v=4",
+        "id": 1159732
+      },
+      "id": 2817311710,
+      "pull_request_review_id": null,
+      "in_reply_to_id": null,
+      "created_at": null,
+      "updated_at": null,
+      "review": null,
+      "side": null,
+      "line": null,
+      "start_line": null,
+      "path": null,
+      "body_html": "<p dir=\"auto\">Probably <code class=\"notranslate\">lambdify</code> needs special handling for anything with bound symbols. Summations in particular need special handling for other reasons e.g. <a class=\"issue-link js-issue-link\" data-error-text=\"Failed to load title\" data-id=\"2986501507\" data-permission-text=\"Title is private\" data-url=\"https://github.com/sympy/sympy/issues/27932\" data-hovercard-type=\"issue\" data-hovercard-url=\"/sympy/sympy/issues/27932/hovercard\" href=\"https://github.com/sympy/sympy/issues/27932\">#27932</a></p>"
+    }
+  ],
+  "acquisition": "GitHub connector, issue and complete supplied comment thread; target demand, not donor search",
+  "paid_ai_calls": 0
+}

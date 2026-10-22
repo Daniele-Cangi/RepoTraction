@@ -1,0 +1,63 @@
+{
+  "target_repository": "sympy/sympy",
+  "selected_issue": 27971,
+  "selection": "Purposive engineering choice from public target demands before any donor search. Target selected because installed and testable; installed SymPy 1.14.0 was not used for the frozen measurements.",
+  "demand_queries": [
+    {
+      "query": "repo:sympy/sympy is:issue is:open label:bug",
+      "sort": "created desc",
+      "topn": 12,
+      "returned_issues": [
+        29179,
+        24026,
+        20435,
+        20063,
+        8797,
+        8746,
+        8683,
+        7089,
+        7085,
+        7079,
+        7078,
+        7076
+      ]
+    },
+    {
+      "query": "repo:sympy/sympy is:issue is:open cse in:title",
+      "sort": "created desc",
+      "topn": 8,
+      "returned_issues": [
+        28051,
+        27971,
+        27006,
+        24582,
+        24416,
+        24246,
+        23297,
+        22901
+      ]
+    }
+  ],
+  "assessment": "Selected a concrete wrong-code report with a finite reproduction, deterministic semantic oracle and a separable repeated-work objective. Other search results were not natively adjudicated and are not code-level negatives.",
+  "already_exposed": [
+    "The issue maintainer already points to bound-symbol handling.",
+    "Our direct reasoning already considered per-sum locally compiled helper functions.",
+    "Target cse(ignore=...) and lambdify callable-cse hooks were read as direct alternatives.",
+    "Issue-search snippets contained external references; none was followed as a donor."
+  ],
+  "related_target_context": [
+    "https://github.com/sympy/sympy/issues/27932 (read to distinguish unsupported infinite sums from this finite case)"
+  ],
+  "not_established": [
+    "No agent has been shown blocked on this task.",
+    "No external technique has been selected, tested or shown necessary.",
+    "No generic complete direct fix has been attempted yet.",
+    "No independent or held-out evaluation."
+  ],
+  "donor_searches": 0,
+  "paid_ai_calls": 0,
+  "target_modified": false,
+  "satellite_operations": 0,
+  "freeze_commit": "471213561b288d6f616540f216b5f758955f70b3",
+  "next_gate": "Direct attempt on the unchanged fixture; success ends the case before any donor search. No further experiment or paid call is authorized by this preparation."
+}
