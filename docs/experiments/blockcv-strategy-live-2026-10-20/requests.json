@@ -17,7 +17,7 @@
       "limitations": [
         "Exposed diagnosis, explicit operator-selected source, no native target execution."
       ],
-      "fingerprint": "2b35f2a66013ae5eda77092ef47e6c893000fd6927545a0b703569436d3eb61e"
+      "fingerprint": "a4c26172d13ed8b4b950ca9d836a97edc8f3cd68b592c89aa583fb40297ea73c"
     },
     "request": {
       "id": "blockcv-strategy-excluded-errors",
@@ -110,6 +110,19 @@
             "quote_match": "exact"
           },
           "inference": ""
+        },
+        {
+          "id": "r6",
+          "text": "Other admitted links at later epochs are allowed in this conditional task: do not silently change it into whole-network causal forecasting.",
+          "mandatory": true,
+          "explicit": true,
+          "source": {
+            "url": "https://github.com/Daniele-Cangi/RepoTraction/blob/experiment/blockcv-strategy-live-2026-10-20/docs/experiments/blockcv-strategy-live-2026-10-20/requests.json",
+            "quote": "Other admitted links at later epochs are allowed in this conditional task: do not silently change it into whole-network causal forecasting.",
+            "source_id": "q0",
+            "quote_match": "exact"
+          },
+          "inference": ""
         }
       ],
       "environment": [
@@ -134,8 +147,10 @@
             "bot_author_hint": false,
             "generated_hint": false,
             "authority": "request_author",
-            "represented_by": [],
-            "needs_review": true
+            "represented_by": [
+              "r6"
+            ],
+            "needs_review": false
           },
           {
             "id": "constraint:q0:9",
@@ -185,13 +200,11 @@
           "dispositions": [],
           "method": "optional-field syntax is an extraction hint, not proof of optional demand or compatibility"
         },
-        "qualification_blockers": [
-          "Potential constraint needs extraction/authority review: constraint:q0:2"
-        ]
+        "qualification_blockers": []
       },
       "context_complete": true,
       "updated_at": "2026-10-20",
-      "fingerprint": "2b35f2a66013ae5eda77092ef47e6c893000fd6927545a0b703569436d3eb61e"
+      "fingerprint": "a4c26172d13ed8b4b950ca9d836a97edc8f3cd68b592c89aa583fb40297ea73c"
     }
   },
   {

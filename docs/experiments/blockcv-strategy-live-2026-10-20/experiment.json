@@ -55,11 +55,11 @@
     "output_price_usd_per_million_configured": 0.5,
     "authorization": "After the two-call / 0.05 USD proposal, the user replied: se necessario alza il budget. This cohort retains the already sufficient 0.05 USD ceiling; no increase, additional call or retry is needed. Prior cohort allowances remain closed.",
     "gate": "Run only after reviewed preparation and all required CI green. Check current provider/model/prices/limits and input versions before execution; a mismatch stops without calling the model or increasing the ceiling.",
-    "stop": "No retry, output repair, rescoring with new prompts, query, substitute source or extra case. Retain candidate validation failures and their original output/charge; proceed to the fixed next case only for candidate-local rejection. Transport, identity, cancellation and allowance failures stop the cohort globally.",
+    "stop": "No retry, output repair, rescoring with new prompts, query, substitute source or extra case. Retain completed parseable JSON through existing redaction, including later schema/semantic rejection; refused/incomplete/malformed responses and transport bodies are not retained. Record safe failure categories and any actually available reservation/call/usage metadata; proceed to the fixed next case only for candidate-local rejection. Transport, identity, cancellation and allowance failures stop the cohort globally.",
     "authorized_ceiling_usd": 0.05
   },
   "report": [
-    "All proposed, unknown, rejected, empty and invalid results; actual calls, reservations, reported usage and timing separately.",
+    "All proposed, unknown, rejected, empty and invalid outcomes, with completed parseable JSON retained through existing redaction; no refused/incomplete/malformed/transport bodies. Report actual reservations, call metadata, usage and timing only where available, including missing receipts explicitly.",
     "For each proposed mechanism: exact documentation basis, target relevance, whether it merely repeats the known direct alternative, applicability assumptions and a genuinely discriminating proposed test.",
     "Assess both controls without trusting the model relevance label as a score. This is an operator review of exposed cases, not an independent or held-out estimate.",
     "Benefit remains not_tested, execution not_executed and qualification false. Passing the semantic checks is not useful software transfer, causal evidence of the source's contribution or an RF improvement.",

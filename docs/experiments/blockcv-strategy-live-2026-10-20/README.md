@@ -67,8 +67,13 @@ explicit ceiling. A changed input/configuration stops the run, not a cap increas
 
 ## Assessment and reporting
 
-Retain every native output, invalid attempt, abstention and empty result. Separate
-call count, conservative reservations, reported usage and timing. For each
+Retain completed, parseable JSON through the existing redacted Store path,
+including outputs rejected by later schema or semantic validation, abstentions
+and empty results. Refused/incomplete responses, malformed JSON and transport
+bodies are not retained by the Provider. Record their safe failure category and
+any reservation, call metadata and usage actually available; do not invent a
+missing receipt or retry. Separate call count, conservative reservations,
+reported usage and timing. For each
 strategy assess documented mechanism, exact demand relation, proposed adaptation,
 added information beyond the direct baseline, limits and falsifiable probe. Do
 not score the model's own `relevance` label as ground truth. Review is performed
@@ -83,3 +88,9 @@ native acceptance comparison would be a later, separately scoped activity.
 
 Append the live receipt/results in a later commit without rewriting this
 preparation or any historical experiment. No additional infrastructure is needed.
+
+Preparation review correction (before any paid execution): `excluded-errors` now
+extracts the conditional-scope restriction as mandatory `r6`. Its operator-input
+fingerprint binds both the issue facts and the interpreted requirements. Packing
+figures were regenerated. The retention policy above follows existing Provider
+behavior; it does not add raw-body capture.
