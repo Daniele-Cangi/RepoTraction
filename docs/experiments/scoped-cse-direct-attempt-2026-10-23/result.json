@@ -1,0 +1,343 @@
+{
+  "target_revision": "c60dafcb4e3961aa6dea5193e9e1e864b662141d",
+  "version": "1.15.0.dev",
+  "repotraction_base_revision": "52c1fa8d8adc3626ac68f54e1971dba50bc9eb7c",
+  "fixture_frozen_commit": "471213561b288d6f616540f216b5f758955f70b3",
+  "fixture_hashes_sha256_lf": {
+    "acceptance-before-source-search.md": "47d88d6ea930d6bef563c842fedf1924437243faea8435ddc90d6725e0e49db4",
+    "test_scope_contract.py": "e6c8189d0898b88e4b8d9c238e6c4dd14ad22d44690474bcaa2cdca4bc76bce3",
+    "demand.json": "c82bfeaebe716eecf72cab860ea8b74edb8b3ae50858be1892d801f647b05ebf",
+    "LICENSE.sympy.txt": "07a5e9819f727b4986ad2829c7a29a6320d42575f720eb24d71b7fef573a0286"
+  },
+  "adapter_sha256_lf": "435ee5e9a4448278540206773f0e641cfd46f2441a670ec537997d17a9ae07ae",
+  "test_harness_sha256_lf": "59bffd2c9731268360a59ec61b712f4e6e26e1f02f03b66bfe2298c30f38319b",
+  "measured_utc": "2026-10-22T23:16:49.753102+00:00",
+  "python": "3.13.5 (tags/v3.13.5:6cb20a2, Jun 11 2025, 16:15:46) [MSC v.1943 64 bit (AMD64)]",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "tests": {
+    "families": 6,
+    "fixed_samples": 13,
+    "correctness_and_work_pass": 13,
+    "adapter_guard_tests": 4,
+    "total_unittest_methods": 10,
+    "failures": 0,
+    "errors": 0
+  },
+  "samples": [
+    {
+      "family": "test_existing_cse_without_sum",
+      "inputs": [
+        0.7
+      ],
+      "output": [
+        1.344217687237691,
+        1.8150164285498793
+      ],
+      "sine_calls": 1,
+      "seconds_instrumented": 5.400041118264198e-06
+    },
+    {
+      "family": "test_existing_cse_without_sum",
+      "inputs": [
+        1.3
+      ],
+      "output": [
+        2.263558185417193,
+        3.5284443766844737
+      ],
+      "sine_calls": 1,
+      "seconds_instrumented": 3.600027412176132e-06
+    },
+    {
+      "family": "test_independent_sums_same_index_name",
+      "inputs": [
+        [
+          0.2,
+          0.7,
+          1.9,
+          3.1,
+          5.8
+        ],
+        [
+          0.3,
+          0.6,
+          1.3,
+          2.8,
+          4.9
+        ],
+        0.03,
+        4,
+        2
+      ],
+      "output": 13.483368722431207,
+      "sine_calls": 6,
+      "seconds_instrumented": 3.100000321865082e-05
+    },
+    {
+      "family": "test_independent_sums_same_index_name",
+      "inputs": [
+        [
+          0.2,
+          0.7,
+          1.9,
+          3.1,
+          5.8
+        ],
+        [
+          0.3,
+          0.6,
+          1.3,
+          2.8,
+          4.9
+        ],
+        0.03,
+        1,
+        4
+      ],
+      "output": 10.348214357419758,
+      "sine_calls": 5,
+      "seconds_instrumented": 9.800016414374113e-06
+    },
+    {
+      "family": "test_loop_invariant_shared_work",
+      "inputs": [
+        [
+          0.2,
+          0.7,
+          1.9,
+          3.1,
+          5.8
+        ],
+        0.04,
+        2,
+        0.7
+      ],
+      "output": [
+        3.3099351986899066,
+        0.41501642854987947
+      ],
+      "sine_calls": 3,
+      "seconds_instrumented": 1.4399993233382702e-05
+    },
+    {
+      "family": "test_loop_invariant_shared_work",
+      "inputs": [
+        [
+          0.2,
+          0.7,
+          1.9,
+          3.1,
+          5.8
+        ],
+        0.04,
+        4,
+        1.3
+      ],
+      "output": [
+        12.512702970808757,
+        0.9284443766844737
+      ],
+      "sine_calls": 5,
+      "seconds_instrumented": 1.0300020221620798e-05
+    },
+    {
+      "family": "test_nested_dependent_bounds",
+      "inputs": [
+        [
+          0.2,
+          0.7,
+          1.9,
+          3.1,
+          5.8
+        ],
+        [
+          0.3,
+          0.6,
+          1.3,
+          2.8,
+          4.9
+        ],
+        0.02,
+        2
+      ],
+      "output": 7.030589132051701,
+      "sine_calls": 3,
+      "seconds_instrumented": 2.2799998987466097e-05
+    },
+    {
+      "family": "test_nested_dependent_bounds",
+      "inputs": [
+        [
+          0.2,
+          0.7,
+          1.9,
+          3.1,
+          5.8
+        ],
+        [
+          0.3,
+          0.6,
+          1.3,
+          2.8,
+          4.9
+        ],
+        0.02,
+        4
+      ],
+      "output": 53.80727865132437,
+      "sine_calls": 10,
+      "seconds_instrumented": 2.1099986042827368e-05
+    },
+    {
+      "family": "test_reported_sum",
+      "inputs": [
+        [
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        0.01,
+        4
+      ],
+      "output": 30.017956315903607,
+      "sine_calls": 4,
+      "seconds_instrumented": 1.9099970813840628e-05
+    },
+    {
+      "family": "test_reported_sum",
+      "inputs": [
+        [
+          0.2,
+          0.7,
+          1.9,
+          3.1,
+          5.8,
+          7.6,
+          9.2
+        ],
+        0.07,
+        1
+      ],
+      "output": 0.7471288186065328,
+      "sine_calls": 1,
+      "seconds_instrumented": 4.999979864805937e-06
+    },
+    {
+      "family": "test_reported_sum",
+      "inputs": [
+        [
+          0.2,
+          0.7,
+          1.9,
+          3.1,
+          5.8,
+          7.6,
+          9.2
+        ],
+        0.07,
+        6
+      ],
+      "output": 28.477403109934826,
+      "sine_calls": 6,
+      "seconds_instrumented": 9.90001717582345e-06
+    },
+    {
+      "family": "test_symbol_free_outside_and_bound_inside",
+      "inputs": [
+        2,
+        4
+      ],
+      "output": [
+        1.7361192372574878,
+        3.2626460266700184
+      ],
+      "sine_calls": 5,
+      "seconds_instrumented": 1.5400000847876072e-05
+    },
+    {
+      "family": "test_symbol_free_outside_and_bound_inside",
+      "inputs": [
+        5,
+        2
+      ],
+      "output": [
+        -0.03938851012491229,
+        3.2856636403389556
+      ],
+      "sine_calls": 3,
+      "seconds_instrumented": 5.599984433501959e-06
+    }
+  ],
+  "compilations": [
+    {
+      "family": "test_existing_cse_without_sum",
+      "seconds_instrumented": 0.0015650999848730862,
+      "generated_sources": [
+        "def _lambdifygenerated(z):\n    x0 = sin(z)\n    return [x0 + z, x0**2 + 2*z]\n"
+      ]
+    },
+    {
+      "family": "test_independent_sums_same_index_name",
+      "seconds_instrumented": 0.006640399980824441,
+      "generated_sources": [
+        "def _lambdifygenerated(x, y, e, n, m):\n    return _scope_sum_0(x, y, e, n, m, 1, n) + _scope_sum_1(x, y, e, n, m, 1, m)\n",
+        "def _lambdifygenerated(x, y, e, n, m, i):\n    x0 = sin(x[i])\n    return e**2*x0**2 + e*x0 + x[i]\n",
+        "def _lambdifygenerated(x, y, e, n, m, i):\n    x0 = sin(y[i])\n    return e**2*x0**2 + e*x0 + y[i]\n"
+      ]
+    },
+    {
+      "family": "test_loop_invariant_shared_work",
+      "seconds_instrumented": 0.00455010001314804,
+      "generated_sources": [
+        "def _lambdifygenerated(x, e, n, z):\n    x0 = sin(z)\n    return [x0 + _scope_sum_0(x, e, n, z, 1, n), x0**2]\n",
+        "def _lambdifygenerated(x, e, n, z, i):\n    x0 = sin(x[i])\n    return e**2*x0**2 + e*x0 + x[i]\n"
+      ]
+    },
+    {
+      "family": "test_nested_dependent_bounds",
+      "seconds_instrumented": 0.005645099969115108,
+      "generated_sources": [
+        "def _lambdifygenerated(x, y, e, n):\n    return _scope_sum_1(x, y, e, n, 1, n)\n",
+        "def _lambdifygenerated(x, y, e, n, i, j):\n    x0 = x[i] + y[j]\n    x1 = sin(x0)\n    return e**2*x1**2 + e*x1 + x0\n",
+        "def _lambdifygenerated(x, y, e, n, i):\n    return _scope_sum_0(x, y, e, n, i, 1, i)\n"
+      ]
+    },
+    {
+      "family": "test_reported_sum",
+      "seconds_instrumented": 0.002809799974784255,
+      "generated_sources": [
+        "def _lambdifygenerated(x, e, n):\n    return _scope_sum_0(x, e, n, 1, n)\n",
+        "def _lambdifygenerated(x, e, n, i):\n    x0 = sin(x[i])\n    return e**2*x0**2 + e*x0 + x[i]\n"
+      ]
+    },
+    {
+      "family": "test_symbol_free_outside_and_bound_inside",
+      "seconds_instrumented": 0.0021608000388368964,
+      "generated_sources": [
+        "def _lambdifygenerated(i, n):\n    x0 = sin(i)\n    return [x0**2 + x0, _scope_sum_0(n, 1, n)]\n",
+        "def _lambdifygenerated(n, i):\n    x0 = sin(i)\n    return x0**2 + x0\n"
+      ]
+    }
+  ],
+  "measurement_note": "Instrumented single executions; timings are observations, not speedup estimates.",
+  "paid_api_calls": 0,
+  "donor_searches": 0,
+  "subagents": 0,
+  "result_type": "direct target-API prototype using the previously disclosed helper-compilation idea",
+  "stop": "Full frozen contract passes; no external-source search or Missing Link invocation justified.",
+  "native_regressions": {
+    "entrypoint": "sympy.utilities.lambdify.lambdify temporarily replaced in this process only; sympy.lambdify remains native for adapter delegation",
+    "selection": "sympy/utilities/tests/test_lambdify.py -q -k \"cse or Sum\"",
+    "exit_code": 0,
+    "passed": 3,
+    "deselected": 158,
+    "note": "The existing CSE controls have no Sum; the existing Sum control disables CSE. They exercise delegation, while the frozen fixture exercises the changed sum path.",
+    "test_dependencies": {
+      "hypothesis": "6.170.7",
+      "sortedcontainers": "2.4.0",
+      "location": "existing ignored experiment data"
+    }
+  }
+}

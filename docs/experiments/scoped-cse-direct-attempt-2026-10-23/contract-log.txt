@@ -1,0 +1,15 @@
+test_disabled_cse_delegates (test_direct_adapter.AdapterRegressions.test_disabled_cse_delegates) ... ok
+test_helper_name_collision (test_direct_adapter.AdapterRegressions.test_helper_name_collision) ... ok
+test_other_backends_are_explicitly_unsupported (test_direct_adapter.AdapterRegressions.test_other_backends_are_explicitly_unsupported) ... ok
+test_reversed_bounds_are_explicitly_unsupported (test_direct_adapter.AdapterRegressions.test_reversed_bounds_are_explicitly_unsupported) ... ok
+test_existing_cse_without_sum (test_direct_adapter.DirectScopeContract.test_existing_cse_without_sum) ... ok
+test_independent_sums_same_index_name (test_direct_adapter.DirectScopeContract.test_independent_sums_same_index_name) ... ok
+test_loop_invariant_shared_work (test_direct_adapter.DirectScopeContract.test_loop_invariant_shared_work) ... ok
+test_nested_dependent_bounds (test_direct_adapter.DirectScopeContract.test_nested_dependent_bounds) ... ok
+test_reported_sum (test_direct_adapter.DirectScopeContract.test_reported_sum) ... ok
+test_symbol_free_outside_and_bound_inside (test_direct_adapter.DirectScopeContract.test_symbol_free_outside_and_bound_inside) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.110s
+
+OK
