@@ -1,0 +1,194 @@
+{
+  "target": "sympy/sympy",
+  "target_revision": "c60dafcb4e3961aa6dea5193e9e1e864b662141d",
+  "version": "1.15.0.dev",
+  "repotraction_revision": "471213561b288d6f616540f216b5f758955f70b3",
+  "python": "3.13.5 (tags/v3.13.5:6cb20a2, Jun 11 2025, 16:15:46) [MSC v.1943 64 bit (AMD64)]",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "measurements_scope": "Windows-only native target API/fixture; not a blocked-agent checkpoint or donor-assisted result",
+  "fixture_frozen_commit": "471213561b288d6f616540f216b5f758955f70b3",
+  "modes": {
+    "native_cse": {
+      "correctness_only": {
+        "test_families_run": 6,
+        "successful": false,
+        "failures": 2,
+        "errors": 9,
+        "seconds": 0.09555520000867546,
+        "failed_subtests": [
+          "test_symbol_free_outside_and_bound_inside (scope_contract_fixture.ScopeContract.test_symbol_free_outside_and_bound_inside) (values=(2, 4))",
+          "test_symbol_free_outside_and_bound_inside (scope_contract_fixture.ScopeContract.test_symbol_free_outside_and_bound_inside) (values=(5, 2))",
+          "test_independent_sums_same_index_name (scope_contract_fixture.ScopeContract.test_independent_sums_same_index_name) (values=([0.2, 0.7, 1.9, 3.1, 5.8], [0.3, 0.6, 1.3, 2.8, 4.9], 0.03, 4, 2))",
+          "test_independent_sums_same_index_name (scope_contract_fixture.ScopeContract.test_independent_sums_same_index_name) (values=([0.2, 0.7, 1.9, 3.1, 5.8], [0.3, 0.6, 1.3, 2.8, 4.9], 0.03, 1, 4))",
+          "test_loop_invariant_shared_work (scope_contract_fixture.ScopeContract.test_loop_invariant_shared_work) (values=([0.2, 0.7, 1.9, 3.1, 5.8], 0.04, 2, 0.7))",
+          "test_loop_invariant_shared_work (scope_contract_fixture.ScopeContract.test_loop_invariant_shared_work) (values=([0.2, 0.7, 1.9, 3.1, 5.8], 0.04, 4, 1.3))",
+          "test_nested_dependent_bounds (scope_contract_fixture.ScopeContract.test_nested_dependent_bounds) (values=([0.2, 0.7, 1.9, 3.1, 5.8], [0.3, 0.6, 1.3, 2.8, 4.9], 0.02, 2))",
+          "test_nested_dependent_bounds (scope_contract_fixture.ScopeContract.test_nested_dependent_bounds) (values=([0.2, 0.7, 1.9, 3.1, 5.8], [0.3, 0.6, 1.3, 2.8, 4.9], 0.02, 4))",
+          "test_reported_sum (scope_contract_fixture.ScopeContract.test_reported_sum) (values=([5, 6, 7, 8, 9], 0.01, 4))",
+          "test_reported_sum (scope_contract_fixture.ScopeContract.test_reported_sum) (values=([0.2, 0.7, 1.9, 3.1, 5.8, 7.6, 9.2], 0.07, 1))",
+          "test_reported_sum (scope_contract_fixture.ScopeContract.test_reported_sum) (values=([0.2, 0.7, 1.9, 3.1, 5.8, 7.6, 9.2], 0.07, 6))"
+        ]
+      },
+      "correctness_and_work": {
+        "test_families_run": 6,
+        "successful": false,
+        "failures": 2,
+        "errors": 9,
+        "seconds": 0.020116900035645813,
+        "failed_subtests": [
+          "test_symbol_free_outside_and_bound_inside (scope_contract_fixture.ScopeContract.test_symbol_free_outside_and_bound_inside) (values=(2, 4))",
+          "test_symbol_free_outside_and_bound_inside (scope_contract_fixture.ScopeContract.test_symbol_free_outside_and_bound_inside) (values=(5, 2))",
+          "test_independent_sums_same_index_name (scope_contract_fixture.ScopeContract.test_independent_sums_same_index_name) (values=([0.2, 0.7, 1.9, 3.1, 5.8], [0.3, 0.6, 1.3, 2.8, 4.9], 0.03, 4, 2))",
+          "test_independent_sums_same_index_name (scope_contract_fixture.ScopeContract.test_independent_sums_same_index_name) (values=([0.2, 0.7, 1.9, 3.1, 5.8], [0.3, 0.6, 1.3, 2.8, 4.9], 0.03, 1, 4))",
+          "test_loop_invariant_shared_work (scope_contract_fixture.ScopeContract.test_loop_invariant_shared_work) (values=([0.2, 0.7, 1.9, 3.1, 5.8], 0.04, 2, 0.7))",
+          "test_loop_invariant_shared_work (scope_contract_fixture.ScopeContract.test_loop_invariant_shared_work) (values=([0.2, 0.7, 1.9, 3.1, 5.8], 0.04, 4, 1.3))",
+          "test_nested_dependent_bounds (scope_contract_fixture.ScopeContract.test_nested_dependent_bounds) (values=([0.2, 0.7, 1.9, 3.1, 5.8], [0.3, 0.6, 1.3, 2.8, 4.9], 0.02, 2))",
+          "test_nested_dependent_bounds (scope_contract_fixture.ScopeContract.test_nested_dependent_bounds) (values=([0.2, 0.7, 1.9, 3.1, 5.8], [0.3, 0.6, 1.3, 2.8, 4.9], 0.02, 4))",
+          "test_reported_sum (scope_contract_fixture.ScopeContract.test_reported_sum) (values=([5, 6, 7, 8, 9], 0.01, 4))",
+          "test_reported_sum (scope_contract_fixture.ScopeContract.test_reported_sum) (values=([0.2, 0.7, 1.9, 3.1, 5.8, 7.6, 9.2], 0.07, 1))",
+          "test_reported_sum (scope_contract_fixture.ScopeContract.test_reported_sum) (values=([0.2, 0.7, 1.9, 3.1, 5.8, 7.6, 9.2], 0.07, 6))"
+        ]
+      },
+      "reported_case": {
+        "generated_source": "def _lambdifygenerated(x, e, n):\n    x0 = sin(x[i])\n    return (builtins.sum(e**2*x0**2 + e*x0 + x[i] for i in range(1, n+1)))\n",
+        "status": "raised",
+        "exception": "TypeError",
+        "message": "list indices must be integers or slices, not Symbol",
+        "sine_calls": 0
+      }
+    },
+    "no_cse": {
+      "correctness_only": {
+        "test_families_run": 6,
+        "successful": true,
+        "failures": 0,
+        "errors": 0,
+        "seconds": 0.014064999995753169,
+        "failed_subtests": []
+      },
+      "correctness_and_work": {
+        "test_families_run": 6,
+        "successful": false,
+        "failures": 13,
+        "errors": 0,
+        "seconds": 0.018247800006065518,
+        "failed_subtests": [
+          "test_existing_cse_without_sum (scope_contract_fixture.ScopeContract.test_existing_cse_without_sum) (values=(0.7,))",
+          "test_existing_cse_without_sum (scope_contract_fixture.ScopeContract.test_existing_cse_without_sum) (values=(1.3,))",
+          "test_independent_sums_same_index_name (scope_contract_fixture.ScopeContract.test_independent_sums_same_index_name) (values=([0.2, 0.7, 1.9, 3.1, 5.8], [0.3, 0.6, 1.3, 2.8, 4.9], 0.03, 4, 2))",
+          "test_independent_sums_same_index_name (scope_contract_fixture.ScopeContract.test_independent_sums_same_index_name) (values=([0.2, 0.7, 1.9, 3.1, 5.8], [0.3, 0.6, 1.3, 2.8, 4.9], 0.03, 1, 4))",
+          "test_loop_invariant_shared_work (scope_contract_fixture.ScopeContract.test_loop_invariant_shared_work) (values=([0.2, 0.7, 1.9, 3.1, 5.8], 0.04, 2, 0.7))",
+          "test_loop_invariant_shared_work (scope_contract_fixture.ScopeContract.test_loop_invariant_shared_work) (values=([0.2, 0.7, 1.9, 3.1, 5.8], 0.04, 4, 1.3))",
+          "test_nested_dependent_bounds (scope_contract_fixture.ScopeContract.test_nested_dependent_bounds) (values=([0.2, 0.7, 1.9, 3.1, 5.8], [0.3, 0.6, 1.3, 2.8, 4.9], 0.02, 2))",
+          "test_nested_dependent_bounds (scope_contract_fixture.ScopeContract.test_nested_dependent_bounds) (values=([0.2, 0.7, 1.9, 3.1, 5.8], [0.3, 0.6, 1.3, 2.8, 4.9], 0.02, 4))",
+          "test_reported_sum (scope_contract_fixture.ScopeContract.test_reported_sum) (values=([5, 6, 7, 8, 9], 0.01, 4))",
+          "test_reported_sum (scope_contract_fixture.ScopeContract.test_reported_sum) (values=([0.2, 0.7, 1.9, 3.1, 5.8, 7.6, 9.2], 0.07, 1))",
+          "test_reported_sum (scope_contract_fixture.ScopeContract.test_reported_sum) (values=([0.2, 0.7, 1.9, 3.1, 5.8, 7.6, 9.2], 0.07, 6))",
+          "test_symbol_free_outside_and_bound_inside (scope_contract_fixture.ScopeContract.test_symbol_free_outside_and_bound_inside) (values=(2, 4))",
+          "test_symbol_free_outside_and_bound_inside (scope_contract_fixture.ScopeContract.test_symbol_free_outside_and_bound_inside) (values=(5, 2))"
+        ]
+      },
+      "reported_case": {
+        "generated_source": "def _lambdifygenerated(x, e, n):\n    return (builtins.sum(e**2*sin(x[i])**2 + e*sin(x[i]) + x[i] for i in range(1, n+1)))\n",
+        "value": 30.017956315903607,
+        "sine_calls": 8,
+        "status": "returned"
+      }
+    },
+    "ignore_bound_symbols": {
+      "correctness_only": {
+        "test_families_run": 6,
+        "successful": true,
+        "failures": 0,
+        "errors": 0,
+        "seconds": 0.018091500038281083,
+        "failed_subtests": []
+      },
+      "correctness_and_work": {
+        "test_families_run": 6,
+        "successful": false,
+        "failures": 11,
+        "errors": 0,
+        "seconds": 0.022090199985541403,
+        "failed_subtests": [
+          "test_independent_sums_same_index_name (scope_contract_fixture.ScopeContract.test_independent_sums_same_index_name) (values=([0.2, 0.7, 1.9, 3.1, 5.8], [0.3, 0.6, 1.3, 2.8, 4.9], 0.03, 4, 2))",
+          "test_independent_sums_same_index_name (scope_contract_fixture.ScopeContract.test_independent_sums_same_index_name) (values=([0.2, 0.7, 1.9, 3.1, 5.8], [0.3, 0.6, 1.3, 2.8, 4.9], 0.03, 1, 4))",
+          "test_loop_invariant_shared_work (scope_contract_fixture.ScopeContract.test_loop_invariant_shared_work) (values=([0.2, 0.7, 1.9, 3.1, 5.8], 0.04, 2, 0.7))",
+          "test_loop_invariant_shared_work (scope_contract_fixture.ScopeContract.test_loop_invariant_shared_work) (values=([0.2, 0.7, 1.9, 3.1, 5.8], 0.04, 4, 1.3))",
+          "test_nested_dependent_bounds (scope_contract_fixture.ScopeContract.test_nested_dependent_bounds) (values=([0.2, 0.7, 1.9, 3.1, 5.8], [0.3, 0.6, 1.3, 2.8, 4.9], 0.02, 2))",
+          "test_nested_dependent_bounds (scope_contract_fixture.ScopeContract.test_nested_dependent_bounds) (values=([0.2, 0.7, 1.9, 3.1, 5.8], [0.3, 0.6, 1.3, 2.8, 4.9], 0.02, 4))",
+          "test_reported_sum (scope_contract_fixture.ScopeContract.test_reported_sum) (values=([5, 6, 7, 8, 9], 0.01, 4))",
+          "test_reported_sum (scope_contract_fixture.ScopeContract.test_reported_sum) (values=([0.2, 0.7, 1.9, 3.1, 5.8, 7.6, 9.2], 0.07, 1))",
+          "test_reported_sum (scope_contract_fixture.ScopeContract.test_reported_sum) (values=([0.2, 0.7, 1.9, 3.1, 5.8, 7.6, 9.2], 0.07, 6))",
+          "test_symbol_free_outside_and_bound_inside (scope_contract_fixture.ScopeContract.test_symbol_free_outside_and_bound_inside) (values=(2, 4))",
+          "test_symbol_free_outside_and_bound_inside (scope_contract_fixture.ScopeContract.test_symbol_free_outside_and_bound_inside) (values=(5, 2))"
+        ]
+      },
+      "reported_case": {
+        "generated_source": "def _lambdifygenerated(x, e, n):\n    return (builtins.sum(e**2*sin(x[i])**2 + e*sin(x[i]) + x[i] for i in range(1, n+1)))\n",
+        "value": 30.017956315903607,
+        "sine_calls": 8,
+        "status": "returned"
+      }
+    }
+  },
+  "paid_api_calls": 0,
+  "donor_searches": 0,
+  "hand_written_literal_loop": {
+    "value": 30.017956315903604,
+    "sine_calls": 4,
+    "scope": "Only the literal formula; not a generic symbolic-expression compiler"
+  },
+  "target_files": {
+    "sympy/utilities/lambdify.py": {
+      "git_blob": "54742e85671b070b42c73082d6aff0348cd937f0",
+      "sha256_lf": "ff9bb7650ea04324390f5239ddab11aac07d8d3cf6a3cc714faea846d7445b47"
+    },
+    "sympy/simplify/cse_main.py": {
+      "git_blob": "0541cfc5a3ea1562c28597287e4bf80b0204792f",
+      "sha256_lf": "a43182d0961450ba2b150faa666a4b53d8198f1140cfd4d534dea42dfe5eb9d1"
+    },
+    "LICENSE": {
+      "git_blob": "0744f229d697ca3ed1b1b257bfdb70e3eecf0b9e",
+      "sha256_lf": "07a5e9819f727b4986ad2829c7a29a6320d42575f720eb24d71b7fef573a0286"
+    }
+  },
+  "measured_utc": "2026-10-22T22:53:31.947776+00:00",
+  "native_regressions": {
+    "command": "pytest sympy/utilities/tests/test_lambdify.py -q -k cse, with pinned target first on sys.path",
+    "exit_code": 0,
+    "passed": 2,
+    "deselected": 159,
+    "seconds_reported": 7.91,
+    "initial_collection_attempt": {
+      "exit_code": 4,
+      "tests_executed": 0,
+      "cause": "required hypothesis dependency absent"
+    },
+    "isolated_test_dependencies": {
+      "hypothesis": "6.170.7",
+      "sortedcontainers": "2.4.0"
+    },
+    "dependency_location": "ignored RepoTraction data, not a product dependency"
+  },
+  "fixture_hashes_sha256_lf": {
+    "acceptance-before-source-search.md": "47d88d6ea930d6bef563c842fedf1924437243faea8435ddc90d6725e0e49db4",
+    "test_scope_contract.py": "e6c8189d0898b88e4b8d9c238e6c4dd14ad22d44690474bcaa2cdca4bc76bce3",
+    "demand.json": "c82bfeaebe716eecf72cab860ea8b74edb8b3ae50858be1892d801f647b05ebf",
+    "LICENSE.sympy.txt": "07a5e9819f727b4986ad2829c7a29a6320d42575f720eb24d71b7fef573a0286"
+  },
+  "native_logs": {
+    "path": "native-logs.json.gz",
+    "sha256": "a8fd75a950cc9ca182085bec95f756bc8d0c74668ddf8dbdad042f6afe903f28",
+    "entries": [
+      "ignore_bound_symbols-correctness_and_work.txt",
+      "ignore_bound_symbols-correctness_only.txt",
+      "native_cse-correctness_and_work.txt",
+      "native_cse-correctness_only.txt",
+      "no_cse-correctness_and_work.txt",
+      "no_cse-correctness_only.txt",
+      "target-regressions.txt"
+    ],
+    "policy": "Captured unittest and final upstream pytest output; no model-generated responses."
+  }
+}
