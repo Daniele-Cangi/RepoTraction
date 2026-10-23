@@ -76,17 +76,25 @@
     "No general symbolic polylogarithm evaluation algorithm",
     "No wall-time benefit claim or Missing Link transfer result"
   ],
-  "log_normalization": "Absolute RepoTraction path replaced case-insensitively by <REPOTRACTION>; other text retained",
+  "log_normalization": "Absolute RepoTraction path replaced case-insensitively by <REPOTRACTION>; Git normalizes CRLF to LF for committed public logs. Other text, including trailing spaces, retained.",
   "log_sha256": {
-    "before.txt": "05416bf2f389b3f8b2f03e8a568300d0a0dc54e67ea9e5a5c1ed23c03a6614da",
-    "after.txt": "4013f924db5758a22b7ed519ec5420ba2a42c056aa2e3ded7753e880de3bade7",
-    "before-doctest.txt": "b0a04343d532597736903d4f13d5e5c327153824b794ac66f0aeeee88764b7cf",
-    "after-doctest.txt": "aa08ce5aefcdfc378f5ff2f0457ebc164d95f04544d0badf811eb675631aead9"
+    "before.txt": "5893970740353e6aa0c1eb2c8f7356a752da8f153a076d34de5670348d520c3d",
+    "after.txt": "cb5fadd276295e38eb4d593ec767c60ea754b9ab184b2b7b41421b02ee38c9bb",
+    "before-doctest.txt": "3898df6b1b7bf968064f1f6fb9f43eb5185d53f913a1e8bd8e9e3bb1c6880d87",
+    "after-doctest.txt": "51ceb68d9eb5cab92aad98399139f0503ea1eb30c67a1f4d9e16176e1d8fd5fa"
   },
   "original_private_log_sha256": {
     "before.txt": "52e1e85ba0937588603d0958055dff8c68d06a3adf02ac3bacdb50d0836a077d",
     "after.txt": "1028199f7eaef0e2f01313ff0a70899a4117a0476b221c8d2d087887503a4cbd",
     "before-doctest.txt": "4a1de5ca93f20c3fe06d2e390abfe08787ec157efe4c0077ea62f829272a6d3a",
     "after-doctest.txt": "d2e3778379e8cd6f8191b44e53ed887aacef32d4bdd5b5df8aff9398cbb791cd"
-  }
+  },
+  "original_public_worktree_log_sha256": {
+    "before.txt": "05416bf2f389b3f8b2f03e8a568300d0a0dc54e67ea9e5a5c1ed23c03a6614da",
+    "after.txt": "4013f924db5758a22b7ed519ec5420ba2a42c056aa2e3ded7753e880de3bade7",
+    "before-doctest.txt": "b0a04343d532597736903d4f13d5e5c327153824b794ac66f0aeeee88764b7cf",
+    "after-doctest.txt": "aa08ce5aefcdfc378f5ff2f0457ebc164d95f04544d0badf811eb675631aead9"
+  },
+  "original_public_worktree_line_endings": "CRLF on Windows after workspace-path redaction",
+  "log_hash_scope": "Exact LF bytes stored in Git blobs, not platform-specific checkout bytes. Hash git show <revision>:<path> or normalize CRLF to LF when checking a Windows worktree."
 }

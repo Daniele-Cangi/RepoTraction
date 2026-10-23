@@ -59,9 +59,13 @@ agreement. See [explicit-request.json](explicit-request.json).
 environment, the exact native command code and outcomes. Captured logs are
 [before.txt](before.txt), [after.txt](after.txt),
 [before-doctest.txt](before-doctest.txt) and [after-doctest.txt](after-doctest.txt).
-Only the absolute local workspace prefix is replaced by `<REPOTRACTION>`;
-raw/private hashes are recorded separately. `direct.patch` passes `git apply
---check` on the original failed state without mutating it.
+The absolute local workspace prefix is replaced by `<REPOTRACTION>`, and Git
+normalizes CRLF to LF for the committed public logs. `log_sha256` identifies those
+exact Git blob bytes; verify them with `git show <revision>:<path>`, or normalize
+CRLF to LF before hashing a Windows worktree. The original public Windows CRLF
+and original private log hashes are recorded separately. Trailing spaces and
+other text remain intact. `direct.patch` passes `git apply --check` on the original
+failed state without mutating it.
 
 Native verification is local Windows/Python 3.8.20 with the existing isolated
 mpmath 1.3.0 environment. RepoTraction's ordinary Windows/Linux CI remains a
