@@ -34,3 +34,25 @@ correct only the label predicate to match those existing labels:
 The other bounds, returned order, eligibility criteria and stop rule are unchanged.
 This is a recorded second acquisition, not a claim that the empty query selected a
 case. No new pool is permitted after these first 12 candidates.
+
+## Declared selection deviation, before source search
+
+After reading the 12 returned titles/bodies and the full discussions of #8275 and
+#8269, select #8128 by engineering judgment, rather than claiming the original
+first-eligible rule selected it. No second nonempty pool was acquired.
+
+- #8275 prescribes a particular shortest-path paper and references a closed
+  implementation PR; it supplies no bounded performance workload for this pair.
+  That PR and the papers were not opened.
+- #8269 prescribes Charikar's algorithm and its discussion already nominates
+  SteinerPy. Neither source was opened. These are real requests, but poor tests
+  of choosing an unprescribed operation/source in this first pair.
+- #5295 is an observable generic traversal API extension and is not being called
+  ineligible. It is passed over in favor of #8128's explicit comparison between
+  enumeration/filtering and a potentially different algorithmic approach.
+- #8128 asks whether minimum-length cycle enumeration can avoid the work of the
+  existing enumerate-then-filter solution, without prescribing a mechanism.
+
+This is deliberate selection, not blind selection, random sampling or evidence
+of difficulty. Its discussion and pinned target must still establish that the
+operation is missing; if not, stop this cohort. Do not replace it again.
