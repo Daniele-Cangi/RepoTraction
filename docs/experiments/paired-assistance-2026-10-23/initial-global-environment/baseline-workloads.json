@@ -1,0 +1,200 @@
+{
+  "mode": "reference",
+  "python": "3.13.5 (tags/v3.13.5:6cb20a2, Jun 11 2025, 16:15:46) [MSC v.1943 64 bit (AMD64)]",
+  "networkx": "3.7.1rc0.dev0",
+  "target_revision": "9d866a5f447d9fe1c989b31f90c520dc2813ee26",
+  "workloads": [
+    {
+      "name": "dense-directed",
+      "nodes": 9,
+      "edges": 72,
+      "lower": 8,
+      "upper": null,
+      "role": "positive",
+      "output": {
+        "count": 85680,
+        "sha256": "72788312de0dfe844701d84c4f1ffa07cb9961283f0affaf22d5a43f44e20e0f"
+      },
+      "warmup": {
+        "seconds": 0.2714896000106819,
+        "iterations": 1,
+        "count": 85680,
+        "total_length": 725760
+      },
+      "batch": {
+        "seconds": 0.2707914999919012,
+        "iterations": 1,
+        "count": 85680,
+        "total_length": 725760
+      }
+    },
+    {
+      "name": "dense-undirected",
+      "nodes": 9,
+      "edges": 36,
+      "lower": 8,
+      "upper": null,
+      "role": "positive",
+      "output": {
+        "count": 42840,
+        "sha256": "7e2175ea07a143c1e8aa3d9be349286903b8c2b9b438e3e05c34b936abc08b5c"
+      },
+      "warmup": {
+        "seconds": 0.20351289998507127,
+        "iterations": 1,
+        "count": 42840,
+        "total_length": 362880
+      },
+      "batch": {
+        "seconds": 0.41340990003664047,
+        "iterations": 2,
+        "count": 85680,
+        "total_length": 725760
+      }
+    },
+    {
+      "name": "short-heavy-directed",
+      "nodes": 130,
+      "edges": 650,
+      "lower": 8,
+      "upper": null,
+      "role": "positive",
+      "output": {
+        "count": 1,
+        "sha256": "717cf85f42b8a03b4d84c5dd8ee94925b77b724ca96c8834e60e75a34626da6f"
+      },
+      "warmup": {
+        "seconds": 0.04716339998412877,
+        "iterations": 1,
+        "count": 1,
+        "total_length": 10
+      },
+      "batch": {
+        "seconds": 0.2933855999726802,
+        "iterations": 6,
+        "count": 6,
+        "total_length": 60
+      }
+    },
+    {
+      "name": "short-heavy-undirected",
+      "nodes": 150,
+      "edges": 450,
+      "lower": 8,
+      "upper": null,
+      "role": "positive",
+      "output": {
+        "count": 1,
+        "sha256": "bcc0baa30d1eb363a30c46a6a106aa739056cdf00bab8424fa6e5b478ad9fa5d"
+      },
+      "warmup": {
+        "seconds": 0.12284340005135164,
+        "iterations": 1,
+        "count": 1,
+        "total_length": 10
+      },
+      "batch": {
+        "seconds": 0.3319426000234671,
+        "iterations": 3,
+        "count": 3,
+        "total_length": 30
+      }
+    },
+    {
+      "name": "output-rich-directed",
+      "nodes": 8,
+      "edges": 56,
+      "lower": 0,
+      "upper": null,
+      "role": "control",
+      "output": {
+        "count": 16064,
+        "sha256": "25125efa117e4d5c963df5bb145a89448dd3ad01072eafbda2fd349f1b45e0d2"
+      },
+      "warmup": {
+        "seconds": 0.03545600001234561,
+        "iterations": 1,
+        "count": 16064,
+        "total_length": 109592
+      },
+      "batch": {
+        "seconds": 0.28158309997525066,
+        "iterations": 8,
+        "count": 128512,
+        "total_length": 876736
+      }
+    },
+    {
+      "name": "output-rich-undirected",
+      "nodes": 8,
+      "edges": 28,
+      "lower": 3,
+      "upper": 6,
+      "role": "control",
+      "output": {
+        "count": 2618,
+        "sha256": "760c7aa32aa53f38a8c0a0ca40f7e6f61dd1f683505d2fe061a0bb2ac6eb73fa"
+      },
+      "warmup": {
+        "seconds": 0.014870200015138835,
+        "iterations": 1,
+        "count": 2618,
+        "total_length": 14448
+      },
+      "batch": {
+        "seconds": 0.27333009999711066,
+        "iterations": 17,
+        "count": 44506,
+        "total_length": 245616
+      }
+    },
+    {
+      "name": "sparse-directed",
+      "nodes": 16,
+      "edges": 16,
+      "lower": 3,
+      "upper": null,
+      "role": "control",
+      "output": {
+        "count": 1,
+        "sha256": "673f476120d5ec1bc25179917ab6fe9f0b0db24eb9335c1c667a8ab6ffe38f31"
+      },
+      "warmup": {
+        "seconds": 0.00017260003369301558,
+        "iterations": 1,
+        "count": 1,
+        "total_length": 3
+      },
+      "batch": {
+        "seconds": 0.01578179997159168,
+        "iterations": 100,
+        "count": 100,
+        "total_length": 300
+      }
+    },
+    {
+      "name": "acyclic",
+      "nodes": 2000,
+      "edges": 1999,
+      "lower": 3,
+      "upper": null,
+      "role": "control",
+      "output": {
+        "count": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "warmup": {
+        "seconds": 0.010303599992766976,
+        "iterations": 1,
+        "count": 0,
+        "total_length": 0
+      },
+      "batch": {
+        "seconds": 0.2616610999684781,
+        "iterations": 25,
+        "count": 0,
+        "total_length": 0
+      }
+    }
+  ]
+}

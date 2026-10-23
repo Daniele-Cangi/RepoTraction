@@ -1,0 +1,1473 @@
+{
+  "issue": {
+    "id": 3186125147,
+    "repo": "networkx/networkx",
+    "repo_id": 890377,
+    "number": 8128,
+    "url": "https://github.com/networkx/networkx/issues/8128",
+    "title": "ENH: `min_length` kwarg for `simple_cycles`",
+    "body": "Just an idea I had while reviewing/thinking about #8111 \n\n`simple_cycles` already has a `length_bound` kwarg to filter out cycles above a certain length. I wonder if it might be possible to add related functionality: i.e. a `minimum_length` keyword to yield cycles that are at least a certain length.\n\nOf course, this could naively be done with a simple filter `[c for c in nx.simple_cycles(G) if len(c) > minimum_length]`, but what I'm interested in is whether there are any *algorithmic* approaches to only finding cycles above a certain length that are of course more efficient than the full cycle-search.\n\nI haven't done any research on this front, but if such approaches exist I think they could be quite valuable!",
+    "state": "open",
+    "state_reason": null,
+    "updated_at": "2026-10-02T16:00:49Z",
+    "created_at": "2025-06-29T12:33:37Z",
+    "closed_at": null,
+    "author": "rossbar",
+    "author_association": "CONTRIBUTOR",
+    "repo_archived": false,
+    "author_type": "User",
+    "bot": false,
+    "labels": [
+      "type: Enhancements"
+    ],
+    "comments": [
+      {
+        "id": 3137075482,
+        "url": "https://github.com/networkx/networkx/issues/8128#issuecomment-3137075482",
+        "body": "This is a really interesting! I can see how a `min_length` parameter built into the algorithm could be much more performant than post-filtering, especially on dense graphs.\n\nBefore I dive in, could you point me in the right direction? Are there any specific algorithmic approaches you had in mind when you suggested this? If not, I'd be happy to do some research into efficient ways to modify the existing cycle-finding algorithm to incorporate a minimum length constraint.\n\nJust looking for a bit of guidance for contributing to this. Thanks!",
+        "author": "krishnaGauss",
+        "author_association": "NONE",
+        "author_type": "User",
+        "bot": false,
+        "updated_at": "2025-07-30T16:36:18Z",
+        "created_at": "2025-07-30T16:36:18Z",
+        "redacted": false,
+        "truncated": false
+      },
+      {
+        "id": 3137181812,
+        "url": "https://github.com/networkx/networkx/issues/8128#issuecomment-3137181812",
+        "body": "> Before I dive in, could you point me in the right direction? Are there any specific algorithmic approaches you had in mind when you suggested this?\n\nNope! Nothing specific in mind - I have not researched this myself, it's just something that I think there are lots of potential use-cases (and I suspect has been studied by others!)\n\n> If not, I'd be happy to do some research into efficient ways to modify the existing cycle-finding algorithm to incorporate a minimum length constraint.\n\nLiterature search is definitely the right place to start - this is an (intentionally) open question!",
+        "author": "rossbar",
+        "author_association": "CONTRIBUTOR",
+        "author_type": "User",
+        "bot": false,
+        "updated_at": "2025-07-30T17:09:47Z",
+        "created_at": "2025-07-30T17:09:47Z",
+        "redacted": false,
+        "truncated": false
+      },
+      {
+        "id": 3375000040,
+        "url": "https://github.com/networkx/networkx/issues/8128#issuecomment-3375000040",
+        "body": "Hi @rossbar (cc @krishnaGauss),\n\nI tested a minimal change to add a min_length gate inside the bounded-length DFS routine.\n\nPatch under test\n```\n# original\nif w == start:\n    yield path[:]\n    blen[-1] = 1\n\nelif len(path) < lock.get(w, length_bound):\n    path.append(w)\n    blen.append(length_bound)\n    lock[w] = len(path)\n    stack.append(iter(G[w]))\n    break\n\n# patch\nif w == start and len(path) >= min_length:\n    yield path[:]\n    blen[-1] = 1\n\nelif w != start and len(path) < lock.get(w, length_bound):\n    path.append(w)\n    blen.append(length_bound)\n    lock[w] = len(path)\n    stack.append(iter(G[w]))\n    break\n```\nSo when we return to start with len(path) < min_length, we skip both the yield and the blen[-1] = 1 update. The intent is to treat sub-min-length “cycles” as non-cycles and let normal backtracking proceed.\n\nI tested the proposed change with the following cases, and all assertions passed:\n```\ndef test_simple_cycles_min_length_cases(self):\n    DG = nx.DiGraph()\n    DG.add_edges_from([\n        (1, 2), (1, 3), (1, 4),\n        (2, 3), (2, 5),\n        (3, 4), (3, 6),\n        (4, 7),\n        (7, 1)\n    ])\n\n    assert list(nx.simple_cycles(DG, min_length=3, length_bound=4)) == [[1, 3, 4, 7], [1, 4, 7]]\n    assert list(nx.simple_cycles(DG, min_length=4, length_bound=4)) == [[1, 3, 4, 7]]\n\n    G = nx.Graph()\n    G.add_edges_from([\n        (1, 2), (1, 3), (1, 4),\n        (2, 3), (2, 5),\n        (3, 4), (3, 6),\n        (4, 7),\n        (7, 1)\n    ])\n\n    assert list(nx.simple_cycles(G, min_length=3, length_bound=4)) == [\n        [1, 2, 3], [1, 2, 3, 4], [1, 3, 4], [1, 3, 4, 7], [1, 4, 7]\n    ]\n    assert list(nx.simple_cycles(G, min_length=4, length_bound=4)) == [\n        [1, 2, 3, 4], [1, 3, 4, 7]\n    ]\n\n```\n\nQuestions for feedback (focused on safety & performance)\n\n1. Correctness: In the relaxation scheme, does skipping blen[-1] = 1 when a too-short cycle is encountered risk breaking any invariants (e.g., missing valid longer cycles, introducing duplicates, or interfering with lock/B propagation)? My current understanding is that this should not cause incorrect results, since we’re only suppressing emission.\n2. Performance: Could this choice materially degrade pruning, since we’re not performing the usual relaxation step for sub-min-length hits on start?\n\nHappy to adjust to whichever semantics you think is safer for correctness and less risky for performance. If this direction looks good, I can follow up with tests and docs. Thanks!",
+        "author": "Aka2210",
+        "author_association": "CONTRIBUTOR",
+        "author_type": "User",
+        "bot": false,
+        "updated_at": "2025-10-07T03:10:41Z",
+        "created_at": "2025-10-07T03:09:51Z",
+        "redacted": false,
+        "truncated": false
+      },
+      {
+        "id": 3430611721,
+        "url": "https://github.com/networkx/networkx/issues/8128#issuecomment-3430611721",
+        "body": "Hi @rossbar, just checking in on this — I ran a few additional tests locally and the patch seems stable across both directed and undirected graphs.\n\nWould you prefer that I open a PR so it’s easier to review and run CI, or would you rather continue discussion here first?\n\n(Happy to adjust based on your preference!)",
+        "author": "Aka2210",
+        "author_association": "CONTRIBUTOR",
+        "author_type": "User",
+        "bot": false,
+        "updated_at": "2025-10-22T05:57:50Z",
+        "created_at": "2025-10-22T05:57:50Z",
+        "redacted": false,
+        "truncated": false
+      },
+      {
+        "id": 5077425271,
+        "url": "https://github.com/networkx/networkx/issues/8128#issuecomment-5077425271",
+        "body": "If `min_length` is added as a free parameter, `simple_cycles` would solve the classic (Karp 1972) NP-complete Hamiltonian Cycle decision problem (`min_length`=n), no hope for efficient algorithms, unless P=NP. Same if `min_length` is close to n up to a constant.\nOn the other hand, if `min_length` is a small constant, not too many cycles shorter than `min_length` can exist and the suggested filtering is a viable option.",
+        "author": "FrankBau",
+        "author_association": "NONE",
+        "author_type": "User",
+        "bot": false,
+        "updated_at": "2026-10-02T16:00:49Z",
+        "created_at": "2026-07-25T07:05:41Z",
+        "redacted": false,
+        "truncated": false
+      }
+    ],
+    "timeline": [
+      {
+        "id": 18374084714,
+        "event": "labeled",
+        "created_at": "2025-06-29T12:33:44Z",
+        "actor": "rossbar",
+        "state_reason": null,
+        "commit_id": null,
+        "source_issue_number": null,
+        "label": "type: Enhancements"
+      },
+      {
+        "id": 3137075482,
+        "event": "commented",
+        "created_at": "2025-07-30T16:36:18Z",
+        "actor": "krishnaGauss",
+        "state_reason": null,
+        "commit_id": null,
+        "source_issue_number": null,
+        "label": null
+      },
+      {
+        "id": 3137181812,
+        "event": "commented",
+        "created_at": "2025-07-30T17:09:47Z",
+        "actor": "rossbar",
+        "state_reason": null,
+        "commit_id": null,
+        "source_issue_number": null,
+        "label": null
+      },
+      {
+        "id": 3375000040,
+        "event": "commented",
+        "created_at": "2025-10-07T03:09:51Z",
+        "actor": "Aka2210",
+        "state_reason": null,
+        "commit_id": null,
+        "source_issue_number": null,
+        "label": null
+      },
+      {
+        "id": 20130920619,
+        "event": "mentioned",
+        "created_at": "2025-10-07T03:09:52Z",
+        "actor": "rossbar",
+        "state_reason": null,
+        "commit_id": null,
+        "source_issue_number": null,
+        "label": null
+      },
+      {
+        "id": 20130920627,
+        "event": "subscribed",
+        "created_at": "2025-10-07T03:09:52Z",
+        "actor": "rossbar",
+        "state_reason": null,
+        "commit_id": null,
+        "source_issue_number": null,
+        "label": null
+      },
+      {
+        "id": 20130920639,
+        "event": "mentioned",
+        "created_at": "2025-10-07T03:09:53Z",
+        "actor": "krishnaGauss",
+        "state_reason": null,
+        "commit_id": null,
+        "source_issue_number": null,
+        "label": null
+      },
+      {
+        "id": 20130920648,
+        "event": "subscribed",
+        "created_at": "2025-10-07T03:09:53Z",
+        "actor": "krishnaGauss",
+        "state_reason": null,
+        "commit_id": null,
+        "source_issue_number": null,
+        "label": null
+      },
+      {
+        "id": 3430611721,
+        "event": "commented",
+        "created_at": "2025-10-22T05:57:50Z",
+        "actor": "Aka2210",
+        "state_reason": null,
+        "commit_id": null,
+        "source_issue_number": null,
+        "label": null
+      },
+      {
+        "id": 20421419423,
+        "event": "mentioned",
+        "created_at": "2025-10-22T05:57:52Z",
+        "actor": "rossbar",
+        "state_reason": null,
+        "commit_id": null,
+        "source_issue_number": null,
+        "label": null
+      },
+      {
+        "id": 20421419445,
+        "event": "subscribed",
+        "created_at": "2025-10-22T05:57:52Z",
+        "actor": "rossbar",
+        "state_reason": null,
+        "commit_id": null,
+        "source_issue_number": null,
+        "label": null
+      },
+      {
+        "id": null,
+        "event": "cross-referenced",
+        "created_at": "2025-11-25T09:03:43Z",
+        "actor": "Aka2210",
+        "state_reason": null,
+        "commit_id": null,
+        "source_issue_number": 8354,
+        "label": null
+      },
+      {
+        "id": 5077425271,
+        "event": "commented",
+        "created_at": "2026-07-25T07:05:41Z",
+        "actor": "FrankBau",
+        "state_reason": null,
+        "commit_id": null,
+        "source_issue_number": null,
+        "label": null
+      },
+      {
+        "id": null,
+        "event": "cross-referenced",
+        "created_at": "2026-08-20T19:59:55Z",
+        "actor": "FrankBau",
+        "state_reason": null,
+        "commit_id": null,
+        "source_issue_number": 8791,
+        "label": null
+      },
+      {
+        "id": null,
+        "event": "cross-referenced",
+        "created_at": "2026-09-16T01:07:59Z",
+        "actor": "faresrafat3",
+        "state_reason": null,
+        "commit_id": null,
+        "source_issue_number": 8910,
+        "label": null
+      },
+      {
+        "id": null,
+        "event": "cross-referenced",
+        "created_at": "2026-09-16T02:11:00Z",
+        "actor": "faresrafat3",
+        "state_reason": null,
+        "commit_id": null,
+        "source_issue_number": 8911,
+        "label": null
+      }
+    ],
+    "context_complete": false,
+    "limitations": [
+      "Cross-referenced discussions not fetched; resolution may need review."
+    ],
+    "fetched_at": "2026-10-23T21:23:18+00:00",
+    "public": true,
+    "fingerprint": "cde8beb38d67cf972dc4bb3449709f6b1fb778ba17e73251625cbb943f148663"
+  },
+  "target": {
+    "id": 890377,
+    "full_name": "networkx/networkx",
+    "revision": "9d866a5f447d9fe1c989b31f90c520dc2813ee26",
+    "default_branch": "main",
+    "description": "Network Analysis in Python",
+    "license": {
+      "key": "other",
+      "name": "Other",
+      "spdx_id": "NOASSERTION",
+      "url": null,
+      "node_id": "MDc6TGljZW5zZTA="
+    },
+    "files": [
+      {
+        "path": "pyproject.toml",
+        "sha": "c16a5df899d7d3cba3690ab700d1524e1890742e",
+        "text": "[build-system]\nbuild-backend = 'setuptools.build_meta'\nrequires = ['setuptools>=77.0.3']\n\n[project]\nname = 'networkx'\ndescription = 'Python package for creating and manipulating graphs and networks'\nreadme = 'README.rst'\nrequires-python = '>=3.12,!=3.14.1'\ndynamic = ['version']\nkeywords = [\n    'Networks',\n    'Graph Theory',\n    'Mathematics',\n    'network',\n    'graph',\n    'discrete mathematics',\n    'math',\n]\nlicense = \"BSD-3-Clause\"\nlicense-files = [\"LICENSE.txt\"]\nclassifiers = [\n    'Development Status :: 5 - Production/Stable',\n    'Intended Audience :: Developers',\n    'Intended Audience :: Science/Research',\n    'Operating System :: OS Independent',\n    'Programming Language :: Python :: 3',\n    'Programming Language :: Python :: 3.12',\n    'Programming Language :: Python :: 3.13',\n    'Programming Language :: Python :: 3.14',\n    'Programming Language :: Python :: 3.15',\n    'Programming Language :: Python :: 3 :: Only',\n    'Topic :: Software Development :: Libraries :: Python Modules',\n    'Topic :: Scientific/Engineering :: Bio-Informatics',\n    'Topic :: Scientific/Engineering :: Information Analysis',\n    'Topic :: Scientific/Engineering :: Mathematics',\n    'Topic :: Scientific/Engineering :: Physics',\n]\ndependencies = []\n\n[[project.authors]]\nname = 'Aric Hagberg'\nemail = 'hagberg@lanl.gov'\n\n[[project.maintainers]]\nname = 'NetworkX Developers'\nemail = 'networkx-discuss@googlegroups.com'\n\n[project.urls]\nHomepage = 'https://networkx.org/'\n\"Bug Tracker\" = 'https://github.com/networkx/networkx/issues'\nDocumentation = 'https://networkx.org/documentation/stable/'\n\"Source Code\" = 'https://github.com/networkx/networkx'\n\n[project.entry-points.\"networkx.backends\"]\nnx_loopback = 'networkx.classes.tests.dispatch_interface:backend_interface'\n\n[project.optional-dependencies]\nbenchmarking = [\n    # asv >=0.6.5 ships the libmambapy fix and the `python -m build` default\n    # build command relied on by benchmarks/asv.conf.json (which no longer\n    # overrides build_command). See gh-7638 and gh-8638.\n    'asv>=0.6.5',\n    # py-rattler backs the \"rattler\" environment_type: asv provisions the\n    # 3.12/3.13/3.14 interpreters + soft deps from conda-forge in-process.\n    # Pinned <0.22: asv 0.6.5's rattler plugin still calls the pre-0.22\n    # solve(channels=...) API (py-rattler 0.22 renamed it to sources=).\n    'py-rattler>=0.21,<0.27',\n    'virtualenv',\n]\ndefault = [\n    'numpy>=2.2',\n    'scipy>=1.15',\n    'matplotlib>=3.10',\n    'pandas>=2.3',\n]\ndeveloper = [\n    'pre-commit>=4.1',\n    'mypy>=1.15',\n]\ndoc = [\n    'sphinx>=8.0',\n    'pydata-sphinx-theme>=0.16',\n    'sphinx-gallery>=0.22',\n    'numpydoc>=1.8.0',\n    'pillow>=10',\n    'texext>=0.6.7',\n    'myst-nb>=1.1',\n    'intersphinx-registry',\n]\nexample = [\n    'osmnx>=2.0.0',\n    'momepy>=0.7.2',\n    'contextily>=1.6',\n    'seaborn>=0.13',\n    'cairocffi>=1.7',\n    'igraph>=0.11',\n    'scikit-learn>=1.6',\n    'iplotx>=0.9.0',\n    'hiveplotlib>=0.28',\n]\nextra = [\n    'lxml>=4.6',\n    'pygraphviz>=2.0',\n    'pydot>=3.0.1',\n    'sympy>=1.10',\n]\nrelease = [\n    'build>=0.10',\n    'twine>=4.0',\n    'wheel>=0.40',\n    'changelist==0.5',\n]\ntest = [\n    'pytest>=7.2',\n    'pytest-cov>=4.0',\n    'pytest-xdist>=3.0',\n]\ntest-extras = [\n    'pytest-mpl',\n    'pytest-randomly',\n]\n\n[tool.setuptools]\nzip-safe = false\ninclude-package-data = false\npackages = [\n    'networkx',\n    'networkx.algorithms',\n    'networkx.algorithms.assortativity',\n    'networkx.algorithms.bipartite',\n    'networkx.algorithms.centrality',\n    'networkx.algorithms.community',\n    'networkx.algorithms.components',\n    'networkx.algorithms.connectivity',\n    'networkx.algorithms.coloring',\n    'networkx.algorithms.flow',\n    'networkx.algorithms.minors',\n    'networkx.algorithms.traversal',\n    'networkx.algorithms.isomorphism',\n    'networkx.algorithms.shortest_paths',\n    'networkx.algorithms.link_analysis',\n    'networkx.algorithms.operators',\n    'networkx.algorithms.approximation',\n    'networkx.algorithms.tree',\n    'networkx.classes',\n    'networkx.generators',\n    'networkx.drawing',\n    'networkx.linalg',\n    'networkx.readwrite',\n    'networkx.readwrite.json_graph',\n    'networkx.tests',\n    'networkx.utils',\n]\nplatforms = [\n    'Linux',\n    'Mac OSX',\n    'Windows',\n    'Unix',\n]\n\n[tool.setuptools.dynamic.version]\nattr = 'networkx.__version__'\n\n[tool.setuptools.package-data]\nnetworkx = ['tests/*.py']\n\"networkx.algorithms\" = ['tests/*.py']\n\"networkx.algorithms.assortativity\" = ['tests/*.py']\n\"networkx.algorithms.bipartite\" = ['tests/*.py']\n\"networkx.algorithms.centrality\" = ['tests/*.py']\n\"networkx.algorithms.community\" = ['tests/*.py']\n\"networkx.algorithms.components\" = ['tests/*.py']\n\"networkx.algorithms.connectivity\" = ['tests/*.py']\n\"networkx.algorithms.coloring\" = ['tests/*.py']\n\"networkx.algorithms.minors\" = ['tests/*.py']\n\"networkx.algorithms.flow\" = [\n    'tests/*.py',\n    'tests/*.bz2',\n]\n\"networkx.algorithms.isomorphism\" = [\n    'tests/*.py',\n    'tests/*.*99',\n]\n\"networkx.algorithms.link_analysis\" = ['tests/*.py']\n\"networkx.algorithms.approximation\" = ['tests/*.py']\n\"networkx.algorithms.operators\" = ['tests/*.py']\n\"networkx.algorithms.shortest_paths\" = ['tests/*.py']\n\"networkx.algorithms.traversal\" = ['tests/*.py']\n\"networkx.algorithms.tree\" = ['tests/*.py']\n\"networkx.classes\" = ['tests/*.py']\n\"networkx.generators\" = [\n    'tests/*.py',\n    'atlas.dat.gz',\n]\n\"networkx.drawing\" = [\n    'tests/*.py',\n    'tests/baseline/*png',\n]\n\"networkx.linalg\" = ['tests/*.py']\n\"networkx.readwrite\" = ['tests/*.py']\n\"networkx.readwrite.json_graph\" = ['tests/*.py']\n\"networkx.utils\" = ['tests/*.py']\n\n[tool.changelist]\nignored_user_logins = [\"dependabot[bot]\", \"pre-commit-ci[bot]\", \"web-flow\"]\n\n[tool.coverage.run]\nbranch = true\nsource = [\"networkx\"]\nomit = [\"*/tests/*\", \"conftest.py\", \"*testing/test.py\"]\n\n[tool.ruff.lint]\nextend-select = [\n#  \"B\",        # flake8-bugbear\n  \"I\",        # isort\n#  \"ARG\",      # flake8-unused-arguments\n  \"C4\",       # flake8-comprehensions\n#  \"D\",        # pydocstyle (see tool.ruff.lint.pydocstyle below)\n  \"EM\",       # flake8-errmsg\n  \"ICN\",      # flake8-import-conventions\n#  \"G\",        # flake8-logging-format\n  \"PGH\",      # pygrep-hooks\n  \"PIE\",      # flake8-pie\n#  \"PL\",       # pylint\n  \"PLR0402\",\n#  \"PT\",       # flake8-pytest-style\n#  \"PTH\",      # flake8-use-pathlib\n#  \"RET\",      # flake8-return\n#  \"RUF\",      # Ruff-specific\n#  \"SIM\",      # flake8-simplify\n  \"SIM101\",\n  \"SIM109\",\n  \"SIM110\",\n  \"SIM118\",\n  \"SIM2\",\n#  \"T20\",      # flake8-print\n  \"UP\",       # pyupgrade\n  \"YTT\",      # flake8-2020\n  \"EXE\",      # flake8-executable\n  \"NPY\",      # NumPy specific rules\n  \"PD\",       # pandas-vet\n#  \"FURB\",     # refurb\n  \"PYI\",      # flake8-pyi\n  \"W505\",     # pycodestyle docstring/comment line length (see config below)\n]\nignore = [\n  \"PLR09\",    # Too many <...>\n  \"PLR2004\",  # Magic value used in comparison\n  \"ISC001\",   # Conflicts with formatter\n  \"E741\",     # Ambiguous variable name\n  \"E722\",     # Do not use bare `except`\n  \"F\",        # pyflakes\n  \"EM101\",    # Exception must not use a string literal\n  \"EM102\",    # Exception must not use an f-string literal\n  \"PD\",       # pandas-vet\n  \"ICN\",      # flake8-import-conventions\n  \"PYI\",      # flake8-pyi\n  \"NPY002\",   # Replace legacy `np.random.random` call with `np.random.Generator`\n  \"W291\",     # Trailing white space\n  \"C420\",     # \"Unnecessary\" dict comprehensions (even though they're more readable)\n]\nexclude=['doc/conf.py', '__init__.py']\n\n# Need to select D above\n#[tool.ruff.lint.pydocstyle]\n#convention = \"numpy\"\n\n[tool.ruff.lint.pycodestyle]\nmax-doc-length = 110\n\n[tool.ruff.lint.per-file-ignores]\n\"__init__.py\" = ['I']\n\"examples/*.py\" = ['I']\n\"doc/*.py\" = ['I']\n\"tools/*.py\" = ['I']\n\"networkx/classes/filters.py\" = ['C416']\n\"networkx/classes/reportviews.py\" = ['W505']  # Ignore long docstring examples\n\n[tool.ruff.format]\ndocstring-code-format = true\n\n[tool.mypy]\nignore_missing_imports = true\nexclude = 'subgraphviews|reportviews'\ndisable_error_code = [\"var-annotated\"]\n\n[[tool.mypy.overrides]]\nmodule = 'networkx.classes.reportviews'\nignore_errors = true\n\n[tool.pytest.ini_options]\nfilterwarnings = [\"error\"]\n\n# ---- Pixi configuration ----\n\n[tool.pixi.workspace]\nchannels = [\"conda-forge\"]\nplatforms = [\"linux-64\", \"osx-64\", \"osx-arm64\", \"win-64\"]\n\n[tool.pixi.feature.nx.pypi-dependencies]\nnetworkx = { path = \".\", editable = true }\n\n# --- Python version features ---\n\n[tool.pixi.feature.py315]\nchannels = [\"conda-forge/label/python_rc\"]\n\n[tool.pixi.feature.py315t]\nchannels = [\"conda-forge/label/python_rc\"]\n\n[tool.pixi.feature.py312.dependencies]\npython = \"3.12.*\"\n\n[tool.pixi.feature.py313.dependencies]\npython = \"3.13.*\"\n\n[tool.pixi.feature.py314.dependencies]\npython = \"3.14.*\"\n\n[tool.pixi.feature.py314t.dependencies]\npython-freethreading = \"3.14.*\"\n\n[tool.pixi.feature.py315.dependencies]\npython = \"3.15.*\"\n\n[tool.pixi.feature.py315t.dependencies]\npython-freethreading = \"3.15.*\"\n\n# --- Dependency features ---\n# Most pypi-dependencies are auto-created from [project.optional-dependencies].\n# Only features that differ from or have no matching optional-deps group are listed here.\n\n[tool.pixi.feature.default-no-scipy.pypi-dependencies]\nnumpy = \">=2.2\"\nmatplotlib = \">=3.10\"\npandas = \">=2.3\"\n\n[tool.pixi.feature.doc.dependencies]\nlibspatialindex = \"*\"\npip = \"*\"\n\n[tool.pixi.feature.extra.pypi-dependencies]\nlxml = \">=4.6\"\npydot = \">=3.0.1\"\nsympy = \">=1.10\"\n\n[tool.pixi.feature.example.dependencies]\nproj = \"*\"\ngdal = \"*\"\ncairo = \"*\"\nrasterio = \"*\"\n\n# --- Task definitions ---\n\n[tool.pixi.feature.test.tasks]\ntest-base = \"pytest -n auto --doctest-modules --durations=10 --pyargs networkx\"\ntest-default = \"pytest -n auto --doctest-modules --durations=10 --pyargs networkx\"\ncheck-import = \"python -Werror -c 'import networkx'\"\ntest-slow = \"pytest -n auto --durations=20 --runslow -m slow --pyargs networkx\"\ntest-dispatch = { cmd = \"pytest -n auto --doctest-modules --durations=10 --pyargs networkx\", env = { NETWORKX_TEST_BACKEND = \"nx_loopback\" } }\n\n[tool.pixi.feature.developer.tasks]\nlint = \"pre-commit run --all-files --show-diff-on-failure --color always\"\ntype-check = \"mypy -p networkx\"\n\n[tool.pixi.feature.doc.tasks]\ndocs-build = { cmd = \"make -C doc/ html\", env = { DISPLAY = \":99\" } }\n# TODO: convert to pypi-dependencies once pixi supports --no-deps\n# https://github.com/prefix-dev/pixi/issues/1417\ninstall-backend-stubs = \"\"\"pip install --no-deps --pre \\\n  --extra-index-url https://pypi.anaconda.org/rapidsai-wheels-nightly/simple \\\n  nx-cugraph-cu11 \\\n  git+https://github.com/python-graphblas/graphblas-algorithms.git@main \\\n  git+https://github.com/networkx/nx-parallel.git@main \\\n  git+https://github.com/awslabs/nx-neptune.git@main\"\"\"\n\n[tool.pixi.feature.prerelease.tasks]\ninstall-prerelease = \"pip install --upgrade pip && pip install --pre '.[default,test]' && pip install pytest-mpl && pip list\"\ntest-prerelease = \"pytest -n auto --mpl --doctest-modules --durations=10 --pyargs networkx\"\n\n[tool.pixi.feature.release.tasks]\nbuild-dist = \"python -m build --sdist --wheel\"\nverify-dist = \"twine check --strict dist/*\"\n\n[tool.pixi.feature.benchmarking.tasks]\nasv-machine = { cmd = \"asv machine --yes --conf asv.conf.json\", cwd = \"benchmarks\" }\nbenchmark-continuous = { cmd = \"asv continuous --split --show-stderr --factor 1.5 --conf asv.conf.json\", cwd = \"benchmarks\", depends-on = [\n    \"asv-machine\",\n] }\nbenchmark-run = { cmd = \"asv run --conf asv.conf.json\", cwd = \"benchmarks\", depends-on = [\n    \"asv-machine\",\n] }\n\n[tool.pixi.environments]\n# Local dev default: networkx + default deps on a current Python.\ndefault = { features = [\"nx\", \"test\", \"default\", \"py313\"], solve-group = \"py313\", no-default-feature = true }\n# Base test (no default deps)\ntest-base-py313 = { features = [\"nx\", \"test\", \"py313\"], solve-group = \"py313\", no-default-feature = true }\ntest-base-py314 = { features = [\"nx\", \"test\", \"py314\"], solve-group = \"py314\", no-default-feature = true }\ntest-base-py314t = { features = [\"nx\", \"test\", \"py314t\"], solve-group = \"py314t\", no-default-feature = true }\ntest-base-py315 = { features = [\"nx\", \"test\", \"py315\"], solve-group = \"py315\", no-default-feature = true }\ntest-base-py315t = { features = [\"nx\", \"test\", \"py315t\"], solve-group = \"py315t\", no-default-feature = true }\n# Default test (with numpy/scipy/matplotlib/pandas)\ntest-default-py312 = { features = [\"nx\", \"test\", \"default\", \"py312\"], solve-group = \"py312\", no-default-feature = true }\ntest-default-py313 = { features = [\"nx\", \"test\", \"default\", \"py313\"], solve-group = \"py313\", no-default-feature = true }\ntest-default-py314 = { features = [\"nx\", \"test\", \"default\", \"py314\"], solve-group = \"py314\", no-default-feature = true }\ntest-default-py315 = { features = [\"nx\", \"test\", \"default\", \"py315\"], solve-group = \"py315\", no-default-feature = true }\n# Default without scipy\ntest-default-no-scipy-py312 = { features = [\"nx\", \"test\", \"default-no-scipy\", \"py312\"], solve-group = \"py312\", no-default-feature = true }\n# Extra test\ntest-extra-py312 = { features = [\"nx\", \"test\", \"default\", \"extra\", \"py312\"], solve-group = \"py312\", no-default-feature = true }\ntest-extra-py313 = { features = [\"nx\", \"test\", \"default\", \"extra\", \"py313\"], solve-group = \"py313\", no-default-feature = true }\ntest-extra-py314 = { features = [\"nx\", \"test\", \"default\", \"extra\", \"py314\"], solve-group = \"py314\", no-default-feature = true }\n# Single-purpose environments\nlint = { features = [\"nx\", \"developer\", \"py313\"], solve-group = \"py313\", no-default-feature = true }\ntype-check = { features = [\"nx\", \"developer\", \"py312\"], solve-group = \"py312\", no-default-feature = true }\ndocs = { features = [\"nx\", \"test\", \"default\", \"extra\", \"doc\", \"example\", \"py312\"], solve-group = \"py312\", no-default-feature = true }\nbuild-release = { features = [\"nx\", \"release\", \"py312\"], solve-group = \"py312\", no-default-feature = true }\n# Benchmarking. asv provisions the 3.12/3.13/3.14 interpreters + soft deps via\n# the rattler backend (py-rattler/conda-forge) from this single harness env;\n# see benchmarks/asv.conf.json.\nbenchmark = { features = [\"benchmarking\", \"py313\"], solve-group = \"py313\", no-default-feature = true }\n# Prerelease (pixi manages Python, pip install --pre handles deps)\nprerelease-py312 = { features = [\"nx\", \"prerelease\", \"py312\"], solve-group = \"py312\", no-default-feature = true }\nprerelease-py313 = { features = [\"nx\", \"prerelease\", \"py313\"], solve-group = \"py313\", no-default-feature = true }\nprerelease-py314 = { features = [\"nx\", \"prerelease\", \"py314\"], solve-group = \"py314\", no-default-feature = true }\nprerelease-py315 = { features = [\"nx\", \"prerelease\", \"py315\"], solve-group = \"py315\", no-default-feature = true }\ntest-randomly = { features = [\"nx\", \"test\", \"default\", \"test-extras\", \"py313\"], solve-group = \"py313\", no-default-feature = true }\n",
+        "url": "https://github.com/networkx/networkx/blob/9d866a5f447d9fe1c989b31f90c520dc2813ee26/pyproject.toml",
+        "kind": "manifest",
+        "language": "Documentation/manifest",
+        "bytes": 14798,
+        "reference_truncated": false
+      }
+    ],
+    "fetched_at": "2026-10-23T21:23:31+00:00",
+    "public": true,
+    "license_files": [],
+    "coverage": {
+      "tree_truncated": false,
+      "tree_entries": 1063,
+      "eligible_files": 901,
+      "files_scanned": 1,
+      "file_budget": 4,
+      "bytes_scanned": 14798,
+      "language_counts": {
+        "Documentation/manifest": 1
+      },
+      "tree_language_counts": {
+        "Other": 281,
+        "Python": 695,
+        "JavaScript": 2
+      },
+      "excluded": {
+        "unsupported_file_type": 76,
+        "symlink": 1
+      },
+      "sampling_policy": "Root manifests and explicitly cited source paths only; bounded prior-reference sample, not target compatibility.",
+      "static_export_hints": [],
+      "export_hints_complete": true,
+      "omitted_export_paths": [],
+      "initializer_import_hints": [],
+      "initializer_import_hints_complete": true,
+      "initializer_hint_limit": 64,
+      "omitted_initializer_imports": [],
+      "eligible_source_roles": {
+        "infrastructure": 113,
+        "implementation": 289
+      },
+      "acquired_source_roles": {},
+      "runtime_bin_entrypoints": {},
+      "metadata_redacted": false,
+      "metadata_truncated": false,
+      "complete": false,
+      "eligible_sample_complete": false,
+      "limitations": [
+        "Bounded source sample; declarations and test references are not execution proof.",
+        "File budget sampled 4 of 901 eligible files.",
+        "Some files were excluded for safety, size, encoding or unsupported type.",
+        "No implementation source was acquired; this sample cannot represent product capabilities."
+      ]
+    },
+    "file_catalog": {
+      "entries": [
+        {
+          "id": "f0",
+          "path": "LICENSE.txt",
+          "sha": "02547fc890c22287c5cacfc4ec6bfc384e6ce785",
+          "kind": "documentation"
+        },
+        {
+          "id": "f1",
+          "path": "pyproject.toml",
+          "sha": "c16a5df899d7d3cba3690ab700d1524e1890742e",
+          "kind": "manifest"
+        },
+        {
+          "id": "f2",
+          "path": "networkx/algorithms/core.py",
+          "sha": "fec26ec984161eb2d927019d90540690cbc5aa45",
+          "kind": "source"
+        },
+        {
+          "id": "f3",
+          "path": "networkx/__init__.py",
+          "sha": "d0ea59757dce4d80b83441dc122b74572a7dd920",
+          "kind": "source"
+        },
+        {
+          "id": "f4",
+          "path": "networkx/tests/test_all_random_functions.py",
+          "sha": "fb3a73d0666b01bd1a90a4759670f912590aaf6b",
+          "kind": "test"
+        },
+        {
+          "id": "f5",
+          "path": "networkx/convert.py",
+          "sha": "bf0a502a271f04594d7384f9eb7c4e6cf92f4edb",
+          "kind": "source"
+        },
+        {
+          "id": "f6",
+          "path": "README.rst",
+          "sha": "a18d5ff1dd729e52e8b1746e49ea9623937a4743",
+          "kind": "documentation"
+        },
+        {
+          "id": "f7",
+          "path": "doc/Makefile",
+          "sha": "e8e6cca7b3ea4e5938544745a93d48b1de03aa4b",
+          "kind": "manifest"
+        },
+        {
+          "id": "f8",
+          "path": "networkx/convert_matrix.py",
+          "sha": "0568b7f0fb323b6e5356d2eaea28cd51fe96d931",
+          "kind": "source"
+        },
+        {
+          "id": "f9",
+          "path": "networkx/exception.py",
+          "sha": "c960cf13fd5a8e4da0ca68c66350b8baa1728c34",
+          "kind": "source"
+        },
+        {
+          "id": "f10",
+          "path": "networkx/tests/test_convert.py",
+          "sha": "44bed9438945a39bb5eb85477301f58cfcd70cf0",
+          "kind": "test"
+        },
+        {
+          "id": "f11",
+          "path": "networkx/lazy_imports.py",
+          "sha": "c5c05ca5462868fbccc270ea1e93b301037dfc8c",
+          "kind": "source"
+        },
+        {
+          "id": "f12",
+          "path": "benchmarks/README.md",
+          "sha": "ef9c3fc48c61770d872da806244731a48abf19fe",
+          "kind": "documentation"
+        },
+        {
+          "id": "f13",
+          "path": "networkx/relabel.py",
+          "sha": "b362853a083e5d4f3cf8f8195d470db3d45f275a",
+          "kind": "source"
+        },
+        {
+          "id": "f14",
+          "path": "networkx/algorithms/__init__.py",
+          "sha": "6439d56fe1364cf9b08e2a20affe4362cb56cbe8",
+          "kind": "source"
+        },
+        {
+          "id": "f15",
+          "path": "networkx/tests/test_convert_numpy.py",
+          "sha": "d222747a541af49458e115b7f260cb75a5880be8",
+          "kind": "test"
+        },
+        {
+          "id": "f16",
+          "path": "networkx/algorithms/asteroidal.py",
+          "sha": "b308392a48626ade3b964aa544373e29d8a3a22b",
+          "kind": "source"
+        },
+        {
+          "id": "f17",
+          "path": "doc/README.rst",
+          "sha": "09a0f8278731c91cb3ff681654ca42c23869b97d",
+          "kind": "documentation"
+        },
+        {
+          "id": "f18",
+          "path": "networkx/algorithms/boundary.py",
+          "sha": "ba05d803037d8812bfff83df5382e8ea942711b2",
+          "kind": "source"
+        },
+        {
+          "id": "f19",
+          "path": "networkx/algorithms/bridges.py",
+          "sha": "eaa6fd3bd7ef881abf93682315b76dc3b11e40ce",
+          "kind": "source"
+        },
+        {
+          "id": "f20",
+          "path": "networkx/tests/test_convert_pandas.py",
+          "sha": "4b40954e1bd78a1a7611487dd2fe20b8dfdf27f9",
+          "kind": "test"
+        },
+        {
+          "id": "f21",
+          "path": "networkx/algorithms/broadcasting.py",
+          "sha": "c2e2718a5a3dc549a09dc72469462f80f8c0af77",
+          "kind": "source"
+        },
+        {
+          "id": "f22",
+          "path": "examples/README.txt",
+          "sha": "594b9dc074b751948ade229ad11adfc80325a020",
+          "kind": "documentation"
+        },
+        {
+          "id": "f23",
+          "path": "networkx/algorithms/chains.py",
+          "sha": "ae342d9c8669acd832a3bdb4fe8eecf3e300464f",
+          "kind": "source"
+        },
+        {
+          "id": "f24",
+          "path": "networkx/algorithms/chordal.py",
+          "sha": "cbf343041ca81f4761d0ac4621599a3b94729597",
+          "kind": "source"
+        },
+        {
+          "id": "f25",
+          "path": "networkx/tests/test_convert_scipy.py",
+          "sha": "2575027046c61612c1be3c36a5b7877c28e71d92",
+          "kind": "test"
+        },
+        {
+          "id": "f26",
+          "path": "networkx/algorithms/clique.py",
+          "sha": "1119c47867d5ce69fe8853bbd0044ae1b3abdadb",
+          "kind": "source"
+        },
+        {
+          "id": "f27",
+          "path": "requirements/README.md",
+          "sha": "7035dc190a85e6e5ca29b059d7246e76e1a0d17b",
+          "kind": "documentation"
+        },
+        {
+          "id": "f28",
+          "path": "networkx/algorithms/cluster.py",
+          "sha": "ebbde2171f1065bac605a3530d95ea9191d63b1c",
+          "kind": "source"
+        },
+        {
+          "id": "f29",
+          "path": "networkx/algorithms/communicability_alg.py",
+          "sha": "de15da2b598b60c5101bb0258e4accaff0179fd4",
+          "kind": "source"
+        },
+        {
+          "id": "f30",
+          "path": "networkx/tests/test_exceptions.py",
+          "sha": "cf59983cb8d12a119f5744ebc8b11e7cb9075366",
+          "kind": "test"
+        },
+        {
+          "id": "f31",
+          "path": "networkx/algorithms/covering.py",
+          "sha": "cdf607b3d798a9d2efeabb0bb95721d6370ca8cd",
+          "kind": "source"
+        },
+        {
+          "id": "f32",
+          "path": "doc/_static/README.md",
+          "sha": "946732bdef3636db82b7f4e95a4f75b6f27b24a7",
+          "kind": "documentation"
+        },
+        {
+          "id": "f33",
+          "path": "networkx/algorithms/cuts.py",
+          "sha": "040f4d49de1cb544410660ec0e4ca758fbd5975b",
+          "kind": "source"
+        },
+        {
+          "id": "f34",
+          "path": "networkx/algorithms/cycles.py",
+          "sha": "36b7c80d30f68cc8651184834d3116774a1c6390",
+          "kind": "source"
+        },
+        {
+          "id": "f35",
+          "path": "networkx/tests/test_import.py",
+          "sha": "32aafdf2a4dafc85cee088138590b84f4c627b5e",
+          "kind": "test"
+        },
+        {
+          "id": "f36",
+          "path": "networkx/algorithms/d_separation.py",
+          "sha": "262623c4bb0fbe68ecd42bed4228a2245d053abc",
+          "kind": "source"
+        },
+        {
+          "id": "f37",
+          "path": "examples/3d_drawing/README.txt",
+          "sha": "1a7668282d71e7a4b0a926e135311997b10f7d7c",
+          "kind": "documentation"
+        },
+        {
+          "id": "f38",
+          "path": "networkx/algorithms/dag.py",
+          "sha": "d4845bea0d7aa2fdcdbcd683141517a223158221",
+          "kind": "source"
+        },
+        {
+          "id": "f39",
+          "path": "networkx/algorithms/distance_measures.py",
+          "sha": "492205fdd0d06ccb45600fa04073302ed4f8247f",
+          "kind": "source"
+        },
+        {
+          "id": "f40",
+          "path": "networkx/tests/test_lazy_imports.py",
+          "sha": "ec09ac2fcda5c9ce8b1f9c6f1d0fba58eb54742e",
+          "kind": "test"
+        },
+        {
+          "id": "f41",
+          "path": "networkx/algorithms/distance_regular.py",
+          "sha": "e97b0f843b91220f183f3df4554d5bb25619cfc5",
+          "kind": "source"
+        },
+        {
+          "id": "f42",
+          "path": "examples/algorithms/README.txt",
+          "sha": "a78a4d7d032847ec1167f7c659871881dc0624a5",
+          "kind": "documentation"
+        },
+        {
+          "id": "f43",
+          "path": "networkx/algorithms/dominance.py",
+          "sha": "aeef3eb47d7dba9128d61984253832501298bcff",
+          "kind": "source"
+        },
+        {
+          "id": "f44",
+          "path": "networkx/algorithms/dominating.py",
+          "sha": "f27ea557498908f5c0b41d47c46327eab3e8bc45",
+          "kind": "source"
+        },
+        {
+          "id": "f45",
+          "path": "networkx/tests/test_relabel.py",
+          "sha": "b6aff684ef68ad6a982428a6c087434932b3029b",
+          "kind": "test"
+        },
+        {
+          "id": "f46",
+          "path": "networkx/algorithms/efficiency_measures.py",
+          "sha": "0156908f5276eda74d91e286fc987acc10578b4b",
+          "kind": "source"
+        },
+        {
+          "id": "f47",
+          "path": "examples/basic/README.txt",
+          "sha": "c1cc18b1fad6b197060adb918cd9b989bd9059f9",
+          "kind": "documentation"
+        },
+        {
+          "id": "f48",
+          "path": "networkx/algorithms/euler.py",
+          "sha": "2c308e380c774a6450d4ce275118ccffd65defaa",
+          "kind": "source"
+        },
+        {
+          "id": "f49",
+          "path": "networkx/algorithms/graph_hashing.py",
+          "sha": "1a8a18dee135475e510ef7a3cc9e0ed9ba45d2ac",
+          "kind": "source"
+        },
+        {
+          "id": "f50",
+          "path": "networkx/tests/test_removed_functions_exception_messages.py",
+          "sha": "4746345627689ef18d39660f51204622dec5dbdb",
+          "kind": "test"
+        },
+        {
+          "id": "f51",
+          "path": "networkx/algorithms/graphical.py",
+          "sha": "d5d82dedda6f9810e3f51bc4c82a9a2b252fa998",
+          "kind": "source"
+        },
+        {
+          "id": "f52",
+          "path": "examples/drawing/README.txt",
+          "sha": "c25993decee5a8c6aa60eb04e449a11dc2867de5",
+          "kind": "documentation"
+        },
+        {
+          "id": "f53",
+          "path": "networkx/algorithms/hierarchy.py",
+          "sha": "d5a05525e7ddf1e98b1e07f120df0b0b5b52414b",
+          "kind": "source"
+        },
+        {
+          "id": "f54",
+          "path": "networkx/algorithms/hybrid.py",
+          "sha": "9d3dd3078cd25fb520a20f5866043ad977ef02f5",
+          "kind": "source"
+        },
+        {
+          "id": "f55",
+          "path": "networkx/algorithms/tests/test_asteroidal.py",
+          "sha": "67131b2d05026317b496d06e6b382836c8c26367",
+          "kind": "test"
+        },
+        {
+          "id": "f56",
+          "path": "networkx/algorithms/isolate.py",
+          "sha": "134cdff49f3a2b6079b13602309a66015af00f2c",
+          "kind": "source"
+        },
+        {
+          "id": "f57",
+          "path": "examples/external/README.txt",
+          "sha": "ad8da424b83768d1744d91e5ee40958d5c4a8641",
+          "kind": "documentation"
+        },
+        {
+          "id": "f58",
+          "path": "networkx/algorithms/link_prediction.py",
+          "sha": "3615f26deb6d3c2f3c01e55f3fcf8ca3361968b3",
+          "kind": "source"
+        },
+        {
+          "id": "f59",
+          "path": "networkx/algorithms/lowest_common_ancestors.py",
+          "sha": "963a7839800b11d621a35e3e44b87711cbe40d63",
+          "kind": "source"
+        },
+        {
+          "id": "f60",
+          "path": "networkx/algorithms/tests/test_boundary.py",
+          "sha": "856be465556941fe6f2bfc2c8bab6d4b508cf999",
+          "kind": "test"
+        },
+        {
+          "id": "f61",
+          "path": "networkx/algorithms/matching.py",
+          "sha": "63710f3503d93c55cda31c1af2d84c15f1e52f94",
+          "kind": "source"
+        },
+        {
+          "id": "f62",
+          "path": "examples/geospatial/README.txt",
+          "sha": "1631af40c217d5a7a3bc43850ddf1ab7e26342fd",
+          "kind": "documentation"
+        },
+        {
+          "id": "f63",
+          "path": "networkx/algorithms/mis.py",
+          "sha": "d6d9cc0147ba428c202ba140f376ff702b0852fe",
+          "kind": "source"
+        },
+        {
+          "id": "f64",
+          "path": "networkx/algorithms/moral.py",
+          "sha": "e2acf80f6c3715da57dfc92e4c2d2daf986b3c29",
+          "kind": "source"
+        },
+        {
+          "id": "f65",
+          "path": "networkx/algorithms/tests/test_bridges.py",
+          "sha": "b47f5860083a0bbb80a04d480d87316476c92fce",
+          "kind": "test"
+        },
+        {
+          "id": "f66",
+          "path": "networkx/algorithms/node_classification.py",
+          "sha": "2b5088e10c481b9a19380228dbae57efed4c7a36",
+          "kind": "source"
+        },
+        {
+          "id": "f67",
+          "path": "examples/graph/README.txt",
+          "sha": "9b0e3b2123b9f16bcedfad4355568ec2f06b64b1",
+          "kind": "documentation"
+        },
+        {
+          "id": "f68",
+          "path": "networkx/algorithms/non_randomness.py",
+          "sha": "3b3a94f0d7855abcfaa2e022720592c3accb69e8",
+          "kind": "source"
+        },
+        {
+          "id": "f69",
+          "path": "networkx/algorithms/perfect_graph.py",
+          "sha": "d84cafb527310173931e8176d5851c2e420a710b",
+          "kind": "source"
+        },
+        {
+          "id": "f70",
+          "path": "networkx/algorithms/tests/test_broadcasting.py",
+          "sha": "64f484b3caf21d33a202a00eb4b4c3f62f42c559",
+          "kind": "test"
+        },
+        {
+          "id": "f71",
+          "path": "networkx/algorithms/planar_drawing.py",
+          "sha": "ea25809b6aeb198b23b44fe9878775d11b7e109c",
+          "kind": "source"
+        },
+        {
+          "id": "f72",
+          "path": "examples/graphviz_drawing/README.txt",
+          "sha": "4f7123c1c6375e1ff45fa62eb50d900ebe24f98a",
+          "kind": "documentation"
+        },
+        {
+          "id": "f73",
+          "path": "networkx/algorithms/planarity.py",
+          "sha": "8d099324cab9d63014fb7a94e0839a5c12de4821",
+          "kind": "source"
+        },
+        {
+          "id": "f74",
+          "path": "networkx/algorithms/polynomials.py",
+          "sha": "7ebc7554a7654c8961c9d8a8024d17210ccf44ca",
+          "kind": "source"
+        },
+        {
+          "id": "f75",
+          "path": "networkx/algorithms/tests/test_chains.py",
+          "sha": "b0c8c8448080c75a25c1952b46a02db4c03fefb8",
+          "kind": "test"
+        },
+        {
+          "id": "f76",
+          "path": "networkx/algorithms/reciprocity.py",
+          "sha": "5ea7ed2ce26ab973e07bcc6ec0d92aa4799d9a6a",
+          "kind": "source"
+        },
+        {
+          "id": "f77",
+          "path": "examples/graphviz_layout/README.txt",
+          "sha": "9b9499a4777ab6b070b0697c145648d5d3ac8304",
+          "kind": "documentation"
+        },
+        {
+          "id": "f78",
+          "path": "networkx/algorithms/regular.py",
+          "sha": "a0032e2d4fb94df69110b99c38ba4c688565399d",
+          "kind": "source"
+        },
+        {
+          "id": "f79",
+          "path": "networkx/algorithms/richclub.py",
+          "sha": "802efe2056a6e1fc485d462a0f6985a4f4d32df9",
+          "kind": "source"
+        },
+        {
+          "id": "f80",
+          "path": "networkx/algorithms/tests/test_chordal.py",
+          "sha": "ad6c0cdb84ddae3f92af0c3acc73a54c99058a70",
+          "kind": "test"
+        },
+        {
+          "id": "f81",
+          "path": "networkx/algorithms/similarity.py",
+          "sha": "25aada68d0a6c2c80545c8db54ceb3e775def44c",
+          "kind": "source"
+        },
+        {
+          "id": "f82",
+          "path": "examples/subclass/README.txt",
+          "sha": "e3650b1bacc30c4a6d3ae3f851109bc0a9261fab",
+          "kind": "documentation"
+        },
+        {
+          "id": "f83",
+          "path": "networkx/algorithms/simple_paths.py",
+          "sha": "d9656ba53c3ae48b07fa47c1ac3e691b32e2d8ca",
+          "kind": "source"
+        },
+        {
+          "id": "f84",
+          "path": "networkx/algorithms/smallworld.py",
+          "sha": "b6f868bcd6e8bcf4c5597d6fa605ed69d9659c57",
+          "kind": "source"
+        },
+        {
+          "id": "f85",
+          "path": "networkx/algorithms/tests/test_clique.py",
+          "sha": "a1e2b55377f47edd0221d03fccccd4fec79ce2c4",
+          "kind": "test"
+        },
+        {
+          "id": "f86",
+          "path": "networkx/algorithms/smetric.py",
+          "sha": "d985aa805b4fb21300680afe389aae4732793a73",
+          "kind": "source"
+        },
+        {
+          "id": "f87",
+          "path": "examples/external/force/README.txt",
+          "sha": "6bac21a40724ea50ea5e289e978135e26de39735",
+          "kind": "documentation"
+        },
+        {
+          "id": "f88",
+          "path": "networkx/algorithms/sparsifiers.py",
+          "sha": "59322372e6c1e06d595d8dff0f8680d1daa8a99e",
+          "kind": "source"
+        },
+        {
+          "id": "f89",
+          "path": "networkx/algorithms/structuralholes.py",
+          "sha": "cbde5f9072e69e4443fdc84b1b08148d08bd5c8d",
+          "kind": "source"
+        },
+        {
+          "id": "f90",
+          "path": "networkx/algorithms/tests/test_cluster.py",
+          "sha": "f4741b420af781cec73c86e917af6ad68fa091a7",
+          "kind": "test"
+        },
+        {
+          "id": "f91",
+          "path": "networkx/algorithms/summarization.py",
+          "sha": "13a422bc5832dc2a83b7ed913e9a2069bcb34122",
+          "kind": "source"
+        },
+        {
+          "id": "f92",
+          "path": "AGENTS.md",
+          "sha": "3e6e0651e4db82d0078a42559ac64586d05fc352",
+          "kind": "documentation"
+        },
+        {
+          "id": "f93",
+          "path": "networkx/algorithms/swap.py",
+          "sha": "cb3cc1c0e75c375ae49976e21fcccf2dc6c76231",
+          "kind": "source"
+        },
+        {
+          "id": "f94",
+          "path": "networkx/algorithms/threshold.py",
+          "sha": "9d08de1c45b5e49f34c75515defa48d8b1f385a9",
+          "kind": "source"
+        },
+        {
+          "id": "f95",
+          "path": "networkx/algorithms/tests/test_communicability.py",
+          "sha": "60075c16530f65ddd23591dc12f4c1e76f76a124",
+          "kind": "test"
+        },
+        {
+          "id": "f96",
+          "path": "networkx/algorithms/time_dependent.py",
+          "sha": "d67cdcf0b8eaecdef8497c77edd3144e96501173",
+          "kind": "source"
+        },
+        {
+          "id": "f97",
+          "path": "CODE_OF_CONDUCT.rst",
+          "sha": "ec226b7051403133990f15379b1bc223927ce062",
+          "kind": "documentation"
+        },
+        {
+          "id": "f98",
+          "path": "networkx/algorithms/tournament.py",
+          "sha": "bafaae226e6488c67f0022c2c1cc3808abbca5cf",
+          "kind": "source"
+        },
+        {
+          "id": "f99",
+          "path": "networkx/algorithms/triads.py",
+          "sha": "db0e990ffb6c1ca9f496e003e40153eab67587bd",
+          "kind": "source"
+        },
+        {
+          "id": "f100",
+          "path": "networkx/algorithms/tests/test_core.py",
+          "sha": "7cbaf759be2ae91cd053629f73353e33bd3a5ee5",
+          "kind": "test"
+        },
+        {
+          "id": "f101",
+          "path": "networkx/algorithms/vitality.py",
+          "sha": "bf4b016e78dc7429810bb48f948f40212e542eca",
+          "kind": "source"
+        },
+        {
+          "id": "f102",
+          "path": "CONTRIBUTING.rst",
+          "sha": "96b6731d406269b0e1e065562663c20efbd5a4e9",
+          "kind": "documentation"
+        },
+        {
+          "id": "f103",
+          "path": "networkx/algorithms/voronoi.py",
+          "sha": "609a68deff89620e0e022020c33863107decced4",
+          "kind": "source"
+        },
+        {
+          "id": "f104",
+          "path": "networkx/algorithms/walks.py",
+          "sha": "2d88932eab709b262873364b599720ac9d986e51",
+          "kind": "source"
+        },
+        {
+          "id": "f105",
+          "path": "networkx/algorithms/tests/test_covering.py",
+          "sha": "b2f97a866b0e09c199c2edb9f40f20986caa8fbc",
+          "kind": "test"
+        },
+        {
+          "id": "f106",
+          "path": "networkx/algorithms/wiener.py",
+          "sha": "d097aa629088e305bdb3e221dcb6da09d69bb3dd",
+          "kind": "source"
+        },
+        {
+          "id": "f107",
+          "path": "INSTALL.rst",
+          "sha": "10f1df63359c1e4f3234fb833d967d24477668cb",
+          "kind": "documentation"
+        },
+        {
+          "id": "f108",
+          "path": "networkx/classes/__init__.py",
+          "sha": "721fa8b4767233bc2b624f6b2ce4d10533a4d66c",
+          "kind": "source"
+        },
+        {
+          "id": "f109",
+          "path": "networkx/classes/coreviews.py",
+          "sha": "4769ffa71ab823c154e6f7b990f0cb07299090a6",
+          "kind": "source"
+        },
+        {
+          "id": "f110",
+          "path": "networkx/algorithms/tests/test_cuts.py",
+          "sha": "923efa502acc623650f36ff41e72884e5e508bc9",
+          "kind": "test"
+        },
+        {
+          "id": "f111",
+          "path": "networkx/classes/digraph.py",
+          "sha": "62724acfa99ce1b25d5e95c6462fe85a61fe139d",
+          "kind": "source"
+        },
+        {
+          "id": "f112",
+          "path": ".github/PULL_REQUEST_TEMPLATE.md",
+          "sha": "81477b5a1ca7a4cd8173cf8aeb5a121ac83dee4d",
+          "kind": "documentation"
+        },
+        {
+          "id": "f113",
+          "path": "networkx/classes/filters.py",
+          "sha": "e989e22bb6d7e79b6eab34103edd263d82694fd4",
+          "kind": "source"
+        },
+        {
+          "id": "f114",
+          "path": "networkx/classes/function.py",
+          "sha": "779096a45e563dd5002abaf0d0f6d4fafdba8ba4",
+          "kind": "source"
+        },
+        {
+          "id": "f115",
+          "path": "networkx/algorithms/tests/test_cycles.py",
+          "sha": "dd92779ece1df443233b12cce03e1e610bdf561a",
+          "kind": "test"
+        },
+        {
+          "id": "f116",
+          "path": "networkx/classes/graph.py",
+          "sha": "39f81a9d58c176d3d5660bf55f31cbc5373e2e6e",
+          "kind": "source"
+        },
+        {
+          "id": "f117",
+          "path": "doc/backends.md",
+          "sha": "e2ae9c5b0e80c3b2b36b50077691d791c2607c8f",
+          "kind": "documentation"
+        },
+        {
+          "id": "f118",
+          "path": "networkx/classes/graphviews.py",
+          "sha": "9273caf512cb08c6109f4eac524d20f70135af84",
+          "kind": "source"
+        },
+        {
+          "id": "f119",
+          "path": "networkx/classes/multidigraph.py",
+          "sha": "03a6e6781076c2b6b33de4616bc39cd8733be8b8",
+          "kind": "source"
+        },
+        {
+          "id": "f120",
+          "path": "networkx/algorithms/tests/test_d_separation.py",
+          "sha": "f7608295afa2e8e20116e5e3cc0b655b0f2a23d6",
+          "kind": "test"
+        },
+        {
+          "id": "f121",
+          "path": "networkx/classes/multigraph.py",
+          "sha": "ed9ffae631458c056d5105bdbec60061cadf4ad4",
+          "kind": "source"
+        },
+        {
+          "id": "f122",
+          "path": "doc/index.rst",
+          "sha": "c07d0a14608caa8f193b65fe0302107b6d43fa41",
+          "kind": "documentation"
+        },
+        {
+          "id": "f123",
+          "path": "networkx/classes/reportviews.py",
+          "sha": "dce26235734041cc36feb957dc4bb13eefc15510",
+          "kind": "source"
+        },
+        {
+          "id": "f124",
+          "path": "networkx/drawing/__init__.py",
+          "sha": "0f53309d4da23a445bcce8cb7570a6de364452b5",
+          "kind": "source"
+        },
+        {
+          "id": "f125",
+          "path": "networkx/algorithms/tests/test_dag.py",
+          "sha": "04526fbf46c3a7c028f0bbe1ca81d67572740422",
+          "kind": "test"
+        },
+        {
+          "id": "f126",
+          "path": "networkx/drawing/layout.py",
+          "sha": "d4d81aae9a1e05e80b90aaf00452cf175d154683",
+          "kind": "source"
+        },
+        {
+          "id": "f127",
+          "path": "doc/install.rst",
+          "sha": "a23a75e3ea077afe7a141b194f03ed74e8d13267",
+          "kind": "documentation"
+        },
+        {
+          "id": "f128",
+          "path": "networkx/drawing/nx_agraph.py",
+          "sha": "a6975d40648ee26e066ef6326364cac916c5c1cf",
+          "kind": "source"
+        },
+        {
+          "id": "f129",
+          "path": "networkx/drawing/nx_latex.py",
+          "sha": "2f2289ea3cd296a2d7da745253d87a269d3a247d",
+          "kind": "source"
+        },
+        {
+          "id": "f130",
+          "path": "networkx/algorithms/tests/test_distance_measures.py",
+          "sha": "26b6f46a5b92d30f244385f62f5abf6fdd407598",
+          "kind": "test"
+        },
+        {
+          "id": "f131",
+          "path": "networkx/drawing/nx_pydot.py",
+          "sha": "0fe5ceec97c5c3c85e5e64e05b4c02eb83978c3a",
+          "kind": "source"
+        },
+        {
+          "id": "f132",
+          "path": "doc/tutorial.md",
+          "sha": "65ebcb4b72454bdeebd432cc1464e1a536dabbbc",
+          "kind": "documentation"
+        },
+        {
+          "id": "f133",
+          "path": "networkx/drawing/nx_pylab.py",
+          "sha": "d28e52cb9faea92cc5caf32fe4acc5d756c3859c",
+          "kind": "source"
+        },
+        {
+          "id": "f134",
+          "path": "networkx/generators/__init__.py",
+          "sha": "6ec027c2405b6f9de2e7b6a0f7c18d782ac8761c",
+          "kind": "source"
+        },
+        {
+          "id": "f135",
+          "path": "networkx/algorithms/tests/test_distance_regular.py",
+          "sha": "545fb6dee6a915230971cf4b5a141e47adc2cc15",
+          "kind": "test"
+        },
+        {
+          "id": "f136",
+          "path": "networkx/generators/atlas.py",
+          "sha": "acd2599d2e0c05eea6e5b96fed3ca90ac59f6475",
+          "kind": "source"
+        },
+        {
+          "id": "f137",
+          "path": ".github/ISSUE_TEMPLATE/bug_report.md",
+          "sha": "5326ab6459fb24a63fadf8bb8f3096558ba5e9c1",
+          "kind": "documentation"
+        },
+        {
+          "id": "f138",
+          "path": "networkx/generators/classic.py",
+          "sha": "ea25bce3cb18ad4949429c8e2b53a95282b20ba6",
+          "kind": "source"
+        },
+        {
+          "id": "f139",
+          "path": "networkx/generators/cographs.py",
+          "sha": "6635b32f691696c1b6f309ad0da81c3cbc43bed9",
+          "kind": "source"
+        },
+        {
+          "id": "f140",
+          "path": "networkx/algorithms/tests/test_dominance.py",
+          "sha": "480b3a5c841af11b807ba533ae9f809eb1e52672",
+          "kind": "test"
+        },
+        {
+          "id": "f141",
+          "path": "networkx/generators/community.py",
+          "sha": "ab23b82fe3eccd3d7c5e64950b17d013e50c75d1",
+          "kind": "source"
+        },
+        {
+          "id": "f142",
+          "path": "doc/developer/about_us.rst",
+          "sha": "dff750522849881ef813d9828ecf001c6da6aee3",
+          "kind": "documentation"
+        },
+        {
+          "id": "f143",
+          "path": "networkx/generators/degree_seq.py",
+          "sha": "77324ca96158c3fc974ba376eb10b3d1d3c3c6d3",
+          "kind": "source"
+        },
+        {
+          "id": "f144",
+          "path": "networkx/generators/directed.py",
+          "sha": "759ce2f9d9106d8dbb6c5ca001391c7be74b636a",
+          "kind": "source"
+        },
+        {
+          "id": "f145",
+          "path": "networkx/algorithms/tests/test_dominating.py",
+          "sha": "5f51777c72c7d4b9cc22e77a6aa6f470200b66a7",
+          "kind": "test"
+        },
+        {
+          "id": "f146",
+          "path": "networkx/generators/duplication.py",
+          "sha": "2ff5e4fe3929d4f94bf100a4d6de2e1748647e6d",
+          "kind": "source"
+        },
+        {
+          "id": "f147",
+          "path": "doc/developer/code_of_conduct.rst",
+          "sha": "2d70708d4fb3d32db1e6ce6932b8bf042ec2c261",
+          "kind": "documentation"
+        },
+        {
+          "id": "f148",
+          "path": "networkx/generators/ego.py",
+          "sha": "91ff3e3fe8573e0764094d030a8656fafa59c929",
+          "kind": "source"
+        },
+        {
+          "id": "f149",
+          "path": "networkx/generators/expanders.py",
+          "sha": "d426515a8c358c89d385cf923aa41037a131b97a",
+          "kind": "source"
+        },
+        {
+          "id": "f150",
+          "path": "networkx/algorithms/tests/test_efficiency.py",
+          "sha": "9a2e7d0463b3a0abeb8395df4ab870456faa64b7",
+          "kind": "test"
+        },
+        {
+          "id": "f151",
+          "path": "networkx/generators/geometric.py",
+          "sha": "d8a4a7c6208bae6eb5ebff7570497796099f0aa3",
+          "kind": "source"
+        },
+        {
+          "id": "f152",
+          "path": "doc/developer/contribute.rst",
+          "sha": "ac7b6bcf35e98139c791cb5c4b94f08849972d65",
+          "kind": "documentation"
+        },
+        {
+          "id": "f153",
+          "path": "networkx/generators/harary_graph.py",
+          "sha": "18c784e84b50c55185ad7e2ce1b8c3034721d4c5",
+          "kind": "source"
+        },
+        {
+          "id": "f154",
+          "path": "networkx/generators/internet_as_graphs.py",
+          "sha": "31fbb6dd03a796aa8abc0dc5afd7c991baf5a993",
+          "kind": "source"
+        },
+        {
+          "id": "f155",
+          "path": "networkx/algorithms/tests/test_euler.py",
+          "sha": "b5871f09b5a309df2bb00d9945ca9cf662e6f656",
+          "kind": "test"
+        },
+        {
+          "id": "f156",
+          "path": "networkx/generators/intersection.py",
+          "sha": "e63af5be8eed2e65b9cced2cc50827ffe6a802ba",
+          "kind": "source"
+        },
+        {
+          "id": "f157",
+          "path": "doc/developer/core_developer.rst",
+          "sha": "fa458f73ea74983f76e69a35fc49f3fb4818f270",
+          "kind": "documentation"
+        },
+        {
+          "id": "f158",
+          "path": "networkx/generators/interval_graph.py",
+          "sha": "6a3fda45acec52af6a5f060b96d9af1067fc002b",
+          "kind": "source"
+        },
+        {
+          "id": "f159",
+          "path": "networkx/generators/joint_degree_seq.py",
+          "sha": "6853eecb3a7c4f59114574ac830ea428989ceb61",
+          "kind": "source"
+        },
+        {
+          "id": "f160",
+          "path": "networkx/algorithms/tests/test_graph_hashing.py",
+          "sha": "6c90c8ff128a02143c48322853bc2dcaa5f6fffc",
+          "kind": "test"
+        },
+        {
+          "id": "f161",
+          "path": "networkx/generators/lattice.py",
+          "sha": "4d84dca55dc6cf84281979e852be117f3d3ad88f",
+          "kind": "source"
+        },
+        {
+          "id": "f162",
+          "path": "doc/developer/deprecations.rst",
+          "sha": "20c87b2d1183aec6fdd125649a0727e9efe1d997",
+          "kind": "documentation"
+        },
+        {
+          "id": "f163",
+          "path": "networkx/generators/line.py",
+          "sha": "90997146bde4a04b4b53c475e300c4a63b987f38",
+          "kind": "source"
+        },
+        {
+          "id": "f164",
+          "path": "networkx/generators/mycielski.py",
+          "sha": "804b903692853d3c45b3b1b20898efeee9b71a5e",
+          "kind": "source"
+        },
+        {
+          "id": "f165",
+          "path": "networkx/algorithms/tests/test_graphical.py",
+          "sha": "99f766f799d8573e80d905482f4b685a2d16bcc0",
+          "kind": "test"
+        },
+        {
+          "id": "f166",
+          "path": "networkx/generators/nonisomorphic_trees.py",
+          "sha": "6c97f609deed205c833b9d8800fae0bba3a86733",
+          "kind": "source"
+        },
+        {
+          "id": "f167",
+          "path": "doc/developer/index.rst",
+          "sha": "b29885b05e7ffa88cf1ee9a55dd953cd918aa9a0",
+          "kind": "documentation"
+        },
+        {
+          "id": "f168",
+          "path": "networkx/generators/random_clustered.py",
+          "sha": "8fbf855e672d3c50f1e74952cc2272143fbac57a",
+          "kind": "source"
+        },
+        {
+          "id": "f169",
+          "path": "networkx/generators/random_graphs.py",
+          "sha": "1898cfd370aaae2680401035c81dfe0931e149f6",
+          "kind": "source"
+        },
+        {
+          "id": "f170",
+          "path": "networkx/algorithms/tests/test_hierarchy.py",
+          "sha": "eaa6a67b8b7f048719aa189b8365ef8e4c65951c",
+          "kind": "test"
+        },
+        {
+          "id": "f171",
+          "path": "networkx/generators/small.py",
+          "sha": "b27e61be7593cf450846f0043cc09769fcb1b75e",
+          "kind": "source"
+        },
+        {
+          "id": "f172",
+          "path": "doc/developer/new_contributor_faq.rst",
+          "sha": "e508aafca4ea4a08dc41c493d62e9f7e3411cc08",
+          "kind": "documentation"
+        },
+        {
+          "id": "f173",
+          "path": "networkx/generators/social.py",
+          "sha": "d06ce00531fb840e0f2a6238aba97f7a40a3b8fc",
+          "kind": "source"
+        },
+        {
+          "id": "f174",
+          "path": "networkx/generators/spectral_graph_forge.py",
+          "sha": "aa8c9194bb31ce15434c728c607bfe0172402406",
+          "kind": "source"
+        },
+        {
+          "id": "f175",
+          "path": "networkx/algorithms/tests/test_hybrid.py",
+          "sha": "6af0016498549caed58772e304c93113a8b693d9",
+          "kind": "test"
+        },
+        {
+          "id": "f176",
+          "path": "networkx/generators/stochastic.py",
+          "sha": "f53e2315470f8ffcdea0380026a933e06ddf6ea7",
+          "kind": "source"
+        },
+        {
+          "id": "f177",
+          "path": "doc/developer/projects.rst",
+          "sha": "68587807bf7e87a634428d0a6268a232a139e9b4",
+          "kind": "documentation"
+        },
+        {
+          "id": "f178",
+          "path": "networkx/generators/sudoku.py",
+          "sha": "6a6fa567c0f5f102a7fe18df886826e759c575dd",
+          "kind": "source"
+        },
+        {
+          "id": "f179",
+          "path": "networkx/generators/time_series.py",
+          "sha": "592d7734a408bf33e58aad20cb117be674558ad2",
+          "kind": "source"
+        },
+        {
+          "id": "f180",
+          "path": "networkx/algorithms/tests/test_isolate.py",
+          "sha": "d29b306d2b13c2457905c41218e5c60793b309ba",
+          "kind": "test"
+        },
+        {
+          "id": "f181",
+          "path": "networkx/generators/trees.py",
+          "sha": "a8b24fad27c59a85daa3b31ecb2e3ddd6fe7875f",
+          "kind": "source"
+        },
+        {
+          "id": "f182",
+          "path": "doc/developer/release.rst",
+          "sha": "c2e4ae9108c07fa2627efa5a823820cdf3b1629d",
+          "kind": "documentation"
+        },
+        {
+          "id": "f183",
+          "path": "networkx/generators/triads.py",
+          "sha": "09b722dd1bd49dddae16086115d170ec989f8b06",
+          "kind": "source"
+        },
+        {
+          "id": "f184",
+          "path": "networkx/linalg/__init__.py",
+          "sha": "119db185a1ae440fd2cdb6c7f531331642313c34",
+          "kind": "source"
+        },
+        {
+          "id": "f185",
+          "path": "networkx/algorithms/tests/test_link_prediction.py",
+          "sha": "0220d9cd24dc5f1eceb8937e3274a21415529349",
+          "kind": "test"
+        },
+        {
+          "id": "f186",
+          "path": "networkx/linalg/algebraicconnectivity.py",
+          "sha": "c7bcf4384802c932d8cda0b579295a4fd3031951",
+          "kind": "source"
+        },
+        {
+          "id": "f187",
+          "path": "doc/developer/roadmap.rst",
+          "sha": "34cd1ea891240d7457db28fb41ceb32f69f4f285",
+          "kind": "documentation"
+        }
+      ],
+      "entry_limit": 300,
+      "byte_limit": 24000,
+      "omitted": 713,
+      "complete": false,
+      "sampling_policy": "Existing _select_files docs/source/test ordering, within catalogue bounds.",
+      "note": "Eligible path metadata only; a filename is not implementation evidence."
+    },
+    "reference_only": true,
+    "fingerprint": "d0555ec60a4b5c90404ec9fc8132521df30e8d34f28304dd9fbed0eb62cf2207"
+  }
+}

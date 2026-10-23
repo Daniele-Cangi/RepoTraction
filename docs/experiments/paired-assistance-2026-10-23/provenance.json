@@ -1,0 +1,43 @@
+{
+  "scope": "Preparation only, no source-search or solver results. Public logs replace the absolute RepoTraction root with <REPOTRACTION>; no other log content is intentionally edited. Archives are gzip of UTF-8 JSON with mtime=0.",
+  "hash_scope": "SHA-256 of canonical staged Git blob bytes; UTF-8 text LF. Excludes this provenance file itself. Not Windows worktree-byte hashes.",
+  "repotraction_base": "b42b85bb88bfc62b33cab49346598d2259e1fdea",
+  "selection_rule_commit": "52e1c4c",
+  "label_correction_commit": "0c12cab",
+  "selection_deviation_commit": "9de2a6d",
+  "acceptance_freeze_commit": "f2e94d3",
+  "strategy_environment_freeze_commit": "2a823a5aa44e54b052f064a57a3625cf5545cb0a",
+  "target_repository": "networkx/networkx",
+  "target_repository_id": 890377,
+  "target_revision": "9d866a5f447d9fe1c989b31f90c520dc2813ee26",
+  "target_tree_sha": "466a502c33e7e7c9bd706d58c1b0c7b880a25964",
+  "target_blobs": {
+    "AGENTS.md": "3e6e0651e4db82d0078a42559ac64586d05fc352",
+    "pyproject.toml": "c16a5df899d7d3cba3690ab700d1524e1890742e",
+    "networkx/algorithms/cycles.py": "36b7c80d30f68cc8651184834d3116774a1c6390",
+    "networkx/algorithms/tests/test_cycles.py": "dd92779ece1df443233b12cce03e1e610bdf561a"
+  },
+  "new_paid_calls": 0,
+  "source_searches": 0,
+  "solver_attempts": 0,
+  "files_sha256": {
+    "README.md": "04100bd6e3795c8cb5a70acc71bfe88c07d2ecf4f8111bffbbc75a5324d47714",
+    "acceptance.md": "091d88cdc3314dc6597b97936e53af78d1aacac0f84f5903c466d435a48fe9cf",
+    "baseline-native-logs.json.gz": "864ad1717654ce19ebcf03e243db471602c15430bff5736106e83daa24addeb0",
+    "baseline-workloads.json": "c6482129ae30e82dd71ebe2574221728cf2b81e1dd3ab11934621a92389fffed",
+    "baseline.json": "0f7809ff9976cbb7c493cc46f55b729278fff436750f195f7209cdd423b7d3ab",
+    "demand-pool.json": "a72b37cf7208cd6cfff11ef64a041285e74426459e0a61fdadf20441807f2152",
+    "environment.json": "a1fe2f6948d53c9c6e1dc3f65bc50c5b9c12bf1255d66aa8606496a9da23e2bf",
+    "execution-bounds.json": "11fa51cb0f2dc29496fb397d89792357fbb2ab5a26a11b676bd8f7205947e302",
+    "frozen-inputs.json": "8c3177acc6c85303dcf6ecca8370addecc180984d78f34b971dd80a085bdb382",
+    "initial-global-environment/baseline-native-logs.json.gz": "113611b57db68b846c489b0b54ae70167718f1cc9bc739ca5052e3b35e1d739c",
+    "initial-global-environment/baseline-workloads.json": "749f0a4d73deb86bf6b437687477c922e7a20fe8c55f5305b345bf1fa1b5c979",
+    "initial-global-environment/baseline.json": "0091f069ee018ef75e674452d7d3d11b4d2e7fff7eed56ad19f426221b1e3553",
+    "native_acceptance.py": "d13c58fd65be51927cc8e4ce7d10ca9e60e5e1358a25d9b4110477fff06ea262",
+    "preparation-reads.json": "a2fb0a04485badab3723309983f4ae32fc084478a57b7065cc613d7c51559e18",
+    "prompts.json": "ba7a65acad4563f5c46317142aefcfdba0b7ae78797e208e669911164e0df391",
+    "protocol.md": "d33d2038cf7407853897b462a92801d9d5e532d4f82727f4f00a2ebf08aa3710",
+    "selection-rule.md": "4a7f290bee324d58a172afbeef8cb6b3584c215d238e14b7afad8f5c552e4160",
+    "upstream-status.json": "39c062bb201bda9caa2abee63bdea3e3c2ebd699f004c58e0313fcfbdac8a6b0"
+  }
+}

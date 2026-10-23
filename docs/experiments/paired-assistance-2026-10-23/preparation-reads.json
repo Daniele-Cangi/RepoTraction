@@ -1,0 +1,42 @@
+[
+  {
+    "endpoint": "repos/networkx/networkx",
+    "params": null
+  },
+  {
+    "endpoint": "repos/networkx/networkx/issues/8128",
+    "params": null
+  },
+  {
+    "endpoint": "repos/networkx/networkx/issues/8128/comments",
+    "params": {
+      "per_page": 100,
+      "page": 1
+    }
+  },
+  {
+    "endpoint": "repos/networkx/networkx/issues/8128/timeline",
+    "params": {
+      "per_page": 100,
+      "page": 1
+    }
+  },
+  {
+    "endpoint": "repos/networkx/networkx",
+    "params": null
+  },
+  {
+    "endpoint": "repos/networkx/networkx/commits/9d866a5f447d9fe1c989b31f90c520dc2813ee26",
+    "params": null
+  },
+  {
+    "endpoint": "repos/networkx/networkx/git/trees/466a502c33e7e7c9bd706d58c1b0c7b880a25964",
+    "params": {
+      "recursive": 1
+    }
+  },
+  {
+    "endpoint": "repos/networkx/networkx/git/blobs/c16a5df899d7d3cba3690ab700d1524e1890742e",
+    "params": null
+  }
+]

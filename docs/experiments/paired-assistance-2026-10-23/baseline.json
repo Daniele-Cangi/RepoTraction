@@ -1,0 +1,65 @@
+{
+  "target_revision": "9d866a5f447d9fe1c989b31f90c520dc2813ee26",
+  "acceptance_freeze_commit": "f2e94d3",
+  "execution_preparation_commit": "2a823a5aa44e54b052f064a57a3625cf5545cb0a",
+  "platform": "win32",
+  "python": "3.13.5 (tags/v3.13.5:6cb20a2, Jun 11 2025, 16:15:46) [MSC v.1943 64 bit (AMD64)]",
+  "environment": "environment.json",
+  "new_paid_calls": 0,
+  "solver_attempts": 0,
+  "source_searches": 0,
+  "observations": {
+    "reference_checks": {
+      "returncode": 0,
+      "seconds": 4.197162500000559,
+      "tail": [
+        "..............                                                           [100%]",
+        "14 passed in 2.33s",
+        "",
+        "STDERR:"
+      ]
+    },
+    "candidate_checks_unmodified": {
+      "returncode": 1,
+      "seconds": 2.5582101000472903,
+      "tail": [
+        "FAILED docs/experiments/paired-assistance-2026-10-23/native_acceptance.py::test_public_example[MultiDiGraph]",
+        "FAILED docs/experiments/paired-assistance-2026-10-23/native_acceptance.py::test_labels_loops_and_compatibility[Graph]",
+        "FAILED docs/experiments/paired-assistance-2026-10-23/native_acceptance.py::test_labels_loops_and_compatibility[DiGraph]",
+        "FAILED docs/experiments/paired-assistance-2026-10-23/native_acceptance.py::test_labels_loops_and_compatibility[MultiGraph]",
+        "FAILED docs/experiments/paired-assistance-2026-10-23/native_acceptance.py::test_labels_loops_and_compatibility[MultiDiGraph]",
+        "14 failed in 1.62s",
+        "",
+        "STDERR:"
+      ]
+    },
+    "native_cycles": {
+      "returncode": 0,
+      "seconds": 5.731575099984184,
+      "tail": [
+        "        This environment has mixed configuration for networkx.",
+        "        The test object nx_loopback is not configured correctly.",
+        "        You should not be seeing this message.",
+        "        Try `pip install -e .`, or change your PYTHONPATH",
+        "        Make sure python finds the networkx repo you are testing",
+        "",
+        "",
+        "  warnings.warn("
+      ]
+    },
+    "reference_workloads": {
+      "returncode": 0,
+      "seconds": 5.955368500028271,
+      "tail": [
+        "        \"count\": 0,",
+        "        \"total_length\": 0",
+        "      }",
+        "    }",
+        "  ]",
+        "}",
+        "",
+        "STDERR:"
+      ]
+    }
+  }
+}
