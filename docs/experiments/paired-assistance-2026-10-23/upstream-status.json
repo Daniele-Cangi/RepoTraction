@@ -1,0 +1,46 @@
+[
+  {
+    "number": 8354,
+    "title": "ENH: add lower length bound to simple_cycles",
+    "state": "closed",
+    "merged": false,
+    "merged_at": null,
+    "html_url": "https://github.com/networkx/networkx/pull/8354",
+    "head_sha": "8ebd9416e93c8bfed567e7d40a022b53bd339462",
+    "base_sha": "951e6305e0de7cb4b9e60f34a1913d2365dbd12b",
+    "inspection": "metadata only; no PR body, diff, files or reviews read"
+  },
+  {
+    "number": 8791,
+    "title": "Add BS-DFS (for use in simple_cycles and all_simple_edge_paths)",
+    "state": "open",
+    "merged": false,
+    "merged_at": null,
+    "html_url": "https://github.com/networkx/networkx/pull/8791",
+    "head_sha": "63737a48a293979b833b2468e0d3e2f86ac7fff5",
+    "base_sha": "abf2feda2252ee4e0d5a66964addf179225dfe76",
+    "inspection": "metadata only; no PR body, diff, files or reviews read"
+  },
+  {
+    "number": 8910,
+    "title": "ENH: add min_length parameter to simple_cycles",
+    "state": "closed",
+    "merged": false,
+    "merged_at": null,
+    "html_url": "https://github.com/networkx/networkx/pull/8910",
+    "head_sha": "64df692cc49ebdb323458f0ad477ee34326e8364",
+    "base_sha": "4e74880b0da01977da79915167c64e5c2af38b47",
+    "inspection": "metadata only; no PR body, diff, files or reviews read"
+  },
+  {
+    "number": 8911,
+    "title": "ENH: skip small components in simple_cycles with min_length",
+    "state": "closed",
+    "merged": false,
+    "merged_at": null,
+    "html_url": "https://github.com/networkx/networkx/pull/8911",
+    "head_sha": "381a00b87d3d96b2eff2bd19a914e5ebd27b4772",
+    "base_sha": "4e74880b0da01977da79915167c64e5c2af38b47",
+    "inspection": "metadata only; no PR body, diff, files or reviews read"
+  }
+]
