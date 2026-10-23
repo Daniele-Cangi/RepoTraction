@@ -1,0 +1,10 @@
+{
+  "job_id": "918fc8b331e946fdb90b1da037c1de71",
+  "status": "failed",
+  "ai_calls_used": 1,
+  "requests_used": 0,
+  "cost_reserved_usd": 0.010059299999999998,
+  "phase_seconds": 246.11895959998947,
+  "packet": false,
+  "phase_seconds_including_packet": 246.7616030999925
+}

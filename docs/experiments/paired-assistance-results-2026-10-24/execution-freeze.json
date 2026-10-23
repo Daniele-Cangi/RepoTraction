@@ -1,0 +1,16 @@
+{
+  "native_assessment_caller_sha256": "73307974a9d7079b8cac4aed392f3a5b667ca595968cdefb0cbed82e451557d5",
+  "criteria_scope": "Only calls the unchanged frozen oracle/workloads/batch with baseline iteration counts; prepared before seeing either solver output. Final assessment only, no tuning or solver feedback.",
+  "A_prompt_raw_sha256": "c2d16f7fcc178de7ffe88533bbf7443d66d7f822b6dea3a2c06efdbc6e76d350",
+  "B_prompt_raw_sha256": "7e8dffee6dea7babfa142af3b67376a00646d7d8f594fcb11682ce26a08f097b",
+  "execution_binding_commit": "7ac2e518c9478155c0ac32022a141ac6de58995f",
+  "wiring_review": "clean on exact commit before A dispatch",
+  "preparation_ci": "all four jobs passed on #141 before dispatch",
+  "supplemental_ci_at_A_dispatch": "#142 Windows jobs pending; product modules unchanged; case binding passed 10 separate offline checks and exact-head external review",
+  "A_agent": "/root/cycle_pair_direct_20261024",
+  "dispatch_configuration": {
+    "fork_turns": "none",
+    "model_override": null,
+    "reasoning_effort_override": null
+  }
+}

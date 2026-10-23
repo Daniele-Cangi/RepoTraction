@@ -1,0 +1,312 @@
+diff --git a/networkx/algorithms/cycles.py b/networkx/algorithms/cycles.py
+index 36b7c80..d249083 100644
+--- a/networkx/algorithms/cycles.py
++++ b/networkx/algorithms/cycles.py
+@@ -103,7 +103,7 @@ def cycle_basis(G, root=None):
+ 
+ 
+ @nx._dispatchable
+-def simple_cycles(G, length_bound=None):
++def simple_cycles(G, length_bound=None, *, min_length=0):
+     """Find simple cycles (elementary circuits) of a graph.
+ 
+     A "simple cycle", or "elementary circuit", is a closed path where
+@@ -141,6 +141,10 @@ def simple_cycles(G, length_bound=None):
+        If `length_bound` is an int, generate all simple cycles of `G` with length at
+        most `length_bound`.  Otherwise, generate all simple cycles of `G`.
+ 
++    min_length : int, optional (default=0)
++       Generate only cycles with at least `min_length` nodes. The lower bound
++       is inclusive. An empty length interval yields no cycles.
++
+     Yields
+     ------
+     list of nodes
+@@ -168,10 +172,18 @@ def simple_cycles(G, length_bound=None):
+     the time complexity is $O((c+n)(k-1)d^k)$ where $d$ is the average degree of
+     the nodes of `G` and $k$ = `length_bound`.
+ 
++    Components with fewer than `min_length` nodes are excluded from the search.
++    For directed graphs with `min_length > 3`, the underlying undirected graph
++    is also split into biconnected components: every simple cycle with at least
++    three nodes lies within one such component. This can avoid searching many
++    short cycles, but does not improve the general worst-case complexity.
++    Short cycles within retained components still participate in the search's
++    blocking and relaxation bookkeeping, even though they are not yielded.
++
+     Raises
+     ------
+     ValueError
+-        when ``length_bound < 0``.
++        when ``length_bound < 0`` or ``min_length < 0``.
+ 
+     References
+     ----------
+@@ -195,19 +207,26 @@ def simple_cycles(G, length_bound=None):
+     chordless_cycles
+     """
+ 
++    if min_length < 0:
++        raise ValueError("minimum length must be non-negative")
++
+     if length_bound is not None:
+-        if length_bound == 0:
+-            return
+-        elif length_bound < 0:
++        if length_bound < 0:
+             raise ValueError("length bound must be non-negative")
++        if length_bound == 0 or min_length > length_bound:
++            return
++
++    if min_length > len(G):
++        return
+ 
+     directed = G.is_directed()
+-    yield from ([v] for v, Gv in G.adj.items() if v in Gv)
++    if min_length <= 1:
++        yield from ([v] for v, Gv in G.adj.items() if v in Gv)
+ 
+     if length_bound is not None and length_bound == 1:
+         return
+ 
+-    if G.is_multigraph() and not directed:
++    if G.is_multigraph() and not directed and min_length <= 2:
+         visited = set()
+         for u, Gu in G.adj.items():
+             multiplicity = ((v, len(Guv)) for v, Guv in Gu.items() if v in visited)
+@@ -232,12 +251,22 @@ def simple_cycles(G, length_bound=None):
+         return
+ 
+     if directed:
+-        yield from _directed_cycle_search(G, length_bound)
++        if min_length > 3:
++            # A directed simple cycle of length >= 3 is also an undirected
++            # cycle, so cannot cross an articulation point. Avoid this extra
++            # decomposition for small lower bounds.
++            for c in nx.biconnected_components(G.to_undirected(as_view=True)):
++                if len(c) >= min_length:
++                    yield from _directed_cycle_search(
++                        G.subgraph(c).copy(), length_bound, min_length
++                    )
++        else:
++            yield from _directed_cycle_search(G, length_bound, min_length)
+     else:
+-        yield from _undirected_cycle_search(G, length_bound)
++        yield from _undirected_cycle_search(G, length_bound, min_length)
+ 
+ 
+-def _directed_cycle_search(G, length_bound):
++def _directed_cycle_search(G, length_bound, min_length=0):
+     """A dispatch function for `simple_cycles` for directed graphs.
+ 
+     We generate all cycles of G through binary partition.
+@@ -266,6 +295,9 @@ def _directed_cycle_search(G, length_bound):
+        If length_bound is an int, generate all simple cycles of G with length at most length_bound.
+        Otherwise, generate all simple cycles of G.
+ 
++    min_length : int, optional
++       Inclusive lower bound on cycle length.
++
+     Yields
+     ------
+     list of nodes
+@@ -273,21 +305,22 @@ def _directed_cycle_search(G, length_bound):
+     """
+ 
+     scc = nx.strongly_connected_components
+-    components = [c for c in scc(G) if len(c) >= 2]
++    min_size = max(2, min_length)
++    components = [c for c in scc(G) if len(c) >= min_size]
+     while components:
+         c = components.pop()
+         Gc = G.subgraph(c)
+         v = next(iter(c))
+         if length_bound is None:
+-            yield from _johnson_cycle_search(Gc, [v])
++            yield from _johnson_cycle_search(Gc, [v], min_length)
+         else:
+-            yield from _bounded_cycle_search(Gc, [v], length_bound)
++            yield from _bounded_cycle_search(Gc, [v], length_bound, min_length)
+         # delete v after searching G, to make sure we can find v
+         G.remove_node(v)
+-        components.extend(c for c in scc(Gc) if len(c) >= 2)
++        components.extend(c for c in scc(Gc) if len(c) >= min_size)
+ 
+ 
+-def _undirected_cycle_search(G, length_bound):
++def _undirected_cycle_search(G, length_bound, min_length=0):
+     """A dispatch function for `simple_cycles` for undirected graphs.
+ 
+     We generate all cycles of G through binary partition.
+@@ -316,6 +349,9 @@ def _undirected_cycle_search(G, length_bound):
+        If length_bound is an int, generate all simple cycles of G with length at most length_bound.
+        Otherwise, generate all simple cycles of G.
+ 
++    min_length : int, optional
++       Inclusive lower bound on cycle length.
++
+     Yields
+     ------
+     list of nodes
+@@ -323,7 +359,8 @@ def _undirected_cycle_search(G, length_bound):
+     """
+ 
+     bcc = nx.biconnected_components
+-    components = [c for c in bcc(G) if len(c) >= 3]
++    min_size = max(3, min_length)
++    components = [c for c in bcc(G) if len(c) >= min_size]
+     while components:
+         c = components.pop()
+         Gc = G.subgraph(c)
+@@ -331,10 +368,10 @@ def _undirected_cycle_search(G, length_bound):
+         G.remove_edge(*uv)
+         # delete (u, v) before searching G, to avoid fake 3-cycles [u, v, u]
+         if length_bound is None:
+-            yield from _johnson_cycle_search(Gc, uv)
++            yield from _johnson_cycle_search(Gc, uv, min_length)
+         else:
+-            yield from _bounded_cycle_search(Gc, uv, length_bound)
+-        components.extend(c for c in bcc(Gc) if len(c) >= 3)
++            yield from _bounded_cycle_search(Gc, uv, length_bound, min_length)
++        components.extend(c for c in bcc(Gc) if len(c) >= min_size)
+ 
+ 
+ class _NeighborhoodCache(dict):
+@@ -353,7 +390,7 @@ class _NeighborhoodCache(dict):
+         return Gv
+ 
+ 
+-def _johnson_cycle_search(G, path):
++def _johnson_cycle_search(G, path, min_length=0):
+     """The main loop of the cycle-enumeration algorithm of Johnson.
+ 
+     Parameters
+@@ -364,6 +401,10 @@ def _johnson_cycle_search(G, path):
+     path : list
+        A cycle prefix.  All cycles generated will begin with this prefix.
+ 
++    min_length : int, optional
++       Inclusive lower bound on cycle length. Short closures still unblock
++       vertices, since they can be part of longer cycles from another prefix.
++
+     Yields
+     ------
+     list of nodes
+@@ -387,7 +428,8 @@ def _johnson_cycle_search(G, path):
+         nbrs = stack[-1]
+         for w in nbrs:
+             if w == start:
+-                yield path[:]
++                if len(path) >= min_length:
++                    yield path[:]
+                 closed[-1] = True
+             elif w not in blocked:
+                 path.append(w)
+@@ -413,7 +455,7 @@ def _johnson_cycle_search(G, path):
+                     B[w].add(v)
+ 
+ 
+-def _bounded_cycle_search(G, path, length_bound):
++def _bounded_cycle_search(G, path, length_bound, min_length=0):
+     """The main loop of the cycle-enumeration algorithm of Gupta and Suzumura.
+ 
+     Parameters
+@@ -427,6 +469,9 @@ def _bounded_cycle_search(G, path, length_bound):
+     length_bound: int
+         A length bound.  All cycles generated will have length at most length_bound.
+ 
++    min_length : int, optional
++       Inclusive lower bound on cycle length. Short closures still relax locks.
++
+     Yields
+     ------
+     list of nodes
+@@ -448,7 +493,8 @@ def _bounded_cycle_search(G, path, length_bound):
+         nbrs = stack[-1]
+         for w in nbrs:
+             if w == start:
+-                yield path[:]
++                if len(path) >= min_length:
++                    yield path[:]
+                 blen[-1] = 1
+             elif len(path) < lock.get(w, length_bound):
+                 path.append(w)
+diff --git a/networkx/algorithms/tests/test_cycles_min_length.py b/networkx/algorithms/tests/test_cycles_min_length.py
+new file mode 100644
+index 0000000..20d2216
+--- /dev/null
++++ b/networkx/algorithms/tests/test_cycles_min_length.py
+@@ -0,0 +1,73 @@
++"""Regressions for lower bounds and search component pruning."""
++
++import pytest
++
++import networkx as nx
++from networkx.algorithms import cycles
++
++
++@pytest.mark.parametrize("kind", [nx.Graph, nx.DiGraph, nx.MultiGraph, nx.MultiDiGraph])
++@pytest.mark.parametrize("upper", [None, 6])
++def test_articulation_blocks_are_not_searched(monkeypatch, kind, upper):
++    G = nx.complete_graph(4, create_using=kind)
++    nx.add_cycle(G, [3, 4, 5, 6, 7, 8])
++    # Both pieces share an articulation vertex. In the directed case, add
++    # reverse edges so the entire graph is a single strongly connected piece.
++    if G.is_directed():
++        G.add_edges_from([(v, u) for u, v in list(G.edges())])
++        assert nx.is_strongly_connected(G)
++    before = nx.node_link_data(G, edges="edges")
++    searched = []
++    name = "_johnson_cycle_search" if upper is None else "_bounded_cycle_search"
++    original = getattr(cycles, name)
++
++    def record(component, *args):
++        searched.append(set(component))
++        yield from original(component, *args)
++
++    monkeypatch.setattr(cycles, name, record)
++    result = list(nx.simple_cycles(G, upper, min_length=5))
++    assert len(result) == (2 if G.is_directed() else 1)
++    assert all(set(c) == {3, 4, 5, 6, 7, 8} for c in result)
++    assert searched
++    assert all(len(c) >= 5 and c.isdisjoint({0, 1, 2}) for c in searched)
++    assert nx.node_link_data(G, edges="edges") == before
++
++
++@pytest.mark.parametrize("upper", [None, 5])
++def test_directed_remainders_below_lower_bound_are_not_searched(monkeypatch, upper):
++    G = nx.complete_graph(5, create_using=nx.DiGraph)
++    searched = []
++    name = "_johnson_cycle_search" if upper is None else "_bounded_cycle_search"
++    original = getattr(cycles, name)
++
++    def record(component, *args):
++        searched.append(len(component))
++        yield from original(component, *args)
++
++    monkeypatch.setattr(cycles, name, record)
++    result = list(nx.simple_cycles(G, upper, min_length=5))
++    assert len(result) == 24
++    assert all(len(c) == 5 for c in result)
++    assert searched == [5]
++
++
++@pytest.mark.parametrize("kind", [nx.Graph, nx.DiGraph, nx.MultiGraph, nx.MultiDiGraph])
++def test_short_cycles_and_empty_intervals(kind):
++    G = kind()
++    G.add_edges_from([(0, 0), (0, 1), (0, 1), (1, 0), (1, 2), (2, 0)])
++    assert list(nx.simple_cycles(G, 1, min_length=1)) == [[0]]
++    assert list(nx.simple_cycles(G, 1, min_length=2)) == []
++    assert list(nx.simple_cycles(G, 3, min_length=4)) == []
++    result = list(nx.simple_cycles(G, 3, min_length=3))
++    assert len(result) == 1
++    assert set(result[0]) == {0, 1, 2}
++    with pytest.raises(ValueError, match="minimum length"):
++        list(nx.simple_cycles(G, 0, min_length=-1))
++    with pytest.raises(ValueError, match="length bound"):
++        list(nx.simple_cycles(G, -1, min_length=8))
++
++
++def test_minimum_is_keyword_only():
++    with pytest.raises(TypeError):
++        list(nx.simple_cycles(nx.Graph(), None, 3))
