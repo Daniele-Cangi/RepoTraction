@@ -1,0 +1,8 @@
+{
+  "input": "polylog(2, Rational(1, 2))",
+  "actual": "polylog(2, 1/2)",
+  "expected": "-log(2)**2/2 + pi**2/12",
+  "direct_structural_match": false,
+  "expanded": "polylog(2, 1/2)",
+  "expanded_structural_match": false
+}

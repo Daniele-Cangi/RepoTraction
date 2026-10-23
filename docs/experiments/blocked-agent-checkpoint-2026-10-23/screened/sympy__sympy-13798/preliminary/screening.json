@@ -1,0 +1,101 @@
+{
+  "reports_in_order": [
+    {
+      "id": "sympy__sympy-11618",
+      "resolved": true,
+      "semantic_failure": false
+    },
+    {
+      "id": "sympy__sympy-12096",
+      "resolved": true,
+      "semantic_failure": false
+    },
+    {
+      "id": "sympy__sympy-12419",
+      "resolved": true,
+      "semantic_failure": false
+    },
+    {
+      "id": "sympy__sympy-12481",
+      "resolved": true,
+      "semantic_failure": false
+    },
+    {
+      "id": "sympy__sympy-12489",
+      "resolved": true,
+      "semantic_failure": false
+    },
+    {
+      "id": "sympy__sympy-13031",
+      "resolved": true,
+      "semantic_failure": false
+    },
+    {
+      "id": "sympy__sympy-13091",
+      "resolved": false,
+      "semantic_failure": true
+    },
+    {
+      "id": "sympy__sympy-13372",
+      "resolved": true,
+      "semantic_failure": false
+    },
+    {
+      "id": "sympy__sympy-13480",
+      "resolved": true,
+      "semantic_failure": false
+    },
+    {
+      "id": "sympy__sympy-13551",
+      "resolved": true,
+      "semantic_failure": false
+    },
+    {
+      "id": "sympy__sympy-13615",
+      "resolved": true,
+      "semantic_failure": false
+    },
+    {
+      "id": "sympy__sympy-13647",
+      "resolved": true,
+      "semantic_failure": false
+    },
+    {
+      "id": "sympy__sympy-13757",
+      "resolved": true,
+      "semantic_failure": false
+    },
+    {
+      "id": "sympy__sympy-13798",
+      "resolved": false,
+      "semantic_failure": true
+    }
+  ],
+  "attempts_inspected": 2,
+  "maximum": 3,
+  "selected": "sympy__sympy-13798",
+  "rejected": [
+    {
+      "id": "sympy__sympy-13091",
+      "reason": "Published evaluation patch is not the actual trajectory submission; both benchmark FAIL_TO_PASS tests pass on the actual submission. One additional independent NumberSymbol control remains failing. Not qualified under the predeclared rule.",
+      "published_patch_sha256": "3bc2e4fb422dd878afcd099521c0b8ecd8c7b6342a64f1cb08bfaab0d742e26f",
+      "actual_submission_sha256_lf": "c1d8d58b6b5c82ad804589bf35e0ddaa88a828705ea592fdf6fcc1a843e86cdb",
+      "trajectory_sha256": "9ed7dd7ddb1c6e312d7e6e8d3ec84aede7e7afa0222a75aea56eab1647d470cb",
+      "native_actual": {
+        "passed": 96,
+        "failed": 1,
+        "expected_to_fail": 1
+      },
+      "native_published_patch": {
+        "passed": 95,
+        "failed": 2,
+        "expected_to_fail": 1
+      },
+      "native_base": {
+        "passed": 94,
+        "failed": 3,
+        "expected_to_fail": 1
+      }
+    }
+  ]
+}

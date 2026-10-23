@@ -1,18 +1,20 @@
 {
-  "recorded_utc": "2026-10-22T23:59:53.931227+00:00",
+  "recorded_utc": "2026-10-23T00:07:02.148364+00:00",
+  "selection_rule_commit": "001cb4dfb6a82fb73860164f8dbf53bfa4f03de4",
+  "contract_frozen_commit": "652a87b013899b639645ba5a96c8688ce793bbe9",
+  "experiments_revision": "40f164d5b8f1d249bf95a6df8b74b577fd8e519d",
+  "dataset_revision": "c104f840cc67f8b6eec6f759ebc8b2693d585d4a",
   "sources": {
-    "experiments_metadata": "https://github.com/SWE-bench/experiments/blob/40f164d5b8f1d249bf95a6df8b74b577fd8e519d/evaluation/verified/20260219_mini-v2.0.0_gpt-5-2-codex/metadata.yaml",
-    "dataset": "https://huggingface.co/datasets/princeton-nlp/SWE-bench_Verified/tree/c104f840cc67f8b6eec6f759ebc8b2693d585d4a",
-    "trajectory": "https://swe-bench-submissions.s3.amazonaws.com/bash-only/20260219_mini-v2.0.0_gpt-5-2-codex/trajs/sympy__sympy-13798/sympy__sympy-13798.traj.json",
-    "published_patch": "https://swe-bench-submissions.s3.amazonaws.com/bash-only/20260219_mini-v2.0.0_gpt-5-2-codex/logs/sympy__sympy-13798/patch.diff",
-    "published_report": "https://swe-bench-submissions.s3.amazonaws.com/bash-only/20260219_mini-v2.0.0_gpt-5-2-codex/logs/sympy__sympy-13798/report.json",
-    "published_job_output": "https://swe-bench-submissions.s3.amazonaws.com/bash-only/20260219_mini-v2.0.0_gpt-5-2-codex/logs/sympy__sympy-13798/job-output.json"
+    "trajectory": "https://swe-bench-submissions.s3.amazonaws.com/bash-only/20260219_mini-v2.0.0_gpt-5-2-codex/trajs/sympy__sympy-13852/sympy__sympy-13852.traj.json",
+    "published_patch": "https://swe-bench-submissions.s3.amazonaws.com/bash-only/20260219_mini-v2.0.0_gpt-5-2-codex/logs/sympy__sympy-13852/patch.diff",
+    "published_report": "https://swe-bench-submissions.s3.amazonaws.com/bash-only/20260219_mini-v2.0.0_gpt-5-2-codex/logs/sympy__sympy-13852/report.json",
+    "published_job_output": "https://swe-bench-submissions.s3.amazonaws.com/bash-only/20260219_mini-v2.0.0_gpt-5-2-codex/logs/sympy__sympy-13852/job-output.json"
   },
   "source_raw_sha256": {
-    "trajectory": "365ab996068aa1ff810a5b9c6d60fce04e50ceccc866b0ce0be0e3c2bf408a80",
-    "published_patch": "0a1b75780791d7947bbdf5fd6ff1d910d4a0a026ff2fdd37b48caf06c79cbf61",
-    "published_report": "b683803acfeaf43eb679612ec93b0670f758df035b63adaba8db66af86ef2244",
-    "published_job_output": "392c8215d32f93a66b3c61fd70f2c52de03acd75fd92586c067b17408e7569c5"
+    "trajectory": "a2eb5755536d7b13e4eabeb0bbe9d6ca87174846e02d889439d90691cf0bc95c",
+    "published_patch": "bca7aa751ab846454a120909c0a804e12eb0046c808cb6064a670532006e89df",
+    "published_report": "15669461dddb3ca4ef60704a9a2173606604dd82e5639de40cd4cd2ef79ff7aa",
+    "published_job_output": "e810afd9c04f31bda67811353504fb9c5d2471e1e4c43701f30a33fe4eb96287"
   },
   "dataset_projection_columns": [
     "repo",
@@ -26,52 +28,45 @@
     "PASS_TO_PASS",
     "environment_setup_commit"
   ],
-  "excluded_from_parquet_deserialization": [
+  "columns_not_deserialized": [
     "patch",
     "hints_text"
   ],
-  "uninspected_sources": [
-    "reference implementation patch",
-    "successful trajectories",
-    "upstream fixing PR",
-    "external mechanism source"
-  ],
-  "selection_rule_commit": "001cb4d",
-  "selected_contract_freeze_commit": "b3b2b59",
-  "qualification": "Exact trajectory submission applies and the independent FAIL_TO_PASS test remains an AssertionError locally",
-  "reference_patch_inspected": false,
-  "donor_searches": 0,
-  "paid_ai_calls": 0,
-  "new_agent_dispatches": 0,
-  "historical_files_changed": false,
-  "satellite_operations": false,
-  "frozen_files_sha256_lf": {
-    "checkpoint/acceptance-before-source-search.md": "898b7df55ac850292698f8a4dd11dc501ede72773b2dfeebf02bf6c02bf869d5",
-    "checkpoint/failed-attempt.patch": "31bd9ccbcf9d7cd5a9d7fa9c984aeacb4ae231ade9059ffb40580f8c212c006a",
-    "checkpoint/independent-tests.patch": "2efe8cdfbacae0c20b0d90e5f3d390fb8d4c2a1fae563a78a58c4d3f91b7fff5",
-    "checkpoint/task.json": "8b121c8197826928c39a171f37e7744a7a6e2a7066d39996cb539f1ec8d8c03d"
+  "checkpoint_hashes_sha256_lf": {
+    "acceptance-before-source-search.md": "4be19040aa3e9d9232853e268cea95d121764ce60e1fb2fb1d552c0bef46b814",
+    "attempt.json": "5033b2fb016cfa388bb1f94dfbf45ee4babc305d1a12153c9ee7bebc77befafc",
+    "base-explicit-request.json": "4eff283ea1e466f7388ae3815fbedd12c43c1c915c368ebb8ef196856ddff50d",
+    "failed-attempt.patch": "43aea1d27a8503f17e4f0ffea53c70724029d595d1ba6664b989c9e845ef9cf7",
+    "failed-explicit-request.json": "ecb180223c3ac9ea12c8ea531296e2c2a2fe6f61c96ae24d74795e676a74a638",
+    "independent-tests.patch": "ae15160bf854a00e1bb5a97721a4b196f3492fe7ebdaaa09363069526463377c",
+    "LICENSE.sympy.txt": "b8fd72e9cdac9dc5028ec9c4623945971cdff1ce71fda381d5f5419ffe0ab587",
+    "published-evaluation.patch": "bca7aa751ab846454a120909c0a804e12eb0046c808cb6064a670532006e89df",
+    "published-report.json": "15669461dddb3ca4ef60704a9a2173606604dd82e5639de40cd4cd2ef79ff7aa",
+    "task.json": "9263def9452618843da14c7fbcf308ee5334afb73ff7cb80e63b4057d351223b"
   },
   "native_logs": {
     "path": "native-logs.json.gz",
-    "sha256": "2228cc7d606c3902259f08eea43240e4c970f5c7c8284a4e50ffdd601e685699",
+    "sha256": "56e20355a6ceda56d8250940048536d8e3472eb22c8a3d7f459af7f3bd9771ee",
     "entries": [
-      "selected/base-full.txt",
-      "selected/base-task.txt",
-      "selected/failed-full.txt",
-      "selected/failed-task.txt",
-      "screened/13091/base-native.txt",
-      "screened/13091/failed-native.txt",
-      "screened/13091/trajectory-native.txt"
+      "base-full.txt",
+      "base-task.txt",
+      "failed-full.txt",
+      "failed-task.txt"
     ],
-    "normalization": "Absolute local RepoTraction path replaced case-insensitively by <REPOTRACTION>; other text retained",
-    "raw_private_logs_sha256": {
-      "base-full.txt": "1b3f3e379ebb93f898841d18fa895975406414e80ee708357ca8f7de9727fff7",
-      "base-task.txt": "e93bddfbcdb9fa0793f920254751f00eb900addf388caf11a100a3e478595156",
-      "failed-full.txt": "bae62086d4724c8dfc8de5a546160f298acdf6854299ac111d9b84e32c68cd2b",
-      "failed-task.txt": "1a2de0cf404f3824b2d296d421335b6b825e9d70345ff0caa5833eff61c4b2f1",
-      "screened/base-native.txt": "60208dea0919fa5f841a5d4555a21cd98c4911110a238d1654b00023d6ea8708",
-      "screened/failed-native.txt": "70c2948abfc9c7203b05b24c226bbf6e1d271779de66aff6a3b3073f31160700",
-      "screened/trajectory-native.txt": "ec31cb8cff08fb73a2a60228dbf6a046274c5bc8269951b2a6db4b0aa88ab17c"
+    "normalization": "Absolute RepoTraction path replaced case-insensitively by <REPOTRACTION>; other text retained",
+    "raw_private_sha256": {
+      "base-full.txt": "7720fe2c0228c1f7bd79d051a982f454cbe33b318c5a1cb753ee459e758aa33d",
+      "base-task.txt": "535b52c437ad11b6164d0e464890b84674a63480b40754f7db92290525eb6956",
+      "failed-full.txt": "00f174f94d0edcfcc2c7031c9fe29addea5491131af9211e614248469497065f",
+      "failed-task.txt": "acf75fba6bc8e5ab6db768003f8e2c3948e3d422ad98361ea4302bbc2bfc8d0b"
     }
-  }
+  },
+  "published_patch_matches_actual_submission": false,
+  "published_evaluation_not_used_as_actual_submission_verdict": true,
+  "new_paid_ai_calls": 0,
+  "new_agent_dispatches": 0,
+  "solution_source_searches": 0,
+  "reference_patch_inspected": false,
+  "satellite_operations": false,
+  "query_note": "Only checkpoint/public-artifact discovery and target acquisition performed. The web query concerned SWE-bench failed trajectories, not polylogarithm mechanisms."
 }

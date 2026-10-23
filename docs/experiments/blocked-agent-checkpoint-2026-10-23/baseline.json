@@ -1,86 +1,104 @@
 {
-  "instance_id": "sympy__sympy-13798",
-  "target_revision": "7121bdf1facdd90d05b6994b4c2e5b2865a4638a",
+  "instance_id": "sympy__sympy-13852",
+  "target_revision": "c935e1d106743efd5bf0705fbeedbd18fadff4dc",
   "target_version": "1.1.2.dev",
-  "environment": "3.8.20 (default, Oct  2 2024, 15:21:04) [MSC v.1929 64 bit (AMD64)]\nWindows-10-10.0.26300-SP0\n1.3.0\n",
-  "environment_note": "Local Windows/Python 3.8.20 reproduction, not the historical Linux environment; managed interpreter and mpmath 1.3.0 installed only under ignored RepoTraction data",
-  "source_states": {
-    "base": " M sympy/printing/tests/test_latex.py\n",
-    "failed": " M sympy/printing/latex.py\n M sympy/printing/tests/test_latex.py\n"
+  "contract_frozen_commit": "652a87b013899b639645ba5a96c8688ce793bbe9",
+  "selection_rule_commit": "001cb4dfb6a82fb73860164f8dbf53bfa4f03de4",
+  "environment": {
+    "os": "Windows",
+    "python": "3.8.20",
+    "mpmath": "1.3.0",
+    "scope": "Both interpreter and dependencies installed only under ignored RepoTraction data; different from the historical Linux environment",
+    "random_seed": 0
   },
   "runs": {
     "base": {
-      "exit_code": 1,
-      "passed": 104,
-      "failed": 0,
-      "expected_to_fail": 2,
-      "exceptions": 10,
+      "passed": 4,
+      "failed": 2,
+      "exceptions": 5,
       "nonpassing_test_ids": [
-        "sympy/printing/tests/test_latex.py:test_latex_basic",
-        "sympy/printing/tests/test_latex.py:test_latex_indexed",
-        "sympy/printing/tests/test_latex.py:test_latex_derivatives",
-        "sympy/printing/tests/test_latex.py:test_latex_FourierSeries",
-        "sympy/printing/tests/test_latex.py:test_latex_FormalPowerSeries",
-        "sympy/printing/tests/test_latex.py:test_latex_matrix_with_functions",
-        "sympy/printing/tests/test_latex.py:test_latex_NDimArray",
-        "sympy/printing/tests/test_latex.py:test_issue_8470",
-        "sympy/printing/tests/test_latex.py:test_issue_13559",
-        "sympy/printing/tests/test_latex.py:test_TensorProduct_printing"
+        "sympy/functions/special/tests/test_zeta_functions.py:test_zeta_series",
+        "sympy/functions/special/tests/test_zeta_functions.py:test_rewriting",
+        "sympy/functions/special/tests/test_zeta_functions.py:test_derivatives",
+        "sympy/functions/special/tests/test_zeta_functions.py:test_lerchphi_expansion",
+        "sympy/functions/special/tests/test_zeta_functions.py:test_issue_10475",
+        "sympy/functions/special/tests/test_zeta_functions.py:test_polylog_expansion",
+        "sympy/functions/special/tests/test_zeta_functions.py:test_polylog_values"
       ],
-      "full_command": {
+      "full_run": {
         "exit_code": 1,
-        "seconds": 8.521468000020832,
-        "code": "\nimport sys\nfrom pathlib import Path\nsys.path.insert(0,sys.argv[1])\nimport sympy,mpmath\nassert Path(sys.argv[1]).resolve() in Path(sympy.__file__).resolve().parents\nprint('PINNED',sympy.__version__,'MPMATH',mpmath.__version__)\noptions=dict(subprocess=False,colors=False,seed=0)\nif sys.argv[2]!='None': options['kw']=sys.argv[2]\nraise SystemExit(0 if sympy.test('sympy/printing/tests/test_latex.py',**options) else 1)\n"
+        "seconds": 6.1145449000177905,
+        "code": "\nimport sys\nfrom pathlib import Path\nsys.path.insert(0,sys.argv[1])\nimport sympy,mpmath\nassert Path(sys.argv[1]).resolve() in Path(sympy.__file__).resolve().parents\nprint('PINNED',sympy.__version__,'MPMATH',mpmath.__version__)\noptions=dict(subprocess=False,colors=False,seed=0)\nif sys.argv[2]!='None':options['kw']=sys.argv[2]\nraise SystemExit(0 if sympy.test('sympy/functions/special/tests/test_zeta_functions.py',**options) else 1)\n"
       },
-      "isolated_task_command": {
+      "isolated_task_run": {
         "exit_code": 1,
-        "seconds": 1.9541376999695785,
-        "code": "\nimport sys\nfrom pathlib import Path\nsys.path.insert(0,sys.argv[1])\nimport sympy,mpmath\nassert Path(sys.argv[1]).resolve() in Path(sympy.__file__).resolve().parents\nprint('PINNED',sympy.__version__,'MPMATH',mpmath.__version__)\noptions=dict(subprocess=False,colors=False,seed=0)\nif sys.argv[2]!='None': options['kw']=sys.argv[2]\nraise SystemExit(0 if sympy.test('sympy/printing/tests/test_latex.py',**options) else 1)\n"
+        "seconds": 1.3103138000005856,
+        "code": "\nimport sys\nfrom pathlib import Path\nsys.path.insert(0,sys.argv[1])\nimport sympy,mpmath\nassert Path(sys.argv[1]).resolve() in Path(sympy.__file__).resolve().parents\nprint('PINNED',sympy.__version__,'MPMATH',mpmath.__version__)\noptions=dict(subprocess=False,colors=False,seed=0)\nif sys.argv[2]!='None':options['kw']=sys.argv[2]\nraise SystemExit(0 if sympy.test('sympy/functions/special/tests/test_zeta_functions.py',**options) else 1)\n"
       },
-      "task_result": "KeyError for custom separator"
+      "explicit_request": {
+        "input": "polylog(2, Rational(1, 2))",
+        "actual": "polylog(2, 1/2)",
+        "expected": "-log(2)**2/2 + pi**2/12",
+        "direct_structural_match": false,
+        "expanded": "polylog(2, 1/2)",
+        "expanded_structural_match": false
+      }
     },
     "failed": {
-      "exit_code": 1,
-      "passed": 104,
-      "failed": 1,
-      "expected_to_fail": 2,
-      "exceptions": 9,
+      "passed": 9,
+      "failed": 2,
+      "exceptions": 0,
       "nonpassing_test_ids": [
-        "sympy/printing/tests/test_latex.py:test_latex_indexed",
-        "sympy/printing/tests/test_latex.py:test_latex_derivatives",
-        "sympy/printing/tests/test_latex.py:test_latex_FourierSeries",
-        "sympy/printing/tests/test_latex.py:test_latex_FormalPowerSeries",
-        "sympy/printing/tests/test_latex.py:test_latex_matrix_with_functions",
-        "sympy/printing/tests/test_latex.py:test_latex_NDimArray",
-        "sympy/printing/tests/test_latex.py:test_issue_8470",
-        "sympy/printing/tests/test_latex.py:test_issue_13559",
-        "sympy/printing/tests/test_latex.py:test_TensorProduct_printing",
-        "sympy/printing/tests/test_latex.py:test_latex_basic"
+        "sympy/functions/special/tests/test_zeta_functions.py:test_polylog_expansion",
+        "sympy/functions/special/tests/test_zeta_functions.py:test_polylog_values"
       ],
-      "full_command": {
+      "full_run": {
         "exit_code": 1,
-        "seconds": 7.68379359995015,
-        "code": "\nimport sys\nfrom pathlib import Path\nsys.path.insert(0,sys.argv[1])\nimport sympy,mpmath\nassert Path(sys.argv[1]).resolve() in Path(sympy.__file__).resolve().parents\nprint('PINNED',sympy.__version__,'MPMATH',mpmath.__version__)\noptions=dict(subprocess=False,colors=False,seed=0)\nif sys.argv[2]!='None': options['kw']=sys.argv[2]\nraise SystemExit(0 if sympy.test('sympy/printing/tests/test_latex.py',**options) else 1)\n"
+        "seconds": 10.808181700005662,
+        "code": "\nimport sys\nfrom pathlib import Path\nsys.path.insert(0,sys.argv[1])\nimport sympy,mpmath\nassert Path(sys.argv[1]).resolve() in Path(sympy.__file__).resolve().parents\nprint('PINNED',sympy.__version__,'MPMATH',mpmath.__version__)\noptions=dict(subprocess=False,colors=False,seed=0)\nif sys.argv[2]!='None':options['kw']=sys.argv[2]\nraise SystemExit(0 if sympy.test('sympy/functions/special/tests/test_zeta_functions.py',**options) else 1)\n"
       },
-      "isolated_task_command": {
+      "isolated_task_run": {
         "exit_code": 1,
-        "seconds": 2.0213853000313975,
-        "code": "\nimport sys\nfrom pathlib import Path\nsys.path.insert(0,sys.argv[1])\nimport sympy,mpmath\nassert Path(sys.argv[1]).resolve() in Path(sympy.__file__).resolve().parents\nprint('PINNED',sympy.__version__,'MPMATH',mpmath.__version__)\noptions=dict(subprocess=False,colors=False,seed=0)\nif sys.argv[2]!='None': options['kw']=sys.argv[2]\nraise SystemExit(0 if sympy.test('sympy/printing/tests/test_latex.py',**options) else 1)\n"
+        "seconds": 1.3540511000319384,
+        "code": "\nimport sys\nfrom pathlib import Path\nsys.path.insert(0,sys.argv[1])\nimport sympy,mpmath\nassert Path(sys.argv[1]).resolve() in Path(sympy.__file__).resolve().parents\nprint('PINNED',sympy.__version__,'MPMATH',mpmath.__version__)\noptions=dict(subprocess=False,colors=False,seed=0)\nif sys.argv[2]!='None':options['kw']=sys.argv[2]\nraise SystemExit(0 if sympy.test('sympy/functions/special/tests/test_zeta_functions.py',**options) else 1)\n"
       },
-      "task_result": "AssertionError in first independent added assertion"
+      "explicit_request": {
+        "input": "polylog(2, Rational(1, 2))",
+        "actual": "polylog(2, 1/2)",
+        "expected": "-log(2)**2/2 + pi**2/12",
+        "direct_structural_match": false,
+        "expanded": "-log(2)**2/2 + pi**2/12",
+        "expanded_structural_match": true
+      }
     }
   },
-  "same_nine_preexisting_non_task_exceptions": [
-    "sympy/printing/tests/test_latex.py:test_TensorProduct_printing",
-    "sympy/printing/tests/test_latex.py:test_issue_13559",
-    "sympy/printing/tests/test_latex.py:test_issue_8470",
-    "sympy/printing/tests/test_latex.py:test_latex_FormalPowerSeries",
-    "sympy/printing/tests/test_latex.py:test_latex_FourierSeries",
-    "sympy/printing/tests/test_latex.py:test_latex_NDimArray",
-    "sympy/printing/tests/test_latex.py:test_latex_derivatives",
-    "sympy/printing/tests/test_latex.py:test_latex_indexed",
-    "sympy/printing/tests/test_latex.py:test_latex_matrix_with_functions"
+  "qualification": "Actual submitted patch still fails the independent task test and leaves direct evaluation of the explicitly requested half argument unevaluated.",
+  "limits": [
+    "Historical submitted failure, not a live upstream bug or a conscious impasse",
+    "No claim that a present-day agent needs outside help",
+    "The first test_polylog_values assertion is the additional argument 2; the explicit half-argument diagnostic independently establishes the original remaining need",
+    "Five original-state compatibility exceptions are retained; they disappear with compatibility changes already in the submitted patch",
+    "Native verification is local Windows only; ordinary product CI does not execute this expected-red fixture"
   ],
-  "interpretation": "One independently recorded historical submitted attempt demonstrably still fails the original task test. This does not demonstrate a difficult current impasse or Missing Link benefit.",
-  "product_tests": "No product implementation changed. Ordinary RepoTraction CI is separate from expected-red historical target replay."
+  "target_files": {
+    "sympy/functions/special/zeta_functions.py": {
+      "base_git_blob": "b8e2b66195e01673626794d03f04de2c3502727b",
+      "base_worktree_sha256_lf": "ebacc2f816dfd5f4ed2b15433394c1b2b4884b47dd07ed20562480523fa0093f",
+      "failed_worktree_sha256_lf": "84ea6c4c2fd5dc07858b97a5625e1470d83aa81b99d82eaece48db3c92e4b232"
+    },
+    "sympy/functions/special/tests/test_zeta_functions.py": {
+      "base_git_blob": "3911dadd103bfcd21c4751ed39636298c43e806a",
+      "base_worktree_sha256_lf": "135b6c9959a88d4146b7f790901ba2908ccaf244999baeb2cd763ebd96400bd2",
+      "failed_worktree_sha256_lf": "135b6c9959a88d4146b7f790901ba2908ccaf244999baeb2cd763ebd96400bd2"
+    },
+    "sympy/core/compatibility.py": {
+      "base_git_blob": "1f1ec06d7d1bdb1fe984574ad4faec52d3948ebb",
+      "base_worktree_sha256_lf": "71b3067806f831d92c29742028d7a624e8a62c77186b5d5b638df9c18a93d7bd",
+      "failed_worktree_sha256_lf": "bbc50044e128123eee942b33fcce7e76ac07d71d8e48aa1f034e07425e72ce08"
+    }
+  },
+  "source_states": {
+    "base": " M sympy/functions/special/tests/test_zeta_functions.py\n",
+    "failed": " M sympy/assumptions/sathandlers.py\n M sympy/core/basic.py\n M sympy/core/compatibility.py\n M sympy/functions/special/tests/test_zeta_functions.py\n M sympy/functions/special/zeta_functions.py\n M sympy/plotting/plot.py\n"
+  }
 }

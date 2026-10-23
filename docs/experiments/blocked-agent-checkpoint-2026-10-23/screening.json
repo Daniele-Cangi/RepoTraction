@@ -1,101 +1,108 @@
 {
+  "rule_commit": "001cb4dfb6a82fb73860164f8dbf53bfa4f03de4",
   "reports_in_order": [
     {
       "id": "sympy__sympy-11618",
-      "resolved": true,
-      "semantic_failure": false
+      "reported_resolved": true,
+      "reported_fail_to_pass_failure": false
     },
     {
       "id": "sympy__sympy-12096",
-      "resolved": true,
-      "semantic_failure": false
+      "reported_resolved": true,
+      "reported_fail_to_pass_failure": false
     },
     {
       "id": "sympy__sympy-12419",
-      "resolved": true,
-      "semantic_failure": false
+      "reported_resolved": true,
+      "reported_fail_to_pass_failure": false
     },
     {
       "id": "sympy__sympy-12481",
-      "resolved": true,
-      "semantic_failure": false
+      "reported_resolved": true,
+      "reported_fail_to_pass_failure": false
     },
     {
       "id": "sympy__sympy-12489",
-      "resolved": true,
-      "semantic_failure": false
+      "reported_resolved": true,
+      "reported_fail_to_pass_failure": false
     },
     {
       "id": "sympy__sympy-13031",
-      "resolved": true,
-      "semantic_failure": false
+      "reported_resolved": true,
+      "reported_fail_to_pass_failure": false
     },
     {
       "id": "sympy__sympy-13091",
-      "resolved": false,
-      "semantic_failure": true
+      "reported_resolved": false,
+      "reported_fail_to_pass_failure": true
     },
     {
       "id": "sympy__sympy-13372",
-      "resolved": true,
-      "semantic_failure": false
+      "reported_resolved": true,
+      "reported_fail_to_pass_failure": false
     },
     {
       "id": "sympy__sympy-13480",
-      "resolved": true,
-      "semantic_failure": false
+      "reported_resolved": true,
+      "reported_fail_to_pass_failure": false
     },
     {
       "id": "sympy__sympy-13551",
-      "resolved": true,
-      "semantic_failure": false
+      "reported_resolved": true,
+      "reported_fail_to_pass_failure": false
     },
     {
       "id": "sympy__sympy-13615",
-      "resolved": true,
-      "semantic_failure": false
+      "reported_resolved": true,
+      "reported_fail_to_pass_failure": false
     },
     {
       "id": "sympy__sympy-13647",
-      "resolved": true,
-      "semantic_failure": false
+      "reported_resolved": true,
+      "reported_fail_to_pass_failure": false
     },
     {
       "id": "sympy__sympy-13757",
-      "resolved": true,
-      "semantic_failure": false
+      "reported_resolved": true,
+      "reported_fail_to_pass_failure": false
     },
     {
       "id": "sympy__sympy-13798",
-      "resolved": false,
-      "semantic_failure": true
+      "reported_resolved": false,
+      "reported_fail_to_pass_failure": true
+    },
+    {
+      "id": "sympy__sympy-13852",
+      "reported_resolved": false,
+      "reported_fail_to_pass_failure": true
     }
   ],
-  "attempts_inspected": 2,
-  "maximum": 3,
-  "selected": "sympy__sympy-13798",
+  "attempts_inspected": 3,
+  "maximum_attempts": 3,
+  "selected": "sympy__sympy-13852",
   "rejected": [
     {
       "id": "sympy__sympy-13091",
-      "reason": "Published evaluation patch is not the actual trajectory submission; both benchmark FAIL_TO_PASS tests pass on the actual submission. One additional independent NumberSymbol control remains failing. Not qualified under the predeclared rule.",
-      "published_patch_sha256": "3bc2e4fb422dd878afcd099521c0b8ecd8c7b6342a64f1cb08bfaab0d742e26f",
+      "reason": "Published patch differs substantially from actual submission; both benchmark FAIL_TO_PASS tests pass on actual submission. Additional NumberSymbol control remains failing; not qualified under its predeclared rule.",
       "actual_submission_sha256_lf": "c1d8d58b6b5c82ad804589bf35e0ddaa88a828705ea592fdf6fcc1a843e86cdb",
       "trajectory_sha256": "9ed7dd7ddb1c6e312d7e6e8d3ec84aede7e7afa0222a75aea56eab1647d470cb",
       "native_actual": {
         "passed": 96,
         "failed": 1,
         "expected_to_fail": 1
-      },
-      "native_published_patch": {
-        "passed": 95,
-        "failed": 2,
-        "expected_to_fail": 1
-      },
-      "native_base": {
-        "passed": 94,
-        "failed": 3,
-        "expected_to_fail": 1
       }
+    },
+    {
+      "id": "sympy__sympy-13798",
+      "reason": "After native replay, the first independent assertion was judged an exact whitespace disagreement rather than a convincing unresolved mechanism: the original request example allows the actual padded form. A separate numeric-separator difference is retained, not dismissed as passing. Rejected as a demand-fit judgment after inspection, not claimed to be a blind mechanical filter.",
+      "native_actual": {
+        "passed": 104,
+        "failed": 1,
+        "exceptions": 9,
+        "expected_to_fail": 2
+      },
+      "original_contract_commit": "b3b2b593ca3ade8f0a94447ed2f72bcd968b2d8d"
     }
-  ]
+  ],
+  "selection_limitations": "Purposive SymPy environment and metadata cohort choice; ordinal candidate choice fixed. Semantic eligibility includes disclosed after-inspection judgments. No representative sampling, hidden test set or severity guarantee."
 }
