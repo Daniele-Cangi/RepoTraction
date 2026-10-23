@@ -21,3 +21,16 @@ Recorded before the search or any donor/source search for this cohort.
 The project choice is deliberate, not a random sample: NetworkX is executable locally
 and permits native checks of algorithms and invariants. One selected case cannot
 establish general effectiveness or success rates across repositories.
+
+## Empty initial pool and metadata correction
+
+The initial exact search returned zero issues. No issue body was returned or read.
+Repository label metadata (GitHub labels endpoint) shows `New feature` and
+`type: Enhancements`, rather than `enhancement`. Before reading any candidate,
+correct only the label predicate to match those existing labels:
+
+`repo:networkx/networkx is:issue is:open label:"New feature","type: Enhancements"`
+
+The other bounds, returned order, eligibility criteria and stop rule are unchanged.
+This is a recorded second acquisition, not a claim that the empty query selected a
+case. No new pool is permitted after these first 12 candidates.
