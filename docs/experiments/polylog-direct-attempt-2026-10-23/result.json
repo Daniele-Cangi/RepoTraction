@@ -1,0 +1,92 @@
+{
+  "recorded_utc": "2026-10-23T10:07:58.497738+00:00",
+  "repotraction_base_revision": "34a6918308ce919d5e4783f0f049c8907e8e2eca",
+  "preparation_pr": 139,
+  "checkpoint_instance": "sympy__sympy-13852",
+  "target_revision": "c935e1d106743efd5bf0705fbeedbd18fadff4dc",
+  "target_version": "1.1.2.dev",
+  "frozen_contract_commit": "652a87b013899b639645ba5a96c8688ce793bbe9",
+  "frozen_checkpoint_sha256_lf": {
+    "acceptance-before-source-search.md": "4be19040aa3e9d9232853e268cea95d121764ce60e1fb2fb1d552c0bef46b814",
+    "failed-attempt.patch": "43aea1d27a8503f17e4f0ffea53c70724029d595d1ba6664b989c9e845ef9cf7",
+    "independent-tests.patch": "ae15160bf854a00e1bb5a97721a4b196f3492fe7ebdaaa09363069526463377c",
+    "task.json": "9263def9452618843da14c7fbcf308ee5334afb73ff7cb80e63b4057d351223b"
+  },
+  "native_fixture_sha256_lf": "135b6c9959a88d4146b7f790901ba2908ccaf244999baeb2cd763ebd96400bd2",
+  "native_fixture_unchanged": true,
+  "source_before_sha256_lf": "84ea6c4c2fd5dc07858b97a5625e1470d83aa81b99d82eaece48db3c92e4b232",
+  "source_after_sha256_lf": "a0b17cb56a15de3ce3a73ec89ca3423f9b9997a5cb1b1c27cd9d1a09fb7185da",
+  "increment_patch_sha256_lf": "df08aed125f62784ec19c43bf7729a71d1918d989ed2708a7e051cf01ca5b535",
+  "environment": {
+    "os": "Windows",
+    "python": "3.8.20",
+    "mpmath": "1.3.0",
+    "random_seed": 0,
+    "dependency_location": "Existing ignored RepoTraction data, no new product dependency"
+  },
+  "method": "Primary agent direct attempt with the full known task, frozen tests and previously disclosed formulas. Target implementation and its own symbolic operations only; no donor or reference solution inspection.",
+  "before": {
+    "module_passed": 9,
+    "module_failed": 2,
+    "module_exceptions": 0,
+    "exit_code": 1,
+    "doctest_passed_groups": 5,
+    "doctest_exit_code": 0
+  },
+  "after": {
+    "module_passed": 11,
+    "module_failed": 0,
+    "module_exceptions": 0,
+    "exit_code": 0,
+    "doctest_passed_groups": 5,
+    "doctest_exit_code": 0
+  },
+  "run": {
+    "exit_code": 0,
+    "seconds": 7.301506999996491,
+    "code": "\nimport sys\nfrom pathlib import Path\nsys.path.insert(0,sys.argv[1]);import sympy,mpmath\nassert Path(sys.argv[1]).resolve() in Path(sympy.__file__).resolve().parents\nprint('PINNED',sympy.__version__,'MPMATH',mpmath.__version__)\nraise SystemExit(0 if sympy.test('sympy/functions/special/tests/test_zeta_functions.py',subprocess=False,colors=False,seed=0) else 1)\n"
+  },
+  "doctest_run": {
+    "exit_code": 0,
+    "seconds": 1.9031944000162184,
+    "code": "\nimport sys\nfrom pathlib import Path\nsys.path.insert(0,sys.argv[1]);import sympy\nassert Path(sys.argv[1]).resolve() in Path(sympy.__file__).resolve().parents\nraise SystemExit(0 if sympy.doctest('sympy/functions/special/zeta_functions.py',subprocess=False,colors=False) else 1)\n"
+  },
+  "explicit_request": {
+    "input": "polylog(2, Rational(1, 2))",
+    "actual": "-log(2)**2/2 + pi**2/12",
+    "expected": "-log(2)**2/2 + pi**2/12",
+    "direct_structural_match": true,
+    "expanded": "-log(2)**2/2 + pi**2/12",
+    "expanded_structural_match": true
+  },
+  "changed_implementation_files": [
+    "sympy/functions/special/zeta_functions.py"
+  ],
+  "added_native_tests": 0,
+  "paid_ai_api_calls": 0,
+  "subagents": 0,
+  "donor_searches": 0,
+  "satellite_operations": false,
+  "upstream_writes": false,
+  "source_lookup_scope": "Two exact dilogarithm values already supplied by the task and independent tests, plus common-denominator normalization of the existing negative-integer derivative recurrence. No additional special values were implemented.",
+  "stop": "Frozen contract now passes directly; no assistance/source-search arm is justified for this case.",
+  "limitations": [
+    "Local Windows native verification only",
+    "Authored visible upstream benchmark tests and full prior context, not a blind or held-out capability test",
+    "No general symbolic polylogarithm evaluation algorithm",
+    "No wall-time benefit claim or Missing Link transfer result"
+  ],
+  "log_normalization": "Absolute RepoTraction path replaced case-insensitively by <REPOTRACTION>; other text retained",
+  "log_sha256": {
+    "before.txt": "05416bf2f389b3f8b2f03e8a568300d0a0dc54e67ea9e5a5c1ed23c03a6614da",
+    "after.txt": "4013f924db5758a22b7ed519ec5420ba2a42c056aa2e3ded7753e880de3bade7",
+    "before-doctest.txt": "b0a04343d532597736903d4f13d5e5c327153824b794ac66f0aeeee88764b7cf",
+    "after-doctest.txt": "aa08ce5aefcdfc378f5ff2f0457ebc164d95f04544d0badf811eb675631aead9"
+  },
+  "original_private_log_sha256": {
+    "before.txt": "52e1e85ba0937588603d0958055dff8c68d06a3adf02ac3bacdb50d0836a077d",
+    "after.txt": "1028199f7eaef0e2f01313ff0a70899a4117a0476b221c8d2d087887503a4cbd",
+    "before-doctest.txt": "4a1de5ca93f20c3fe06d2e390abfe08787ec157efe4c0077ea62f829272a6d3a",
+    "after-doctest.txt": "d2e3778379e8cd6f8191b44e53ed887aacef32d4bdd5b5df8aff9398cbb791cd"
+  }
+}
