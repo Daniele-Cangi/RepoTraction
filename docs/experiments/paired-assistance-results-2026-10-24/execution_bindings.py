@@ -232,6 +232,8 @@ def discovery_service():
 
 def run_discovery():
     """Invoke the existing native job once, then project its first strategy."""
+    if store("B").list("jobs"):
+        raise ValueError("Discovery was already dispatched; no retries or new jobs")
     service, phase_deadline = discovery_service()
     started = service.start(dict(DISCOVERY_INPUT), background=False)
     job = service.store.get("jobs", started["job_id"])

@@ -150,6 +150,8 @@ class BindingsPreflight(unittest.TestCase):
             remote.assert_not_called()
         self.assertEqual(outcome["ai_calls_used"], 1)
         self.assertEqual(b.state("B")["job_id"], outcome["job_id"])
+        with self.assertRaises(ValueError):
+            b.run_discovery()
         for _ in range(5):
             model, budget = b.helper_budget("B")
             budget.reserve_ai(.0242048, 6, .15)
