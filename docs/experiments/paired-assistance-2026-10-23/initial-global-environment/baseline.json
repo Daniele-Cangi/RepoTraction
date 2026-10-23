@@ -1,0 +1,67 @@
+{
+  "target_revision": "9d866a5f447d9fe1c989b31f90c520dc2813ee26",
+  "freeze_commit": "f2e94d3",
+  "platform": "win32",
+  "python": "3.13.5 (tags/v3.13.5:6cb20a2, Jun 11 2025, 16:15:46) [MSC v.1943 64 bit (AMD64)]",
+  "new_paid_calls": 0,
+  "solver_attempts": 0,
+  "source_searches": 0,
+  "observations": {
+    "reference_checks": {
+      "returncode": 0,
+      "seconds": 9.906978100014385,
+      "tail": [
+        "data\\paired-assistance-2026-10-23\\target\\networkx\\utils\\backends.py:102",
+        "  <REPOTRACTION>\\data\\paired-assistance-2026-10-23\\target\\networkx\\utils\\backends.py:102: RuntimeWarning: networkx backend name is not a valid identifier: 'nx-loopback'. Ignoring.",
+        "    backends = _get_backends(\"networkx.backends\")",
+        "",
+        "-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html",
+        "14 passed, 1 warning in 7.90s",
+        "",
+        "STDERR:"
+      ]
+    },
+    "candidate_checks_unmodified": {
+      "returncode": 1,
+      "seconds": 3.75502390001202,
+      "tail": [
+        "FAILED docs/experiments/paired-assistance-2026-10-23/native_acceptance.py::test_public_example[MultiDiGraph]",
+        "FAILED docs/experiments/paired-assistance-2026-10-23/native_acceptance.py::test_labels_loops_and_compatibility[Graph]",
+        "FAILED docs/experiments/paired-assistance-2026-10-23/native_acceptance.py::test_labels_loops_and_compatibility[DiGraph]",
+        "FAILED docs/experiments/paired-assistance-2026-10-23/native_acceptance.py::test_labels_loops_and_compatibility[MultiGraph]",
+        "FAILED docs/experiments/paired-assistance-2026-10-23/native_acceptance.py::test_labels_loops_and_compatibility[MultiDiGraph]",
+        "14 failed, 1 warning in 2.30s",
+        "",
+        "STDERR:"
+      ]
+    },
+    "native_cycles": {
+      "returncode": 4,
+      "seconds": 1.916161299974192,
+      "tail": [
+        "data\\paired-assistance-2026-10-23\\target\\networkx\\utils\\__init__.py:8: in <module>",
+        "    from networkx.utils.backends import *",
+        "data\\paired-assistance-2026-10-23\\target\\networkx\\utils\\backends.py:102: in <module>",
+        "    backends = _get_backends(\"networkx.backends\")",
+        "               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+        "data\\paired-assistance-2026-10-23\\target\\networkx\\utils\\backends.py:73: in _get_backends",
+        "    warnings.warn(",
+        "E   RuntimeWarning: networkx backend name is not a valid identifier: 'nx-loopback'. Ignoring."
+      ]
+    },
+    "reference_workloads": {
+      "returncode": 0,
+      "seconds": 6.592007100000046,
+      "tail": [
+        "      }",
+        "    }",
+        "  ]",
+        "}",
+        "",
+        "STDERR:",
+        "<REPOTRACTION>\\data\\paired-assistance-2026-10-23\\target\\networkx\\utils\\backends.py:102: RuntimeWarning: networkx backend name is not a valid identifier: 'nx-loopback'. Ignoring.",
+        "  backends = _get_backends(\"networkx.backends\")"
+      ]
+    }
+  }
+}
