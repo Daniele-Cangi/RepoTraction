@@ -33,6 +33,12 @@ Times below are medians per API invocation, not end-to-end development time.
 Ranges and all raw batches are preserved; no weights/workloads/thresholds changed.
 No benchmark feedback was delivered to either agent and no patch was repaired.
 
+The fixed baseline-calibrated iteration counts do not keep optimized batches at
+the 250 ms calibration target: the shortest is 5.84 ms (reference minimum 16.32
+ms, including the 100-iteration cap). Short batches make small differences more
+sensitive to scheduling noise. Counts and observations are retained as frozen;
+there is no post-result recalibration or claim that every batch lasted 250 ms.
+
 | Workload | Reference ms | A ms | B ms | A/reference speedup | B/reference speedup |
 | --- | ---: | ---: | ---: | ---: | ---: |
 | dense-directed | 293.714 | 270.554 | 284.739 | 1.09x | 1.03x |
