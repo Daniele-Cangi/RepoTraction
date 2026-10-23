@@ -1,0 +1,56 @@
+{
+  "instance_id": "sympy__sympy-13798",
+  "exit_status": "Submitted",
+  "recorded_model_api_calls": 96,
+  "submission_label": "20260219_mini-v2.0.0_gpt-5-2-codex",
+  "recorded_model_config": "openai/gpt-5.2-2025-12-11",
+  "recorded_mini_version": "2.1.0",
+  "identity_note": "Submission label and recorded model/version configuration differ; neither is independently verified provider identity.",
+  "attempt_summary": "Extends the native multiplication-symbol table with custom strings, pads custom separators with whitespace, and also uses the custom separator for numeric factors. Updates the local printer documentation. Does not pass the unchanged upstream test.",
+  "terminal_state": "Submitted, not a self-reported conscious impasse",
+  "source_trajectory_sha256": "365ab996068aa1ff810a5b9c6d60fce04e50ceccc866b0ce0be0e3c2bf408a80",
+  "submission_sha256_lf": "31bd9ccbcf9d7cd5a9d7fa9c984aeacb4ae231ade9059ffb40580f8c212c006a",
+  "selected_actions": [
+    {
+      "zero_based_tool_call": 88,
+      "message_index": 178,
+      "command": "cd /testbed && sed -n '160,190p' sympy/printing/latex.py"
+    },
+    {
+      "zero_based_tool_call": 89,
+      "message_index": 180,
+      "command": "cd /testbed && python3.10 - <<'PY'\nimport collections, collections.abc\nfor name in ['Mapping','MutableMapping','MutableSet','Callable','Sequence','Set']:\n    if not hasattr(collections, name):\n        setattr(collections, name, getattr(collections.abc, name))\n\nfrom sympy import Symbol, latex\nx = Symbol('x'); y = Symbol('y')\nexpr = 3*x**2*y\nprint(latex(expr, mul_symbol=r\"\\\\,\"))\nprint(latex(expr, mul_symbol='foo'))\nPY"
+    },
+    {
+      "zero_based_tool_call": 90,
+      "message_index": 182,
+      "command": "cd /testbed && python3.10 -m py_compile sympy/printing/latex.py"
+    },
+    {
+      "zero_based_tool_call": 92,
+      "message_index": 186,
+      "command": "cd /testbed && git diff -- sympy/printing/latex.py | head -n 120"
+    },
+    {
+      "zero_based_tool_call": 93,
+      "message_index": 188,
+      "command": "cd /testbed && git diff -- sympy/printing/latex.py > patch.txt"
+    },
+    {
+      "zero_based_tool_call": 94,
+      "message_index": 190,
+      "command": "cd /testbed && head -n 40 patch.txt"
+    },
+    {
+      "zero_based_tool_call": 95,
+      "message_index": 192,
+      "command": "cd /testbed && echo COMPLETE_TASK_AND_SUBMIT_FINAL_OUTPUT && cat patch.txt"
+    }
+  ],
+  "observed_failure": "AssertionError in first independent added assertion",
+  "limitations": [
+    "Historical completed wrong answer, not proof of current difficulty",
+    "First assertion is an exact-string whitespace difference; diagnostic also shows the separate numeric-separator expectation fails",
+    "The independently added second assertion is not reached during the native test because the first assertion fails"
+  ]
+}

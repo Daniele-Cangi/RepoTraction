@@ -1,0 +1,104 @@
+{
+  "instance_id": "sympy__sympy-13852",
+  "target_revision": "c935e1d106743efd5bf0705fbeedbd18fadff4dc",
+  "target_version": "1.1.2.dev",
+  "contract_frozen_commit": "652a87b013899b639645ba5a96c8688ce793bbe9",
+  "selection_rule_commit": "001cb4dfb6a82fb73860164f8dbf53bfa4f03de4",
+  "environment": {
+    "os": "Windows",
+    "python": "3.8.20",
+    "mpmath": "1.3.0",
+    "scope": "Both interpreter and dependencies installed only under ignored RepoTraction data; different from the historical Linux environment",
+    "random_seed": 0
+  },
+  "runs": {
+    "base": {
+      "passed": 4,
+      "failed": 2,
+      "exceptions": 5,
+      "nonpassing_test_ids": [
+        "sympy/functions/special/tests/test_zeta_functions.py:test_zeta_series",
+        "sympy/functions/special/tests/test_zeta_functions.py:test_rewriting",
+        "sympy/functions/special/tests/test_zeta_functions.py:test_derivatives",
+        "sympy/functions/special/tests/test_zeta_functions.py:test_lerchphi_expansion",
+        "sympy/functions/special/tests/test_zeta_functions.py:test_issue_10475",
+        "sympy/functions/special/tests/test_zeta_functions.py:test_polylog_expansion",
+        "sympy/functions/special/tests/test_zeta_functions.py:test_polylog_values"
+      ],
+      "full_run": {
+        "exit_code": 1,
+        "seconds": 6.1145449000177905,
+        "code": "\nimport sys\nfrom pathlib import Path\nsys.path.insert(0,sys.argv[1])\nimport sympy,mpmath\nassert Path(sys.argv[1]).resolve() in Path(sympy.__file__).resolve().parents\nprint('PINNED',sympy.__version__,'MPMATH',mpmath.__version__)\noptions=dict(subprocess=False,colors=False,seed=0)\nif sys.argv[2]!='None':options['kw']=sys.argv[2]\nraise SystemExit(0 if sympy.test('sympy/functions/special/tests/test_zeta_functions.py',**options) else 1)\n"
+      },
+      "isolated_task_run": {
+        "exit_code": 1,
+        "seconds": 1.3103138000005856,
+        "code": "\nimport sys\nfrom pathlib import Path\nsys.path.insert(0,sys.argv[1])\nimport sympy,mpmath\nassert Path(sys.argv[1]).resolve() in Path(sympy.__file__).resolve().parents\nprint('PINNED',sympy.__version__,'MPMATH',mpmath.__version__)\noptions=dict(subprocess=False,colors=False,seed=0)\nif sys.argv[2]!='None':options['kw']=sys.argv[2]\nraise SystemExit(0 if sympy.test('sympy/functions/special/tests/test_zeta_functions.py',**options) else 1)\n"
+      },
+      "explicit_request": {
+        "input": "polylog(2, Rational(1, 2))",
+        "actual": "polylog(2, 1/2)",
+        "expected": "-log(2)**2/2 + pi**2/12",
+        "direct_structural_match": false,
+        "expanded": "polylog(2, 1/2)",
+        "expanded_structural_match": false
+      }
+    },
+    "failed": {
+      "passed": 9,
+      "failed": 2,
+      "exceptions": 0,
+      "nonpassing_test_ids": [
+        "sympy/functions/special/tests/test_zeta_functions.py:test_polylog_expansion",
+        "sympy/functions/special/tests/test_zeta_functions.py:test_polylog_values"
+      ],
+      "full_run": {
+        "exit_code": 1,
+        "seconds": 10.808181700005662,
+        "code": "\nimport sys\nfrom pathlib import Path\nsys.path.insert(0,sys.argv[1])\nimport sympy,mpmath\nassert Path(sys.argv[1]).resolve() in Path(sympy.__file__).resolve().parents\nprint('PINNED',sympy.__version__,'MPMATH',mpmath.__version__)\noptions=dict(subprocess=False,colors=False,seed=0)\nif sys.argv[2]!='None':options['kw']=sys.argv[2]\nraise SystemExit(0 if sympy.test('sympy/functions/special/tests/test_zeta_functions.py',**options) else 1)\n"
+      },
+      "isolated_task_run": {
+        "exit_code": 1,
+        "seconds": 1.3540511000319384,
+        "code": "\nimport sys\nfrom pathlib import Path\nsys.path.insert(0,sys.argv[1])\nimport sympy,mpmath\nassert Path(sys.argv[1]).resolve() in Path(sympy.__file__).resolve().parents\nprint('PINNED',sympy.__version__,'MPMATH',mpmath.__version__)\noptions=dict(subprocess=False,colors=False,seed=0)\nif sys.argv[2]!='None':options['kw']=sys.argv[2]\nraise SystemExit(0 if sympy.test('sympy/functions/special/tests/test_zeta_functions.py',**options) else 1)\n"
+      },
+      "explicit_request": {
+        "input": "polylog(2, Rational(1, 2))",
+        "actual": "polylog(2, 1/2)",
+        "expected": "-log(2)**2/2 + pi**2/12",
+        "direct_structural_match": false,
+        "expanded": "-log(2)**2/2 + pi**2/12",
+        "expanded_structural_match": true
+      }
+    }
+  },
+  "qualification": "Actual submitted patch still fails the independent task test and leaves direct evaluation of the explicitly requested half argument unevaluated.",
+  "limits": [
+    "Historical submitted failure, not a live upstream bug or a conscious impasse",
+    "No claim that a present-day agent needs outside help",
+    "The first test_polylog_values assertion is the additional argument 2; the explicit half-argument diagnostic independently establishes the original remaining need",
+    "Five original-state compatibility exceptions are retained; they disappear with compatibility changes already in the submitted patch",
+    "Native verification is local Windows only; ordinary product CI does not execute this expected-red fixture"
+  ],
+  "target_files": {
+    "sympy/functions/special/zeta_functions.py": {
+      "base_git_blob": "b8e2b66195e01673626794d03f04de2c3502727b",
+      "base_worktree_sha256_lf": "ebacc2f816dfd5f4ed2b15433394c1b2b4884b47dd07ed20562480523fa0093f",
+      "failed_worktree_sha256_lf": "84ea6c4c2fd5dc07858b97a5625e1470d83aa81b99d82eaece48db3c92e4b232"
+    },
+    "sympy/functions/special/tests/test_zeta_functions.py": {
+      "base_git_blob": "3911dadd103bfcd21c4751ed39636298c43e806a",
+      "base_worktree_sha256_lf": "135b6c9959a88d4146b7f790901ba2908ccaf244999baeb2cd763ebd96400bd2",
+      "failed_worktree_sha256_lf": "135b6c9959a88d4146b7f790901ba2908ccaf244999baeb2cd763ebd96400bd2"
+    },
+    "sympy/core/compatibility.py": {
+      "base_git_blob": "1f1ec06d7d1bdb1fe984574ad4faec52d3948ebb",
+      "base_worktree_sha256_lf": "71b3067806f831d92c29742028d7a624e8a62c77186b5d5b638df9c18a93d7bd",
+      "failed_worktree_sha256_lf": "bbc50044e128123eee942b33fcce7e76ac07d71d8e48aa1f034e07425e72ce08"
+    }
+  },
+  "source_states": {
+    "base": " M sympy/functions/special/tests/test_zeta_functions.py\n",
+    "failed": " M sympy/assumptions/sathandlers.py\n M sympy/core/basic.py\n M sympy/core/compatibility.py\n M sympy/functions/special/tests/test_zeta_functions.py\n M sympy/functions/special/zeta_functions.py\n M sympy/plotting/plot.py\n"
+  }
+}

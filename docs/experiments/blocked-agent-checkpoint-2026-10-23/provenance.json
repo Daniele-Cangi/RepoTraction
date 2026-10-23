@@ -1,0 +1,72 @@
+{
+  "recorded_utc": "2026-10-23T00:07:02.148364+00:00",
+  "selection_rule_commit": "001cb4dfb6a82fb73860164f8dbf53bfa4f03de4",
+  "contract_frozen_commit": "652a87b013899b639645ba5a96c8688ce793bbe9",
+  "experiments_revision": "40f164d5b8f1d249bf95a6df8b74b577fd8e519d",
+  "dataset_revision": "c104f840cc67f8b6eec6f759ebc8b2693d585d4a",
+  "sources": {
+    "trajectory": "https://swe-bench-submissions.s3.amazonaws.com/bash-only/20260219_mini-v2.0.0_gpt-5-2-codex/trajs/sympy__sympy-13852/sympy__sympy-13852.traj.json",
+    "published_patch": "https://swe-bench-submissions.s3.amazonaws.com/bash-only/20260219_mini-v2.0.0_gpt-5-2-codex/logs/sympy__sympy-13852/patch.diff",
+    "published_report": "https://swe-bench-submissions.s3.amazonaws.com/bash-only/20260219_mini-v2.0.0_gpt-5-2-codex/logs/sympy__sympy-13852/report.json",
+    "published_job_output": "https://swe-bench-submissions.s3.amazonaws.com/bash-only/20260219_mini-v2.0.0_gpt-5-2-codex/logs/sympy__sympy-13852/job-output.json"
+  },
+  "source_raw_sha256": {
+    "trajectory": "a2eb5755536d7b13e4eabeb0bbe9d6ca87174846e02d889439d90691cf0bc95c",
+    "published_patch": "bca7aa751ab846454a120909c0a804e12eb0046c808cb6064a670532006e89df",
+    "published_report": "15669461dddb3ca4ef60704a9a2173606604dd82e5639de40cd4cd2ef79ff7aa",
+    "published_job_output": "e810afd9c04f31bda67811353504fb9c5d2471e1e4c43701f30a33fe4eb96287"
+  },
+  "dataset_projection_columns": [
+    "repo",
+    "instance_id",
+    "base_commit",
+    "test_patch",
+    "problem_statement",
+    "created_at",
+    "version",
+    "FAIL_TO_PASS",
+    "PASS_TO_PASS",
+    "environment_setup_commit"
+  ],
+  "columns_not_deserialized": [
+    "patch",
+    "hints_text"
+  ],
+  "checkpoint_hashes_sha256_lf": {
+    "acceptance-before-source-search.md": "4be19040aa3e9d9232853e268cea95d121764ce60e1fb2fb1d552c0bef46b814",
+    "attempt.json": "5033b2fb016cfa388bb1f94dfbf45ee4babc305d1a12153c9ee7bebc77befafc",
+    "base-explicit-request.json": "4eff283ea1e466f7388ae3815fbedd12c43c1c915c368ebb8ef196856ddff50d",
+    "failed-attempt.patch": "43aea1d27a8503f17e4f0ffea53c70724029d595d1ba6664b989c9e845ef9cf7",
+    "failed-explicit-request.json": "ecb180223c3ac9ea12c8ea531296e2c2a2fe6f61c96ae24d74795e676a74a638",
+    "independent-tests.patch": "ae15160bf854a00e1bb5a97721a4b196f3492fe7ebdaaa09363069526463377c",
+    "LICENSE.sympy.txt": "b8fd72e9cdac9dc5028ec9c4623945971cdff1ce71fda381d5f5419ffe0ab587",
+    "published-evaluation.patch": "bca7aa751ab846454a120909c0a804e12eb0046c808cb6064a670532006e89df",
+    "published-report.json": "15669461dddb3ca4ef60704a9a2173606604dd82e5639de40cd4cd2ef79ff7aa",
+    "task.json": "9263def9452618843da14c7fbcf308ee5334afb73ff7cb80e63b4057d351223b"
+  },
+  "native_logs": {
+    "path": "native-logs.json.gz",
+    "sha256": "56e20355a6ceda56d8250940048536d8e3472eb22c8a3d7f459af7f3bd9771ee",
+    "entries": [
+      "base-full.txt",
+      "base-task.txt",
+      "failed-full.txt",
+      "failed-task.txt"
+    ],
+    "normalization": "Absolute RepoTraction path replaced case-insensitively by <REPOTRACTION>; other text retained",
+    "raw_private_sha256": {
+      "base-full.txt": "7720fe2c0228c1f7bd79d051a982f454cbe33b318c5a1cb753ee459e758aa33d",
+      "base-task.txt": "535b52c437ad11b6164d0e464890b84674a63480b40754f7db92290525eb6956",
+      "failed-full.txt": "00f174f94d0edcfcc2c7031c9fe29addea5491131af9211e614248469497065f",
+      "failed-task.txt": "acf75fba6bc8e5ab6db768003f8e2c3948e3d422ad98361ea4302bbc2bfc8d0b"
+    }
+  },
+  "published_patch_matches_actual_submission": false,
+  "published_evaluation_not_used_as_actual_submission_verdict": true,
+  "new_paid_ai_calls": 0,
+  "new_agent_dispatches": 0,
+  "solution_source_searches": 0,
+  "reference_patch_inspected": false,
+  "satellite_operations": false,
+  "query_note": "Only checkpoint/public-artifact discovery and target acquisition performed. The web query concerned SWE-bench failed trajectories, not polylogarithm mechanisms."
+}
