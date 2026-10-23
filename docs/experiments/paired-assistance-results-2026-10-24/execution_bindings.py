@@ -16,7 +16,7 @@ import uuid
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT))
 from github_cli import verify_cli_account
-from missing_link.analysis import digest
+from missing_link.analysis import digest, evidence_catalog, resolve_evidence
 from missing_link.config import provider_environment
 from missing_link.contracts import obj, string
 from missing_link.provider import Provider
@@ -187,11 +187,14 @@ def packet(job):
             or repo["revision"] != item["revision"]):
         raise ValueError("Strategy/source identity differs")
     files = {f["path"]: f for f in repo["files"]}
+    catalog = evidence_catalog(repo, job["checkpoint"]["discussions"]["0"])
+    if not item["evidence"]:
+        raise ValueError("Strategy evidence is empty")
     for evidence in item["evidence"]:
         file = files[evidence["path"]]
-        lines = file["text"].splitlines()
-        if (file["sha"] != evidence["sha"] or not evidence["quote"].strip()
-                or evidence["quote"] != "\n".join(lines[evidence["line"] - 1:evidence["end_line"]])):
+        expected = resolve_evidence(evidence["source_id"], catalog)
+        if (file["sha"] != evidence["sha"] or not evidence["quote"].strip() or
+                any(evidence[key] != expected[key] for key in ("path", "line", "end_line", "quote"))):
             raise ValueError("Unavailable exact strategy evidence")
     fields = ("repo", "repo_id", "revision", "title", "mechanism", "relevance", "reason",
         "requirement_ids", "evidence", "adaptation", "assumptions", "limitations",

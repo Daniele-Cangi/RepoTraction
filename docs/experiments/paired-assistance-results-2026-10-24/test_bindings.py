@@ -86,6 +86,49 @@ class BindingsPreflight(unittest.TestCase):
                 source.fetch_issue("https://github.com/other/project/issues/1")
             native.assert_called_once()
 
+    def packet_fixture(self):
+        repo = {"public": True, "id": 1, "revision": "a" * 40, "coverage": {},
+            "files": [{"path": "README.md", "text": "A documented operation.\nSecond line.\n",
+                       "sha": "b" * 40, "url": "https://github.com/example/fixture/blob/" + "a" * 40 + "/README.md"}]}
+        issue = {"url": "https://github.com/networkx/networkx/issues/8128"}
+        evidence = b.resolve_evidence("file:README.md", b.evidence_catalog(repo, issue))
+        evidence.update(source_id="file:README.md", sha="b" * 40)
+        item = {"repo": "example/fixture", "repo_id": 1, "revision": "a" * 40,
+            "title": "Fixture", "mechanism": "Hypothetical operation", "relevance": "pertinent",
+            "reason": "Fixture only", "requirement_ids": ["r0"], "evidence": [evidence],
+            "adaptation": [], "assumptions": [], "limitations": [], "direct_alternative": "unknown",
+            "expected_advantage": "untested", "verification": {"status": "not_executed"},
+            "benefit_status": "not_tested"}
+        return {"status": "completed", "result": {"strategies": {"0": {"items": [item]}}},
+                "checkpoint": {"repository": repo, "discussions": {"0": issue}}}
+
+    def test_packet_preserves_whole_file_final_newline_and_native_ranges(self):
+        job = self.packet_fixture()
+        result = json.loads(b.packet(job))
+        self.assertTrue(result["evidence"][0]["quote"].endswith("\n"))
+        item = job["result"]["strategies"]["0"]["items"][0]
+        evidence = b.resolve_evidence("file:README.md#L2", b.evidence_catalog(
+            job["checkpoint"]["repository"], job["checkpoint"]["discussions"]["0"]))
+        evidence.update(source_id="file:README.md#L2", sha="b" * 40)
+        item["evidence"] = [evidence]
+        self.assertEqual(json.loads(b.packet(job))["evidence"][0]["quote"], "Second line.")
+
+    def test_packet_does_not_substitute_later_item_or_trim_evidence(self):
+        job = self.packet_fixture()
+        items = job["result"]["strategies"]["0"]["items"]
+        items.insert(0, dict(items[0], relevance="undetermined"))
+        self.assertIsNone(b.packet(job))
+        items.pop(0)
+        items[0]["evidence"][0]["quote"] = "Different text"
+        with self.assertRaises(ValueError):
+            b.packet(job)
+
+    def test_note_context_is_not_given_a_smaller_32k_limit(self):
+        b.initialize("A")
+        with patch.object(b.RecordedProvider, "complete", return_value={"notes": "fixture"}) as call:
+            b.note("A", {"instruction": "note", "data": {"public": "word " * 8000}})
+            call.assert_called_once()
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
