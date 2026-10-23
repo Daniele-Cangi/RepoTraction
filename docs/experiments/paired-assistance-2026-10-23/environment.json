@@ -1,0 +1,17 @@
+{
+  "python": "3.13.5",
+  "pytest": "8.4.2",
+  "packages": [
+    "colorama==0.4.6",
+    "iniconfig==2.3.1",
+    "numpy==2.5.4",
+    "packaging==26.3",
+    "pluggy==1.7.0",
+    "Pygments==2.21.0",
+    "pytest==8.4.2",
+    "scipy==1.18.1"
+  ],
+  "target_import": "ML_CYCLE_TARGET pinned checkout via sys.path/PYTHONPATH; not installed from PyPI",
+  "pytest_plugin_autoload": false,
+  "initial_global_environment": "preserved separately; native collection failed on unrelated installed nx-loopback metadata"
+}

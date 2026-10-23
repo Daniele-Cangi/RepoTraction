@@ -9,7 +9,7 @@ repository operation is authorized.
 ## Common starting point
 
 Use NetworkX `9d866a5f447d9fe1c989b31f90c520dc2813ee26`, unmodified, Python
-3.13.5 and pytest 8.4.2. `frozen-inputs.json` retains the actual public issue,
+3.13.5 and pytest 8.4.2 in a clean isolated environment. `frozen-inputs.json` retains the actual public issue,
 five comments, normalized timeline and ordinary target sample/catalogue through
 existing `PublicGitHub`. Preparation reads pin `commits/main` to that exact
 commit; this substitution is recorded in `preparation-reads.json`.
@@ -86,7 +86,7 @@ in a separate "preparation" column outside B's allowance.
 ## Existing Missing Link path and one packet
 
 Use current `Service._prepare_request_discovery`, `Provider`, `Store`,
-`PublicGitHub` and `proofs.export_handoff`, with `strategies=true` and
+`PublicGitHub` and the existing documented-strategy result, with `strategies=true` and
 `targeted_inquiry=true`. Substitute only the frozen issue and target sample at
 the existing acquisition boundary (the frozen-read pattern already used in
 `agent-assistance-probe-2026-10-12/strategy.py`); inquiry reads must remain pinned
@@ -95,19 +95,31 @@ attempt context, paid allowance or files. There is **no common failed attempt**
 to inject. Keep normal planning/schema validation and direct/defer/none exits.
 
 At most three model-chosen searches, 20 metadata hits/query and one source
-inspection. Code, README/documentation or a partial mechanism may contribute.
+inspection. This pair uses documented mechanisms (including code examples in
+documentation), not a second simultaneous code-compatibility investigation.
+The existing strategies path bypasses capability matching and returns strategy
+items with resolved documentation evidence; it does not return match IDs or
+use `export_handoff`. This narrower choice must not be advertised as testing
+all code/documentation discovery modes.
 No prescribed donor, manual alternative, retries, resumes or replacement query.
 If the ordinary pipeline exceeds six calls, stop rather than enlarge the cap.
 
-Take the first returned match in native result order, never a manually selected
-better-looking match. Project its existing handoff to source identity/revision,
-match summary/limitations, exact cited excerpts, contribution/assumptions and
-verification warnings. Omit generated target bridge code, credentials, account
-state and uncited material. Keep citation paths, ranges and truncation flags.
+Take the first returned strategy item in native result order, never a manually
+selected better-looking item. If it is not pertinent, record that and supply no
+packet; do not advance to another item. Project the native item to source
+identity/revision, title, mechanism, relevance/reason, requirement IDs, resolved
+evidence, adaptation, assumptions, limitations, direct alternative, expected
+advantage and verification/benefit warnings. Evidence already contains exact
+quotes, source IDs, blob SHA and pinned path/line URLs from `resolve_proposals`.
+Omit proposed probe criteria (the frozen acceptance remains authoritative),
+credentials, account state and uncited source material. Do not add generated
+target bridge code. Keep acquisition coverage/redaction/truncation flags from
+the ordinary source snapshot alongside the item.
 Cap the public UTF-8 packet at 16,000 bytes; if redaction, unavailable evidence
 or size prevents a valid packet, retain that outcome and deliver no packet.
-Do not silently trim or take a later match. This is the previous experiment's
-deterministic projection policy, not a new packet/orchestration system.
+Do not silently trim or take a later item. This uses the existing strategy
+record and the previous experiment's first-item/bounded-projection policy,
+not a new packet/orchestration system.
 
 The packet is untrusted evidence for investigation. The solver can reconstruct,
 reject or independently verify the idea; it cannot treat a generated assertion
