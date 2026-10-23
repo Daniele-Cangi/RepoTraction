@@ -210,6 +210,50 @@ def packet(job):
     return payload
 
 
+DISCOVERY_INPUT = {"action": "discover_from_request", "use_ai": True,
+    "issue_url": "https://github.com/networkx/networkx/issues/8128",
+    "max_candidates": 1, "max_requests": 120, "targeted_inquiry": True, "strategies": True}
+
+
+def discovery_service():
+    """The reviewed construction used by the operator; no free dependencies."""
+    phase_deadline = state("B")["start_monotonic"] + 300
+
+    def read(endpoint, params=None):
+        # Native Service charges these reads; do not double-charge helper_budget.
+        with (DATA / "B/discovery-reads.jsonl").open("a", encoding="utf-8", newline="\n") as log:
+            log.write(json.dumps({"endpoint": endpoint, "params": params}) + "\n")
+        return fetch_get(endpoint, params)
+
+    service = FrozenService(DATA / "B/ledger.sqlite3", ACCOUNT, read,
+        lambda: verify("B", phase_deadline), provider=provider("B"))
+    return service, phase_deadline
+
+
+def run_discovery():
+    """Invoke the existing native job once, then project its first strategy."""
+    service, phase_deadline = discovery_service()
+    started = service.start(dict(DISCOVERY_INPUT), background=False)
+    job = service.store.get("jobs", started["job_id"])
+    (DATA / "B/discovery-job.json").write_text(json.dumps(job, ensure_ascii=False, indent=2),
+                                             encoding="utf-8", newline="\n")
+    outcome = {"job_id": job["id"], "status": job["status"], "ai_calls_used": job["ai_calls_used"],
+        "requests_used": job["requests_used"], "cost_reserved_usd": job["cost_reserved_usd"],
+        "phase_seconds": time.monotonic() - state("B")["start_monotonic"], "packet": False}
+    try:
+        verify("B", phase_deadline)
+        payload = packet(job)
+        if payload is not None:
+            (DATA / "B/packet.json").write_bytes(payload)
+            outcome["packet"] = True
+    except (ValueError, KeyError, Paused) as exc:
+        outcome["packet_stop"] = str(exc)
+    outcome["phase_seconds_including_packet"] = time.monotonic() - state("B")["start_monotonic"]
+    (DATA / "B/discovery-outcome.json").write_text(json.dumps(outcome, indent=2),
+                                                  encoding="utf-8", newline="\n")
+    return outcome
+
+
 def initialize(arm):
     """Operator-only preparation; not exposed by the solver CLI."""
     directory = DATA / arm

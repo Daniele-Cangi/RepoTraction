@@ -129,6 +129,39 @@ class BindingsPreflight(unittest.TestCase):
             b.note("A", {"instruction": "note", "data": {"public": "word " * 8000}})
             call.assert_called_once()
 
+    def test_native_discovery_and_helper_share_budget_and_five_minute_cutoff(self):
+        record = b.initialize("B")
+        service, deadline = b.discovery_service()
+        self.assertEqual(deadline, record["start_monotonic"] + 300)
+        self.assertEqual(service.store.path, b.DATA / "B/ledger.sqlite3")
+        self.assertEqual(service.account, b.ACCOUNT)
+        self.assertEqual(service.provider.budget_id, b.provider("B").budget_id)
+        self.assertEqual(b.DISCOVERY_INPUT, {"action": "discover_from_request", "use_ai": True,
+            "issue_url": "https://github.com/networkx/networkx/issues/8128", "max_candidates": 1,
+            "max_requests": 120, "targeted_inquiry": True, "strategies": True})
+
+        def offline_request(issue, budget):
+            budget.reserve_ai(.0242048, 6, .15)
+            raise b.Paused("Offline marker, before transport")
+
+        with patch.object(b.RecordedProvider, "interpret_request", side_effect=offline_request), \
+                patch.object(b, "fetch_get") as remote:
+            outcome = b.run_discovery()
+            remote.assert_not_called()
+        self.assertEqual(outcome["ai_calls_used"], 1)
+        self.assertEqual(b.state("B")["job_id"], outcome["job_id"])
+        for _ in range(5):
+            model, budget = b.helper_budget("B")
+            budget.reserve_ai(.0242048, 6, .15)
+        model, budget = b.helper_budget("B")
+        self.assertEqual(budget.job["ai_calls_used"], 6)
+        self.assertAlmostEqual(b.store("B").ai_reserved(model.budget_id), .1452288)
+        with self.assertRaises(b.Paused):
+            budget.reserve_ai(.000001, 6, .15)
+        with patch.object(b.time, "monotonic", return_value=deadline + 1):
+            with self.assertRaises(b.Paused):
+                service._verify()
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

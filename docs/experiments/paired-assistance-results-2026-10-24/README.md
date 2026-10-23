@@ -20,10 +20,15 @@ the existing serialized-byte reservation and persisted USD 0.15 ceilings remain.
 There are no hosted model tools or extra tool charges in these provider calls.
 Six worst-size calls reserve USD 0.1452288 per arm, not a predicted invoice.
 
-Offline preflight (`python test_bindings.py`) uses temporary ledgers, mocked
+Offline preflight (`python test_bindings.py`, ten checks) uses temporary ledgers, mocked
 identity and no provider requests. It checks expiry, no restart, shared call and
 request counters, atomic allowance protection, provider settings and frozen
-reads. Effective solver prompts will be the original common/arm text plus only
+reads. The native discovery integration test exercises the actual Service start
+path, reserves one call without transport, then checks that helpers see that same
+call/allowance and that the bound native verification callback stops at five
+minutes. `discovery_service` and `run_discovery` freeze B's construction/start
+options, rather than leaving these connections to later operator commands.
+Effective solver prompts will be the original common/arm text plus only
 operational paths, remaining resources and any native strategy packet. The
 existing native pipeline retains its own prompts, recorded in private job data.
 
