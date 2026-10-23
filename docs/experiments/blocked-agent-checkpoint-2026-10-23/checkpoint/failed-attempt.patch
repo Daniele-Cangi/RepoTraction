@@ -1,55 +1,120 @@
-diff --git a/sympy/printing/latex.py b/sympy/printing/latex.py
-index ad4d7d961..c1c3e8d51 100644
---- a/sympy/printing/latex.py
-+++ b/sympy/printing/latex.py
-@@ -23,7 +23,7 @@
- import mpmath.libmp as mlib
- from mpmath.libmp import prec_to_dps
+diff --git a/sympy/assumptions/sathandlers.py b/sympy/assumptions/sathandlers.py
+index 61d62d04c..0f647b8c5 100644
+--- a/sympy/assumptions/sathandlers.py
++++ b/sympy/assumptions/sathandlers.py
+@@ -1,6 +1,11 @@
+ from __future__ import print_function, division
  
--from sympy.core.compatibility import default_sort_key, range
-+from sympy.core.compatibility import default_sort_key, range, string_types
- from sympy.utilities.iterables import has_variety
- 
- import re
-@@ -156,11 +156,28 @@ def __init__(self, settings=None):
-             "times": r" \times "
-         }
- 
--        self._settings['mul_symbol_latex'] = \
--            mul_symbol_table[self._settings['mul_symbol']]
-+        mul_symbol = self._settings['mul_symbol']
- 
--        self._settings['mul_symbol_latex_numbers'] = \
--            mul_symbol_table[self._settings['mul_symbol'] or 'dot']
-+        if mul_symbol in mul_symbol_table:
-+            self._settings['mul_symbol_latex'] = mul_symbol_table[mul_symbol]
-+        elif isinstance(mul_symbol, string_types):
-+            # Allow user-defined LaTeX multiplication symbols, e.g. r"\,"
-+            # For consistency with the built-in choices we pad the symbol with
-+            # whitespace (LaTeX ignores whitespace in math mode).
-+            ms = mul_symbol
-+            if ms and not ms[0].isspace():
-+                ms = ' ' + ms
-+            if ms and not ms[-1].isspace():
-+                ms = ms + ' '
-+            self._settings['mul_symbol_latex'] = ms
-+        else:
-+            raise ValueError("'mul_symbol' must be None, 'ldot', 'dot', 'times', or a string")
+-from collections import MutableMapping, defaultdict
++try:
++    from collections.abc import MutableMapping
++except ImportError:  # pragma: no cover
++    from collections import MutableMapping
 +
-+        if mul_symbol is None:
-+            # Between numbers we always use a multiplication symbol by default.
-+            self._settings['mul_symbol_latex_numbers'] = mul_symbol_table['dot']
-+        else:
-+            self._settings['mul_symbol_latex_numbers'] = self._settings['mul_symbol_latex']
++from collections import defaultdict
  
-         self._delim_dict = {'(': ')', '[': ']'}
+ from sympy.core import (Add, Mul, Pow, Integer, Number, NumberSymbol,)
+ from sympy.core.numbers import ImaginaryUnit
+diff --git a/sympy/core/basic.py b/sympy/core/basic.py
+index d4ca323e0..f83a637a0 100644
+--- a/sympy/core/basic.py
++++ b/sympy/core/basic.py
+@@ -1,6 +1,11 @@
+ """Base class for all the objects in SymPy"""
+ from __future__ import print_function, division
+-from collections import Mapping, defaultdict
++try:
++    from collections.abc import Mapping
++except ImportError:  # pragma: no cover
++    from collections import Mapping
++
++from collections import defaultdict
+ from itertools import chain
  
-@@ -2155,7 +2172,7 @@ def latex(expr, **settings):
-     \frac{1}{2 \pi} \int r\, dr
+ from .assumptions import BasicMeta, ManagedProperties
+diff --git a/sympy/core/compatibility.py b/sympy/core/compatibility.py
+index 1f1ec06d7..14f2a3abf 100644
+--- a/sympy/core/compatibility.py
++++ b/sympy/core/compatibility.py
+@@ -7,6 +7,35 @@
  
-     mul_symbol: The symbol to use for multiplication. Can be one of None,
--    "ldot", "dot", or "times".
-+    "ldot", "dot", or "times", or any string of valid LaTeX code (e.g. r"\,").
+ import operator
+ from collections import defaultdict
++
++# -----------------------------------------------------------------------------
++# Compatibility shim for newer Python versions
++#
++# SymPy historically used abstract base classes from the top-level `collections`
++# module (e.g. `collections.Iterable`). These were moved to `collections.abc`
++# and removed from `collections` in Python 3.10+.  Older SymPy code in this
++# repository still refers to the old locations, so we provide aliases here.
++#
++# This is intentionally centralized to avoid touching many unrelated modules.
++# -----------------------------------------------------------------------------
++import collections
++try:  # Python >= 3.3
++    import collections.abc as _collections_abc
++except Exception:  # pragma: no cover
++    _collections_abc = None
++
++if _collections_abc is not None:
++    for _abc_name in (
++        'Awaitable', 'Coroutine', 'AsyncIterable', 'AsyncIterator',
++        'AsyncGenerator', 'Hashable', 'Iterable', 'Iterator',
++        'Generator', 'Reversible', 'Sized', 'Container', 'Callable',
++        'Collection', 'Set', 'MutableSet', 'Mapping', 'MutableMapping',
++        'MappingView', 'KeysView', 'ItemsView', 'ValuesView',
++        'Sequence', 'MutableSequence',
++    ):
++        if not hasattr(collections, _abc_name) and hasattr(_collections_abc, _abc_name):
++            setattr(collections, _abc_name, getattr(_collections_abc, _abc_name))
++
+ from sympy.external import import_module
  
-     >>> print(latex((2*tau)**sin(Rational(7,2)), mul_symbol="times"))
-     \left(2 \times \tau\right)^{\sin{\left (\frac{7}{2} \right )}}
+ """
+diff --git a/sympy/functions/special/zeta_functions.py b/sympy/functions/special/zeta_functions.py
+index b8e2b6619..fe3a4ab7a 100644
+--- a/sympy/functions/special/zeta_functions.py
++++ b/sympy/functions/special/zeta_functions.py
+@@ -253,7 +253,7 @@ class polylog(Function):
+     >>> from sympy import expand_func
+     >>> from sympy.abc import z
+     >>> expand_func(polylog(1, z))
+-    -log(z*exp_polar(-I*pi) + 1)
++    -log(-z + 1)
+     >>> expand_func(polylog(0, z))
+     z/(-z + 1)
+ 
+@@ -288,10 +288,14 @@ def _eval_rewrite_as_lerchphi(self, s, z):
+         return z*lerchphi(z, s, 1)
+ 
+     def _eval_expand_func(self, **hints):
+-        from sympy import log, expand_mul, Dummy, exp_polar, I
++        from sympy import log, expand_mul, Dummy, pi, S
+         s, z = self.args
+         if s == 1:
+-            return -log(1 + exp_polar(-I*pi)*z)
++            # Li_1(z) = -log(1 - z) with the principal branch of log.
++            return -log(1 - z)
++        if s == 2 and z == S.Half:
++            # Special value: Li_2(1/2) = pi**2/12 - log(2)**2/2
++            return pi**2/S(12) - log(2)**2/S(2)
+         if s.is_Integer and s <= 0:
+             u = Dummy('u')
+             start = u/(1 - u)
+diff --git a/sympy/plotting/plot.py b/sympy/plotting/plot.py
+index b3b0237d1..edf891af4 100644
+--- a/sympy/plotting/plot.py
++++ b/sympy/plotting/plot.py
+@@ -25,7 +25,10 @@
+ from __future__ import print_function, division
+ 
+ import inspect
+-from collections import Callable
++try:
++    from collections.abc import Callable
++except ImportError:  # pragma: no cover
++    from collections import Callable
+ import warnings
+ import sys
+ 

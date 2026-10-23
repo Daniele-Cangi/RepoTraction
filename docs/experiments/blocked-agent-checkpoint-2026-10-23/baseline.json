@@ -1,0 +1,86 @@
+{
+  "instance_id": "sympy__sympy-13798",
+  "target_revision": "7121bdf1facdd90d05b6994b4c2e5b2865a4638a",
+  "target_version": "1.1.2.dev",
+  "environment": "3.8.20 (default, Oct  2 2024, 15:21:04) [MSC v.1929 64 bit (AMD64)]\nWindows-10-10.0.26300-SP0\n1.3.0\n",
+  "environment_note": "Local Windows/Python 3.8.20 reproduction, not the historical Linux environment; managed interpreter and mpmath 1.3.0 installed only under ignored RepoTraction data",
+  "source_states": {
+    "base": " M sympy/printing/tests/test_latex.py\n",
+    "failed": " M sympy/printing/latex.py\n M sympy/printing/tests/test_latex.py\n"
+  },
+  "runs": {
+    "base": {
+      "exit_code": 1,
+      "passed": 104,
+      "failed": 0,
+      "expected_to_fail": 2,
+      "exceptions": 10,
+      "nonpassing_test_ids": [
+        "sympy/printing/tests/test_latex.py:test_latex_basic",
+        "sympy/printing/tests/test_latex.py:test_latex_indexed",
+        "sympy/printing/tests/test_latex.py:test_latex_derivatives",
+        "sympy/printing/tests/test_latex.py:test_latex_FourierSeries",
+        "sympy/printing/tests/test_latex.py:test_latex_FormalPowerSeries",
+        "sympy/printing/tests/test_latex.py:test_latex_matrix_with_functions",
+        "sympy/printing/tests/test_latex.py:test_latex_NDimArray",
+        "sympy/printing/tests/test_latex.py:test_issue_8470",
+        "sympy/printing/tests/test_latex.py:test_issue_13559",
+        "sympy/printing/tests/test_latex.py:test_TensorProduct_printing"
+      ],
+      "full_command": {
+        "exit_code": 1,
+        "seconds": 8.521468000020832,
+        "code": "\nimport sys\nfrom pathlib import Path\nsys.path.insert(0,sys.argv[1])\nimport sympy,mpmath\nassert Path(sys.argv[1]).resolve() in Path(sympy.__file__).resolve().parents\nprint('PINNED',sympy.__version__,'MPMATH',mpmath.__version__)\noptions=dict(subprocess=False,colors=False,seed=0)\nif sys.argv[2]!='None': options['kw']=sys.argv[2]\nraise SystemExit(0 if sympy.test('sympy/printing/tests/test_latex.py',**options) else 1)\n"
+      },
+      "isolated_task_command": {
+        "exit_code": 1,
+        "seconds": 1.9541376999695785,
+        "code": "\nimport sys\nfrom pathlib import Path\nsys.path.insert(0,sys.argv[1])\nimport sympy,mpmath\nassert Path(sys.argv[1]).resolve() in Path(sympy.__file__).resolve().parents\nprint('PINNED',sympy.__version__,'MPMATH',mpmath.__version__)\noptions=dict(subprocess=False,colors=False,seed=0)\nif sys.argv[2]!='None': options['kw']=sys.argv[2]\nraise SystemExit(0 if sympy.test('sympy/printing/tests/test_latex.py',**options) else 1)\n"
+      },
+      "task_result": "KeyError for custom separator"
+    },
+    "failed": {
+      "exit_code": 1,
+      "passed": 104,
+      "failed": 1,
+      "expected_to_fail": 2,
+      "exceptions": 9,
+      "nonpassing_test_ids": [
+        "sympy/printing/tests/test_latex.py:test_latex_indexed",
+        "sympy/printing/tests/test_latex.py:test_latex_derivatives",
+        "sympy/printing/tests/test_latex.py:test_latex_FourierSeries",
+        "sympy/printing/tests/test_latex.py:test_latex_FormalPowerSeries",
+        "sympy/printing/tests/test_latex.py:test_latex_matrix_with_functions",
+        "sympy/printing/tests/test_latex.py:test_latex_NDimArray",
+        "sympy/printing/tests/test_latex.py:test_issue_8470",
+        "sympy/printing/tests/test_latex.py:test_issue_13559",
+        "sympy/printing/tests/test_latex.py:test_TensorProduct_printing",
+        "sympy/printing/tests/test_latex.py:test_latex_basic"
+      ],
+      "full_command": {
+        "exit_code": 1,
+        "seconds": 7.68379359995015,
+        "code": "\nimport sys\nfrom pathlib import Path\nsys.path.insert(0,sys.argv[1])\nimport sympy,mpmath\nassert Path(sys.argv[1]).resolve() in Path(sympy.__file__).resolve().parents\nprint('PINNED',sympy.__version__,'MPMATH',mpmath.__version__)\noptions=dict(subprocess=False,colors=False,seed=0)\nif sys.argv[2]!='None': options['kw']=sys.argv[2]\nraise SystemExit(0 if sympy.test('sympy/printing/tests/test_latex.py',**options) else 1)\n"
+      },
+      "isolated_task_command": {
+        "exit_code": 1,
+        "seconds": 2.0213853000313975,
+        "code": "\nimport sys\nfrom pathlib import Path\nsys.path.insert(0,sys.argv[1])\nimport sympy,mpmath\nassert Path(sys.argv[1]).resolve() in Path(sympy.__file__).resolve().parents\nprint('PINNED',sympy.__version__,'MPMATH',mpmath.__version__)\noptions=dict(subprocess=False,colors=False,seed=0)\nif sys.argv[2]!='None': options['kw']=sys.argv[2]\nraise SystemExit(0 if sympy.test('sympy/printing/tests/test_latex.py',**options) else 1)\n"
+      },
+      "task_result": "AssertionError in first independent added assertion"
+    }
+  },
+  "same_nine_preexisting_non_task_exceptions": [
+    "sympy/printing/tests/test_latex.py:test_TensorProduct_printing",
+    "sympy/printing/tests/test_latex.py:test_issue_13559",
+    "sympy/printing/tests/test_latex.py:test_issue_8470",
+    "sympy/printing/tests/test_latex.py:test_latex_FormalPowerSeries",
+    "sympy/printing/tests/test_latex.py:test_latex_FourierSeries",
+    "sympy/printing/tests/test_latex.py:test_latex_NDimArray",
+    "sympy/printing/tests/test_latex.py:test_latex_derivatives",
+    "sympy/printing/tests/test_latex.py:test_latex_indexed",
+    "sympy/printing/tests/test_latex.py:test_latex_matrix_with_functions"
+  ],
+  "interpretation": "One independently recorded historical submitted attempt demonstrably still fails the original task test. This does not demonstrate a difficult current impasse or Missing Link benefit.",
+  "product_tests": "No product implementation changed. Ordinary RepoTraction CI is separate from expected-red historical target replay."
+}

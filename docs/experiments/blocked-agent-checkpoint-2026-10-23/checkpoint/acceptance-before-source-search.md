@@ -1,51 +1,58 @@
-# Candidate 2: custom LaTeX multiplication separator
+# Candidate 3: evaluation of polylogarithms
 
-SWE-bench Verified task `sympy__sympy-13798`, original SymPy revision
-`7121bdf1facdd90d05b6994b4c2e5b2865a4638a`. The task requests arbitrary
-`mul_symbol` values, including a thin space, preserving backward compatibility.
-No donor, fixing PR, reference implementation patch or successful trajectory has
-been inspected. Tests and task were projected independently of the agent attempt.
+SWE-bench Verified task `sympy__sympy-13852`, base revision
+`c935e1d106743efd5bf0705fbeedbd18fadff4dc`. Use the exact final submission from
+the preserved agent trajectory, not its different published evaluation patch.
+No source-of-solution search, successful trajectory, fixing PR or reference
+implementation patch has been inspected.
 
-Use the exact submission in the selected trajectory's `info.submission`, stored
-as `failed-attempt.patch`, not an assumed equivalent patch from its evaluation
-directory. Preserve and disclose differences between these public artifacts.
+## Independent task and tests, frozen before local reproduction
 
-## Fixed tests before local replay
+The original demand explicitly expects `polylog(2, Rational(1, 2))` and its
+functional expansion to yield `pi**2/12 - log(2)**2/2`. A second part challenges
+the polar term in the expansion of order-one polylogarithms. These formulas and
+the suggested logarithm expression are already task knowledge, not ideas a later
+donor can claim to supply.
 
-Apply `independent-tests.patch` unchanged to both the original base and the same
-base with the submitted patch. Dataset revision:
-`c104f840cc67f8b6eec6f759ebc8b2693d585d4a`. It adds two assertions to the existing
-`test_latex_basic`, for a symbolic product with a custom thin-space separator and
-numeric factors that still require an unambiguous separator. These requirements
-and expected strings come from the independent upstream test patch; RepoTraction
-adds no new behavior, numeric threshold or algorithm requirement.
+`independent-tests.patch` is the upstream benchmark test patch projected from
+dataset revision `c104f840cc67f8b6eec6f759ebc8b2693d585d4a` without deserializing
+its reference implementation or hints columns. Apply it unchanged to the base
+and the base plus the actual submitted agent patch. It modifies only
+`sympy/functions/special/tests/test_zeta_functions.py`.
 
-Run the entire native `sympy/printing/tests/test_latex.py` module on both states
-with the same interpreter and dependencies. Report the full output and all
-failures, exceptions, skips and expected failures. A shell exit code alone is not
-a test verdict. Also invoke `test_latex_basic` alone to isolate the task failure.
+Run that complete native module and isolate `test_polylog_values`, the task's
+FAIL_TO_PASS test. Also record direct evaluation and functional expansion of
+the half-argument example already present in both the task and independent test.
+This diagnostic does not replace the native test or add a new example.
 
-This candidate qualifies only if that independent FAIL_TO_PASS test still fails
-on the actual submitted patch with a semantic assertion, not only a tooling or
-installation error. Do not correct the attempt in this preparation. If it passes,
-retain the rejection and proceed only within the predeclared three-candidate cap.
+The candidate qualifies only if the task test still fails semantically and the
+explicit original half-argument evaluation remains unsatisfied by the actual
+submitted patch. Do not correct the patch, redefine symbolic evaluation as
+numerical agreement, or call a formatting mismatch an unresolved computation.
 
-For any later continuation, success requires the unchanged `test_latex_basic`
-to pass, with no additional failures/exceptions in the full module relative to
-the frozen checkpoint. Existing baseline failures must stay visible. Equal or
-better test counts do not establish external-transfer benefit by themselves.
+The independent tests include additional special values and branch-consistency
+checks beyond the explicit half-argument request. Their formulas and tolerance
+come from upstream, not from a RepoTraction generalization. Report their failures
+separately from the explicit request and do not imply that the requester supplied
+all of those acceptance examples. Preserve their randomness; record seed 0 for
+both local states. Do not rewrite or weaken the tests.
 
-## Stop after reproduction
+## Later comparison, not dispatched here
 
-This PR only acquires and freezes a checkpoint. Do not dispatch agents, make
-paid AI calls, search mechanism sources or run Missing Link. A subsequent
-comparison must give ordinary and assisted continuations the same failed patch,
-known task context, feedback and ordinary investigation allowance. Only the
-assisted arm receives the mechanism selected by the existing Discover path;
-source-generation overhead is additional cost. Direct success, an empty search
-or equal outcomes must remain honest negative results without changing criteria.
+Freeze all native failures/exceptions in both states, including pre-existing
+environment limitations. A later complete correction must pass the independent
+task test and introduce no additional failures/exceptions in the full module.
+An advance on the explicit request while broader controls remain failing is a
+partial result, not full success. Ordinary progress must be credited before any
+assistance claim; do not keep making the task harder to require Missing Link.
 
-The checkpoint is a historical submitted failure, not proof of a live upstream
-bug, conscious impasse, present-day difficulty, or a need for an external idea.
-Benchmark contamination and variation between continuation agents limit causal
-claims. No upstream repository, Satellite or historical experiment is modified.
+Any later ordinary/assisted continuations must use the same actual failed patch,
+original demand, known formulas, failure feedback and ordinary investigation
+allowance. Use the existing Discover path for the assisted source; preserve its
+ability to choose direct work or no source. Count source-generation overhead.
+No new runner, agent dispatch, paid AI call or donor search is part of this PR.
+
+This is a historical submitted failure, not a live upstream bug or an agent
+consciously declaring an impasse. It does not establish present-day difficulty,
+novelty, external-source necessity or Missing Link benefit. Stop selection after
+this third candidate even if it fails qualification. Preserve all screened cases.

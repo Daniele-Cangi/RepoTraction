@@ -1,0 +1,55 @@
+diff --git a/sympy/printing/latex.py b/sympy/printing/latex.py
+index ad4d7d961..c1c3e8d51 100644
+--- a/sympy/printing/latex.py
++++ b/sympy/printing/latex.py
+@@ -23,7 +23,7 @@
+ import mpmath.libmp as mlib
+ from mpmath.libmp import prec_to_dps
+ 
+-from sympy.core.compatibility import default_sort_key, range
++from sympy.core.compatibility import default_sort_key, range, string_types
+ from sympy.utilities.iterables import has_variety
+ 
+ import re
+@@ -156,11 +156,28 @@ def __init__(self, settings=None):
+             "times": r" \times "
+         }
+ 
+-        self._settings['mul_symbol_latex'] = \
+-            mul_symbol_table[self._settings['mul_symbol']]
++        mul_symbol = self._settings['mul_symbol']
+ 
+-        self._settings['mul_symbol_latex_numbers'] = \
+-            mul_symbol_table[self._settings['mul_symbol'] or 'dot']
++        if mul_symbol in mul_symbol_table:
++            self._settings['mul_symbol_latex'] = mul_symbol_table[mul_symbol]
++        elif isinstance(mul_symbol, string_types):
++            # Allow user-defined LaTeX multiplication symbols, e.g. r"\,"
++            # For consistency with the built-in choices we pad the symbol with
++            # whitespace (LaTeX ignores whitespace in math mode).
++            ms = mul_symbol
++            if ms and not ms[0].isspace():
++                ms = ' ' + ms
++            if ms and not ms[-1].isspace():
++                ms = ms + ' '
++            self._settings['mul_symbol_latex'] = ms
++        else:
++            raise ValueError("'mul_symbol' must be None, 'ldot', 'dot', 'times', or a string")
++
++        if mul_symbol is None:
++            # Between numbers we always use a multiplication symbol by default.
++            self._settings['mul_symbol_latex_numbers'] = mul_symbol_table['dot']
++        else:
++            self._settings['mul_symbol_latex_numbers'] = self._settings['mul_symbol_latex']
+ 
+         self._delim_dict = {'(': ')', '[': ']'}
+ 
+@@ -2155,7 +2172,7 @@ def latex(expr, **settings):
+     \frac{1}{2 \pi} \int r\, dr
+ 
+     mul_symbol: The symbol to use for multiplication. Can be one of None,
+-    "ldot", "dot", or "times".
++    "ldot", "dot", or "times", or any string of valid LaTeX code (e.g. r"\,").
+ 
+     >>> print(latex((2*tau)**sin(Rational(7,2)), mul_symbol="times"))
+     \left(2 \times \tau\right)^{\sin{\left (\frac{7}{2} \right )}}
