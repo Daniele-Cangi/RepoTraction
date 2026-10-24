@@ -1,0 +1,10 @@
+{
+  "observed_finished_monotonic": 475406.0305733,
+  "agent_reported_finished_monotonic": 475331.4218221,
+  "files_sha256": {
+    "final.patch": "0217ea7fc91dfa0cba4420fcf9590e571cf6d6d31aadb41ae222a6c4530c8c5d",
+    "operator-frozen.patch": "0217ea7fc91dfa0cba4420fcf9590e571cf6d6d31aadb41ae222a6c4530c8c5d",
+    "report.json": "a8ba603b1edcac6c154e49fa324cf839ed0525600b3f0724036f612826e963b2",
+    "full-task.md": "c2d16f7fcc178de7ffe88533bbf7443d66d7f822b6dea3a2c06efdbc6e76d350"
+  }
+}

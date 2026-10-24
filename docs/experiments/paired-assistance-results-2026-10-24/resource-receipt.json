@@ -1,0 +1,75 @@
+{
+  "resource_caps": "Same 1200-second end-to-end ceiling, six calls, USD 0.15 and 120 metered content HTTP reads per arm; same inherited solver settings and same helper access. Not identical actual expenditure or proven identical compute.",
+  "arms": {
+    "A": {
+      "primary_model_identity": "same inherited parent settings; exact backend snapshot and hidden inference usage unavailable",
+      "agent_task": "/root/cycle_pair_direct_20261024",
+      "solver_reported_elapsed_seconds": 963.4975245000096,
+      "operator_snapshot_elapsed_seconds_upper_bound": 1038.1062757000327,
+      "operator_snapshot_before_deadline": true,
+      "provider_calls": 1,
+      "content_http_requests": 6,
+      "reserved_usd": 0.0064491999999999996,
+      "allowance_rows": [
+        [
+          "paired-cycles-2026-10-23-direct-v1",
+          0.0064491999999999996
+        ]
+      ],
+      "reported_usage": null,
+      "paid_billing_scope": "Conservative retained reservations, not an invoice; no terminal usage receipts available.",
+      "source_packet_delivered": false
+    },
+    "B": {
+      "primary_model_identity": "same inherited parent settings; exact backend snapshot and hidden inference usage unavailable",
+      "agent_task": "/root/cycle_pair_assisted_20261024",
+      "solver_reported_elapsed_seconds": 611.6749040999566,
+      "operator_snapshot_elapsed_seconds_upper_bound": 644.2607352999621,
+      "operator_snapshot_before_deadline": true,
+      "provider_calls": 1,
+      "content_http_requests": 2,
+      "reserved_usd": 0.010059299999999998,
+      "allowance_rows": [
+        [
+          "paired-cycles-2026-10-23-assisted-v1",
+          0.010059299999999998
+        ]
+      ],
+      "reported_usage": null,
+      "paid_billing_scope": "Conservative retained reservations, not an invoice; no terminal usage receipts available.",
+      "source_packet_delivered": false
+    }
+  },
+  "reserved_usd_total": 0.0165085,
+  "authorized_usd_total": 0.3,
+  "native_Missing_Link": {
+    "stage": "requirements",
+    "calls": 1,
+    "requests": 0,
+    "searches": 0,
+    "sources_inspected": 0,
+    "packet_delivered": false,
+    "error_code": "ai_stream_deadline_exceeded",
+    "phase_seconds_including_packet": 246.7616030999925,
+    "terminal_response_receipt": "unavailable"
+  },
+  "private_originals_sha256": {
+    "A": {
+      "final.patch": "0217ea7fc91dfa0cba4420fcf9590e571cf6d6d31aadb41ae222a6c4530c8c5d",
+      "report.json": "a8ba603b1edcac6c154e49fa324cf839ed0525600b3f0724036f612826e963b2",
+      "full-task.md": "c2d16f7fcc178de7ffe88533bbf7443d66d7f822b6dea3a2c06efdbc6e76d350",
+      "clock.json": "73c58c3960f5608ccb4ec813b1033ea7a39df654faf97b487397cba7959b874f",
+      "freeze.json": "2ce9a3b494af65fb70366aab617c30e4d0ccca44f83f56bda3b6b1477b4f88e1"
+    },
+    "B": {
+      "final.patch": "1b2d453527cff34798586bc6dc65c1906ea18fadd23dc2baa69fa66ee26c92c1",
+      "report.json": "335289bf53d49d6d6f7e0006236511eda3016ad13ae55f1cd934f2bbf7bf0cb8",
+      "full-task.md": "7e8dffee6dea7babfa142af3b67376a00646d7d8f594fcb11682ce26a08f097b",
+      "clock.json": "f82da3b8a1bca0cc6c14bfc28cf7fcaebd0c732236c4d71496b47c0d20590154",
+      "freeze.json": "4223fe7e27c1824dc81dac6a6e0a93ec0adf070e6088b38030c90acfcfaadfe6"
+    }
+  },
+  "public_normalization": "Recursive replacement of the absolute RepoTraction root with <REPOTRACTION>; canonical UTF-8 JSON/text LF. Raw original hashes separate from public Git blob hashes. Git patches retained byte-for-byte; gzip mtime=0.",
+  "assessment": "Post-freeze only, no solver feedback/repair. Common 63 native +14 frozen tests passed on both; different self-authored regressions are not a between-arm quality score.",
+  "strict_claim": "No Missing Link idea/benefit demonstrated; no packet was delivered, so this is not a negative test of an external technique."
+}

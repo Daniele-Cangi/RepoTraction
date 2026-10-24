@@ -1,0 +1,223 @@
+{
+  "arm": "B",
+  "status": "complete_and_frozen_early",
+  "target_revision": "9d866a5f447d9fe1c989b31f90c520dc2813ee26",
+  "approach": {
+    "api": "nx.simple_cycles(G, length_bound=None, *, min_length=0), inclusive lower bound; validate negative bounds and return no cycles for empty intervals.",
+    "short_cycles": "Skip self-loops and undirected parallel-edge 2-cycle emission when outside the lower bound. Keep node-sequence multigraph semantics.",
+    "search_pruning": "Only enter/re-enter directed SCCs or undirected BCCs with at least min_length nodes. For directed min_length > 3, first decompose the underlying undirected graph into BCCs and search only qualifying blocks, using independent copies to retain non-mutation and avoid modifying a live block traversal.",
+    "proof": "A directed simple cycle on at least three distinct nodes is an undirected simple cycle after forgetting arc direction. Every such cycle lies in one biconnected block, so skipping smaller blocks cannot discard an eligible cycle. Distinct blocks share at most articulation vertices and cannot duplicate these cycles.",
+    "bookkeeping": "Inside retained components, gate emission only. Preserve Johnson closed/unblocking and Gupta-Suzumura blen/lock relaxation even on short closures.",
+    "limits": "No general complexity improvement claimed. Within retained blocks, suppression alone does not avoid searching short cycles. Component pruning does avoid search, demonstrated by instrumented regressions; prescribed speedup thresholds are unevaluated in this development run."
+  },
+  "requester_demands": {
+    "minimum_length_simple_cycles": "implemented",
+    "algorithmic_advantage_over_enumerate_filter": "component pruning implemented and search-entry reductions tested; wall-time advantage remains for frozen sequential final evaluation",
+    "universal_polynomial_algorithm": "not requested and not claimed",
+    "real_world_workload_or_production_need": "not established by the issue"
+  },
+  "assessor_controls": {
+    "signature_and_inclusive_semantics": "passed",
+    "negative_lower_bounds_and_empty_intervals": "passed",
+    "graph_classes_rotation_reversal_duplicates_unsortable_labels_non_mutation_default_compatibility": "passed frozen checks",
+    "performance_decision_thresholds": "not evaluated here; 1.25x positive geometric mean and <=20% control slowdown are assessor thresholds, not requester promises"
+  },
+  "tests": [
+    {
+      "command": "python -m pytest inputs/native_acceptance.py networkx/algorithms/tests/test_cycles.py -q",
+      "result": "77 passed in 3.44s",
+      "notes": "First implementation validation."
+    },
+    {
+      "command": "python -m pytest inputs/native_acceptance.py networkx/algorithms/tests/test_cycles.py networkx/algorithms/tests/test_cycles_min_length.py -q",
+      "result": "92 passed in 3.31s",
+      "notes": "Final implementation; frozen oracle, all unchanged native cycle tests, and 15 new separate regressions. No skips or failures."
+    },
+    {
+      "command": "python verify_outputs.py",
+      "result": "All 8 frozen workload counts and SHA-256 digests match baseline-workloads.json exactly.",
+      "artifact": "candidate-workload-outputs.json"
+    },
+    {
+      "command": "python -m pytest --doctest-modules networkx/algorithms/cycles.py -q",
+      "result": "7 passed in 0.24s"
+    },
+    {
+      "command": "git diff --check",
+      "result": "passed"
+    }
+  ],
+  "test_environment": {
+    "interpreter": "<REPOTRACTION>\\data\\paired-assistance-2026-10-23\\venv\\Scripts\\python.exe",
+    "ML_CYCLE_TARGET": "<REPOTRACTION>\\data\\paired-assistance-2026-10-23\\execution-2026-10-24\\B\\target",
+    "PYTHONPATH": "<REPOTRACTION>\\data\\paired-assistance-2026-10-23\\execution-2026-10-24\\B\\target",
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+    "ML_CYCLE_MODE": "candidate",
+    "warning": "Native conftest emitted Mixed NetworkX configuration / nx_loopback warning. Frozen acceptance asserts the actual imported package resolves to this assigned target; all checks passed. No environment files or packages were modified."
+  },
+  "residual_failures": [],
+  "unassessed": [
+    "Fixed nine-batch sequential runtime comparison against enumerate/filter and the direct arm.",
+    "General performance on workloads beyond the frozen probes; directed block decomposition adds preprocessing for min_length > 3.",
+    "Upstream API/maintainer acceptance; no upstream submission planned or performed."
+  ],
+  "workload_outputs": [
+    {
+      "name": "dense-directed",
+      "role": "positive",
+      "output": {
+        "count": 85680,
+        "sha256": "72788312de0dfe844701d84c4f1ffa07cb9961283f0affaf22d5a43f44e20e0f"
+      },
+      "matches_frozen_reference": true
+    },
+    {
+      "name": "dense-undirected",
+      "role": "positive",
+      "output": {
+        "count": 42840,
+        "sha256": "7e2175ea07a143c1e8aa3d9be349286903b8c2b9b438e3e05c34b936abc08b5c"
+      },
+      "matches_frozen_reference": true
+    },
+    {
+      "name": "short-heavy-directed",
+      "role": "positive",
+      "output": {
+        "count": 1,
+        "sha256": "717cf85f42b8a03b4d84c5dd8ee94925b77b724ca96c8834e60e75a34626da6f"
+      },
+      "matches_frozen_reference": true
+    },
+    {
+      "name": "short-heavy-undirected",
+      "role": "positive",
+      "output": {
+        "count": 1,
+        "sha256": "bcc0baa30d1eb363a30c46a6a106aa739056cdf00bab8424fa6e5b478ad9fa5d"
+      },
+      "matches_frozen_reference": true
+    },
+    {
+      "name": "output-rich-directed",
+      "role": "control",
+      "output": {
+        "count": 16064,
+        "sha256": "25125efa117e4d5c963df5bb145a89448dd3ad01072eafbda2fd349f1b45e0d2"
+      },
+      "matches_frozen_reference": true
+    },
+    {
+      "name": "output-rich-undirected",
+      "role": "control",
+      "output": {
+        "count": 2618,
+        "sha256": "760c7aa32aa53f38a8c0a0ca40f7e6f61dd1f683505d2fe061a0bb2ac6eb73fa"
+      },
+      "matches_frozen_reference": true
+    },
+    {
+      "name": "sparse-directed",
+      "role": "control",
+      "output": {
+        "count": 1,
+        "sha256": "673f476120d5ec1bc25179917ab6fe9f0b0db24eb9335c1c667a8ab6ffe38f31"
+      },
+      "matches_frozen_reference": true
+    },
+    {
+      "name": "acyclic",
+      "role": "control",
+      "output": {
+        "count": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "matches_frozen_reference": true
+    }
+  ],
+  "public_sources": [
+    {
+      "url": "https://github.com/networkx/networkx/issues/8128",
+      "evidence": "Complete frozen body and all five comments; fresh metered issue read confirmed labels.",
+      "frozen_issue_fingerprint": "cde8beb38d67cf972dc4bb3449709f6b1fb778ba17e73251625cbb943f148663"
+    },
+    {
+      "url": "https://github.com/networkx/networkx/issues/8128#issuecomment-3375000040",
+      "evidence": "Emission gate and proposal to skip blen updates were already disclosed in public context. Adopted only lower-bound emission gating; did not skip bookkeeping.",
+      "newly_discovered": false
+    },
+    {
+      "url": "https://github.com/networkx/networkx/blob/9d866a5f447d9fe1c989b31f90c520dc2813ee26/networkx/algorithms/cycles.py",
+      "revision": "9d866a5f447d9fe1c989b31f90c520dc2813ee26",
+      "evidence": "Local pinned Johnson/Gupta-Suzumura implementation and existing SCC/BCC binary partitioning. Extended component size eligibility; independently adapted undirected block decomposition to directed long-cycle search."
+    },
+    {
+      "url": "https://networkx.org/documentation/latest/developer/contribute.html#automated-contributions-policy",
+      "evidence": "Required AGENTS policy review through one ordinary non-GitHub web open. No PR, issue, upstream comment, push or other upstream write."
+    }
+  ],
+  "proposal_heads": {
+    "inspection": "Read frozen upstream-status metadata only; did not fetch bodies, diffs, files or proposal implementations.",
+    "8354": "8ebd9416e93c8bfed567e7d40a022b53bd339462",
+    "8791": "63737a48a293979b833b2468e0d3e2f86ac7fff5",
+    "8910": "64df692cc49ebdb323458f0ad477ee34326e8364",
+    "8911": "381a00b87d3d96b2eff2bd19a914e5ebd27b4772"
+  },
+  "assistance": {
+    "discovery": {
+      "job_id": "918fc8b331e946fdb90b1da037c1de71",
+      "status": "failed",
+      "ai_calls_used": 1,
+      "requests_used": 0,
+      "cost_reserved_usd": 0.010059299999999998,
+      "phase_seconds": 246.11895959998947,
+      "packet": false,
+      "phase_seconds_including_packet": 246.7616030999925
+    },
+    "packet_exists": false,
+    "external_source_owned_operation_transferred": null,
+    "native_target_changes": [
+      "networkx/algorithms/cycles.py",
+      "networkx/algorithms/tests/test_cycles_min_length.py"
+    ],
+    "notes_usage": {
+      "post_discovery_calls": 0,
+      "post_discovery_cost_usd": 0
+    },
+    "public_idea_adopted": "Lower-bound emission gate, already in issue comments; bookkeeping preserved rather than public suggested suppression of relaxation.",
+    "independent_implementation_reasoning": "Directed underlying-undirected BCC decomposition and minimum component-size checks, derived from pinned local component partitioning and the cycle/articulation invariant. Component skipping was also disclosed by proposal title in upstream-status metadata; no novelty claim.",
+    "incremental_benefit_claim": "None: Missing Link failed before producing a packet. No direct-arm inspection and no attribution comparison performed."
+  },
+  "resources": {
+    "absolute_start_monotonic": 475406.095258,
+    "absolute_deadline_monotonic": 476606.095258,
+    "discovery_seconds_including_packet": 246.7616030999925,
+    "provider_calls_total_observed": 1,
+    "provider_cost_reserved_usd_observed": 0.010059299999999998,
+    "post_discovery_metered_github_helper_invocations": 1,
+    "post_discovery_github_endpoints": [
+      "repos/networkx/networkx/issues/8128"
+    ],
+    "request_accounting_note": "Discovery reported 0 content requests. One authorized github helper invocation was made for issue labels; its response did not expose the ledger's internal HTTP/public-check request count, so no exact combined HTTP total is asserted.",
+    "ordinary_non_github_web_calls": [
+      {
+        "tool": "web.run",
+        "operation": "open",
+        "url": "https://networkx.org/documentation/latest/developer/contribute.html#automated-contributions-policy"
+      }
+    ],
+    "extra_agents": 0,
+    "finish_monotonic": 476017.7701621,
+    "elapsed_arm_seconds": 611.6749040999566,
+    "remaining_seconds_at_freeze": 588.3250959000434,
+    "finished_before_deadline": true
+  },
+  "patch": {
+    "path": "final.patch",
+    "bytes": 12171,
+    "sha256": "1b2d453527cff34798586bc6dc65c1906ea18fadd23dc2baa69fa66ee26c92c1",
+    "against": "HEAD",
+    "contains_intended_new_test_file": true
+  },
+  "frozen_inputs_and_original_native_tests_unchanged": true
+}

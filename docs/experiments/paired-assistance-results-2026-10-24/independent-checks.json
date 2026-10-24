@@ -1,0 +1,44 @@
+{
+  "reference_native": {
+    "returncode": 0,
+    "seconds": 5.7791341000120156,
+    "summary": [
+      "77 passed in 3.33s"
+    ]
+  },
+  "reference_doctest": {
+    "returncode": 0,
+    "seconds": 2.31683999998495,
+    "summary": [
+      "7 passed in 0.30s"
+    ]
+  },
+  "A_native": {
+    "returncode": 0,
+    "seconds": 5.861746500013396,
+    "summary": [
+      "95 passed in 3.45s"
+    ]
+  },
+  "A_doctest": {
+    "returncode": 0,
+    "seconds": 2.2037080000154674,
+    "summary": [
+      "7 passed in 0.21s"
+    ]
+  },
+  "B_native": {
+    "returncode": 0,
+    "seconds": 5.56201199995121,
+    "summary": [
+      "92 passed in 3.46s"
+    ]
+  },
+  "B_doctest": {
+    "returncode": 0,
+    "seconds": 2.254403300001286,
+    "summary": [
+      "7 passed in 0.22s"
+    ]
+  }
+}

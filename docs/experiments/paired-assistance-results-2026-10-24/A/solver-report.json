@@ -1,0 +1,157 @@
+{
+  "arm": "A",
+  "status": "complete_frozen_early",
+  "target_revision": "9d866a5f447d9fe1c989b31f90c520dc2813ee26",
+  "approach": [
+    "Added simple_cycles(G, length_bound=None, *, min_length=0), inclusive lower and upper bounds; reject negative lower bounds and return no cycles for empty intervals.",
+    "Gate loops, undirected parallel-edge digons and cycle emission; retain all closure-success, unblocking and lock-relaxation operations even for short cycles.",
+    "Prune initial and subsequent SCCs/BCCs smaller than the requested minimum, following the disclosed public proposal.",
+    "For directed min_length > 3, enumerate independently in copies of qualifying biconnected blocks of the underlying undirected graph, then apply normal directed SCC partitioning. Cycles cannot cross articulation points; copies preserve shared articulation nodes between blocks. For small constant minima avoid extra block preprocessing.",
+    "Normalize the remaining lower bound to zero when every remaining nonloop/nondigon cycle qualifies, preserving the existing hot search path with a cheap emission predicate."
+  ],
+  "requester_demands": {
+    "minimum_length_simple_cycle_enumeration": "achieved for bounded/unbounded directed/undirected graphs, including multigraph node-sequence semantics",
+    "avoid_full_enumerate_filter_search": "achieved structurally on undersized components and directed articulation blocks; most dense-component search remains",
+    "universal_algorithmic_improvement": "not claimed; Hamiltonian-cycle difficulty remains",
+    "public_example": "all four graph classes pass frozen checks"
+  },
+  "assessor_controls": {
+    "signature_and_inclusive_semantics": "implemented experimental API, not an upstream-approved signature",
+    "negative_lower_and_empty_intervals": "passed",
+    "default_and_positional_upper_compatibility": "passed",
+    "nonmutation_uniqueness_unsortable_labels_loops_parallel_edges": "passed",
+    "timing_thresholds": "not evaluated in development; final sequential nine-batch evaluation is reserved for the assessor"
+  },
+  "tests": {
+    "command": "Native interpreter -m pytest inputs/native_acceptance.py target/networkx/algorithms/tests/test_cycles.py target/networkx/algorithms/tests/test_cycles_min_length.py -q -ra --junitxml=tests.xml, with all four required ML_CYCLE_TARGET/PYTHONPATH/PYTEST_DISABLE_PLUGIN_AUTOLOAD/ML_CYCLE_MODE environment settings",
+    "passed": 95,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "native_unchanged_tests_passed": 63,
+    "frozen_acceptance_tests_passed": 14,
+    "new_regressions_passed": 18,
+    "pytest_seconds": 3.722,
+    "workload_outputs": "All eight counts/digests match frozen baseline; exact pinned-original enumerate/filter outputs were also recomputed independently of the modified dispatch function.",
+    "search_work": "workload-observations.json records cached-neighborhood adjacency scans, including baseline/candidate. This is deterministic work instrumentation, excludes preprocessing, and is not a wall-time speedup.",
+    "closure_counterexample": "Six edges (0,4),(2,5),(3,2),(4,2),(4,3),(5,0): omitting short-closure success loses (0,4,3,2,5) with minimum 5 in both unbounded and bounded searches. Separate regression included.",
+    "native_test_preserved": true,
+    "diff_check": "passed",
+    "warnings": [
+      "NetworkX conftest warns of mixed nx_loopback configuration under PYTHONPATH; no test failed or skipped."
+    ],
+    "dependencies": "Used the operator's existing Python 3.13.5 virtualenv and installed pytest; no dependency installation."
+  },
+  "residual_failures": [],
+  "limitations": [
+    "No claim of a universal lower-bound complexity improvement or representative production benefit.",
+    "Dense adjacency scans decrease only about 1.4%; output gating alone is not search pruning.",
+    "Extra directed block preprocessing and block copies may cost more on some graphs; final control slowdown and 1.25x geometric-mean speedup thresholds remain unmeasured.",
+    "No concurrent wall-clock comparisons or final benchmark feedback used."
+  ],
+  "public_sources": [
+    {
+      "url": "https://github.com/networkx/networkx/issues/8128",
+      "revision": "frozen issue and all five comments; issue updated 2026-10-02T16:00:49Z",
+      "use": "request, public gate suggestion and Hamiltonian difficulty; not newly discovered"
+    },
+    {
+      "url": "https://github.com/networkx/networkx/pull/8911",
+      "revision": "381a00b87d3d96b2eff2bd19a914e5ebd27b4772; cycles.py blob 615e032482fddd3928c577a93c7e50bdfdaf8d15",
+      "use": "Adopted disclosed component-size pruning and safe emission gate with closure bookkeeping retained; adapted API and special cases to frozen controls. PR is closed and unmerged."
+    },
+    {
+      "url": "https://github.com/networkx/networkx/pull/8791",
+      "revision": "63737a48a293979b833b2468e0d3e2f86ac7fff5",
+      "use": "Read bounded_dfs.py patch; rejected transplant because barriers address upper bounds and do not supply the requested lower-bound pruning."
+    },
+    {
+      "url": "https://doi.org/10.1007/s10878-023-01091-w",
+      "revision": "Lewis, Corcoran and Gagarin, published 19 November 2023, sections 1 and 3",
+      "use": "Corroborates the external structural technique of splitting cycle problems at articulation points. Applied this principle to the underlying undirected graph of a digraph; this directed adaptation is an inference, not a claim made by the paper. No optimization/local-search solver transplanted."
+    },
+    {
+      "url": "https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.components.biconnected_components.html",
+      "revision": "3.7 documentation fetched 2026-10-24",
+      "use": "Block and shared-articulation semantics; implementation uses existing NetworkX routine."
+    },
+    {
+      "url": "https://networkx.org/documentation/latest/developer/contribute.html#automated-contributions-policy",
+      "revision": "fetched 2026-10-24",
+      "use": "Read required contribution policy; only local experimental patch exported, no issue/PR/comment/push. Current issue labels checked through metered helper, not gh."
+    }
+  ],
+  "external_idea": {
+    "adopted": "Underlying-undirected biconnected decomposition for directed longer cycles, with independent block copies and size pruning.",
+    "provenance": "Formulated independently during this arm before the primary paper was opened and before the optional helper returned any result; primary paper supports the structural premise. Public PR8911 already supplies size pruning and output gating and is explicitly credited.",
+    "rejected": "Skipping short-closure success from the public issue comment; a concrete missed-long-cycle counterexample demonstrates why. BS-DFS upper-bound barriers were inspected but not adopted.",
+    "novelty_or_causality_claim": "none"
+  },
+  "resources": {
+    "ai_calls_used": 1,
+    "ai_calls_limit": 6,
+    "ai_calls_unused": 5,
+    "cost_reserved_usd": 0.0064491999999999996,
+    "budget_usd": 0.15,
+    "unreserved_allowance_usd": 0.1435508,
+    "notes_result": "One optional call failed with ai_stream_deadline_exceeded; partial analysis discarded, no notes returned or used, reserved budget conservatively retained. No retry or other paid provider route.",
+    "github_http_requests_used": 6,
+    "github_http_requests_limit": 120,
+    "github_http_requests_unused": 114,
+    "github_reads": [
+      {
+        "endpoint": "repos/networkx/networkx",
+        "params": null
+      },
+      {
+        "endpoint": "repos/networkx/networkx/issues/8128",
+        "params": {}
+      },
+      {
+        "endpoint": "repos/networkx/networkx",
+        "params": null
+      },
+      {
+        "endpoint": "repos/networkx/networkx/pulls/8911/files",
+        "params": {
+          "per_page": 100
+        }
+      },
+      {
+        "endpoint": "repos/networkx/networkx",
+        "params": null
+      },
+      {
+        "endpoint": "repos/networkx/networkx/pulls/8791/files",
+        "params": {
+          "per_page": 100
+        }
+      }
+    ],
+    "ordinary_web_tool_calls": 3,
+    "ordinary_web_search_queries": [
+      "long cycle enumeration minimum length biconnected components directed graph algorithm",
+      "enumerating cycles minimum length Johnson algorithm blocking correctness"
+    ],
+    "ordinary_web_page_opens": 3,
+    "agents": 0,
+    "upstream_writes": 0,
+    "other_arms_read": false
+  },
+  "artifacts": {
+    "patch": "final.patch",
+    "patch_sha256": "0217ea7fc91dfa0cba4420fcf9590e571cf6d6d31aadb41ae222a6c4530c8c5d",
+    "tests": "tests.xml",
+    "workload_observations": "workload-observations.json",
+    "verification_script": "validate_workloads.py",
+    "changed_files": [
+      "networkx/algorithms/cycles.py",
+      "networkx/algorithms/tests/test_cycles_min_length.py"
+    ]
+  },
+  "start_monotonic": 474367.9242976,
+  "deadline_monotonic": 475567.9242976,
+  "finish_monotonic": 475331.4218221,
+  "elapsed_seconds": 963.4975245000096,
+  "unused_seconds": 236.5024754999904
+}

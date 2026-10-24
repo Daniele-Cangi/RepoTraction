@@ -1,0 +1,202 @@
+{
+  "summary": {
+    "A_geomean_speedup_reference": 6.443562922987667,
+    "B_geomean_speedup_reference": 6.009589672697895,
+    "B_geomean_speedup_A": 0.9326501105868688,
+    "A_max_control_slowdown": 0.9268549578126323,
+    "B_max_control_slowdown": 0.9825440956246283,
+    "B_over_A_paired_ratios": [
+      0.86855350686209,
+      0.7845665851112315,
+      0.9968326249586047,
+      0.9175262817438128,
+      0.980839132617942,
+      0.9257261963581355,
+      0.8897825785409259,
+      0.932492665242071,
+      1.0270122826663324
+    ],
+    "B_over_A_batches_above_1_10": 0,
+    "packet_delivered": false,
+    "incremental_Missing_Link_benefit": "not demonstrated; no packet delivered",
+    "scope": "Frozen synthetic workloads on one Windows host; nine rotating sequential batches. No statistical or production claim."
+  },
+  "rows": [
+    {
+      "workload": "dense-directed",
+      "role": "positive",
+      "reference": {
+        "median_seconds_per_call": 0.29371389996958897,
+        "min": 0.28246120002586395,
+        "max": 0.3140885999891907
+      },
+      "A": {
+        "median_seconds_per_call": 0.2705538999871351,
+        "min": 0.26394979999167845,
+        "max": 0.2818015000084415
+      },
+      "B": {
+        "median_seconds_per_call": 0.2847386000212282,
+        "min": 0.2709025999647565,
+        "max": 0.46966130001237616
+      },
+      "A_speedup_reference": 1.0856021664576085,
+      "B_speedup_reference": 1.0315211915338898,
+      "B_speedup_A": 0.9501834312838667
+    },
+    {
+      "workload": "dense-undirected",
+      "role": "positive",
+      "reference": {
+        "median_seconds_per_call": 0.2261774500075262,
+        "min": 0.2193847000016831,
+        "max": 0.236140749999322
+      },
+      "A": {
+        "median_seconds_per_call": 0.20254065000335686,
+        "min": 0.19837314999313094,
+        "max": 0.2516635500069242
+      },
+      "B": {
+        "median_seconds_per_call": 0.20920869999099523,
+        "min": 0.19661400001496077,
+        "max": 0.22052944998722523
+      },
+      "A_speedup_reference": 1.116701511542387,
+      "B_speedup_reference": 1.081109198696141,
+      "B_speedup_A": 0.968127281571343
+    },
+    {
+      "workload": "short-heavy-directed",
+      "role": "positive",
+      "reference": {
+        "median_seconds_per_call": 0.053289433339765914,
+        "min": 0.04994048333416382,
+        "max": 0.05543078332751369
+      },
+      "A": {
+        "median_seconds_per_call": 0.0020713499980047345,
+        "min": 0.0018875666622382898,
+        "max": 0.002604666670473913
+      },
+      "B": {
+        "median_seconds_per_call": 0.002364783334390571,
+        "min": 0.001909250005458792,
+        "max": 0.0026893333318488053
+      },
+      "A_speedup_reference": 25.72690920950005,
+      "B_speedup_reference": 22.534594423424906,
+      "B_speedup_A": 0.875915339845941
+    },
+    {
+      "workload": "short-heavy-undirected",
+      "role": "positive",
+      "reference": {
+        "median_seconds_per_call": 0.12397246666175003,
+        "min": 0.11841360000350203,
+        "max": 0.12794999999459833
+      },
+      "A": {
+        "median_seconds_per_call": 0.0022429333378871283,
+        "min": 0.001945499990445872,
+        "max": 0.0024987666596037648
+      },
+      "B": {
+        "median_seconds_per_call": 0.0023885999883835516,
+        "min": 0.0022120999832016728,
+        "max": 0.003716733326048901
+      },
+      "A_speedup_reference": 55.27247045983706,
+      "B_speedup_reference": 51.901727901140326,
+      "B_speedup_A": 0.9390158874634338
+    },
+    {
+      "workload": "output-rich-directed",
+      "role": "control",
+      "reference": {
+        "median_seconds_per_call": 0.03839388571213931,
+        "min": 0.03744037143353905,
+        "max": 0.052204585717325766
+      },
+      "A": {
+        "median_seconds_per_call": 0.03554915714942451,
+        "min": 0.03473567142750004,
+        "max": 0.04201008571544662
+      },
+      "B": {
+        "median_seconds_per_call": 0.03772368571454925,
+        "min": 0.03527945714137916,
+        "max": 0.03844401428276407
+      },
+      "A_speedup_reference": 1.0800223912695732,
+      "B_speedup_reference": 1.0177660264339328,
+      "B_speedup_A": 0.9423564128494987
+    },
+    {
+      "workload": "output-rich-undirected",
+      "role": "control",
+      "reference": {
+        "median_seconds_per_call": 0.017537171428557485,
+        "min": 0.016942214283127605,
+        "max": 0.018059978569259068
+      },
+      "A": {
+        "median_seconds_per_call": 0.016254414284568548,
+        "min": 0.01572757857086669,
+        "max": 0.01650448571308516
+      },
+      "B": {
+        "median_seconds_per_call": 0.01692297142913698,
+        "min": 0.015780228572631522,
+        "max": 0.017952964283592467
+      },
+      "A_speedup_reference": 1.078917463375272,
+      "B_speedup_reference": 1.0362938625756355,
+      "B_speedup_A": 0.9604941042790304
+    },
+    {
+      "workload": "sparse-directed",
+      "role": "control",
+      "reference": {
+        "median_seconds_per_call": 0.000177912000217475,
+        "min": 0.0001631799997994676,
+        "max": 0.00020856999966781587
+      },
+      "A": {
+        "median_seconds_per_call": 0.00015504499955568463,
+        "min": 0.00014551999978721142,
+        "max": 0.00016852999979164452
+      },
+      "B": {
+        "median_seconds_per_call": 0.0001690360001521185,
+        "min": 0.00014075200015213342,
+        "max": 0.00019101899990346284
+      },
+      "A_speedup_reference": 1.1474862183709296,
+      "B_speedup_reference": 1.0525095249376986,
+      "B_speedup_A": 0.9172306456385437
+    },
+    {
+      "workload": "acyclic",
+      "role": "control",
+      "reference": {
+        "median_seconds_per_call": 0.012300086667528376,
+        "min": 0.011725306666145721,
+        "max": 0.012493599999773626
+      },
+      "A": {
+        "median_seconds_per_call": 0.009692359998977433,
+        "min": 0.00928443333444496,
+        "max": 0.00999723666658004
+      },
+      "B": {
+        "median_seconds_per_call": 0.010105753334937618,
+        "min": 0.00963060333354709,
+        "max": 0.012244300000990431
+      },
+      "A_speedup_reference": 1.2690497122296391,
+      "B_speedup_reference": 1.217137036682313,
+      "B_speedup_A": 0.9590932687293088
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "authorization_date_local": "2026-10-24 Europe/Rome",
+  "user_reply": "sei autorizzato se credi che sia il momento di testare",
+  "interpreted_scope": "The two isolated agents and USD 0.30 aggregate proposed in #141 and the immediately preceding response; no new cohort, retries, source replacements or ceiling increase.",
+  "paid_usd_per_arm": 0.15,
+  "paid_usd_total": 0.3,
+  "agent_dispatches_max": 2,
+  "seconds_per_arm": 1200,
+  "discovery_seconds_within_B": 300,
+  "preparation_pr": 141,
+  "preparation_merge": "c52ca499af7c645809057022fe71ef5fa8460255",
+  "reviewed_preparation_head": "771205b36427c1e35e47fc7d4c6075a412edf2b9",
+  "preparation_review": "completed, no findings",
+  "preparation_ci_run": 40027748982,
+  "preparation_ci": "all four Windows/Linux jobs successful",
+  "price_source": "https://developers.openai.com/api/docs/models/gpt-6-luna",
+  "price_checked_date_local": "2026-10-24",
+  "provider_mode": "Standard, service_tier=default, no hosted tools",
+  "input_usd_per_million": 0.1,
+  "output_usd_per_million": 0.5,
+  "max_six_call_reservation_per_arm_usd": 0.1452288,
+  "solver_dispatch_configuration": {
+    "fork_turns": "none",
+    "model_override": null,
+    "reasoning_effort_override": null,
+    "identity_scope": "Same inherited parent model and effort by tool semantics. Exact backend snapshot and hidden inference usage are not exposed; no exact economic/compute parity claimed."
+  },
+  "preflight_checks": 10,
+  "preflight_remote_model_calls": 0
+}
