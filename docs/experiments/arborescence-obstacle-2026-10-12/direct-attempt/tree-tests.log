@@ -1,0 +1,9 @@
+........................................................................ [ 32%]
+..........x............................................................. [ 64%]
+.......................s.s.............................................. [ 97%]
+......                                                                   [100%]
+=========================== short test summary info ===========================
+SKIPPED [1] networkx\algorithms\tree\tests\test_mst.py:578: need --runslow option to run
+SKIPPED [1] networkx\algorithms\tree\tests\test_mst.py:704: need --runslow option to run
+XFAIL networkx/algorithms/tree/tests/test_distance_measures.py::TestCenter::test_center_non_tree[G8] - no check for self-loops
+219 passed, 2 skipped, 1 xfailed in 8.82s

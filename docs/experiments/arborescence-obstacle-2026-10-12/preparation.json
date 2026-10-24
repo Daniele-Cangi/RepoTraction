@@ -1,0 +1,76 @@
+{
+  "stage": "prepared_before_dispatch_or_donor_search",
+  "repository_base_commit": "3729aa04293bb36fbdd38091cbea15aad66cb9b7",
+  "native_target_commit": "6da4704cbf32ba6f50f6d9c46cc0a071e3a87985",
+  "canonical_sha256_rule": "UTF-8 file bytes with CRLF replaced by LF; no other normalization",
+  "inputs_sha256": {
+    "demand.json": "f4df7ad3bbd4d6e44bb47b77e551cc46f091750b009057601b98b6bcc2cead28",
+    "selection.json": "ccc85e264629198997a3a0f7f5c89109f69e13ba38cb960373fc51f680954fdc",
+    "acceptance-before-source-search.md": "1c2660eee555008aefeefb47e0cdf177a2e7e3d254cba18d129f4ccf727d6819",
+    "common-agent.md": "838e08cf6ac365513b705576f5ce5d9d0e28c65ed3cbb2f7045cc46aa655e307",
+    "native_acceptance.py": "5d05e55dbdb810412d1837ad6f5cad6cacf8bca5f00b3218102e677fd9fdc4b0",
+    "measure_native.py": "f12a032817cfbce7f38966bc40d249926c654dc83452b5b7e4e108ae24f0f437",
+    "baseline.json": "4490125a50f6ea3dd0374bcc9bf44745dc8889d057c5152419b1e10bd3146cee",
+    "setup-failure.log": "9650b241ebc9b1e8e0ba33546d494e7e280f7fb3079cf72856608b2b132e5fb1",
+    "native-tests.log": "7ba3c4309b4b8e6006ac2d9306669e2b3879f1d6a51575856bc02160e9283bd3",
+    "native-acceptance.log": "63af207bba15501f8183306c5d191fc1ebd42c6332440db006dfe000685d12f4"
+  },
+  "native_branchings_sha256": "71109226c72d3aad037d5c2e5190d407d900f09e2bbaaf2189a0d97ea9a9acb0",
+  "native_environment": {
+    "python": "3.13.5 (tags/v3.13.5:6cb20a2, Jun 11 2025, 16:15:46) [MSC v.1943 64 bit (AMD64)]",
+    "platform": "Windows-11-10.0.26300-SP0",
+    "imported_module": "C:\\Users\\dacan\\Documents\\Codex\\2026-08-17\\vo\\outputs\\github-pulse\\data\\arborescence-obstacle-2026-10-12\\target\\networkx\\__init__.py",
+    "packages": {
+      "networkx": "3.7.1rc0.dev0",
+      "pytest": "8.4.2",
+      "numpy": "2.3.3",
+      "scipy": "1.17.1",
+      "pandas": "2.3.3",
+      "setuptools": "80.9.0"
+    },
+    "setup": "isolated venv --system-site-packages; pip install --no-index --no-deps --no-build-isolation -e pinned target"
+  },
+  "completed_native_checks": {
+    "tree_tests": {
+      "passed": 219,
+      "skipped": 2,
+      "xfailed": 1,
+      "seconds": 8.63,
+      "command": "python -m pytest -q networkx/algorithms/tree/tests -rs",
+      "cwd": "pinned native target",
+      "plugin_autoload_disabled": true
+    },
+    "independent_acceptance": {
+      "test_methods": 7,
+      "seeded_subcases": 12,
+      "result": "passed",
+      "command": "python docs/experiments/arborescence-obstacle-2026-10-12/native_acceptance.py",
+      "explicit_pythonpath": "pinned native target"
+    }
+  },
+  "observed_benchmark_scope": "Single original observation per size. Original observations preceded the editable-metadata setup fix. New paired original/candidate measurements must use one corrected environment. Large-case weights have not been independently enumerated.",
+  "fixture_change_before_freeze": "measure_native.py adds an optional seed argument to the original single-seed observation script; the default retains seed 20261012 and input order. The acceptance construction errors were corrected before any candidate or source search.",
+  "next_attempt_proposal": {
+    "isolated_agents": 1,
+    "wall_minutes_from_dispatch": 15,
+    "retries": 0,
+    "resumes": 0,
+    "paid_api_calls": 0,
+    "authorization": "pending new explicit approval; prior pytest #8482 allowance was scoped to the completed attempt"
+  },
+  "execution_so_far": {
+    "new_agents": 0,
+    "donor_searches": 0,
+    "paid_api_calls": 0,
+    "candidate_patches": 0,
+    "observed_fresh_agent_block": false
+  },
+  "limitations": [
+    "Synthetic inputs, no original user matrix or latency target",
+    "Purposive issue selection, not random",
+    "All acceptance controls and assessment seeds are disclosed to the ordinary agent",
+    "Known direct fork and open PR #2117 unmeasured on current pin",
+    "Native checks currently Windows only; preparation is not implementation merge readiness",
+    "A bounded direct failure would not establish that an ordinary agent could never solve the task"
+  ]
+}

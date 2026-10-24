@@ -1,0 +1,214 @@
+{
+  "issue": {
+    "url": "https://github.com/networkx/networkx/issues/3825",
+    "number": 3825,
+    "title": "ENH: New algorithm for nx.minimum_spanning_arborescence()",
+    "body": "I'm having trouble getting the cost of the minimum spanning arborescence fast enough for large matrices in my application. Inside https://networkx.github.io/documentation/stable/_modules/networkx/algorithms/tree/branchings.html , there is a TODO that references a Tarjan paper where an algorithm with better time-complexity is described. When will this actually be implemented?",
+    "state": "open",
+    "labels": [
+      "type: Enhancements",
+      "Needs PR"
+    ],
+    "created_at": "2020-02-20T15:33:34Z",
+    "updated_at": "2021-03-11T20:17:28Z"
+  },
+  "comments": [
+    {
+      "url": "https://github.com/networkx/networkx/issues/3825#issuecomment-589138197",
+      "author": "dschult",
+      "body": "As soon as someone writes it. ;}     Maybe you?",
+      "created_at": "2020-02-20T15:38:44Z",
+      "updated_at": "2020-02-20T15:38:44Z"
+    },
+    {
+      "url": "https://github.com/networkx/networkx/issues/3825#issuecomment-633944111",
+      "author": "parth-verma",
+      "body": "Adding to this, many of the algorithms (like modularity calculations, lfr benchmark generation) run very slow when dealing with large networks (around 1M nodes). Is there a possibility of releasing these are C interfaced codes so that they speed up?",
+      "created_at": "2020-05-26T10:31:09Z",
+      "updated_at": "2020-05-26T10:31:09Z"
+    },
+    {
+      "url": "https://github.com/networkx/networkx/issues/3825#issuecomment-635524393",
+      "author": "dschult",
+      "body": "Typically, getting the right algorithm is most important for speeding up code. We have tried C-interfaced code a few times (not with this part of the code) and the speedup was minimal. But we are hoping some changes to NetworkX over the next year might allow this type of interface.\r\n\r\nMore immediately and perhaps importantly, you can try Cython and Numba to speed up python code. Essentially they are converting to C without the headache of doing so.",
+      "created_at": "2020-05-28T18:37:27Z",
+      "updated_at": "2020-05-28T18:37:27Z"
+    },
+    {
+      "url": "https://github.com/networkx/networkx/issues/3825#issuecomment-635525238",
+      "author": "dschult",
+      "body": "Let me emphasize that this Issue requests a new, faster ALGORITHM to be implemented. Any potential fixers, please don't get distracted by the discussion about conversion to C.\r\n\r\nThe algorithm by Tarjan is what we'd like to have implemented.",
+      "created_at": "2020-05-28T18:39:06Z",
+      "updated_at": "2020-05-28T18:39:06Z"
+    },
+    {
+      "url": "https://github.com/networkx/networkx/issues/3825#issuecomment-670997457",
+      "author": "CyberMobius",
+      "body": "If it's not too much to ask, I think I could give implementing the Tarjan algorithm a shot.",
+      "created_at": "2020-08-09T02:39:08Z",
+      "updated_at": "2020-08-09T02:39:08Z"
+    },
+    {
+      "url": "https://github.com/networkx/networkx/issues/3825#issuecomment-670997994",
+      "author": "sgreysond",
+      "body": "> If it's not too much to ask, I think I could give implementing the Tarjan algorithm a shot.\r\n\r\nThat would be downright epic.",
+      "created_at": "2020-08-09T02:47:23Z",
+      "updated_at": "2020-08-09T02:47:23Z"
+    },
+    {
+      "url": "https://github.com/networkx/networkx/issues/3825#issuecomment-723077950",
+      "author": "jiedxu",
+      "body": "I have implemented max (min) spanning arborescence and rank spanning arborescences based on [camerini1980ranking] for my master thesis. It seems that part for max (min) spanning arborescence is based on [tarjan1977finding], which I think it's the Tarjan algorithm you are referring.\r\n\r\nCurrently, my implementation is a bit ugly and it doesn't outperform the current on in `networkx`, but I can improve. @CyberMobius How is it going with your implementation? \r\n\r\nFor rank spanning arborescences, I opened another issue #4322.\r\n\r\n---\r\n\r\n- [camerini1980ranking] Camerini, P. M., Fratta, L., & Maffioli, F. (1980). Ranking arborescences in O (Km log n) time. European Journal of Operational Research, 4(4), 235-242.\r\n- [tarjan1977finding] Tarjan, R. E. (1977). Finding optimum branchings. Networks, 7(1), 25-35.",
+      "created_at": "2020-11-06T13:22:22Z",
+      "updated_at": "2020-11-06T13:49:09Z"
+    },
+    {
+      "url": "https://github.com/networkx/networkx/issues/3825#issuecomment-723099556",
+      "author": "CyberMobius",
+      "body": "@edxu96 thanks so much for offering to help. I was making good progress on it until I ran into the section about creating a modified version of a \"compressed tree\" data structure. I was able to find a paper with a definition for the data structure the paper was talking about but now I'm unclear on how to actually use it in the context of the problem. I'm confident that if I could just work through this part of it I could finish the rest of it relatively smoothly. The good news is that I'm hopeful that this implementation will be performant.\r\n\r\nI'll clean up what I have, push it up, and ask you more detailed questions about it once I have that up. Thanks again!",
+      "created_at": "2020-11-06T14:08:38Z",
+      "updated_at": "2020-11-06T14:08:38Z"
+    },
+    {
+      "url": "https://github.com/networkx/networkx/issues/3825#issuecomment-723479506",
+      "author": "jiedxu",
+      "body": "> I'm unclear on how to actually use it in the context of the problem. I'm confident that if I could just work through this part of it I could finish the rest of it relatively smoothly.\r\n\r\nI read [gabow1986efficient] mentioned in To-Do today. Compared to [camerini1980ranking], they describe the same algorithm in an efficient but implicit way. I understand what they are talking about, especially about \"compressed tree\". \r\n\r\nLet me fit that data structure in the context.\r\n\r\n---\r\n\r\n- Gabow, H. N., Galil, Z., Spencer, T., & Tarjan, R. E. (1986). Efficient algorithms for finding minimum spanning trees in undirected and directed graphs. Combinatorica, 6(2), 109-122.",
+      "created_at": "2020-11-07T18:36:40Z",
+      "updated_at": "2020-11-07T18:37:39Z"
+    },
+    {
+      "url": "https://github.com/networkx/networkx/issues/3825#issuecomment-723488177",
+      "author": "CyberMobius",
+      "body": "@edxu96 I've pushed up my code <https://github.com/CyberMobius/networkx/tree/spanning_arborescence> I only have a couple relatively small questions about them at this point. \r\n\r\nThe paper doesn't say anything about how nodes are added to the Compressed Tree, I'm assuming every time we encounter a node in the growth path, we add it to the compressed tree with initial value 0, but I'm not sure. \r\nSecondly, when contracting nodes in a loop, do we need to create a new node to become the parent of all the contracted nodes or is it good enough to pick an arbitrary node to become the parent of the set containing all of the other contracted nodes? \r\n\r\nAnd lastly, I never found an explicit definition for the specific compressed tree datatype they used in this paper, I mostly assumed the details from [Tarjan1979Applications]. Most variants I saw didn't support the `change_value(delta, a): add delta to the value of all elements in set A` operation. I'd appreciate a good source on this just to be sure of all the details.\r\n\r\n---\r\n* Robert Endre Tarjan. 1979. Applications of Path Compression on Balanced Trees. J. ACM 26, 4 (Oct. 1979), 690–715. DOI:https://doi.org/10.1145/322154.322161",
+      "created_at": "2020-11-07T20:00:51Z",
+      "updated_at": "2020-11-07T20:01:32Z"
+    },
+    {
+      "url": "https://github.com/networkx/networkx/issues/3825#issuecomment-723650283",
+      "author": "jiedxu",
+      "body": "~I need another 1-2 days to compare your code and understand [gabow1986efficient] completely. Will keep updating answers to your questions. Then~ we probably need a call to see how to proceed. @CyberMobius\r\n\r\n> how nodes are added to the Compressed Tree, I'm assuming every time we encounter a node in the growth path, we add it to the compressed tree with initial value 0, but I'm not sure.\r\n\r\n~My guess at the initial value is min value of its in-edges (directed into this vertex).~ From the paper: the value of an original vertex is the sum of the changes made to the cost of each of its incoming edges. So I agree with you it's 0 initially.\r\n\r\n> Secondly, when contracting nodes in a loop, do we need to create a new node to become the parent of all the contracted nodes or is it good enough to pick an arbitrary node to become the parent of the set containing all of the other contracted nodes?\r\n\r\nFrom the paper page 115: \"the name of a set is the corresponding vertex in the contracted graph\". The node is any one out of those contracted node, so you don't need a new node.\r\n\r\n> Most variants I saw didn't support the `change_value(delta, a): add delta to the value of all elements in set A` operation. I'd appreciate a good source on this just to be sure of all the details.\r\n\r\nIt corresponds to a part in [camerini1980ranking], which is a simple operation, ~but I am not sure about `delta` right now~. Probably you don't need to focus too much on formalisation.\r\n",
+      "created_at": "2020-11-08T18:50:08Z",
+      "updated_at": "2020-11-09T15:21:35Z"
+    },
+    {
+      "url": "https://github.com/networkx/networkx/issues/3825#issuecomment-741701976",
+      "author": "jiedxu",
+      "body": "@CyberMobius I have submitted my thesis. Got time for this.\r\n\r\nHere are 5 steps for __max__ spanning arborescence (first phase) of an example in [camerini1980ranking].\r\n\r\nI tried to use data structures in [gabow1986efficient], because they are not used in [camerini1980ranking]. Also, I have checked multiple times, but it seems that operations are the same as __min__ spanning arborescence.\r\n\r\nNote \\omega is weighting function of the original graph, which is in the right of the first line.\r\n\r\n![Screenshot 2020-12-09 at 11 57 29](https://user-images.githubusercontent.com/19307850/101621343-ea074000-3a15-11eb-9687-48afe92fbf39.png)\r\n",
+      "created_at": "2020-12-09T11:07:58Z",
+      "updated_at": "2020-12-09T11:11:52Z"
+    },
+    {
+      "url": "https://github.com/networkx/networkx/issues/3825#issuecomment-742102847",
+      "author": "CyberMobius",
+      "body": "@edxu96 Congratulations on submitting your thesis! \r\n\r\nI looked through your answers and through the paper a little more and I feel good about continuing on the branch. I probably need to rewrite the compressed tree code to make it a little easier to use. I'll see if I can make some time later this week to finish out my first pass at the algorithm. Will keep you updated.",
+      "created_at": "2020-12-09T22:27:01Z",
+      "updated_at": "2020-12-09T22:27:01Z"
+    },
+    {
+      "url": "https://github.com/networkx/networkx/issues/3825#issuecomment-789155907",
+      "author": "sgreysond",
+      "body": "@CyberMobius @edxu96 Is anything still happening with this branch?",
+      "created_at": "2021-03-02T19:27:57Z",
+      "updated_at": "2021-03-02T19:27:57Z"
+    },
+    {
+      "url": "https://github.com/networkx/networkx/issues/3825#issuecomment-789301890",
+      "author": "CyberMobius",
+      "body": "@sgreysond So here's where it stands on my end. \r\n\r\nThe algorithm to find the minimum spanning arborescence can be broken down into two parts. A contraction step, and an expansion step. The paper from Gabow et. al describes an improvement on the contraction step from Edmond's algorithm. This part I've mostly completed.\r\n\r\nFrom here, I would need to implement the expanding step from Edmond's algorithm. The only problem I have is that the paper for Edmond's algorithm uses different terminologies for the same kind of structure making it hard for me to understand how to fit them together. In order to complete the work on this, I would need to go through both papers and sort it all out sometime.\r\n\r\nI'm open to having someone take over the branch/PR and explaining what I've managed to learn from the papers, if it would help the issue resolve sooner. \r\nIf not, I'll probably continue at an on and off pace on this branch until it's completed sometime in the future.",
+      "created_at": "2021-03-02T23:36:36Z",
+      "updated_at": "2021-03-02T23:36:36Z"
+    },
+    {
+      "url": "https://github.com/networkx/networkx/issues/3825#issuecomment-797020751",
+      "author": "jiedxu",
+      "body": "@sgreysond Will have a look at @CyberMobius's fork. Should make it before the commencement of my job in April.",
+      "created_at": "2021-03-11T20:17:28Z",
+      "updated_at": "2021-03-11T20:17:28Z"
+    }
+  ],
+  "public_direct_work": [
+    {
+      "url": "https://github.com/CyberMobius/networkx/tree/spanning_arborescence",
+      "revision": "bee3058f88b26364af1a1e22d81e2a909fede77c",
+      "description": "Existing work linked in this same issue, not an external donor. The GGST class has contraction work and an unfinished expansion/output path; source inspected, not executed or benchmarked.",
+      "source_url": "https://github.com/CyberMobius/networkx/blob/bee3058f88b26364af1a1e22d81e2a909fede77c/networkx/algorithms/tree/branchings.py"
+    },
+    {
+      "url": "https://github.com/networkx/networkx/pull/2117",
+      "revision": "9786a132a31d82e0c6d08c60cf8873d30c4b6453",
+      "repository": "Loveuse/networkx",
+      "ref": "refactoring-branchings",
+      "title": " Branchings.py - Removed graphs and branchings structures in favor of an unique for unrolling the circuits",
+      "body": "Removed the structures that contain the graphs and branchings of all levels and inserted an unique structure, called unroll, that stores the edges involved in a circuits for all levels, in order to rebuild the graph at every level in the second phase of the algorithm.\n",
+      "state": "open",
+      "comments": [
+        {
+          "url": "https://github.com/networkx/networkx/pull/2117#issuecomment-216705745",
+          "author": "chebee7i",
+          "body": "On a quick first look, it seems that you are basing this off an older version of NetworkX.  The reason I say this is that `edge_subgraph` was removed from the current module and it looks like you've added it back in. It also shows you adding back functions like `is_tree` and `is_arborescence`.  These should no longer be in the `branchings.py` module since we have them available in the `recognition.py` module.  Could you confirm whether or not my initial synopsis is correct?\n"
+        },
+        {
+          "url": "https://github.com/networkx/networkx/pull/2117#issuecomment-216706105",
+          "author": "chebee7i",
+          "body": "Current version is here:  https://github.com/networkx/networkx/blob/master/networkx/algorithms/tree/branchings.py\n"
+        },
+        {
+          "url": "https://github.com/networkx/networkx/pull/2117#issuecomment-216817541",
+          "author": "Loveuse",
+          "body": "Thank you for giving it a look! I can confirm your synopsis. I am going to fix it.\n"
+        },
+        {
+          "url": "https://github.com/networkx/networkx/pull/2117#issuecomment-216871415",
+          "author": "chebee7i",
+          "body": "OK looks much more how I expected. This is really nice to see, and something we needed but never had time to do. A couple quick questions for you:\n\n1) While implementing this, and also for pedagogical reasons, it can be useful to see the intermediate structures. Are we still able to build them at each iteration? If not, could we add a new method that builds them for you?\n\n2) When I originally implemented this, I had also considered the more general weighted matroid intersection problem. Have you looked at this problem from this angle, and if so, do you think it might eventually be worthwhile to implement it? (Not for this pull request of course.  There's also a number of other speed improvements in the references at the top of the module that we could look into implementing one day.)\n"
+        },
+        {
+          "url": "https://github.com/networkx/networkx/pull/2117#issuecomment-216871657",
+          "author": "chebee7i",
+          "body": "I need to give this a better look when I get off work today. Look for a merge later tonight.\n"
+        },
+        {
+          "url": "https://github.com/networkx/networkx/pull/2117#issuecomment-216984593",
+          "author": "Loveuse",
+          "body": "I am glad for you words @chebee7i. To answer your questions:\n1) I didn't think about it, because for my purposes I only need of less memory usage. We would still able to do that by storing the results of the first phase of the algorithm (graph and branching) and from them we could build the graphs and branchings of each iteration, in the same way of second phase of the algorithm. I don't know how to proceed on this. Would it be better have different methods for the two versions (with intermediate results and not)? In this case, I would suggest to add a method in order to rebuilding the intermediate results. Or have you got other ideas? \n2) I have never looked at this problem! But I am going to take a look on it in the next days, in any case we can contact each other for discussing about it!\n\nI want to thank @jfinkels about the comments. I am going to follow them.\n"
+        },
+        {
+          "url": "https://github.com/networkx/networkx/pull/2117#issuecomment-217071100",
+          "author": "chebee7i",
+          "body": "This looks good to me.  As to point 1) above, the memory usage is a definite improvement, so we need to keep that. It might make sense to refactor the find_optimium() method a bit more. For example, should the stuff from \n\n`# (I3) Branch construction.`\n\nonward be moved into its own method?  This would separate the first phase from the second phase of the algorithm.  Then, as you suggested, the first part of the algorithm could take an extra parameter that instructs whether or not we should keep the information to build the intermediate structures.\n\nI'll leave it up to you whether this should be implemented at all, and if so, precisely how to implement it. At this point, you are much closer to the code than I am now. There's more than a bit of effort involved in getting one's state of mind back into Edmond's. Reading the paper, seeing how the algorithm progresses, and comparing to the pictures in the paper was my main motivation for keeping the intermediate structures. My goal was to imagine how easy/difficult it would be for someone to come back to this code many years from now after not having touched/read it...which is my current situation :).  So factor that into your decision. Either decision is fine, since the original code will always be available in git anyway. Honestly, this code/algorithm is a bit esoteric in the sense that very few people have needed it...certainly the two of us, and probably only a handful of other people. Let us know what you decide.\n"
+        },
+        {
+          "url": "https://github.com/networkx/networkx/pull/2117#issuecomment-217118295",
+          "author": "Loveuse",
+          "body": "I totally agree on you considerations! In the same way of the find_optimium() method, the methods that invoke it (maximum_spanning_arborescence, etc.) should have the same parameter to indicate whether or not we should keep the information to build the intermediate structures.\nFurthermore I take this opportunity to thank you for having implemented it, and also for giving me the freedom of decision on it.\nAnyway I am going to implement this modifications.\n"
+        },
+        {
+          "url": "https://github.com/networkx/networkx/pull/2117#issuecomment-218347323",
+          "author": "chebee7i",
+          "body": "Everything going well on this? No prob if things are busy.\n"
+        },
+        {
+          "url": "https://github.com/networkx/networkx/pull/2117#issuecomment-218408936",
+          "author": "Loveuse",
+          "body": "I am sorry, I am very busy recently. However I was thinking about how to implement it, and doing it as we said, we will spend cpu time to rebuild the structures in the second phase and more memory usage due the necessary structures for this purpose . So I am thinking to mix the two versions and making them coexist using the parameter. What do you think about it?\nFurthermore, I'm evaluating the possibility of implementing the algorithm from the paper \"The k best spanning arborescences of a network\" of P. M. Camerini, L. Fratta, F. Maffioli.\n"
+        },
+        {
+          "url": "https://github.com/networkx/networkx/pull/2117#issuecomment-219532572",
+          "author": "chebee7i",
+          "body": "Yeah that sounds good. The _k_-best spanning arborescences sounds neat---definitely a separate pull request. \n"
+        },
+        {
+          "url": "https://github.com/networkx/networkx/pull/2117#issuecomment-219681822",
+          "author": "Loveuse",
+          "body": "Ok, I am going to push the code for this pull request soon.\nIn regards to my work, I have to implement only the first algorithm of the k-best spanning arborescence (best), in order to retrieve the best spanning arborescence given/without a root or the best branching. I don't know if I have enough time to implement it entirely. \n"
+        }
+      ],
+      "assessment": "Related direct memory/unrolling proposal, not a selected donor. Old open PR with substantial historical drift. Its runtime and correctness on current NetworkX are unmeasured; do not treat the current implementation as superior to it or silently exclude it."
+    }
+  ],
+  "source_searches": 0,
+  "paid_ai_calls": 0,
+  "new_development_agents": 0,
+  "agent_currently_blocked": false,
+  "reported_human_block": "The public 2021 comment explicitly describes an unfinished contraction/expansion implementation. This is historical evidence, not proof a new development agent is blocked."
+}

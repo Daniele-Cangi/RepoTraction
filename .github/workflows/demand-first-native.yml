@@ -6,6 +6,7 @@ on:
       - 'docs/experiments/demand-first-target-2026-10-11/**'
       - 'docs/experiments/recursion-direct-attempt-2026-10-12/**'
       - 'docs/experiments/technical-obstacle-selection-2026-10-12/**'
+      - 'docs/experiments/arborescence-obstacle-2026-10-12/**'
       - '.github/workflows/demand-first-native.yml'
   workflow_dispatch:
 
@@ -13,6 +14,112 @@ permissions:
   contents: read
 
 jobs:
+  networkx-arborescence:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: networkx/networkx
+          ref: 6da4704cbf32ba6f50f6d9c46cc0a071e3a87985
+          path: networkx-target
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13.5'
+      - name: Install native test dependencies
+        run: >-
+          python -m pip install --only-binary=:all:
+          setuptools==80.9.0 pytest==8.4.2 numpy==2.3.3 scipy==1.17.1 pandas==2.3.3
+      - name: Install the pinned native package metadata
+        run: python -m pip install --no-deps --no-build-isolation -e ./networkx-target
+      - name: Replay the frozen native candidate and regressions
+        shell: python {0}
+        run: |
+          import hashlib, json, os, statistics, subprocess, sys, time
+          from pathlib import Path
+
+          repo = Path.cwd()
+          target = repo / 'networkx-target'
+          study = repo / 'docs/experiments/arborescence-obstacle-2026-10-12'
+          output = Path(os.environ['RUNNER_TEMP']) / 'networkx-arborescence-results'
+          output.mkdir(parents=True, exist_ok=True)
+          canonical = lambda p: p.read_bytes().replace(b'\r\n', b'\n')
+          sha = lambda b: hashlib.sha256(b).hexdigest()
+          preparation = json.loads((study / 'preparation.json').read_text())
+          frozen = json.loads((study / 'direct-attempt/freeze.json').read_text())
+          replay = json.loads((study / 'candidate-replay.json').read_text())
+          revision = subprocess.check_output(['git', '-C', str(target), 'rev-parse', 'HEAD'], text=True).strip()
+          assert revision == preparation['native_target_commit'] == frozen['baseline_pin']
+          original = canonical(target / 'networkx/algorithms/tree/branchings.py')
+          assert sha(original) == preparation['native_branchings_sha256']
+          patch = output / 'candidate.patch'
+          patch.write_bytes(canonical(study / 'direct-attempt/complete.patch'))
+          assert sha(patch.read_bytes()) == replay['patch_canonical_sha256']
+          env = dict(os.environ, PYTHONPATH=str(target), PYTEST_DISABLE_PLUGIN_AUTOLOAD='1')
+          records = dict(target_pin=revision, python=sys.version, observations=[], summaries=[])
+
+          def observe(label, arguments, timeout):
+              command = [sys.executable, *arguments]
+              start = time.perf_counter()
+              try:
+                  done = subprocess.run(command, cwd=target, env=env, capture_output=True, timeout=timeout)
+                  code, data, expired = done.returncode, done.stdout + done.stderr, False
+              except subprocess.TimeoutExpired as error:
+                  code, data, expired = None, (error.stdout or b'') + (error.stderr or b''), True
+              row = dict(label=label, command=command, timeout_seconds=timeout,
+                         exit_code=code, timed_out=expired, process_wall_seconds=time.perf_counter()-start,
+                         output=data.decode('utf-8', errors='replace'))
+              records['observations'].append(row)
+              (output / 'assessment.json').write_text(json.dumps(records, indent=2)+'\n', encoding='utf-8')
+              print(label, code, expired, round(row['process_wall_seconds'], 3), flush=True)
+              assert not expired and code == 0, row
+              return row
+
+          observe('original-tree', ['-m', 'pytest', '-q', 'networkx/algorithms/tree/tests', '-ra'], 120)
+          subprocess.run(['git', '-C', str(target), 'apply', str(patch)], check=True)
+          module = target / 'networkx/algorithms/tree/branchings.py'
+          candidate = canonical(module)
+          assert sha(candidate) == replay['files_canonical_sha256']['networkx/algorithms/tree/branchings.py']
+          assert sha(canonical(target / 'networkx/algorithms/tree/tests/test_branchings_integer.py')) == replay['files_canonical_sha256']['networkx/algorithms/tree/tests/test_branchings_integer.py']
+          observe('candidate-independent-oracle', [str(study / 'native_acceptance.py')], 30)
+          observe('candidate-tree', ['-m', 'pytest', '-q', 'networkx/algorithms/tree/tests', '-ra'], 120)
+          try:
+              for n, seed in ((50, 20261012), (100, 20261012), (200, 20261012), (75, 20261013), (150, 20261013)):
+                  values = {'original': [], 'candidate': []}
+                  for trial in range(1, 4):
+                      for mode, source in (('original', original), ('candidate', candidate)):
+                          module.write_bytes(source)
+                          row = observe(f'{mode}-{n}-{seed}-{trial}', [str(study / 'measure_native.py'), str(n), str(seed)], 30)
+                          measured = json.loads(row['output'])
+                          assert Path(measured['networkx_module']).resolve() == (target / 'networkx/__init__.py').resolve()
+                          assert measured['is_spanning_arborescence'] and measured['input_unchanged']
+                          assert measured['answer_edges'] == n-1
+                          values[mode].append(measured)
+                  assert len({s['graph_sha256'] for rows in values.values() for s in rows}) == 1
+                  assert len({s['weight'] for rows in values.values() for s in rows}) == 1
+                  before = statistics.median(s['algorithm_wall_seconds'] for s in values['original'])
+                  after = statistics.median(s['algorithm_wall_seconds'] for s in values['candidate'])
+                  records['summaries'].append(dict(nodes=n, seed=seed, original_median_seconds=before,
+                                                   candidate_median_seconds=after, speedup=before/after))
+                  # The frozen performance gate is local. Hosted timing is retained
+                  # as platform evidence, with exact answer equality required.
+          finally:
+              module.write_bytes(candidate)
+              (output / 'assessment.json').write_text(json.dumps(records, indent=2)+'\n', encoding='utf-8')
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: networkx-arborescence-${{ matrix.os }}
+          path: ${{ runner.temp }}/networkx-arborescence-results
+          if-no-files-found: error
   pytest-recursion:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 10
